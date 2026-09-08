@@ -1,0 +1,74 @@
+{
+  "schema": "ascii-kinesis.v2-receipt",
+  "entry": "v2-video-motion-007-black-pirate-compression-release-repair",
+  "lane": "video-motion",
+  "revises": "experiments/ascii-kinesis/v2-video-motion-001-black-pirate-compression-release/",
+  "negative_fixture": "experiments/ascii-kinesis/v2-video-motion-001-black-pirate-compression-release/",
+  "negative_fixture_status": "REVISE_REQUIRED_LOW_EFFORT",
+  "source": {
+    "title": "He'll walk the plank.webm",
+    "page_url": "https://commons.wikimedia.org/wiki/File:He%27ll_walk_the_plank.webm",
+    "origin": "Extract from The Black Pirate (1926)",
+    "rights_status": "PUBLIC_DOMAIN_US",
+    "rights_note": "Wikimedia Commons marks the work public domain in the United States (PD-US-expired). Source frames/video are evidence only and are not embedded or redistributed in this specimen.",
+    "source_sha1": "249a58eaf8ea1c3fe2c4232e23184f757a1ad80c",
+    "source_bytes": 1281353,
+    "source_duration_s": 19.017,
+    "source_dimensions": [640, 480],
+    "selected_segment_s": [15.0, 18.75],
+    "whole_action_inspection": "Prior durable Video Motion Pass 010 inspected the coherent 15.000–18.750 s action as pixels before fine timing selection; this repair reuses that source/evidence family and does not claim a fresh source inspection."
+  },
+  "rights_status": "PUBLIC_DOMAIN_US",
+  "observed_source_times_s": {"K0":15.0,"K1":16.0,"K2":17.0,"K3":17.75,"K4":17.917,"K5":18.083,"K6":18.25,"K7":18.5,"K8":18.75},
+  "compile_timing": {
+    "K0":{"timing_class":"FOURS","provenance":"INFERRED","hold_frames":8},
+    "K1":{"timing_class":"FOURS","provenance":"INFERRED","hold_frames":8},
+    "K2":{"timing_class":"TWOS","provenance":"INFERRED","hold_frames":4},
+    "K3":{"timing_class":"TWOS","provenance":"INFERRED","hold_frames":3},
+    "K4":{"timing_class":"ONES","provenance":"INFERRED","hold_frames":1},
+    "K5":{"timing_class":"ONES","provenance":"INFERRED","hold_frames":1},
+    "K6":{"timing_class":"TWOS","provenance":"INFERRED","hold_frames":2},
+    "K7":{"timing_class":"TWOS","provenance":"INFERRED","hold_frames":4},
+    "K8":{"timing_class":"FOURS","provenance":"INFERRED","hold_frames":12}
+  },
+  "media_sha256": "070d18a9680448e30fa059f9f655747c9be6319bb9d69f2b85fce5f82ab595dd",
+  "media_bytes": 37784,
+  "media_frame_count": 108,
+  "media_decode_verified": true,
+  "media_source": "abstract_ascii_rig_only",
+  "repo_path": "experiments/ascii-kinesis/v2-video-motion-007-black-pirate-compression-release-repair/",
+  "repo_readback_verified": false,
+  "contract_test": {
+    "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "script_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "status": "SUCCESSOR_SCOPE_PASS",
+    "result": {"entries_checked":["v2-video-motion-007-black-pirate-compression-release-repair"],"ok":true},
+    "boundary": "Exact repository test logic executed against a successor-only mirror because Standard Chat has no full repository checkout; full-repo-wide regression is not claimed."
+  },
+  "quality_gates": {
+    "tango": {
+      "status": "PASS",
+      "iterations": [
+        {"iteration":1,"render_sha256":"d5b7850b73dbdd8da7e67f7afc7cb344484ed82b3450229ebbf9d6cf9fa2313b","verdict":"REVISE_REQUIRED","highest_value_visible_defect":"Preparation read as mostly translating/sliding mannequin geometry; internal joint intersections also polluted silhouette clarity.","correction":"Separate actor render layers so joints overwrite their own bones but only cross-actor overlap becomes X; deepen K2/K3 into a crooked asymmetrical spring with head/chest trailing pelvis and unequal arm/knee compression."},
+        {"iteration":2,"render_sha256":"c182dd542daaee6446fb2f7d055078bfa436818c91de4fa9be4ef2a3fc0f5de4","verdict":"REVISE_REQUIRED","highest_value_visible_defect":"The recovery counter-arc crossed Actor A at torso/head height and could visually imply an unearned hand contact.","correction":"Raise K7/K8 trailing-arm arc through open negative space above the overlap zone; keep B root moving left so recovery pays debt without reverse recoil or new contact."},
+        {"iteration":3,"render_sha256":"6791192b7f30d1cac04137a9718f688d377b82f50e0cdf2562e9969eba98579c","verdict":"REVISE_REQUIRED","highest_value_visible_defect":"Actor A still read as a generic symmetric mannequin, weakening the whole two-body performance even though A root stability was correct.","correction":"Author asymmetrical A limb/COM silhouettes across K0-K8 while holding A root comparatively fixed; label the upper-body reaction INFERRED and explicitly non-impact."},
+        {"iteration":4,"render_sha256":"070d18a9680448e30fa059f9f655747c9be6319bb9d69f2b85fce5f82ab595dd","verdict":"PASS","visible_basis":"Ordered 6 fps render sheet of the actual compiled MP4 shows distinct asymmetrical prep, crooked compression, explosive measured-time release, crossing/overlap, overshoot, high trailing-limb counter-arc, and unresolved recovery debt. Root does not reverse to fake recoil; no new contact/support owner is invented."}
+      ]
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "verdict": {
+        "actual_animation_reviewed_after_tango_pass": true,
+        "TASTE": "PASS — phase silhouettes are intentionally unequal and the high counter-arc creates a memorable wake rather than a generic reset.",
+        "FUNCTION": "PASS — observed source times remain separate from inferred compile cadence; unresolved support/contact facts stay unresolved; motion is fully carried by abstract ASCII keys.",
+        "CONTEMPT": "PASS — predecessor habits rejected: no fake long constraint axis, no equal-spacing tween soup, no symmetric mannequin A, no reverse-recoil/idle reset.",
+        "specificity": "B pelvis/upper-body disagreement at K3, K4 release cut, K6 crossing, K7 high lag arc, and K8 recovery debt are individually readable.",
+        "embodied_force_intent": "PASS — compression spends into leftward commitment and distal lag pays the cost after root crossing.",
+        "economic_not_cheap": "PASS — nine decisive keys plus authored bridge arcs are sufficient; extra frames connect rather than perform.",
+        "worth_drew_attention": true
+      }
+    }
+  },
+  "status": "TANGO_PASS_QUEEN_PASS_MEDIA_DECODED_PENDING_REPO_READBACK_CHAT_DELIVERY",
+  "deterministic_rebuild": {"same_media_sha256_two_consecutive_builds":true,"sha256":"070d18a9680448e30fa059f9f655747c9be6319bb9d69f2b85fce5f82ab595dd"}
+}
