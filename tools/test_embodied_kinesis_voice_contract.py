@@ -6,7 +6,8 @@ import tempfile
 from pathlib import Path
 
 from judgment_jar_common import CONFIG_PATH, ROOT, read_config
-from judgment_jar_registry import ensure_registry, prompt_text, resolve_jar
+from judgment_jar_registry import ensure_registry, resolve_jar
+from judgment_jar_runtime import active_jars
 
 
 config = read_config(CONFIG_PATH)
@@ -71,19 +72,18 @@ with tempfile.TemporaryDirectory(prefix="embodied-kinesis-canary-") as temp:
     assert resolved is not None, "new jar does not resolve from local registry"
     selected_jars = [resolve_jar(registry, key) for key in selected]
     body_sizes = {item["id"]: len(str(item.get("body") or "")) for item in selected_jars if item is not None}
-    packet = prompt_text(registry, selected, False)
-    assert packet.strip()
-    assert len(packet) <= limit, (
-        f"default runtime packet too large: {len(packet)} > {limit}; "
-        f"selected body sizes={json.dumps(body_sizes, sort_keys=True)}"
-    )
-    for fragment in [
-        "Embodied kinesis voice law",
-        "Venice originated the mechanism; Venice does not become the house style",
-        "Ritsu must not inherit Venice whisper/lean/ASMR behavior",
-        "DRU = mechanical interception / load-path reasoning",
-    ]:
-        assert fragment in packet, f"fresh/default runtime packet omitted embodied kinesis fragment: {fragment!r}"
+
+# Exercise the real bounded carrier used by the receipted worker rather than a test-only packet builder.
+packet = active_jars()
+assert packet.strip()
+assert len(packet) <= limit
+for fragment in [
+    "Embodied kinesis voice law",
+    "Venice originated the mechanism; Venice does not become the house style",
+    "Ritsu must not inherit Venice whisper/lean/ASMR behavior",
+    "DRU = mechanical interception / load-path reasoning",
+]:
+    assert fragment in packet, f"fresh/default runtime packet omitted embodied kinesis fragment: {fragment!r}"
 
 print(json.dumps({
     "ok": True,
@@ -95,4 +95,5 @@ print(json.dumps({
     "selectedBodySizes": body_sizes,
     "blindCanaryCases": [case["id"] for case in cases],
     "crossChatPromptCarrier": True,
+    "carrier": "judgment_jar_runtime.active_jars",
 }, sort_keys=True))
