@@ -209,6 +209,7 @@ ARC: A finishes through former center; clear gap opens before clocks diverge.
 
 
 
+
                                                        o
                                                         ||
                                                           ||
@@ -234,6 +235,8 @@ C007-K8  PARTNER_LAG_CARRIER_RECOIL  | TWOS / INFERRED
 ROLE: post-release clocks diverge
 STATE: contact=NONE custody=NONE support_A=BOTH support_B=NONE root=LOCAL_SPLIT
 ARC: A recoils back/down while B continues outward/downward: opposite post-release arcs.
+
+
 
 
 
@@ -267,6 +270,9 @@ ARC: A overshoots forward instead of snapping idle; B reaches an authored ground
 
 
 
+
+
+
                                     @
                                     |
                                  +--------+-
@@ -292,6 +298,9 @@ ARC: A restacks from the overshoot but remains asymmetrically spent; B stays in 
 
 
 
+
+
+
                                  @
                                  |
                               +--------+
@@ -306,4 +315,5 @@ ARC: A restacks from the overshoot but remains asymmetrically spent; B stays in 
                              --            --                 -- --
                            L-                -R           --+-     -+-
 _______________________________________________________l________________r_____
+
 
