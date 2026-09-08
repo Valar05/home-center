@@ -13,6 +13,7 @@ causal_role=ready at original address
 
 
 
+
                     O
                     |
                    -+--
@@ -38,6 +39,7 @@ causal_role=load elastic debt into rear support
 
 
 
+
                     O
                     /
                    +-
@@ -57,6 +59,7 @@ causal_role=load elastic debt into rear support
 support/contact=LEFT_REAR_DOMINANT
 root/arc=root begins forward rise while task crosses body
 causal_role=convert coil into directional commitment
+
 
 
 
@@ -135,6 +138,7 @@ causal_role=spend translation into braking support
 
 
 
+
                              O
                              /
                             +-----r
@@ -155,6 +159,7 @@ causal_role=spend translation into braking support
 support/contact=RIGHT_DOMINANT
 root/arc=root nearly caught while head/shoulder travel continues
 causal_role=body consequence after release
+
 
 
 
@@ -184,6 +189,7 @@ causal_role=secondary lag, not reverse playback
 
 
 
+
                              O
                             /
                            +-
@@ -203,6 +209,7 @@ causal_role=secondary lag, not reverse playback
 support/contact=RIGHT_TO_BILATERAL
 root/arc=root retreats slightly while task folds inside support base
 causal_role=recoil with displaced balance
+
 
 
 
@@ -231,6 +238,7 @@ causal_role=earn recovery with a real plant
 
 
 
+
                          O
                          /
                         +
@@ -255,6 +263,7 @@ causal_role=hold the debt instead of resetting idle
 
 
 
+
                         O
                         /
                        +-
@@ -275,6 +284,7 @@ causal_role=hold the debt instead of resetting idle
 support/contact=BILATERAL_RIGHT_BIAS
 root/arc=ready is re-earned five cells right of start
 causal_role=stable displaced readiness; no idle reset
+
 
 
 
