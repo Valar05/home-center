@@ -14,25 +14,57 @@
   "backward_compatible": true,
   "revises": "experiments/ascii-kinesis/v2-locomotion-003-cadence-phase-continuity/",
   "negative_fixture": "experiments/ascii-kinesis/v2-locomotion-003-cadence-phase-continuity/",
+  "predecessor_preserved": true,
   "source_change": false,
   "source": {
     "provider": "The Spriters Resource",
     "asset_id": 128015,
-    "source_sha256": "1c7e36243f943571fca88290f22f88a1c1510fe7f11865157862b320a9c5c7d6"
+    "identity": "Bob — Bob the Builder: Fix It Fun! — Game Boy / GBC",
+    "url": "https://www.spriters-resource.com/game_boy_gbc/bobthebuilderfixitfun/asset/128015/",
+    "whole_sheet": {
+      "width": 506,
+      "height": 428,
+      "bytes": 16443,
+      "sha256": "1c7e36243f943571fca88290f22f88a1c1510fe7f11865157862b320a9c5c7d6"
+    },
+    "source_timing_available": false
   },
   "motion_file": "motion.json",
   "builder_file": "build.py",
+  "contact_sheet_file": "contact_sheet.txt",
   "spa_file": "cadence-surge-brake-repair.motion.html",
+  "receipt_file": "receipt.md",
   "media": {
     "embedded": true,
+    "tracked": false,
     "mime": "video/mp4",
-    "sha256": "29b98013fe5d5109d42ec5b424b94ed11d70a44251bffde0c12c70d57f832b30",
-    "bytes": 46696,
-    "source": "abstract_ascii_rig_only"
+    "sha256": "7f68309e3dab5801067f8ae6f7554c409a5133a50810ed1616db6261637320b1",
+    "bytes": 41534,
+    "source": "abstract_ascii_rig_only",
+    "decode": {
+      "codec": "h264",
+      "pix_fmt": "yuv420p",
+      "width": 960,
+      "height": 480,
+      "fps": "24/1",
+      "frames": 58,
+      "duration_seconds": 2.416667
+    }
   },
   "quality": {
     "tango": "PASS",
     "noodle_queen": "PASS"
+  },
+  "contract": {
+    "script": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "script_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "scope": "candidate-isolated",
+    "status": "PASS",
+    "exit_code": 0,
+    "entries_checked": [
+      "v2-locomotion-010-cadence-surge-brake-repair"
+    ],
+    "repo_global_claimed": false
   },
   "status": "READY_FOR_REPOSITORY_READBACK_AND_CURRENT_CHAT_DELIVERY"
 }
