@@ -1,7 +1,7 @@
 ASCII KINESIS V2 DEFENSE 011 — FLOOR SUPPORT LADDER REPAIR
 abstract rig only — source art never enters output
 performance law: floor contact is consequence; height is purchased by trustworthy support
-force line: RIGHT-LOW impact -> LEFT/DOWN collapse -> FLOOR overshoot -> RIGHT/UP recovery -> displaced ready
+force line: RIGHT-LOW impact -> LEFT/DOWN collapse -> FLOOR overshoot -> HAND/KNEE post -> TRIPOD -> anchored HAND+FOOT push -> RIGHT/UP release -> displaced ready
 
 D011-K00  DISPLACED_READY  [FOURS | INFERRED]
 
@@ -74,8 +74,8 @@ D011-K02  LOW_RIGHT_IMPACT  [ONES | INFERRED]
                               /   |   \
                              +    |    \
                              /    |     +
-                            |     @      \\      <<<<<<<
-                            o    / \\      -o
+                            |     @      \\\      <<<<<<<
+                            o    / \\\      -o
                                //    \\
                               +        +\
                              /           \\
@@ -104,8 +104,8 @@ D011-K03  SUPPORT_PEEL  [ONES | INFERRED]
                            /   |   \
                           +    |    \
                           /    @     +
-                         |    / \\    \\
-                         o  //    \\    o
+                         |    / \\\    \\
+                         o  //    \\\    o
                            +        +\\
                          =-            ---=
     ________________________________________________________
@@ -134,7 +134,7 @@ D011-K04  KNEE_CATCH_FAIL  [ONES | INFERRED]
                         /    |  \\
                        +     |    +
                       /      @\    \\
-                     o     //  \\    o
+                     o     //  \\\    o
                        =--+      -+-----=
     ________________________________________________________
                           K
@@ -226,7 +226,7 @@ arc=held consequence makes knockdown cost legible; not a dead symmetrical prone 
 
 ----------------------------------------------------------------
 
-D011-K08  ELBOW_POST_FIND  [TWOS | INFERRED]
+D011-K08  HAND_POST_FIND  [TWOS | INFERRED]
 
 
 
@@ -241,7 +241,7 @@ D011-K08  ELBOW_POST_FIND  [TWOS | INFERRED]
 
                       +
                     +--\\-+
-                   /     \\\
+                   /     \\\\
                   +       /@\+\
                   o  =--+-    --o+-----=
     ________________________________________________________
@@ -249,7 +249,7 @@ D011-K08  ELBOW_POST_FIND  [TWOS | INFERRED]
 
 support=HAND_L_KNEE_R root=POSTED_LOW contact=NONE
 role=first trustworthy recovery anchor: left hand and right knee own root
-arc=support authority returns before height; pelvis remains low behind the post debt=0.88
+arc=support authority returns before height; pelvis remains low behind the hand post debt=0.88
 
 ----------------------------------------------------------------
 
@@ -275,7 +275,7 @@ D011-K09  KNEE_TUCK_UNDER_COM  [TWOS | INFERRED]
                    H           K
 
 support=HAND_L_KNEE_R root=POSTED_LOW contact=NONE
-role=authored recovery bridge: knee tucks under COM without stealing height
+role=authored recovery key: knee tucks under COM without stealing height
 arc=root advances over future plant while hand remains trustworthy debt=0.78
 
 ----------------------------------------------------------------
@@ -323,15 +323,15 @@ D011-K11  PUSH_ARC_SHOULDER_LEADS  [TWOS | INFERRED]
                         /     \ \\
                        /      \   +\
                       +        @    -o
-                     /        / \\
-                     /       /    +\
-                    o    =--+       --=
+                     /        / \
+                     /       /   \
+                    o    =--+     +---=
     ________________________________________________________
                     H             K   R
 
 support=HAND_L_KNEE_R_FOOT_R root=TRIPOD_LOAD contact=NONE
 role=push arc: pelvis rises on curved path while free shoulder/hand lag
-arc=push travels diagonally over the tripod; pelvis remains low enough that support recovery visibly precedes height debt=0.58
+arc=push travels diagonally over the tripod; support recovery visibly precedes height debt=0.58
 
 ----------------------------------------------------------------
 
@@ -359,7 +359,36 @@ D011-K12  FIRST_TRUSTWORTHY_FOOT_PLANT  [TWOS | INFERRED]
 
 support=HAND_L_FOOT_R root=HALF_RISE contact=NONE
 role=support transfer: right foot becomes action-worthy before hand release
-arc=right foot becomes trustworthy while torso is still pitched low; the following bridge pushes upward while hand remains a safety anchor debt=0.46
+arc=right foot becomes trustworthy while torso is still pitched low; hand remains a safety anchor debt=0.46
+
+----------------------------------------------------------------
+
+D011-K12B  HAND_FOOT_PUSH_PEAK  [TWOS | INFERRED]
+
+
+
+
+
+
+                               O
+
+                               +
+                            +---\-+
+                           /    \  \\
+                          /      |   +\
+                          /      @     -o
+                         +      / \
+                        /      /   \
+                        /     +     +
+                       /     |       \
+                       /     =        \\
+                      o                 =
+    ________________________________________________________
+                      H                 R
+
+support=HAND_L_FOOT_R root=HALF_RISE contact=NONE
+role=authored push peak: body gains height while left hand and right foot still visibly own the floor
+arc=support anchors stay fixed while pelvis climbs diagonally between them; hand release is deferred to the next hard-cut key debt=0.42
 
 ----------------------------------------------------------------
 
@@ -416,7 +445,7 @@ D011-K14  CROUCH_CATCH_BOTH_FEET  [TWOS | INFERRED]
 
 support=BOTH_FEET root=CATCH_COMPRESSION contact=NONE
 role=counter-compression catches upward overshoot
-arc=both feet now own root, but body must absorb the rise rather than teleport upright debt=0.30
+arc=both feet now own root, but body absorbs the rise rather than teleporting upright debt=0.30
 
 ----------------------------------------------------------------
 
