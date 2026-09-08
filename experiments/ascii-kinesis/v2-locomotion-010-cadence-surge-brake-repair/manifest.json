@@ -40,25 +40,25 @@
     "embedded": true,
     "tracked": false,
     "mime": "video/mp4",
-    "sha256": "ffccf354f3223f76465ccbe2e12598f8b75084d74689c15cb37799d858780a03",
-    "bytes": 24202,
+    "sha256": "3f955ee9f34ab77bbe149d0bb0b2dd436fb4809bbb091483d99d4941683ed2bb",
+    "bytes": 39111,
     "source": "abstract_ascii_rig_only",
     "decode": {
       "codec": "h264",
       "pix_fmt": "yuv420p",
-      "width": 640,
-      "height": 320,
+      "width": 960,
+      "height": 480,
       "fps": "24/1",
-      "frames": 56,
-      "duration_seconds": 2.333333
+      "frames": 52,
+      "duration_seconds": 2.166667
     }
   },
   "quality": {
     "tango": "PASS",
-    "tango_iterations": 2,
+    "tango_iterations": 3,
     "noodle_queen": "PASS",
     "current_worker_actual_render_inspected": true,
-    "decoded_frames_inspected": 56
+    "decoded_frames_inspected": 52
   },
   "contract": {
     "script": "tools/test_ascii_kinesis_swarm_contract_v2.py",
@@ -71,5 +71,5 @@
       "v2-locomotion-010-cadence-surge-brake-repair"
     ]
   },
-  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING"
+  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY"
 }
