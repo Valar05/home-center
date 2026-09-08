@@ -1,96 +1,97 @@
 {
-  "ascii_literal_text": true,
-  "ascii_sheet_sha256": "14d7033e50c878ca1d1d59440ea45d290aaa126cdf67fcb5755e4bb1736f3943",
-  "ascii_storage": "complete literal contact sheet embedded in SPA ASCII tab; build.py deterministically reconstructs contact-sheet.txt",
-  "ascii_surface": "pre",
-  "backward_compatible": true,
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "format_version": 2,
+  "experiment_id": "v2-airborne-018-rider-chassis-counterpitch-landing-debt",
+  "lane": "airborne",
   "concept_type": "fresh-concept",
+  "revises": null,
+  "negative_fixture": null,
+  "source_change": false,
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "ascii_surface": "pre",
+  "ligatures_disabled": true,
+  "whitespace_preserved": true,
+  "ascii_storage": "complete literal contact sheet embedded in SPA ASCII tab; build.py deterministically reconstructs contact-sheet.txt",
+  "ascii_sheet_sha256": "14d7033e50c878ca1d1d59440ea45d290aaa126cdf67fcb5755e4bb1736f3943",
+  "motion_json_sha256": "53f5a70bace135937e98f84250fd2410fa9320aca2642d3871cc3d35a149c36e",
+  "spa_sha256": "0ee02dfdf272bad3056aae1bc6bd61869aec48003b787695bac7fde78bf212a9",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "video_packaging": "embedded exact MP4 data URI in rider-chassis-counterpitch-landing-debt.motion.html",
+  "media_sha256": "38db92a593f029645416e4d984c1137d407167a214dc1023b8198701d927ade8",
+  "media_bytes": 13419,
+  "backward_compatible": true,
+  "motion_dungeon": {
+    "authored_ascii_keys": 11,
+    "explicit_holds": true,
+    "deterministic_connective_motion": true,
+    "connector_semantics_fail_closed": true,
+    "ascii_only_frame_render": true,
+    "fps": 24,
+    "video_frames_total": 75
+  },
+  "source": {
+    "site": "The Spriters Resource",
+    "title": "Rider — 3D Stunt Rider — Amstrad CPC",
+    "asset_id": "205456",
+    "page_url": "https://www.spriters-resource.com/amstrad_cpc/3dstuntrider/asset/205456/",
+    "source_dimensions": "136x172 PNG",
+    "source_bytes": 1985,
+    "source_sha256": "a9d3f07c8a72278c80a15e85e335f5669d108d4d2d002eb40b2311279191a633",
+    "whole_sheet_inspected": true,
+    "source_timing_available": false,
+    "observed": [
+      "source identity, exact source hash/dimensions, whole-sheet product-space observations"
+    ],
+    "inferred": [
+      "all authored performance, chronology, root/support/contact states, counterpitch acting, timing classes, holds, bridge motion"
+    ],
+    "unknown": [
+      "source-authentic playback order/exposure, exact original rider contacts, physical forces, original gameplay timing"
+    ],
+    "rights_note": "Commercial game sprite art is evidence only. No source pixels, palette, costume, contours, layout, tracing, choreography, redistribution, or close imitation enter this specimen."
+  },
+  "quality_gates": {
+    "tango": {
+      "status": "PASS",
+      "worker_scope": "CURRENT_WORKER_ACTUAL_RENDER",
+      "render_sha256": "38db92a593f029645416e4d984c1137d407167a214dc1023b8198701d927ade8",
+      "inspection": "actual decoded 75-frame H.264 final render plus representative frame inspection",
+      "highest_value_defect": "NONE_VISIBLE_AT_ACCEPTANCE_SCALE",
+      "findings": [
+        "rear-biased crooked load visibly earns support break and differs from displaced exit",
+        "chassis nose-high rotation and rider counterrotation create a specific two-body apex silhouette",
+        "apex is brief and root travel remains one continuous rise-apex-descent arc",
+        "precontact scissor precedes rear-first support; root continues descending into two-contact crush",
+        "grounded rebound opposes landing fold and free arm lags chassis response",
+        "recovery exits forward at a displaced address without reverse interpolation or idle reset"
+      ]
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "worker_scope": "CURRENT_WORKER_SAME_FINAL_RENDER_AFTER_TANGO",
+      "render_sha256": "38db92a593f029645416e4d984c1137d407167a214dc1023b8198701d927ade8",
+      "taste": "specific rider/chassis counterpitch, staggered landing, crooked rebound, and displaced rollout create memorable silhouette phases",
+      "function": "support sequence and COM/root consequence remain legible without metadata; base/rider relationship is visibly causal",
+      "contempt": "economical ASCII performance reads authored rather than mannequin interpolation, source cosplay, or a slight Airborne017 permutation"
+    }
+  },
   "contract_test": "python3 tools/test_ascii_kinesis_swarm_contract_v2.py",
   "contract_test_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
   "contract_test_scope": "candidate-isolated exact current official V2 validator",
-  "contract_verification": "PASS_CANDIDATE_ISOLATED_OFFICIAL_V2",
-  "experiment_id": "v2-airborne-018-rider-chassis-counterpitch-landing-debt",
+  "contract_verification": "PASS_CANDIDATE_ISOLATED_OFFICIAL_V2_CURRENT_WORKER",
+  "reconstruction": "python3 build.py",
   "files": [
     "build.py",
     "manifest.json",
     "motion.json",
     "receipt.json",
     "rider-chassis-counterpitch-landing-debt.motion.html"
-  ],
-  "format_version": 2,
-  "lane": "airborne",
-  "ligatures_disabled": true,
-  "media_bytes": 24578,
-  "media_sha256": "ef80db18e3c18a72e3021f08de79ffdeb7fae0d49cda9bcab7971f6c812b8d63",
-  "motion_dungeon": {
-    "ascii_only_frame_render": true,
-    "authored_ascii_keys": 11,
-    "connector_semantics_fail_closed": true,
-    "deterministic_connective_motion": true,
-    "explicit_holds": true,
-    "fps": 24,
-    "video_frames_total": 75
-  },
-  "motion_json_sha256": "a01dda0d03c7fbc5816ce17017690c047463847ae6ea1cc1c6139d0630f31b17",
-  "negative_fixture": null,
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
-  "quality_gates": {
-    "noodle_queen": {
-      "contempt": "economical ASCII performance reads authored rather than mannequin interpolation, source cosplay, or a slight Airborne017 permutation",
-      "function": "support sequence and COM/root consequence remain legible without metadata; the base/rider relationship is visibly causal",
-      "render_sha256": "ef80db18e3c18a72e3021f08de79ffdeb7fae0d49cda9bcab7971f6c812b8d63",
-      "status": "PASS",
-      "taste": "specific rider/chassis counterpitch, staggered landing, crooked rebound, and displaced rollout create memorable silhouette phases",
-      "worker_scope": "CURRENT_WORKER_SAME_FINAL_RENDER_AFTER_TANGO"
-    },
-    "tango": {
-      "findings": [
-        "crooked rear-dominant load visibly earns the support break",
-        "chassis and rider counter-rotate into a distinct airborne silhouette without injecting a second root impulse",
-        "apex is brief and root travel remains one continuous rise→apex→descent arc",
-        "rear support is acquired before the root finishes descending; deepest crush follows both contacts",
-        "grounded rebound opposes the landing fold and free-arm lag trails the base response",
-        "recovery exits forward at a displaced address instead of reverse-playing into the opening pose"
-      ],
-      "highest_value_defect": "NONE_VISIBLE_AT_ACCEPTANCE_SCALE",
-      "inspection": "actual decoded 75-frame H.264 render plus ordered representative montage",
-      "render_sha256": "ef80db18e3c18a72e3021f08de79ffdeb7fae0d49cda9bcab7971f6c812b8d63",
-      "status": "PASS",
-      "worker_scope": "CURRENT_WORKER_ACTUAL_RENDER_AFTER_ONE_SAME_BODY_REVISION"
-    }
-  },
-  "reconstruction": "python3 build.py",
-  "revises": null,
-  "schema": "ascii-kinesis.swarm-manifest.v2",
-  "source": {
-    "asset_id": "205456",
-    "inferred": [
-      "all authored performance, chronology, root/support/contact states, counterpitch acting, timing classes, holds, bridge motion"
-    ],
-    "observed": [
-      "source identity, exact source hash/dimensions, whole-sheet product-space observations listed above"
-    ],
-    "page_url": "https://www.spriters-resource.com/amstrad_cpc/3dstuntrider/asset/205456/",
-    "rights_note": "Commercial game sprite art is evidence only. No source pixels, palette, costume, contours, layout, tracing, choreography, redistribution, or close imitation enter this specimen.",
-    "site": "The Spriters Resource",
-    "source_bytes": 1985,
-    "source_dimensions": "136x172 PNG",
-    "source_sha256": "a9d3f07c8a72278c80a15e85e335f5669d108d4d2d002eb40b2311279191a633",
-    "source_timing_available": false,
-    "title": "Rider — 3D Stunt Rider — Amstrad CPC",
-    "unknown": [
-      "source-authentic playback order/exposure, exact original rider contacts, physical forces, original gameplay timing"
-    ],
-    "whole_sheet_inspected": true
-  },
-  "source_art_embedded": false,
-  "source_change": false,
-  "video_packaging": "embedded exact MP4 data URI in rider-chassis-counterpitch-landing-debt.motion.html",
-  "video_required": true,
-  "video_source": "abstract_ascii_rig_only",
-  "whitespace_preserved": true
+  ]
 }
