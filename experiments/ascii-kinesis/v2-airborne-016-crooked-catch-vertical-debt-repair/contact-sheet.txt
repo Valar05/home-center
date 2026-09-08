@@ -1,0 +1,459 @@
+ASCII KINESIS V2 AIRBORNE 016 — CROOKED-CATCH VERTICAL DEBT REPAIR
+COPYABLE CONTACT SHEET — ABSTRACT ASCII RIG ONLY — NO SOURCE PIXELS
+Legend: O head | @ pelvis/root | o joints | > facing-right | = owned ground support
+Principle: LANDING PAYS VERTICAL DEBT BEFORE GROUND SPEED RE-ENTERS.
+
+[A016-K00] READY_SPLIT | FOURS INFERRED | support=GROUND_BOTH | contact=GROUND | phase=READY | role=forward-ready before-state with uneven arm carriage | root=Root is stable but already biased right; one shoulder leads and the rear hip is loaded.
+
+                   O >
+                  o
+               o\  /o--o
+              o  \/
+             o    \\ o--o
+            o      \
+              +   @
+                 / \
+                o   o
+               /     \
+              o       o
+              =       =
+________________________________________________________________________
+
+[A016-K01] REAR_HIP_COIL | FOURS INFERRED | support=GROUND_BOTH | contact=GROUND | phase=LOAD | role=asymmetric crouch stores vertical impulse and forward shear | root=Pelvis drops behind the future travel line; rear/left hip loads while shoulders counter-rotate.
+
+                  O >
+                 o
+              o\  /o--o
+             o \\/
+            o  \\  o--o
+           o    \
+             < @
+              / \
+             o   o
+            /     \
+           o       o
+           =       =
+________________________________________________________________________
+
+[A016-K02] REAR_TOE_SHEAR | TWOS INFERRED | support=GROUND_LEFT_DOMINANT | contact=GROUND | phase=LOAD | role=rear support owns launch while lead side begins to unload | root=Root shears forward from the rear/left contact; lead foot is light before support break.
+
+                    O >
+                   o
+                o\  /o--o
+               o \\/
+              o  \\  o--o
+             o    \
+                < @
+                / \
+               o   o
+              /     \
+             o       o
+             =
+________________________________________________________________________
+
+[A016-K03] DIAGONAL_RELEASE | ONES INFERRED | support=NONE | contact=NONE | phase=LAUNCH | role=earned support break launches the committed body | root=Both supports are gone; root is already moving right/up from the loaded rear side.
+
+                       O >
+                      o
+                   o\  /o--o
+                  o \\/
+                 o  \\  o--o
+                o    \
+                   ^ @
+                    / \
+                   o   o
+                  /     \
+                 o       o
+________________________________________________________________________
+
+[A016-K04] RISE_STRETCH | ONES INFERRED | support=NONE | contact=NONE | phase=ASCEND | role=fast rise stretches the silhouette while rear limbs lag | root=Root climbs sharply right; trailing arm and rear leg remain behind the torso to expose acceleration.
+
+                             O >
+                            o
+                        o---/--o
+                     o--  //    \--o
+                   o     //       o--
+                  o      /
+                        ^ @
+                        / \
+                       o   o
+                      /     \
+                     o       o
+________________________________________________________________________
+
+[A016-K05] APEX_CRESCENT | TWOS INFERRED | support=NONE | contact=NONE | phase=APEX | role=moving apex curls one side while the other side stays long | root=Vertical spacing tightens without hover; root continues right while the body forms an asymmetric crescent.
+
+                                   O >
+                         o--------o
+                              o\  /o
+                           o   \//  \
+                            \   @    \o
+                             \ / \   /
+                              o   o-o
+                             /     \
+                            o       o
+________________________________________________________________________
+
+[A016-K06] GRAVITY_CURL | TWOS INFERRED | support=NONE | contact=NONE | phase=DESCEND | role=gravity begins to fold the long rising shape | root=Root has crossed the apex and descends right; knees fold unevenly and the rear arm trails high.
+
+                                              o
+                                             /
+                                       O >  o
+                                      o    /
+                                  o---/--o /
+                                 o    // \o
+                                o    //
+                                     v @
+                                    / \
+                                   o   o
+                                  /     \
+                                 o       o
+________________________________________________________________________
+
+[A016-K07] DESCENT_KNIFE | ONES INFERRED | support=NONE | contact=NONE | phase=DESCEND | role=body commits nose-forward into a landing-readable descent | root=Root drops faster; torso pitches forward, lead leg opens down, and arms counter-swing rather than mirror.
+
+                                                  o
+                                                 /
+                                           O >  o
+                                          o    /
+                                      o---/--o /
+                                     o    // \o
+                                    o    //
+                                         v @
+                                        / \
+                                       o   o
+                                      /     \
+                                     o       o
+________________________________________________________________________
+
+[A016-K08] PRECONTACT_SCISSOR | TWOS INFERRED | support=NONE | contact=NONE | phase=PRECONTACT | role=unsupported scissor prepares a staggered landing | root=Lead/left foot reaches groundward first while trail leg stays folded; root still owns full downward debt.
+
+                                              O >
+                                             o
+                                         o---/--o
+                                      o--    // \o
+                                    o       //   \\o
+                                   o       /
+                                          ? @
+                                           / \
+                                          o   o
+                                         /     \
+                                        o       o
+________________________________________________________________________
+
+[A016-K09] LEAD_CATCH | ONES INFERRED | support=GROUND_LEFT | contact=GROUND | phase=CONTACT | role=first support reacquisition occurs before vertical speed is paid | root=Lead/left foot catches at ground while pelvis continues down/right; contact is an event, not a stop.
+
+                                                O >
+                                               o
+                                           o---/--o
+                                        o--    // \o
+                                      o       //   \\o
+                                     o       /
+                                            ! @
+                                             / \
+                                            o   o
+                                           /     \
+                                          o       o
+                                          =
+________________________________________________________________________
+
+[A016-K10] TRAIL_SWEEP_UNDER | TWOS INFERRED | support=GROUND_LEFT | contact=GROUND | phase=CONTACT | role=lead support bends while trail leg swings under the falling center | root=Root keeps descending and moving forward over the lead support; trail foot races toward a later catch.
+
+                                                  O >
+                                                 o
+                                             o---/--o
+                                          o--    // \o
+                                        o       //   \\o
+                                       o       /
+                                              ! @
+                                               / \
+                                              o   o
+                                             /     \
+                                           o        o
+                                           =
+________________________________________________________________________
+
+[A016-K11] TWO_FOOT_CRUSH | FOURS INFERRED | support=GROUND_BOTH | contact=GROUND | phase=LAND_COMPRESSION | role=deep compression pays the largest vertical debt after both feet own support | root=Root bottoms after the trail foot joins; knees split unevenly and torso counterleans against forward carry.
+
+                                                   O >
+                                                  o
+                                              o---/--o
+                                           o--    // \o
+                                         o       //   \\o
+                                        o       /
+                                               # @
+                                                / \
+                                               o   o
+                                              /     \
+                                           o          o
+                                           =          =
+________________________________________________________________________
+
+[A016-K12] SKID_OVERRUN | TWOS INFERRED | support=GROUND_BOTH | contact=GROUND | phase=OVERSHOOT | role=grounded skid carries the root past the compression point | root=Vertical debt is mostly paid, but horizontal momentum drags both supports right while shoulders counterlean left.
+
+                                                       O >
+                                                      o
+                                                  o---/--o
+                                               o--   //  \o
+                                             o      //    \\o
+                                            o      /
+                                                   > @
+                                                    / \
+                                                   o   o
+                                                  /     \
+                                               o          o
+                                               =          =
+________________________________________________________________________
+
+[A016-K13] CROOKED_REBOUND | TWOS INFERRED | support=GROUND_BOTH | contact=GROUND | phase=REBOUND | role=grounded rebound releases compression without erasing lateral debt | root=Root rises only within grounded support and continues right; shoulders unwind unevenly with residual skid torque.
+
+                                                          O >
+                                                         o
+                                                     o---/--o
+                                                  o--    // \o
+                                                o       //   \\o
+                                               o       /
+                                                      ^ @
+                                                       / \
+                                                      o   o
+                                                     /     \
+                                                  o          o
+                                                  =          =
+________________________________________________________________________
+
+[A016-K14] RIGHT_SIDE_OVERSHOOT | TWOS INFERRED | support=GROUND_RIGHT_DOMINANT | contact=GROUND | phase=OVERSHOOT | role=rebound momentum overshoots onto the right support | root=Root passes neutral; right foot temporarily owns recovery while the left side lifts and the torso stays crooked.
+
+                                                             O >
+                                                            o
+                                                        o---/--o
+                                                     o--    // \o
+                                                   o       //   \\o
+                                                  o       /
+                                                         > @
+                                                          / \
+                                                         o   o
+                                                        /     \
+                                                       o       o
+                                                               =
+________________________________________________________________________
+
+[A016-K15] SHOULDER_LAG | TWOS INFERRED | support=GROUND_BOTH | contact=GROUND | phase=SETTLE | role=feet restack before the upper body finishes paying recovery debt | root=Both supports return, but rear/left shoulder and arm remain visibly late behind the pelvis.
+
+                                                           O >
+                                                          o
+                                                      o---/--o
+                                                   o--    // \o
+                                                 o       //   \\o
+                                                o       /
+                                                       . @
+                                                        / \
+                                                       o   o
+                                                      /     \
+                                                     o       o
+                                                     =       =
+________________________________________________________________________
+
+[A016-K16] RECOVERY_CROOK | FOURS INFERRED | support=GROUND_BOTH | contact=GROUND | phase=SETTLE | role=displaced recovery holds asymmetry after the landing | root=Root remains far from its start; torso is still canted and the rear arm has not returned to neutral carriage.
+
+                                                         O >
+                                                        o
+                                                    o---/--o
+                                                 o--    // \o
+                                               o       //   \\o
+                                              o       /
+                                                     . @
+                                                      / \
+                                                     o   o
+                                                    /     \
+                                                   o       o
+                                                   =       =
+________________________________________________________________________
+
+[A016-K17] RUN_REENTRY | TWOS INFERRED | support=GROUND_RIGHT_DOMINANT | contact=GROUND | phase=REENTRY | role=ground speed re-enters only after vertical and recovery debt are visibly paid | root=Root resumes rightward travel from a displaced stack; right support owns the renewed stride.
+
+                                                              O >
+                                                             o
+                                                          o--/--o
+                                                       o--  // \o
+                                                     o     //    \\o
+                                                    o     /
+                                                          + @
+                                                           / \
+                                                          o   o
+                                                         /     \
+                                                        o       o
+                                                                =
+________________________________________________________________________
+
+[A016-K18] RETURN_STRIDE | FOURS INFERRED | support=GROUND_LEFT_DOMINANT | contact=GROUND | phase=READY | role=forward travel is restored at a new root address rather than rewound | root=The next stride transfers support and keeps the displaced travel history visible.
+
+                                                                 O >
+                                                                o
+                                                             o--/--o
+                                                          o--  // \o
+                                                        o     //    \\o
+                                                       o     /
+                                                             + @
+                                                              / \
+                                                             o   o
+                                                            /     \
+                                                           o       o
+                                                           =
+________________________________________________________________________
+
+--- AUTHORED BRIDGE KEYS (GEOMETRY ONLY; DECISIVE KEYS REMAIN SEMANTIC AUTHORITY) ---
+
+A016-B01 A016-K00 -> A016-K01 | ONES INFERRED | drop rear hip before the full coil
+
+                   O >
+                  o
+               o\  /o--o
+              o  \/
+             o    \\ o--o
+            o      \
+                  @
+                 / \
+                o   o
+               /     \
+              o       o
+              =       =
+________________________________________________________________________
+
+A016-B34 A016-K03 -> A016-K04 | ONES INFERRED | stretch launch diagonally while support remains absent
+
+                          O >
+                         o
+                      o\  /o--o
+                    o  \\/
+                  o   \\  o--o
+                 o     \
+                       @
+                      / \
+                     o   o
+                    /     \
+                   o       o
+________________________________________________________________________
+
+A016-B45 A016-K04 -> A016-K05 | ONES INFERRED | bend the rise into a moving crescent apex
+
+                                O >
+                               o
+                           o---/--o
+                        o--   //  \o
+                      o      //     \\o
+                     o      /
+                           @
+                          / \
+                         o   o
+                        /     \
+                       o       o
+________________________________________________________________________
+
+A016-B56 A016-K05 -> A016-K06 | ONES INFERRED | tip the crescent into gravity without freezing the apex
+
+                                     O >
+                                    o
+                                o---/--o
+                             o--   //  \o
+                           o      //     \\o
+                          o      /
+                                @
+                               / \
+                              o   o
+                             /     \
+                            o       o
+________________________________________________________________________
+
+A016-B67 A016-K06 -> A016-K07 | ONES INFERRED | pitch torso forward while lead leg begins to open
+
+                                         O >
+                                        o
+                                    o---/--o
+                                 o--    // \o
+                               o       //   \\o
+                              o       /
+                                    @
+                                   / \
+                                  o   o
+                                 /     \
+                                o       o
+________________________________________________________________________
+
+A016-B78 A016-K07 -> A016-K08 | ONES INFERRED | sharpen unsupported leg scissor before contact
+
+                                             O >
+                                            o
+                                        o---/--o
+                                     o--    // \o
+                                   o       //   \\o
+                                  o       /
+                                        @
+                                       / \
+                                      o   o
+                                     /     \
+                                    o       o
+________________________________________________________________________
+
+A016-B910 A016-K09 -> A016-K10 | ONES INFERRED | let pelvis keep descending while trail leg sweeps under
+
+                                                 O >
+                                                o
+                                            o---/--o
+                                         o--    // \o
+                                       o       //   \\o
+                                      o       /
+                                            @
+                                           / \
+                                          o   o
+                                         /     \
+                                          o     o
+                                          =
+________________________________________________________________________
+
+A016-B1112 A016-K11 -> A016-K12 | ONES INFERRED | convert deep vertical crush into a grounded forward skid
+
+                                                     O >
+                                                    o
+                                                o---/--o
+                                             o--  \\   \o
+                                           o     \\     \\o
+                                          o      \
+                                                     @
+                                                    / \
+                                                   o   o
+                                                  /     \
+                                             o              o
+                                             =              =
+________________________________________________________________________
+
+A016-B1213 A016-K12 -> A016-K13 | ONES INFERRED | release skid compression crookedly instead of reversing it
+
+                                                         O >
+                                                        o
+                                                    o---/--o
+                                                 o--    // \o
+                                               o       //   \\o
+                                              o       /
+                                                        @
+                                                       / \
+                                                      o   o
+                                                     /     \
+                                                o             o
+                                                =             =
+________________________________________________________________________
+
+A016-B1516 A016-K15 -> A016-K16 | ONES INFERRED | settle lower body while preserving shoulder-height and arm-lag asymmetry
+
+                                                          O >
+                                                         o
+                                                     o---/--o
+                                                  o--    // \o
+                                                o       //   \\o
+                                               o       /
+                                                          @
+                                                         / \
+                                                        o   o
+                                                       /     \
+                                                    o           o
+                                                    =           =
+________________________________________________________________________
