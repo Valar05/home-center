@@ -1,0 +1,170 @@
+{
+  "ascii_literal_text": true,
+  "ascii_sheet_sha256": "1f70a8df116edf1d62921759b688436edd853678763c3a9faeabb34b650e5ce5",
+  "ascii_surface": "real preformatted DOM text",
+  "backward_compatible": true,
+  "chat_delivery": {
+    "order": [
+      "PART 1 — ASCII",
+      "PART 2 — JSON",
+      "PART 3 — VIDEO"
+    ],
+    "status": "PENDING_THIS_REPORTING_CHAT"
+  },
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compiled_media_tracked_separately": false,
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "FIX ARC",
+    "FIX SUPPORT",
+    "FIX TASK",
+    "FIX LANDING",
+    "FIX SECONDARY LAG",
+    "RERUN"
+  ],
+  "decode": {
+    "codec": "h264",
+    "duration_seconds": 2.291667,
+    "fps": 24,
+    "frames": 55,
+    "height": 270,
+    "pixel_format": "yuv420p",
+    "status": "PASS",
+    "width": 480
+  },
+  "experiment_id": "v2-airborne-017-offaxis-tool-landing-debt",
+  "files": [
+    "build.py",
+    "contact-sheet.txt",
+    "manifest.json",
+    "motion.json",
+    "receipt.md",
+    "offaxis-tool-landing-debt.motion.html"
+  ],
+  "format_version": 2,
+  "fresh_concept": true,
+  "fresh_inventory": {
+    "airborne_017_search": "NO_EXISTING_017_FOUND",
+    "main_before_create": "852b66ff2dcc6941a3a8e0e4a575796712e5ae9b",
+    "manager_reconciliation_comment": 5592019592
+  },
+  "issue_receipt": {
+    "comment_id": null,
+    "issue": "Valar05/home-center#343",
+    "status": "PENDING"
+  },
+  "lane": "airborne",
+  "ligatures_disabled": true,
+  "media_bytes": 15960,
+  "media_filename": "offaxis-tool-landing-debt.mp4",
+  "media_hash_policy": "Authoritative media is exact MP4 embedded in tracked SPA; current build reconstructs and verifies the declared hash/byte count/frame count before writing SPA.",
+  "media_sha256": "133f18beeb637f2a5c48647c0997ac03f6d6f49a8642a9703c89bea006f5cd54",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 19,
+    "authored_bridge_keys": 11,
+    "connector_semantics_fail_closed": true,
+    "deterministic_connective_motion": true,
+    "duration_seconds": 2.2916666666666665,
+    "explicit_holds": true,
+    "fps": 24,
+    "video_dimensions": [
+      480,
+      270
+    ],
+    "video_frames_total": 55
+  },
+  "motion_json_sha256": "44e768a90067a5eb09f0d114254c32b28ae7aaacb821a5986647c5eab2e7286c",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "quality_gates": {
+    "noodle_queen": {
+      "status": "PASS_CURRENT_WORKER_FINAL_RENDER",
+      "taste_function_contempt": "PASS: the apex crosscut, lead-catch/deep-crush landing, and delayed tool overshoot form memorable silhouette phases; task/root causality remains readable; recovery is displaced and indebted rather than an idle reset; the specimen does not read as placeholder endpoint motion."
+    },
+    "tango": {
+      "final_read": "PASS: asymmetrical crossload -> earned release -> long rise -> visible cross-body apex tool sweep -> gravity-owned counterweighted descent -> unsupported lead probe -> first-contact-with-continuing-COM -> deep two-foot crush -> grounded right runout -> delayed tool overshoot back -> crooked rebound -> shoulder payback -> displaced task re-entry.",
+      "revision_1": {
+        "correction": "Re-authored A017-K05 TASK_COCK, A017-K06 APEX_CROSSCUT, A017-K07 TASK_FOLLOWTHROUGH and their authored geometry bridges so the generic tool line crosses above/left of the body at apex, torso counter-rolls, then the tool releases far forward/right while root continues the same arc.",
+        "defect": "The first apex task read as a right-side extension rather than an off-axis crosscut, so the advertised torque debt was not visibly earned.",
+        "verdict": "REVISE_REQUIRED"
+      },
+      "status": "PASS_CURRENT_WORKER_AFTER_ONE_VISIBLE_REVISION"
+    }
+  },
+  "reconstruction": "python3 build.py",
+  "repair_debt_exhausted": true,
+  "repair_debt_exhausted_basis": {
+    "airborne_001": "HEALTHY successor 008",
+    "airborne_002": "HEALTHY successor 011",
+    "airborne_003": "HEALTHY successor 012",
+    "airborne_004": "HEALTHY canonical 013",
+    "airborne_005": "HEALTHY canonical 014 side-catch",
+    "airborne_006": "HEALTHY canonical 015; issue receipt 5588711356",
+    "airborne_007": "HEALTHY canonical 016; issue receipt 5590983016"
+  },
+  "repo_path": "experiments/ascii-kinesis/v2-airborne-017-offaxis-tool-landing-debt/",
+  "repo_readback": {
+    "verified": false
+  },
+  "revision": {
+    "negative_fixture": null,
+    "repair_debt_exhausted_basis": "Airborne001..007 durably closed by canonical 008,011,012,013,014-side-catch,015,016; issue #343 comment 5590983016 closes Airborne007.",
+    "revises": null,
+    "source_change": true
+  },
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "source": {
+    "asset_id": 216747,
+    "campaign_evidence_origin": "ASCII Kinesis Strikes pass 003, issue #343 comment 5570672329 / authoritative campaign",
+    "game": "Cutthroat Island",
+    "page_url": "https://www.spriters-resource.com/snes/cutthroatisland/asset/216747/",
+    "platform": "SNES",
+    "section": "Playable Characters",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "title": "Shaw (Sword)",
+    "whole_sheet_evidence_boundary": "Whole commercial-game sheet was inspected in the commissioned campaign. OBSERVED at sheet level: armed locomotion/airborne/recovery coexist with multiple attack families; grounded attacks use materially different weapon envelopes; stronger extensions recruit torso/stance and consume negative space; airborne armed poses separate root path from weapon path. Static sheet did not establish chronology or source-authentic timing."
+  },
+  "source_art_embedded": false,
+  "source_rights": {
+    "boundary": "No source pixels, palette, costume, character contours, exact silhouettes, sheet layout, tracing, redistribution, close imitation, source choreography, named-move choreography, or Drew work. Output is an independently authored abstract ASCII biped plus generic line-segment task tool.",
+    "classification": "copyright-restricted commercial-game sprite art used as analysis evidence only",
+    "source_art_embedded": false
+  },
+  "status": "QUALITY_GATES_PASS_MEDIA_DECODE_PASS_CONTRACT_PASS_PERSIST_PENDING",
+  "test_invocation": {
+    "candidate_isolated_status": "PASS",
+    "official_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "repo_global_boundary": "No full repository checkout in this standard-chat worker; exact official test logic is run candidate-isolated against the constructed 017 body.",
+    "result": {
+      "entries_checked": [
+        "v2-airborne-017-offaxis-tool-landing-debt"
+      ],
+      "ok": true,
+      "schema": "ascii-kinesis.swarm-contract-v2-test"
+    },
+    "tool": "tools/test_ascii_kinesis_swarm_contract_v2.py"
+  },
+  "video_packaging": "exact compiled MP4 bytes embedded as data URI in tracked SPA; no tracked MP4 sidecar",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
+}
