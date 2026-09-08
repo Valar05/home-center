@@ -1,0 +1,402 @@
+C010-K00  LATENT_ELIGIBLE / SEPARATE  [FOURS/INFERRED]
+contact=NONE | eligibility=B:E+ | custody=NONE
+support=A:BOTH;B:BOTH
+
+
+
+
+
+
+
+             A
+              |
+              O-
+             /| -*                         B
+            *  |                          |
+               X                         -O
+               |                       *-| -*
+              | |                        X
+              | |                       / \
+             |   |                      / \
+_____________^___^_____________________^___^____________________________
+
+
+
+
+
+========================================================================
+C010-K01  ASYMMETRIC_COIL  [FOURS/INFERRED]
+contact=NONE | eligibility=B:E+ | custody=NONE
+support=A:REAR_DOMINANT;B:BOTH
+
+
+
+
+
+
+
+
+               A
+                |
+                O---*                      B
+               /|                         |
+              *  |                       -O
+                 X                     *-| -*
+                / |                      X
+               /  |                     / \
+               /   |                    / \
+______________^____^___________________^___^____________________________
+
+
+
+
+
+========================================================================
+C010-K02  LOW_APPROACH  [TWOS/INFERRED]
+contact=NONE | eligibility=B:E+ | custody=NONE
+support=A:REAR_TO_PROBE;B:BOTH
+
+
+
+
+
+
+
+
+                   A
+                    |
+                    O----*                 B
+                   /|                     |
+                  /  |                   -O
+                 *   X                 *-| -*
+                    / |                  X
+                   /  |                 / \
+                  /    |                / \
+_________________^_____^_______________^___^____________________________
+
+
+
+
+
+========================================================================
+C010-K03  REACH_BEFORE_CONTACT  [ONES/INFERRED]
+contact=NONE | eligibility=B:E+ | custody=NONE
+support=A:FRONT_PROBE;B:BOTH
+
+
+
+
+
+
+
+
+                       A
+                        |
+                        O---------*        B
+                       /|                 |
+                      /  |               -O
+                     *   X             *-| -*
+                        / \              X
+                       /   \            / \
+                      /     \           / \
+_____________________^_______^_________^___^____________________________
+
+
+
+
+
+========================================================================
+C010-K04  ACQUIRE_ANCHOR  [ONES/INFERRED]
+contact=A.hand_f<->B.hand_f | eligibility=B:E+->CONSUMED | custody=A_PRIMARY
+support=A:FRONT_TRUSTED;B:BOTH
+
+
+
+
+
+
+
+
+                           A
+                            |
+                            O---          B
+                           /|   ----@--  |
+                          /  |         --O
+                         *   X          | -*
+                            / \         X
+                           /   \        |\
+                          /    \       | \
+_________________________^______^______^__^_____________________________
+
+
+
+
+
+========================================================================
+C010-K05  RELATIONSHIP_FRAME_LOCK  [TWOS/INFERRED]
+contact=HAND+TORSO_LOCK | eligibility=CONSUMED | custody=A_PRIMARY
+support=A:DUAL;B:REAR_DEGRADING
+
+
+
+
+
+
+
+
+                             A
+                              |         B
+                              O--      |
+                              |* ---@--O
+                               |      |*
+                               X      X
+                              / \     |\
+                             /   \   |  \
+                            /    \   |  \
+___________________________^______^__^___^______________________________
+
+
+
+
+
+========================================================================
+C010-K06  LOAD_OPPOSING_ARCS  [FOURS/INFERRED]
+contact=HAND+TORSO_LOCK | eligibility=CONSUMED | custody=A_PRIMARY
+support=A:REAR+FRONT_BRACE;B:LOSING_GROUND
+
+
+
+
+
+
+
+                                       B
+                                      |
+                              A       O-*
+                               |  --@-|
+                               O--   |
+                               | -*  X
+                                |    |\
+                                X   | \
+                              // \  |  ^
+                            //    \ ^
+___________________________^_______^____________________________________
+
+
+
+
+
+========================================================================
+C010-K07  HIP_LEVER_PIVOT  [TWOS/INFERRED]
+contact=HAND+TORSO_LOCK | eligibility=CONSUMED | custody=A_PRIMARY
+support=A:REAR_ANCHOR;B:NONE
+
+
+
+
+
+
+                                       B
+                                      /--*
+                                     O-
+                             A      /
+                              |^---@
+                              O---X
+                              | --*|
+                               |   ^
+                               X
+                              / \
+                             /   \
+                            /     \
+___________________________^_______^____________________________________
+
+
+
+
+
+========================================================================
+C010-K08  TRANSFER_SWEEP  [ONES/INFERRED]
+contact=HAND+TORSO_LOCK | eligibility=CONSUMED | custody=A_PRIMARY
+support=A:REAR_ANCHOR;B:NONE
+
+
+
+
+
+
+                                            -B
+                                        -O---*
+                                    ----/
+                           A     -@-  //
+                            | ---   -X
+                            O---* ^-  \
+                            |          ^
+                             |
+                             X
+                            / \
+                           /   \\
+                          /      \
+_________________________^________^_____________________________________
+
+
+
+
+
+========================================================================
+C010-K09  RELEASE_FORK  [ONES/INFERRED]
+contact=RELEASED | eligibility=CONSUMED | custody=NONE
+support=A:REAR_DOMINANT;B:NONE
+
+
+
+
+
+                                            B
+                                           |
+                                           O---*
+                                         --|
+                                       *- |
+                         A                X--
+                          |  ---*          | ---^
+                          O--              ^
+                          |-*
+                           |
+                           X
+                          / --
+                         /    --
+________________________^________^______________________________________
+
+
+
+
+
+========================================================================
+C010-K10  PARTNER_LAG / CARRIER_RECOIL  [TWOS/INFERRED]
+contact=NONE | eligibility=CONSUMED | custody=NONE
+support=A:REAR_DOMINANT;B:NONE
+
+
+
+
+
+
+                                                 B
+                                                |
+                                                O---*
+                                              --|
+                                            *- |
+                        A  *                   X--
+                         |/                     | ---^
+                         O---*                  ^
+                         |
+                          |
+                          X-
+                        //  ---
+_______________________^________^_______________________________________
+
+
+
+
+
+========================================================================
+C010-K11  DESCENT / SETTLE_BEGIN  [TWOS/INFERRED]
+contact=NONE | eligibility=CONSUMED | custody=NONE
+support=A:DUAL_REGAIN;B:PRECONTACT
+
+
+
+
+
+
+
+                                                      B
+                         A                           |
+                         *|                         -O--*
+                          O-                      *- |
+                          | -*                      |
+                           |                        X
+                           X                       | \
+                          / \\                     ^  \\
+                         /    \\                        ^
+________________________^_______^_______________________________________
+
+
+
+
+
+========================================================================
+C010-K12  PARTNER_CATCH / A_OVERSHOOT  [ONES/INFERRED]
+contact=NONE | eligibility=CONSUMED | custody=NONE
+support=A:FRONT_OVERSHOOT;B:FRONT_CATCH
+
+
+
+
+
+
+
+                           A
+                            |
+                            O-                         B
+                          //| -*                      |
+                         *   |                       -O
+                             X                     *- |-*
+                            / \                      |
+                           /   \                     X
+                          /     \                   / \\
+_________________________^_______^_________________^____^_______________
+
+
+
+
+
+========================================================================
+C010-K13  RECOVERY_DEBT  [TWOS/INFERRED]
+contact=NONE | eligibility=CONSUMED | custody=NONE
+support=A:DUAL;B:DUAL_REGAIN
+
+
+
+
+
+
+
+                            A
+                             |                          B
+                             O                         |
+                            /|-*                      -O
+                           /  |                     *- |-*
+                          *   X                       |
+                             / \                      X
+                            /   \                    / \
+                           /     \                   /  \
+__________________________^_______^_________________^____^______________
+
+
+
+
+
+========================================================================
+C010-K14  READY_NEW_ADDRESS  [FOURS/INFERRED]
+contact=NONE | eligibility=SPENT | custody=NONE
+support=A:BOTH;B:BOTH
+
+
+
+
+
+
+                             A
+                              |                          B
+                              O-                        |
+                            *-| -*                     -O
+                               |                     *- |-*
+                               X                       |
+                              / \                      X
+                              / \                     | \
+                             /   \                    |  \
+                             /   \                   |   \
+____________________________^_____^__________________^____^_____________
+
+
+
