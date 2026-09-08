@@ -42,39 +42,40 @@
   "media": {
     "authoritative": "embedded_mp4_in_spa",
     "tracked_mp4": false,
-    "sha256": "170dfe4778da7d5132742b52a9aaff32530fbc9fc23e99e3e7774f1d83f2a28a",
-    "bytes": 27172,
+    "sha256": "da1304360562733595944e785bf4668efb566acfcbf2050e1972a06a3c2a7370",
+    "bytes": 26985,
     "codec": "H.264",
-    "decode_verified": true,
-    "duration_s": 2.2916666666666665,
-    "fps": 24,
-    "frame_count": 55,
+    "pixel_format": "yuv420p",
     "width": 432,
     "height": 220,
-    "pixel_format": "yuv420p",
-    "identity_note": "Current canonical builder+motion reconstruction produced this exact byte identity; it matches the pre-existing motion.json/manifest media identity. A stale intermediate receipt-only media hash is superseded."
+    "fps": 24,
+    "frame_count": 55,
+    "duration_s": 2.2916666666666665,
+    "source": "abstract_ascii_rig_only",
+    "decode_verified": true,
+    "identity_note": "Current worker rebuilt from the exact canonical abstract rig/timing after the Tango recovery-bridge correction; this SHA is the authoritative embedded MP4 identity."
   },
   "quality": {
     "tango": {
       "status": "PASS",
       "current_worker": true,
-      "rounds_total_lineage": 3,
-      "inspection_scope": "current worker decoded and inspected all 55 frames chronologically in five complete review sheets from the exact final Motion Dungeon render",
-      "verdict": "PASS — lopsided countermove and deep diagonal load precede release; the board clock visibly foreshortens, inverts endpoint order, and leads the body clock without cartwheel pitch; eligibility, recapture clamp, ground catch, landing sink, forward overshoot, secondary lag, and displaced recovery remain causally distinct. No visible defect earns key/timing/support/arc mutation."
+      "rounds_total_lineage": 5,
+      "inspection_scope": "this worker decoded the exact canonical render, inspected every frame chronologically, rejected the recovery T-pose crossing, mutated K14→K14B→K15 timing/bridge, rerendered, then reinspected the corrected full sequence",
+      "verdict": "PASS — asymmetric preparation and load, distinct board/body clocks, authored release, eligibility→recapture→ground-catch separation, crooked landing sink, directional overshoot, staggered secondary lag, and displaced recovery are readable. The prior K14→K15 connective T-pose has been removed by an authored recovery bridge plus decisive snap boundary; no remaining visible defect earns mutation."
     },
     "noodle_queen": {
       "status": "PASS",
       "current_worker": true,
       "after_tango": true,
-      "rounds_total_lineage": 2,
-      "inspection_scope": "same exact final 55-frame render plus complete ASCII/JSON/VIDEO specimen",
-      "verdict": "PASS — TASTE + FUNCTION + CONTEMPT: the backward-loaded silhouette, independent board clock, late rendezvous, crooked landing payment, overshoot and non-reset exit form one specific readable performance; economy is serving the action rather than excusing missing acting."
+      "rounds_total_lineage": 3,
+      "inspection_scope": "this worker judged the corrected exact final render plus complete ASCII/JSON/VIDEO specimen only after final Tango PASS",
+      "verdict": "PASS — TASTE + FUNCTION + CONTEMPT: the backward-loaded silhouette, independent board clock, late rendezvous, crooked landing payment, recovery overshoot and intentionally staggered arm debt read as one authored performance rather than a pose pack."
     }
   },
   "contract_test": {
     "script_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "script_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
-    "candidate_scoped_status": "PASS",
+    "candidate_scoped_status": "PENDING_CURRENT_WORKER_POST_WRITE",
     "repo_global_status": "NOT_CLAIMED"
   }
 }
