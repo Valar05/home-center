@@ -113,6 +113,35 @@ def contact_sheet(m):
         ]
     return "\n".join(lines).rstrip()+"\n"
 
+
+def spa_projection(m):
+    return {
+        "schema":"ascii-kinesis.motion.v2-spa-view",
+        "experiment_id":m["experiment_id"],
+        "revision":{"revises":m["revises"],"negative_fixture":m["negative_fixture"],"negative_fixture_status":m["negative_fixture_status"]},
+        "rig":m["rig_schema"],
+        "clock_channels":m["clock_channels"],
+        "timing_vocabulary":m["timing_vocabulary"],
+        "keys":[{
+            "key_id":k["key_id"],"name":k["name"],
+            "pose_rig":{"rig_id":k["pose_rig"]["rig_id"],"ascii_authority":k["key_id"],"gate_state":k["pose_rig"]["gate_state"]},
+            "support_contact":k["support_contact"],
+            "motion_arc_root_note":k["motion_arc_root_note"],
+            "timing_class":k["timing_class"],"timing_provenance":k["timing_provenance"],
+            "causal_role":k["causal_role"],"clock_state":k["clock_state"]
+        } for k in m["keys"]],
+        "source_rights":{
+            "site":m["source"]["site"],"asset_id":m["source"]["asset_id"],"page_url":m["source"]["page_url"],
+            "raw_sha256":m["source"]["raw_sha256"],"whole_sheet_inspected":m["source"]["whole_sheet_inspected"],
+            "source_timing_available":m["source"]["source_timing_available"],"rights_note":m["source"]["rights_note"],
+            "observation_inference_split":{"OBSERVED":m["source"]["observed"],"INFERRED":"all authored key timing and ASCII performance","UNKNOWN":m["source"]["unknown"]}
+        },
+        "compatibility":m["compatibility"],
+        "manifest":m["manifest"],
+        "media":{"sha256":m["compile"]["media_sha256"],"bytes":m["compile"]["media_bytes"],"fps":m["compile"]["fps"],"frames":m["compile"]["video_frames_total"],"source":"abstract_ascii_rig_only"},
+        "skill_mutation":m["skill_mutation"]
+    }
+
 def frame_png(txt,path):
     regular=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",10)
     header=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",9)
@@ -145,8 +174,8 @@ def main():
     media=MP4.read_bytes()
     if sha256(media) != m["compile"]["media_sha256"]:
         raise SystemExit(f"media hash mismatch: {sha256(media)}")
-    motion_text=MOTION.read_text(encoding="utf-8")
-    page=HTML_TEMPLATE.replace("__ASCII__",html.escape(sheet)).replace("__JSON__",html.escape(motion_text)).replace("__VIDEO__",base64.b64encode(media).decode())
+    json_text=json.dumps(spa_projection(m),ensure_ascii=False,separators=(",",":"),sort_keys=True)
+    page=HTML_TEMPLATE.replace("__ASCII__",html.escape(sheet)).replace("__JSON__",html.escape(json_text)).replace("__VIDEO__",base64.b64encode(media).decode())
     HTML.write_text(page,encoding="utf-8")
     print(json.dumps({"ok":True,"media_sha256":sha256(media),"ascii_sha256":sha256(sheet.encode()),"frames":len(all_frames),"html_sha256":sha256(page.encode())},sort_keys=True))
 
