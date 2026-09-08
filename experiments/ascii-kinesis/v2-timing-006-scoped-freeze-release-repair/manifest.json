@@ -1,5 +1,6 @@
 {
   "ascii_literal_text": true,
+  "ascii_sheet_sha256": "5d06e4261bf5695a23c022bcece9570e019994d1650488bc673aa709a4c8202e",
   "ascii_surface": "real preformatted DOM text",
   "backward_compatible": true,
   "contract_test": "python3 tools/test_ascii_kinesis_swarm_contract_v2.py",
@@ -17,23 +18,17 @@
   ],
   "evaluation": {
     "noodle_queen": {
-      "judgment": "TASTE + FUNCTION + CONTEMPT PASS: the frozen high-B / low-sweeping-A contradiction is the memorable center; anticipation and consequence are not metronomic; silhouette phases are distinct; COM counterweight and planted feet make intent embodied; the release visibly spends phase debt; the repair is economical without looking like placeholder tweening.",
-      "render_media_sha256": "8d38f86975caae04b2d6c99299b95200b63f11ef593fc4123b723d46c858a886",
+      "judgment": "TASTE + FUNCTION + CONTEMPT PASS: the high frozen B against the low traveling A is a memorable contradiction; the deep coil materially earns the snap; the B phase-debt whip and body catch give the clock rule physical consequence; silhouettes and rhythm are specific rather than metronomic; motion is sparse by decision rather than cheapness; causality remains coherent and support truth is never sacrificed for spectacle.",
+      "render_media_sha256": "05a4d7aae87199faff33422db576a787455759b354ab23ccae897eb23a5a7f88",
       "status": "PASS"
     },
     "tango": {
+      "inspection": "Actual compiled render inspected across every frame of one complete 45-frame semantic loop from the generated MP4; no source art involved.",
       "iterations": [
         {
-          "correction": "Author K10 as a still-offset restack with COM one cell left, B still settling, A still low-lag; add two deterministic SMOOTHSTEP recovery bridge frames into K0 while preserving bilateral foot contact.",
-          "highest_value_visible_defect": "Recovery collapsed into the exact READY silhouette: K10 was visually identical to K0, so the cycle paid no visible recovery debt and read as a generic idle reset.",
           "iteration": 1,
-          "render_media_sha256": "9568f35c7fe7a7e28a4ae4d377f5f4fb8806d7e1529159d47fd49e2dd450a360",
-          "verdict": "REVISE_REQUIRED"
-        },
-        {
-          "iteration": 2,
-          "judgment": "Actual render now reads as coil -> one-tick A snap -> B apex/read -> one-tick freeze latch -> long B-held/A-sweep counterweight -> A overshoot/deceleration -> one-tick release -> B catch-up overshoot -> rebound/secondary lag -> offset restack. Support remains planted, spacing is asymmetric, and the loop returns through paid recovery instead of reverse interpolation or idle reset.",
-          "render_media_sha256": "8d38f86975caae04b2d6c99299b95200b63f11ef593fc4123b723d46c858a886",
+          "judgment": "Visible performance reads as centered async readiness -> rightward/drop anticipation -> deeper compressed coil -> one-tick A snap -> B apex read -> one-tick scoped freeze latch -> B held high while A/COM counter-sweep left -> A near-ground overshoot/deceleration -> one-tick B release -> one-tick B phase-debt whip -> rightward body catch -> B rebound with A lag -> offset restack. Support contacts stay fixed, COM preparation/counterweight/catch remain inside the planted base, bridge spacing accelerates/decelerates instead of equalizing, and the loop pays recovery debt rather than reverse-interpolating or resetting to idle.",
+          "render_media_sha256": "05a4d7aae87199faff33422db576a787455759b354ab23ccae897eb23a5a7f88",
           "verdict": "PASS"
         }
       ],
@@ -52,23 +47,24 @@
   "format_version": 2,
   "lane": "timing",
   "ligatures_disabled": true,
-  "media_bytes": 13355,
-  "media_sha256": "8d38f86975caae04b2d6c99299b95200b63f11ef593fc4123b723d46c858a886",
+  "media_bytes": 19826,
+  "media_sha256": "05a4d7aae87199faff33422db576a787455759b354ab23ccae897eb23a5a7f88",
   "motion_dungeon": {
     "ascii_only_frame_render": true,
-    "authored_ascii_keys": 11,
-    "authored_hold_frames_per_loop": 26,
-    "connective_frames_per_loop": 8,
+    "authored_ascii_keys": 13,
+    "authored_hold_frames_per_loop": 32,
+    "connective_frames_per_loop": 13,
     "connector_semantics_fail_closed": true,
     "curved_authored_bridges": true,
     "deterministic_connective_motion": true,
     "explicit_holds": true,
     "fps": 24,
-    "loop_repetitions": 4,
-    "semantic_frames_per_loop": 34,
-    "video_frames_total": 136
+    "loop_repetitions": 3,
+    "semantic_frames_per_loop": 45,
+    "video_frames_total": 135
   },
   "negative_fixture": "experiments/ascii-kinesis/v2-timing-001-scoped-freeze-release/",
+  "negative_fixture_status": "REVISE_REQUIRED_LOW_EFFORT",
   "primary_tabs": [
     "ASCII",
     "JSON",
@@ -77,9 +73,17 @@
   "reconstruction": "python3 build.py",
   "revises": "experiments/ascii-kinesis/v2-timing-001-scoped-freeze-release/",
   "schema": "ascii-kinesis.swarm-manifest.v2",
+  "skill_mutation": {
+    "owner": "POSE LAB v1 — Street Fighter II Temporal Kinesis",
+    "owner_drive_id": "1fYe-mDSfesKCX75_kYX4dZ4wGlaOrt78PECuxIWGSFw",
+    "performed": false,
+    "reason": "This is a visible-performance repair of existing v1.10 scoped freeze/release doctrine; it does not earn a new reusable timing rule."
+  },
   "source": {
     "asset_id": 97821,
     "evidence_reused_from_negative_fixture": true,
+    "game": "Nuclear Throne",
+    "name": "Robot",
     "page_url": "https://www.spriters-resource.com/pc_computer/nuclearthrone/asset/97821/",
     "raw_sha256": "d203f5004e62f5f9e0232aa2534c66e3ce30e0727428d561454dacbdb7f063ad",
     "site": "The Spriters Resource",
