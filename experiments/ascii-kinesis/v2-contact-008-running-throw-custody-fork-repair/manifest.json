@@ -1,0 +1,97 @@
+{
+  "ascii_literal_text": true,
+  "ascii_surface": "real preformatted DOM text",
+  "backward_compatible": true,
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "experiment_id": "v2-contact-008-running-throw-custody-fork-repair",
+  "files": [
+    "build.py",
+    "contact-sheet.txt",
+    "manifest.json",
+    "motion.json",
+    "receipt.json",
+    "running-throw-custody-fork-repair.motion.html"
+  ],
+  "format_version": 2,
+  "lane": "contact",
+  "ligatures_disabled": true,
+  "media": {
+    "bytes": 20213,
+    "codec": "H.264",
+    "decode_verified": true,
+    "deterministic_rebuild_verified": true,
+    "fps": 24,
+    "frames": 152,
+    "height": 240,
+    "sha256": "c2720cff3339f3944353d9527d1f9673e59f2c24bd1c380c52bb6477bdbe35fb",
+    "width": 640
+  },
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 13,
+    "bridge_frames_total": 40,
+    "connector_semantics_fail_closed": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> TOPOLOGY-SAFE CURVED CONNECTIVE MOTION -> ASCII-ONLY PROCEDURAL GLYPH RENDER -> MP4 -> SPA",
+    "preview_time_scale": 4,
+    "semantic_hold_frames_total": 112,
+    "video_frames_total": 152
+  },
+  "negative_fixture": "experiments/ascii-kinesis/v2-contact-002-root-clock-custody-fork/",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "quality": {
+    "noodle_queen": "PASS",
+    "render_media_sha256": "c2720cff3339f3944353d9527d1f9673e59f2c24bd1c380c52bb6477bdbe35fb",
+    "tango": "PASS",
+    "tango_iterations": 2
+  },
+  "reconstruction": "python3 build.py",
+  "revises": "experiments/ascii-kinesis/v2-contact-002-root-clock-custody-fork/",
+  "revision": {
+    "negative_fixture": "experiments/ascii-kinesis/v2-contact-002-root-clock-custody-fork/",
+    "predecessor_status": "REVISE_REQUIRED_LOW_EFFORT",
+    "repair_order": "next-oldest pre-reset Contact fixture after HEALTHY Contact007 closed Contact001",
+    "revises": "experiments/ascii-kinesis/v2-contact-002-root-clock-custody-fork/",
+    "source_change": false
+  },
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "source": {
+    "asset_id": 52578,
+    "game": "Super Mario Bros. 2 / The Lost Levels (JPN)",
+    "page_url": "https://www.spriters-resource.com/nes/supermariobros2thelostlevelsjpn/asset/52578/",
+    "platform": "NES",
+    "raw_bytes": 52370,
+    "raw_dimensions": [
+      584,
+      468
+    ],
+    "raw_sha256": "7aa238a5d3cb74646aa93659241a3f933caea45d7908a27e59fa56a477d33bf6",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "title": "Mario & Luigi",
+    "whole_sheet_inspected": true
+  },
+  "source_art_embedded": false,
+  "source_change": false,
+  "video_packaging": "embedded MP4 data URI in running-throw-custody-fork-repair.motion.html",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
+}
