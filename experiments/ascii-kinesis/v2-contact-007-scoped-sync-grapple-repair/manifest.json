@@ -10,36 +10,124 @@
     "script_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c"
   },
   "contract_test_result": "PASS_CANDIDATE_SCOPED",
-  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
   "determinism": {
-    "media_sha256_each": ["8fe75f70c89a72d3fc8c47653012cf48d3f0a56c6f9f9b45e84e7ebf1e7b6c3c","8fe75f70c89a72d3fc8c47653012cf48d3f0a56c6f9f9b45e84e7ebf1e7b6c3c"],
+    "media_sha256_each": [
+      "985cbdd699b2673453a1aec1aa37021c2ba669cf411325b929e3132aee1b7b4f",
+      "985cbdd699b2673453a1aec1aa37021c2ba669cf411325b929e3132aee1b7b4f"
+    ],
     "rebuilds": 2,
-    "spa_sha256_each": ["985cb68c45700ad72e88a55900bf34338da6a065812b5185498b90afa5d2fda3","985cb68c45700ad72e88a55900bf34338da6a065812b5185498b90afa5d2fda3"]
+    "spa_sha256_each": [
+      "1e756d34e96a2572d4f0eb88843b6aa9f449006c72c71587a8c700229dd4f2a6",
+      "1e756d34e96a2572d4f0eb88843b6aa9f449006c72c71587a8c700229dd4f2a6"
+    ]
   },
-  "deterministic_rebuild": {"byte_identical":true,"media_sha256":"8fe75f70c89a72d3fc8c47653012cf48d3f0a56c6f9f9b45e84e7ebf1e7b6c3c","repeat_count":2},
+  "deterministic_rebuild": {
+    "byte_identical": true,
+    "media_sha256": "985cbdd699b2673453a1aec1aa37021c2ba669cf411325b929e3132aee1b7b4f",
+    "repeat_count": 2
+  },
   "evaluation": {
-    "noodle_queen": {"judgment":"TASTE + FUNCTION + CONTEMPT PASS on the actual final shipping render: the deep split coil, compact two-anchor hinge, diagonal airborne partner, release fork, collapsed recoil, forward overshoot, and spent recovery remain specific memorable silhouettes; force/contact ownership is embodied; transfer/release is coherent; economy does not read as cheap mannequin interpolation.","render_media_sha256":"8fe75f70c89a72d3fc8c47653012cf48d3f0a56c6f9f9b45e84e7ebf1e7b6c3c","status":"PASS"},
-    "tango": {"iterations":[{"correction":"Widen B’s authored K6 arc up-and-right, rotate the receiver into a stronger diagonal/horizontal silhouette, deepen A’s counterlean/rear-foot opposition, and increase the locked-polar K5→K6 rotation from -52° to -60° without changing anchor ownership, support timing, custody, or release.","highest_value_visible_defect":"At the K5→K6 support-transfer/throw passage the airborne partner stayed too vertical and too near the shared center, so the support loss read more like a generic lift than leverage-driven rotational transfer.","iteration":1,"render_media_sha256":"774bff8b997c5e4eebc26b2c65583479b07bc8534765492b9505468b682da2fe","verdict":"REVISE_REQUIRED"},{"iteration":2,"judgment":"Actual rerender montage plus decisive-frame inspection shows asymmetrical low approach, COM coil, first and second acquisition, a compact >X< relationship hinge, opposing leverage arcs, support loss only after load, a clearly rotational locked throw, explicit release gap, divergent partner lag/carrier recoil, forward overshoot, ground consequence, and recovery debt. No material generic symmetry, equal spacing, straight semantic tween, floating leverage, ownership ambiguity, reverse interpolation, or idle-reset recovery remains.","render_media_sha256":"d35f419ea1ae275c47c12692ce791d570edda3ed34c07648cac34f34b78bfb28","verdict":"PASS"},{"iteration":3,"judgment":"Actual final 480x180 shipping MP4 sampled across the full 154-frame movie after deterministic packaging reduction. The asymmetric coil, one/two-anchor acquisition, local >X< shared-force hinge, opposing leverage, support transfer, diagonal locked throw, explicit release gap, diverging recoil/lag, overshoot, ground consequence, and recovery debt remain legible. Compression introduces no contact-ownership ambiguity, silhouette collapse, reverse interpolation, or idle-reset recovery.","render_media_sha256":"8fe75f70c89a72d3fc8c47653012cf48d3f0a56c6f9f9b45e84e7ebf1e7b6c3c","verdict":"PASS"}],"status":"PASS"}
+    "noodle_queen": {
+      "judgment": "TASTE + FUNCTION + CONTEMPT PASS after Tango on the actual procedural-glyph final render: low split coil, compact two-anchor hinge, diagonal airborne partner, release fork, collapsed recoil, forward overshoot and spent recovery remain specific memorable silhouettes; the cleaner rig-first raster strengthens embodied contact ownership without decoration.",
+      "render_media_sha256": "985cbdd699b2673453a1aec1aa37021c2ba669cf411325b929e3132aee1b7b4f",
+      "status": "PASS"
+    },
+    "tango": {
+      "iterations": [
+        {
+          "correction": "Widen B\u2019s authored K6 arc up-and-right, rotate the receiver into a stronger diagonal/horizontal silhouette, deepen A\u2019s counterlean/rear-foot opposition, and increase the locked-polar K5\u2192K6 rotation from -52\u00b0 to -60\u00b0 without changing anchor ownership, support timing, custody, or release.",
+          "highest_value_visible_defect": "At the K5\u2192K6 support-transfer/throw passage the airborne partner stayed too vertical and too near the shared center, so the support loss read more like a generic lift than leverage-driven rotational transfer.",
+          "iteration": 1,
+          "render_media_sha256": "774bff8b997c5e4eebc26b2c65583479b07bc8534765492b9505468b682da2fe",
+          "verdict": "REVISE_REQUIRED"
+        },
+        {
+          "iteration": 2,
+          "judgment": "Actual rerender montage plus decisive-frame inspection shows asymmetrical low approach, COM coil, first and second acquisition, a compact >X< relationship hinge, opposing leverage arcs, support loss only after load, a clearly rotational locked throw, explicit release gap, divergent partner lag/carrier recoil, forward overshoot, ground consequence, and recovery debt. No material generic symmetry, equal spacing, straight semantic tween, floating leverage, ownership ambiguity, reverse interpolation, or idle-reset recovery remains.",
+          "render_media_sha256": "d35f419ea1ae275c47c12692ce791d570edda3ed34c07648cac34f34b78bfb28",
+          "verdict": "PASS"
+        },
+        {
+          "iteration": 3,
+          "judgment": "Actual final 480x180 shipping MP4 sampled across the full 154-frame movie after deterministic packaging reduction. The asymmetric coil, one/two-anchor acquisition, local >X< shared-force hinge, opposing leverage, support transfer, diagonal locked throw, explicit release gap, diverging recoil/lag, overshoot, ground consequence, and recovery debt remain legible. Compression introduces no contact-ownership ambiguity, silhouette collapse, reverse interpolation, or idle-reset recovery.",
+          "render_media_sha256": "8fe75f70c89a72d3fc8c47653012cf48d3f0a56c6f9f9b45e84e7ebf1e7b6c3c",
+          "verdict": "PASS"
+        },
+        {
+          "iteration": 4,
+          "judgment": "Actual final procedural-glyph shipping render inspected after host-font removal. Authored geometry and connective semantics are unchanged; asymmetric coil, staged one/two-anchor acquisition, shared-force hinge, opposing leverage, delayed support loss, diagonal locked throw, release gap, divergent recoil/lag, overshoot and recovery debt remain legible. No ownership ambiguity, generic symmetry, straight semantic tween, reverse interpolation or idle-reset recovery was introduced by the raster correction.",
+          "render_media_sha256": "985cbdd699b2673453a1aec1aa37021c2ba669cf411325b929e3132aee1b7b4f",
+          "verdict": "PASS"
+        }
+      ],
+      "status": "PASS"
+    }
   },
   "experiment_id": "v2-contact-007-scoped-sync-grapple-repair",
-  "files": ["build.py","contact-sheet.txt","manifest.json","motion.json","receipt.json","scoped-sync-grapple-repair.motion.html"],
+  "files": [
+    "build.py",
+    "contact-sheet.txt",
+    "manifest.json",
+    "motion.json",
+    "receipt.json",
+    "scoped-sync-grapple-repair.motion.html"
+  ],
   "format_version": 2,
   "lane": "contact",
   "ligatures_disabled": true,
-  "media_bytes": 21423,
-  "media_sha256": "8fe75f70c89a72d3fc8c47653012cf48d3f0a56c6f9f9b45e84e7ebf1e7b6c3c",
-  "motion_dungeon": {"ascii_only_frame_render":true,"authored_ascii_keys":11,"connector_semantics_fail_closed":true,"crf":40,"curved_authored_bridges":true,"deterministic_connective_motion":true,"explicit_holds":true,"fps":24,"output_height":180,"output_width":480,"preview_time_scale":4,"semantic_frames_per_loop":154,"video_frames_total":154},
+  "media_bytes": 20933,
+  "media_sha256": "985cbdd699b2673453a1aec1aa37021c2ba669cf411325b929e3132aee1b7b4f",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 11,
+    "connector_semantics_fail_closed": true,
+    "crf": 40,
+    "curved_authored_bridges": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "output_height": 180,
+    "output_width": 480,
+    "preview_time_scale": 4,
+    "procedural_glyph_raster": true,
+    "semantic_frames_per_loop": 154,
+    "video_frames_total": 154
+  },
   "negative_fixture": "experiments/ascii-kinesis/v2-contact-001-scoped-sync-grapple/",
-  "primary_tabs": ["ASCII","JSON","VIDEO"],
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
   "reconstruction": "python3 build.py",
   "repair_order": "OLDEST_FIRST",
-  "repo_global_test_boundary": "NOT_RUN_IN_LOCAL_CONSTRUCTION_ENVIRONMENT",
+  "repo_global_test_boundary": "GLOBAL_FAIL_UNRELATED: v2-airborne-005-side-support-gates-second-impulse expected exactly one tracked *.motion.html SPA",
   "revises": "experiments/ascii-kinesis/v2-contact-001-scoped-sync-grapple/",
   "schema": "ascii-kinesis.swarm-manifest.v2",
-  "source": {"asset_id":30327,"evidence_reused_from_negative_fixture":true,"page_url":"https://www.spriters-resource.com/nes/doubledragoniitherevenge/asset/30327/","raw_sha256":"4bc16d9c88b58d6ad6d727b285f373c4caa1957b2762aebf44476a2f77f3e33c","site":"The Spriters Resource","source_timing_available":false,"whole_sheet_inspected":true},
+  "source": {
+    "asset_id": 30327,
+    "evidence_reused_from_negative_fixture": true,
+    "page_url": "https://www.spriters-resource.com/nes/doubledragoniitherevenge/asset/30327/",
+    "raw_sha256": "4bc16d9c88b58d6ad6d727b285f373c4caa1957b2762aebf44476a2f77f3e33c",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_inspected": true
+  },
   "source_art_embedded": false,
-  "spa_sha256": "985cb68c45700ad72e88a55900bf34338da6a065812b5185498b90afa5d2fda3",
-  "status": "REPAIR_SUCCESSOR_PACKAGED",
+  "spa_sha256": "1e756d34e96a2572d4f0eb88843b6aa9f449006c72c71587a8c700229dd4f2a6",
+  "status": "REPAIR_SUCCESSOR_TASTE_PASS_BUILD_VERIFIED",
   "video_packaging": "embedded MP4 data URI in scoped-sync-grapple-repair.motion.html",
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
