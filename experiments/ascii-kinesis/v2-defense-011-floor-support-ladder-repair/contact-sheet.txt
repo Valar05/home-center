@@ -1,0 +1,501 @@
+ASCII KINESIS V2 DEFENSE 011 — FLOOR SUPPORT LADDER REPAIR
+abstract rig only — source art never enters output
+performance law: floor contact is consequence; height is purchased by trustworthy support
+force line: RIGHT-LOW impact -> LEFT/DOWN collapse -> FLOOR overshoot -> RIGHT/UP recovery -> displaced ready
+
+D011-K00  DISPLACED_READY  [FOURS | INFERRED]
+
+
+
+
+                                      O
+
+                                     +--+
+                                  +//|   \\
+                                //   |     +--o
+                               +     |
+                               /     |
+                              |      @
+                              o     / \
+                                  //   \\
+                                 +       +
+                                /         \
+                               /           \
+                               /           \
+                              =             =
+    ________________________________________________________
+                              L             R
+
+support=BOTH_FEET root=GROUNDED contact=NONE
+role=before-state: displaced action-capable ready
+arc=left lead owns line; pelvis offset right; residual readiness is asymmetrical debt=0.22
+
+----------------------------------------------------------------
+
+D011-K01  ASYM_LOW_BRACE  [TWOS | INFERRED]
+
+
+
+
+
+                                     O
+
+                                    +---+
+                                 +//|    \
+                               //   |     \
+                              +     |      +
+                              |     |       \\
+                              |     @         o
+                              o   // \\
+                                //     \\
+                               +         -+
+                              /            \
+                              /             \
+                             =               =
+    ________________________________________________________
+                             L               R
+
+support=BOTH_FEET root=GROUNDED contact=INCOMING_LOW_RIGHT
+role=anticipation: pelvis lowers and rear side braces before impact
+arc=brace is intentionally asymmetrical: lead knee folds deeper, rear hand checks incoming line debt=0.30
+
+----------------------------------------------------------------
+
+D011-K02  LOW_RIGHT_IMPACT  [ONES | INFERRED]
+
+
+
+
+
+
+                                  O
+                                  +
+                               +--|--+
+                              /   |   \
+                             +    |    \
+                             /    |     +
+                            |     @      \\      <<<<<<<
+                            o    / \\      -o
+                               //    \\
+                              +        +\
+                             /           \\
+                            =              -=
+    ________________________________________________________
+                                            R
+
+support=REAR_FOOT root=IMPACTED contact=IMPACT_FROM_RIGHT_LOW
+role=directional contact join: force from right drives pelvis down-left
+arc=contact is a causal join; front support loses authority at the instant of compression debt=0.48
+
+----------------------------------------------------------------
+
+D011-K03  SUPPORT_PEEL  [ONES | INFERRED]
+
+
+
+
+
+
+
+                               O
+                               +
+                            +--|--+
+                           /   |   \
+                          +    |    \
+                          /    @     +
+                         |    / \\    \\
+                         o  //    \\    o
+                           +        +\\
+                         =-            ---=
+    ________________________________________________________
+                                          R
+
+support=REAR_FOOT root=YIELDING contact=POST_IMPACT
+role=support break: rear foot owns root for one last beat while body peels left
+arc=pelvis outruns chest; lead foot skids free; the last trusted support is visibly behind COM debt=0.62
+
+----------------------------------------------------------------
+
+D011-K04  KNEE_CATCH_FAIL  [ONES | INFERRED]
+
+
+
+
+
+
+
+
+
+                           O
+                            +
+                         +--\--+
+                        /    |  \\
+                       +     |    +
+                      /      @\    \\
+                     o     //  \\    o
+                       =--+      -+-----=
+    ________________________________________________________
+                          K
+
+support=KNEE_L_REAR_TOE root=COLLAPSING contact=NONE
+role=failed intermediate catch: knee touches but cannot arrest leftward COM
+arc=first floor touch is not trustworthy recovery; COM still passes left of support polygon debt=0.78
+
+----------------------------------------------------------------
+
+D011-K05  FOREARM_HIP_FLOOR_TAKEOVER  [TWOS | INFERRED]
+
+
+
+
+
+
+
+
+
+
+
+                      O
+                        +
+                     +---\-+
+                    /     \\\
+                   +       /@\+\
+                 o-   =--+-    --o+-----=
+    ________________________________________________________
+                 H          P
+
+support=FOREARM_L_HIP_KNEE root=FLOOR_BORNE contact=NONE
+role=floor support takeover after collapse
+arc=floor owns weight broadly; torso stays diagonal rather than snapping flat debt=0.90
+
+----------------------------------------------------------------
+
+D011-K06  FLOOR_SLIDE_OVERSHOOT  [TWOS | INFERRED]
+
+
+
+
+
+
+
+
+
+
+
+
+                  O
+                     +
+                  +---\\+
+                 /      \\\
+              o-+   =--+--@+---o-+-----=
+    ________________________________________________________
+              H           P
+
+support=FOREARM_L_HIP_KNEE root=FLOOR_BORNE contact=NONE
+role=overshoot: root keeps traveling after floor acquisition while head/hand lag
+arc=floor contact does not erase momentum; pelvis slides left farther than chest debt=1.00
+
+----------------------------------------------------------------
+
+D011-K07  TWISTED_CONSEQUENCE_HOLD  [FOURS | INFERRED]
+
+
+
+
+
+
+
+
+
+
+
+
+                   O
+                      +
+                   +---\\+\
+                 //      \\--+\
+              o-+    =--+--@----o-+-----=
+    ________________________________________________________
+              H            P
+
+support=FOREARM_L_HIP_KNEE root=FLOOR_BORNE contact=NONE
+role=consequence hold: body remains displaced and twisted
+arc=held consequence makes knockdown cost legible; not a dead symmetrical prone pose debt=0.98
+
+----------------------------------------------------------------
+
+D011-K08  ELBOW_POST_FIND  [TWOS | INFERRED]
+
+
+
+
+
+
+
+
+
+
+                     O
+
+                      +
+                    +--\-+
+                   /     \\\
+                  +       /@\+\
+                  o  =--+-    --o+-----=
+    ________________________________________________________
+                  H              K
+
+support=HAND_L_KNEE_R root=POSTED_LOW contact=NONE
+role=first trustworthy recovery anchor: left hand and right knee own root
+arc=support authority returns before height; pelvis remains low behind the post debt=0.88
+
+----------------------------------------------------------------
+
+D011-K09  KNEE_TUCK_UNDER_COM  [TWOS | INFERRED]
+
+
+
+
+
+
+
+
+
+                       O
+
+                        +
+                      +--\--+
+                     /    \\ \\
+                    +       @  +\
+                   |       / \\  -o
+                   o   =--+    +----=
+    ________________________________________________________
+                   H           K
+
+support=HAND_L_KNEE_R root=POSTED_LOW contact=NONE
+role=authored recovery bridge: knee tucks under COM without stealing height
+arc=root advances over future plant while hand remains trustworthy debt=0.78
+
+----------------------------------------------------------------
+
+D011-K10  TRIPOD_LOAD  [FOURS | INFERRED]
+
+
+
+
+
+
+
+
+
+                         O
+
+                          +
+                       +---\-+
+                      /     \ \\
+                     +       @  +\
+                    |       / \\  -o
+                    o   =--+    +----=
+    ________________________________________________________
+                    H           K    R
+
+support=HAND_L_KNEE_R_FOOT_R root=TRIPOD_LOAD contact=NONE
+role=load against floor before rising; support topology expands first
+arc=tripod compresses under COM; height is intentionally withheld until a trustworthy foot can accept load debt=0.70
+
+----------------------------------------------------------------
+
+D011-K11  PUSH_ARC_SHOULDER_LEADS  [TWOS | INFERRED]
+
+
+
+
+
+
+
+                           O
+
+                            +
+                         +---\-+
+                        /     \ \\
+                       /      \   +\
+                      +        @    -o
+                     /        / \\
+                     /       /    +\
+                    o    =--+       --=
+    ________________________________________________________
+                    H             K   R
+
+support=HAND_L_KNEE_R_FOOT_R root=TRIPOD_LOAD contact=NONE
+role=push arc: pelvis rises on curved path while free shoulder/hand lag
+arc=push travels diagonally over the tripod; pelvis remains low enough that support recovery visibly precedes height debt=0.58
+
+----------------------------------------------------------------
+
+D011-K12  FIRST_TRUSTWORTHY_FOOT_PLANT  [TWOS | INFERRED]
+
+
+
+
+
+
+                             O
+
+                              +
+                           +---\-+
+                          /    \  \\
+                         /      |   +\
+                        +       @     -o
+                       /       / \
+                       /     //   \
+                      |     +      +\\
+                      o    =          --=
+    ________________________________________________________
+                      H                 R
+
+support=HAND_L_FOOT_R root=HALF_RISE contact=NONE
+role=support transfer: right foot becomes action-worthy before hand release
+arc=right foot becomes trustworthy while torso is still pitched low; the following bridge pushes upward while hand remains a safety anchor debt=0.46
+
+----------------------------------------------------------------
+
+D011-K13  HAND_RELEASE_UPWARD_OVERSHOOT  [ONES | INFERRED]
+
+
+
+
+                                  O
+
+                                  +
+                               +--\--+
+                              /    |  \\
+                             /     |    +\
+                            +      @      -o
+                            /     / \
+                           |     /   \
+                           |    /    \
+                           o   +      +
+                              /        \
+                             /          \
+                             /          \
+                            =            =
+    ________________________________________________________
+                                         R
+
+support=FOOT_R root=RISING_OVERSHOOT contact=NONE
+role=hand release and upward overshoot after plant
+arc=pelvis rises past final stack; left side lags below shoulder, preventing reverse-play get-up debt=0.38
+
+----------------------------------------------------------------
+
+D011-K14  CROUCH_CATCH_BOTH_FEET  [TWOS | INFERRED]
+
+
+
+
+
+                                   O
+
+                                   +
+                                +--|--+
+                               /   |   \\
+                              /    |     +\
+                             +     |       -o
+                             /     @
+                            |     / \
+                            o   //   \\
+                               +       +
+                             //         \\
+                            =             -=
+    ________________________________________________________
+                            L              R
+
+support=BOTH_FEET root=CATCH_COMPRESSION contact=NONE
+role=counter-compression catches upward overshoot
+arc=both feet now own root, but body must absorb the rise rather than teleport upright debt=0.30
+
+----------------------------------------------------------------
+
+D011-K15  COUNTER_TRAVEL_RESTACK  [TWOS | INFERRED]
+
+
+
+
+                                    O
+
+                                    +
+                                 +--|--+
+                                /   |   \\
+                               /    |     +\
+                              +     |       -o
+                              /     @
+                             |     / \
+                             o   //   \\
+                                +       +
+                               /         \
+                              /           \
+                             =             =
+    ________________________________________________________
+                             L             R
+
+support=BOTH_FEET root=RESTACKING contact=NONE
+role=counter-travel: pelvis shifts back right as catch releases compression
+arc=restack travels opposite the floor-slide direction; support stays trustworthy debt=0.24
+
+----------------------------------------------------------------
+
+D011-K16  SECONDARY_LAG_SETTLE  [TWOS | INFERRED]
+
+
+
+
+                                     O
+
+                                     +
+                                  +--|--+
+                                 /   |   \\
+                                /    |     +\
+                               +     |       -o
+                               /     @
+                              |     / \
+                              o   //   \\
+                                 +       +
+                                /         \
+                               /           \
+                               /           \
+                              =             =
+    ________________________________________________________
+                              L             R
+
+support=BOTH_FEET root=SETTLING contact=NONE
+role=settle: head and trailing left hand finish after pelvis
+arc=secondary lag catches up after root; silhouette remains asymmetric debt=0.18
+
+----------------------------------------------------------------
+
+D011-K17  DISPLACED_READY_WITH_DEBT  [FOURS | INFERRED]
+
+
+
+
+                                      O
+
+                                      +--+
+                                   +//|   \\
+                                  /   |     +--o
+                                 /    |
+                                +     |
+                                /     @
+                               |     / \
+                               o   //   \\
+                                  +       +
+                                 /         \
+                                /           \
+                                /           \
+                               =             =
+    ________________________________________________________
+                               L             R
+
+support=BOTH_FEET root=GROUNDED contact=NONE
+role=state re-entry: action-ready at a displaced address with residual recovery debt
+arc=re-entry is not idle reset: root ends one cell right, guard remains canted, debt remains nonzero debt=0.12
