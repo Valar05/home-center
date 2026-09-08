@@ -26,7 +26,7 @@ UNKNOWN: source chronology/exposure/hit-stop/hitbox/support-foot/root path/game-
 - D009-K13 TRAIL_FOOT_CATCH — ONES — INFERRED
 - D009-K14 READY_OFFSET_WITH_DEBT — FOURS — INFERRED
 
-MP4 SHA-256 `8764c2ba87cde93a7cfff39309deb9689f346a45ce63029cc70af4b6e1bc2ca3`; 14800 bytes; H.264 640x360; 46 frames; 1.916667s.
+MP4 SHA-256 `4b5e383ee10cfb3f716acb1e68a7bd1dea1bd782290bea8192f4bcbbcdde7cd3`; 7627 bytes; H.264 480x270; 46 frames; 1.916667s.
 ASCII SHA-256 `230d58538f1f232e5b9edda442d63040eaf9f98c8c800741a1aa401d5424cbbd`.
 
 Tango: PASS (1 iterations recorded).
