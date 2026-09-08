@@ -1,0 +1,431 @@
+ASCII KINESIS V2 DEFENSE 012 — GUARD AUTHORITY / BACKDASH HANDOFF REPAIR
+abstract rig only — inherited commercial source art is evidence only and never enters output
+performance law: guard intent survives the support break; recoil earns retreat; rear plant skids, overshoots, counter-travels, then restacks
+force line: RIGHT impact -> DOWN/LEFT compression -> support break -> LEFT airborne arc -> rear plant -> LEFT overshoot -> RIGHT counter-travel -> guard re-expand -> displaced ready debt
+
+D012-K00  OFFSET_READY_GUARD  [FOURS | INFERRED]
+
+
+
+
+                                            O
+
+                                           +--+
+                                        +//|   \
+                                      //   |    +--o]
+                                     +     |
+                                     /     |
+                                    |      @
+                                    o     / \
+                                        //   \\
+                                       +       +
+                                      /         \
+                                      /          \
+                                     |           \
+   __________________________________=____________=__________
+                                     L            R
+
+
+support=BOTH_FEET root=GROUNDED contact=NONE guard=OWNED readiness=READY_DEBT
+role=before-state: already asymmetrical guarded readiness; rear/right side carries residual debt
+arc=root x=43; threat-facing right hand is forward but pelvis stays behind the guard debt=0.18
+
+----------------------------------------------------------------
+
+D012-K01  ASYM_BRACE_ANTICIPATION  [TWOS | INFERRED]
+
+
+
+
+
+                                          O
+
+                                          +---+
+                                       +///    \
+                                      /   /    \
+                                     /   |      +\
+                                    +    |        -o] <<<<<<<
+                                    /    @
+                                   |    / \\
+                                   o  //    \\
+                                     +        +
+                                    /          \
+                                    /           \\
+   ________________________________=______________=__________
+                                   L              R
+
+
+support=BOTH_FEET_REAR_BIASED root=GROUNDED contact=INCOMING_RIGHT guard=OWNED readiness=BRACED
+role=anticipation: pelvis lowers and shifts behind rear support before contact
+arc=base widens before impact; guard squares to threat while left side counterbalances debt=0.28
+
+----------------------------------------------------------------
+
+D012-K02  GUARD_CONTACT_COMPRESSION  [ONES | INFERRED]
+
+
+
+
+
+
+                                        O
+
+                                        +
+                                     +--/---+
+                                    /   /    \
+                                   /   |     \
+                                  +    |      +
+                                  /    @       -o]X<<<<<<<<<<
+                                 |    / \\
+                                 o   /    \\
+                                    +       +\
+                                   /          \\
+   _______________________________=______________=___________
+                                  R
+
+
+support=REAR_FOOT root=IMPACTED contact=IMPACT_RIGHT guard=OWNED readiness=INTERRUPTED
+role=decisive impact: guard folds toward torso while front support loses authority
+arc=force from right drives pelvis down-left; contact is not farthest reach debt=0.52
+
+----------------------------------------------------------------
+
+D012-K03  SHEAR_CONSEQUENCE_HOLD  [FOURS | INFERRED]
+
+
+
+
+
+
+
+                                       O
+
+                                      +---+
+                                   +///    \
+                                  /  /     \
+                                 /  /       +
+                                +   /        -o]
+                                /  @\
+                               |  /  \\\
+                               o /      -+\
+                                +          \\\\
+   ___________________________=_________________=____________
+                              R
+
+
+support=REAR_FOOT root=COMPRESSED contact=POST_IMPACT guard=CARRIED readiness=LOCKED_OUT
+role=held consequence: defensive intent survives while torso/pelvis shear behind the guard
+arc=root continues down-left after contact; rear foot is last trusted anchor debt=0.72
+
+----------------------------------------------------------------
+
+D012-K04  REAR_LEG_UNCOIL  [TWOS | INFERRED]
+
+
+
+
+
+                                     O
+
+                                    +---+
+                                 +///    \
+                                /  /     \
+                               /  /       +
+                              +   /        -o]
+                              /  @\
+                             |  /  \\\
+                             o /      -+\
+                              +          \\
+                             |             \\
+   __________________________=________________=______________
+                             R
+
+
+support=REAR_FOOT root=YIELDING contact=NONE guard=CARRIED readiness=INTERRUPTED
+role=stored compression turns into retreat; rear leg straightens while guard stays compact
+arc=contact releases but recoil debt still translates root left debt=0.68
+
+----------------------------------------------------------------
+
+D012-K05  SUPPORT_BREAK_LAUNCH  [ONES | INFERRED]
+
+
+
+
+                                   O
+
+                                  +---+
+                               +///    \
+                              / /      \
+                             / /        +
+                            + @\         -o]
+                            //  \\
+                           +      -+\
+                          /o         \\
+                         =             -=
+
+
+   __________________________________________________________
+
+
+
+support=NONE root=AIRBORNE_RETREAT contact=NONE guard=CARRIED readiness=LOCKED_OUT
+role=support break: both feet visibly clear only after recoil has already committed left
+arc=root x=31; backdash is earned by prior compression, not a generic dodge pop debt=0.62
+
+----------------------------------------------------------------
+
+D012-K06  AIRBORNE_COILED_RETREAT  [TWOS | INFERRED]
+
+
+
+                               O
+
+                              +---+
+                           +///    \
+                          ///      \
+                         //         +
+                        +@\          -o]
+                        /  \\
+                       |     -+
+                      +o       \
+                     /          \\
+                    =             =
+
+
+
+   __________________________________________________________
+
+
+
+support=NONE root=AIRBORNE_RETREAT contact=NONE guard=CARRIED readiness=LOCKED_OUT
+role=airborne directional commitment: compact retreat silhouette with guard still threat-facing
+arc=root arcs left/up; feet tuck under pelvis instead of hanging as planted-theater debt=0.55
+
+----------------------------------------------------------------
+
+D012-K07  AIRBORNE_OPEN_PREPLANT  [TWOS | INFERRED]
+
+
+
+
+
+                          O
+
+                         +---+
+                      +///    \
+                     ///      \
+                    //         +
+                   +@\          -o]
+                   /  \\\
+                  |      -+\
+                 +o         \\
+                /             -=
+               /
+              =
+   __________________________________________________________
+
+
+
+support=NONE root=AIRBORNE_RETREAT contact=NONE guard=CARRIED readiness=LOCKED_OUT
+role=pre-plant opening: rear foot reaches for floor while root is still traveling left
+arc=descending arc opens asymmetrically; guard hand lags behind pelvis travel debt=0.48
+
+----------------------------------------------------------------
+
+D012-K08  FIRST_REAR_PLANT  [ONES | INFERRED]
+
+
+
+
+
+
+
+                       O
+
+                      +---+
+                   +///    \
+                  / /       \
+                 / /         +
+                + /           -o]
+                /@\
+               |/  \\\
+               +      -+-----=
+              |
+   ___________=______________________________________________
+              R
+
+
+support=REAR_FOOT root=LANDING contact=NONE guard=CARRIED readiness=REBINDING
+role=first trustworthy rear plant: foot acquires support while pelvis is still moving left/down
+arc=plant begins recovery before torso rises; root has not yet stopped debt=0.46
+
+----------------------------------------------------------------
+
+D012-K09  PLANT_SKID_OVERSHOOT  [TWOS | INFERRED]
+
+
+
+
+
+
+
+
+                   O
+
+                  +---+
+               +///    \
+              / /       \
+             / /         +
+            + /           -o]
+            /@\\\
+           | |   ---+------=
+           o +
+   ___________=______________________________________________
+              R
+
+
+support=REAR_FOOT root=LANDING contact=NONE guard=CARRIED readiness=REBINDING
+role=overshoot: planted rear foot stays at x=15 while pelvis slides left past it
+arc=rear foot stays planted at x=14 while pelvis overshoots to x=13; torso stays pitched, front foot remains airborne debt=0.52
+
+----------------------------------------------------------------
+
+D012-K10  COUNTER_TRAVEL_CATCH  [TWOS | INFERRED]
+
+
+
+
+
+
+                    O
+
+                   +---+
+                +///    \
+               / /       \
+              /  /        +
+             +  /          -o]
+             / @\
+            | |  \\\
+            o +     -+\\
+              |         ---=
+   ___________=______________________________________________
+              R
+
+
+support=REAR_FOOT root=ARRESTING contact=NONE guard=CARRIED readiness=REBINDING
+role=counter-travel: pelvis rebounds slightly right against the planted rear foot before second support arrives
+arc=planted rear foot remains x=14 while pelvis counter-travels right to x=15; arrest is a rebound, not reverse playback debt=0.43
+
+----------------------------------------------------------------
+
+D012-K11  FRONT_FOOT_REACQUIRE  [ONES | INFERRED]
+
+
+
+
+
+                     O
+
+                    +---+
+                 +///    \
+                /  /      \
+               /   /       +
+              +   |         -o]
+              /   @
+             |   / \\
+             o  /    \\
+               +       +
+              |         \\
+   ___________=____________=_________________________________
+              L            R
+
+
+support=BOTH_FEET_REAR_BIASED root=RESTACKING contact=NONE guard=CARRIED readiness=REBINDING
+role=second support reacquisition: front foot joins only after rear plant has arrested retreat
+arc=root starts rising after two-foot support exists; guard remains compact and late debt=0.34
+
+----------------------------------------------------------------
+
+D012-K12  GUARD_REEXPAND_OVERSHOOT  [TWOS | INFERRED]
+
+
+
+
+                      O
+
+                     +---+
+                  +///    \\
+                 /  /       -+--o]
+                /  |
+               +   @
+               /  / \\
+              |  /    \\
+              o +       +
+               /         \
+               /          \
+              |           \
+   ___________=____________=_________________________________
+              L            R
+
+
+support=BOTH_FEET_REAR_BIASED root=RESTACKING contact=NONE guard=OWNED readiness=REBINDING
+role=guard authority re-expands after support returns; threat-side arm overshoots before torso is fully stacked
+arc=upper-body readiness catches up to lower-body support on a later clock debt=0.27
+
+----------------------------------------------------------------
+
+D012-K13  SECONDARY_LAG_SETTLE  [TWOS | INFERRED]
+
+
+
+
+                     O
+
+                    +
+                 +--/---+
+                /  /     \\
+               /   /       -+
+              +   |          -o]
+              /   @
+             |   / \\
+             o  /    \\
+               +       +
+               /        \
+              |          \\
+   ___________=____________=_________________________________
+              L            R
+
+
+support=BOTH_FEET_REAR_BIASED root=SETTLING contact=NONE guard=OWNED readiness=READY_DEBT
+role=secondary lag settle: guard hand retracts and head/pelvis drop a beat after the larger overshoot
+arc=settle is not return-to-idle; stance remains displaced and rear-biased debt=0.22
+
+----------------------------------------------------------------
+
+D012-K14  DISPLACED_READY_DEBT  [FOURS | INFERRED]
+
+
+
+
+                     O
+
+                    +
+                 +--/---+
+                /  /     \\
+               /   /       +--o]
+              +   |
+              /   @
+             |   / \\
+             o  /    \\
+               +       +
+               /        \
+              |          \
+              |           \
+   ___________=____________=_________________________________
+              L            R
+
+
+support=BOTH_FEET_REAR_BIASED root=GROUNDED contact=NONE guard=OWNED readiness=READY_DEBT
+role=re-entry: action-capable guard returns at a new root address with residual recovery debt
+arc=ready returns with pelvis x=18, twenty-five columns left of initial x=43; rear-biased stance and debt remain debt=0.18
