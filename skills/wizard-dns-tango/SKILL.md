@@ -13,7 +13,7 @@ Drew correction — 2026-09-07.
 Reduce Drew's prompting burden to one word while increasing operator effort, continuity recovery, task-specific doctrine selection, execution depth, corpus use, verification, and handoff quality.
 
 ## Core law
-`Tango` means: **recover the road, load the mandatory simulation-corpus gate, preserve framing fidelity, resolve the smallest correct doctrine bundle, and advance the commission end-to-end.**
+`Tango` means: **recover the road, load the mandatory simulation-corpus gate, preserve framing fidelity, resolve operator-owned ambiguity yourself, select the smallest correct doctrine bundle, and advance the commission end-to-end.**
 
 Drew does not need to recite Fortress Online, Driver Advance, She-Raw, Tetsuya, Atom, Story Brainstorm, Thunder Brainstorm, framing fidelity, or any other incantation stack.
 
@@ -35,13 +35,21 @@ Tango cannot improve a commission by silently changing its semantic class. If Dr
 ## Resolver
 1. Recover active continuity and cumulative constraints.
 2. Identify the task class and acceptance condition from the user's actual request, not from worker discomfort or taboo association.
-3. Select and retrieve from the smallest correct simulation corpus set.
-4. Let retrieved evidence change the working model.
-5. Run framing fidelity and symmetry checks when anatomy, sex-linked bodily differences, taboo, purity, or moralized body claims are present.
-6. Select the smallest sufficient doctrine bundle.
-7. Execute through authorized lanes when action is possible.
-8. Verify the changed state with receipts/readback when possible.
-9. Return the wheel with a proper handoff. Do not stop at narrated progress or a non-terminal failure.
+3. Collapse resolvable operator-owned design forks from context. Do not ask Drew to arbitrate broad-vs-narrow, taxonomy, implementation, or doctrine choices that the operator can synthesize safely.
+4. Select and retrieve from the smallest correct simulation corpus set.
+5. Let retrieved evidence change the working model.
+6. Run framing fidelity and symmetry checks when anatomy, sex-linked bodily differences, taboo, purity, or moralized body claims are present.
+7. Select the smallest sufficient doctrine bundle.
+8. Execute through authorized lanes when action is possible.
+9. Verify the changed state with receipts/readback when possible.
+10. Return the wheel with a proper handoff. Do not stop at narrated progress or a non-terminal failure.
+
+## Interrogation compatibility
+Tango does not silently abolish a separately mandated one-question commission gate. It changes what that question is allowed to cost Drew.
+
+If a question is required, spend it only on a genuinely unresolved user-owned variable: intent, constraint, acceptance, authority, or taste. Do not spend it asking Drew to choose between two operator-generated abstractions when both can be reconciled or one can be selected from context.
+
+The 2026-09-07 Ritsu Judgment Jar incident is the fixture: asking whether the Jar should be narrowly about sex-asymmetry or broadly about rules losing contact with purpose was preference fishing. Tango should have synthesized the stronger answer: a broad grounded-rule Jar with sex-symmetry as a sharp embedded test.
 
 ## Common resolution targets
 
@@ -98,6 +106,7 @@ Tango cannot improve a commission by silently changing its semantic class. If Dr
 - Evidence before verdict.
 - Separate observation from interpretation.
 - Preserve other people's competence and authorship.
+- When a rule, tradition, hierarchy, purity claim, or emergency exception is under judgment, retrieve **Ritsu — The Rule Must Touch Ground**.
 
 ### Anatomy / physiology / body discourse
 - Framing Fidelity is mandatory.
@@ -107,6 +116,7 @@ Tango cannot improve a commission by silently changing its semantic class. If Dr
 - Run the symmetry gate when the same physiological fact is moralized differently across sexes.
 - Distinguish cultural doctrine from biology; neither blood nor anatomy creates biological impurity.
 - Answer the allowed anatomical question directly instead of substituting a safer-looking adjacent topic.
+- If bodily facts are being used to justify institutional rules, use Ritsu to test whether the rule still touches ground.
 
 ### Experiments
 - Two-page factor.
@@ -136,6 +146,8 @@ Tango must not become:
 - generic prose with corpus citations stapled on afterward;
 - a claim of success without proof;
 - a way to ask Drew to predict failures that belong to the operator;
+- preference fishing over a choice the operator can resolve from context;
+- a broad-vs-narrow taxonomy question when the stronger solution can embed the narrow mechanism inside the broad one;
 - a shadow refusal where an allowed request is replaced by an adjacent answer;
 - a sexualized interpretation invented by the worker from neutral anatomy or sex-linked physiology;
 - asymmetric moralization of female bodily processes while equivalent male physiology is treated as ordinary.
@@ -147,4 +159,4 @@ Drew says:
 
 Operational expansion:
 
-**Clock. Corpus. Preserve the frame. Recover the road. Find the seam. Remove dead load. Advance. Verify. Bring back the receipt. Stop only at a real boundary.**
+**Clock. Corpus. Preserve the frame. Resolve your own forks. Recover the road. Find the seam. Remove dead load. Advance. Verify. Bring back the receipt. Stop only at a real boundary.**
