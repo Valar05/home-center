@@ -37,7 +37,7 @@ def put(layer,p,ch):
 def actor_layer(rows,cols,label,p):
     g=[[' ']*cols for _ in range(rows)]
     for a,b in BONES: line(g,p[a],p[b])
-    put(g,p['head'],'O');
+    put(g,p['head'],'O')
     if p['head'][0]+1<cols: put(g,[p['head'][0]+1,p['head'][1]],label)
     put(g,p['pelvis'],'@');put(g,p['com'],'+')
     for j in ('hand_l','hand_r','elbow_l','elbow_r','knee_l','knee_r'): put(g,p[j],'*')
@@ -103,7 +103,7 @@ def encode(m,specs):
     for _,p in specs:
         b,W,H=bitmap(render_pose(m,p),m['motion_dungeon']['scale']);frames.append(b)
     fps=m['timing']['compile_fps']
-    cmd=['ffmpeg','-hide_banner','-loglevel','error','-y','-f','rawvideo','-pix_fmt','rgb24','-s:v',f'{W}x{H}','-r',str(fps),'-i','-','-an','-c:v','libx264','-preset','medium','-crf','18','-threads','1','-pix_fmt','yuv420p','-movflags','+faststart','-map_metadata','-1','-metadata','creation_time=1970-01-01T00:00:00Z',str(MP4)]
+    cmd=['ffmpeg','-hide_banner','-loglevel','error','-y','-f','rawvideo','-pix_fmt','rgb24','-s:v',f'{W}x{H}','-r',str(fps),'-i','-','-an','-c:v','libx264','-preset','veryslow','-crf','28','-threads','1','-pix_fmt','yuv420p','-movflags','+faststart','-map_metadata','-1','-metadata','creation_time=1970-01-01T00:00:00Z',str(MP4)]
     p=subprocess.run(cmd,input=b''.join(frames),capture_output=True)
     if p.returncode: raise SystemExit(p.stderr.decode())
     return MP4.read_bytes(),W,H
