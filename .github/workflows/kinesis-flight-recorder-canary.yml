@@ -1,0 +1,30 @@
+name: Kinesis Flight Recorder Canary
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'skills/kinesis-flight-recorder/**'
+      - 'tools/test_kinesis_flight_recorder_contract.py'
+      - '.github/workflows/kinesis-flight-recorder-canary.yml'
+  pull_request:
+    paths:
+      - 'skills/kinesis-flight-recorder/**'
+      - 'tools/test_kinesis_flight_recorder_contract.py'
+      - '.github/workflows/kinesis-flight-recorder-canary.yml'
+
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+      - name: Run fire-and-forget recorder contract canary
+        run: python3 tools/test_kinesis_flight_recorder_contract.py
