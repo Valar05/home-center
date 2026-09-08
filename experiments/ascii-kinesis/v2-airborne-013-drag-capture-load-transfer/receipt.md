@@ -1,20 +1,21 @@
-# ASCII Kinesis V2 AIRBORNE repair 013 — pre-persistence receipt
+# ASCII Kinesis V2 AIRBORNE repair 013 — current-worker receipt
 
-Status: `QUALITY_GATES_PASS_REPO_PERSIST_PENDING`
+Status: `QUALITY_GATES_PASS / REPO_RECEIPT_RECONCILED / CHAT_DELIVERY_PENDING`
 
-Lineage: `experiments/ascii-kinesis/v2-airborne-013-drag-capture-load-transfer/` revises and names negative fixture `experiments/ascii-kinesis/v2-airborne-004-drag-capture-descent/`. Predecessor remains unchanged. Same evidence family retained; no `CHANGE SOURCE`.
+Current-worker connector preflight: PASS. The commissioned Home Center/Drive campaign `1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s` was read through Home Center and authenticated GitHub persistence/readback was proven before artifact judgment or mutation. Campaign, issue #343 reset `5576901079`, current Airborne receipts including the final reconciled Airborne012 receipt, `skills/ascii-kinesis/SKILL.md`, and `docs/ASCII_KINESIS_SWARM_CONTRACT_V2.md` were reread.
 
-Source: The Spriters Resource — Green Army Man — Toy Story — Sega Genesis — asset 500827 — https://www.spriters-resource.com/sega_genesis/toystory/asset/500827/
-Rights: copyright-restricted commercial-game sprite art is inherited whole-sheet evidence only. No source pixels, palette, sheet layout, contours, traced silhouettes, copied choreography, redistribution, close imitation, or Drew work enter this successor. Source timing is unavailable.
+Binding repair lineage: `experiments/ascii-kinesis/v2-airborne-013-drag-capture-load-transfer/` revises and names negative fixture `experiments/ascii-kinesis/v2-airborne-004-drag-capture-descent/`. The predecessor remains unchanged. The binding 013 was already created at commit `e47fbd85a07ad122653736723d5a609ad77cfae8` (01:52:31 CDT). A later same-number `v2-airborne-013-drag-capture-whiplash-recovery/` first appears at commit `3f3e643fc688fd5b7f3a2b3bc06d62edc69b2869` (02:20:29 CDT) and is preserved as non-authoritative `SUCCESSOR_CHURN` history; it is not extended and does not replace this earlier binding successor. No Airborne014 was created.
+
+Source/evidence family retained without CHANGE SOURCE: The Spriters Resource — Green Army Man — Toy Story — Sega Genesis — asset 500827 — https://www.spriters-resource.com/sega_genesis/toystory/asset/500827/ . Copyright-restricted commercial sprite art remains inherited whole-sheet evidence only. No source pixels, palette, sheet layout, contours, traced silhouettes, copied choreography, redistribution, close imitation, or Drew work enter this successor. `source_timing_available=false`.
 
 Evidence split:
 - OBSERVED: inherited static whole-sheet facts only: grounded/non-airborne families, compact/extended airborne silhouettes, long external parachute/descent families, broad facing/read-direction coherence; source page labels Fall, Jump, Parachute, and Soldier descends by parachute.
-- INFERRED: all successor acting, support/contact semantics, drag-force interpretation, root trajectory, bridges, landing mechanics, recovery debt, and every ONES/TWOS/FOURS cadence.
+- INFERRED: all successor acting, support/contact semantics, drag-force interpretation, root trajectory, authored bridges, landing mechanics, recovery debt, and every ONES/TWOS/FOURS cadence.
 - UNKNOWN: source-authentic chronology/exposure, world-space root path, support/contact timing, physical drag magnitude, runtime synchronization.
 
-Repair unit: `DRAG CAPTURE MUST WRITE VISIBLE BODY DEBT BEFORE LANDING CAN PAY IT.` The abstract rig authors asymmetrical ground preparation, one support break, a single rise/apex/descent root history, gravity-earned drop, a distinct drag-surface throw/take-up/capture sequence, asymmetric tether sway, release aim, left-foot probe, delayed second-foot arrival, deep landing consequence, overshoot/rebound, secondary arm lag, recovery debt, and an offset settle.
+Repair unit: `DRAG CAPTURE MUST WRITE VISIBLE BODY DEBT BEFORE LANDING CAN PAY IT.` Authored force sentence: crooked asymmetric ready -> drop/load -> toe-shear commitment -> one support break -> scissor rise -> moving apex turn -> gravity-earned drop -> drag throw -> tether take-up -> capture bite -> asymmetric control sway -> release aim -> left-foot probe -> one-foot crumple -> delayed second-foot stomp -> deep compression -> chest-whip rebound -> arm-lag countersweep -> recovery debt -> translated offset settle.
 
-Timing — all `INFERRED / STREET_FIGHTER-CAPCOM`; shorthand 1s/2s/4s means ONES/TWOS/FOURS, not seconds:
+Every decisive-key timing is `INFERRED / STREET_FIGHTER-CAPCOM`; shorthand 1s/2s/4s means ONES/TWOS/FOURS, never seconds:
 - A013-K0 READY_CROOKED — FOURS — INFERRED
 - A013-K1 ASYM_DROP_LOAD — FOURS — INFERRED
 - A013-K2 TOE_SHEAR_COMMIT — TWOS — INFERRED
@@ -37,19 +38,16 @@ Timing — all `INFERRED / STREET_FIGHTER-CAPCOM`; shorthand 1s/2s/4s means ONES
 - A013-K19 RECOVERY_DEBT — FOURS — INFERRED
 - A013-K20 SETTLE_OFFSET — FOURS — INFERRED
 
-Tango recursive actual-render history:
-1. `REVISE_REQUIRED`: drag-capture band was too centered/mannequin-like. Corrected K9/K10/K11 plus B9/B10 with left-biased drag surface, unequal tether angles, pelvis swing, lead/trail leg opposition, and slower canopy recenter.
-2. `REVISE_REQUIRED`: final K20 shed landing debt into a generic neutral stance. Corrected K20/B19 so translated root settles while left shoulder/arm remain late and right arm stays forward.
-3. `PASS`: final 56-frame render has distinct force phases, asymmetric capture/sway, truthful support changes, deep post-contact consequence, rebound, secondary lag, and non-idle debt settle; no floaty apex, straight endpoint tween, reverse recovery, or neutral reset remains.
+Current-worker actual-render inspection: authenticated Home Center GitHub readback of the tracked SPA supplied its exact embedded MP4 bytes. The extracted media is H.264/yuv420p, 480x270, 24 fps, 56 frames, 2.333333 s, 5,963 bytes, SHA-256 `597d4357f14470db0c7903996291a4438c634faa6b162c8b333652cb484ba1a4`. The exact bytes decode through all 56 frames. All 56 decoded frames were inspected as a timing sheet plus representative native-resolution frames.
 
-Noodle Queen: `PASS` on the same final render + full specimen for TASTE + FUNCTION + CONTEMPT. Memorable progression: crooked ready -> asymmetric drop -> scissor rise -> open apex -> gravity drop -> canopy throw -> left-biased tether swing -> release reach -> one-foot crumple -> delayed second support -> deep compression -> chest whip -> arm lag -> offset settle.
+TANGO current-worker verdict: `PASS`; no new mutation earned. The visible performance has a specific asymmetric load, one truthful support break, a non-flat rise/apex/descent root history, gravity before capture, visible drag-surface deployment and take-up, slowed/counter-swayed capture, release before ground contact, staggered one-foot then two-foot support, deep compression, rebound overshoot, secondary arm lag, and a translated non-idle settle. No floaty root, bilateral symmetry, equalized spacing, straight endpoint tween, planted-feet theater, reverse-interpolation recoil, or consequence-free landing survives the actual render.
 
-Motion Dungeon: authored decisive ASCII keys -> explicit holds -> explicit authored geometry-only bridge keys -> ASCII-only frame render -> H.264 MP4 -> self-contained SPA. Semantic support/contact/drag changes occur only on decisive keys; bridges fail closed across semantic changes. Source pixels are never rendered or embedded.
+NOODLE QUEEN current-worker verdict after Tango: `PASS`. TASTE + FUNCTION + CONTEMPT survive the actual packaged render: the silhouette sentence is specific and memorable, the canopy/capture event writes readable body debt, landing visibly pays that debt, and the recovery retains attitude instead of resetting to a mannequin idle. Economy is deliberate rather than placeholder-cheap.
 
-Media: H.264 yuv420p, 960x540, 24 fps, 56 frames, 2.333333 s, 19,653 bytes, SHA-256 `9e833dc3445957d461855f18e9dba38af2ae147742129e1edd7caf2bb70471f1`. ffprobe and full ffmpeg decode PASS.
+Motion Dungeon: authored decisive ASCII keys -> explicit holds -> explicit authored geometry bridges -> ASCII-only frame render -> H.264 MP4 -> self-contained SPA. Semantic support/contact/drag transitions occur only on decisive keys; bridges fail closed across semantic changes. Source pixels are never rendered or embedded. SPA primary tabs are exactly `ASCII | JSON | VIDEO`; ASCII is literal preformatted text with ligatures disabled.
 
-Contract: exact official `tools/test_ascii_kinesis_swarm_contract_v2.py` blob `09f0bcf233dbb770ce6b6df047fe18d94be8aa7c` executed candidate-scoped against this exact successor reconstruction: PASS / exit 0. Repo-global boundary is explicitly `UNTESTED_BOUNDARY`: the authorized Home Center `phone_shell` ingress exists, but this run's bounded canary remained queued/unleased through expiry, so no full-repository checkout shell execution is claimed.
+Contract test: this worker attempted the official full-repository `tools/test_ascii_kinesis_swarm_contract_v2.py` through the existing authorized Home Center `primary-phone` `phone_shell` ingress as command `ph_air013_render_20260908_0230_v1`. The dispatch remained `queued` with no lease/result during this bounded run, so the current-worker full-repo result is truthfully `UNTESTED_BOUNDARY: PHONE_SHELL_QUEUED_UNLEASED`; no green full-repo claim is made. The exact persisted candidate retains the prior candidate-scoped official-script PASS recorded in manifest; that prior result is technical evidence, not a substitute current-worker execution claim.
 
-Repository persistence/readback: PENDING. Issue #343 receipt: PENDING. Chat delivery PART 1 -> PART 2 -> PART 3: PENDING.
+Repository issue receipt and three-part chat delivery are still pending at this receipt write. Final acceptance requires exact repo readback, issue #343 receipt, then PART 1 ASCII -> PART 2 JSON -> PART 3 visible persisted MP4 in the reporting chat.
 
 Correction hooks: `KEEP | REJECT | EXAGGERATE | COMPRESS | RETIME | CHANGE SOURCE | FIX ARC | FIX SUPPORT | FIX LANDING | FIX SECONDARY LAG | RERUN`.
