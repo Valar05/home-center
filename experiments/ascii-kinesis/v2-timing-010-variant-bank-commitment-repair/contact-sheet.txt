@@ -1,0 +1,530 @@
+ASCII KINESIS V2 TIMING 010 - VARIANT BANK / ZERO-TIME COMMITMENT REPAIR
+revises: experiments/ascii-kinesis/v2-timing-005-variant-bank-zero-time/
+negative_fixture: experiments/ascii-kinesis/v2-timing-005-variant-bank-zero-time/
+SOURCE ART: NONE | TSR ASSET 41182 EVIDENCE FAMILY INHERITED | SOURCE TIMING: NONE OBSERVED
+TIMING: STREET_FIGHTER/CAPCOM | ONES=1 display frame | TWOS=2 | FOURS=4 | 1s/2s/4s ARE CLASSES, NEVER SECONDS
+ZERO-TIME LAW: BANK_SELECT changes CONFIG_AXIS only, consumes 0 BODY_CLOCK ticks, and creates no full-body key.
+VISIBLE TEST: the same shared READY -> QUERY -> DEEP COIL feeds two alternate compilations; A and B must diverge in support, silhouette, cadence, overshoot/lag, and recovery debt.
+GLYPHS: O head, @ COM/root, L/R feet, a/b hands.
+
+=== SHARED PRECOMMIT KEYS ===
+
+[K00] OFFSET_READY | branch=SHARED
+pose/rig=AK_GENERIC_HUMANOID_VARIANT_BANK_V2
+support/contact=Both feet grounded; left hip slightly heavier | support_topology=BOTH | contact_topology=NONE
+root/motion-arc=root tall at x24; chest/head already biased right so the starting silhouette is not bilateral
+timing_class=FOURS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=establish asymmetrical neutral with room to choose either branch
+clocks BODY=READY_OFFSET | CONFIG=UNSELECTED
+
+
+
+
+
+
+
+
+                         O
+                         |
+                        |
+                      o-+-o
+                    o/  |  \o
+                   /    |    \
+                   a    |    b
+                       o@o
+                      /   \
+                     o     o
+                    /       \
+                    L        R
+    ____________________________________________
+
+
+[K01] QUERY_TILT | branch=SHARED
+pose/rig=AK_GENERIC_HUMANOID_VARIANT_BANK_V2
+support/contact=Both feet grounded; left support loads while right side opens | support_topology=BOTH | contact_topology=NONE
+root/motion-arc=root drifts one cell left/downstream while chest tilts farther left; right arm opens as counterweight
+timing_class=TWOS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=readable pre-choice inquiry; upper body asks before the lower body commits
+clocks BODY=QUERY | CONFIG=UNSELECTED
+
+
+
+
+
+
+
+
+                     O
+                     |
+                      |      -b
+                    o-+-o--o-
+                  o/  |
+                 /    |
+                 a     |
+                      o@o
+                     /   \
+                    o     o
+                   /       \
+                   L        R
+    ____________________________________________
+
+
+[K02] DEEP_PRECOMMIT_COIL | branch=SHARED
+pose/rig=AK_GENERIC_HUMANOID_VARIANT_BANK_V2
+support/contact=Both feet grounded; left leg deeply loaded, right foot still trusted | support_topology=BOTH | contact_topology=NONE
+root/motion-arc=root sinks/backs left; chest counter-rotates against both possible branch directions; no branch-specific body key yet
+timing_class=FOURS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=store energy before zero-time bank selection
+clocks BODY=COIL_HOLD | CONFIG=UNSELECTED
+
+
+
+
+
+
+
+
+
+                   O
+                   |
+                    |
+                  o-+-o
+                 /  |  \o
+                o   |    \
+               /     |    b
+               a    o@o
+                   /   \
+                  o     o-
+                 L        -R
+    ____________________________________________
+
+
+=== ZERO-TIME CONFIG AXIS EVENT ===
+BANK_SELECT {scope=CONFIG_AXIS, BODY_CLOCK=PRESERVE_PHASE, body_tick_cost=0}
+No pose exists for selection itself. The next authored body key is the selected branch commitment.
+
+=== VARIANT A : LOW_RIGHT_CROSS ===
+
+[A03] LOW_RIGHT_COMMIT_SPIKE | branch=A
+pose/rig=AK_GENERIC_HUMANOID_VARIANT_BANK_V2
+support/contact=Left foot bears launch load; right foot clears | support_topology=LEFT | contact_topology=NONE
+root/motion-arc=root rises/advances; chest snaps right while left support stays behind the COM
+timing_class=ONES | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=variant A commitment event: selection earns body consequence only here
+clocks BODY=A_RELEASE | CONFIG=A_SELECTED
+
+
+
+
+
+
+
+
+                           O
+                          /
+                          / /o--b
+                      -o-+-o
+                    o-  /
+                  a/    /
+                       /
+                     o@o
+                    /   \
+                   o     o-
+                  /        -R
+                 L
+    ____________________________________________
+
+
+[A04] LOW_CROSS_ACCEL | branch=A
+pose/rig=AK_GENERIC_HUMANOID_VARIANT_BANK_V2
+support/contact=Left foot remains last support; right leg reaches ahead | support_topology=LEFT | contact_topology=NONE
+root/motion-arc=root arcs right/up and outruns the trailing support; chest leads while both arms lag on different arcs
+timing_class=TWOS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=accelerating branch travel with distinct low-forward silhouette
+clocks BODY=A_ACCEL | CONFIG=A_SELECTED
+
+
+
+
+
+
+
+
+                           O
+                           |
+                          |
+                       -o-+-o
+                    -o-  /   \o
+                  a-    /      \
+                      o@o      b
+                    //   \
+                   o      o
+                  /        \\
+                //           R
+               L
+    ____________________________________________
+
+
+[A05] RIGHT_PLANT_CATCH | branch=A
+pose/rig=AK_GENERIC_HUMANOID_VARIANT_BANK_V2
+support/contact=Right foot acquires ground ahead of COM; left foot trails clear | support_topology=RIGHT | contact_topology=NONE
+root/motion-arc=right foot contact occurs in front of root; torso remains ahead of stable pelvis
+timing_class=ONES | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=hard support join; first catch does not erase velocity debt
+clocks BODY=A_CATCH | CONFIG=A_SELECTED
+
+
+
+
+
+
+
+
+                              O
+                              |
+                              |
+                           -o-+-o
+                         o-   |  \
+                        /     |   o
+                       a     |     \
+                            o@o    b
+                          //   \
+                        -o      o
+                      L-         \
+                                  R
+    ____________________________________________
+
+
+[A06] DEEP_ABSORB | branch=A
+pose/rig=AK_GENERIC_HUMANOID_VARIANT_BANK_V2
+support/contact=Right foot load-bearing; left foot still trailing | support_topology=RIGHT | contact_topology=NONE
+root/motion-arc=root continues past plant then sinks; chest/head recoil left as forward debt compresses into the right leg
+timing_class=FOURS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=make the catch heavy by holding crumple and torso lag
+clocks BODY=A_ABSORB | CONFIG=A_SELECTED
+
+
+
+
+
+
+
+
+
+                            O
+                            |
+                             |
+                           o-+-o
+                          /   \ \o
+                         o    \   \
+                        /     o@o  b
+                        a    /   \
+                           -o     o
+                         L-        \R
+    ____________________________________________
+
+
+[A07] TORSO_OVERSHOOT | branch=A
+pose/rig=AK_GENERIC_HUMANOID_VARIANT_BANK_V2
+support/contact=Right foot still owns support; left remains trailing | support_topology=RIGHT | contact_topology=NONE
+root/motion-arc=root decelerates/backtracks one cell while chest/head swing past it to the right
+timing_class=TWOS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=overshoot after compression; upper chain passes the pelvis instead of reverse-interpolating
+clocks BODY=A_OVERSHOOT | CONFIG=A_SELECTED
+
+
+
+
+
+
+
+
+
+                                  O
+                                 /
+                                 /
+                             -o-+-o
+                           o-   /  \o
+                          /    /     \
+                         a     /      b
+                             o@o
+                            /   \\
+                           o      o
+                         L/        \R
+    ____________________________________________
+
+
+[A08] SECOND_SUPPORT_REACQUIRE | branch=A
+pose/rig=AK_GENERIC_HUMANOID_VARIANT_BANK_V2
+support/contact=Both feet grounded; right remains primary while left finally catches up | support_topology=BOTH | contact_topology=NONE
+root/motion-arc=root lifts one row; torso remains forward/right, leaving visible recovery debt
+timing_class=ONES | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=reacquire broad support after overshoot without pretending recovery is complete
+clocks BODY=A_REACQUIRE | CONFIG=A_SELECTED
+
+
+
+
+
+
+
+
+                                O
+                                |
+                               |
+                             o-+-o
+                            /  /  \o
+                           o  /     \b
+                          /   /
+                          a o@o
+                           /   \\
+                           o     o
+                          /       \\
+                          L         R
+    ____________________________________________
+
+
+[A09] NEW_READY_WITH_DEBT | branch=A
+pose/rig=AK_GENERIC_HUMANOID_VARIANT_BANK_V2
+support/contact=Both feet stable; stance wider and right-biased relative to start | support_topology=BOTH | contact_topology=NONE
+root/motion-arc=root stays x29 rather than returning x24; rightward bias and asymmetrical arms preserve consequence
+timing_class=FOURS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=settle into a new address, not an idle reset
+clocks BODY=A_EXIT_READY | CONFIG=A_SELECTED
+
+
+
+
+
+
+
+
+                               O
+                               |
+                              |
+                            o-+-o
+                          o/  |  \o
+                         /    |    \
+                         a   |     b
+                            o@o
+                           /   \
+                           o    o
+                          /      \\
+                          L        R
+    ____________________________________________
+
+
+=== VARIANT B : HIGH_LEFT_WHIP ===
+
+[B03] HIGH_LEFT_COMMIT_SPIKE | branch=B
+pose/rig=AK_GENERIC_HUMANOID_VARIANT_BANK_V2
+support/contact=Right foot bears launch load; left foot clears | support_topology=RIGHT | contact_topology=NONE
+root/motion-arc=root shifts left while chest/head rise and open left; right support drives under the pelvis
+timing_class=TWOS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=variant B commitment: a slower loaded release with opposite support owner
+clocks BODY=B_RELEASE_LOAD | CONFIG=B_SELECTED
+
+
+
+
+
+
+
+                 O
+             a\  |
+               o- |
+                 -o-o
+                  |  \
+                   |  o
+                   |   \
+                    |   b
+                   o@o
+                  /   \
+                 o     o
+                /       \\
+               L          R
+    ____________________________________________
+
+
+[B04] HIGH_LEFT_WHIP | branch=B
+pose/rig=AK_GENERIC_HUMANOID_VARIANT_BANK_V2
+support/contact=Right foot remains last support; left side cuts upward/left | support_topology=RIGHT | contact_topology=NONE
+root/motion-arc=root lifts/advances left while head and leading arm arc above it; trailing hand remains low
+timing_class=ONES | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=one-frame high whip after loaded commit
+clocks BODY=B_WHIP | CONFIG=B_SELECTED
+
+
+
+
+
+              O
+          a\  |
+            o- |
+              -o-o-
+               |   -o
+                |    \
+                |     b
+                 |
+                o@o
+               /   \\
+              o      o
+             /        \
+            L          \
+                        R
+    ____________________________________________
+
+
+[B05] LEFT_PLANT_CATCH | branch=B
+pose/rig=AK_GENERIC_HUMANOID_VARIANT_BANK_V2
+support/contact=Left foot acquires ground; right foot trails clear | support_topology=LEFT | contact_topology=NONE
+root/motion-arc=left foot plants ahead of root; chest is still rotated away from the catch direction
+timing_class=ONES | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=opposite-side catch converts high whip into torsional debt
+clocks BODY=B_CATCH | CONFIG=B_SELECTED
+
+
+
+
+
+
+
+
+                  O
+                  |
+                 |
+               o-+-o-
+              /  |   -o
+             o   |     \
+            /   |       b
+            a  o@o
+              /   \\
+             o      o-
+            /         -R
+           L
+    ____________________________________________
+
+
+[B06] TORSION_BANK_HOLD | branch=B
+pose/rig=AK_GENERIC_HUMANOID_VARIANT_BANK_V2
+support/contact=Left foot load-bearing; right foot trailing | support_topology=LEFT | contact_topology=NONE
+root/motion-arc=root stays low/left while chest/head swing right and high; right arm becomes a delayed counter-chain
+timing_class=FOURS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=hold a twisted aftermath so branch B cannot read as branch A mirrored
+clocks BODY=B_TORSION_HOLD | CONFIG=B_SELECTED
+
+
+
+
+
+
+
+
+
+                      O
+                     /     -b
+                     /  -o-
+                  o-+-o-
+                 / /
+                o  /
+               /  /
+               ao@o
+               /   \\
+             -o      o-
+           L-          -R
+    ____________________________________________
+
+
+[B07] ARM_LAG_SNAPBACK | branch=B
+pose/rig=AK_GENERIC_HUMANOID_VARIANT_BANK_V2
+support/contact=Left foot still owns support; right foot remains behind | support_topology=LEFT | contact_topology=NONE
+root/motion-arc=root barely advances; chest recenters while right arm remains late and low, then begins its own return
+timing_class=ONES | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=secondary lag pays after torso has already started decelerating
+clocks BODY=B_SECONDARY_LAG | CONFIG=B_SELECTED
+
+
+
+
+
+
+
+
+
+                   O
+                   |
+                   |
+                 o-+-o-
+                /  |   -o
+               o   |     \
+              /   |       \
+              a  o@o       b
+                /   \\
+              -o      o-
+            L-          -R
+    ____________________________________________
+
+
+[B08] BROAD_SUPPORT_RECOVERY_DEBT | branch=B
+pose/rig=AK_GENERIC_HUMANOID_VARIANT_BANK_V2
+support/contact=Both feet grounded; left remains primary with right newly reacquired | support_topology=BOTH | contact_topology=NONE
+root/motion-arc=root rises and drifts right one cell, but chest remains left of root and arms disagree, preserving debt
+timing_class=FOURS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=longer recovery hold than A branch; cadence itself becomes branch information
+clocks BODY=B_RECOVERY_HOLD | CONFIG=B_SELECTED
+
+
+
+
+
+
+
+
+                  O
+                  |
+                  |
+                o-+-o-
+              o/  |   -o
+             /    |     \
+             a     |     b
+                  o@o
+                 /   \
+                o     o
+               /       \\
+              L          R
+    ____________________________________________
+
+
+[B09] NEW_READY_BACKWEIGHTED | branch=B
+pose/rig=AK_GENERIC_HUMANOID_VARIANT_BANK_V2
+support/contact=Both feet stable; final stance remains left/back-weighted and narrower than A | support_topology=BOTH | contact_topology=NONE
+root/motion-arc=root remains x19 rather than x24; chest/head drift right while lower support stays left-biased
+timing_class=TWOS | timing_provenance=INFERRED | policy=STREET_FIGHTER/CAPCOM
+causal_role=settle at a different address/attitude; no return to common idle
+clocks BODY=B_EXIT_READY | CONFIG=B_SELECTED
+
+
+
+
+
+
+
+
+                     O
+                     |
+                    |
+                  o-+-o
+                o/  |  \o
+               /    |    \
+               a   |      b
+                  o@o
+                 /   \
+                o     o
+               /       \\
+              L          R
+    ____________________________________________
+
+
+RIGHTS FIREWALL: no source pixels, palette, contours, costume, sheet layout, tracing, choreography, redistribution, or close imitation.
+CONNECTIVE MOTION: deterministic authored arcs only while support/contact topology is unchanged; support changes snap only at decisive keys.
+PRESENTATION: VIDEO serializes two alternate compilations A then B. The between-compile card is presentation time only, not BODY_CLOCK.
