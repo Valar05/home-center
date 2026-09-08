@@ -1,0 +1,627 @@
+ASCII KINESIS V2 LOCOMOTION 010 — CADENCE SURGE / BRAKE REPAIR
+Legend: ! trusted support   ? probe-only contact   @ pelvis/root   + chest   - ground
+Timing: ONES/TWOS/FOURS are PoseLab cadence classes; all decisive keys are INFERRED.
+Source boundary: independent abstract ASCII only; no source pixels/palette/layout/contours/choreography.
+
+K00 WALK_LEFT_CARRY [FOURS/INFERRED] SUPPORT=L_FOOT PHASE=WALK_L_SUPPORT
+ROOT: pelvis (8,17): slow entry, weight still behind the next contact
+
+      O
+      \      *
+       \   //
+       \ /o
+      /+/
+   o// |
+  /    |
+ *     |
+       @
+       /\
+      /  \
+      o   o
+      /    \\
+     /       *
+-----!---------
+
+
+K01 WALK_LEFT_TOE_ROLL [TWOS/INFERRED] SUPPORT=L_FOOT PHASE=WALK_L_SUPPORT  BRIDGE
+ROOT: pelvis (10,17): +2 x; chest outruns pelvis before stride length grows
+
+       O     *
+       |   //
+       |  o
+       |//
+       +
+     //|
+   o/  |
+  /    |
+ *     @
+      / \
+      /  o
+     o    \\
+     /      *
+    /
+----!----------
+
+
+K02 RIGHT_FOOT_SEARCH [TWOS/INFERRED] SUPPORT=L_FOOT+R_FOOT_PROBE PHASE=WALK_R_PRECONTACT  BRIDGE
+ROOT: pelvis (12,16): +2 x and -1 y; right foot reaches as probe only
+
+       O
+       |
+       |
+ *     |
+  \   /+\
+   o// | \o
+       |   \
+       |    \
+       @     *
+      / \
+      /  \
+     /    o
+     o     \
+    /       \
+    /       \
+---!---------?-
+
+
+K03 RIGHT_FOOT_ACQUIRE [TWOS/INFERRED] SUPPORT=R_FOOT PHASE=WALK_R_SUPPORT
+ROOT: pelvis (14,17): right foot earns ownership before cadence changes
+
+        O
+ *      |
+  \\    |
+    o\\ |
+       \+\
+        | \o
+        |   \
+        |    \
+        @     *
+       / \
+       / \
+      o   o
+    //     \
+   *       \
+------------!---
+
+
+K04 RIGHT_COIL_FOR_SURGE [FOURS/INFERRED] SUPPORT=R_FOOT PHASE=ACCEL_R_LOAD
+ROOT: pelvis (15,20): +1 x, +3 y; nearly all motion is compression
+
+                *
+              //
+        O    /
+        \   o
+         \ /
+ *\      \/
+   \o----+
+         |
+         |
+         |
+         @\
+          o\o\
+           \  \*
+------------!-----
+
+
+K05 RIGHT_DRIVE_SPIKE [ONES/INFERRED] SUPPORT=R_FOOT PHASE=ACCEL_R_RELEASE  BRIDGE
+ROOT: pelvis (19,16): +4 x and -4 y; right foot still owns the push
+
+               *
+         O   //
+         /  /
+        /  o
+        ///
+        +
+       /|
+     // |
+    o   |
+  //    |
+ *      @
+        /\\
+       /   \o
+       /     \\
+       o       \*
+       |
+       |
+-------!----------
+
+
+K06 FIRST_FLIGHT_TRAIL [ONES/INFERRED] SUPPORT=NONE PHASE=ACCEL_FLIGHT  BRIDGE
+ROOT: pelvis (24,14): +5 x; lift follows support release
+
+          O
+          /    //*
+         /  /o/
+         ///
+         +
+       //|
+     o/  |
+   //    |
+  *      @\
+        /  \\
+       /     \o\
+      /         \\
+     o            \*
+    /
+  //
+ *
+
+
+K07 LEFT_PRECONTACT_LONG [ONES/INFERRED] SUPPORT=NONE PHASE=RUN_L_PRECONTACT  BRIDGE
+ROOT: pelvis (30,14): +6 x; stride spacing widens without changing next support
+
+          O
+          /
+ *\\     /
+    \o\\ /
+        \+
+         |\\
+         |  \o
+         |    \
+         @     \\
+        / \      *
+       /   \\
+      o      o
+    //        \
+  //           \
+ *              \\
+                  \
+                   \
+--------------------*-
+
+
+K08 LEFT_CATCH_FAST [ONES/INFERRED] SUPPORT=L_FOOT PHASE=RUN_L_SUPPORT
+ROOT: pelvis (35,16): +5 x, +2 y; catch takes load while root still advances
+
+          O
+ *\\      |
+    \o\   |
+       \\ |
+         \+
+          \\\
+           \ \o\
+           \    \\
+           @      \*
+          / \
+         /   \
+        o     o
+       /       \
+     //         \
+    *           \
+-----------------!---
+
+
+K09 LEFT_CATCH_ABSORB [TWOS/INFERRED] SUPPORT=L_FOOT PHASE=RUN_L_LOAD
+ROOT: pelvis (37,19): +2 x, +3 y; forward travel is paid into compression
+
+          O
+          \
+ *\\       \
+    \o\\\  \
+         \\+
+           \\\
+           \  \o\
+            \    \\
+            \      \*
+            @
+          // \
+        /o    o
+      */       \
+----------------!-----
+
+
+K10 LEFT_DRIVE_WHIP [ONES/INFERRED] SUPPORT=L_FOOT PHASE=RUN_L_RELEASE  BRIDGE
+ROOT: pelvis (42,15): +5 x, -4 y; loaded left support fires
+
+               *
+             //
+         O  /
+         / o
+        / /
+        //
+        +
+      //|
+    o/  |
+   /    |
+  /     @\\
+ *      /  \\o\
+       /       \\
+       /         \*
+       o
+       |
+       |
+       |
+-------!------------
+
+
+K11 SECOND_FLIGHT_OPEN [ONES/INFERRED] SUPPORT=NONE PHASE=RUN_FLIGHT  BRIDGE
+ROOT: pelvis (48,13): +6 x; second flight is longer and more open than first
+
+                 *
+           O   //
+           /  /
+          /  o
+          ///
+         /+
+       // |
+     o/   |
+    /     |
+  //      @\\
+ *       /   \\o
+        /       \\
+       /          \\
+      o             *
+     /
+    /
+   /
+  /
+ *
+----------------------
+
+K12 RIGHT_OVERSTRIDE_REACH [ONES/INFERRED] SUPPORT=NONE PHASE=RUN_R_PRECONTACT  BRIDGE
+ROOT: pelvis (55,14): +7 x; maximum root gap before right contact
+
+           O     /*
+           /   //
+          /  /o
+          ///
+     o----+
+   //     |
+ */       |
+          |
+          @
+         / \\
+       //    \\
+      o        o
+     /          \
+   //            \
+  /               \
+ *                 \
+                    \
+---------------------*-
+
+
+K13 RIGHT_CATCH_SURGE [ONES/INFERRED] SUPPORT=R_FOOT PHASE=RUN_R_SUPPORT
+ROOT: pelvis (61,16): +6 x, +2 y; long flight lands into trusted right foot
+
+          O       /*
+          |     //
+          |  /o/
+          |//
+     o----+
+   //     \
+ */        \
+           \
+           @
+          / \
+         /   \
+        o    \
+      //      o
+    //         \
+   *           \
+----------------!----
+
+
+K14 RIGHT_STIFF_SPRING [ONES/INFERRED] SUPPORT=R_FOOT PHASE=RUN_R_LOAD  BRIDGE
+ROOT: pelvis (64,18): +3 x, +2 y; short stiff compression keeps cadence hot
+
+ *\
+   \\     O
+     o    |
+      \\  |
+        \\|
+          +
+          \\
+          \ \\
+           \  o\
+           \    \\
+           @      \*
+         //\
+       /o   \
+     //     o
+   */        \
+-------------!-------
+
+
+K15 RIGHT_DRIVE_LOW [ONES/INFERRED] SUPPORT=R_FOOT PHASE=RUN_R_RELEASE  BRIDGE
+ROOT: pelvis (69,15): +5 x, -3 y; last hard drive launches lower
+
+          O
+          /
+         /
+         /
+        /+
+     o// \\\
+    /     \ \o
+  //      \   \
+ *        @    \\
+          /\\    *
+         /   \o\
+         /      \\\
+        /          \*
+        o
+        /
+       /
+-------!--------------
+
+
+K16 LEFT_CATCH_RUNOUT [ONES/INFERRED] SUPPORT=L_FOOT PHASE=RUN_L_SUPPORT
+ROOT: pelvis (75,16): +6 x; left foot catches last long stride
+
+          O      /*
+          |    //
+          |  /o
+          |//
+        //+
+     o//  \
+    /      \
+  //       \
+ *         @
+          / \
+         /   \
+        o    \
+       /      o
+     //        \
+    *           \\
+------------------!-
+
+
+K17 LEFT_BRAKE_COIL [TWOS/INFERRED] SUPPORT=L_FOOT PHASE=BRAKE_L_LOAD
+ROOT: pelvis (77,20): +2 x, +4 y; stride spacing collapses before support order changes
+
+                    *
+       O          //
+        \       //
+        \     /o
+         \ ///
+         +/
+       //\
+     o/  \
+    /     \
+  //      \
+ *        @
+       /o/ \o
+     */      \\
+---------------!------
+
+
+K18 LEFT_BRAKE_REBOUND [ONES/INFERRED] SUPPORT=L_FOOT PHASE=BRAKE_L_RELEASE  BRIDGE
+ROOT: pelvis (80,17): +3 x, -3 y; compression rebounds but travel is shorter
+
+        O
+        \         //*
+         \    /o//
+         \ ///
+         +/
+        /\
+      //  \
+     o    \
+    /      \
+  //       @
+ *         /\\
+          /   o\
+          o     \\
+           \      \*
+            \
+-------------!--------
+
+
+K19 SHORT_FLIGHT_BRAKE [ONES/INFERRED] SUPPORT=NONE PHASE=BRAKE_FLIGHT  BRIDGE
+ROOT: pelvis (83,16): +3 x; airborne spacing has collapsed from +6/+7
+
+                *
+         O    //
+         \   o
+          \ /
+          \/
+         /+
+       //  \
+     o/    \
+    /       \
+  //        @
+ *         / \
+          /   \
+         o     o
+        /       \
+      //         \\
+     *             *
+---------------------
+
+K20 RIGHT_HEEL_PROBE [ONES/INFERRED] SUPPORT=R_FOOT_PROBE PHASE=BRAKE_R_PRECONTACT
+ROOT: pelvis (84,17): +1 x; heel touches while COM remains behind it
+
+                  *
+          O     //
+          \    o
+           \ //
+           \/
+          /+
+       ///  \
+     o/     \
+    /        \
+  //         @
+ *          / \
+           /   \
+          o     o
+        //       \
+      */          \
+-------------------?-
+
+
+K21 RIGHT_HEEL_ACQUIRE [ONES/INFERRED] SUPPORT=R_FOOT PHASE=BRAKE_R_SUPPORT
+ROOT: pelvis (85,18): +1 x; right heel earns ownership before deep arrest
+
+           O
+ *\        \
+   \\       \
+     \o\\\  \
+          \\+---o
+             \   \
+              \   \\
+              \     *
+               @
+             // \\
+            o     o
+          //       \
+        */         \
+--------------------!-
+
+
+K22 RIGHT_BRAKE_DEEP [FOURS/INFERRED] SUPPORT=R_FOOT PHASE=BRAKE_R_LOAD
+ROOT: pelvis (85,21): zero x, +3 y; velocity pays into compression
+
+                      *
+                    //
+            O     //
+            \    o
+             \ //
+             \/
+      o------+
+    //        \
+  //           \
+ *             \
+                @\
+             /o/  \o
+-----------*---------!--
+
+
+K23 TORSO_FORWARD_OVERSHOOT [TWOS/INFERRED] SUPPORT=R_FOOT PHASE=BRAKE_R_OVERSHOOT  BRIDGE
+ROOT: pelvis (85,20): zero x, -1 y; chest pitches beyond pelvis after root arrest
+
+ *
+  \\
+    \    O
+     o   |
+      \\ |
+        \|
+         +
+         /\\
+        /   \o
+        /     \\
+       /        \*
+       @\
+     //  \o
+   /o      \
+-*----------!------
+
+
+K24 LEFT_RECOVERY_PROBE [TWOS/INFERRED] SUPPORT=R_FOOT+L_FOOT_PROBE PHASE=RECOVERY_L_PRECONTACT  BRIDGE
+ROOT: pelvis (84,19): -1 x, -1 y; rebound travels backward while left foot probes
+
+ *\       O
+   \\     /
+     o\  /
+       \\\/
+         +\
+         / \\
+         /   \o
+        /      \\
+        /        \*
+        @
+       / \\
+      o    o
+     /      \\
+-----?--------!-----
+
+
+K25 LEFT_RECOVERY_ACQUIRE [TWOS/INFERRED] SUPPORT=L_FOOT PHASE=RECOVERY_L_SUPPORT
+ROOT: pelvis (83,18): -1 x, -1 y; left support catches rebound
+
+         O     /*
+         /   //
+        /  /o
+        ///
+       /+
+    o// /
+  //    /
+ *     /
+       /
+       @
+      / \\
+      o   o
+      /    \\
+     /       \*
+-----!------------
+
+
+K26 LEFT_REBOUND_SETTLE [ONES/INFERRED] SUPPORT=L_FOOT PHASE=RECOVERY_L_SETTLE  BRIDGE
+ROOT: pelvis (84,17): +1 x; pelvis rebounds forward while trailing arm remains late
+
+        O
+ *      /
+  \\   /
+    o\ /
+      \+
+       /\\
+       /  \o
+      /     \
+      /      \\
+      @        *
+     / \\
+     /   o
+    o     \\
+    /       *
+   /
+---!-------------
+
+
+K27 RIGHT_STEP_SEARCH [TWOS/INFERRED] SUPPORT=L_FOOT+R_FOOT_PROBE PHASE=RECOVERY_R_PRECONTACT  BRIDGE
+ROOT: pelvis (85,17): +1 x; locomotion resumes as small travel, not idle
+
+        O
+        /
+ *\    /
+   \o\ /
+      \+
+       /\\
+      /   \o
+      /     \\
+      @       \*
+     / \
+     /  \
+    o    o
+   /      \
+   /       \
+--!---------?----
+
+
+K28 RIGHT_RECOVERY_STEP [TWOS/INFERRED] SUPPORT=R_FOOT PHASE=RECOVERY_R_SUPPORT
+ROOT: pelvis (87,17): +2 x; displaced step catches residual travel
+
+         O    *
+         /  //
+        /  o
+        ///
+       /+
+    o// /
+   /   /
+  /    /
+ *     @
+      / \
+      / \
+     o   o
+   //     \
+  *       \
+-----------!----
+
+
+K29 EXIT_WITH_LEFT_DEBT [TWOS/INFERRED] SUPPORT=R_FOOT PHASE=EXIT_R_SUPPORT
+ROOT: pelvis (88,17): +1 x; endpoint stays locomotor while left foot and head point into next stride
+
+               *
+         O    /
+         /   /
+        /  /o
+        ///
+        +
+      //
+    o/ /
+   /  /
+  /   /
+ *   @\\
+     \  \\o
+      \    \\
+      o      \\
+       \       *
+       \
+--------!--------
