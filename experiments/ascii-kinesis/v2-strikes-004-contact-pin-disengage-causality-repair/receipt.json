@@ -2,7 +2,7 @@
   "schema": "ascii-kinesis.receipt.v2",
   "format_version": 2,
   "id": "v2-strikes-004-contact-pin-disengage-causality-repair",
-  "status": "REPO_READBACK_PENDING",
+  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
   "current_worker_liveness": {
     "home_center_campaign_read": "PASS",
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
@@ -19,6 +19,7 @@
   "lineage": {
     "revises": "experiments/ascii-kinesis/v2-strikes-002-contact-pin-disengage/",
     "negative_fixture": "experiments/ascii-kinesis/v2-strikes-002-contact-pin-disengage/",
+    "predecessor_preserved": true,
     "source_change": false,
     "source_family_confirmed": {
       "asset_id": 4064,
@@ -28,12 +29,29 @@
       "evidence": "issue #343 comments 5574969726 + 5592633902 after current liveness"
     }
   },
+  "repo_readback": {
+    "state": "PASS",
+    "file_count": 6,
+    "artifacts": {
+      "build.py": "ab8b6f84efd5a23e292f2129fa9b1b215e6c3869",
+      "contact-pin-disengage-causality-repair.motion.html": "62c65c47dd9445a2e2d8622b7becdc0686ecdfdf",
+      "contact_sheet.txt": "f7b535eed71d26c06f83e6882e13906838666c11",
+      "manifest.json": "410178eac7dd705b2df96bebe376cddbf379a940",
+      "motion.json": "6b04401e3d29bfd146b65efd46be88bb6bc24d31",
+      "receipt.json_before_this_update": "ecc4149db4212bfafa6ddbbc72ab7c3d716f56b3"
+    },
+    "spa_structural_readback": "PASS: exact ordered ASCII/JSON/VIDEO data-view tabs, literal pre surfaces, ligatures disabled, white-space:pre, video element, embedded data:video/mp4 source",
+    "manifest_readback": "PASS"
+  },
   "media": {
     "reconstructed_byte_identically": true,
     "sha256": "1537774d928e5919763061ef1d81a2e569bcc899b3d62a5463941069e0d69484",
     "bytes": 10989,
     "frame_count": 43,
-    "decode": "PASS"
+    "fps": 24,
+    "codec": "h264/yuv420p",
+    "decode": "PASS",
+    "source": "abstract_ascii_rig_only"
   },
   "quality": {
     "tango": "PASS_CURRENT_WORKER_ACTUAL_RENDER",
@@ -44,7 +62,6 @@
     "official_validator": "PASS",
     "scope": "isolated candidate using exact official test; full-repo global pass not claimed"
   },
-  "repo_readback": {"state": "PENDING_FINAL_EXACT_READBACK"},
   "chat_delivery": {"state": "PENDING", "required_order": ["PART 1 — ASCII", "PART 2 — JSON", "PART 3 — VIDEO"]},
   "issue_343_receipt": {"state": "POST_AFTER_CHAT_DELIVERY"}
 }
