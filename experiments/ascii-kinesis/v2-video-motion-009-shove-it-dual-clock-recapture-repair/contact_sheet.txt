@@ -422,6 +422,34 @@ ______________________________________________________
 
 ROOT/ARC: Rebound spends landing compression into a forward overshoot instead of reverse recoil.
 
+K14B RECOVERY_ARM_DEBT_BRIDGE | ONES/INFERRED
+SUPPORT: FEET_ON_BOARD_BOARD_GROUND_STABLE
+BODY CLOCK: root keeps rolling while rear arm stays low and lead arm begins delayed fold
+BOARD CLOCK: board continues right under stable ground support
+
+
+
+
+
+                                        O
+                                       |
+                                /o-   /o
+                              +-   \o- |\\
+                                       |  o
+                                       |   \\
+                                       |     o\
+                                       |       -+
+                                       @
+                                      / \
+                                     /   \
+                                    o     o
+                                   /     |
+                                  +      +
+                               B=====#=====A
+______________________________________________________
+
+ROOT/ARC: Authored recovery bridge prevents bilateral T-pose crossing; one arm debt remains visibly late before the decisive settle snap.
+
 K15 SECONDARY_LAG_SETTLE | TWOS/INFERRED
 SUPPORT: FEET_ON_BOARD_BOARD_GROUND_STABLE
 BODY CLOCK: torso begins restack while trailing arm/knee remain late
