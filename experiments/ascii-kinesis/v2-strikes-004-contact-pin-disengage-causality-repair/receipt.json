@@ -2,7 +2,7 @@
   "schema": "ascii-kinesis.receipt.v2",
   "format_version": 2,
   "id": "v2-strikes-004-contact-pin-disengage-causality-repair",
-  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
+  "status": "HEALTHY_PENDING_ISSUE_343_RECEIPT",
   "current_worker_liveness": {
     "home_center_campaign_read": "PASS",
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
@@ -38,9 +38,9 @@
       "contact_sheet.txt": "f7b535eed71d26c06f83e6882e13906838666c11",
       "manifest.json": "410178eac7dd705b2df96bebe376cddbf379a940",
       "motion.json": "6b04401e3d29bfd146b65efd46be88bb6bc24d31",
-      "receipt.json_before_this_update": "ecc4149db4212bfafa6ddbbc72ab7c3d716f56b3"
+      "receipt.json_before_chat_delivery_update": "b338d3b2990081046df78aee17801097c25d8e21"
     },
-    "spa_structural_readback": "PASS: exact ordered ASCII/JSON/VIDEO data-view tabs, literal pre surfaces, ligatures disabled, white-space:pre, video element, embedded data:video/mp4 source",
+    "spa_structural_readback": "PASS: ordered ASCII/JSON/VIDEO data-view tabs, literal pre surfaces, ligatures disabled, white-space:pre, video element, embedded data:video/mp4 source",
     "manifest_readback": "PASS"
   },
   "media": {
@@ -56,12 +56,28 @@
   "quality": {
     "tango": "PASS_CURRENT_WORKER_ACTUAL_RENDER",
     "noodle_queen": "PASS_CURRENT_WORKER_AFTER_TANGO",
-    "inspection": "all 43 actual decoded frames inspected; pinned contact phase explicitly checked"
+    "inspection": "all 43 actual decoded frames inspected; explicit precontact/contact/pinned compression/disengage/overshoot/recoil/settle phases checked",
+    "tango_revision_history": [
+      {
+        "iteration": 1,
+        "verdict": "REVISE_REQUIRED",
+        "defect": "force transfer existed as a pose change instead of visibly occurring behind the fixed endpoint",
+        "correction": "two ease-out K6->K7 connective frames while both states remain PINNED and tool_tip remains [45,10]"
+      },
+      {"iteration": 2, "verdict": "PASS", "media_sha256": "1537774d928e5919763061ef1d81a2e569bcc899b3d62a5463941069e0d69484"}
+    ]
   },
   "candidate_contract": {
     "official_validator": "PASS",
     "scope": "isolated candidate using exact official test; full-repo global pass not claimed"
   },
-  "chat_delivery": {"state": "PENDING", "required_order": ["PART 1 — ASCII", "PART 2 — JSON", "PART 3 — VIDEO"]},
-  "issue_343_receipt": {"state": "POST_AFTER_CHAT_DELIVERY"}
+  "chat_delivery": {
+    "state": "PASS",
+    "ordered": true,
+    "part_1_ascii": {"state": "PASS", "source": "exact persisted contact_sheet.txt", "git_blob_sha": "f7b535eed71d26c06f83e6882e13906838666c11"},
+    "part_2_json": {"state": "PASS", "source": "exact persisted motion.json object", "git_blob_sha": "6b04401e3d29bfd146b65efd46be88bb6bc24d31", "chat_format": "pretty-printed in four contiguous chunks after canonical Git-blob equality assertion"},
+    "part_3_video": {"state": "PASS", "source": "exact byte-identical embedded MP4", "sha256": "1537774d928e5919763061ef1d81a2e569bcc899b3d62a5463941069e0d69484", "visible_media": true}
+  },
+  "issue_343_receipt": {"state": "PENDING_NEXT_WRITE"},
+  "debt": {"strikes002": "CLOSABLE_AFTER_ISSUE_343_RECEIPT", "pre_reset_strikes_remaining_after_close": 0}
 }
