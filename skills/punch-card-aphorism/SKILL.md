@@ -21,10 +21,31 @@ For gameplay/system work, the minimum executable shape is:
 
 If the same state and input under the same rule can produce different next states, the source of variation must be named as an explicit input or deterministic seed. Hidden randomness is a failed card.
 
+## Fast punch lane — conversational aphorism
+
+A Punch-Card Aphorism is also a conversational output form. Do not force every request for one through a gameplay-spec recital.
+
+When Drew says `punch me`, asks for `one punch-card aphorism`, or otherwise requests the aphorism itself rather than a system compilation:
+
+1. Compress the immediately live context to one real relation, tension, conservation law, failure seam, or causal inversion.
+2. Route the wording through `skills/improper-fuck-lexicon/SKILL.md`.
+3. The output MUST contain the exact word `fuck` unless Drew explicitly waives it.
+4. Emit exactly one short line. No setup, explanation, label, quotation marks, stage direction, or post-mortem unless requested.
+5. Aim for **Tourette's-type timing with legibility** in Drew's sense: abrupt, intrusive-feeling, slightly wrong on first contact, then immediately reconstructable on the second beat. This describes timing and linguistic surprise, not a claim about or imitation of a medical diagnosis.
+6. The `fuck` must be load-bearing. If removing it leaves essentially the same mechanism, regenerate internally.
+7. Prefer wrong grammar over loud attitude: make `fuck` become inventory, jurisdiction, checksum, debt, load, budget, tax, residue, or another concrete systems role earned by the context.
+8. The line must still retrieve the larger model. Random profanity, pure non sequitur, and opaque word salad fail even if funny.
+
+Compact fast-punch engine:
+
+**LIVE MECHANISM → ABRUPT WRONG-GRAMMAR FUCK → SECOND-BEAT LEGIBILITY → STOP**
+
+The desired sensation is not polished wit. It is a useful verbal tic-shaped interruption whose meaning survives the impact.
+
 ## Deterministic trigger
 Retrieve and apply this skill whenever any of the following is true:
 
-1. Drew says `punch-card aphorism`, `punch card`, `deterministic gameplay logic judgment`, or asks whether a phrase/rule "executes" rather than merely sounds good.
+1. Drew says `punch-card aphorism`, `punch card`, `punch me`, `deterministic gameplay logic judgment`, or asks whether a phrase/rule "executes" rather than merely sounds good.
 2. A gameplay mechanic, combat rule, movement rule, resource loop, economy, progression rule, encounter rule, level-design rule, AI behavior, control rule, interaction rule, failure state, scoring rule, or player-facing system is being invented, judged, compressed, or repaired.
 3. A compact phrase, joke, slogan, typo, metaphor, or aphorism is being proposed as a reusable design rule for gameplay or another deterministic system.
 4. A prior phrase is being reused to justify implementation behavior. Before accepting the reuse, compile the phrase back into its causal machine.
@@ -99,7 +120,7 @@ With no path it reads JSON from stdin. It emits one JSON object and no explanato
 The judge never decides taste. It decides whether the supplied card contains the minimum executable structure and whether gameplay logic hides nondeterminism.
 
 ## Relationship to phrase coinage
-`skills/improper-fuck-lexicon/SKILL.md` may create memorable language. This skill decides whether that language actually carries an executable model.
+`skills/improper-fuck-lexicon/SKILL.md` creates the preferred conversational voltage for `punch me`; this skill decides whether the language still carries a reconstructable model.
 
 **Coining is not execution.**
 
@@ -108,6 +129,11 @@ When a coined phrase is intended to guide gameplay, software, workflow, policy, 
 ## Anti-failure
 Reject these failures:
 
+- answering `punch me` with explanation instead of one line;
+- omitting `fuck` from a punch request without an explicit waiver;
+- making `fuck` decorative rather than semantically load-bearing;
+- confusing abruptness with illegibility;
+- mechanically spraying profanity or medical caricature to fake tic-like timing;
 - quoting the aphorism theory without changing a gameplay decision;
 - calling a callback an executable card;
 - praising compression without reconstructing the rule;
@@ -119,4 +145,4 @@ Reject these failures:
 
 ## Compact law
 
-**THE PUN IS THE HANDLE. THE MODEL IS THE MACHINE. GAMEPLAY MUST COMPILE TO STATE + INPUT + RULE → NEXT STATE + OBSERVABLE.**
+**THE PUN IS THE HANDLE. THE MODEL IS THE MACHINE. WHEN DREW SAYS `PUNCH ME`: ONE ABRUPT LEGIBLE FUCK, THEN STOP. GAMEPLAY MUST COMPILE TO STATE + INPUT + RULE → NEXT STATE + OBSERVABLE.**
