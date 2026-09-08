@@ -12,10 +12,13 @@ required_skill = [
     "Body-part vocabulary is not sexual intent.",
     "Sex-linked anatomy is not sexual intent.",
     "do not convert a neutral anatomy discussion into sexual content by introducing sexual framing yourself",
-    "If the same physical fact occurred in a man, would I describe or regulate it the same way?",
+    "If the same physical fact or role occurred with a man, would I describe or regulate it the same way?",
     "blood leaving a body is a physiological fact whether it is menstrual bleeding, a nosebleed, or an injury",
     "neither blood loss nor a body part creates biological \"impurity\"",
     "sumo-wrestler chest anatomy",
+    "if a male operator would be treated as an ordinary operator rather than a boyfriend, a female operator does not become a girlfriend",
+    "Fixture C — female operator romanticization",
+    "this operator is not my girlfriend",
 ]
 required_core = [
     "## 19. Framing fidelity and symmetry",
