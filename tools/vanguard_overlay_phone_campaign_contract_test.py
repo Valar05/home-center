@@ -2,11 +2,15 @@
 """Static contract for the cross-body primary-phone Vanguard runner."""
 from __future__ import annotations
 
+import argparse
 import ast
 import json
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+parser = argparse.ArgumentParser()
+parser.add_argument("--root", default=str(Path(__file__).resolve().parents[1]))
+args = parser.parse_args()
+ROOT = Path(args.root).expanduser().resolve()
 PHONE = ROOT / "tools" / "vanguard_overlay_phone_campaign.py"
 CORE = ROOT / "tools" / "vanguard_overlay_campaign.py"
 DESKTOP = ROOT / "tools" / "vanguard_overlay_throne_campaign.ps1"
@@ -53,8 +57,9 @@ add("core_truth_separation", "accepted=False" in core and "remainingAcceptance" 
 
 failed = [row["check"] for row in checks if not row["ok"]]
 print(json.dumps({
-    "schema": "vanguard-overlay-phone-campaign-contract-v1",
+    "schema": "vanguard-overlay-phone-campaign-contract-v2",
     "ok": not failed,
+    "root": str(ROOT),
     "checks": checks,
     "failed": failed,
     "truthBoundary": "PASS proves committed cross-body campaign source shape only; desktop PowerShell parse/runtime, real Throne actuation, phone execution and physical acceptance remain separate evidence gates."
