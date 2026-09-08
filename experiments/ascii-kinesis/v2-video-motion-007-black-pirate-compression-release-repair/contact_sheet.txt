@@ -1,0 +1,170 @@
+ASCII KINESIS V2 · VIDEO MOTION 007 · REPAIR OF VIDEO MOTION 001
+Compression → spring release → counter-arc recovery debt
+Source: He'll walk the plank.webm · coherent segment 15.000–18.750 s
+Legend: O head · @ pelvis/root · + COM · * joint · ? support-side unresolved · X geometric overlap only
+No inter-actor/prop contact is authored. Exact impact/contact/support ownership remains UNKNOWN.
+
+K0 · 15.000s OBSERVED · FOURS INFERRED · SET_TENSION
+                                                                      
+                                                                      
+                   OA                                                 
+                   |                                                  
+                  -|--                                       OB       
+                -- |  \  -*                                  /   -*   
+               /   |   *-                                  -/   *     
+              -*  +|                                     -- /---      
+             *     |                                     /  /         
+                   @                                   -*  /+         
+                  /\                                  *    /          
+                  / \                                      @          
+                 *   \                                    / \\        
+                /    *                                   *    *       
+                /     \                                 /      \\     
+_______________?_______?_______________________________?_________?____
+
+K1 · 16.000s OBSERVED · FOURS INFERRED · ASYMMETRIC_LOAD_CLOSE
+                                                                      
+                                                                      
+                   OA                                                 
+                   |                                     OB           
+                   |--                                   /      -*    
+                 //|  \  -*                            -/-   -*-      
+                /  |   *-                            -- / ---         
+               /  +|                                /  /              
+               *   |                               *   +              
+              /    @                             //   /               
+             *    /\                            *     @               
+                  / \                                / ---            
+                 *   \                              /     *           
+                /    *                             *       \          
+                /     \                           /         \         
+_______________?_______?_________________________?___________?________
+
+K2 · 17.000s OBSERVED · TWOS INFERRED · DEEPEN_COMPRESSION
+                                                                      
+                                                                      
+                   OA                                                 
+                   |                               OB                 
+                   |---                            /      -*          
+                  /|   -*--*                    --/-  -*--            
+                 / |                          -- /  --                
+                /  +                        //  +                     
+               *   |                       *   /                      
+              /    @                    ---   @                       
+             *    / \                  *     / \                      
+                  /  \                      /   \\                    
+                 *   \                     *      *                   
+                /     *                   /        \                  
+                /      \                  /         \                 
+_______________?________?________________?___________?________________
+
+K3 · 17.750s OBSERVED · TWOS INFERRED · MAX_COMPRESSION_SPRING
+                                                                      
+                                                                      
+                    OA                                                
+                    |                                                 
+                    |                                                 
+                  ///---                    OB     --*                
+                 /  /   *                  /    -*-                   
+                /  +     -*              --/----                      
+               *   /                   --//                           
+               /   @                --- +                             
+              *   / \              *  //                              
+                 /   \          ---  @-                               
+                *    \         *   //  -                              
+               /      *           *     -*                            
+               /       \         /        \\                          
+______________?_________?_______?___________?_________________________
+
+K4 · 17.917s OBSERVED · ONES INFERRED · RELEASE_CUT
+                                                                      
+                                                                      
+                    OA                                                
+                    |       OB                                        
+                   -|      /          --*                             
+                --- XX\   -/-------*--                                
+               *    / *X--  \                                         
+              /    +    \    +                                        
+             *     /     *    \                                       
+                   @      \    @-                                     
+                  / \      *  /  -                                    
+                 /   \       /    -*                                  
+                *     *     *       \                                 
+               /       \   /         \                                
+               /       \   /         \                                
+______________?_________?_?___________?_______________________________
+
+K5 · 18.083s OBSERVED · ONES INFERRED · HIGH_ENERGY_CROSSING
+                                                                      
+                                                                      
+                     OAOB                                             
+                     | /                                              
+             *-     -X/-                                              
+               -*----/\\-----                                         
+                *   /  \+    --*-                                     
+              *-   +/   \\       ----                                 
+                   /     *@          -*                               
+                   @     /\\\                                         
+                  / \   /  * \                                        
+                 /   \ *      *                                       
+                *     */       \                                      
+               /      /\       \                                      
+               /     / \        \                                     
+______________?______?__?________?____________________________________
+
+K6 · 18.250s OBSERVED · TWOS INFERRED · OVERLAP_COMMIT
+                                                                      
+                                                                      
+               OB     OA                                              
+               |     /                                                
+      *-      -|-   -/                                                
+        -*-----*X----XX                                               
+             *  +\  /  X-*-                                           
+                 \ +/   \  -----                                      
+                  @/     *      -*                                    
+                // X\     \                                           
+               /  / \\     *                                          
+              *  /   \*                                               
+             /  *     *\                                              
+             / /       \\                                             
+             / /       \ \                                            
+____________?_?_________?_?___________________________________________
+
+K7 · 18.500s OBSERVED · TWOS INFERRED · OVERSHOOT_COUNTER_ARC
+                          --*                                         
+                      ----                                            
+                  -*-XA                                               
+       OB       --   /                                                
+       \      --   -/                                                 
+       -\-----  --- /--                                               
+     --  \     *    /  \                                              
+   *-    +     /   +    *                                             
+  /       \   *    /     \                                            
+ *         @       @      *                                           
+          / \     / \                                                 
+         /   \\   /  \                                                
+        *      * *   \                                                
+       /        X\    *                                               
+       /        / \    \                                              
+______?________?___?____?_____________________________________________
+
+K8 · 18.750s OBSERVED · FOURS INFERRED · RECOVERY_DEBT_SETTLE
+                                                                      
+                                                                      
+                    OA--*                                             
+                  --X-                                                
+     OB       -*-- -|                                                 
+     |    ----   -- /--                                               
+     |----      /   /  \                                              
+   --\         *   +    *-                                            
+   / \+        /   /      *                                           
+  *   \       *    @                                                  
+ /    @           /\                                                  
+ *   / \\         / \                                                 
+     /   \       *   \                                                
+    *     *     /    *                                                
+   /       \\   /     \                                               
+___?_________?_?_______?______________________________________________
+
+TIMING: source timestamps OBSERVED; compile classes/holds/bridge arcs INFERRED. 1s/2s/4s = ONES/TWOS/FOURS, never seconds.
+UNRESOLVED: B support foot/side · hand/prop endpoints · driver/yielder · discrete physical impact.
