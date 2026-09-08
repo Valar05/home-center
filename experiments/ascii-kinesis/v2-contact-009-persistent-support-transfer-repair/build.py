@@ -225,7 +225,7 @@ def main():
     data["compile"]["decode"]={"codec":stream.get("codec_name"),"width":int(stream.get("width",PIX_W)),
         "height":int(stream.get("height",PIX_H)),"fps":int(data["compile"]["fps"]),
         "frames":int(stream.get("nb_frames") or len(seq)),"duration_seconds":float(probe["format"]["duration"])}
-    MOTION.write_text(json.dumps(data,sort_keys=True,indent=2,ensure_ascii=True)+"\n",encoding="utf-8")
+    MOTION.write_text(json.dumps(data,sort_keys=True,separators=(",",":"),ensure_ascii=True)+"\n",encoding="utf-8")
     sheet=contact_sheet(data); (HERE/"contact-sheet.txt").write_text(sheet,encoding="utf-8")
     pg=page(data,sheet,raw); (HERE/"persistent-support-transfer-repair.motion.html").write_text(pg,encoding="utf-8")
     print(json.dumps({"media_sha256":media_sha,"media_bytes":len(raw),"frames":len(seq),
