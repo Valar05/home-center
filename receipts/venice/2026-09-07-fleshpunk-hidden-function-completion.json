@@ -1,0 +1,36 @@
+{
+  "schema": "fortress.venice.completion-review.v1",
+  "commission": "Promote VISIBLE REALITY STAYS REAL / FLESHPUNK NAMES THE HIDDEN FUNCTION into durable Home Center doctrine and generalize it through Tango.",
+  "reviewer": "Venice",
+  "reviewerMode": "same-worker separate Judgment-Jar pass",
+  "directive": "STOP_ALLOWED",
+  "verdict": "approve",
+  "quality": "good",
+  "code_review_first": true,
+  "selectedJudgmentJars": [
+    "skills/simulation-corpus-gate/SKILL.md",
+    "skills/framing-fidelity/SKILL.md",
+    "skills/wizard-dns-tango/SKILL.md",
+    ".continue/rules/70-judgement-jar-venice-review-gate.md"
+  ],
+  "review": {
+    "missionFidelity": "PASS — the promoted doctrine preserves literal reality while allowing Fleshpunk to name hidden functional roles across bodies, objects, habits, relationships, and systems.",
+    "corpusFidelity": "PASS — the skill carries the Art Bible rule that biology inherits a job rather than a decorative surface and the embodied-motion rule that observation must not invent fantasy.",
+    "realityBoundary": "PASS — the skill explicitly forbids using metaphor to fabricate anatomy, medicine, physics, implants, supernatural evidence, or another person's private mental state.",
+    "generalization": "PASS — reusable organ/tendon/gland/armor/scar/nerve/metabolism/immune/skeleton mappings are tied to function, load path, adaptation, cost, dependency, and consequence rather than surface styling.",
+    "fixture": "PASS — the casino forearm remains literally an ordinary forearm while the accounting organ remains a fictional functional model; lack of a visible implant is explicitly non-contradictory.",
+    "tangoIntegration": "PASS — Wizard DNS Tango now routes real-world Fleshpunk metaphor through skills/fleshpunk-hidden-function/SKILL.md and repeats the literal-reality boundary.",
+    "regressionContract": "PASS AS SOURCE REVIEW — tools/test_fleshpunk_hidden_function_contract.py checks the core law, forearm fixture, reality precedence, invisible-function rule, and Tango routing; tools/run_fortress_local_contracts.sh invokes it and py_compiles it.",
+    "runtimeTestEvidence": "NOT CLAIMED — the local Fortress suite was not executed from this connector session.",
+    "readback": "PASS — the new skill, updated Tango skill, regression contract, and Fortress runner were read back from canonical main after mutation."
+  },
+  "artifacts": [
+    "skills/fleshpunk-hidden-function/SKILL.md",
+    "skills/wizard-dns-tango/SKILL.md",
+    "tools/test_fleshpunk_hidden_function_contract.py",
+    "tools/run_fortress_local_contracts.sh",
+    "receipts/venice/2026-09-07-fleshpunk-hidden-function-plan.json"
+  ],
+  "stopRationale": "The doctrine exists durably on canonical GitHub, Tango can retrieve it, the literal-reality boundary is explicit, regression source is wired, and repository readback is verified. Runtime test execution is intentionally not claimed.",
+  "reviewedAtLocal": "2026-09-07T22:14:54-05:00"
+}
