@@ -1,0 +1,95 @@
+{
+  "schema": "venice-plan-review-v2-judgment-jar-primary",
+  "createdAt": "2026-09-08T15:48:00Z",
+  "commission": "VANGUARD // OVERLAY RESURRECTION — bring the old Home Center phone overlay back with actual intelligence; Ritsu is the default opinionated intelligence; other approved voices may contribute; Adam is explicitly excluded from runtime routes, prompts, labels, fallbacks, and recovery paths.",
+  "boundedSlice": "Create a reusable, branch-isolated operator campaign that can recover, build, install, verify, status, resume, stop, and receipt the Android overlay resurrection without claiming physical deployment before phone evidence exists.",
+  "owner": "Drew Clarke",
+  "executionLane": "Valar05/home-center GitHub branch plus explicit operator-triggered primary-phone Termux/Shizuku campaign; no local ChatGPT scratch as evidence.",
+  "baseCommit": "80d34fc7df267147bfea20657e8d2e03481989ff",
+  "branch": "campaign/vanguard-overlay-resurrection",
+  "researchEvidence": [
+    "android/operator-overlay/app/src/main/AndroidManifest.xml",
+    "android/operator-overlay/app/build.gradle",
+    "tools/setup_android_operator_overlay.sh",
+    "tools/recover_adam_overlay_phone.sh",
+    "skills/operator-campaign/SKILL.md",
+    "AGENTS.base.md",
+    "config/judgment-jars.v1.json",
+    "Android Developers: foreground service types (microphone), updated 2026-09-01",
+    "Android Developers: background-start/while-in-use foreground-service restrictions",
+    "Android Developers: Android 17 background audio hardening"
+  ],
+  "selectedJudgmentJars": [
+    {
+      "id": "mission-boundary",
+      "reason": "Preserve Vanguard ownership, old-overlay recovery outcome, Ritsu/default-opinion requirement, Adam exclusion, phone delivery surface, and explicit retention law."
+    },
+    {
+      "id": "repository-truth",
+      "reason": "Separate remote source state from tested/deployed/callable/accepted phone state."
+    },
+    {
+      "id": "change-discipline",
+      "reason": "Recover the existing overlay lineage rather than silently substitute a new app or architecture."
+    },
+    {
+      "id": "failure-recovery",
+      "reason": "Turn failures into bounded diagnostics and recovery actions instead of returning disposable blocker prose."
+    },
+    {
+      "id": "daemon-backoff-persistence",
+      "reason": "Campaign must survive shell/tab loss, expose liveness, retry transient failures sanely, and remain stoppable out-of-band."
+    },
+    {
+      "id": "home-center-vlad-receipts",
+      "reason": "Persist requested/implemented/tested/deployed/callable/delivered/accepted state and exact evidence."
+    },
+    {
+      "id": "embodied-kinesis-voices",
+      "reason": "Ritsu and optional cast opinions belong above deterministic control and must not become ambiguous execution authority."
+    }
+  ],
+  "antagonism": [
+    "The old recovery path was deliberately retired on September 1; resurrection is allowed only because Drew has now explicitly commissioned it. Do not silently revive legacy Adam-named recovery machinery.",
+    "The current manifest uses specialUse for the overlay and mediaProjection for Venice audio capture. Ambient microphone capture needs a microphone foreground-service type plus FOREGROUND_SERVICE_MICROPHONE and RECORD_AUDIO runtime authority.",
+    "On Android 14+, microphone foreground-service creation is while-in-use gated. The campaign must not claim BOOT_COMPLETED can arm microphone capture. Reboot must leave listening disarmed until a visible user action or qualifying notification interaction arms it.",
+    "Android 14 permits dismissal of many ongoing notifications. Heartbeat liveness cannot be defined as an immortal notification; service truth and notification truth are distinct.",
+    "Always listening must not mean permanent raw recording. Raw audio is a fixed-capacity ring; transcript is rolling cache; only explicit KEEP promotes durable audio/text.",
+    "No model call belongs in the PCM hot path. Capture, overwrite, VAD boundaries, state, permissions, stop, and retention are deterministic. Intelligence consumes structured events above that layer.",
+    "A campaign that blocks Drew's Termux shell, cannot be stopped from another shell, or loses state on tab death fails before product acceptance.",
+    "A repository commit, APK build, unit test, or Shizuku command cannot be rounded up to physical phone acceptance. Phone verification must prove package, permissions, foreground service, overlay modes, advancing ring state, transcript state, STOP release, KEEP promotion, and reboot-disarmed behavior.",
+    "Adam exclusion is a runtime invariant. New campaign/runtime files must fail QA if they introduce Adam as a speaker, label, route, fallback, default, or recovery path; references to legacy source may appear only in archaeology/migration checks."
+  ],
+  "plan": [
+    "Add a stable vanguard-overlay campaign entrypoint with run/resume/status/stop/receipts/doctor/install operations and durable append-only state under ~/.local/state/home-center/vanguard-overlay-resurrection.",
+    "Add a bootstrap that installs the stable command without capturing the operator shell and preserves any existing checkout/worktree state.",
+    "Make the campaign inspect the actual Android source and refuse legacy Adam recovery paths, then run deterministic source-contract checks before any phone mutation.",
+    "Implement phone-side install/recovery through existing Shizuku/rish authority with exact APK hashing, privileged staging verification, bounded retries, and cleanup.",
+    "Require visible user arming for microphone capture and represent unarmed-after-reboot as expected state, not failure.",
+    "Persist compact latest state plus JSONL history and phase logs; expose elapsed time, phase, heartbeat age, last action, worker PID/process-group identity, and evidence pointers.",
+    "Add canaries for prompt transport, process isolation, out-of-band stop, idempotent rerun, Adam exclusion, bounded retention contract, and repository-vs-phone capability-state separation.",
+    "Do not claim the overlay resurrected until the campaign is run on the primary phone and its physical acceptance receipt passes."
+  ],
+  "venice": {
+    "reviewer": "GPT-5.6 Sol",
+    "reviewerMode": "separate-adversarial-judgment-jar-pass",
+    "directive": "PLAN_ALLOWED",
+    "constraints": [
+      "Branch-isolated reversible mutation only in this slice.",
+      "No physical deployment claim without phone receipt.",
+      "No boot-autostart microphone workaround.",
+      "No unbounded audio retention.",
+      "No Adam runtime route.",
+      "She-Raw adversarial worker pressure must be included in campaign worker/reviewer prompts, but never treated as execution authority."
+    ]
+  },
+  "capabilityState": {
+    "requested": true,
+    "implemented": false,
+    "tested": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  }
+}
