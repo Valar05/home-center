@@ -1,0 +1,366 @@
+ASCII KINESIS V2 TIMING 006 — SCOPED FREEZE / RELEASE REPAIR
+revises: experiments/ascii-kinesis/v2-timing-001-scoped-freeze-release/
+negative_fixture: experiments/ascii-kinesis/v2-timing-001-scoped-freeze-release/
+SOURCE ART: NONE | TIMING: INFERRED | 1s/2s/4s => ONES/TWOS/FOURS
+
+[T006-K0] PHASE_READY | pose/rig=GENERIC_DUAL_CLOCK_BIPED | support/contact=BILATERAL_FEET_PLANTED
+timing=FOURS | timing_provenance=INFERRED | changed=BASE,SIGNAL_A,SIGNAL_B
+root/motion-arc: COM stacked between planted feet; both local clocks visibly offset; no causal join.
+causal role: establish planted support and asynchronous local phases
+clocks: BASE=CENTER A=LOW B=DOWN GATE=OPEN
+
+                                g
+
+
+
+                                O
+                                |
+                                |
+                                :
+                                |
+                            o-- | --o
+                           /   -+-   \
+                          /     |     \
+                         /      |      \
+                        o       |       o
+                       /        |        \
+                      /         |         \
+                     /       o--@--o       \
+                    A       /       \       B
+                            /       \
+                           /         \
+                           o         o
+                          /           \
+                        //             \\
+                       L                 R
+                   ====^=================^====
+
+
+[T006-K1] ASYMMETRIC_COIL | pose/rig=GENERIC_DUAL_CLOCK_BIPED | support/contact=BILATERAL_FEET_PLANTED
+timing=FOURS | timing_provenance=INFERRED | changed=BASE,SIGNAL_A,SIGNAL_B
+root/motion-arc: COM shifts inside support polygon toward right foot while A folds inward; B drifts independently. Feet stay planted.
+causal role: anticipation/coil before the fast A release
+clocks: BASE=COIL_RIGHT A=COIL B=DRIFT GATE=OPEN
+
+                                    g
+
+
+
+                                    O
+                                    |
+                                    |
+                                    :
+                                    |
+                                 o-- | --o
+                               //   -+- /
+                              o      / o
+                               \    /   \\
+                                A   /     B
+                                   /
+                                   /
+                             o----@o
+                            /       \
+                            /       \
+                           /         \
+                           o         o
+                          /           \
+                        //             \\
+                       L                 R
+                   ====^=================^====
+
+
+[T006-K2] A_RELEASE_SNAP | pose/rig=GENERIC_DUAL_CLOCK_BIPED | support/contact=BILATERAL_FEET_PLANTED
+timing=ONES | timing_provenance=INFERRED | changed=BASE,SIGNAL_A,SIGNAL_B
+root/motion-arc: A snaps on a high outward arc; COM returns toward center; B has not yet reached its freeze phase.
+causal role: fast A information spike after earned anticipation
+clocks: BASE=CENTER A=HIGH B=PREP GATE=OPEN
+
+                                g
+
+
+                  A\
+                    \\          O
+                      \\        |
+                        o       |
+                         \\     :        --B
+                           \    |     -o-
+                            o-- | --o-
+                               -+-
+                                |
+                                |
+                                |
+                                |
+                                |
+                             o--@--o
+                            /       \
+                            /       \
+                           /         \
+                           o         o
+                          /           \
+                        //             \\
+                       L                 R
+                   ====^=================^====
+
+
+[T006-K3] B_PRELOCK_READ | pose/rig=GENERIC_DUAL_CLOCK_BIPED | support/contact=BILATERAL_FEET_PLANTED
+timing=TWOS | timing_provenance=INFERRED | changed=BASE,SIGNAL_A,SIGNAL_B
+root/motion-arc: B reaches high silhouette while A decelerates downward; COM begins counter-shift left. Freeze has not happened yet.
+causal role: read the B apex before the freeze event
+clocks: BASE=DECEL_LEFT A=DESCEND B=HIGH GATE=OPEN
+
+                               g
+
+
+                                             /B
+                               O           //
+                               |         //
+                               |       /o
+                               :     //
+                               |   //
+                         -o-- | --o
+                      o--    -+-
+                    //        |
+                  //          |
+                 A            |
+                               |
+                               |
+                             o-@---o
+                            /       \
+                            /       \
+                           /         \
+                           o         o
+                          /           \
+                        //             \\
+                       L                 R
+                   ====^=================^====
+
+
+[T006-K4] FREEZE_LATCH | pose/rig=GENERIC_DUAL_CLOCK_BIPED | support/contact=BILATERAL_FEET_PLANTED
+timing=ONES | timing_provenance=INFERRED | changed=GATE
+root/motion-arc: External latch freezes SIGNAL_B at its high phase. Support and root do not reset; no hidden in-between.
+causal role: scoped freeze acquisition / event accent
+clocks: BASE=DECEL_LEFT A=DESCEND B=HIGH GATE=FREEZE_B
+
+                               F
+
+
+                                             [B]
+                               O           //
+                               |         //
+                               |       /o
+                               :     //
+                               |   //
+                         -o-- | --o
+                      o--    -+-
+                    //        |
+                  //          |
+                 A            |
+                               |
+                               |
+                             o-@---o
+                            /       \
+                            /       \
+                           /         \
+                           o         o
+                          /           \
+                        //             \\
+                       L                 R
+                   ====^=================^====
+
+
+[T006-K5] A_SWEEP_B_HELD | pose/rig=GENERIC_DUAL_CLOCK_BIPED | support/contact=BILATERAL_FEET_PLANTED
+timing=FOURS | timing_provenance=INFERRED | changed=BASE,SIGNAL_A
+root/motion-arc: B remains pinned high long enough to read. A sweeps through low arc and COM reaches its independent left counterweight.
+causal role: prove B hold while A and BASE continue
+clocks: BASE=COUNTER_LEFT A=LOW_SWEEP B=HIGH GATE=FREEZE_B
+
+                              F
+
+
+                                             [B]
+                              O            //
+                              |          //
+                              |        -o
+                              :      --
+                              |    --
+                         o-- | --o-
+                        /   -+-
+                        /    |
+                       /      |
+                       /      |
+                      o       |
+                     /         |
+                    /        o-@---o
+                   /        /       \
+                  /         /       \
+                 A         /         \
+                           o         o
+                          /           \
+                        //             \\
+                       L                 R
+                   ====^=================^====
+
+
+[T006-K6] A_OVERSHOOT_B_HELD | pose/rig=GENERIC_DUAL_CLOCK_BIPED | support/contact=BILATERAL_FEET_PLANTED
+timing=TWOS | timing_provenance=INFERRED | changed=BASE,SIGNAL_A
+root/motion-arc: A passes its nominal low point, then loses speed; B remains high; planted support contains the COM shift.
+causal role: overshoot/deceleration while frozen clock remains unchanged
+clocks: BASE=DECEL_LEFT A=OVERSHOOT B=HIGH GATE=FREEZE_B
+
+                               F
+
+
+                                             [B]
+                               O           //
+                               |         //
+                               |       /o
+                               :     //
+                               |   //
+                          o-- | --o
+                          |  -+-
+                          |   |
+                          |   |
+                          |   |
+                          |    |
+                          o    |
+                         /   o-@---o
+                         /  /       \
+                        /   /       \
+                       /   /         \
+                       /   o         o
+                      A   /           \
+                        //             \\
+                       L                 R
+                   ====^=================^====
+
+
+[T006-K7] RELEASE_B | pose/rig=GENERIC_DUAL_CLOCK_BIPED | support/contact=BILATERAL_FEET_PLANTED
+timing=ONES | timing_provenance=INFERRED | changed=GATE
+root/motion-arc: Release changes only B clock authority. A/base recovery is already underway and is not restarted by the event.
+causal role: named release event without BASE reset
+clocks: BASE=RESTACK A=RECOVER B=HIGH GATE=RELEASE_B
+
+                                R
+
+
+                                             <B>
+                                O          //
+                                |        //
+                                |       o
+                    A\          :     //
+                      \\        |   //
+                        o--o-- | --o
+                              -+-
+                               |
+                               |
+                               |
+                                |
+                                |
+                             o--@--o
+                            /       \
+                            /       \
+                           /         \
+                           o         o
+                          /           \
+                        //             \\
+                       L                 R
+                   ====^=================^====
+
+
+[T006-K8] B_CATCHUP_OVERSHOOT | pose/rig=GENERIC_DUAL_CLOCK_BIPED | support/contact=BILATERAL_FEET_PLANTED
+timing=ONES | timing_provenance=INFERRED | changed=SIGNAL_B
+root/motion-arc: B snaps past its ordinary low phase after release; the overshoot spends stored phase debt rather than reversing the freeze.
+causal role: fast post-release catch-up with explicit overshoot
+clocks: BASE=RESTACK A=RECOVER B=OVERSHOOT GATE=OPEN
+
+                                g
+
+
+
+                                O
+                                |
+                                |
+                    A\          :
+                      \\        |
+                        o--o-- | --o
+                              -+-   \
+                               |     \
+                               |      \
+                               |       \
+                                |       \
+                                |        o
+                             o--@--o      \
+                            /       \      \
+                            /       \       \\
+                           /         \        \
+                           o         o         B
+                          /           \
+                        //             \\
+                       L                 R
+                   ====^=================^====
+
+
+[T006-K9] B_REBOUND_A_LAG | pose/rig=GENERIC_DUAL_CLOCK_BIPED | support/contact=BILATERAL_FEET_PLANTED
+timing=TWOS | timing_provenance=INFERRED | changed=SIGNAL_A,SIGNAL_B
+root/motion-arc: B rebounds toward nominal path while A remains slightly late; COM is nearly stacked. Distinct channels settle at different rates.
+causal role: secondary lag and rebound before settle
+clocks: BASE=RESTACK A=LAG B=REBOUND GATE=OPEN
+
+                                g
+
+
+
+                                O
+                                |
+                     A\         |
+                       \\       :
+                         o\     |
+                           o-- | --o--
+                              -+-     --o-
+                               |          --
+                               |            -B
+                               |
+                                |
+                                |
+                             o--@--o
+                            /       \
+                            /       \
+                           /         \
+                           o         o
+                          /           \
+                        //             \\
+                       L                 R
+                   ====^=================^====
+
+
+[T006-K10] RESTACK_OFFSET | pose/rig=GENERIC_DUAL_CLOCK_BIPED | support/contact=BILATERAL_FEET_PLANTED_RECENTERING
+timing=FOURS | timing_provenance=INFERRED | changed=BASE,SIGNAL_A,SIGNAL_B
+root/motion-arc: Both feet remain truthful supports; COM restacks before the next cycle. B settles without forcing an idle/global reset.
+causal role: pay recovery debt and re-establish readable phase offset
+clocks: BASE=CENTER A=LOW B=SETTLE GATE=OPEN
+
+                                g
+
+
+
+                                O
+                                |
+                                |
+                                :
+                                |
+                            o-- | --o
+                           /   -+-   \
+                          /     |     \\
+                         /      |       o
+                        o       |        \
+                       /        |         \
+                      /         |          \
+                     /       o--@--o        B
+                    A       /       \
+                            /       \
+                           /         \
+                           o         o
+                          /           \
+                        //             \\
+                       L                 R
+                   ====^=================^====
