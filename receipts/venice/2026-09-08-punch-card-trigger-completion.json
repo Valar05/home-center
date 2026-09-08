@@ -1,0 +1,43 @@
+{
+  "schema": "fortress.venice.completion-review.v1",
+  "commission": "Repair Punch-Card Aphorism so it deterministically triggers for gameplay/system logic judgment instead of remaining inert theory.",
+  "reviewer": "Venice",
+  "reviewerMode": "same-worker separate Judgment-Jar pass",
+  "directive": "STOP_ALLOWED",
+  "verdict": "approve",
+  "quality": "good",
+  "review": {
+    "rootCause": "CONFIRMED — Punch-Card Aphorism existed as Library theory but had no canonical Home Center skill/router entry, so Fortress boot and Ritsu/Tango had nothing deterministic to trigger.",
+    "triggerRepair": "PASS — canonical skill now triggers on explicit Punch-Card language and on the gameplay/system task class without requiring the user to name the skill.",
+    "gameplayLogic": "PASS AS SOURCE REVIEW — gameplay must compile to STATE + INPUT + RULE -> NEXT STATE + OBSERVABLE; hidden randomness is rejected unless seed/random draw is explicit input.",
+    "deterministicJudge": "PASS AS SOURCE REVIEW — tools/punch_card_judge.py emits fixed structural verdicts including EXECUTABLE_GAMEPLAY_CARD, GAMEPLAY_LOGIC_INCOMPLETE, NONDETERMINISTIC_RANDOMNESS, MNEMONIC_ONLY, DOGMA_RISK, SLOGAN_ONLY, and PUNCH_CARD_READY.",
+    "routing": "PASS — Fortress Core, Ritsu, Tango, and Improper Fuck Lexicon all name skills/punch-card-aphorism/SKILL.md as the route for applicable system/gameplay work.",
+    "regression": "PASS AS SOURCE REVIEW — tools/test_punch_card_aphorism_contract.py checks trigger invariants, routing, complete gameplay card, missing-state rejection, hidden-randomness rejection, and mnemonic classification; authorized local runner invokes and py_compiles it.",
+    "readback": "PASS — skill, judge, regression contract, Fortress Core routing, Ritsu routing, Tango routing, Improper Fuck Lexicon escalation, and local runner were read back from canonical main after mutation.",
+    "runtimeTestEvidence": "NOT CLAIMED — local Fortress contracts were not executed from this GitHub connector session."
+  },
+  "artifacts": [
+    "skills/punch-card-aphorism/SKILL.md",
+    "tools/punch_card_judge.py",
+    "tools/test_punch_card_aphorism_contract.py",
+    "skills/fortress-core/SKILL.md",
+    "skills/haraway-hotel-operator/SKILL.md",
+    "skills/wizard-dns-tango/SKILL.md",
+    "skills/improper-fuck-lexicon/SKILL.md",
+    "tools/run_fortress_local_contracts.sh",
+    "receipts/venice/2026-09-08-punch-card-trigger-plan.json"
+  ],
+  "commits": {
+    "plan": "d3d8bb4f7330377d6e8e4c042d7c55f183b20bc4",
+    "skill": "ecdb9da9ae0a8f538d875c21df764ef5dd2c205e",
+    "judge": "4756bd28d6374cec562f867d4d95dfa94f572b8c",
+    "regression": "4e8368e3e94b1825d999d9fdba9bbebdcc592a52",
+    "core": "70c2afb10fc1ef45850c45d34c0a86c9e5973327",
+    "ritsu": "d77d17dca4cc4f09d3ed886cc73f8317196b0f34",
+    "tango": "0e0a1313f5426a360b928fdab85dd4ae9ed84c7d",
+    "fuckLexicon": "319167d02e1a3add4bf3c3e479bd12b70db1d26a",
+    "runner": "0119297cefc6f057bfe3827c6b32afaed3f82981"
+  },
+  "stopRationale": "The theory now has a boot-discovered canonical skill, automatic task-class routing, deterministic machine-readable gameplay judgment, regression source, and runner integration; repository readback is verified. Runtime suite execution remains explicitly unclaimed.",
+  "reviewedAtLocal": "2026-09-08T02:59:36-05:00"
+}
