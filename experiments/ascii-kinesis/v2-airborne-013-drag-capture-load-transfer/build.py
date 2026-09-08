@@ -133,7 +133,7 @@ def make_video(d):
     return seq
 
 def html_page(d,sheet,media):
-    spa={k:d[k] for k in ('schema','format_version','experiment_id','lane','principle','source','revision','compatibility','timing_vocabulary','rig','keys','quality_gates','compile','ascii_sheet_sha256')};spa['bridge_keys']=[{x:b[x] for x in ('bridge_id','from_key','to_key','name','timing_class','timing_provenance','support_contact','contact_state','drag_surface_state','vertical_phase')} for b in d['bridge_keys']];spa['manifest']={'primary_tabs':['ASCII','JSON','VIDEO'],'video_source':'abstract_ascii_rig_only','source_art_embedded':False,'media_sha256':d['compile']['media_sha256'],'repo_path':'experiments/ascii-kinesis/v2-airborne-013-drag-capture-load-transfer/'};pretty=json.dumps(spa,indent=2,sort_keys=True,ensure_ascii=False)
+    spa=json.loads(json.dumps(d));spa['manifest']={'primary_tabs':['ASCII','JSON','VIDEO'],'video_source':'abstract_ascii_rig_only','source_art_embedded':False,'media_sha256':d['compile']['media_sha256'],'repo_path':'experiments/ascii-kinesis/v2-airborne-013-drag-capture-load-transfer/'};pretty=json.dumps(spa,indent=2,sort_keys=True,ensure_ascii=False)
     def pack(text): return base64.b64encode(gzip.compress(text.encode(),9,mtime=0)).decode()
     def parts(text,n=3600): return '[\n'+',\n'.join(json.dumps(text[i:i+n]) for i in range(0,len(text),n))+'\n]'
     V=parts(base64.b64encode(media).decode())
@@ -141,21 +141,28 @@ def html_page(d,sheet,media):
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 Airborne 013 — Drag Capture Load Transfer</title><style>:root{{color-scheme:dark;background:#0d0d0d;color:#eee;font-family:system-ui,sans-serif}}body{{margin:0;padding:1rem;max-width:1400px}}nav{{display:flex;gap:.5rem;position:sticky;top:0;background:#0d0d0d;padding:.5rem 0}}button[data-view]{{font:inherit;padding:.55rem .9rem}}section[hidden]{{display:none}}pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;tab-size:2;line-height:1.05}}video{{max-width:100%;height:auto;border:1px solid #555}}.note{{max-width:92ch;line-height:1.45}}</style></head><body><h1>Drag Capture Load Transfer</h1><p class="note">Repair successor of v2-airborne-004-drag-capture-descent. Same Green Army Man / Toy Story / Genesis whole-sheet evidence family; no source pixels. Authored repair: asymmetric load, one support break, moving apex, gravity drop, drag throw, shoulder take-up, controlled sway, one-foot probe, crumple, late second support, deep compression, chest-whip rebound, arm lag, recovery debt, translated settle.</p><nav role="tablist"><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><section id="ascii"><pre id="ascii-pre"></pre></section><section id="json" hidden><pre id="json-pre"></pre></section><section id="video" hidden><video id="motion-video" controls loop playsinline></video></section><script>const V={V},A={A},J={J};const video=document.getElementById("motion-video");video.src="data:video/mp4;base64,"+V.join("");async function gun(parts){{const u=Uint8Array.from(atob(parts.join("")),c=>c.charCodeAt(0));return new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream("gzip"))).text()}}Promise.all([gun(A),gun(J)]).then(([a,j])=>{{document.getElementById("ascii-pre").textContent=a;document.getElementById("json-pre").textContent=j}});const tabs=[...document.querySelectorAll('button[data-view]')],panels=[...document.querySelectorAll('section')];for(const t of tabs)t.onclick=()=>{{for(const p of panels)p.hidden=p.id!==t.dataset.view}};</script></body></html>'''
 
 def main():
-    d=json.loads(MOTION.read_text())
+    raw=json.loads(MOTION.read_text())
+    d=json.loads(json.dumps(raw))
+    for k in d['keys']:
+        k.update(d['geometry']['keys'][k['key_id']])
+    fields=d.get('bridge_schema')
+    if fields and d['bridge_keys'] and isinstance(d['bridge_keys'][0],list):
+        d['bridge_keys']=[dict(zip(fields,row)) for row in d['bridge_keys']]
+    for b in d['bridge_keys']:
+        b.update(d['geometry']['bridges'][b['bridge_id']])
     seq=make_video(d)
     media=MP4.read_bytes(); sha=hashlib.sha256(media).hexdigest()
     sheet=contact_sheet(d); sheet_sha=hashlib.sha256(sheet.encode()).hexdigest()
     duration=len(seq)/d['compile']['fps']
-    d['compile'].update(media_sha256=sha,media_bytes=len(media),video_frames_total=len(seq),
-                        duration_seconds=round(duration,6),video_file=MP4.name,
-                        video_dimensions=[480,270],codec='H.264',pixel_format='yuv420p',decode='PASS_FFPROBE_AND_FULL_FFMPEG_DECODE')
-    d['ascii_sheet_sha256']=sheet_sha
-    MOTION.write_text(json.dumps(d,sort_keys=True,separators=(',',':'),ensure_ascii=False)+'\n')
+    updates=dict(media_sha256=sha,media_bytes=len(media),video_frames_total=len(seq),duration_seconds=round(duration,6),video_file=MP4.name,video_dimensions=[480,270],codec='H.264',pixel_format='yuv420p',decode='PASS_FFPROBE_AND_FULL_FFMPEG_DECODE')
+    raw['compile'].update(updates); raw['ascii_sheet_sha256']=sheet_sha
+    d['compile'].update(updates); d['ascii_sheet_sha256']=sheet_sha
+    MOTION.write_text(json.dumps(raw,sort_keys=True,separators=(',',':'),ensure_ascii=False)+'\n')
     m=json.loads(MANIFEST.read_text())
     m.update(media_sha256=sha,media_bytes=len(media),ascii_sheet_sha256=sheet_sha)
     m['motion_dungeon'].update(video_frames_total=len(seq),duration_seconds=round(duration,6))
     MANIFEST.write_text(json.dumps(m,sort_keys=True,separators=(',',':'),ensure_ascii=False)+'\n')
-    SPA.write_text(html_page(d,sheet,media))
+    SPA.write_text(html_page(raw,sheet,media))
     print(json.dumps({'media_sha256':sha,'media_bytes':len(media),'frames':len(seq),
                       'duration_seconds':duration,'ascii_sha256':sheet_sha},sort_keys=True))
 if __name__=='__main__':main()
