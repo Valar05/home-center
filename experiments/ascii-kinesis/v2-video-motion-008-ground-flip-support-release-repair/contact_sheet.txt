@@ -1,75 +1,228 @@
 Ground flip repair · asymmetric coil → support release → inverted recapture → landing debt
-v2-video-motion-008-ground-flip-support-release-repair  |  abstract ASCII rig only  |  source pixels/audio absent
+v2-video-motion-008-ground-flip-support-release-repair | abstract ASCII rig only | source pixels/audio absent
 
-K0 READY_SKEW | FOURS / INFERRED                   K1 COUNTERMOVE_SWEEP_BACK | FOURS / INFERRED       K2 DEEP_COIL | FOURS / INFERRED
-src 0.500s OBSERVED                                src 1.250s OBSERVED                                src 2.500s OBSERVED
-support BOTH_LEFT_DOMINANT                         support BOTH_LEFT_DOMINANT                         support BOTH_LEFT_DOMINANT_RIGHT_TOE
-
-
-
-
-
-
-                            O       *                                  *--
-                            |     //                                      --+O                                           *--
-                           --+---+                                           \\                                             --+O
-                         +-  |                                               --+                                               \\
-                       //     |                                          -+--  |                                               --+
-                      *       @                                         -       |                                           +--   \
-                            // \\                                     *-        @                                        ---      \
-                           +     +                                            // \\                                     *         -@-
-                          /       \\                                          +     +-                                          +--   --+-
-                          /        \\                                        /        -                                        /          -
-______________________.__L.___.___._R_._________   ______________________._L_.___.___._R_._________   ______________________.L__.___.___.__R._________
-
-K3 DRIVE_THROUGH_LEFT | TWOS / INFERRED            K4 LAST_SUPPORT_SLING | ONES / INFERRED            K5 RELEASE_BRIDGE | ONES / INFERRED
-src 2.500s OBSERVED                                src 2.750s OBSERVED                                src 3.000s OBSERVED
-support LEFT_DOMINANT_RIGHT_PEEL                   support LEFT_TOE_LAST_SUPPORT                      support AIRBORNE
-
-
-
-                                                                                          *
-                                                                                  O    ---                                          O     --*
-                                    *                                              | -+     *                                       |  -+-
-                             O    //                                               +--   ---                                         +--    --*
-                              | -+     *                                           |  --+                                             \\ --+-
-                              +--   ---                                            |                                                   @
-                              |  --+                                               |                                                  / \
-                              |                                                    @                                                  /  +
-                               |                                                  / \\                                                +    \\
-                               @                                                 /  \\                                               /       R
-                              / \\                                                /   +                                             /
-                             /   +                                              +     \\                                           L
-                            +     \\                                            /       \
-                          //       \\                                         //         R
-                         /          R                                       /
-______________________._L_.___.___._R_._________   ______________________._L_.___.___.___._________   ______________________.___.___.___.___._________
-
-K6 ASCEND_C_SHAPE | ONES / INFERRED                K7 TUCK_CAPTURE | TWOS / INFERRED                  K8 INVERTED_APEX | TWOS / INFERRED
-src 3.000s OBSERVED                                src 3.250s OBSERVED                                src 3.250s OBSERVED
-support AIRBORNE                                   support AIRBORNE                                   support AIRBORNE
-
-
-                                                                                                                                  L         -R
-                                    -*                                          L-       -R                                        \\     +-
-                           *--+   +-                                              -+   +-                                            +-  /
-                              | //                                                  \\ /                                                -@
-                             O-+-      -R                                        +   @                                                  |
-                                 -@--+-                                         / \\ /                                                   |
-                                  |  --L                                       *   +--+-                                             +- | -+-
-                                   +-                                             O     *                                           /  -+-   *
-                                                                                                                                   *    |
-                                                                                                                                        O
+K0 READY_SKEW | FOURS / INFERRED
+src 0.500s OBSERVED
+support BOTH_LEFT_DOMINANT
 
 
 
 
 
-______________________.___.___.___.___._________   ______________________.___.___.___.___._________   ______________________.___.___.___.___._________
 
-K9 OPEN_LATE | ONES / INFERRED                     K10 DESCENT_AIM | TWOS / INFERRED                  K11 FIRST_CONTACT | ONES / INFERRED
-src 3.500s OBSERVED                                src 3.500s OBSERVED                                src 3.750s OBSERVED
-support AIRBORNE                                   support AIRBORNE_DESCENT                           support LEFT_ONLY
+
+                            O       *
+                            |     //
+                           --+---+
+                         +-  |
+                       //     |
+                      *       @
+                            // \\
+                           +     +
+                          /       \
+                          /        \
+______________________.__L.___.___._R_._________
+
+
+K1 COUNTERMOVE_SWEEP_BACK | FOURS / INFERRED
+src 1.250s OBSERVED
+support BOTH_LEFT_DOMINANT
+
+
+
+
+
+
+
+                    *--
+                       --+O
+                          \\
+                          --+
+                      -+--  |
+                     -       |
+                   *-        @
+                           // \\
+                          +     +-
+                         /        -
+______________________._L_.___.___._R_._________
+
+
+K2 DEEP_COIL | FOURS / INFERRED
+src 2.500s OBSERVED
+support BOTH_LEFT_DOMINANT_RIGHT_TOE
+
+
+
+
+
+
+
+
+                   *--
+                      --+O
+                         \\
+                         --+
+                      +--   \
+                   ---      \
+                  *         -@-
+                         +--   --+-
+                        /          -
+______________________.L__.___.___.__R._________
+
+
+K3 DRIVE_THROUGH_LEFT | TWOS / INFERRED
+src 2.500s OBSERVED
+support LEFT_DOMINANT_RIGHT_PEEL
+
+
+
+
+
+
+                                    *
+                             O    //
+                              | -+     *
+                              +--   ---
+                              |  --+
+                              |
+                               |
+                               @
+                              / \
+                             /   +
+                            +     \
+                          //       \
+                         /          R
+______________________._L_.___.___._R_._________
+
+
+K4 LAST_SUPPORT_SLING | ONES / INFERRED
+src 2.750s OBSERVED
+support LEFT_TOE_LAST_SUPPORT
+
+
+
+
+                                       *
+                               O    ---
+                                | -+     *
+                                +--   ---
+                                |  --+
+                                |
+                                |
+                                @
+                               / \
+                              /  \
+                              /   +
+                             +     \
+                            /       \
+                          //         R
+                         /
+______________________._L_.___.___.___._________
+
+
+K5 RELEASE_BRIDGE | ONES / INFERRED
+src 3.000s OBSERVED
+support AIRBORNE
+
+
+
+
+
+                              O     --*
+                              |  -+-
+                               +--    --*
+                                \ --+-
+                                 @
+                                / \
+                                /  +
+                               +    \\
+                              /       R
+                             /
+                            L
+
+
+
+______________________.___.___.___.___._________
+
+
+K6 ASCEND_C_SHAPE | ONES / INFERRED
+src 3.000s OBSERVED
+support AIRBORNE
+
+
+
+
+                                    -*
+                           *--+   +-
+                              | //
+                             O-+-      -R
+                                 -@--+-
+                                  |  --L
+                                   +-
+
+
+
+
+
+
+
+______________________.___.___.___.___._________
+
+
+K7 TUCK_CAPTURE | TWOS / INFERRED
+src 3.250s OBSERVED
+support AIRBORNE
+
+
+
+
+                             L-       -R
+                               -+   +-
+                                 \ /
+                              +   @
+                             / \ /
+                            *   +--+-
+                               O     *
+
+
+
+
+
+
+
+______________________.___.___.___.___._________
+
+
+K8 INVERTED_APEX | TWOS / INFERRED
+src 3.250s OBSERVED
+support AIRBORNE
+
+
+
+                            L         -R
+                             \\     +-
+                               +-  /
+                                 -@
+                                  |
+                                  |
+                               +- | -+-
+                              /  -+-   *
+                             *    |
+                                  O
+
+
+
+
+
+
+______________________.___.___.___.___._________
+
+
+K9 OPEN_LATE | ONES / INFERRED
+src 3.500s OBSERVED
+support AIRBORNE
+
+
 
 
 
@@ -77,43 +230,22 @@ support AIRBORNE                                   support AIRBORNE_DESCENT     
                                         R
                                      ---
                                  @--+ +--*
-                              -+--\\ //                                         *--+
-                            *-  / -+                                               @\\                                           *-     O
-                               +    O                                              |-+--+--                                       -+--+-
-                              /                                                   |   +O   -*                                        /  -+-
-                             /                                                   |     \\                                             /     --*
-                            L                                                    +      \\                                           @-
-                                                                                /        R                                         /  -+
-                                                                               /                                                  +     \\
-                                                                               /                                                 /        R
-                                                                              L                                                  /
-______________________.___.___.___.___._________   ______________________.___.___.___.___._________   ______________________.___L___.___.___._________
-
-K12 TRAIL_CONTACT | ONES / INFERRED                K13 DEEP_LANDING_COMPRESSION | FOURS / INFERRED    K14 REBOUND_OVERSHOOT | TWOS / INFERRED
-src 3.750s OBSERVED                                src 3.750s OBSERVED                                src —
-support BOTH_CONTACT_ROOT_FALLING                  support BOTH_RIGHTWARD_TRANSFER                    support BOTH_RIGHT_DOMINANT
+                              -+--\ //
+                            *-  / -+
+                               +    O
+                              /
+                             /
+                            L
 
 
 
 
+______________________.___.___.___.___._________
 
 
-                                                                                                                                  *
-                                                                                                                                   \\    O
-                                                                                                                                     +- |
-                               O                                                                                                       -+-
-                         *-   -+-                                              O                                                       /  -+
-                           -+- | --+--                                         -+--                                                    /    ---
-                               |      -*                                    -+-  | --+-                                               @        *
-                               |                                          *-     |     --                                           // \\
-                              -@-                                                |       -*                                        +     +
-                            +-   -+                                             --@--                                            //       \
-                          //       \\                                        -+-     -+-                                        /          \
-______________________.__L.___.___.__R._________   ______________________._L_.___.___.___R_________   ______________________.__L.___.___.___R_________
-
-K15 SETTLE_DEBT | TWOS / INFERRED                  K16 READY_DIFFERENT | FOURS / INFERRED
-src —                                              src —
-support RIGHT_DOMINANT_LEFT_LIGHT                  support BOTH_RIGHT_DOMINANT
+K10 DESCENT_AIM | TWOS / INFERRED
+src 3.500s OBSERVED
+support AIRBORNE_DESCENT
 
 
 
@@ -121,14 +253,159 @@ support RIGHT_DOMINANT_LEFT_LIGHT                  support BOTH_RIGHT_DOMINANT
 
 
 
-                                  O                                                  O
-                                  |    -*                                            |
-                                 -+--+-                                             -+--+-
-                               +- |                                               +- |    -*
-                             *-   |                                              /   |
-                                 |                                              *    @
-                                 @                                                 // \
-                               // \\                                               +    +
-                              +    +                                             /      \
-                            //      \\                                          /        \
-______________________.___.L__.___.___R_________   ______________________.___._L_.___.___.R________
+
+                            *--+
+                                @\
+                                |-+--+--
+                               |   +O   -*
+                              |     \
+                              +      \
+                             /        R
+                            /
+                            /
+                           L
+______________________.___.___.___.___._________
+
+
+K11 FIRST_CONTACT | ONES / INFERRED
+src 3.750s OBSERVED
+support LEFT_ONLY
+
+
+
+
+
+
+
+
+
+                          *-     O
+                            -+--+-
+                               /  -+-
+                               /     --*
+                              @-
+                             /  -+
+                            +     \\
+                           /        R
+                           /
+______________________.___L___.___.___._________
+
+
+K12 TRAIL_CONTACT | ONES / INFERRED
+src 3.750s OBSERVED
+support BOTH_CONTACT_ROOT_FALLING
+
+
+
+
+
+
+
+
+
+
+                               O
+                         *-   -+-
+                           -+- | --+--
+                               |      -*
+                               |
+                              -@-
+                            +-   -+
+                          //       \\
+______________________.__L.___.___.__R._________
+
+
+K13 DEEP_LANDING_COMPRESSION | FOURS / INFERRED
+src 3.750s OBSERVED
+support BOTH_RIGHTWARD_TRANSFER
+
+
+
+
+
+
+
+
+
+
+
+                            O
+                            -+--
+                         -+-  | --+-
+                       *-     |     --
+                              |       -*
+                             --@--
+                          -+-     -+-
+______________________._L_.___.___.___R_________
+
+
+K14 REBOUND_OVERSHOOT | TWOS / INFERRED
+src —
+support BOTH_RIGHT_DOMINANT
+
+
+
+
+
+
+
+                            *
+                             \\    O
+                               +- |
+                                 -+-
+                                 /  -+
+                                 /    ---
+                                @        *
+                              // \\
+                             +     +
+                           //       \
+                          /          \
+______________________.__L.___.___.___R_________
+
+
+K15 SETTLE_DEBT | TWOS / INFERRED
+src —
+support RIGHT_DOMINANT_LEFT_LIGHT
+
+
+
+
+
+
+
+
+                                  O
+                                  |    -*
+                                 -+--+-
+                               +- |
+                             *-   |
+                                 |
+                                 @
+                               // \
+                              +    +
+                            //      \\
+______________________.___.L__.___.___R_________
+
+
+K16 READY_DIFFERENT | FOURS / INFERRED
+src —
+support BOTH_RIGHT_DOMINANT
+
+
+
+
+
+
+
+
+                                  O
+                                  |
+                                 -+--+-
+                               +- |    -*
+                              /   |
+                             *    @
+                                // \
+                               +    +
+                              /      \
+                             /        \
+______________________.___._L_.___.___.R________
