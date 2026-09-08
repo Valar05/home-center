@@ -1,6 +1,4 @@
-L007-K0 COILED_REAR_LOAD  [FOURS / INFERRED]  SUPPORT=LEFT_FOOT_OWNS_ROOT
-ROOT: root=(10,13); near-zero x travel; pelvis sinks and chest/head lag rearward before commitment
-ROLE: compresses over trusted rear support while shoulders counter-wind
+L007-K0 COILED_REAR_LOAD [FOURS/INFERRED] SUPPORT=LEFT_FOOT_OWNS_ROOT
 
 
 
@@ -23,10 +21,7 @@ ROLE: compresses over trusted rear support while shoulders counter-wind
 
 
 
-
-L007-K1 HEEL_RISE_COMMIT  [TWOS / INFERRED]  SUPPORT=LEFT_FOREFOOT_OWNS_ROOT
-ROOT: root=(11,14); x barely advances while y compresses to the deepest coil
-ROLE: deepens coil, narrows rear support, and sends lead knee forward before root launch
+L007-K1 HEEL_RISE_COMMIT [TWOS/INFERRED] SUPPORT=LEFT_FOREFOOT_OWNS_ROOT
 
 
 
@@ -49,10 +44,7 @@ ROLE: deepens coil, narrows rear support, and sends lead knee forward before roo
 
 
 
-
-L007-K2 PUSH_OFF_STRETCH  [ONES / INFERRED]  SUPPORT=LEFT_TOE_OWNS_ROOT
-ROOT: root=(14,12); acceleration begins; lead limb reaches while rear toe remains the sole trustworthy contact
-ROLE: rear support spends stored compression; pelvis begins a rising forward arc and limbs open asymmetrically
+L007-K2 PUSH_OFF_STRETCH [ONES/INFERRED] SUPPORT=LEFT_TOE_OWNS_ROOT
 
 
 
@@ -75,10 +67,7 @@ ROLE: rear support spends stored compression; pelvis begins a rising forward arc
 
 
 
-
-L007-K3 TOE_RELEASE_LAUNCH  [ONES / INFERRED]  SUPPORT=LEFT_TOE_LAST_SUPPORT
-ROOT: root=(18,9); largest upward velocity; chest overtakes pelvis and the lead foot travels on a high forward arc
-ROLE: last rear-toe support releases only after the root has clearly committed forward
+L007-K3 TOE_RELEASE_LAUNCH [ONES/INFERRED] SUPPORT=LEFT_TOE_LAST_SUPPORT
 
 
                      O
@@ -101,11 +90,30 @@ ROLE: last rear-toe support releases only after the root has clearly committed f
 
 
 
+L007-K3A RELEASE_CLEAR [ONES/INFERRED] SUPPORT=NO_FOOT_SUPPORT
 
-L007-K4 FLIGHT_SPLIT  [TWOS / INFERRED]  SUPPORT=NO_FOOT_SUPPORT
-ROOT: root=(24,7); ballistic crest begins; limbs counter-swing around a forward-moving pelvis
-ROLE: suspends on a long split silhouette with no fake planted support
+                       O
+                       /
+                      /
+                   /o-o-o
+                 o/   /  \\
+               //    /     o
+              *      /      \
+                    @\       \
+                   /  \\      *
+                  /     \o
+                 /        \\
+                o           \\
+               /              \*
+              /
+             *
 
+
+------------------------------------------------------------
+
+
+
+L007-K4 FLIGHT_SPLIT [TWOS/INFERRED] SUPPORT=NO_FOOT_SUPPORT
 
                          O
                          |
@@ -128,10 +136,30 @@ ROLE: suspends on a long split silhouette with no fake planted support
 
 
 
+L007-K4A DESCENT_GATHER [ONES/INFERRED] SUPPORT=NO_FOOT_SUPPORT
 
-L007-K5 DESCENDING_PROBE  [ONES / INFERRED]  SUPPORT=RIGHT_FOOT_PROBE_CONTACT
-ROOT: root=(31,8); fastest horizontal spacing; pelvis leads chest; right foot touches at x=41 without yet arresting the root
-ROLE: lead foot reaches ground ahead of the root while torso deliberately lags; touch is not yet ownership
+                           O
+                           \
+                       o\   \
+                     //  \o-o-o
+                    *       |  \\
+                            |    o
+                            @     \
+                           / \     \
+                         //   \\    *
+                        /       \
+                       o         o
+                      /           \
+                     /             \
+                    /               \
+                   *                 \
+                                      *
+
+------------------------------------------------------------
+
+
+
+L007-K5 DESCENDING_PROBE [ONES/INFERRED] SUPPORT=RIGHT_FOOT_PROBE_CONTACT
 
 
                             O
@@ -154,10 +182,30 @@ ROLE: lead foot reaches ground ahead of the root while torso deliberately lags; 
 
 
 
+L007-K5P PROBE_SHEAR [ONES/INFERRED] SUPPORT=RIGHT_FOOT_PROBE_CONTACT
 
-L007-K5A OWNERSHIP_BITE  [ONES / INFERRED]  SUPPORT=RIGHT_FOOT_OWNS_ROOT
-ROOT: root=(33,11); right foot stays fixed at x=41 while pelvis advances two cells and drops three; chest remains behind the hip
-ROLE: the probe becomes trustworthy support while the pelvis keeps traveling and begins compressing; no braking teleport
+
+
+                             O
+                             \
+                        o\\   \
+                      //   \o-o-o\
+                     *         \  \o
+                               \    \\
+                                @     \*
+                               / \
+                             //   \
+                            /      \
+                           o        \
+                          /          o
+                        //            \
+                       *               \
+                                        \
+-----------------------------------------?------------------
+
+
+
+L007-K5A OWNERSHIP_BITE [ONES/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
 
 
 
@@ -180,10 +228,7 @@ ROLE: the probe becomes trustworthy support while the pelvis keeps traveling and
 
 
 
-
-L007-K6 DEEP_CATCH_FOLD  [TWOS / INFERRED]  SUPPORT=RIGHT_FOOT_OWNS_ROOT
-ROOT: root=(35,14); deepest compression occurs after ownership; support foot remains x=41 and root still advances
-ROLE: trusted support accepts vertical debt; pelvis passes inward while the free side trails and shoulders remain wound
+L007-K6 DEEP_CATCH_FOLD [TWOS/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
 
 
 
@@ -206,49 +251,66 @@ ROLE: trusted support accepts vertical debt; pelvis passes inward while the free
 
 
 
-
-L007-K6A CHEST_SLING_SETTLE  [TWOS / INFERRED]  SUPPORT=RIGHT_FOOT_OWNS_ROOT
-ROOT: root=(37,13); compression releases upward by one cell while chest crosses toward the support line and head lags
-ROLE: pelvis rebounds first; chest is slung forward a beat later while the support leg stays visibly loaded
+L007-K6P PELVIS_REBOUND [ONES/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
 
 
 
 
-                                     O
-                                     \
-                                     \
-                                      \   //o\
-                                    o-o-o/    \\*
-                                  //  /
-                                o/    /
-                               /     /
-                               /     /
-                              *      @
-                                   // \
-                                 o/    o
+
+                                O
+                                \
+                                 \        /*
+                                 \    //o/
+                                o-o-o/
+                              //   \
+                             o     \
+                             |      @
+                             |     / \
+                             *    /   \
+                                 o     o
                                //       \
                              */         \
 -----------------------------------------!------------------
 
 
 
+L007-K6A CHEST_SLING_SETTLE [ONES/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
 
-L007-K7 TORSO_OVERSHOOT  [ONES / INFERRED]  SUPPORT=RIGHT_FOOT_OWNS_ROOT
-ROOT: root=(39,11); x still advances; chest/head overshoot forward while the planted right foot remains x=41
-ROLE: torso/head finally pass the pelvis and support line; free-side arm whips late instead of reversing the catch
+
+
+
+                                      O
+                                      |
+                                      |
+                                      |   /o\
+                                    o-o-o/   \*
+                                  //  /
+                                 o    /
+                                /    /
+                                /    @
+                               *    / \
+                                   /  \
+                                  o    o
+                                //      \
+                              */        \
+-----------------------------------------!------------------
+
+
+
+L007-K7 TORSO_OVERSHOOT [ONES/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
 
 
 
 
                                               O
                                              /
-                                            /  //o\
-                                         o-o-o/    \\*
+                                            / /o--*
+                                         o-o-o
                                        // /
                                      o/  /
                                     /   /
-                                   /   @
-                                  *   /\
+                                  //   @
+                                 *    /\
                                     //  \
                                    o    \
                                  //     o
@@ -258,10 +320,30 @@ ROLE: torso/head finally pass the pelvis and support line; free-side arm whips l
 
 
 
+L007-K7A RECOVERY_TUCK [ONES/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
 
-L007-K8 HIP_DRIVE_PASS  [TWOS / INFERRED]  SUPPORT=RIGHT_FOOT_OWNS_ROOT
-ROOT: root=(42,10); pelvis rises beyond trusted support while free knee leads a distinct recovery arc
-ROLE: hips pass the planted foot and lift; recovery leg swings forward on its own arc while support remains unchanged
+
+
+
+                                               O
+                                              /
+                                             /  /o\
+                                          o-o-o/   \*
+                                        ////
+                                      o/ /
+                                     /  @---o
+                                    /   \ //
+                                   *    */
+                                         \
+                                         o
+                                         |
+                                         |
+                                         |
+-----------------------------------------!------------------
+
+
+
+L007-K8 HIP_DRIVE_PASS [TWOS/INFERRED] SUPPORT=RIGHT_FOOT_OWNS_ROOT
 
 
 
@@ -284,10 +366,7 @@ ROLE: hips pass the planted foot and lift; recovery leg swings forward on its ow
 
 
 
-
-L007-K9 FOREFOOT_ROLL_LAG  [TWOS / INFERRED]  SUPPORT=RIGHT_FOREFOOT_OWNS_ROOT
-ROOT: root=(45,11); pelvis dips into support roll while free knee remains high and torso counter-rotates
-ROLE: support rolls to the forefoot under a visible counter-twist; free knee stays committed forward
+L007-K9 FOREFOOT_ROLL_LAG [TWOS/INFERRED] SUPPORT=RIGHT_FOREFOOT_OWNS_ROOT
 
 
 
@@ -310,10 +389,7 @@ ROLE: support rolls to the forefoot under a visible counter-twist; free knee sta
 
 
 
-
-L007-K10 TOE_DRIVE_RECOVERY  [ONES / INFERRED]  SUPPORT=RIGHT_TOE_OWNS_ROOT
-ROOT: root=(48,9); root rises and accelerates slightly from forefoot roll into toe drive; free foot stays airborne
-ROLE: toe support spends remaining catch debt as the free leg opens and upper body trails the hip drive
+L007-K10 TOE_DRIVE_RECOVERY [ONES/INFERRED] SUPPORT=RIGHT_TOE_OWNS_ROOT
 
 
 
@@ -336,26 +412,23 @@ ROLE: toe support spends remaining catch debt as the free leg opens and upper bo
 
 
 
-
-L007-K11 DEBT_CARRY_EXIT  [TWOS / INFERRED]  SUPPORT=RIGHT_TOE_LAST_SUPPORT
-ROOT: root=(51,9); root continues forward while support rolls to last toe; recovery remains intentionally unresolved
-ROLE: exits on last toe support with unresolved free-leg and upper-body debt; next action must acquire contact or enter flight
+L007-K11 DEBT_CARRY_EXIT [TWOS/INFERRED] SUPPORT=RIGHT_TOE_LAST_SUPPORT
 
 
-                                             O
-                                              \
-                                              \
-                                             o-o-o
-                                            /   \ \\
-                                           /     \  \o
-                                          o       \   \
-                                         /         @   \\
-                                         /        / \\   *
-                                        /         /   \\
-                                        *        /      o
-                                                 /       \
+                                               O
+                                               \
+                                                \
+                                              o-o-o
+                                             /   \ \\
+                                            /     \  \o
+                                           o       @   \
+                                          /       / \\  \\
+                                          /       /   \\  *
+                                         /       /      o
+                                         *       /       \
                                                 o         \
-                                              //          \
-                                             /             *
-                                           //
+                                               /          \
+                                              /            *
+                                            //
+                                           /
 ------------------------------------------!-----------------
