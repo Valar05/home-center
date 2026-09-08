@@ -31,7 +31,7 @@
     "timing_evidence": "source-authentic exposure timing unavailable",
     "rights_note": "Copyright-restricted whole-sheet evidence only. Drew's work is not used. No source pixels, palette, layout, contours, tracing, choreography, redistribution, or close imitation enters this independently authored abstract ASCII repair."
   },
-  "contact_sheet_file": "contact_sheet.txt",
+  "contact_sheet_file": "contact-sheet.txt",
   "motion_file": "motion.json",
   "builder_file": "build.py",
   "spa_file": "cadence-surge-brake-repair.motion.html",
@@ -40,8 +40,8 @@
     "embedded": true,
     "tracked": false,
     "mime": "video/mp4",
-    "sha256": "7a2f30fc12b58bd9be561763af9d1481c96bd9327368142d7b7e38bc7d6a60af",
-    "bytes": 39699,
+    "sha256": "843d80f1be423cd241084fc81b5bacd06e12aa296253ccd992183d676e9a23d5",
+    "bytes": 42644,
     "source": "abstract_ascii_rig_only",
     "decode": {
       "codec": "h264",
@@ -49,8 +49,8 @@
       "width": 960,
       "height": 480,
       "fps": "24/1",
-      "frames": 52,
-      "duration_seconds": 2.166667
+      "frames": 56,
+      "duration_seconds": 2.333333
     }
   },
   "quality": {
@@ -58,7 +58,7 @@
     "tango_iterations": 2,
     "noodle_queen": "PASS",
     "current_worker_actual_render_inspected": true,
-    "decoded_frames_inspected": 52
+    "decoded_frames_inspected": 56
   },
   "contract": {
     "script": "tools/test_ascii_kinesis_swarm_contract_v2.py",
@@ -71,5 +71,5 @@
       "v2-locomotion-010-cadence-surge-brake-repair"
     ]
   },
-  "status": "QUALITY_GATES_PASS_CONTRACT_PASS_PERSIST_PENDING"
+  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING"
 }
