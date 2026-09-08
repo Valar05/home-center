@@ -1,0 +1,96 @@
+{
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "format_version": 2,
+  "experiment_id": "v2-timing-009-clock-rendezvous-reacquire-repair",
+  "lane": "timing",
+  "revises": "experiments/ascii-kinesis/v2-timing-004-clock-rendezvous-reacquire/",
+  "negative_fixture": "experiments/ascii-kinesis/v2-timing-004-clock-rendezvous-reacquire/",
+  "source_change": false,
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "ascii_surface": "pre",
+  "ligatures_disabled": true,
+  "whitespace_preserved": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "video_packaging": "embedded MP4 data URI in clock-rendezvous-reacquire-repair.motion.html",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "files": [
+    "build.py",
+    "contact-sheet.txt",
+    "manifest.json",
+    "motion.json",
+    "receipt.json",
+    "clock-rendezvous-reacquire-repair.motion.html"
+  ],
+  "source": {
+    "site": "The Spriters Resource",
+    "asset_id": 3116,
+    "page_url": "https://www.spriters-resource.com/snes/mmx/asset/3116/",
+    "whole_sheet_inspected": true,
+    "source_timing_available": false,
+    "evidence_family_inherited": true,
+    "source_art_embedded": false
+  },
+  "timing": {
+    "policy": "STREET_FIGHTER/CAPCOM",
+    "classes": [
+      "ONES",
+      "TWOS",
+      "FOURS"
+    ],
+    "decisive_keys": 14,
+    "provenance": "all decisive-key cadence INFERRED because source timing is unavailable"
+  },
+  "motion_dungeon": {
+    "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SELF-CONTAINED SPA",
+    "authored_ascii_keys": 14,
+    "explicit_holds": true,
+    "deterministic_connective_motion": true,
+    "connector_semantics_fail_closed": true,
+    "ascii_only_frame_render": true,
+    "fps": 24,
+    "video_frames_total": 58,
+    "media_sha256": "c00ebd4b30b215be9ac17cea18880442dfc18d8e45db04587fafe88362a9cb4c",
+    "media_bytes": 28715,
+    "ascii_sheet_sha256": "89f863c963ff9c98c30169becebc5f4e9a423a2461554e6c1428533aa5d424ec"
+  },
+  "quality": {
+    "tango": "PASS after 2 REVISE_REQUIRED iterations on actual render",
+    "noodle_queen": "PASS on actual final render",
+    "skill_mutation": false
+  },
+  "contract_test": {
+    "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "source_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "candidate_equivalent_predicates": "PASS",
+    "repo_wide_runtime": "UNTESTED_BOUNDARY: authorized Standard Chat connectors expose GitHub persistence/readback but no repository shell/checkout execution surface in this run"
+  },
+  "reconstruction": "python3 build.py",
+  "hashes": {
+    "build_py_sha256": "dcde6927380b06fc4346b3f48a1577086d2334969f2152898bba11ace5ac5062",
+    "motion_json_sha256": "e3152ddf1a9734f96ad9e5d7feb5f9bd70b9c989825e8a687355a09db6eaa753",
+    "ascii_sheet_sha256": "89f863c963ff9c98c30169becebc5f4e9a423a2461554e6c1428533aa5d424ec",
+    "spa_html_sha256": "4b583333dec0312262f0b3b0e1d9afdf15e6f6fdf5123d3036cdc9f99b1a84b9",
+    "media_sha256": "c00ebd4b30b215be9ac17cea18880442dfc18d8e45db04587fafe88362a9cb4c"
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "FIX ARC",
+    "FIX SUPPORT",
+    "FIX SECONDARY LAG",
+    "FIX PARENT CLOCK",
+    "FIX CHAT DELIVERY",
+    "RERUN"
+  ]
+}
