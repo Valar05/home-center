@@ -1,0 +1,50 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "format_version": 2,
+  "id": "v2-strikes-004-contact-pin-disengage-causality-repair",
+  "status": "REPO_READBACK_PENDING",
+  "current_worker_liveness": {
+    "home_center_campaign_read": "PASS",
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "github_persistence_readback": "PASS"
+  },
+  "authority": {
+    "reset_issue_comment": 5576901079,
+    "strikes001_closure": 5592566123,
+    "manager_reconciliation": 5592633902,
+    "skill_blob": "b2aaea5ee6babfdb788a028beb05e10159720776",
+    "contract_blob": "d02f015f526ca56c3f13072fc0e9d03157630fbd",
+    "validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c"
+  },
+  "lineage": {
+    "revises": "experiments/ascii-kinesis/v2-strikes-002-contact-pin-disengage/",
+    "negative_fixture": "experiments/ascii-kinesis/v2-strikes-002-contact-pin-disengage/",
+    "source_change": false,
+    "source_family_confirmed": {
+      "asset_id": 4064,
+      "name": "Stanley Decker (Chainsaw)",
+      "game": "Zombies Ate My Neighbors",
+      "platform": "SNES",
+      "evidence": "issue #343 comments 5574969726 + 5592633902 after current liveness"
+    }
+  },
+  "media": {
+    "reconstructed_byte_identically": true,
+    "sha256": "1537774d928e5919763061ef1d81a2e569bcc899b3d62a5463941069e0d69484",
+    "bytes": 10989,
+    "frame_count": 43,
+    "decode": "PASS"
+  },
+  "quality": {
+    "tango": "PASS_CURRENT_WORKER_ACTUAL_RENDER",
+    "noodle_queen": "PASS_CURRENT_WORKER_AFTER_TANGO",
+    "inspection": "all 43 actual decoded frames inspected; pinned contact phase explicitly checked"
+  },
+  "candidate_contract": {
+    "official_validator": "PASS",
+    "scope": "isolated candidate using exact official test; full-repo global pass not claimed"
+  },
+  "repo_readback": {"state": "PENDING_FINAL_EXACT_READBACK"},
+  "chat_delivery": {"state": "PENDING", "required_order": ["PART 1 — ASCII", "PART 2 — JSON", "PART 3 — VIDEO"]},
+  "issue_343_receipt": {"state": "POST_AFTER_CHAT_DELIVERY"}
+}
