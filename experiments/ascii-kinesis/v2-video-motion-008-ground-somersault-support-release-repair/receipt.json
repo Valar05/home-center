@@ -1,0 +1,188 @@
+{
+  "schema": "ascii-kinesis.v2-receipt",
+  "entry": "v2-video-motion-008-ground-somersault-support-release-repair",
+  "revision": {
+    "revises": "experiments/ascii-kinesis/v2-video-motion-002-ground-somersault-support-release/",
+    "negative_fixture": "experiments/ascii-kinesis/v2-video-motion-002-ground-somersault-support-release/",
+    "source_change": false,
+    "repair_order": "next-oldest rejected Video Motion fixture after HEALTHY Video Motion007",
+    "predecessor_status": "REVISE_REQUIRED_LOW_EFFORT",
+    "repair_intent": "Replace low-effort mannequin interpolation with authored asymmetry, support-aware causal gates, curved connective motion, landing overshoot, secondary lag, and recovery debt."
+  },
+  "source": {
+    "title": "Ground flip (1080p 120fps - take 02).webm",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Ground_flip_(1080p_120fps_-_take_02).webm",
+    "origin": "Own work uploaded by PoseidonSports to Wikimedia Commons",
+    "author": "PoseidonSports",
+    "source_date": "2023-01-22",
+    "rights_status": "CC_BY_SA_4_0",
+    "license_id": "CC BY-SA 4.0",
+    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "source_sha256": "3e20e997e0aa0d95973ecd89caacc6c770cfa5ba23266026c2c3de6d2d2567a7",
+    "source_bytes": 15685775,
+    "source_duration_s": 6.008,
+    "source_dimensions": [
+      1920,
+      1080
+    ],
+    "stream_fps": "120/1",
+    "presentation_cadence_note": "Commons categorizes the source as slow motion. OBSERVED timestamps are presentation timestamps only; neither 120 fps nor slow-motion spacing is treated as source-authentic athletic cadence.",
+    "selected_action_segment_s": [
+      0.5,
+      3.75
+    ],
+    "whole_action_inspection": "Inherited verified evidence family from predecessor: entire 6.008 s source was decoded and inspected in order before the 0.500–3.750 s coherent action was selected; source pixels remain analysis-only and are not used by this builder.",
+    "analysis_derivatives_from_predecessor": {
+      "whole_clip_preview": {
+        "sampling": "2 fps ordered 12-frame grayscale sheet",
+        "sha256": "4f3f33178134375c600acd954413f0cc6eb5eafe98f70410791315daf53194f1"
+      },
+      "core_action_preview": {
+        "sampling": "4 fps ordered 8-frame grayscale sheet, 2.000–4.000 s",
+        "sha256": "2acb404df1cb7aa103a089c0de8dabc41757bda045b30e96826e2ae92e5f3dce"
+      }
+    }
+  },
+  "rights_status": "CC_BY_SA_4_0",
+  "observed_key_times_s": {
+    "K0": 0.5,
+    "K2": 1.25,
+    "K3": 2.5,
+    "K5": 2.75,
+    "K6": 3.0,
+    "K8": 3.25,
+    "K9": 3.5,
+    "K11": 3.75
+  },
+  "inferred_bridge_keys": [
+    "K1",
+    "K4",
+    "K7",
+    "K10",
+    "K12",
+    "K13",
+    "K14"
+  ],
+  "compile_timing_classes": {
+    "K0": "FOURS",
+    "K1": "FOURS",
+    "K2": "FOURS",
+    "K3": "TWOS",
+    "K4": "ONES",
+    "K5": "ONES",
+    "K6": "ONES",
+    "K7": "ONES",
+    "K8": "TWOS",
+    "K9": "ONES",
+    "K10": "ONES",
+    "K11": "TWOS",
+    "K12": "FOURS",
+    "K13": "TWOS",
+    "K14": "FOURS"
+  },
+  "timing_provenance": {
+    "K0": "INFERRED",
+    "K1": "INFERRED",
+    "K2": "INFERRED",
+    "K3": "INFERRED",
+    "K4": "INFERRED",
+    "K5": "INFERRED",
+    "K6": "INFERRED",
+    "K7": "INFERRED",
+    "K8": "INFERRED",
+    "K9": "INFERRED",
+    "K10": "INFERRED",
+    "K11": "INFERRED",
+    "K12": "INFERRED",
+    "K13": "INFERRED",
+    "K14": "INFERRED"
+  },
+  "media_sha256": "ae2215f16e77f69f736c8a588b4e1eca2efebad3d2bcad0a75c15d62718f1ac0",
+  "media_bytes": 35162,
+  "media_frame_count": 76,
+  "media_source": "abstract_ascii_rig_only",
+  "repo_path": "experiments/ascii-kinesis/v2-video-motion-008-ground-somersault-support-release-repair/",
+  "repo_readback_verified": false,
+  "contract_test": {
+    "status": "PASS",
+    "script_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "script_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "execution_scope": "candidate-scoped deterministic fixture containing only this successor; exact test code and assertions from repository were executed",
+    "result": {
+      "schema": "ascii-kinesis.swarm-contract-v2-test",
+      "entries_checked": [
+        "v2-video-motion-008-ground-somersault-support-release-repair"
+      ],
+      "ok": true
+    },
+    "full_repo_boundary": "Repository-wide Home Center CI is separately observed to have pre-existing failures on unrelated concurrent ASCII Kinesis pushes; candidate contract assertions are preserved distinctly."
+  },
+  "media_decode": {
+    "status": "PASS",
+    "ffmpeg_full_decode": "PASS",
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 288,
+    "height": 176,
+    "fps": "24/1",
+    "frames": 76,
+    "duration_s": 3.166667,
+    "bytes": 35162
+  },
+  "embedded_tracked_identity": {
+    "status": "PASS",
+    "byte_identical": true,
+    "sha256": "ae2215f16e77f69f736c8a588b4e1eca2efebad3d2bcad0a75c15d62718f1ac0",
+    "bytes": 35162
+  },
+  "quality_gates": {
+    "tango": {
+      "status": "PASS",
+      "iterations": [
+        {
+          "iteration": 1,
+          "verdict": "REVISE_REQUIRED",
+          "highest_value_visible_defect": "The rendered landing delayed its deepest root compression until after the first ground-reacquired pose, reading as a second synthetic impact rather than one causal catch.",
+          "correction": "Move deepest pelvis catch into K11 GROUND_REACQUIRED; keep K12 at catch depth and redirect follow-through into torso/arm overshoot before K13 rebound."
+        },
+        {
+          "iteration": 2,
+          "verdict": "REVISE_REQUIRED",
+          "highest_value_visible_defect": "The actual-render apex collapsed into a nearly symmetric V/handstand icon, briefly erasing the rotation direction and reading like generic stick-figure posing.",
+          "correction": "Twist K8: offset root/head, keep one leg tightly folded while the other begins opening, and split arm positions so the apex carries directional rotational debt into descent."
+        },
+        {
+          "iteration": 3,
+          "verdict": "PASS",
+          "actual_render_evidence": "Final 76-frame 24 fps MP4 inspected via ordered 8 fps full-run contact montage plus denser landing-window frames extracted from the actual MP4.",
+          "judgment": "Distinct asymmetric load/counterwind, grounded final set, fail-closed release gate, committed airborne diagonal, twisted apex, open descent, discrete landing gate, immediate low catch, upper-body overshoot, counter-swing, and asymmetric recovery debt remain readable. Curved connective arcs do not invent support/contact/root causal state."
+        }
+      ]
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "iterations": [
+        {
+          "iteration": 1,
+          "verdict": "PASS",
+          "actual_render_evidence": "Same final actual MP4 sequence and complete ASCII/JSON/VIDEO specimen inspected after Tango PASS.",
+          "judgment": "TASTE + FUNCTION + CONTEMPT pass: the motion has a specific rotational attitude, memorable silhouette changes, embodied launch/catch force, non-symmetric apex, visible recovery debt, and enough authored bridges that it does not read as placeholder endpoint tweening. Economy is earned rather than cheap."
+        }
+      ]
+    }
+  },
+  "chat_delivery": "PENDING",
+  "status": "READY_FOR_REPO_PERSISTENCE",
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ]
+}
