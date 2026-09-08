@@ -1,0 +1,475 @@
+Cat-door repair · rear-load lever crush → body recovery → delayed door whip → overshoot/settle debt
+v2-video-motion-010-cat-door-lever-spring-debt-repair | abstract ASCII rig only | source pixels/audio absent
+Source observation timestamps are presentation evidence; all compile ONES/TWOS/FOURS are INFERRED.
+
+K0 CROOKED_FOUR_POINT_READY | FOURS / INFERRED
+src 14.000s OBSERVED presentation
+support GROUND_REAR_HEAVY
+contact NO_HANDLE_CONTACT_AUTHORED
+force GROUND_SUPPORT
+arc Low root, rear haunch loaded; head is already canted toward the lever while tail counterbalances left.
+
+
+
+                                                  D
+                                                  |
+                                                  |
+                                                  |
+                                               H--|
+                                                  |
+                                                  |
+                   ~~               O             |
+                     ~~~           //             |
+                       ~~       --o--              |
+                         ~~   -- //                |
+                           ~@--  /                 |
+                          /+     /                 |
+                        //      +                  |
+                       +        |                  |
+                      /         |                  D
+_____________________*__________*___________________________
+
+
+K1 REAR_HAUNCH_SINK | FOURS / INFERRED
+src 15.500s OBSERVED presentation
+support GROUND_REAR_DOMINANT
+contact HANDLE_APPROACH_AUTHORED
+force BODY_SUPPORT_CHAIN
+arc Root sinks down/back before rising; reach limb folds rather than telescoping.
+
+
+
+                                                  D
+                                                  |
+                                                  |
+                                                  |
+                                               H--|
+                                                  |
+                                                  |
+                  ~~                              |
+                    ~~                    O       |
+                      ~~                 |        |
+                        ~~             --o        |
+                          ~~          - /         |
+                            ~@--------  +         |
+                           /+          /          |
+                         //           /           |
+                        +            *            D
+_______________________*____________________________________
+
+
+K2 SHOULDER_WINDUP_AND_PAW_FLOAT | TWOS / INFERRED
+src 15.500s OBSERVED presentation
+support GROUND_REAR_DOMINANT_FRONT_LIGHT
+contact HANDLE_APPROACH_AUTHORED
+force BODY_SUPPORT_CHAIN
+arc Shoulder rotates forward while paw first floats backward/up; tail drops opposite to head.
+
+
+
+                                                  D
+                                                  |
+                                                  |
+                                                  |
+                                               H--|
+                                                  |
+                                        O         |
+                                       /          |
+                  ~~                  /           |
+                    ~~~              o            |
+                       ~~           +             |
+                         ~~        / \            |
+                           ~@-----/   *           |
+                           /                      |
+                          +                       |
+                        //                        D
+_______________________*____________________________________
+
+
+K3 REAR_DRIVE_UP | ONES / INFERRED
+src 16.000s OBSERVED presentation
+support REAR_TOE_LAST_SUPPORT
+contact HANDLE_APPROACH_AUTHORED
+force BODY_TO_LEVER
+arc Root rises on a forward/upward curve from the haunch; hind toe is the authored last support.
+
+
+
+                                                  D
+                                                  |
+                                          O       |
+                                         /        |
+                                        /    *    |
+                                       o----+     |
+                                      /     |     |
+                         ~~          /      |     |
+                       ~~  ~~       /       |     |
+                     ~~      ~~~~~@-        |     |
+                    ~           / +               |
+                   ~          //  \               |
+                             /     +              |
+                           //       \             D
+__________________________*__________*_______________________
+
+
+K4 PAW_HOOK_CONTACT | ONES / INFERRED
+src 16.000s OBSERVED presentation
+support REAR_SUPPORT_PLUS_FORE_CONTACT
+contact PAW_HANDLE_CONTACT_AUTHORED
+force BODY_TO_LEVER
+arc Forepaw meets the lever at a distinct authored key; root is still climbing into the contact.
+
+
+
+                                                  D
+                                           O      |
+                                          /       |
+                                         /        |
+                                        o---       |
+                                       /   ---+*---|
+                                      /        |   |
+                         ~~          /         |   |
+                       ~~  ~~       /          |   |
+                     ~~      ~~~~~@-           |   |
+                    ~          /  +                |
+                   ~         //    \               |
+                           //       +              |
+                         //          \             D
+________________________*_____________*______________________
+
+
+K5 LEVER_CRUSH_BODY_FOLLOWS | TWOS / INFERRED
+src 16.500s OBSERVED presentation
+support REAR_SUPPORT_PLUS_FORE_LOAD
+contact PAW_HANDLE_LOAD_AUTHORED
+force LEVER_LATCH
+arc Paw travels down through lever; chest and root follow a beat later instead of the limb acting alone.
+
+
+
+                                                  D
+                                                  |
+                                                  |
+                                          O       |
+                                         /        |
+                                        /         |
+                     ~~                o          |
+                       ~~            /  ---       |
+                         ~~         /      --+----|
+                           ~~      /          |    |
+                             ~~~@-            |    |
+                               /+             *---|
+                            ///  \                 |
+                         ///      +                |
+                        *          \               D
+_______________________*____________*________________________
+
+
+K6 LATCH_BREAK_MICRO_GIVE | ONES / INFERRED
+src 16.500s OBSERVED presentation
+support REAR_SUPPORT_PLUS_FORE_LOAD
+contact PAW_HANDLE_LOAD_AUTHORED
+force LATCH_RELEASED_DOOR_STORED
+arc Lever bottoms while door gives only one character: a tiny stored-response cue, not the swing itself.
+
+
+
+                                                  :=D
+                                                  :|
+                                                  :|
+                                                  :|
+                                         O        :|
+                                        /         :|
+                       ~~              /          :|
+                         ~~           o           :|
+                           ~~        /  ------     :|
+                             ~~     /         +----|
+                               ~~@-           |    |
+                              / +             |    |
+                           ///   \            *H---|
+                        ///       \                :|
+                       *           +               :|
+                                  \               :D
+________________________*___________*_____________=____________
+
+
+K7 PAW_SLIP_OFF_AND_TORSO_TWIST | ONES / INFERRED
+src 17.500s OBSERVED presentation
+support REAR_SUPPORT_RECOVERING
+contact HANDLE_RELEASE_AUTHORED
+force BODY_RECOVERY_DOOR_STORED
+arc Paw whips past the lever after release; torso twists away while tail remains high as secondary lag.
+
+
+
+                                                  :=D
+                                                  :|
+                                                  :|
+                         ~~                       :|
+                           ~~             O       :|
+                             ~~          //       :|
+                               ~~       //        :|
+                                 ~~    o----      :|
+                                   ~~/    --*     :|
+                              --@--/       +\     :|
+                           --- / +           *    :|
+                        ---   /   \          H----|
+                      //     +     \              :|
+                     /       |                    :|
+                    /        |                    :D
+___________________*_________*___________________=____________
+
+
+K8 DROP_FRONT_PAW_SEARCH | TWOS / INFERRED
+src 17.500s OBSERVED presentation
+support REAR_SUPPORT_FRONT_SEARCH
+contact NO_HANDLE_CONTACT_AUTHORED
+force BODY_RECOVERY_DOOR_STORED
+arc Root falls under the shoulder while front paw searches ground ahead; tail still refuses to settle.
+
+
+
+                                                  :=D
+                                                  :|
+                                                  :|
+                            ~                     :|
+                            ~~                    :|
+                            ~~                    :|
+                            ~~                    :|
+                            ~~         O          :|
+                             ~        //          :|
+                             ~~      //           :|
+                              ~     o             :|
+                               ~~/ +\             :|
+                              /@--/  \            :|
+                            // +      *           :|
+                          //   |                  H-|
+                         *     |                   :|
+________________________*______*_________________=D____________
+
+
+K9 FRONT_CATCH_ROOT_CONTINUES | ONES / INFERRED
+src 18.000s OBSERVED presentation
+support FRONT_CONTACT_REAR_SUPPORT
+contact GROUND_FRONT_CATCH_AUTHORED
+force GROUND_CATCH_DOOR_STORED
+arc Front paw catches first; root continues down/forward after support acquisition instead of freezing on contact.
+
+
+
+                                                  :=D
+                                                  :|
+                                                  :|
+                             ~                    :|
+                             ~                    :|
+                             ~                    :|
+                             ~                    :|
+                             ~                    :|
+                             ~      O             :|
+                             ~     /              :|
+                             ~    /               :|
+                             ~~  o                :|
+                              ~~/ \               :|
+                             +/@---\              :|
+                           // +     +             H-|
+                          *  /       \             :|
+_________________________*__*_________*___________=D____________
+
+
+K10 BODY_OVERSHOOT_TAIL_LAG | TWOS / INFERRED
+src 19.000s OBSERVED presentation
+support GROUND_MULTI_POINT_RIGHTWARD_DEBT
+contact NO_HANDLE_CONTACT_AUTHORED
+force GROUND_ABSORPTION_DOOR_STORED
+arc Body overshoots the catch toward the door; tail remains elevated and behind as a separate settling clock.
+
+
+
+                                                  :=D
+                                                  :|
+                                                  :|
+                             ~                    :|
+                             ~                    :|
+                             ~                    :|
+                             ~                    :|
+                             ~                    :|
+                             ~        O           :|
+                             ~       /            :|
+                             ~      /             :|
+                             ~~    o              :|
+                              ~~  / \             :|
+                               ~@-   \            :|
+                            --+/ \    +           H-|
+                         ---  +   \    \           :|
+________________________*____*_____*____*_________=D____________
+
+
+K11 HELD_BREATH_BEFORE_ENVIRONMENT | FOURS / INFERRED
+src 20.000s OBSERVED presentation
+support GROUND_SUPPORT_AUTHORED
+contact NO_HANDLE_CONTACT_AUTHORED
+force DOOR_INERTIA_PRE_SWING
+arc Actor arrests; door still barely moved. The stillness is the readable causal gap between input and environment consequence.
+
+
+
+                                                  :=D
+                                                  :|
+                                                  :|
+                                                  :|
+                                                  :|
+                                                  :|
+                           ~~                     :|
+                           ~~          O          :|
+                           ~~         /           :|
+                           ~~        /            :|
+                           ~~       o             :|
+                            ~~    --|             :|
+                             ~~@--  |             :|
+                          --/ +     +             :|
+                        --  +       \            H-|
+                       *   /         \             :|
+______________________*___*___________*___________=D____________
+
+
+K12 DOOR_BREAKS_STATIC_FRICTION | ONES / INFERRED
+src 20.500s OBSERVED presentation
+support GROUND_SUPPORT_AUTHORED
+contact NO_HANDLE_CONTACT_AUTHORED
+force DOOR_ROTATION_START
+arc Door begins without renewed actor contact; head turns toward the motion while body stays grounded.
+
+
+
+                                                  :===D
+                                                  :   |
+                                                  :   |
+                                                  :   |
+                                                  :   |
+                                                  :   |
+                           ~~                     :   |
+                           ~~            O        :   |
+                           ~~           /         :   |
+                           ~~          /          :   |
+                           ~~         o           :   |
+                            ~~     ---|           :   |
+                             ~~@---   |           :   |
+                          --/ +       +           :   |
+                        --  +         \          H----|
+                       *   /           \          :   |
+______________________*___*_____________*________=D===
+
+
+K13 DOOR_SWING_WHIP_HEAD_TRACKS | ONES / INFERRED
+src 21.000s OBSERVED presentation
+support GROUND_SUPPORT_AUTHORED
+contact NO_HANDLE_CONTACT_AUTHORED
+force DOOR_ROTATION
+arc Door edge accelerates outward; actor reacts only with head/tail tracking, preserving body/door clock separation.
+
+
+
+                                                  :========D
+                                                  :        |
+                                                  :        |
+                                                  :        |
+                                                  :        |
+                                                  :        |
+                           ~~                     :        |
+                           ~~              O      :        |
+                           ~~             /       :        |
+                           ~~            /        :        |
+                           ~~           o         :        |
+                            ~~      ----|         :        |
+                             ~~@----    |         :        |
+                          --/ +         +         :        |
+                        --  +           \        H---------|
+                       *   /             \        :        |
+______________________*___*_______________*______=D=========
+
+
+K14 DOOR_OVERSHOOT_ACTOR_FLINCH | TWOS / INFERRED
+src 21.500s OBSERVED presentation
+support GROUND_REAR_HEAVY
+contact NO_HANDLE_CONTACT_AUTHORED
+force DOOR_ROTATION_DECEL
+arc Door overshoots final opening; actor flinches away and shifts rearward while tail snaps down late.
+
+
+
+                                                  :==========D
+                                                  :          |
+                                                  :          |
+                                                  :          |
+                                                  :          |
+                                                  :          |
+                                                  :          |
+                                                  :          |
+                        ~~~                       :          |
+                           ~~         O           :          |
+                             ~~      /            :          |
+                              ~~    /             :          |
+                                ~  o              :          |
+                             --@--/ \             :          |
+                          --- / +    \           H-----------|
+                       ---   /   \    +           :          |
+                      *     +     \    \          :          |
+___________________________*_______*____*________=D==========
+
+
+K15 DOOR_SETTLE_BACK_SECONDARY_LAG | TWOS / INFERRED
+src —
+support GROUND_REAR_HEAVY
+contact NO_HANDLE_CONTACT_AUTHORED
+force DOOR_ROTATION_SETTLE
+arc Door rebounds slightly from overshoot while cat's head re-approaches; tail settles one beat later.
+
+
+
+                                                  :========D
+                                                  :        |
+                                                  :        |
+                                                  :        |
+                                                  :        |
+                                                  :        |
+                                                  :        |
+                                                  :        |
+                       ~~~                        :        |
+                          ~~              O       :        |
+                            ~~           /        :        |
+                              ~~        /         :        |
+                                ~~     o          :        |
+                              --@-----/ \         :        |
+                           --- / +       \       H---------|
+                        ---   /   \       +       :        |
+                       *     +     \       \      :        |
+___________________________*_______*_______*_____=D========
+
+
+K16 RECOVERY_DEBT_NOT_IDLE | FOURS / INFERRED
+src —
+support GROUND_FRONT_LIGHT_REAR_STABLE
+contact NO_HANDLE_CONTACT_AUTHORED
+force GROUND_SUPPORT
+arc Final state is displaced and attentive: cat leans toward the open door with one front paw light, not a reset to K0.
+
+
+
+                                                  :========D
+                                                  :        |
+                                                  :        |
+                                                  :        |
+                                                  :        |
+                                                  :        |
+                                                  :        |
+                                                  :        |
+                     ~~~                          :        |
+                        ~~~              O        :        |
+                           ~~           /         :        |
+                             ~~        /          :        |
+                               ~~     o           :        |
+                                 ~@---|           :        |
+                              ---/+   +          H---------|
+                           ---  +      \          :        |
+                          *    /        \         :        |
+________________________*____*__________*________=D========
