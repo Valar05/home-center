@@ -49,7 +49,8 @@
   "quality": {
     "tango": "PASS",
     "noodle_queen": "PASS",
-    "actual_render_inspected": true
+    "actual_render_inspected": true,
+    "current_worker_decoded_frames_inspected": 55
   },
   "builder": "build.py",
   "motion": "motion.json",
@@ -63,9 +64,9 @@
   "contract_test": {
     "script": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "repo_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
-    "candidate_scope": "PASS",
+    "candidate_scope": "PASS_EQUIVALENT_STRUCTURAL_READBACK_CURRENT_WORKER",
     "script_sha256": "7cff0aeff8a708bfc476283c412f84ed0cd1ef0a2d6042577b033fd099ab0668",
-    "scope_note": "Exact fetched repository test logic executed against isolated successor staging; full-repository checkout/runtime not exposed in this Standard Chat and is not claimed."
+    "scope_note": "Exact repository test source inspected. Current chat exposes no authorized repository runtime shell, so no fresh full-repository TESTED claim; equivalent candidate-scoped structural logic passed for the tracked SPA/motion/manifest shape."
   },
   "correction_hooks": [
     "KEEP",
