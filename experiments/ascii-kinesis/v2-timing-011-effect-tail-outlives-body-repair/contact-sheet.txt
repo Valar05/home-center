@@ -1,0 +1,352 @@
+ASCII KINESIS V2 TIMING 011 — EFFECT TAIL OUTLIVES BODY — REPAIR
+REVISES / NEGATIVE_FIXTURE: v2-timing-006-effect-tail-outlives-body
+SOURCE ART: NOT EMBEDDED. GENERIC ASCII BODY + GENERIC DETACHED EFFECT ONLY.
+SOURCE TIMING: NONE OBSERVED. ALL PERFORMANCE CADENCE BELOW IS INFERRED.
+PRINCIPLE: BODY RECOVERY DOES NOT OWE EFFECT COMPLETION; RELEASE FORKS CLOCK OWNERSHIP.
+
+BODY CLOCK — authored decisive keys
+[B0] OFFSET_READY | FOURS / INFERRED | exposure=4t
+support/contact=BILATERAL_RIGHT_BIAS
+root/arc=stable but asymmetric offset-ready; root at x20
+causal_role=ready at original address
+
+
+
+
+                    O
+                    |
+                   -+--
+                 -- |  --r
+               l-   |
+                    |
+                    @
+                  o/ \o
+                 /     \
+                 /      \
+                /       \
+                L        R
+       [===============================]
+
+
+
+[B1] DEEP_COIL | FOURS / INFERRED | exposure=4t
+support/contact=LEFT_REAR_DOMINANT
+root/arc=root drops/backshifts; shoulders counter-rotate
+causal_role=load elastic debt into rear support
+
+
+
+
+
+                    O
+                    /
+                   +-
+                 //| --
+               //  |   -r
+             l/   |
+                  @--o
+                 o    \
+                /      \
+                /       \
+               L         R
+       [===============================]
+
+
+
+[B2] PRE_RELEASE_CROSS | TWOS / INFERRED | exposure=2t
+support/contact=LEFT_REAR_DOMINANT
+root/arc=root begins forward rise while task crosses body
+causal_role=convert coil into directional commitment
+
+
+
+
+                      O
+                      /
+                   --+-----r
+               l---  /
+                    /
+                    /
+                   @-
+                  o  -o
+                 /     \
+                /       \
+                /        \
+               L          R
+       [===============================]
+
+
+
+[B3] SLING_BRIDGE | ONES / INFERRED | exposure=1t
+support/contact=TRANSFER_TO_RIGHT
+root/arc=root crosses between supports; right arm outruns chest
+causal_role=authored bridge prevents endpoint tween
+
+
+
+
+                        O
+                        /  ---r
+                       +---
+                     ///
+                   // /
+                 l/   /
+                     @
+                   o/ \o
+                  /     \
+                  /      \
+                 /       \
+                 /        \
+                L          R
+       [===============================]
+
+
+
+[B4] RELEASE_JOIN | ONES / INFERRED | exposure=1t
+support/contact=RIGHT_CATCH_ACQUIRING
+root/arc=release fork at extended task arc; effect clock begins
+causal_role=causal release join: BODY and EFFECT fork
+
+
+
+
+                          O
+                          /  ----r
+                         +---
+                       ///
+                      / /
+                    //  /
+                   l   @
+                     o/ \o
+                    /     \
+                   /       \
+                   /       \
+                  /         \
+                 L           R
+       [===============================]
+
+
+
+[B5] BRAKE_CATCH | TWOS / INFERRED | exposure=2t
+support/contact=RIGHT_DOMINANT
+root/arc=root continues forward/down into lead support catch
+causal_role=spend translation into braking support
+
+
+
+
+                             O
+                             /
+                            +-----r
+                          //
+                         / /
+                       // /
+                      l  @
+                       o/ \o
+                      /     \
+                     /       \
+                    /        \
+                   L          R
+       [===============================]
+
+
+
+[B6] TORSO_OVERSHOOT | ONES / INFERRED | exposure=1t
+support/contact=RIGHT_DOMINANT
+root/arc=root nearly caught while head/shoulder travel continues
+causal_role=body consequence after release
+
+
+
+
+
+                               O
+                              /
+                            -+--
+                         --//   ---r
+                       l- /
+                         @-
+                       o/  -o
+                      /      \
+                     /        \
+                    /         \
+                   L           R
+       [===============================]
+
+
+
+[B7] SHOULDER_LAG | TWOS / INFERRED | exposure=2t
+support/contact=RIGHT_DOMINANT
+root/arc=shoulder/hand lag folds after root brake
+causal_role=secondary lag, not reverse playback
+
+
+
+
+
+                             O
+                            /
+                           +-
+                         /// ---
+                       // /     -r
+                      l   /
+                         @-o
+                       o/   \
+                      /      \
+                     /        \
+                    L          R
+       [===============================]
+
+
+
+[B8] RECOIL_FOLD | TWOS / INFERRED | exposure=2t
+support/contact=RIGHT_TO_BILATERAL
+root/arc=root retreats slightly while task folds inside support base
+causal_role=recoil with displaced balance
+
+
+
+
+
+                          O
+                          /
+                         +
+                        /|\
+                       / |  \
+                      / |     r
+                     l  @
+                      o/ \o
+                     /     \
+                     /      \
+                    L         R
+       [===============================]
+
+
+
+[B9] RECOVERY_PLANT | ONES / INFERRED | exposure=1t
+support/contact=BILATERAL_REACQUIRE
+root/arc=rear foot advances to a new support address
+causal_role=earn recovery with a real plant
+
+
+
+
+                         O
+                         /
+                        +
+                       /|\
+                     // |  \r
+                    l   |
+                        @
+                      o/ \o
+                      |    \
+                     |      \
+                     |       \
+                     L        R
+       [===============================]
+
+
+
+[B10] RECOVERY_DEBT | TWOS / INFERRED | exposure=2t
+support/contact=BILATERAL_LEFT_BIAS
+root/arc=root stack is viable but torso remains counter-twisted
+causal_role=hold the debt instead of resetting idle
+
+
+
+
+                        O
+                        /
+                       +-
+                     //| --
+                   l/  |   -r
+                        |
+                        @
+                      o/ \o
+                      |    \
+                     |      \
+                     |       \
+                     L        R
+       [===============================]
+
+
+
+[B11] READY_NEW_ADDRESS | FOURS / INFERRED | exposure=4t
+support/contact=BILATERAL_RIGHT_BIAS
+root/arc=ready is re-earned five cells right of start
+causal_role=stable displaced readiness; no idle reset
+
+
+
+
+                         O
+                         |
+                         +--
+                       //|  --r
+                     l/  |
+                         |
+                         @
+                       o/ \o
+                       |    \
+                      |      \
+                      |       \
+                      L        R
+       [===============================]
+
+
+
+EFFECT CLOCK — authored detached keys
+[E0] DETACH_FLASH | ONES / INFERRED | exposure=1t
+support/contact=DETACHED_NO_SUPPORT
+effect/arc=release discontinuity; effect acquires independent clock
+|                                 .*                     |
+
+[E1] LEAD_ACCEL | ONES / INFERRED | exposure=1t
+support/contact=DETACHED_NO_SUPPORT
+effect/arc=fast lead outruns body task
+|                                  + .  *                |
+
+[E2] ARC_CROWN | TWOS / INFERRED | exposure=2t
+support/contact=DETACHED_NO_SUPPORT
+effect/arc=curved rise resolves into crown
+|                                      +  .  *           |
+
+[E3] DOWNHOOK | ONES / INFERRED | exposure=1t
+support/contact=DETACHED_NO_SUPPORT
+effect/arc=direction changes sharply without body re-key
+|                                           +  . *       |
+
+[E4] TAIL_BEND | TWOS / INFERRED | exposure=2t
+support/contact=DETACHED_NO_SUPPORT
+effect/arc=overshoot bends back under its own clock
+|                                           +  +* .      |
+
+[E5] DRIFT_BACK | TWOS / INFERRED | exposure=2t
+support/contact=DETACHED_NO_SUPPORT
+effect/arc=tail drifts while body is already recovering
+|                                            *  + +      |
+
+[E6] LONG_SETTLE_A | FOURS / INFERRED | exposure=4t
+support/contact=DETACHED_NO_SUPPORT
+effect/arc=late effect settle remains visibly detached
+|                                        *  .  + +       |
+
+[E7] LONG_SETTLE_B | FOURS / INFERRED | exposure=4t
+support/contact=DETACHED_NO_SUPPORT
+effect/arc=effect persists after body readiness is reacquired
+|                                     *  .  + +          |
+
+[E8] DISSIPATE | FOURS / INFERRED | exposure=4t
+support/contact=DETACHED_NO_SUPPORT
+effect/arc=final tail decay; body stays unchanged at new address
+|                                  *  .  +               |
+
+CLOCK RELATION:
+  BODY: OFFSET_READY -> DEEP_COIL -> CROSS -> SLING_BRIDGE -> RELEASE_JOIN -> BRAKE -> OVERSHOOT -> LAG -> RECOIL -> PLANT -> DEBT -> READY_NEW_ADDRESS
+  EFFECT: dormant until B4 -> DETACH_FLASH -> LEAD -> ARC_CROWN -> DOWNHOOK -> TAIL_BEND -> DRIFT -> LONG_SETTLE_A -> LONG_SETTLE_B -> DISSIPATE
+  B4 is the only release fork. After B4 the EFFECT clock does not re-key BODY.
+  BODY reaches displaced readiness before the effect tail finishes; no idle reset and no reverse interpolation.
+
+TIMING VOCABULARY:
+  ONES=new key sample each display frame; TWOS=hold 2 frames; FOURS=hold 4 frames.
+  STREET_FIGHTER/CAPCOM=nonuniform authored gameplay timing. All specimen timing is INFERRED.
