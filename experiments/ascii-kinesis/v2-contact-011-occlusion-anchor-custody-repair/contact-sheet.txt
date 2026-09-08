@@ -1,0 +1,448 @@
+v2-contact-011-occlusion-anchor-custody-repair
+OCCLUSION MAY HIDE LIMB GEOMETRY BUT MAY NOT HIDE RELATIONSHIP CAUSALITY: acquire in open negative space, keep the owned anchor world-readable through overlap, load from a pinned rear support, and destroy custody only at an explicit release fork.
+REVISION: revises + negative_fixture = experiments/ascii-kinesis/v2-contact-004-occlusion-anchor-invariants/; source_change=false.
+SOURCE EVIDENCE: TSR asset 13547, River City Ransom / Street Gangs, NES; inherited whole 234x496 PNG; timing unavailable.
+RIGHTS: evidence only; independent ASCII rig; no source pixels/palette/layout/contours/tracing/choreography/redistribution/close imitation.
+TIMING: ONES/TWOS/FOURS are display classes, never seconds; every decisive key INFERRED / STREET_FIGHTER-CAPCOM.
+VISIBLE INVARIANT: @ is the owned relationship seam; # is A fixed rear root. During K05-K06 limb/body overlap may hide joint geometry, but @ + root/support + force axis persist until explicit release.
+====================================================================================
+C011-K00  SEPARATE / ELIGIBLE  [FOURS/INFERRED]
+contact=NONE | custody=NONE | occlusion=OPEN
+support=A:BOTH;B:BOTH | root=A:DUAL;B:DUAL | force=[0, 0] | anchor=None
+role=establish independent bodies and legal future contact
+arc=wide negative space; both centers independent
+
+
+
+
+
+
+                A
+                |                                         B
+                 |                                        |
+                 O-                                      |
+               //| --*                                  -O
+              *   |                                  *-- |\\
+                  |                                     |   *
+                  X                                     X
+                 / \                                    |\
+                 / \                                   | \
+                /   \                                  |  \
+                /   \                                 |   \
+_______________^_____^________________________________^____^________________________
+
+
+
+
+====================================================================================
+C011-K01  ASYMMETRIC_COIL  [FOURS/INFERRED]
+contact=NONE | custody=NONE | occlusion=OPEN
+support=A:REAR_DOMINANT;B:BOTH | root=A:foot_b;B:DUAL | force=[2, 1] | anchor=None
+role=store asymmetric approach force
+arc=A COM drops and stores rightward approach while B holds tall
+
+
+
+
+
+
+
+                                                          B
+                  A                                       |
+                  |                                      |
+                   |  --*                               -O
+                   O--                               *-- |\\
+                 //|                                    |   *
+                *   |                                   X
+                    X                                   |\
+                   / \                                 | \
+                  /   \                                |  \
+                 /    \                               |   \
+________________^______^______________________________^____^________________________
+
+
+
+
+====================================================================================
+C011-K02  LOW_APPROACH / NO_CONTACT  [TWOS/INFERRED]
+contact=NONE | custody=NONE | occlusion=OPEN
+support=A:REAR_TO_FRONT_PROBE;B:BOTH | root=A:foot_b->foot_f;B:DUAL | force=[3, 0] | anchor=None
+role=prove eligibility before acquisition
+arc=A reaches into range but keeps a readable gap; pelvis still behind hand
+
+
+
+
+
+
+
+                                                          B
+                        A                                 |
+                        |                                |
+                         |    ----*                     -O
+                         O----                       *-- |\\
+                       // \                             |   *
+                      *   \                             X
+                           X                            |\
+                          / \                          | \
+                         /   \                         |  \
+                        /     \                       |   \
+_______________________^_______^______________________^____^________________________
+
+
+
+
+====================================================================================
+C011-K03  OPEN_SEAM_ACQUIRE  [ONES/INFERRED]
+contact=ONE_ANCHOR | custody=A_PENDING | occlusion=OPEN_SEAM
+support=A:FRONT_TRUSTED;B:BOTH | root=A:foot_f;B:DUAL | force=[2, -1] | anchor=[40, 11]
+role=acquire visible anchor in negative space
+arc=center arrives under shortened arm; contact happens before maximum reach
+
+
+
+
+
+
+
+                                                     B
+                               A                     |
+                               |         =>         |
+                                |   ----@-----------O
+                                O---                |\\
+                              // \                 |   *
+                             *   \                 X
+                                  X                |\
+                                 / \              | \
+                               //   \             |  \
+                              /     \            |   \
+_____________________________^_______^___________^____^_____________________________
+
+
+
+
+====================================================================================
+C011-K04  SECOND_ANCHOR / CUSTODY_LOCK  [TWOS/INFERRED]
+contact=TWO_ANCHORS_LOCKED | custody=A_PRIMARY | occlusion=OPEN_SEAM
+support=A:DUAL_BRACE;B:REAR_DEGRADING | root=A:DUAL;B:foot_b | force=[1, -2] | anchor=[40, 11]
+role=grant explicit custody before overlap
+arc=second body lock shortens both silhouettes; shared center compresses before occlusion
+
+
+
+
+
+
+
+
+                                 A       >        B
+                                 |       =        |
+                                  |  ---@----    |
+                                  O---       ----O
+                                  |   ----*  *-- |
+                                   |            |
+                                   X            X
+                                  / \           |\
+                                 /   \         |  \
+                                /     \        |   \
+_______________________________^_______^_______^____^_______________________________
+
+
+
+
+====================================================================================
+C011-K05  OCCLUDED_CLINCH / REAR_PIN  [FOURS/INFERRED]
+contact=TWO_ANCHORS_LOCKED | custody=A_PRIMARY | occlusion=B_NEAR_ARM+TORSO_BEHIND_A
+support=A:REAR_PIN+FRONT_BRACE;B:TOE_CONTACT | root=A:foot_b@[31,19];B:PEEL | force=[-2, -2] | anchor=[40, 11]
+role=hide real joint geometry while preserving causal ownership
+arc=B near arm/shoulder and torso enter A silhouette; the same seam anchor stays visible while A rear root remains pinned
+
+
+
+
+
+
+                                          B
+                                         |
+                                      <  |
+                                  A    =| --*
+                                  |    -@-
+                                   | -- |
+                                   O---|
+                                   |   X---*
+                                    |  |\
+                                    X  | \\
+                                  // \ ^   \
+                                //    \\    ^
+_______________________________#________^___________________________________________
+
+
+
+
+====================================================================================
+C011-K06  ANCHOR_PERSISTS THROUGH OVERLAP  [FOURS/INFERRED]
+contact=TWO_ANCHORS_LOCKED | custody=A_PRIMARY | occlusion=B_TORSO_DEEP_BEHIND_A
+support=A:REAR_PIN;B:LOSING_GROUND | root=A:foot_b@[31,19];B:PEEL | force=[-3, -3] | anchor=[40, 11]
+role=hold occluded relationship long enough to read anchor persistence
+arc=B rotates deeper behind A around unchanged seam anchor; support peels while A rear root stays world-fixed
+
+
+
+
+
+
+
+                                        B
+                                        |
+                                     < |  -*
+                                      =|--
+                                 A     =
+                                 |     -@
+                                  | ---
+                                  O---X
+                                  |  /----*
+                                   | /  ^
+                                   X^
+                                  / \
+                                //   \\
+_______________________________#_______^____________________________________________
+
+
+
+
+====================================================================================
+C011-K07  CROSS_BODY_LEVER_LOAD  [FOURS/INFERRED]
+contact=TWO_ANCHORS_LOCKED | custody=A_PRIMARY | occlusion=EXITING_OCCLUSION
+support=A:REAR_PIN;B:NONE | root=A:foot_b@[31,19];B:NONE | force=[3, -4] | anchor=[40, 10]
+role=convert persistent anchor into visible leverage
+arc=A drops left around pinned rear foot; B arcs up-right around owned anchor
+
+
+
+
+
+                                             B
+                                           >/
+                                          = / --*
+                                          =O--
+                                         =/
+                                       -@ /
+                               A     --  X
+                               |   --  //|
+                                |----*^   |
+                                O--       |
+                                |         ^
+                                 |
+                                 X-
+                                /  --
+_______________________________#______^_____________________________________________
+
+
+
+
+====================================================================================
+C011-K08  LOCKED_TRANSFER_SWEEP  [TWOS/INFERRED]
+contact=TWO_ANCHORS_LOCKED | custody=A_PRIMARY | occlusion=OPEN_AGAIN
+support=A:REAR_PIN;B:NONE | root=A:foot_b@[31,19];B:NONE | force=[5, -2] | anchor=[41, 9]
+role=transfer force without anchor drift
+arc=B sweeps right/up; A chest counter-rotates left while rear root stays fixed
+
+
+
+
+
+                                                   B
+                                                 --
+                                             =>O-----*
+                                           ==-/
+                                        -@= //
+                              A       --   X
+                              |    ---   -- \
+                               | ---*  ^-    \
+                               O--            ^
+                               |
+                                |
+                                X
+                                |\\
+                               |   \\
+_______________________________#_____^______________________________________________
+
+
+
+
+====================================================================================
+C011-K09  LOCKED_OVERSHOOT / RELEASE_THRESHOLD  [TWOS/INFERRED]
+contact=TWO_ANCHORS_LOCKED | custody=A_PRIMARY | occlusion=OPEN_AGAIN
+support=A:REAR_PIN;B:NONE | root=A:foot_b@[31,19];B:NONE | force=[6, 1] | anchor=[42, 9]
+role=author locked overshoot and readable release threshold
+arc=A sinks behind pin as B passes shared center; held threshold spends leverage before release
+
+
+
+
+
+
+                                                      --B
+                                                 --O---
+                                             ----//    ---*
+                                         -@==  //
+                                       --    ===>
+                             A      ---    --  \
+                             |    --     ^-     \
+                              | ---*             \
+                              O--                 ^
+                              |
+                               |
+                               X-
+                               | --
+_______________________________#____^_______________________________________________
+
+
+
+
+====================================================================================
+C011-K10  RELEASE_FORK  [ONES/INFERRED]
+contact=RELEASED | custody=NONE | occlusion=OPEN
+support=A:REAR_DOMINANT;B:NONE | root=A:foot_b@[31,19];B:NONE | force=[7, 2] | anchor=None
+role=destroy custody explicitly
+arc=anchor disappears; A recoils down-left while B continues free right/down
+
+
+
+
+
+                                                            B
+                                                           /
+                                                          /
+                                                       --O----*
+                                                   ---- /
+                                *               *--    /
+                               /                      X--
+                           A  /                        \ ----
+                           |  /                        \     --^
+                            |/  ----*                   ^
+                            O---
+                             |
+                             X-
+                              \---
+_______________________________#___^________________________________________________
+
+
+
+
+====================================================================================
+C011-K11  PARTNER_LAG / CARRIER_REBOUND  [TWOS/INFERRED]
+contact=NONE | custody=NONE | occlusion=OPEN
+support=A:REAR_TO_DUAL;B:NONE | root=A:foot_b->DUAL;B:NONE | force=[5, 3] | anchor=None
+role=separate clocks after release
+arc=B keeps traveling after release; A shoulders lag behind rebound plant
+
+
+
+
+
+
+
+                                                                 B
+                                                                /
+                                                                /
+                              *                               -O---*
+                         A   /                            ----/
+                         |  /                          *--    /
+                          |/ --*                             X-
+                          O--                                | --
+                           |                                 |   --
+                           X-                                ^     -^
+                            \--
+                            \  --
+_____________________________^____^_________________________________________________
+
+
+
+
+====================================================================================
+C011-K12  PARTNER_CATCH / A_OVERSHOOT  [TWOS/INFERRED]
+contact=NONE | custody=NONE | occlusion=OPEN
+support=A:FRONT_OVERSHOOT;B:FRONT_CATCH | root=A:foot_f;B:foot_f | force=[2, 1] | anchor=None
+role=show support consequences after release
+arc=A passes its restack over new front support while B catches hard and low
+
+
+
+
+
+
+
+                               A
+                               |
+                                |
+                                O--                                B
+                               / \ --*                             |
+                             //  \                                |
+                            *     X                         *-----O---*
+                                 / \                             |
+                                /   \                            X
+                               /     \                          / \\
+                              /       \                        ^    \\
+_____________________________^_________^______________________________^_____________
+
+
+
+
+====================================================================================
+C011-K13  SETTLE / SECONDARY_LAG  [TWOS/INFERRED]
+contact=NONE | custody=NONE | occlusion=OPEN
+support=A:DUAL_REGAIN;B:DUAL_REGAIN | root=A:DUAL;B:foot_f->DUAL | force=[0, 0] | anchor=None
+role=pay secondary lag and settle
+arc=A rear shoulder/hand arrives late; B rebounds back from catch without reversing throw path
+
+
+
+
+
+
+
+
+                                A
+                                |                                 B
+                                 |                                |
+                                 O-                              |
+                               --| -*                       *----O---*
+                             *-   |                             |
+                                  X                             X
+                                 / \                           | \
+                                /   \\                         |  \\
+                               /      \                       |     \
+______________________________^________^______________________^______^______________
+
+
+
+
+====================================================================================
+C011-K14  READY_NEW_ADDRESSES  [FOURS/INFERRED]
+contact=NONE | custody=NONE | occlusion=OPEN
+support=A:BOTH;B:BOTH | root=A:DUAL;B:DUAL | force=[0, 0] | anchor=None
+role=recover without idle reset
+arc=both settle displaced; A remains forward-biased from paid recovery debt
+
+
+
+
+
+
+                                  A
+                                  |
+                                   |                              B
+                                   O-                             |
+                                 //| --*                         |
+                                *   |                          --O-
+                                    |                       *--  | --*
+                                    X                           |
+                                   / \                          X
+                                  /   \                        | \
+                                 /     \                       |  \\
+                                /       \                     |     \
+_______________________________^_________^____________________^______^______________
+
+
+
