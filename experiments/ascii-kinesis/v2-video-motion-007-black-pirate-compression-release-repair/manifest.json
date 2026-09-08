@@ -1,1 +1,38 @@
-{"schema":"ascii-kinesis.v2-manifest","format_version":2,"entry":"v2-video-motion-007-black-pirate-compression-release-repair","lane":"video-motion","repo_path":"experiments/ascii-kinesis/v2-video-motion-007-black-pirate-compression-release-repair/","revises":"experiments/ascii-kinesis/v2-video-motion-001-black-pirate-compression-release/","negative_fixture":"experiments/ascii-kinesis/v2-video-motion-001-black-pirate-compression-release/","primary_tabs":["ASCII","JSON","VIDEO"],"ascii_literal_text":true,"json_structured":true,"video_required":true,"video_embedded":true,"tracked_mp4":false,"video_source":"abstract_ascii_rig_only","source_art_embedded":false,"source_pixels_used_in_output":false,"media_sha256":"ab69ba3b78ead3a5ca06b7bea021967b082576fae78618408a09037e221e49ba","media_bytes":16298,"media_frame_count":81,"media_decode_verified":true,"offline_spa":true,"backward_compatible":true,"files":["contact_sheet.txt","motion.json","build_motion.py","manifest.json","receipt.json","black-pirate-compression-release-repair.motion.html"]}
+{
+  "schema": "ascii-kinesis.v2-manifest",
+  "format_version": 2,
+  "entry": "v2-video-motion-007-black-pirate-compression-release-repair",
+  "lane": "video-motion",
+  "repo_path": "experiments/ascii-kinesis/v2-video-motion-007-black-pirate-compression-release-repair/",
+  "revises": "experiments/ascii-kinesis/v2-video-motion-001-black-pirate-compression-release/",
+  "negative_fixture": "experiments/ascii-kinesis/v2-video-motion-001-black-pirate-compression-release/",
+  "negative_fixture_status": "REVISE_REQUIRED_LOW_EFFORT",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "json_structured": true,
+  "video_required": true,
+  "video_embedded": true,
+  "tracked_mp4": false,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "source_pixels_used_in_output": false,
+  "media_sha256": "21ed8757a985e5cbea2dbc2f8a4a15f1665e38b444f22bce250ea1c5b28e4543",
+  "media_bytes": 14557,
+  "media_frame_count": 73,
+  "media_decode_verified": true,
+  "offline_spa": true,
+  "backward_compatible": true,
+  "files": [
+    "contact_sheet.txt",
+    "motion.json",
+    "build_motion.py",
+    "manifest.json",
+    "receipt.json",
+    "black-pirate-compression-release-repair.motion.html"
+  ],
+  "ephemeral_build_output": "motion.mp4 is regenerated locally and embedded byte-for-byte in the SPA; it is not tracked as a sidecar."
+}
