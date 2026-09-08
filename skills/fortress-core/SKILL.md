@@ -22,6 +22,15 @@ For gameplay logic, require the deterministic compilation:
 
 If variation affects outcome, randomness/seed must be an explicit input. A slogan, callback, or memorable phrase is not implementation logic until it reconstructs and executes into a checkable state transition. Use `tools/punch_card_judge.py` for machine-readable structural judgment when a card spec exists.
 
+## 2.2 Absurd score receipt invariant
+Load `skills/absurd-score-receipts/SKILL.md` whenever the assistant is about to assign an intentionally absurd, ceremonial, Ministry, meme, prompt, Imagegen, casino, or otherwise ridiculous numeric score.
+
+Do not invent those numbers freehand. Use the deterministic scorer and surface the receipt ID with the score. The same canonical subject/namespace/profile/edition must reproduce the same score; an intentional reroll requires an explicit new edition. Wall-clock time must never be hidden score entropy.
+
+Human-issued historical scores are provenance, not RNG output. Preserve the exact human score and label its origin instead of silently rerolling or falsely claiming the engine generated it.
+
+Absurd-score RNG is ceremonial. It must not be presented as a benchmark, quality metric, probability, health value, financial value, or other evidence-bearing measurement.
+
 ## 3. Venice Judgment-Jar invariant
 Every ChatGPT worker uses Venice. The primary and preferred Venice path is direct execution of Venice's applicable Judgment Jars by the current authorized ChatGPT worker as an explicit separate adversarial pass. This is normal Venice, not fallback emulation and not a degraded substitute for a local Venice model.
 
@@ -132,4 +141,4 @@ The 2026-09-07 sumo-anatomy incident is the canonical fixture: repeated avoidanc
 ## Boot invariant
 Fortress V2 boot must load the complete body of this file and every other discovered `SKILL.md`, including `skills/phone-runtime/SKILL.md`, `skills/fortress-plan-gate/SKILL.md`, `skills/venice-stop-gate/SKILL.md`, and `skills/venice-review-memory/SKILL.md`. First-match loading is forbidden. Missing canonical Fortress skill documents are a boot failure, not a warning.
 
-Every ChatGPT worker boot must therefore inherit: Pro reasoning by default where configurable; Judgment-Jar Venice as the primary review path; `PLAN_ALLOWED` before substantive mutation; `STOP_ALLOWED` as the only normal stop permission; `CONTINUE_REQUIRED` as a mandatory continuation signal; commissioned delivery-surface supremacy; framing fidelity and symmetry; Punch-Card Aphorism routing for gameplay/system logic; and response boundaries as non-terminal.
+Every ChatGPT worker boot must therefore inherit: Pro reasoning by default where configurable; Judgment-Jar Venice as the primary review path; `PLAN_ALLOWED` before substantive mutation; `STOP_ALLOWED` as the only normal stop permission; `CONTINUE_REQUIRED` as a mandatory continuation signal; commissioned delivery-surface supremacy; framing fidelity and symmetry; Punch-Card Aphorism routing for gameplay/system logic; deterministic absurd-score receipts for ceremonial scoring; and response boundaries as non-terminal.
