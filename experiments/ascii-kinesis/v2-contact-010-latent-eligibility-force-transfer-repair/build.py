@@ -54,11 +54,11 @@ def contact_sheet(motion):
  ]
  parts.append('\n'.join(lead))
  for q in motion['keys']:
-  state={'A':expand_pose(q['pose_rig']['A']),'B':expand_pose(q['pose_rig']['B']),'contact':q['contact']}
-  meta=(f"{q['key_id']}  {q['phase']}  [{q['timing_class']}/{q['timing_provenance']}]\n"
-        f"eligibility={q['eligibility']} | contact={q['contact']} | custody={q['custody']}\n"
-        f"support={q['support_contact']} | root={q['root']}\n"
-        f"role={q['causal_role']}\narc={q['motion_arc_root_note']}")
+  state={'A':expand_pose(q['r'][0]),'B':expand_pose(q['r'][1]),'contact':q['c']}
+  meta=(f"{q['id']}  {q['p']}  [{q['timing']}/{q['provenance']}]\n"
+        f"eligibility={q['e']} | contact={q['c']} | custody={q['u']}\n"
+        f"support={q['s']} | root={q['o']}\n"
+        f"role={q['q']}\narc={q['a']}")
   parts.append(meta+'\n'+render_ascii(state))
  return ('\n'+'='*72+'\n').join(parts)+'\n'
 
@@ -70,16 +70,16 @@ def interp(a0,a1,t,curve):
   out[n]=[x,y]
  return out
 
-def semantics(q):return (q['contact'],q['custody'],q['support_contact'],q['eligibility'],q['root'])
+def semantics(q):return (q['c'],q['u'],q['s'],q['e'],q['o'])
 def sequence(m):
  out=[]
  for i,q in enumerate(m['keys']):
-  k={'id':q['key_id'],'phase':q['phase'],'A':expand_pose(q['pose_rig']['A']),'B':expand_pose(q['pose_rig']['B']),'contact':q['contact'],'eligibility':q['eligibility'],'custody':q['custody'],'support_contact':q['support_contact'],'root':q['root']}
-  out.extend([k]*TIMING[q['timing_class']])
+  k={'id':q['id'],'phase':q['p'],'A':expand_pose(q['r'][0]),'B':expand_pose(q['r'][1]),'contact':q['c'],'eligibility':q['e'],'custody':q['u'],'support_contact':q['s'],'root':q['o']}
+  out.extend([k]*TIMING[q['timing']])
   if i+1<len(m['keys']):
    n=m['keys'][i+1]
    if semantics(q)==semantics(n):
-    out.append({**k,'id':q['key_id']+'~'+n['key_id'],'phase':'CONNECTIVE','A':interp(k['A'],expand_pose(n['pose_rig']['A']),.5,-.45),'B':interp(k['B'],expand_pose(n['pose_rig']['B']),.5,.45)})
+    out.append({**k,'id':q['id']+'~'+n['id'],'phase':'CONNECTIVE','A':interp(k['A'],expand_pose(n['r'][0]),.5,-.45),'B':interp(k['B'],expand_pose(n['r'][1]),.5,.45)})
  return out
 
 def fonts():
