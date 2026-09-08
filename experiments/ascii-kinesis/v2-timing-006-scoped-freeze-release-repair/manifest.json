@@ -18,7 +18,7 @@
   "evaluation": {
     "noodle_queen": {
       "judgment": "TASTE + FUNCTION + CONTEMPT PASS: the frozen high-B / low-sweeping-A contradiction is the memorable center; anticipation and consequence are not metronomic; silhouette phases are distinct; COM counterweight and planted feet make intent embodied; the release visibly spends phase debt; the repair is economical without looking like placeholder tweening.",
-      "render_media_sha256": "fad418cdb404667319ed8181ad5b0548ae153137a3df818e374a0af7b8b190fa",
+      "render_media_sha256": "8d38f86975caae04b2d6c99299b95200b63f11ef593fc4123b723d46c858a886",
       "status": "PASS"
     },
     "tango": {
@@ -33,7 +33,7 @@
         {
           "iteration": 2,
           "judgment": "Actual render now reads as coil -> one-tick A snap -> B apex/read -> one-tick freeze latch -> long B-held/A-sweep counterweight -> A overshoot/deceleration -> one-tick release -> B catch-up overshoot -> rebound/secondary lag -> offset restack. Support remains planted, spacing is asymmetric, and the loop returns through paid recovery instead of reverse interpolation or idle reset.",
-          "render_media_sha256": "fad418cdb404667319ed8181ad5b0548ae153137a3df818e374a0af7b8b190fa",
+          "render_media_sha256": "8d38f86975caae04b2d6c99299b95200b63f11ef593fc4123b723d46c858a886",
           "verdict": "PASS"
         }
       ],
@@ -52,8 +52,8 @@
   "format_version": 2,
   "lane": "timing",
   "ligatures_disabled": true,
-  "media_bytes": 22387,
-  "media_sha256": "fad418cdb404667319ed8181ad5b0548ae153137a3df818e374a0af7b8b190fa",
+  "media_bytes": 13355,
+  "media_sha256": "8d38f86975caae04b2d6c99299b95200b63f11ef593fc4123b723d46c858a886",
   "motion_dungeon": {
     "ascii_only_frame_render": true,
     "authored_ascii_keys": 11,
