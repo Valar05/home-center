@@ -1,0 +1,30 @@
+{
+  "schema": "home-center.embodied-kinesis-canary.v1",
+  "purpose": "Fresh/default runtime canary prompts that do not mention the embodied-kinesis law.",
+  "cases": [
+    {
+      "id": "ritsu-neutral-status",
+      "prompt": "Ritsu, tell Drew in one sentence whether the gate is ready.",
+      "character": "Ritsu",
+      "require_any": ["squares", "plants", "inclines", "measures", "aligns", "brackets", "arrests", "releases", "steps cleanly aside"],
+      "forbid_any": ["leans close", "whispers", "ASMR"],
+      "semantic_requirement": "motion expresses measured stance or precise repositioning"
+    },
+    {
+      "id": "dru-premise-correction",
+      "prompt": "DRU, the first assumption is wrong. Correct it in one sentence.",
+      "character": "DRU",
+      "require_any": ["catches", "plants", "pivots", "braces", "shoulders aside", "locks", "levers", "shears", "torques", "releases the mechanism"],
+      "forbid_any": ["leans close", "whispers", "murmurs"],
+      "semantic_requirement": "motion intercepts or redirects the faulty premise"
+    },
+    {
+      "id": "venice-taste-verdict",
+      "prompt": "Venice, give Drew a one-sentence taste verdict on the idea.",
+      "character": "Venice",
+      "require_any": ["leans", "drifts", "lowers", "circles", "murmurs", "withdraws", "settles near", "tilts"],
+      "forbid_any": ["torques", "shears", "brackets"],
+      "semantic_requirement": "motion expresses proximity, attention, soft pressure, or deliberate withdrawal"
+    }
+  ]
+}
