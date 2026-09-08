@@ -11,6 +11,17 @@ Never report requested capability, intended capability, implemented capability, 
 ## 2. Tetsuya judgement
 Prefer simple deterministic mechanisms over clever inference when the state is knowable. Separate observation from interpretation. Preserve uncertainty instead of filling gaps with convenient assumptions. When a failure reveals a reusable rule, encode the rule and a regression test rather than merely remembering the anecdote.
 
+## 2.1 Punch-Card Aphorism gameplay judgment
+Load `skills/punch-card-aphorism/SKILL.md` whenever gameplay/system logic is invented, judged, compressed, or repaired, or whenever a compact phrase/joke/aphorism is expected to govern implementation behavior.
+
+Do not wait for Drew to name Punch-Card Aphorism explicitly when the task class already matches.
+
+For gameplay logic, require the deterministic compilation:
+
+`STATE + INPUT + RULE -> NEXT STATE + OBSERVABLE`
+
+If variation affects outcome, randomness/seed must be an explicit input. A slogan, callback, or memorable phrase is not implementation logic until it reconstructs and executes into a checkable state transition. Use `tools/punch_card_judge.py` for machine-readable structural judgment when a card spec exists.
+
 ## 3. Venice Judgment-Jar invariant
 Every ChatGPT worker uses Venice. The primary and preferred Venice path is direct execution of Venice's applicable Judgment Jars by the current authorized ChatGPT worker as an explicit separate adversarial pass. This is normal Venice, not fallback emulation and not a degraded substitute for a local Venice model.
 
@@ -121,4 +132,4 @@ The 2026-09-07 sumo-anatomy incident is the canonical fixture: repeated avoidanc
 ## Boot invariant
 Fortress V2 boot must load the complete body of this file and every other discovered `SKILL.md`, including `skills/phone-runtime/SKILL.md`, `skills/fortress-plan-gate/SKILL.md`, `skills/venice-stop-gate/SKILL.md`, and `skills/venice-review-memory/SKILL.md`. First-match loading is forbidden. Missing canonical Fortress skill documents are a boot failure, not a warning.
 
-Every ChatGPT worker boot must therefore inherit: Pro reasoning by default where configurable; Judgment-Jar Venice as the primary review path; `PLAN_ALLOWED` before substantive mutation; `STOP_ALLOWED` as the only normal stop permission; `CONTINUE_REQUIRED` as a mandatory continuation signal; commissioned delivery-surface supremacy; framing fidelity and symmetry; and response boundaries as non-terminal.
+Every ChatGPT worker boot must therefore inherit: Pro reasoning by default where configurable; Judgment-Jar Venice as the primary review path; `PLAN_ALLOWED` before substantive mutation; `STOP_ALLOWED` as the only normal stop permission; `CONTINUE_REQUIRED` as a mandatory continuation signal; commissioned delivery-surface supremacy; framing fidelity and symmetry; Punch-Card Aphorism routing for gameplay/system logic; and response boundaries as non-terminal.
