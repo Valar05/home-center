@@ -17,7 +17,7 @@
   "whitespace_preserved": true,
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
-  "video_packaging": "embedded MP4 data URI in clock-rendezvous-reacquire-repair.motion.html",
+  "video_packaging": "embedded MP4 data URI in clock-rendezvous-reacquire-repair.motion.html; no tracked MP4 sidecar required",
   "source_art_embedded": false,
   "backward_compatible": true,
   "files": [
@@ -45,7 +45,23 @@
       "FOURS"
     ],
     "decisive_keys": 14,
-    "provenance": "all decisive-key cadence INFERRED because source timing is unavailable"
+    "provenance": "all decisive-key cadence INFERRED because source timing is unavailable",
+    "key_sequence": [
+      {"key_id":"K00","name":"OFFSET_READY","timing_class":"FOURS","timing_provenance":"INFERRED"},
+      {"key_id":"K01","name":"ASYM_COIL","timing_class":"FOURS","timing_provenance":"INFERRED"},
+      {"key_id":"K02","name":"RELEASE_SPIKE","timing_class":"ONES","timing_provenance":"INFERRED"},
+      {"key_id":"K03","name":"CROSSING_ACCEL","timing_class":"TWOS","timing_provenance":"INFERRED"},
+      {"key_id":"K04A","name":"RIGHT_TOUCHDOWN_SPIKE","timing_class":"ONES","timing_provenance":"INFERRED"},
+      {"key_id":"K04","name":"RIGHT_CATCH_BRAKE","timing_class":"FOURS","timing_provenance":"INFERRED"},
+      {"key_id":"K05","name":"OBJECT_TURN_BODY_HOLD","timing_class":"TWOS","timing_provenance":"INFERRED"},
+      {"key_id":"K06","name":"RENDEZVOUS_COIL","timing_class":"FOURS","timing_provenance":"INFERRED"},
+      {"key_id":"K07","name":"PRE_CATCH_REACH","timing_class":"TWOS","timing_provenance":"INFERRED"},
+      {"key_id":"K08","name":"RENDEZVOUS_CONTACT","timing_class":"ONES","timing_provenance":"INFERRED"},
+      {"key_id":"K09","name":"ABSORB_CONTACT","timing_class":"FOURS","timing_provenance":"INFERRED"},
+      {"key_id":"K10","name":"TORSO_OVERSHOOT","timing_class":"TWOS","timing_provenance":"INFERRED"},
+      {"key_id":"K11","name":"RECOVERY_DEBT","timing_class":"FOURS","timing_provenance":"INFERRED"},
+      {"key_id":"K12","name":"AFTER_DEBT_READY","timing_class":"FOURS","timing_provenance":"INFERRED"}
+    ]
   },
   "motion_dungeon": {
     "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SELF-CONTAINED SPA",
@@ -56,41 +72,30 @@
     "ascii_only_frame_render": true,
     "fps": 24,
     "video_frames_total": 58,
-    "media_sha256": "c00ebd4b30b215be9ac17cea18880442dfc18d8e45db04587fafe88362a9cb4c",
-    "media_bytes": 28715,
-    "ascii_sheet_sha256": "89f863c963ff9c98c30169becebc5f4e9a423a2461554e6c1428533aa5d424ec"
+    "media_sha256": "d7e71fc5570d30120c2903c82565cc91ea1a3b4a7940e9434e791a2ea2f06656",
+    "media_bytes": 28636,
+    "ascii_sheet_sha256": "df5de024846f8e6add5b18e1e58a3871b3848203ac53cbe96ab1fab2f3ba7ec8",
+    "decode": {"codec":"h264","width":800,"height":450,"pixel_format":"yuv420p","fps":"24/1","frames":58,"duration_seconds":2.416667}
   },
   "quality": {
-    "tango": "PASS after 2 REVISE_REQUIRED iterations on actual render",
-    "noodle_queen": "PASS on actual final render",
+    "tango": "PASS_CURRENT_WORKER_ACTUAL_RENDER",
+    "noodle_queen": "PASS_CURRENT_WORKER_ACTUAL_RENDER_AFTER_TANGO",
     "skill_mutation": false
   },
   "contract_test": {
     "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "source_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
-    "candidate_equivalent_predicates": "PASS",
-    "repo_wide_runtime": "UNTESTED_BOUNDARY: authorized Standard Chat connectors expose GitHub persistence/readback but no repository shell/checkout execution surface in this run"
+    "candidate_scoped": "PASS: fetched exact current-main test blob executed against isolated exact candidate tree; entries_checked=[v2-timing-009-clock-rendezvous-reacquire-repair], ok=true",
+    "repo_wide_runtime": "UNTESTED_BOUNDARY: authorized Standard Chat connectors expose GitHub persistence/readback but no repository checkout/shell execution surface in this run",
+    "candidate_equivalent_predicates": "PASS"
   },
   "reconstruction": "python3 build.py",
   "hashes": {
-    "build_py_sha256": "dcde6927380b06fc4346b3f48a1577086d2334969f2152898bba11ace5ac5062",
-    "motion_json_sha256": "e3152ddf1a9734f96ad9e5d7feb5f9bd70b9c989825e8a687355a09db6eaa753",
-    "ascii_sheet_sha256": "89f863c963ff9c98c30169becebc5f4e9a423a2461554e6c1428533aa5d424ec",
-    "spa_html_sha256": "4b583333dec0312262f0b3b0e1d9afdf15e6f6fdf5123d3036cdc9f99b1a84b9",
-    "media_sha256": "c00ebd4b30b215be9ac17cea18880442dfc18d8e45db04587fafe88362a9cb4c"
+    "build_py_sha256": "26d1ed8168228b1b2a2b40654fe1ff42939b62d07faff34ddd4bba5128e406b0",
+    "motion_json_sha256": "be281f01a547034cb4e7bd1361eb7e3542b785e73aba63baa00893e3e63e86f9",
+    "ascii_sheet_sha256": "df5de024846f8e6add5b18e1e58a3871b3848203ac53cbe96ab1fab2f3ba7ec8",
+    "spa_html_sha256": "2223f8c0ecc4f6e5e26eeea548e6089f0f8c8691de4397aa79c46a3810ba6aa4",
+    "media_sha256": "d7e71fc5570d30120c2903c82565cc91ea1a3b4a7940e9434e791a2ea2f06656"
   },
-  "correction_hooks": [
-    "KEEP",
-    "REJECT",
-    "EXAGGERATE",
-    "COMPRESS",
-    "RETIME",
-    "CHANGE SOURCE",
-    "FIX ARC",
-    "FIX SUPPORT",
-    "FIX SECONDARY LAG",
-    "FIX PARENT CLOCK",
-    "FIX CHAT DELIVERY",
-    "RERUN"
-  ]
+  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","FIX ARC","FIX SUPPORT","FIX SECONDARY LAG","FIX PARENT CLOCK","FIX CHAT DELIVERY","RERUN"]
 }
