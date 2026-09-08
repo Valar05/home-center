@@ -1,0 +1,321 @@
+ASCII KINESIS V2 CONTACT 007 - SCOPED SYNCHRONIZATION GRAPPLE REPAIR
+revises: experiments/ascii-kinesis/v2-contact-001-scoped-sync-grapple/
+negative_fixture: experiments/ascii-kinesis/v2-contact-001-scoped-sync-grapple/
+source art: NONE | timing: all INFERRED | 1s/2s/4s => ONES/TWOS/FOURS
+legend: A/@/a = carrier head/root/hand | B/&/b = partner | *=anchor | X=shared center | >/< = opposing force path | ^=support
+
+[C007-K0] SEPARATE_READY | timing=FOURS | provenance=INFERRED
+contact=NONE custody=NONE root_owner=LOCAL support_A=BOTH support_B=BOTH
+root/arc: A is already pitched forward and lower than B; B stays taller and back-weighted, so approach is not mirrored.
+causal: readable pre-contact separation with unequal intent
+
+ A >                                                                < B
+
+
+
+                                                          B
+             A                                           / \
+            / \                                        //   \
+           /   \                                      o      o
+          o     o                                    / \    /|
+          |\   / \\                                 /   \   / |
+          |\   /   a                               b    \  /  b
+          a \ /                                          \ /
+            \ /                                           &
+             @                                           / \
+            / \                                         /   \\
+           /   \\                                      o      o
+          o      o                                    /        \
+         /        \                                  /          \
+        /          \                                 /          \
+       A            A                               B            B
+=======^============^===============================^============^======
+
+
+
+[C007-K1] ASYMMETRIC_COIL_APPROACH | timing=FOURS | provenance=INFERRED
+contact=NONE custody=NONE root_owner=LOCAL support_A=BOTH support_B=BOTH
+root/arc: A drops pelvis behind a long front step and coils the rear shoulder; B yields only slightly while keeping both supports.
+causal: center-of-mass preparation before contact
+
+ A >                                                                < B
+
+
+
+                                                   B
+                                                 // \
+                                               //    \\
+                           A                  o        o
+                         // \\               / \      /|
+                       o/     \o-----a      /   \     / |
+                        \     /            b     \\  /  |
+                        \\    /                    \ /  b
+                         \a  /                      &
+                          \ /                      / \
+                          \ /                    //   \\
+                          -@---                 o       \
+                        --     ---o            /         o
+                     -o-           \\         /           \
+                   --                \\       /            \\
+                 A-                    A     B               B
+=================^=====================^=====^===============^==========
+
+
+
+[C007-K2] FIRST_ANCHOR_ACQUIRE | timing=ONES | provenance=INFERRED
+contact=ONE_ANCHOR custody=RELATIONSHIP_PENDING root_owner=LOCAL support_A=BOTH support_B=BOTH
+root/arc: Contact begins at a near-side shoulder anchor while both roots remain locally supported; contact is not simply farthest reach.
+causal: first causal contact acquisition
+
+ A >                                                                < B
+
+
+
+                                                 B
+                                               // \
+                                              /    \\
+                               A            //       o
+                             // \\     ----*        / \
+                           o/     \o---    |\\      / \
+                            \     /       >X< \\   /   \
+                            \    /        b     \\ /   b
+                             a  /                 &
+                             \  /                / \\
+                              \/               //    \
+                             -@---            o       \\
+                          ---     ----o      /          o
+                       -o-             \    /            \\
+                     --                 \   /              \\
+                   A-                    A B                 B
+===================^=====================^=^=================^==========
+
+
+
+[C007-K3] SECOND_ANCHOR_LOCK | timing=TWOS | provenance=INFERRED
+contact=TWO_ANCHORS custody=SHARED root_owner=RELATIONSHIP_FRAME support_A=BOTH support_B=BOTH
+root/arc: A widens and sinks; B twists toward the two-anchor relationship frame rather than matching A's pose.
+causal: shared relationship frame becomes explicit
+
+ A >                                                                < B
+
+
+
+                                                 B
+                                               // \\
+                                             //     \\
+                                           //         o
+                              A--      ---*-        //
+                            //   --o---    \\---  ///
+                          o/---   /          \\ ----/
+                           \   --/------>X<   /\\  /-b
+                            \   /       ----*/   \&
+                            \   /                / \\
+                             \ /               //    \\
+                             -@---            o        \\
+                         ----     ----o      /           o
+                      -o-              \    /             \\
+                   ---                  \\  /               \\
+                 A-                       AB                  B
+=================^========================^^==================^=========
+
+
+
+[C007-K4] OPPOSING_ARC_LEVERAGE_LOAD | timing=FOURS | provenance=INFERRED
+contact=TWO_ANCHORS custody=SHARED root_owner=RELATIONSHIP_FRAME support_A=BOTH support_B=BOTH
+root/arc: A's pelvis drops left/below the center while B's chest and pelvis arc right/above it; the bodies visibly oppose around X instead of floating together.
+causal: leverage becomes visible before support transfer
+
+ A >                                                                < B
+
+
+                                                   B
+                                                 //|
+                                               //   |
+                                             //     o
+                                           //     //
+                                         //      -/------b
+                           A--       ---*-------- /
+                         //   ---o---     ----// /
+                        o----   /            /--&-
+                         \   ---/----->X<  //  /  --
+                          \    /      ----*   /     ---
+                           \  /               /        --
+                            \ /              o           -o
+                          ---@----          /              \\
+                     -o---        ----o-    /                \
+                  ---                   -- /                  \\
+                A-                        -B                    B
+================^==========================^====================^=======
+
+
+
+[C007-K5] ROOT_SUPPORT_TRANSFER | timing=ONES | provenance=INFERRED
+contact=TWO_ANCHORS custody=SHARED root_owner=A_SUPPORT_VIA_RELATIONSHIP support_A=BOTH support_B=NONE
+root/arc: Only after the leverage load is established do B's feet lose support; A drives upward/through while the relationship frame owns B's root consequence.
+causal: relationship frame transfers B root authority onto A support
+
+ A >                                                                < B
+
+
+                                                 B
+                                               // \
+                                             //   \
+                                           //      o
+                             A-          //     --/-----b
+                           //  --    ---*-------//
+                          o--    -o--       ---&
+                           \\-----|          / |\\
+                             \    |--->X<  //   | \o---
+                              \  |      --*     |      ----B
+                               \\|              o-
+                                 @-               --
+                               //  ----             --
+                             //        -o             -B
+                          -o/            \
+                        --                \\
+                      A-                    A
+======================^=====================^===========================
+
+
+
+[C007-K6] LOCKED_THROW_ARC | timing=TWOS | provenance=INFERRED
+contact=TWO_ANCHORS custody=SHARED root_owner=A_SUPPORT_VIA_RELATIONSHIP support_A=BOTH support_B=NONE
+root/arc: A stays planted under the moving shared center while B crosses diagonally over it; contact remains owned through the arc instead of becoming accidental overlap.
+causal: shared constraint carries momentum through a curved throw arc
+
+ A >                                                                < B
+
+
+
+                                               B
+                                              / \
+                                             /   \\
+                               A-           /      o
+                             //  --     ---*----- / \
+                            o--    -o---        ----&--b      ----B
+                             \\-----|    >X<   //    \ ---o---
+                               \    |------   /       \
+                                \  |       --*         \
+                                 \\|                    o-
+                                   @-                     ----
+                                 //  ----                     --B
+                               //        -o
+                             -o            \
+                           --               \\
+                         A-                   A
+=========================^====================^=========================
+
+
+
+[C007-K7] RELEASE_FORK | timing=ONES | provenance=INFERRED
+contact=NONE custody=NONE root_owner=LOCAL_SPLIT support_A=BOTH support_B=NONE
+root/arc: A finishes through the former center as a clear gap opens; B inherits travel while A inherits recoil. The clocks fork here, not earlier.
+causal: relationship frame is explicitly destroyed
+
+ A >                                                                < B
+
+
+                                                     B
+                                                    / \
+                                                    /  \\
+                                                   o-    o
+                                A-                  \--   \\
+                              //  --                 \\---\ b
+                             o--    -o----------a      b  -&-
+                              \\---- |                      \--
+                                \   -|--                    \  -o--
+                                 \  |   ----                 \     ---B
+                                  \\|       --a              \
+                                    @-                        o-
+                                  //  ----                      --
+                                //        -o                      --
+                              -o            \                       -B
+                            --               \\
+                          A-                   A
+==========================^====================^========================
+
+
+
+[C007-K8] PARTNER_LAG_CARRIER_RECOIL | timing=TWOS | provenance=INFERRED
+contact=NONE custody=NONE root_owner=LOCAL_SPLIT support_A=BOTH support_B=NONE
+root/arc: B continues its released arc while A folds backward across planted feet; opposite timing prevents mirrored mannequin recoil.
+causal: post-release local clocks visibly diverge
+
+ A >                                                                < B
+
+
+
+
+                                                           B
+                                                          / \
+                                                          /  \\
+                              A-                         o-    o
+                            //  --                     //  --  |\\
+                           o      -o                  b      -- | b
+                         // \\   //|                           -&
+                        a     \//  |                           / \
+                             a/\  |                            /  \\
+                                \\|                           /     o
+                                 -@-                          o      \
+                              ---   ----                       \      \
+                            o-          -o-                     \      B
+                          //               --                    B
+                        A/                   -A
+========================^=====================^=========================
+
+
+
+[C007-K9] FOLLOW_THROUGH_OVERSHOOT_SETTLE | timing=TWOS | provenance=INFERRED
+contact=NONE custody=NONE root_owner=LOCAL support_A=BOTH support_B=GROUND
+root/arc: A rebounds past neutral into a forward-low settle while B reaches authored ground consequence; neither body simply runs the throw backward.
+causal: overshoot and consequence settle without reverse interpolation
+
+ A >                                                                < B
+
+
+
+
+
+                                      A
+                                    // \\
+                                  o/     \o-
+                                  |\     /  ---               B
+                                 |  \    /     ----         // \\
+                                 a   \  /          -a     o/     \o
+                                      \ /               // \     / \\
+                                       @-              b    \\ //    b
+                                     //  ----                -&-
+                                   //        --o           --   --
+                                 o/             \        o-       -o
+                               //                \\    //           \\
+                             A/                    A  B               B
+=============================^=====================^==^===============^=
+
+
+
+[C007-K10] RECOVERY_DEBT | timing=FOURS | provenance=INFERRED
+contact=NONE custody=NONE root_owner=LOCAL support_A=BOTH support_B=GROUND
+root/arc: A restacks only partway, remaining offset and low with arms late; B is locally grounded. Recovery pays debt and does not resurrect the relationship frame.
+causal: readiness returns with visible cost instead of idle reset
+
+ A >                                                                < B
+
+
+
+
+
+                                 A
+                                / \
+                              //   \\
+                             o       o                       B
+                            / \     / \                     / \
+                            /  \    /  a                   /   \
+                           a    \  /                      o     o
+                                 \ /                     / \   / \
+                                  @-                     /  \ /   \
+                                //  --                  b   \ /    b
+                              //      ---                    &
+                             o           -o                // \\
+                           //              \\           -o/     \o-
+                         A/                  \A       B-           --B
+=========================^====================^=======^==============^==
