@@ -39,46 +39,30 @@ def ascii_frame(j,support):
         elif side in support: g[y][x]="!"
     return "\n".join("".join(row).rstrip() for row in g)
 
-def bridge(a,b,t,bend):
-    s=t*t*(3-2*t); out={}
-    for name,pa in a.items():
-        pb=b[name]
-        x=pa[0]+(pb[0]-pa[0])*s; y=pa[1]+(pb[1]-pa[1])*s
-        amp=4*s*(1-s)*bend
-        if name=="pelvis": y+=amp*.35
-        elif name=="chest": y+=amp*.25
-        elif name=="head": y+=amp*.15
-        elif name in ("l_hand","r_hand"): y+=amp*(.75 if name=="l_hand" else -.65)
-        elif name in ("l_foot","r_foot"): y+=amp*(-.45 if name=="l_foot" else .35)
-        out[name]=[round(x),round(y)]
-    return out
-
 def compile_frames():
-    keys=M["keys"]; cmap={(c["from"],c["to"]):c for c in M["connectors"]}; frames=[]
-    for i,k in enumerate(keys):
-        frames += [(k["joints"],k["support_contact"],k["key_id"],k["name"])]*HOLD[k["timing_class"]]
-        if i<len(keys)-1:
-            n=keys[i+1]; c=cmap.get((k["key_id"],n["key_id"]))
-            if c:
-                if k["support_contact"]!=n["support_contact"]:
-                    raise SystemExit(f"unsupported connector crosses support event {k['key_id']}->{n['key_id']}")
-                for q in range(1,int(c["frames"])+1):
-                    frames.append((bridge(k["joints"],n["joints"],q/(int(c["frames"])+1),int(c["bend"])),
-                                   k["support_contact"],f"{k['key_id']}→{n['key_id']}","AUTHORED_CONNECTOR"))
-    frames += [(keys[-1]["joints"],keys[-1]["support_contact"],keys[-1]["key_id"],keys[-1]["name"])]*int(M["motion_dungeon"]["compile"]["endpoint_hold_frames"])
+    if M.get("connectors"):
+        raise SystemExit("accepted Locomotion010 render forbids generated connectors; use authored bridge keys")
+    frames=[]
+    for k in M["keys"]:
+        timing=k["timing_class"]
+        if timing not in HOLD: raise SystemExit(f"unsupported timing {timing}")
+        frames += [(k["joints"],k["support_contact"],k["key_id"],k["name"])]*HOLD[timing]
+    last=M["keys"][-1]
+    frames += [(last["joints"],last["support_contact"],last["key_id"],last["name"])]*int(M["motion_dungeon"]["compile"]["endpoint_hold_frames"])
     return frames
 
 def contact_sheet():
     lines=[
       "ASCII KINESIS V2 LOCOMOTION 010 — CADENCE SURGE / BRAKE REPAIR",
       "Legend: ! trusted support   ? probe-only contact   @ pelvis/root   + chest   - ground",
-      "Timing: ONES/TWOS/FOURS are cadence classes; every decisive key below is INFERRED.",""
+      "Timing: ONES/TWOS/FOURS are cadence classes; all authored keys are INFERRED.",
+      "Phase law: cadence changes spacing/holds without resetting L/R support phase.",""
     ]
     for k in M["keys"]:
+        bridge_tag="  BRIDGE" if k.get("authored_bridge_key") else ""
         lines += [
-          f"{k['key_id']} {k['name']}  [{k['timing_class']} / {k['timing_provenance']}]  SUPPORT={k['support_contact']}  ROOT_OWNER={k['root_owner']}",
-          "ROOT: "+k["motion_arc_root_note"],"ROLE: "+k["causal_role"],"ATTITUDE: "+k["attitude"],"",
-          ascii_frame(k["joints"],k["support_contact"]),"",""
+          f"{k['key_id']} {k['name']}  [{k['timing_class']}/{k['timing_provenance']}]  SUPPORT={k['support_contact']}  PHASE={k['cadence_phase']}{bridge_tag}",
+          ascii_frame(k["joints"],k["support_contact"]),""
         ]
     return "\n".join(lines).rstrip()+"\n"
 
@@ -86,7 +70,7 @@ def render_mp4(frames,out):
     frame_dir=HERE/".motion_frames"
     shutil.rmtree(frame_dir,ignore_errors=True); frame_dir.mkdir()
     font_path="/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
-    font=ImageFont.truetype(font_path,11); small=ImageFont.truetype(font_path,9)
+    font=ImageFont.truetype(font_path,10); small=ImageFont.truetype(font_path,8)
     for idx,(j,s,kid,name) in enumerate(frames):
         im=Image.new("RGB",(960,480),(10,10,12)); d=ImageDraw.Draw(im)
         d.text((16,10),"ASCII KINESIS · LOCOMOTION 010 · CADENCE SURGE / BRAKE REPAIR",font=small,fill=(180,180,180))
@@ -147,6 +131,8 @@ def main():
     sha=hashlib.sha256(media).hexdigest()
     if sha!=M["motion_dungeon"]["compile"]["media_sha256"]:
         raise SystemExit(f"media sha mismatch {sha}")
+    if len(media)!=int(M["motion_dungeon"]["compile"]["media_bytes"]):
+        raise SystemExit("media byte count mismatch")
     spa=make_spa(sheet,media)
     (HERE/MAN["spa_file"]).write_text(spa,encoding="utf-8")
     print(json.dumps({"ok":True,"frames":len(frames),"media_sha256":sha,"media_bytes":len(media),"spa":MAN["spa_file"]},sort_keys=True))
