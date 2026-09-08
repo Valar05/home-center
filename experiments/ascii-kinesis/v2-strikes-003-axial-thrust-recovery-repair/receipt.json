@@ -1,117 +1,174 @@
 {
-  "artifact_status": "CANDIDATE_READY_FOR_REPO_PERSISTENCE",
-  "contract_test": {
-    "boundary": "Exact fetched validator executed against this final candidate directory; full-main repository execution is unavailable without a checkout.",
-    "status": "PASS_FINAL_CANDIDATE_ONLY",
-    "tool": "tools/test_ascii_kinesis_swarm_contract_v2.py"
+  "artifact_status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
+  "chat_delivery": {
+    "required_order": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "status": "PENDING_THIS_TURN"
   },
-  "correction_hooks": [
-    "KEEP",
-    "REJECT",
-    "EXAGGERATE",
-    "COMPRESS",
-    "RETIME",
-    "CHANGE SOURCE",
-    "PROMOTE",
-    "SPAWN VARIANT",
-    "FIX BLOCKER",
-    "RERUN"
-  ],
-  "entry": "v2-strikes-003-axial-thrust-recovery-repair",
+  "contract": {
+    "ascii_literal_text": true,
+    "backward_compatible": true,
+    "execution_note": "Candidate-scoped execution passed with exit 0; host Python emitted unrelated artifact_tool spreadsheet-warmup stderr before the contract result.",
+    "scope": "isolated exact Strikes003 candidate using current contract script",
+    "source_art_embedded": false,
+    "spa_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "status": "PASS_CURRENT_WORKER_CANDIDATE_SCOPED",
+    "structural_only": true,
+    "tool": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "tool_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "video_required": true,
+    "video_source": "abstract_ascii_rig_only"
+  },
+  "current_worker_actual_render": {
+    "basis": "all 47 deterministic frames reconstructed from exact persisted motion.json and current build geometry/timing; rendered MP4 decoded and inspected chronologically",
+    "liveness": "PASS",
+    "noodle_queen": {
+      "contempt": "not placeholder motion and not a symmetrical mannequin tween",
+      "fresh_current_worker": true,
+      "function": "contact, compression catch, overtravel, recoil, secondary lag, and recovery debt read causally",
+      "taste": "specific deep-coil and body-before-tool attitude survives sparse ASCII",
+      "verdict": "PASS"
+    },
+    "tango": {
+      "checks": {
+        "asymmetric_anticipation_coil": true,
+        "contact_as_farthest_reach": false,
+        "directional_commitment": true,
+        "distinctive_silhouettes_negative_space": true,
+        "equal_spacing": false,
+        "followthrough_recoil_overshoot": true,
+        "force_transfer_hitstop_implication": true,
+        "generic_symmetry": false,
+        "idle_reset_recovery": false,
+        "limb_tool_ownership": true,
+        "mannequin_pose": false,
+        "missing_authored_bridge_keys": false,
+        "pelvis_root_bracing_earns_action": true,
+        "readable_contact_instant": true,
+        "recovery_debt": true,
+        "reverse_interpolation": false,
+        "secondary_lag": true,
+        "straight_tweening": false,
+        "tool_without_body_consequence": false
+      },
+      "fresh_current_worker": true,
+      "observations": [
+        "K0-K3 visibly deepen rearward asymmetric preload before tool release",
+        "K3 authored body-drop bridge commits root before the spear escapes",
+        "K5 establishes the contact plane; K6 pins contact while body compresses",
+        "K7 overtravels beyond contact with secondary lag; K8 retracts tool before root recovery",
+        "K9-K10 retain forward/lower stance debt instead of resetting to K0"
+      ],
+      "verdict": "PASS"
+    }
+  },
+  "id": "v2-strikes-003-axial-thrust-recovery-repair",
   "issue_receipt": {
-    "binds_final_repo_commit": true,
-    "status": "POST_AFTER_REPO_READBACK",
-    "target": "Valar05/home-center#343"
+    "issue": 343,
+    "status": "POST_AFTER_FINAL_REPO_READBACK"
+  },
+  "lane": "strikes",
+  "lineage": {
+    "negative_fixture": "experiments/ascii-kinesis/v2-strikes-001-axial-thrust-recovery/",
+    "predecessor_status": "REVISE_REQUIRED_LOW_EFFORT",
+    "revises": "experiments/ascii-kinesis/v2-strikes-001-axial-thrust-recovery/",
+    "source_family": {
+      "asset_id": 5791,
+      "game": "Castlevania: Bloodlines",
+      "provider": "The Spriters Resource"
+    },
+    "successor_policy": "MUTATE_SAME_003_UNTIL_HEALTHY"
   },
   "media": {
+    "codec": "h264/yuv420p",
+    "decode": "PASS_CURRENT_WORKER",
+    "embedded_in_spa": true,
     "fps": 24,
     "frame_count": 47,
-    "sha256": "7da873ee06dda410c6b6e158f7d6440a38f9c0360e847ff12cacfa42729f1191",
-    "source": "abstract_ascii_rig_only"
+    "height": 720,
+    "historical_candidate_sha256": "7da873ee06dda410c6b6e158f7d6440a38f9c0360e847ff12cacfa42729f1191",
+    "sha256": "a50ea94ad6735428dd0150f8a1019b9f39e24c59031d1816ea49eaf658c2153f",
+    "source": "abstract_ascii_rig_only",
+    "width": 1280
   },
-  "negative_fixture": "experiments/ascii-kinesis/v2-strikes-001-axial-thrust-recovery/",
-  "noodle_queen": "PASS",
-  "repo_path": "experiments/ascii-kinesis/v2-strikes-003-axial-thrust-recovery-repair/",
-  "revises": "experiments/ascii-kinesis/v2-strikes-001-axial-thrust-recovery/",
-  "schema": "ascii-kinesis.verification-receipt.v2",
-  "source": {
-    "asset_id": 5791,
-    "provider": "The Spriters Resource",
-    "rights_note": "Evidence only; no source pixels or character-specific art embedded.",
-    "url": "https://www.spriters-resource.com/sega_genesis/cvbl/asset/5791/"
-  },
-  "tango": "PASS",
-  "timing": {
-    "inferred_keys": [
-      "K0",
-      "K1",
-      "K2",
-      "K3",
-      "K4",
-      "K5",
-      "K6",
-      "K7",
-      "K8",
-      "K9",
-      "K10"
+  "notes": [
+    "Historical manifest/receipt media identity 7da873ee... was stale against current motion/build identity a50ea94a....",
+    "Current SPA was rebuilt from current motion/build media and its tab selectors were corrected to the contract's data-view order."
+  ],
+  "repo_readback": {
+    "required_files": [
+      "axial-thrust-recovery-repair.motion.html",
+      "build.py",
+      "contact_sheet.txt",
+      "motion.json",
+      "receipt.json",
+      "manifest.json"
     ],
-    "observed_keys": [],
-    "per_key": [
-      {
-        "key_id": "K0",
-        "timing_class": "FOURS",
-        "timing_provenance": "INFERRED"
-      },
-      {
-        "key_id": "K1",
-        "timing_class": "FOURS",
-        "timing_provenance": "INFERRED"
-      },
-      {
-        "key_id": "K2",
-        "timing_class": "TWOS",
-        "timing_provenance": "INFERRED"
-      },
-      {
-        "key_id": "K3",
-        "timing_class": "TWOS",
-        "timing_provenance": "INFERRED"
-      },
-      {
-        "key_id": "K4",
-        "timing_class": "ONES",
-        "timing_provenance": "INFERRED"
-      },
-      {
-        "key_id": "K5",
-        "timing_class": "ONES",
-        "timing_provenance": "INFERRED"
-      },
-      {
-        "key_id": "K6",
-        "timing_class": "FOURS",
-        "timing_provenance": "INFERRED"
-      },
-      {
-        "key_id": "K7",
-        "timing_class": "TWOS",
-        "timing_provenance": "INFERRED"
-      },
-      {
-        "key_id": "K8",
-        "timing_class": "TWOS",
-        "timing_provenance": "INFERRED"
-      },
-      {
-        "key_id": "K9",
-        "timing_class": "FOURS",
-        "timing_provenance": "INFERRED"
-      },
-      {
-        "key_id": "K10",
-        "timing_class": "FOURS",
-        "timing_provenance": "INFERRED"
-      }
-    ]
-  }
+    "status": "PENDING_FINAL_MANIFEST_COMMIT_READBACK"
+  },
+  "schema": "ascii-kinesis.receipt.v2",
+  "timing": [
+    {
+      "key_id": "K0",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K1",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K2",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K3",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K4",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K5",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K6",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K7",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K8",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K9",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    },
+    {
+      "key_id": "K10",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED"
+    }
+  ]
 }
