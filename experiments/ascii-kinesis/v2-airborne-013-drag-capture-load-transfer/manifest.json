@@ -96,12 +96,21 @@
     "binding_successor_created_commit": "e47fbd85a07ad122653736723d5a609ad77cfae8",
     "later_non_authoritative_same_number_path": "experiments/ascii-kinesis/v2-airborne-013-drag-capture-whiplash-recovery/",
     "later_non_authoritative_first_manifest_commit": "3f3e643fc688fd5b7f3a2b3bc06d62edc69b2869",
-    "policy": "preserve history; do not extend churn; no Airborne014 while this repair is incomplete"
+    "policy": "preserve history; do not extend churn; no Airborne014 while this repair was incomplete"
+  },
+  "chat_delivery": {
+    "status": "COMPLETE",
+    "order": ["PART 1 — ASCII", "PART 2 — JSON", "PART 3 — VIDEO"],
+    "ascii_sha256": "de26ed5aeae4bd3f9ad1c7481ec65e9dd0c6dd7e9e7006f9bbd283b4015a12e3",
+    "json_payload": "actual persisted SPA JSON payload, complete structured object",
+    "video_sha256": "597d4357f14470db0c7903996291a4438c634faa6b162c8b333652cb484ba1a4",
+    "video_byte_identical_to_persisted_spa": true,
+    "visible_in_reporting_chat": true
   },
   "repository": {
     "ship_commit": "c18458297d5b0027a513299fd9a1a3fc9925d43c",
-    "readback_commit": null,
-    "issue_receipt": null
+    "readback_commit": "533fdf154ce4a1981d1485b9930c117be4564fc8",
+    "issue_receipt": 5581241632
   },
-  "status": "REPO_PERSISTED_CHAT_DELIVERY_PENDING"
+  "status": "HEALTHY"
 }
