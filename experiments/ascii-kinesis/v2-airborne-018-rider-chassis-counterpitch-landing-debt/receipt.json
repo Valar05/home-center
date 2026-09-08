@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-airborne-018-rider-chassis-counterpitch-landing-debt",
-  "status": "QUALITY_GATES_PASS_MEDIA_DECODE_PASS_CONTRACT_PASS_REPO_PERSISTED_CHAT_DELIVERY_PENDING",
+  "status": "HEALTHY",
   "worker_liveness": {
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
     "home_center_campaign_exact_read": "PASS_CURRENT_RUN",
@@ -109,14 +109,15 @@
       "motion.json",
       "receipt.json",
       "rider-chassis-counterpitch-landing-debt.motion.html"
-    ]
+    ],
+    "receipt_stage_commit": "9d8faa2f560a88ca0af5f09f5702342c6d2ad6f8"
   },
   "issue_343": {
-    "receipt_comment_id": null
+    "receipt_comment_id": 5593162597
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_video": true
   }
 }
