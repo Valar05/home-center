@@ -1,0 +1,939 @@
+ASCII KINESIS V2 AIRBORNE 017 — OFF-AXIS TOOL / LANDING DEBT
+
+COPYABLE CONTACT SHEET — ABSTRACT ASCII RIG ONLY — NO SOURCE PIXELS
+
+Legend: O head | @ pelvis/root | o joints | > facing-right | = owned ground support | * generic task-tool tip
+
+Principle: AIRBORNE TASK TORQUE CREATES LANDING DEBT WITHOUT OWNING THE ROOT ARC.
+
+
+
+[A017-K00] CANTED_READY | FOURS INFERRED | support=GROUND_BOTH | contact=GROUND | phase=READY
+role=offset ready pose owns a low rear tool line before the vertical task
+root=Root is stable around x18 with weight already biased toward rear/left leg; tool lives behind the travel line.
+
+
+
+
+
+
+
+                    O >
+                  -o-
+                o- | -o
+                |  |   \
+               |   |    o
+               o   |     \
+              |    |      o
+              o+   @    //
+                  / \ //
+                 /  //\
+                 ///   o
+                o*      \
+               /         \
+               /         \
+              o           o
+______________=___________=_________________________________________________
+
+
+
+
+
+[A017-K01] CROSSLOAD | FOURS INFERRED | support=GROUND_BOTH | contact=GROUND | phase=LOAD
+role=deep asymmetric coil loads rear hip while tool counterloads farther behind
+root=Pelvis drops left/down; rear hip and both supports carry the body while the tool's mass line moves opposite future travel.
+
+
+
+
+
+
+
+
+
+
+                  O >
+                -o--o
+              o- |   \
+              |  |   \
+             |  |     o
+             o  |      \
+            |   |      =o
+            <   @   ///
+               / -//
+              o/// -o
+             */      \\
+            o          o
+____________=__________=____________________________________________________
+
+
+
+
+
+[A017-K02] REAR_DRIVE | TWOS INFERRED | support=GROUND_LEFT_DOMINANT | contact=GROUND | phase=LOAD
+role=rear support drives upward-right while tool remains delayed
+root=Root rises/right from left-dominant support; lead/right foot is light and tool still points back/down.
+
+
+
+
+
+
+
+
+
+                     O >
+                   -o--o
+                 o- |   \
+                 |  |   \
+                |   |    o
+                o   |     \
+               |    |      o
+               o<   @    //
+                   / --//
+                  /  //-o
+                 o //    \
+                /*/       \\
+                /           o
+               o
+_______________=____________________________________________________________
+
+
+
+
+
+[A017-K03] SHEAR_RELEASE | ONES INFERRED | support=NONE | contact=NONE | phase=LAUNCH
+role=support break commits root before the tool task begins
+root=Both supports leave only after rear-drive prep; root rises right while the tool still trails below the pelvis.
+
+
+
+
+
+
+                        O >
+                      -o-
+                    o- | -o
+                   /   |   \
+                  o    |    o
+                 |     |     \
+                 o     |      o
+                   ^   @    //
+                      / \ //
+                     /  //\
+                    o //   o
+                   /*/      \
+                   /         \
+                  o           o
+
+
+
+____________________________________________________________________________
+
+
+
+
+
+[A017-K04] RISE_LONG | ONES INFERRED | support=NONE | contact=NONE | phase=ASCEND
+role=fast rise stretches root-to-foot line while rear task mass lags
+root=Root climbs sharply right; legs lengthen on different diagonals and tool remains behind to expose launch acceleration.
+
+
+
+
+                             O >
+                           -o-
+                        -o- | -o
+                      o-    |   \
+                    o-      |    o
+                            |     \
+                        ^   @     =o
+                           / \  ///
+                         //  //
+                        o ///  \
+                       /*/      o
+                      /          \
+                     o            \
+                                  \
+                                   o
+
+
+
+
+
+____________________________________________________________________________
+
+
+
+
+
+[A017-K05] TASK_COCK | TWOS INFERRED | support=NONE | contact=NONE | phase=ASCEND
+role=body begins an off-axis task while root is still rising
+root=Root continues right/up; right shoulder opens and tool begins to swing around the torso without changing support or injecting a new root impulse.
+
+
+                              *
+                               \\ O >
+                                -o\
+                             -o- | \o
+                           o-    |  \\o
+                         o-      |    \\
+                                 |      o
+                             ^   @
+                                / \
+                              //   \\
+                             o       o
+                            /         \
+                            /          \
+                           o            o
+
+
+
+
+
+
+
+____________________________________________________________________________
+
+
+
+
+
+[A017-K06] APEX_CROSSCUT | TWOS INFERRED | support=NONE | contact=NONE | phase=APEX
+role=tool crosses above and left of the body at apex while torso counter-rolls right
+root=Root keeps drifting right through apex; the task line sweeps across the upper body to the left while torso/hips counter-roll, creating local torque without a second root impulse.
+
+
+                                     O >
+                                    o-
+                             *==========o=o=o
+                                  / |
+                                 /   |
+                               oo    |
+                              |      |
+                              o  ~   @-
+                                    /  --o
+                                  //      \
+                                 o         \
+                                /           o
+                                /
+                               o
+
+
+
+
+
+
+
+____________________________________________________________________________
+
+
+
+
+
+[A017-K07] TASK_FOLLOWTHROUGH | ONES INFERRED | support=NONE | contact=NONE | phase=TASK
+role=task commits past the root line and stores rotational debt in shoulders/hips
+root=Root begins descending right; tool sweeps forward/down while pelvis and legs counter-scissor instead of following the tool.
+
+
+
+
+                                          O >
+                                        -o-
+                                     o-- | -o-
+                                    /    |    -o-
+                                   o     |       -o
+                                  |      |         \\
+                                  o  *   @           \
+                                        / \           \
+                                      //   \\          \\
+                                     o       o           *
+                                    /         \
+                                   /           \
+                                  o             o
+
+
+
+
+
+
+
+____________________________________________________________________________
+
+
+
+
+
+[A017-K08] DESCENT_COUNTERWEIGHT | TWOS INFERRED | support=NONE | contact=NONE | phase=DESCEND
+role=forward tool mass becomes counterweight while body prepares to catch
+root=Root descends more quickly; torso sits behind the tool line, lead leg lengthens down, rear leg folds and the tool remains forward.
+
+
+
+
+
+                                              O >
+                                            -o-
+                                         o-- | -o-
+                                        /    |    -o-
+                                       o     |       -o
+                                      |      |         \\
+                                      o  v   @           \\
+                                            / --           \*
+                                           /    -o
+                                          /       \
+                                         o         \\
+                                         |           o
+                                        |
+                                        |
+                                        o
+
+
+
+____________________________________________________________________________
+
+
+
+
+
+[A017-K09] PRECONTACT_SPEAR | TWOS INFERRED | support=NONE | contact=NONE | phase=PRECONTACT
+role=lead foot probes while tool and rear limb remain airborne
+root=Lead/left foot reaches groundward under the root; tool is still forward and cannot secretly become support.
+
+
+
+
+
+
+
+                                                 O >
+                                               -o-
+                                            o-- | -o-
+                                           /    |    -o-
+                                          o     |       -o
+                                         |      |         \\
+                                         o      |           \\
+                                            ?   @-            \*
+                                               /  --o
+                                              /      \
+                                             /        \
+                                            o          \
+                                            |           o
+                                           |
+                                           |
+                                           o
+____________________________________________________________________________
+
+
+
+
+
+[A017-K10] LEAD_CATCH | ONES INFERRED | support=GROUND_LEFT | contact=GROUND | phase=CONTACT
+role=first contact transfers support before downward COM is paid
+root=Left foot acquires ground while pelvis keeps moving down/right; tool is still ahead and begins to lag relative to the catching body.
+
+
+
+
+
+
+
+
+
+                                                   O >
+                                                 -o-
+                                              o-- | -o-
+                                             /    |    -o-
+                                            o     |       -o
+                                           |      |         \\
+                                           o      |           \\
+                                                  |             \*
+                                              !   @-
+                                                 /  --o
+                                               //      \
+                                              o         \\
+                                             /            o
+                                            o
+____________________________________________=_______________________________
+
+
+
+
+
+[A017-K11] TRAIL_FOLD_UNDER | TWOS INFERRED | support=GROUND_LEFT | contact=GROUND | phase=CONTACT
+role=lead leg yields while trail leg races under the falling center
+root=Root continues down/right over the left support; rear/right knee folds under and tool stops advancing, creating visible task lag.
+
+
+
+
+
+
+
+
+
+
+                                                    O >
+                                                  -o-
+                                               o-- | -o-
+                                              /    |    -o-
+                                             o     |       -o
+                                            |      |         \\
+                                            o      |           \*
+                                                   |
+                                               !   @-
+                                                 --  --o
+                                              -o-       --
+                                            o-            -o
+____________________________________________=_______________________________
+
+
+
+
+
+[A017-K12] TWO_FOOT_CRUSH | FOURS INFERRED | support=GROUND_BOTH | contact=GROUND | phase=LAND_COMPRESSION
+role=both supports own a deep asymmetric crush that pays vertical and rotational debt
+root=Root bottoms after trail foot joins; torso counterleans left while tool crosses low/right, making landing consequence larger than contact.
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                   O >
+                                                 -o--o
+                                              o-- |   \\
+                                            o-    |     o
+                                           |      |      \\
+                                           o      |        o
+                                                  |         \\
+                                              #  -@-          \*
+                                           o--o--   --o---o
+___________________________________________=______________=_________________
+
+
+
+
+
+[A017-K13] RIGHT_RUNOUT | TWOS INFERRED | support=GROUND_RIGHT_DOMINANT | contact=GROUND | phase=RUNOUT
+role=landing force becomes a grounded step-through instead of a reset
+root=Root rises slightly and travels right over new support; right leg takes ownership while left leg releases, tool is still late.
+
+
+
+
+
+
+
+
+
+                                                      O >
+                                                    -o--o
+                                                 o-- |   \\
+                                                /    |     o
+                                               o     |      \\
+                                              |      |        o
+                                              o      |         \
+                                                 >   @          \
+                                                   -- --         *
+                                                 o-     -o
+                                               //         \\
+                                              o             o
+____________________________________________________________=_______________
+
+
+
+
+
+[A017-K14] TOOL_OVERSHOOT_BACK | TWOS INFERRED | support=GROUND_RIGHT_DOMINANT | contact=GROUND | phase=OVERSHOOT
+role=body catches first; tool inertia overshoots behind and below the shoulder
+root=Root continues a short grounded rightward runout while tool reverses late behind the body; upper task debt is now visibly separate from root debt.
+
+
+
+
+
+
+
+
+
+                                                         O >
+                                                       -o--o
+                                                    o-- |   \
+                                                   /    |   \
+                                                   /    |    o
+                                                  o     |     \
+                                                  |     |     \
+                                                 |      |      o
+                                                 o  >   @    //
+                                                       / --//
+                                                     //  //-o
+                                                    o  //    \
+                                                  //  *       \
+                                                 o             o
+_______________________________________________________________=____________
+
+
+
+
+
+[A017-K15] CROOKED_REBOUND | TWOS INFERRED | support=GROUND_BOTH | contact=GROUND | phase=REBOUND
+role=grounded rebound restores height unevenly while the tool remains low and late
+root=Root rises without returning left; knees extend at different rates and right shoulder stays lower because tool debt is unresolved.
+
+
+
+
+
+
+                                                           O >
+                                                         -o
+                                                      o-- |\\
+                                                     /    |  o
+                                                     /    |   \
+                                                    o     |   \
+                                                    |     |    o
+                                                   |      |     \
+                                                   o  ^   @     \
+                                                         / \     o
+                                                        /   \\ //
+                                                       /     /o
+                                                      o    //  \
+                                                     /   */     \
+                                                    /           \
+                                                   o             o
+___________________________________________________=_____________=__________
+
+
+
+
+
+[A017-K16] SHOULDER_PAYBACK | TWOS INFERRED | support=GROUND_BOTH | contact=GROUND | phase=SETTLE
+role=delayed shoulder and hand recover after lower body has already stabilized
+root=Pelvis is nearly settled at displaced address; right shoulder and tool climb later than left side, preserving secondary lag.
+
+
+
+
+
+
+                                                            O >
+                                                          -o-
+                                                       o-- | -o
+                                                      /    |   \
+                                                      /    |    o
+                                                     o     |     \
+                                                     |     |      o
+                                                    |      |     /
+                                                    o  .   @    /
+                                                          / \ //
+                                                         /   /
+                                                        /   * \
+                                                       o       o
+                                                      /         \
+                                                     /           \
+                                                    o             o
+____________________________________________________=_____________=_________
+
+
+
+
+
+[A017-K17] OFFSET_RESTACK | FOURS INFERRED | support=GROUND_BOTH | contact=GROUND | phase=SETTLE
+role=whole body restacks at a new root address with residual asymmetry
+root=Root stabilizes well right of launch; support is both feet but tool remains canted rather than returning to the original pose.
+
+
+
+
+
+
+                                                             O >
+                                                           -o-
+                                                        o-- | -o
+                                                       /    |   \
+                                                       /    |   \
+                                                      o     |    o
+                                                      |     |     \
+                                                     |      |     \
+                                                     o  .   @      o
+                                                           / \    /
+                                                          /   \ //
+                                                         /     /
+                                                        o     * o
+                                                       /         \
+                                                      /           \
+                                                     o             o
+_____________________________________________________=_____________=________
+
+
+
+
+
+[A017-K18] TASK_REENTRY_STEP | FOURS INFERRED | support=GROUND_RIGHT_DOMINANT | contact=GROUND | phase=REENTRY
+role=recovery exits into a forward task-ready step rather than idle reset
+root=Root advances one final increment; right support owns the next action while tool lifts to a new ready line, not the starting line.
+
+
+
+
+
+                                                                O >
+                                                              -o-
+                                                           o-- | -o
+                                                          /    |   \
+                                                          /    |    o
+                                                         o     |     \
+                                                         |     |      o
+                                                        |      |       \
+                                                        o  +   @        \
+                                                              / \       \
+                                                             /   \\      *
+                                                            /      o
+                                                           o        \
+                                                          /         \
+                                                         /           \
+                                                        o            \
+                                                                      o
+______________________________________________________________________=_____
+
+
+
+
+
+--- AUTHORED BRIDGE KEYS (GEOMETRY ONLY; DECISIVE KEYS REMAIN SEMANTIC AUTHORITY) ---
+
+A017-B01 A017-K00 -> A017-K01 | ONES INFERRED | drop rear hip and tool together before full coil
+
+
+
+
+
+
+
+
+
+
+                   O >
+                 -o--o
+               o- |   \
+               |  |   \
+              |  |     o
+              o  |      \
+             |   |      =o
+             o   @    //
+                / -///
+                /// -o
+               */     \
+              /        \
+             o          o
+_____________=__________=___________________________________________________
+
+
+
+
+
+A017-B02 A017-K03 -> A017-K04 | ONES INFERRED | stretch launch while airborne semantics remain unchanged
+
+
+
+
+
+
+                          O >
+                        -o-
+                      o- | -o
+                    o-   |   \
+                   /     |    o
+                  o      |     \
+                         @     =o
+                        / \  //
+                       /  ///
+                      o //  \
+                     /*/     o
+                    /         \
+                   o           \
+                                o
+
+
+
+
+____________________________________________________________________________
+
+
+
+
+
+A017-B03 A017-K04 -> A017-K05 | ONES INFERRED | let tool lag begin to wrap toward task cock
+
+
+
+                                O >
+                              -o-
+                           -o- | -o
+                         o-    |   \
+                       o-  *\\ |    o
+                              \\\\\\ \
+                               @    ==o
+                              / \
+                            //   \
+                           o      \
+                          /        o
+                         /          \
+                        o            \
+                                      o
+
+
+
+
+
+
+
+____________________________________________________________________________
+
+
+
+
+
+A017-B04 A017-K05 -> A017-K06 | ONES INFERRED | cross tool high while pelvis still travels right
+
+
+                                    O >
+                             *\\   o-
+                                \\\\ -o
+                                // |\\\\o
+                               o   |    ==o
+                             o-    |
+                            o      |
+                                   @
+                                  / --
+                                //    -o
+                               o        \
+                              /          \
+                              /           o
+                             o
+
+
+
+
+
+
+
+____________________________________________________________________________
+
+
+
+
+
+A017-B05 A017-K06 -> A017-K07 | ONES INFERRED | let tool lead past apex while legs begin counter-scissor
+
+
+
+                                        O >
+                                      o-
+                                    --| --o
+                                  o-  |    -o--o
+                                 |     |     //
+                                 o     |   */
+                                |      |
+                                o      @
+                                     -- --
+                                   o-     -o
+                                  /         \\
+                                 /            o
+                                 /
+                                o
+
+
+
+
+
+
+
+____________________________________________________________________________
+
+
+
+
+
+A017-B06 A017-K07 -> A017-K08 | ONES INFERRED | convert task follow-through into gravity-owned counterweight
+
+
+
+
+
+                                            O >
+                                          -o-
+                                       o-- | -o-
+                                      /    |    -o-
+                                     o     |       -o
+                                    |      |         \\
+                                    o      @           \\
+                                          / \            \\
+                                         /   \\            *
+                                        /      o
+                                       o        \
+                                      /          \\
+                                      /            o
+                                     o
+
+
+
+
+____________________________________________________________________________
+
+
+
+
+
+A017-B07 A017-K08 -> A017-K09 | ONES INFERRED | lengthen lead probe without inventing contact
+
+
+
+
+
+
+
+                                                O >
+                                              -o-
+                                           o-- | -o-
+                                          /    |    -o-
+                                         o     |       -o
+                                        |      |         \\
+                                        o      |           \\
+                                               @-            \*
+                                              /  --o
+                                             /      \
+                                            /        \
+                                           o          \
+                                           |           o
+                                          |
+                                          |
+                                          o
+
+____________________________________________________________________________
+
+
+
+
+
+A017-B08 A017-K10 -> A017-K11 | ONES INFERRED | continue pelvis drop on same lead support as trail leg folds
+
+
+
+
+
+
+
+
+
+                                                    O >
+                                                  -o-
+                                               o-- | -o-
+                                              /    |    -o-
+                                             o     |       -o
+                                            |      |         \
+                                            o      |          \\
+                                                   |            *
+                                                   @-
+                                                  /  --o
+                                                //      \
+                                              -o         \\
+                                            o-             o
+____________________________________________=_______________________________
+
+
+
+
+
+A017-B09 A017-K13 -> A017-K14 | ONES INFERRED | body catches ahead of delayed tool overshoot
+
+
+
+
+
+
+
+
+
+                                                        O >
+                                                      -o--o
+                                                   o-- |   \
+                                                  /    |    o
+                                                 o     |     \
+                                                 |     |      \
+                                                |      |       o
+                                                o      @      /
+                                                      / --   /
+                                                    //    -o/
+                                                   o       *\
+                                                 //          \
+                                                o             o
+______________________________________________________________=_____________
+
+
+
+
+
+A017-B10 A017-K15 -> A017-K16 | ONES INFERRED | settle lower body while shoulder/tool lag remain visible
+
+
+
+
+
+
+                                                            O >
+                                                          -o-
+                                                       o-- | -o
+                                                      /    |   \
+                                                      /    |   \
+                                                     o     |    o
+                                                     |     |     \
+                                                    |      |      o
+                                                    o      @    //
+                                                          / \  /
+                                                         /   \/
+                                                        /   //\
+                                                       o   *   o
+                                                      /         \
+                                                     /           \
+                                                    o             o
+____________________________________________________=_____________=_________
+
+
+
+
+
+A017-B11 A017-K16 -> A017-K17 | ONES INFERRED | bring tool up after pelvis stabilization without erasing offset
+
+
+
+
+
+
+                                                             O >
+                                                           -o-
+                                                        o-- | -o
+                                                       /    |   \
+                                                       /    |   \
+                                                      o     |    o
+                                                      |     |     \
+                                                     |      |      o
+                                                     o      @     /
+                                                           / \   /
+                                                          /   \//
+                                                         /    /\
+                                                        o    *  o
+                                                       /         \
+                                                      /           \
+                                                     o             o
+_____________________________________________________=_____________=________
+
+
