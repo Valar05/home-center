@@ -124,11 +124,11 @@ def render_mp4(data,tmp):
     frames=sequence(data); fd=tmp/'frames'; fd.mkdir()
     for i,st in enumerate(frames): raster(ascii_frame(st),fd/f'{i:04d}.png')
     mp4=tmp/'motion.mp4'
-    subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate',str(data['compile']['fps']),'-i',str(fd/'%04d.png'),'-c:v','libx264','-preset','veryslow','-crf','28','-pix_fmt','yuv420p','-movflags','+faststart',str(mp4)],check=True)
+    subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate',str(data['compile']['fps']),'-i',str(fd/'%04d.png'),'-c:v','libx264','-preset','veryslow','-vf','scale=480:180:flags=neighbor','-crf','40','-pix_fmt','yuv420p','-movflags','+faststart',str(mp4)],check=True)
     return mp4,len(frames)
 
 def html(data,sheet,video_bytes):
-    payload=json.dumps(data,indent=2,ensure_ascii=False)
+    payload=json.dumps(data,separators=(',',':'),ensure_ascii=True,sort_keys=True)
     b64=base64.b64encode(video_bytes).decode('ascii')
     import html as H
     return f'''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{data['experiment_id']}</title><style>
