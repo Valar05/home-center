@@ -1,0 +1,93 @@
+{
+  "ascii_literal_text": true,
+  "ascii_sheet_sha256": "16ca08050a69102ed4be4a29a45507273a4dcf45e0521ccaf54b27be83350d38",
+  "ascii_surface": "real preformatted DOM text",
+  "authoritative_video": "embedded MP4 data URI in staggered-precontact-catch.motion.html",
+  "backward_compatible": true,
+  "contract_test": {
+    "boundary": "Executed against an isolated tree containing the candidate only; current chat has no repository command-execution surface for a fresh repo-global run.",
+    "candidate_scoped": "PASS",
+    "official_test_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "tool": "tools/test_ascii_kinesis_swarm_contract_v2.py"
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "FIX ARC",
+    "FIX SUPPORT",
+    "FIX LANDING",
+    "FIX SECONDARY LAG",
+    "RERUN"
+  ],
+  "experiment_id": "v2-airborne-011-staggered-precontact-catch",
+  "files": [
+    "build.py",
+    "manifest.json",
+    "motion.json",
+    "receipt.json",
+    "staggered-precontact-catch.motion.html"
+  ],
+  "format_version": 2,
+  "lane": "airborne",
+  "ligatures_disabled": true,
+  "media_bytes": 7293,
+  "media_sha256": "ce8a27dad74fd013a82fb1c373a39fee0f3db82ed4834765f2041e2c918318e3",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 16,
+    "authored_bridge_keys": 11,
+    "connector_semantics_fail_closed": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "loop_repetitions": 1,
+    "semantic_frames_per_loop": 46,
+    "video_frames_total": 46
+  },
+  "negative_fixture": "experiments/ascii-kinesis/v2-airborne-002-precontact-landing-window/",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "quality_gates": {
+    "actual_render_inspected": true,
+    "noodle_queen": "PASS",
+    "tango": "PASS"
+  },
+  "reconstruction": "python3 build.py",
+  "revises": "experiments/ascii-kinesis/v2-airborne-002-precontact-landing-window/",
+  "revision_status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING",
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "source": {
+    "asset_id": 10039,
+    "game": "Sonic Battle",
+    "name": "Sonic the Hedgehog",
+    "page_url": "https://www.spriters-resource.com/game_boy_advance/sonicbattle/asset/10039/",
+    "platform": "Game Boy Advance",
+    "reported_dimensions": [
+      1150,
+      2660
+    ],
+    "reported_format": "PNG",
+    "reported_size": "268.03 KB",
+    "rights_note": "Copyright-restricted commercial sprite art used only as whole-sheet evidence. No source pixels, palette, contours, layout, tracing, redistribution, or close imitation enter this successor. Drew work used: false.",
+    "section": "Fighters",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "uploader": "QuadFactor",
+    "whole_sheet_evidence_reused_from_negative_fixture": true,
+    "whole_sheet_inspected_in_negative_fixture": true
+  },
+  "source_art_embedded": false,
+  "tracked_standalone_mp4": false,
+  "video_packaging": "embedded MP4 data URI in staggered-precontact-catch.motion.html; builder deterministically reconstructs staggered-precontact-catch.mp4",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
+}
