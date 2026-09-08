@@ -1,139 +1,151 @@
 #!/usr/bin/env python3
+"""Deterministic Motion Dungeon builder for V2 CONTACT 007 repair.
+Reads motion.json; source sprite pixels are never read or rendered.
+"""
 from __future__ import annotations
-import base64, hashlib, html, json, math, subprocess, tempfile
+import base64, hashlib, json, math, os, shutil, subprocess, tempfile
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
+
 HERE=Path(__file__).resolve().parent
-MOTION=HERE/'motion.json'; SLUG='scoped-sync-grapple-repair'
-MP4=HERE/f'{SLUG}.mp4'; GIF=HERE/f'{SLUG}.chat.gif'; HTML=HERE/f'{SLUG}.motion.html'
-CONTACT=HERE/'contact-sheet.txt'; MANIFEST=HERE/'manifest.json'; RECEIPT=HERE/'receipt.json'
-HOLD={'ONES':1,'TWOS':2,'FOURS':4}
-def sha(b:bytes)->str:return hashlib.sha256(b).hexdigest()
-def bres(a,b):
- x0,y0=a; x1,y1=b; dx=abs(x1-x0); sx=1 if x0<x1 else -1; dy=-abs(y1-y0); sy=1 if y0<y1 else -1; e=dx+dy; out=[]
- while True:
-  out.append((x0,y0))
-  if (x0,y0)==(x1,y1):break
-  q=2*e
-  if q>=dy:e+=dy;x0+=sx
-  if q<=dx:e+=dx;y0+=sy
- return out
-def glyph(a,b):
- dx=b[0]-a[0]; dy=b[1]-a[1]
- if abs(dx)>abs(dy)*2:return '-'
- if abs(dy)>abs(dx)*2:return '|'
- return '\\' if dx*dy>0 else '/'
-def qpoint(a,b,t,bias=(0,0)):
- c=((a[0]+b[0])/2+bias[0],(a[1]+b[1])/2+bias[1]);u=1-t
- return [round(u*u*a[0]+2*u*t*c[0]+t*t*b[0]),round(u*u*a[1]+2*u*t*c[1]+t*t*b[1])]
-def rotate_point(p,c,deg,t):
- ang=math.radians(deg*t); x=p[0]-c[0];y=p[1]-c[1];cs=math.cos(ang);sn=math.sin(ang)
- return [round(c[0]+x*cs-y*sn),round(c[1]+x*sn+y*cs)]
-def topo(k):
- return (k['contact_state'],k['custody'],k['support_A'],k['support_B'],k['root_owner'],tuple((a['a'],a['b'],a.get('owner','')) for a in k['anchors']))
-def interp_actor(a,b,t,bias):
- return {n:qpoint(a[n],b[n],t,bias if n not in {'foot_l','foot_r'} else (0,0)) for n in a}
-def locked_interp(a,b,t,center0,center1,deg):
- c=qpoint(center0,center1,t,(0,0)); out={}
- for actor in ('A','B'):
-  sign=1 if actor=='A' else -1
-  out[actor]={}
-  for n,p in a[actor].items():
-   rp=rotate_point(p,center0,deg*sign,t)
-   target=b[actor][n]
-   out[actor][n]=[round(rp[0]*(1-t)+target[0]*t),round(rp[1]*(1-t)+target[1]*t)]
- return out,c
-def support_foot_active(s,side):
- if s in {'BOTH','GROUND'}:return True
- if s=='LEFT':return side=='l'
- if s=='RIGHT':return side=='r'
- return False
-def frame_text(d,k,actors=None,shared_center=None,anchors=None):
- W,H=d['rig_schema']['grid']; g=[[' ']*W for _ in range(H)]; actors=actors or {'A':k['A'],'B':k['B']}; sc=k.get('shared_center') if shared_center is None else shared_center; anchors=k['anchors'] if anchors is None else anchors
- def put(x,y,ch):
-  if 0<=x<W and 0<=y<H:g[y][x]=ch
- for actor in ('A','B'):
-  j=actors[actor]
-  for a,b in d['rig_schema']['links']:
-   for x,y in bres(j[a],j[b])[1:-1]:
-    if 0<=x<W and 0<=y<H and g[y][x]==' ':put(x,y,glyph(j[a],j[b]))
-  marks={'head':actor,'pelvis':'@' if actor=='A' else '&','hand_l':'a' if actor=='A' else 'b','hand_r':'a' if actor=='A' else 'b','foot_l':actor,'foot_r':actor,'shoulder_l':'o','shoulder_r':'o','knee_l':'o','knee_r':'o'}
-  for n,(x,y) in j.items():put(x,y,marks.get(n,'o'))
- floor=21
- for x in range(W): put(x,floor,'=')
- for actor in ('A','B'):
-  s=k['support_A'] if actor=='A' else k['support_B']; j=actors[actor]
-  for side in ('l','r'):
-   if support_foot_active(s,side):
-    x,y=j[f'foot_{side}'];put(x,min(floor,y+1),'^')
- for an in anchors:
-  x,y=an['at'];put(x,y,'*')
- if sc:
-  cx,cy=sc;put(cx,cy,'X')
-  if cx-1>=0: put(cx-1,cy,'>')
-  if cx+1<W: put(cx+1,cy,'<')
- put(1,1,'A');put(3,1,'>');put(W-4,1,'<');put(W-2,1,'B')
- return '\n'.join(''.join(r).rstrip() for r in g)
-def bridge_frames(d,a,b):
- spec=a.get('bridge_to_next') or {};n=int(spec.get('frames',0))
- if n<=0 or topo(a)!=topo(b):return []
- out=[];mode=spec.get('mode','LOCAL_ARC')
- for i in range(1,n+1):
-  t=i/(n+1); t=t*t*(3-2*t)
-  if mode=='LOCKED_POLAR' and a.get('shared_center') and b.get('shared_center'):
-   ab,c=locked_interp(a,b,t,a['shared_center'],b['shared_center'],float(spec.get('rotation_degrees',0)))
-   ans=[]
-   for aa,bb in zip(a['anchors'],b['anchors']):
-    an=dict(aa);an['at']=qpoint(aa['at'],bb['at'],t,(0,-1));ans.append(an)
-    for endpoint in (an['a'],an['b']):
-     actor,joint=endpoint.split('.',1);ab[actor][joint]=list(an['at'])
-   out.append(frame_text(d,a,ab,c,ans))
-  else:
-   aa=interp_actor(a['A'],b['A'],t,tuple(spec.get('arc_bias_A',[0,0])))
-   bb=interp_actor(a['B'],b['B'],t,tuple(spec.get('arc_bias_B',[0,0])))
-   out.append(frame_text(d,a,{'A':aa,'B':bb},None,[]))
- return out
-def sequence(d):
- scale=int(d['compile'].get('preview_time_scale',1));seq=[]
- for i,k in enumerate(d['keys']):
-  for _ in range(HOLD[k['timing_class']]*scale):seq.append({'kind':'AUTHORED_HOLD','key':k['key_id'],'text':frame_text(d,k)})
-  if i+1<len(d['keys']):
-   for n,txt in enumerate(bridge_frames(d,k,d['keys'][i+1]),1):
-    for _ in range(scale):seq.append({'kind':'CONNECTIVE_ARC','key':f"{k['key_id']}~{d['keys'][i+1]['key_id']}:{n}",'text':txt})
- return seq
-def contact_sheet(d):
- out=['ASCII KINESIS V2 CONTACT 007 - SCOPED SYNCHRONIZATION GRAPPLE REPAIR',f"revises: {d['revises']}",f"negative_fixture: {d['negative_fixture']}",'source art: NONE | timing: all INFERRED | 1s/2s/4s => ONES/TWOS/FOURS','legend: A/@/a = carrier head/root/hand | B/&/b = partner | *=anchor | X=shared center | >/< = opposing force path | ^=support','']
- for k in d['keys']:
-  out += [f"[{k['key_id']}] {k['name']} | timing={k['timing_class']} | provenance={k['timing_provenance']}",f"contact={k['contact_state']} custody={k['custody']} root_owner={k['root_owner']} support_A={k['support_A']} support_B={k['support_B']}",f"root/arc: {k['motion_arc_root_note']}",f"causal: {k['causal_role']}",frame_text(d,k),'']
- return '\n'.join(out).rstrip()+'\n'
-def font(size):
- for p in ('/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf','DejaVuSansMono.ttf'):
-  try:return ImageFont.truetype(p,size)
-  except:pass
- return ImageFont.load_default()
-def png(text,path):
- im=Image.new('RGB',(480,270),'black');dr=ImageDraw.Draw(im);f=font(8);hdr=font(8)
- dr.text((22,14),'SCOPED SYNC GRAPPLE REPAIR - ABSTRACT ASCII RELATIONSHIP RIG',font=hdr,fill='white')
- dr.multiline_text((22,50),text,font=f,fill='white',spacing=0);im.save(path)
-def render(d):
- seq=sequence(d);reps=int(d['compile'].get('loop_repetitions',1));frames=seq*reps
- with tempfile.TemporaryDirectory(prefix='akv2contact007-') as td:
-  td=Path(td)
-  for i,item in enumerate(frames):png(item['text'],td/f'frame-{i:04d}.png')
-  cmd=['ffmpeg','-hide_banner','-loglevel','error','-y','-framerate',str(d['compile']['fps']),'-i',str(td/'frame-%04d.png'),'-map_metadata','-1','-c:v','libx264','-threads','1','-preset','veryslow','-crf','38','-pix_fmt','yuv420p','-movflags','+faststart','-fflags','+bitexact','-flags:v','+bitexact',str(MP4)]
-  subprocess.run(cmd,check=True)
-  subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-framerate',str(d['compile']['fps']),'-i',str(td/'frame-%04d.png'),'-vf','fps=12,scale=960:-1:flags=lanczos','-loop','0',str(GIF)],check=True)
- return seq,frames
-def spa(d,s,b64):
- j=json.dumps(d,sort_keys=True,separators=(',',':'));esc=lambda x:html.escape(x,quote=False)
- return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 Contact 007 - Scoped Sync Grapple Repair</title><style>:root{{color-scheme:dark;background:#0e0e0e;color:#eee;font-family:system-ui,sans-serif}}body{{margin:0;padding:1rem;max-width:1280px}}nav{{display:flex;gap:.5rem;position:sticky;top:0;background:#0e0e0e;padding:.5rem 0}}button[data-view]{{font:inherit;padding:.55rem .9rem}}section[hidden]{{display:none}}pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;tab-size:2;line-height:1.04}}video{{max-width:100%;height:auto;border:1px solid #555}}</style></head><body><h1>Scoped Synchronization Grapple - repair</h1><nav role="tablist" aria-label="Primary views"><button type="button" data-view="ascii" aria-selected="true">ASCII</button><button type="button" data-view="json" aria-selected="false">JSON</button><button type="button" data-view="video" aria-selected="false">VIDEO</button></nav><section id="ascii"><pre>{esc(s)}</pre></section><section id="json" hidden><pre>{esc(j)}</pre></section><section id="video" hidden><video controls autoplay muted loop playsinline preload="metadata"><source src="data:video/mp4;base64,{b64}" type="video/mp4"></video></section><script>const t=[...document.querySelectorAll('button[data-view]')],p=[...document.querySelectorAll('section')];for(const x of t)x.onclick=()=>{{for(const b of t)b.setAttribute('aria-selected',b===x?'true':'false');for(const y of p)y.hidden=y.id!==x.dataset.view;}};</script></body></html>'''
+MOTION=HERE/'motion.json'
+W,H=78,24
+FLOOR=21
+TIMING={'ONES':1,'TWOS':2,'FOURS':4}
+
+def lerp(a,b,t): return a+(b-a)*t
+
+def qbez(a,b,bias,t):
+    c=((a[0]+b[0])/2+bias[0],(a[1]+b[1])/2+bias[1]); u=1-t
+    return (u*u*a[0]+2*u*t*c[0]+t*t*b[0], u*u*a[1]+2*u*t*c[1]+t*t*b[1])
+
+def interp_pose(pa,pb,t,bias=(0,0)):
+    return {j:tuple(round(v) for v in qbez(pa[j],pb[j],bias,t)) for j in pa}
+
+def bridge_state(k,nk,t):
+    mode=k.get('bridge_to_next',{}).get('mode','LOCAL_ARC')
+    ba=tuple(k.get('bridge_to_next',{}).get('arc_bias_A',[0,0])); bb=tuple(k.get('bridge_to_next',{}).get('arc_bias_B',[0,0]))
+    st=json.loads(json.dumps(k))
+    if mode=='LOCKED_POLAR':
+        ca=k['shared_center']; cb=nk['shared_center']; c=(lerp(ca[0],cb[0],t),lerp(ca[1],cb[1],t))
+        theta=math.radians(k['bridge_to_next'].get('rotation_degrees',0))*t
+        for who in ('A','B'):
+            out={}
+            for j,p in k[who].items():
+                rx,ry=p[0]-ca[0],p[1]-ca[1]; drx,dry=nk[who][j][0]-cb[0],nk[who][j][1]-cb[1]
+                rrx,rry=lerp(rx,drx,t),lerp(ry,dry,t)
+                out[j]=(round(rrx*math.cos(theta)-rry*math.sin(theta)+c[0]),round(rrx*math.sin(theta)+rry*math.cos(theta)+c[1]))
+            st[who]=out
+        st['shared_center']=[round(c[0]),round(c[1])]
+        for idx,a in enumerate(k['anchors']):
+            na=nk['anchors'][idx]
+            ax,ay=round(lerp(a['at'][0],na['at'][0],t)),round(lerp(a['at'][1],na['at'][1],t))
+            st['anchors'][idx]['at']=[ax,ay]
+            for endpoint in (a['a'],a['b']):
+                who,j=endpoint.split('.'); st[who][j]=(ax,ay)
+    else:
+        if mode=='FREE_SPLIT': ba=(-3,3); bb=(4,4)
+        elif mode=='BALLISTIC_TO_GROUND': ba=(3,1); bb=(3,5)
+        elif mode=='PRECONTACT_ARC': ba=(2,-2); bb=(-1,0)
+        elif mode=='ONE_ANCHOR_PIVOT': ba=(0,1); bb=(2,-1)
+        elif mode=='TRANSFER_PREP': ba=(2,-2); bb=(2,-3)
+        elif mode=='LOCKED_TO_RELEASE': ba=(1,1); bb=(3,2)
+        elif mode=='DEBT_SETTLE': ba=(-2,1); bb=(0,0)
+        st['A']=interp_pose(k['A'],nk['A'],t,ba); st['B']=interp_pose(k['B'],nk['B'],t,bb)
+        if k.get('shared_center') and nk.get('shared_center'):
+            st['shared_center']=[round(lerp(k['shared_center'][0],nk['shared_center'][0],t)),round(lerp(k['shared_center'][1],nk['shared_center'][1],t))]
+        for a in st.get('anchors',[]):
+            who,j=a['a'].split('.'); a['at']=list(st[who][j]); other,oj=a['b'].split('.'); st[other][oj]=tuple(a['at'])
+    return st
+
+def bres(grid,p0,p1,ch=None):
+    x0,y0=p0; x1,y1=p1; dx=abs(x1-x0); sx=1 if x0<x1 else -1; dy=-abs(y1-y0); sy=1 if y0<y1 else -1; err=dx+dy
+    if ch is None:
+        if abs(x1-x0)>abs(y1-y0)*1.7: ch='-'
+        elif abs(y1-y0)>abs(x1-x0)*1.7: ch='|'
+        else: ch='\\' if (x1-x0)*(y1-y0)>0 else '/'
+    while True:
+        if 0<=x0<W and 0<=y0<H and grid[y0][x0]==' ': grid[y0][x0]=ch
+        if x0==x1 and y0==y1: break
+        e2=2*err
+        if e2>=dy: err+=dy; x0+=sx
+        if e2<=dx: err+=dx; y0+=sy
+
+def put(grid,p,ch):
+    x,y=p
+    if 0<=x<W and 0<=y<H: grid[y][x]=ch
+
+def body(grid,p,tag):
+    sl,sr,pel=p['shoulder_l'],p['shoulder_r'],p['pelvis']
+    for a,b in [(sl,sr),(sl,pel),(sr,pel),(sl,p['hand_l']),(sr,p['hand_r']),(pel,p['knee_l']),(pel,p['knee_r']),(p['knee_l'],p['foot_l']),(p['knee_r'],p['foot_r'])]: bres(grid,a,b)
+    neck=((sl[0]+sr[0])//2,(sl[1]+sr[1])//2); bres(grid,neck,p['head'],'|')
+    put(grid,p['head'],'@' if tag=='A' else 'o'); put(grid,pel,tag)
+    for j in ('shoulder_l','shoulder_r','hand_l','hand_r','knee_l','knee_r'): put(grid,p[j],'+')
+    put(grid,p['foot_l'],'L' if tag=='A' else 'l'); put(grid,p['foot_r'],'R' if tag=='A' else 'r')
+
+def ascii_frame(st,label=True):
+    g=[[' ']*W for _ in range(H)]
+    for x in range(W): g[FLOOR][x]='_'
+    body(g,st['A'],'A'); body(g,st['B'],'B')
+    for a in st.get('anchors',[]): put(g,tuple(a['at']),'x')
+    if st.get('shared_center'):
+        cx,cy=st['shared_center']; put(g,(cx,cy),'X')
+        if st.get('contact_state')=='TWO_ANCHORS': put(g,(cx-1,cy),'>'); put(g,(cx+1,cy),'<')
+    if label:
+        s=f"{st['key_id']} {st['name']} | {st['timing_class']} {st['timing_provenance']} | CONTACT={st['contact_state']} CUSTODY={st['custody']} A={st['support_A']} B={st['support_B']}"
+        for i,ch in enumerate(s[:W]): g[0][i]=ch
+    return '\n'.join(''.join(r).rstrip() for r in g)
+
+def contact_sheet(keys):
+    out=[]
+    for k in keys:
+        out += ['='*W,f"{k['key_id']}  {k['name']}  | {k['timing_class']} / {k['timing_provenance']}",f"ROLE: {k['causal_role']}",f"STATE: contact={k['contact_state']} custody={k['custody']} support_A={k['support_A']} support_B={k['support_B']} root={k['root_owner']}",f"ARC: {k['motion_arc_root_note']}",ascii_frame(k,False)]
+    return '\n'.join(out)+'\n'
+
+def sequence(data):
+    keys=data['keys']; scale=data['compile']['preview_time_scale']; frames=[]
+    for i,k in enumerate(keys):
+        frames += [k]*(TIMING[k['timing_class']]*scale)
+        if i<len(keys)-1:
+            n=k.get('bridge_to_next',{}).get('frames',0)
+            for j in range(1,n+1):
+                st=bridge_state(k,keys[i+1],j/(n+1)); st['key_id']=k['key_id']+'~'+keys[i+1]['key_id']; st['name']='CONNECTIVE_'+k.get('bridge_to_next',{}).get('mode','ARC'); frames.append(st)
+    return frames
+
+def choose_font():
+    for p in ['/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf','/usr/share/fonts/truetype/liberation2/LiberationMono-Regular.ttf']:
+        if os.path.exists(p): return ImageFont.truetype(p,14)
+    return ImageFont.load_default()
+
+def raster(text,path):
+    im=Image.new('RGB',(960,360),'black'); d=ImageDraw.Draw(im); d.multiline_text((14,12),text,font=choose_font(),fill='white',spacing=1); im.save(path)
+
+def render_mp4(data,tmp):
+    frames=sequence(data); fd=tmp/'frames'; fd.mkdir()
+    for i,st in enumerate(frames): raster(ascii_frame(st),fd/f'{i:04d}.png')
+    mp4=tmp/'motion.mp4'
+    subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate',str(data['compile']['fps']),'-i',str(fd/'%04d.png'),'-c:v','libx264','-preset','veryslow','-crf','28','-pix_fmt','yuv420p','-movflags','+faststart',str(mp4)],check=True)
+    return mp4,len(frames)
+
+def html(data,sheet,video_bytes):
+    payload=json.dumps(data,indent=2,ensure_ascii=False)
+    b64=base64.b64encode(video_bytes).decode('ascii')
+    import html as H
+    return f'''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{data['experiment_id']}</title><style>
+*{{box-sizing:border-box}}body{{margin:0;background:#080808;color:#eee;font-family:system-ui,sans-serif}}header{{padding:12px 16px;border-bottom:1px solid #444}}nav{{display:flex;gap:8px;padding:10px 16px;position:sticky;top:0;background:#080808}}button{{font:inherit;padding:8px 14px}}section{{display:none;padding:12px 16px}}section.active{{display:block}}pre{{margin:0;overflow:auto;white-space:pre;font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;tab-size:2;line-height:1.15}}video{{display:block;width:min(100%,960px);height:auto;background:#000;border:1px solid #444}}
+</style></head><body><header><strong>ASCII Kinesis V2 · CONTACT 007 · scoped sync grapple repair</strong></header><nav>
+<button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
+<section id="ascii" class="active"><pre>{H.escape(sheet)}</pre></section><section id="json"><pre>{H.escape(payload)}</pre></section><section id="video"><video controls autoplay muted loop playsinline src="data:video/mp4;base64,{b64}"></video></section>
+<script>const bs=[...document.querySelectorAll('button[data-view]')];const ss=[...document.querySelectorAll('section')];for(const b of bs)b.onclick=()=>{{for(const s of ss)s.classList.toggle('active',s.id===b.dataset.view)}};</script></body></html>'''
+
 def main():
- d=json.loads(MOTION.read_text());s=contact_sheet(d);CONTACT.write_text(s)
- seq,frames=render(d);media=MP4.read_bytes();ms=sha(media);ss=sha(s.encode())
- d['ascii_sheet_sha256']=ss;d['compile'].update(media_sha256=ms,media_bytes=len(media),semantic_frames_per_loop=len(seq),video_frames_total=len(frames),authored_hold_frames_per_loop=sum(HOLD[k['timing_class']]*d['compile']['preview_time_scale'] for k in d['keys']),connective_frames_per_loop=sum(x['kind']=='CONNECTIVE_ARC' for x in seq))
- MOTION.write_text(json.dumps(d,sort_keys=True,separators=(',',':'))+'\n')
- HTML.write_text(spa(d,s,base64.b64encode(media).decode()))
- m={'schema':'ascii-kinesis.swarm-manifest.v2','format_version':2,'experiment_id':d['experiment_id'],'lane':'contact','revises':d['revises'],'negative_fixture':d['negative_fixture'],'primary_tabs':['ASCII','JSON','VIDEO'],'ascii_literal_text':True,'ascii_surface':'real preformatted DOM text','ligatures_disabled':True,'whitespace_preserved':True,'video_required':True,'video_source':'abstract_ascii_rig_only','video_packaging':f'embedded MP4 data URI in {SLUG}.motion.html','media_sha256':ms,'media_bytes':len(media),'source_art_embedded':False,'backward_compatible':True,'motion_dungeon':{'authored_ascii_keys':len(d['keys']),'explicit_holds':True,'deterministic_connective_motion':True,'connector_semantics_fail_closed':True,'curved_authored_bridges':True,'ascii_only_frame_render':True,'fps':d['compile']['fps'],'preview_time_scale':d['compile']['preview_time_scale'],'semantic_frames_per_loop':len(seq),'video_frames_total':len(frames)},'source':{'site':d['source']['site'],'asset_id':d['source']['asset_id'],'page_url':d['source']['page_url'],'raw_sha256':d['source']['raw_sha256'],'whole_sheet_inspected':True,'source_timing_available':False,'evidence_reused_from_negative_fixture':True},'evaluation':d['evaluation'],'files':['build.py','contact-sheet.txt','manifest.json','motion.json','receipt.json',f'{SLUG}.motion.html'],'reconstruction':'python3 build.py','contract_test':'python3 tools/test_ascii_kinesis_swarm_contract_v2.py','correction_hooks':d['correction_hooks']};MANIFEST.write_text(json.dumps(m,indent=2,sort_keys=True)+'\n')
- r={'schema':'ascii-kinesis.v2-receipt','experiment_id':d['experiment_id'],'status':'RENDERED_AWAITING_REPO_VERIFICATION','repo_path':f"experiments/ascii-kinesis/{d['experiment_id']}/",'revises':d['revises'],'negative_fixture':d['negative_fixture'],'source':d['source'],'rights_note':d['source']['rights_note'],'observation_inference_split':{'OBSERVED':d['source']['observed'],'INFERRED':['All decisive key timing classes','All authored relationship geometry, leverage, support/root transfer, release, recoil/lag, overshoot, settle, recovery debt, and bridge arcs'],'UNKNOWN':d['source']['unknown']},'key_timings':[{'key_id':k['key_id'],'name':k['name'],'timing_class':k['timing_class'],'timing_provenance':k['timing_provenance']} for k in d['keys']],'media_sha256':ms,'media_bytes':len(media),'ascii_sheet_sha256':ss,'evaluation':d['evaluation'],'reconstruction':'python3 build.py','contract_test':'PENDING_EXTERNAL_RUN','repo_readback':'PENDING','issue_343_receipt':'PENDING','correction_hooks':d['correction_hooks']};RECEIPT.write_text(json.dumps(r,indent=2,sort_keys=True)+'\n')
- print(json.dumps({'media_sha256':ms,'media_bytes':len(media),'gif_bytes':GIF.stat().st_size,'semantic_frames_per_loop':len(seq),'video_frames_total':len(frames),'ascii_sheet_sha256':ss},sort_keys=True))
-if __name__=='__main__':main()
+    data=json.loads(MOTION.read_text())
+    sheet=contact_sheet(data['keys']); (HERE/'contact-sheet.txt').write_text(sheet)
+    with tempfile.TemporaryDirectory() as td:
+        mp4,n=render_mp4(data,Path(td)); raw=mp4.read_bytes()
+    sha=hashlib.sha256(raw).hexdigest(); expected=data['compile'].get('media_sha256')
+    if expected and sha!=expected: raise SystemExit(f'media hash mismatch: {sha} != {expected}')
+    if n!=data['compile']['video_frames_total']: raise SystemExit(f'frame count mismatch: {n}')
+    page=html(data,sheet,raw); (HERE/'scoped-sync-grapple-repair.motion.html').write_text(page)
+    print(json.dumps({'media_sha256':sha,'media_bytes':len(raw),'video_frames_total':n,'spa_bytes':len(page.encode())},sort_keys=True))
+if __name__=='__main__': main()
