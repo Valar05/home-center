@@ -3,16 +3,92 @@
   "ascii_surface": "real preformatted DOM text",
   "backward_compatible": true,
   "contract_test": "python3 tools/test_ascii_kinesis_swarm_contract_v2.py",
-  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"],
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
   "evaluation": {
-    "noodle_queen": {"judgment":"TASTE+FUNCTION+CONTEMPT PASS: rhythm is specific rather than metronomic; the coiled pre-release, frozen high-B/low-A split, and post-release overshoot are memorable silhouettes; force/intent is embodied through COM counterweight and planted support; causal scope stays coherent; motion is economical without reading as cheap placeholder interpolation.","render_media_sha256":"ab7042b3376eecdb8e3677d1b3c489e4e6a7ff4ad8153db701ccfbc9fe202c02","status":"PASS"},
-    "tango": {"iterations":[{"correction":"Deepen K1 COM shift inside the planted support polygon and fold SIGNAL_A farther across the torso before release; preserve B drift and support truth.","highest_value_visible_defect":"Anticipation/coil is too shallow; K1 silhouette remains too close to ready, so the A snap feels assigned rather than physically earned.","iteration":1,"render_media_sha256":"a3805aedfc80efe024f8fcf2860c3300035b65c05d0fae8629f63f6852a7ab24","verdict":"REVISE_REQUIRED"},{"correction":"Remove changing frame/debug labels from the render, keep only a stable text header, and enlarge the monospace rig without changing authored timing/semantics.","highest_value_visible_defect":"Per-frame debug labels flicker faster than the performance and compete with the ASCII body; the rig also reads smaller than necessary.","iteration":2,"render_media_sha256":"5701a1693b4096c9fb9dd29fa4c7ee19d24a749e48eb9f50582912b5d6946eed","verdict":"REVISE_REQUIRED"},{"iteration":3,"judgment":"Actual render now shows a clear asymmetric coil, one-tick release, readable B freeze hold while A/base continue, A overshoot/deceleration, one-tick release, B catch-up overshoot, rebound/secondary lag, and paid restack. Foot contacts remain fixed and COM motion stays inside the planted base. No equalized spacing, reverse interpolation, or generic idle reset is doing the acting.","render_media_sha256":"ab7042b3376eecdb8e3677d1b3c489e4e6a7ff4ad8153db701ccfbc9fe202c02","verdict":"PASS"}],"status":"PASS"}
+    "noodle_queen": {
+      "judgment": "TASTE + FUNCTION + CONTEMPT PASS: the frozen high-B / low-sweeping-A contradiction is the memorable center; anticipation and consequence are not metronomic; silhouette phases are distinct; COM counterweight and planted feet make intent embodied; the release visibly spends phase debt; the repair is economical without looking like placeholder tweening.",
+      "render_media_sha256": "fad418cdb404667319ed8181ad5b0548ae153137a3df818e374a0af7b8b190fa",
+      "status": "PASS"
+    },
+    "tango": {
+      "iterations": [
+        {
+          "correction": "Author K10 as a still-offset restack with COM one cell left, B still settling, A still low-lag; add two deterministic SMOOTHSTEP recovery bridge frames into K0 while preserving bilateral foot contact.",
+          "highest_value_visible_defect": "Recovery collapsed into the exact READY silhouette: K10 was visually identical to K0, so the cycle paid no visible recovery debt and read as a generic idle reset.",
+          "iteration": 1,
+          "render_media_sha256": "9568f35c7fe7a7e28a4ae4d377f5f4fb8806d7e1529159d47fd49e2dd450a360",
+          "verdict": "REVISE_REQUIRED"
+        },
+        {
+          "iteration": 2,
+          "judgment": "Actual render now reads as coil -> one-tick A snap -> B apex/read -> one-tick freeze latch -> long B-held/A-sweep counterweight -> A overshoot/deceleration -> one-tick release -> B catch-up overshoot -> rebound/secondary lag -> offset restack. Support remains planted, spacing is asymmetric, and the loop returns through paid recovery instead of reverse interpolation or idle reset.",
+          "render_media_sha256": "fad418cdb404667319ed8181ad5b0548ae153137a3df818e374a0af7b8b190fa",
+          "verdict": "PASS"
+        }
+      ],
+      "status": "PASS"
+    }
   },
-  "experiment_id":"v2-timing-006-scoped-freeze-release-repair",
-  "files":["build.py","contact-sheet.txt","manifest.json","motion.json","receipt.json","scoped-freeze-release-repair.motion.html"],
-  "format_version":2,"lane":"timing","ligatures_disabled":true,"media_bytes":26629,"media_sha256":"ab7042b3376eecdb8e3677d1b3c489e4e6a7ff4ad8153db701ccfbc9fe202c02",
-  "motion_dungeon":{"ascii_only_frame_render":true,"authored_ascii_keys":11,"authored_hold_frames_per_loop":26,"connective_frames_per_loop":10,"connector_semantics_fail_closed":true,"curved_authored_bridges":true,"deterministic_connective_motion":true,"explicit_holds":true,"fps":24,"loop_repetitions":4,"semantic_frames_per_loop":36,"video_frames_total":144},
-  "negative_fixture":"experiments/ascii-kinesis/v2-timing-001-scoped-freeze-release/","primary_tabs":["ASCII","JSON","VIDEO"],"reconstruction":"python3 build.py","revises":"experiments/ascii-kinesis/v2-timing-001-scoped-freeze-release/","schema":"ascii-kinesis.swarm-manifest.v2",
-  "source":{"asset_id":97821,"evidence_reused_from_negative_fixture":true,"page_url":"https://www.spriters-resource.com/pc_computer/nuclearthrone/asset/97821/","raw_sha256":"d203f5004e62f5f9e0232aa2534c66e3ce30e0727428d561454dacbdb7f063ad","site":"The Spriters Resource","source_timing_available":false,"whole_sheet_inspected":true},
-  "source_art_embedded":false,"video_packaging":"embedded MP4 data URI in scoped-freeze-release-repair.motion.html","video_required":true,"video_source":"abstract_ascii_rig_only","whitespace_preserved":true
+  "experiment_id": "v2-timing-006-scoped-freeze-release-repair",
+  "files": [
+    "build.py",
+    "contact-sheet.txt",
+    "manifest.json",
+    "motion.json",
+    "receipt.json",
+    "scoped-freeze-release-repair.motion.html"
+  ],
+  "format_version": 2,
+  "lane": "timing",
+  "ligatures_disabled": true,
+  "media_bytes": 22387,
+  "media_sha256": "fad418cdb404667319ed8181ad5b0548ae153137a3df818e374a0af7b8b190fa",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 11,
+    "authored_hold_frames_per_loop": 26,
+    "connective_frames_per_loop": 8,
+    "connector_semantics_fail_closed": true,
+    "curved_authored_bridges": true,
+    "deterministic_connective_motion": true,
+    "explicit_holds": true,
+    "fps": 24,
+    "loop_repetitions": 4,
+    "semantic_frames_per_loop": 34,
+    "video_frames_total": 136
+  },
+  "negative_fixture": "experiments/ascii-kinesis/v2-timing-001-scoped-freeze-release/",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "reconstruction": "python3 build.py",
+  "revises": "experiments/ascii-kinesis/v2-timing-001-scoped-freeze-release/",
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "source": {
+    "asset_id": 97821,
+    "evidence_reused_from_negative_fixture": true,
+    "page_url": "https://www.spriters-resource.com/pc_computer/nuclearthrone/asset/97821/",
+    "raw_sha256": "d203f5004e62f5f9e0232aa2534c66e3ce30e0727428d561454dacbdb7f063ad",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "whole_sheet_inspected": true
+  },
+  "source_art_embedded": false,
+  "video_packaging": "embedded MP4 data URI in scoped-freeze-release-repair.motion.html",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
 }
