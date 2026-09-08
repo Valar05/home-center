@@ -59,8 +59,9 @@
   },
   "tracked_product": ["build.py","contact-sheet.txt","manifest.json","motion.json","receipt.json","variant-bank-commitment-repair.motion.html"],
   "repo_readback": "PASS",
-  "issue_343_receipt": "PENDING_READY_FOR_USER_SURFACE_COMMENT",
-  "chat_delivery": "PENDING_THIS_REPORTING_CHAT",
-  "status": "REPO_VERIFIED_READY_FOR_USER_SURFACE",
+  "issue_343_ready_for_user_surface_receipt": 5591976507,
+  "issue_343_healthy_user_surfaced_receipt": 5591991553,
+  "chat_delivery": "PASS_ASCII_JSON_VIDEO_IN_ORDER",
+  "status": "HEALTHY_USER_SURFACED",
   "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"]
 }
