@@ -1,0 +1,138 @@
+{
+  "chat_delivery": "PENDING",
+  "contract_test": {
+    "result": {
+      "entries_checked": [
+        "v2-contact-008-running-throw-custody-fork-repair"
+      ],
+      "ok": true,
+      "schema": "ascii-kinesis.swarm-contract-v2-test"
+    },
+    "scope": "isolated candidate tree containing only Contact008",
+    "script": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "tracked_git_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c"
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "current_worker_liveness": {
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "github_persistence_readback": true,
+    "home_center_campaign_read": true
+  },
+  "evidence": {
+    "INFERRED": [
+      "All successor body geometry, support ownership, root path, hand-object anchor placement, COM preparation, force axis, release arc, recoil, secondary lag, overshoot, settle, recovery debt, authored bridges, and chronology.",
+      "Every ONES/TWOS/FOURS class under STREET_FIGHTER/CAPCOM timing policy."
+    ],
+    "OBSERVED": [
+      "The predecessor whole-sheet evidence records Mario and Luigi small/big locomotion families plus fireball-handling variants and separate fireball/effect cells across the complete 584x468 sheet.",
+      "The predecessor whole-sheet evidence records locomotion/jump/swim context coexisting with fireball handling on the same sheet.",
+      "The predecessor evidence records annotation supporting throwing during movement rather than requiring a stopped carrier state.",
+      "The source is a static sprite sheet with Animated GIFs (0); source-authentic exposure duration is not established.",
+      "Exact source identity remains 52,370 bytes, 584x468, SHA-256 7aa238a5d3cb74646aa93659241a3f933caea45d7908a27e59fa56a477d33bf6."
+    ],
+    "UNKNOWN": [
+      "Source-authentic frame order/exposures, hit-stop, exact anatomy, fireball force/velocity/collision, and gameplay root/support values."
+    ]
+  },
+  "experiment_id": "v2-contact-008-running-throw-custody-fork-repair",
+  "issue_receipt": "PENDING",
+  "motion_dungeon": {
+    "decode_verified": true,
+    "double_build_byte_identical": true,
+    "fps": 24,
+    "frames": 152,
+    "media_bytes": 20213,
+    "media_sha256": "c2720cff3339f3944353d9527d1f9673e59f2c24bd1c380c52bb6477bdbe35fb",
+    "source_sprite_pixels_used": false
+  },
+  "noodle_queen": {
+    "judgment": "TASTE + FUNCTION + CONTEMPT PASS after Tango on the actual final render. The low rear-loaded coil, diagonal object-to-pelvis force line, whip-under-custody silhouette, early release gap, object/body clock split, collapsed chest recoil, forward pelvis overshoot, second catch, and trailing throwing arm give the specimen specific authored attitude and a readable cost of throwing while running. Economy comes from the rig rather than decorative motion; the exit keeps asymmetrical recovery debt instead of cheaply returning to the opening pose.",
+    "render_media_sha256": "c2720cff3339f3944353d9527d1f9673e59f2c24bd1c380c52bb6477bdbe35fb",
+    "status": "PASS"
+  },
+  "principle": "ROOT MOTION MAY CONTINUE THROUGH OBJECT RELEASE ONLY IF THE BODY PRE-BUDGETS THE CUSTODY FORK WITH ASYMMETRIC LOAD, SUPPORT TRANSFER, AND RECOVERY DEBT.",
+  "repair": {
+    "negative_fixture": "experiments/ascii-kinesis/v2-contact-002-root-clock-custody-fork/",
+    "predecessor_preserved": true,
+    "queue": "Contact002 after HEALTHY Contact007 closed Contact001",
+    "revises": "experiments/ascii-kinesis/v2-contact-002-root-clock-custody-fork/",
+    "source_change": false
+  },
+  "repo": {
+    "commit": "PENDING",
+    "path": "experiments/ascii-kinesis/v2-contact-008-running-throw-custody-fork-repair/"
+  },
+  "rights": {
+    "no_drew_work": true,
+    "output": "independently authored abstract ASCII rig",
+    "prohibitions": [
+      "reproduction",
+      "tracing",
+      "redistribution",
+      "close imitation"
+    ],
+    "source_art_use": "evidence only",
+    "source_pixels_embedded": false
+  },
+  "schema": "ascii-kinesis.v2-repair-receipt",
+  "source": {
+    "asset_id": 52578,
+    "game": "Super Mario Bros. 2 / The Lost Levels (JPN)",
+    "page_url": "https://www.spriters-resource.com/nes/supermariobros2thelostlevelsjpn/asset/52578/",
+    "platform": "NES",
+    "raw_bytes": 52370,
+    "raw_dimensions": [
+      584,
+      468
+    ],
+    "raw_sha256": "7aa238a5d3cb74646aa93659241a3f933caea45d7908a27e59fa56a477d33bf6",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "title": "Mario & Luigi",
+    "whole_sheet_inspected": true
+  },
+  "status": "QUALITY_GATES_PASS_READY_FOR_REPO_PERSIST",
+  "tango": {
+    "iterations": [
+      {
+        "correction": "Add an authored under-custody whip key after right-support transfer and before release; keep A_HAND custody locked through that key, shorten the release hop, and preserve the later object/body split.",
+        "highest_value_visible_defect": "The first render made the support-transfer-to-release hand travel too far in one causal hop, so the fork risked reading as a teleported endpoint instead of force propagating through the body.",
+        "iteration": 1,
+        "verdict": "REVISE_REQUIRED"
+      },
+      {
+        "iteration": 2,
+        "judgment": "The rerender makes the causal chain visibly body-led: deep contralateral coil -> explicit hand-object acquisition -> loaded diagonal -> lead-foot probe -> right-support transfer -> authored under-custody arm whip -> short release fork -> object lead against chest recoil -> pelvis overshoot with throwing-arm secondary lag -> second catch/compression -> non-idle settle -> exit stride. The release is no longer one giant endpoint hop. Contact/custody changes occur only on decisive keys; support transfer precedes release; bridge motion stays curved under prior topology. No material generic symmetry, equal spacing, straight semantic tween, farthest-reach contact, floaty leverage, ownership ambiguity, reverse recoil, idle reset, or missing recovery debt remains in the actual 152-frame render.",
+        "render_media_sha256": "c2720cff3339f3944353d9527d1f9673e59f2c24bd1c380c52bb6477bdbe35fb",
+        "verdict": "PASS"
+      }
+    ],
+    "status": "PASS"
+  },
+  "timing": [
+    {"key_id":"C008-K0","name":"RUN_READY_REAR_SUPPORT","timing_class":"FOURS","timing_provenance":"INFERRED"},
+    {"key_id":"C008-K1","name":"CONTRALATERAL_COIL","timing_class":"FOURS","timing_provenance":"INFERRED"},
+    {"key_id":"C008-K2","name":"HAND_OBJECT_ACQUIRE","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"key_id":"C008-K3","name":"LOADED_RUNNING_COIL","timing_class":"FOURS","timing_provenance":"INFERRED"},
+    {"key_id":"C008-K4","name":"LEAD_FOOT_PROBE_WITH_LOAD","timing_class":"TWOS","timing_provenance":"INFERRED"},
+    {"key_id":"C008-K5","name":"SUPPORT_TRANSFER_BEFORE_RELEASE","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"key_id":"C008-K6","name":"THROW_ARM_WHIP_UNDER_CUSTODY","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"key_id":"C008-K7","name":"RELEASE_FORK_BEFORE_MAX_REACH","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"key_id":"C008-K8","name":"OBJECT_LEADS_CHEST_RECOIL","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"key_id":"C008-K9","name":"FORWARD_ROOT_OVERSHOOT_SECONDARY_LAG","timing_class":"TWOS","timing_provenance":"INFERRED"},
+    {"key_id":"C008-K10","name":"SECOND_CATCH_COMPRESSION","timing_class":"ONES","timing_provenance":"INFERRED"},
+    {"key_id":"C008-K11","name":"SETTLE_WITH_ARM_LAG","timing_class":"TWOS","timing_provenance":"INFERRED"},
+    {"key_id":"C008-K12","name":"EXIT_STRIDE_WITH_RECOVERY_DEBT","timing_class":"FOURS","timing_provenance":"INFERRED"}
+  ]
+}
