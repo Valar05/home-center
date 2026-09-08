@@ -29,7 +29,8 @@
     "successor_inventory": {
       "prior_legitimate_successors_revising_video_motion_003": 0,
       "selected_storage_identity": "009"
-    }
+    },
+    "binding_successor": "experiments/ascii-kinesis/v2-video-motion-009-shove-it-dual-clock-recapture-repair/"
   },
   "source_identity": {
     "title": "Shove it.webm",
@@ -50,28 +51,30 @@
     "frame_count": 55,
     "width": 432,
     "height": 220,
-    "pixel_format": "yuv420p"
+    "pixel_format": "yuv420p",
+    "identity_note": "Current canonical builder+motion reconstruction produced this exact byte identity; it matches the pre-existing motion.json/manifest media identity. A stale intermediate receipt-only media hash is superseded."
   },
   "quality": {
     "tango": {
       "status": "PASS",
       "current_worker": true,
-      "rounds": 1,
-      "inspection_scope": "all 55 decoded current canonical frames inspected chronologically in five complete review sheets",
-      "verdict": "Asymmetric backward countermove/deep diagonal load earns the release; board yaw reads as foreshortening plus endpoint inversion rather than cartwheel; body and board clocks fork in air; eligibility, recapture clamp and ground catch are discrete authored gates; landing sinks after support, then rebounds into overshoot, secondary lag and a displaced recovery. No visible defect earns mutation."
+      "rounds_total_lineage": 3,
+      "inspection_scope": "current worker decoded and inspected all 55 frames chronologically in five complete review sheets from the exact final Motion Dungeon render",
+      "verdict": "PASS — lopsided countermove and deep diagonal load precede release; the board clock visibly foreshortens, inverts endpoint order, and leads the body clock without cartwheel pitch; eligibility, recapture clamp, ground catch, landing sink, forward overshoot, secondary lag, and displaced recovery remain causally distinct. No visible defect earns key/timing/support/arc mutation."
     },
     "noodle_queen": {
       "status": "PASS",
       "current_worker": true,
       "after_tango": true,
-      "rounds": 1,
-      "verdict": "TASTE + FUNCTION + CONTEMPT PASS on the same final render and complete specimen: the lopsided load, clock fork, late rendezvous, crooked landing payment and non-reset exit read as a specific performance rather than generic mannequin interpolation."
+      "rounds_total_lineage": 2,
+      "inspection_scope": "same exact final 55-frame render plus complete ASCII/JSON/VIDEO specimen",
+      "verdict": "PASS — TASTE + FUNCTION + CONTEMPT: the backward-loaded silhouette, independent board clock, late rendezvous, crooked landing payment, overshoot and non-reset exit form one specific readable performance; economy is serving the action rather than excusing missing acting."
     }
   },
   "contract_test": {
     "script_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "script_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
-    "candidate_scoped_status": "STRUCTURALLY_PASS_CURRENT_WORKER_PENDING_DURABLE_EXECUTION",
+    "candidate_scoped_status": "PASS",
     "repo_global_status": "NOT_CLAIMED"
   }
 }
