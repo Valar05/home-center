@@ -1,0 +1,271 @@
+ASCII KINESIS V2 TIMING 008 - INERTIAL JOIN SPARSE REKEY REPAIR
+revises: experiments/ascii-kinesis/v2-timing-003-inertial-join-sparse-rekey/
+negative_fixture: experiments/ascii-kinesis/v2-timing-003-inertial-join-sparse-rekey/
+SOURCE ART: NONE | WHOLE-SHEET EVIDENCE FAMILY INHERITED | SOURCE TIMING: NONE OBSERVED
+TIMING: STREET_FIGHTER/CAPCOM | ONES=1 frame | TWOS=2 | FOURS=4 | 1s/2s/4s ARE CLASSES, NEVER SECONDS
+CLOCKS: PLATFORM_CLOCK parent transform is independent; RIDER_CLOCK rekeys only for semantic/load change.
+GLYPHS: O head, @ root/COM, L/R feet, # parent-clock ticker; ! shock platform, : loaded catch/brace.
+
+[T008-K0] CRUISE_CARRY
+pose/rig=platform_passenger_C3 | support/contact=BILATERAL_PLATFORM_CONTACT; L/R planted on platform
+root/motion-arc=local root quiet and slightly loaded; parent translates +X at steady cruise while rider key remains unchanged
+timing_class=FOURS | timing_provenance=INFERRED
+causal_role=stable carry proves parent translation does not spend rider-local timing bandwidth
+clocks PLATFORM=CRUISE | RIDER=HOLD
+
+  P> 00
+
+                      O
+                      |
+                      |
+                      |
+                   o--+--o
+                  /   |   \o
+                 o    |     \b
+                /     @
+                a   o/ \o
+                    |   |
+                   |     |
+                   o     o
+                   |     |
+                  |       |
+                  L       R
+
+            [#====================]
+
+
+
+[T008-K1] ASYMMETRIC_PRE_BRAKE_COIL
+pose/rig=platform_passenger_C3 | support/contact=BILATERAL_PLATFORM_CONTACT; heels planted, left knee carries more compression
+root/motion-arc=COM drops down-left against impending support deceleration; left side compresses while right arm opens forward
+timing_class=TWOS | timing_provenance=INFERRED
+causal_role=authored anticipation/coil makes the incoming inertial event legible before peak load
+clocks PLATFORM=BRAKE_RAMP | RIDER=COIL
+
+  P> 00
+
+
+                     O
+                     |
+                     |      -b
+                    |    -o-
+                   -+--o-
+                 o- |
+                /   |
+               o     |
+              a    o-@-o
+                   |    \
+                  |      o
+                  o      |
+                  |       |
+                  L       R
+
+            [#====================]
+
+
+
+[T008-K2] DECEL_SHOCK
+pose/rig=platform_passenger_C3 | support/contact=BILATERAL_PLATFORM_CONTACT; feet unchanged, load spikes toward forefoot
+root/motion-arc=support deceleration spikes; pelvis lags less than chest/head, producing forward shear without changing foot topology
+timing_class=ONES | timing_provenance=INFERRED
+causal_role=INERTIAL_JOIN impact emphasis: material support-load change earns a local re-key
+clocks PLATFORM=DECEL_SHOCK | RIDER=INERTIAL_JOIN
+
+  P> 00
+
+                             O
+                             /
+                   a\       /
+                     o-     /
+                       -o--+-o
+                          /   \\
+                          /     o
+                         /       \
+                       -@         b
+                     o-  \o
+                    /     |
+                    /      |
+                   o       o
+                  /       /
+                  L       R
+
+            [#!!!!!!!!!!!!!!!!!!!!]
+
+
+
+[T008-K3] LOW_CATCH
+pose/rig=platform_passenger_C3 | support/contact=BILATERAL_PLATFORM_CONTACT; deep bilateral catch, left knee more compressed
+root/motion-arc=COM drops after shock; knees absorb load while torso remains ahead of pelvis
+timing_class=TWOS | timing_provenance=INFERRED
+causal_role=catch converts shock into grounded resistance and prevents an unreadable one-frame snap-back
+clocks PLATFORM=DECEL_HIGH | RIDER=CATCH
+
+  P> 00
+
+
+
+                           O
+                           /
+                          /
+                          /
+                    -o---+--o-
+                  o-     |    -o
+                a/       |      \
+                        |        b
+                     o--@-o
+                    /      \
+                   o       o
+                  /       /
+                  L       R
+
+            [#::::::::::::::::::::]
+
+
+
+[T008-K4] LOADED_BRACE_HOLD
+pose/rig=platform_passenger_C3 | support/contact=BILATERAL_PLATFORM_CONTACT; same feet, sustained forward shear carried through bent knees
+root/motion-arc=local brace freezes for readability while PLATFORM_CLOCK continues changing position under sustained deceleration
+timing_class=FOURS | timing_provenance=INFERRED
+causal_role=readable loaded hold demonstrates parent/local clock separation under continuing world motion
+clocks PLATFORM=DECEL_SUSTAIN | RIDER=HOLD_BRACE
+
+  P> 00
+
+
+                           O
+                           /
+                          /
+                          /
+                    -o---+---o
+                  o-     /    \o
+                a/      /       \b
+                        /
+                    o--@--o
+                    |     |
+                   |       |
+                   o       o
+                  /       /
+                  L       R
+
+            [#::::::::::::::::::::]
+
+
+
+[T008-K5] RELEASE_OVERSHOOT
+pose/rig=platform_passenger_C3 | support/contact=BILATERAL_PLATFORM_CONTACT; feet remain planted as shear drops
+root/motion-arc=when support acceleration returns toward zero, stored brace releases past neutral; chest leads left while feet stay attached
+timing_class=ONES | timing_provenance=INFERRED
+causal_role=overshoot prevents endpoint interpolation and gives the brake event a consequence
+clocks PLATFORM=BRAKE_RELEASE | RIDER=OVERSHOOT
+
+  P> 00
+
+                 O
+                 |
+                 |        -b
+                  |    -o-
+               o--+--o-
+           a-o/   \
+                   \
+                   \
+                   o@--o
+                   |    \
+                  |     \
+                  o      o
+                  |      |
+                  |       |
+                  L       R
+
+            [#====================]
+
+
+
+[T008-K6] UPPER_CHAIN_LAG
+pose/rig=platform_passenger_C3 | support/contact=BILATERAL_PLATFORM_CONTACT; lower body recenters before head/right arm
+root/motion-arc=pelvis begins returning but head and distal right arm lag one beat behind, preserving directional history
+timing_class=ONES | timing_provenance=INFERRED
+causal_role=secondary lag separates root recovery from upper-chain recovery
+clocks PLATFORM=ZERO_ACCEL | RIDER=SECONDARY_LAG
+
+  P> 00
+
+                  O
+                  \
+                   \
+                   \     -o--b
+              o--o--+--o-
+            a/      |
+                    |
+                     |
+                   o-@--o
+                   |    |
+                  |      |
+                  o      o
+                  |      |
+                  |       |
+                  L       R
+
+            [#====================]
+
+
+
+[T008-K7] RECOVERY_DEBT
+pose/rig=platform_passenger_C3 | support/contact=BILATERAL_PLATFORM_CONTACT; bilateral stance recovered but left side remains more compressed
+root/motion-arc=COM recenters incompletely; head/shoulder line retains residual left bias instead of resetting to idle
+timing_class=TWOS | timing_provenance=INFERRED
+causal_role=recovery debt keeps force history visible after acceleration has ended
+clocks PLATFORM=CRUISE_RESUME | RIDER=RECOVERY_DEBT
+
+  P> 00
+
+                     O
+                     |
+                     |
+                      |
+                  -o--+--o-
+                o-    |    -o
+              a/      |      \b
+                      |
+                    o-@-o
+                    |   |
+                   |     |
+                   o     o
+                   |     |
+                  |       |
+                  L       R
+
+            [#====================]
+
+
+
+[T008-K8] CRUISE_AFTER_DEBT
+pose/rig=platform_passenger_C3 | support/contact=BILATERAL_PLATFORM_CONTACT; planted, residual shoulder asymmetry retained
+root/motion-arc=platform returns to constant velocity; local body is stable but not byte-for-byte idle reset
+timing_class=FOURS | timing_provenance=INFERRED
+causal_role=settled consequence closes the phrase while preserving a trace of the event
+clocks PLATFORM=CRUISE | RIDER=SETTLE
+
+  P> 00
+
+                     O
+                     |
+                     |
+                      |
+                   o--+--o
+                 o/   |   \o
+               a/     |     \b
+                      @
+                    o/ \o
+                    |   |
+                   |     |
+                   o     o
+                   |     |
+                  |       |
+                  L       R
+
+            [#====================]
+
+
+
+VISIBLE PHRASE: CARRY -> COIL -> SHOCK -> CATCH -> LOADED HOLD -> OVERSHOOT -> LAG -> RECOVERY DEBT -> AFTER-DEBT CRUISE
+No source pixels. No traced choreography. Connective frames are deterministic same-support arcs and cannot invent semantics.
