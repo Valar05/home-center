@@ -41,7 +41,7 @@ def ascii_frame(j,support):
 
 def compile_frames():
     if M.get("connectors"):
-        raise SystemExit("accepted Locomotion010 render forbids generated connectors; use authored bridge keys")
+        raise SystemExit("Locomotion010 forbids generated connectors; every transition frame must be an authored key")
     frames=[]
     for k in M["keys"]:
         timing=k["timing_class"]
@@ -56,12 +56,16 @@ def contact_sheet():
       "ASCII KINESIS V2 LOCOMOTION 010 — CADENCE SURGE / BRAKE REPAIR",
       "Legend: ! trusted support   ? probe-only contact   @ pelvis/root   + chest   - ground",
       "Timing: ONES/TWOS/FOURS are cadence classes; all authored keys are INFERRED.",
-      "Phase law: cadence changes spacing/holds without resetting L/R support phase.",""
+      "Phase law: cadence changes spacing/holds without resetting L/R support order.",
+      "Source art is NOT embedded; this is an independent abstract ASCII rig.",""
     ]
     for k in M["keys"]:
         bridge_tag="  BRIDGE" if k.get("authored_bridge_key") else ""
         lines += [
           f"{k['key_id']} {k['name']}  [{k['timing_class']}/{k['timing_provenance']}]  SUPPORT={k['support_contact']}  PHASE={k['cadence_phase']}{bridge_tag}",
+          "ROOT: "+k["motion_arc_root_note"],
+          "ROLE: "+k["causal_role"],
+          "ATTITUDE: "+k["attitude"],
           ascii_frame(k["joints"],k["support_contact"]),""
         ]
     return "\n".join(lines).rstrip()+"\n"
@@ -78,10 +82,13 @@ def render_mp4(frames,out):
         d.multiline_text((16,50),ascii_frame(j,s),font=font,fill=(245,245,238),spacing=0)
         d.text((16,445),"! trusted foot   ? probe only   @ pelvis/root   + chest   - ground",font=small,fill=(160,160,160))
         d.text((850,445),f"{idx+1:03d}/{len(frames):03d}",font=small,fill=(130,130,130))
-        im.save(frame_dir/f"frame_{idx:04d}.png")
-    subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate","24","-i",str(frame_dir/"frame_%04d.png"),
-                    "-c:v","libx264","-preset","veryslow","-crf",str(M["motion_dungeon"]["compile"]["crf"]),
-                    "-pix_fmt","yuv420p","-movflags","+faststart","-metadata","comment=ASCII Kinesis abstract rig only",str(out)],check=True)
+        im.save(frame_dir/f"frame_{idx:04d}.png",compress_level=9)
+    subprocess.run([
+        "ffmpeg","-y","-loglevel","error","-framerate","24","-i",str(frame_dir/"frame_%04d.png"),
+        "-c:v","libx264","-preset","veryslow","-crf",str(M["motion_dungeon"]["compile"]["crf"]),
+        "-pix_fmt","yuv420p","-movflags","+faststart","-map_metadata","-1",
+        "-metadata","comment=ASCII Kinesis abstract rig only",str(out)
+    ],check=True)
     shutil.rmtree(frame_dir)
 
 def make_spa(sheet,media):
@@ -132,7 +139,7 @@ def main():
     if sha!=M["motion_dungeon"]["compile"]["media_sha256"]:
         raise SystemExit(f"media sha mismatch {sha}")
     if len(media)!=int(M["motion_dungeon"]["compile"]["media_bytes"]):
-        raise SystemExit("media byte count mismatch")
+        raise SystemExit(f"media byte count mismatch {len(media)}")
     spa=make_spa(sheet,media)
     (HERE/MAN["spa_file"]).write_text(spa,encoding="utf-8")
     print(json.dumps({"ok":True,"frames":len(frames),"media_sha256":sha,"media_bytes":len(media),"spa":MAN["spa_file"]},sort_keys=True))
