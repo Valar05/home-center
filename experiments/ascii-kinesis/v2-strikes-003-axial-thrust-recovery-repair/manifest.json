@@ -1,21 +1,26 @@
 {
+  "artifact_contract": "ASCII_KINESIS_SWARM_CONTRACT_V2",
+  "artifact_status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
   "ascii_literal_text": true,
   "backward_compatible": true,
   "files": {
-    "axial-thrust-recovery-repair.motion.html": "241ecd7274ef7fe84f9419f97fd43365ac0020c7b28988ffd0e6a120fb4a6e31",
-    "build.py": "9bc9fe824062314f534213ebca361e37147ad3370c1dc29d700a934db9231533",
-    "contact_sheet.txt": "c007bf409be63bd4d04b184c3e67309d8da012378083237a6d97558172645b3b",
-    "motion.json": "01913c91e0a79f8565a868179aa962bc5d6c5ccd9d80efd4d7e88dc7cff69ccf",
-    "receipt.json": "b3c527ee04119178db893307ee95fb348ad2604c65a3851c749ee4c70ac572ad"
+    "axial-thrust-recovery-repair.motion.html": "cc83c20787730cc8bf83c69de1daac6a73d24ff8948b2098eeae10bc4399c8ed",
+    "build.py": "c707b066cebd1126c6b77e034227e65249cf49873ed2b4411678f111e57d7f91",
+    "contact_sheet.txt": "8b7c706717648b73e0d603e1325fd829c662508edadef2f99522e25338ff42b9",
+    "motion.json": "bf3e3a8a7f526de42caf36f6f8a93d97e9376e5bd933ff58c73ff57c6ee94bea",
+    "receipt.json": "42f6dd281abc98285ad3eb4ec5d19cbbdbd6f69c82d529d7c78bfdb6514d83c6"
   },
   "format_version": 2,
   "id": "v2-strikes-003-axial-thrust-recovery-repair",
   "lane": "strikes",
   "media": {
+    "codec": "h264/yuv420p",
     "embedded_in_spa": true,
     "fps": 24,
     "frame_count": 47,
-    "sha256": "7da873ee06dda410c6b6e158f7d6440a38f9c0360e847ff12cacfa42729f1191"
+    "height": 720,
+    "sha256": "a50ea94ad6735428dd0150f8a1019b9f39e24c59031d1816ea49eaf658c2153f",
+    "width": 1280
   },
   "negative_fixture": "experiments/ascii-kinesis/v2-strikes-001-axial-thrust-recovery/",
   "primary_tabs": [
@@ -25,6 +30,7 @@
   ],
   "revises": "experiments/ascii-kinesis/v2-strikes-001-axial-thrust-recovery/",
   "source_art_embedded": false,
+  "spa": "axial-thrust-recovery-repair.motion.html",
   "video_required": true,
   "video_source": "abstract_ascii_rig_only"
 }
