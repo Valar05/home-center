@@ -1,41 +1,38 @@
 {
-  "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false
+  "schema": "ascii-kinesis.v2.receipt",
+  "experiment_id": "v2-video-motion-009-shove-it-dual-clock-recapture-repair",
+  "lane": "video-motion",
+  "repo_path": "experiments/ascii-kinesis/v2-video-motion-009-shove-it-dual-clock-recapture-repair/",
+  "revision": {
+    "revises": "experiments/ascii-kinesis/v2-video-motion-003-shove-it-dual-clock-recapture/",
+    "negative_fixture": "experiments/ascii-kinesis/v2-video-motion-003-shove-it-dual-clock-recapture/",
+    "predecessor_preserved": true,
+    "predecessor_status": "REVISE_REQUIRED_LOW_EFFORT",
+    "source_change": false,
+    "binding_successor": "experiments/ascii-kinesis/v2-video-motion-009-shove-it-dual-clock-recapture-repair/",
+    "successor_inventory": {
+      "prior_legitimate_successors_revising_video_motion_003": 0,
+      "selected_storage_identity": "009"
+    }
   },
-  "contract_test": {
-    "candidate_scoped_status": "PASS",
-    "repo_global_status": "NOT_CLAIMED",
-    "script_byte_identity": "PASS_GIT_BLOB_SHA_MATCH",
-    "script_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c"
+  "source_identity": {
+    "title": "Shove it.webm",
+    "author": "TheContreOfficial",
+    "license": "CC BY 3.0",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Shove_it.webm",
+    "source_sha256": "352e33bdbd6b66e27396efc490acf432796ff6bac0a6d6df709fd71671f82ac3"
   },
-  "correction_hooks": [
-    "KEEP",
-    "REJECT",
-    "EXAGGERATE",
-    "COMPRESS",
-    "RETIME",
-    "CHANGE SOURCE",
-    "FIX ARC",
-    "FIX SUPPORT",
-    "FIX RECAPTURE",
-    "FIX LANDING",
-    "FIX SECONDARY LAG",
-    "FIX CHAT DELIVERY",
-    "RERUN"
-  ],
   "evidence_split": {
-    "inferred": [
-      "Every successor decisive body pose, body/board separation geometry, board angle, support-side assignment, authored recapture instant, authored ground-contact instant, COM/load transfer, limb sequencing, overshoot, secondary lag, recovery debt, and ONES/TWOS/FOURS compile cadence.",
-      "Body clock and board clock are deliberately separated to make the documented shove-it action legible; exact source synchronization is not claimed.",
-      "Motion Dungeon travel arcs are authored compile geometry and not source-frame reconstruction."
-    ],
     "observed": [
       "Wikimedia Commons identifies the action as a shove-it: the skateboard spins 180 degrees or more under the skateboarder's feet.",
       "Inherited authorized predecessor custody matched Commons SHA-1 102cd768e940a7ccdf3349d26ebea479ae9e1a0b and source SHA-256 352e33bdbd6b66e27396efc490acf432796ff6bac0a6d6df709fd71671f82ac3; decode reported 1920x1080 VP8, 30 fps presentation stream, 6.570 s duration.",
       "Inherited ordered whole-clip and 2.5–5.5 s motion-mask inspection established a concentrated action burst in that coherent segment, but not exact foot/board events.",
-      "Current rights recheck on Wikimedia Commons confirms author TheContreOfficial and CC BY 3.0 with historical license review."
+      "Current rights identity remains TheContreOfficial / Wikimedia Commons / CC BY 3.0."
+    ],
+    "inferred": [
+      "Every successor decisive body pose, body/board separation geometry, board angle, support-side assignment, authored recapture instant, authored ground-contact instant, COM/load transfer, limb sequencing, overshoot, secondary lag, recovery debt, and ONES/TWOS/FOURS compile cadence.",
+      "Body clock and board clock are deliberately separated to make the documented shove-it action legible; exact source synchronization is not claimed.",
+      "Motion Dungeon travel arcs are authored compile geometry and not source-frame reconstruction."
     ],
     "unknown": [
       "Exact source-frame toe-off / board-release instant",
@@ -46,80 +43,77 @@
       "Source-authentic athletic/gameplay cadence"
     ]
   },
-  "experiment_id": "v2-video-motion-009-shove-it-dual-clock-recapture-repair",
-  "issue_receipt": null,
-  "lane": "video-motion",
   "media": {
     "authoritative": "embedded_mp4_in_spa",
-    "bytes": 28826,
+    "tracked_mp4": false,
+    "sha256": "170dfe4778da7d5132742b52a9aaff32530fbc9fc23e99e3e7774f1d83f2a28a",
+    "bytes": 27172,
     "codec": "H.264",
     "decode_verified": true,
     "duration_s": 2.2916666666666665,
     "fps": 24,
     "frame_count": 55,
+    "width": 432,
     "height": 220,
     "pixel_format": "yuv420p",
-    "sha256": "442c7fcbd561ee3aace354b916dbd13274934ec2a573232b1c58a6420961f064",
-    "tracked_mp4": false,
-    "width": 432
+    "identity_reconciliation": {
+      "canonical_builder_motion_sha": "170dfe4778da7d5132742b52a9aaff32530fbc9fc23e99e3e7774f1d83f2a28a",
+      "preexisting_motion_manifest_sha": "170dfe4778da7d5132742b52a9aaff32530fbc9fc23e99e3e7774f1d83f2a28a",
+      "stale_intermediate_receipt_sha": "442c7fcbd561ee3aace354b916dbd13274934ec2a573232b1c58a6420961f064",
+      "verdict": "The stale intermediate receipt-only hash is superseded; current canonical builder + exact authored motion reproduces the pre-existing motion.json/manifest media identity and current worker decoded that exact render."
+    }
   },
   "per_key_timing": [
-    {"causal_role":"OFFSET_ROLL_READY","hold_frames":4,"key_id":"K0","timing_class":"FOURS","timing_provenance":"INFERRED","travel_frames_to_next":2},
-    {"causal_role":"BACK_ARM_COUNTERSWEEP","hold_frames":4,"key_id":"K1","timing_class":"FOURS","timing_provenance":"INFERRED","travel_frames_to_next":2},
-    {"causal_role":"DEEP_DIAGONAL_LOAD","hold_frames":4,"key_id":"K2","timing_class":"FOURS","timing_provenance":"INFERRED","travel_frames_to_next":1},
-    {"causal_role":"SCOOP_AND_UNWIND","hold_frames":2,"key_id":"K3","timing_class":"TWOS","timing_provenance":"INFERRED","travel_frames_to_next":1},
-    {"causal_role":"AUTHORED_RELEASE_BOUNDARY","hold_frames":1,"key_id":"K4","timing_class":"ONES","timing_provenance":"INFERRED","travel_frames_to_next":1},
-    {"causal_role":"BOARD_CLOCK_BREAKAWAY","hold_frames":1,"key_id":"K5","timing_class":"ONES","timing_provenance":"INFERRED","travel_frames_to_next":1},
-    {"causal_role":"BODY_HANG_BOARD_RUNS","hold_frames":2,"key_id":"K6","timing_class":"TWOS","timing_provenance":"INFERRED","travel_frames_to_next":1},
-    {"causal_role":"MAX_CLOCK_SEPARATION","hold_frames":2,"key_id":"K7","timing_class":"TWOS","timing_provenance":"INFERRED","travel_frames_to_next":1},
-    {"causal_role":"COUNTERTWIST_PAYS_BACK","hold_frames":1,"key_id":"K8","timing_class":"ONES","timing_provenance":"INFERRED","travel_frames_to_next":1},
-    {"causal_role":"RECAPTURE_AIM_BRIDGE","hold_frames":1,"key_id":"K9","timing_class":"ONES","timing_provenance":"INFERRED","travel_frames_to_next":1},
-    {"causal_role":"CONTACT_ELIGIBILITY_GATE","hold_frames":1,"key_id":"K10","timing_class":"ONES","timing_provenance":"INFERRED","travel_frames_to_next":0},
-    {"causal_role":"AUTHORED_RECAPTURE_CLAMP","hold_frames":1,"key_id":"K11","timing_class":"ONES","timing_provenance":"INFERRED","travel_frames_to_next":0},
-    {"causal_role":"AUTHORED_GROUND_CATCH","hold_frames":1,"key_id":"K12","timing_class":"ONES","timing_provenance":"INFERRED","travel_frames_to_next":0},
-    {"causal_role":"DEEP_LANDING_SKEW","hold_frames":4,"key_id":"K13","timing_class":"FOURS","timing_provenance":"INFERRED","travel_frames_to_next":2},
-    {"causal_role":"ROLL_AWAY_OVERSHOOT","hold_frames":2,"key_id":"K14","timing_class":"TWOS","timing_provenance":"INFERRED","travel_frames_to_next":2},
-    {"causal_role":"SECONDARY_LAG_SETTLE","hold_frames":2,"key_id":"K15","timing_class":"TWOS","timing_provenance":"INFERRED","travel_frames_to_next":2},
-    {"causal_role":"RECOVERY_DEBT_EXIT","hold_frames":4,"key_id":"K16","timing_class":"FOURS","timing_provenance":"INFERRED","travel_frames_to_next":0}
+    {"key_id":"K0","causal_role":"OFFSET_ROLL_READY","timing_class":"FOURS","timing_provenance":"INFERRED","hold_frames":4,"travel_frames_to_next":2},
+    {"key_id":"K1","causal_role":"BACK_ARM_COUNTERSWEEP","timing_class":"FOURS","timing_provenance":"INFERRED","hold_frames":4,"travel_frames_to_next":2},
+    {"key_id":"K2","causal_role":"DEEP_DIAGONAL_LOAD","timing_class":"FOURS","timing_provenance":"INFERRED","hold_frames":4,"travel_frames_to_next":1},
+    {"key_id":"K3","causal_role":"SCOOP_AND_UNWIND","timing_class":"TWOS","timing_provenance":"INFERRED","hold_frames":2,"travel_frames_to_next":1},
+    {"key_id":"K4","causal_role":"AUTHORED_RELEASE_BOUNDARY","timing_class":"ONES","timing_provenance":"INFERRED","hold_frames":1,"travel_frames_to_next":1},
+    {"key_id":"K5","causal_role":"BOARD_CLOCK_BREAKAWAY","timing_class":"ONES","timing_provenance":"INFERRED","hold_frames":1,"travel_frames_to_next":1},
+    {"key_id":"K6","causal_role":"BODY_HANG_BOARD_RUNS","timing_class":"TWOS","timing_provenance":"INFERRED","hold_frames":2,"travel_frames_to_next":1},
+    {"key_id":"K7","causal_role":"MAX_CLOCK_SEPARATION","timing_class":"TWOS","timing_provenance":"INFERRED","hold_frames":2,"travel_frames_to_next":1},
+    {"key_id":"K8","causal_role":"COUNTERTWIST_PAYS_BACK","timing_class":"ONES","timing_provenance":"INFERRED","hold_frames":1,"travel_frames_to_next":1},
+    {"key_id":"K9","causal_role":"RECAPTURE_AIM_BRIDGE","timing_class":"ONES","timing_provenance":"INFERRED","hold_frames":1,"travel_frames_to_next":1},
+    {"key_id":"K10","causal_role":"CONTACT_ELIGIBILITY_GATE","timing_class":"ONES","timing_provenance":"INFERRED","hold_frames":1,"travel_frames_to_next":0},
+    {"key_id":"K11","causal_role":"AUTHORED_RECAPTURE_CLAMP","timing_class":"ONES","timing_provenance":"INFERRED","hold_frames":1,"travel_frames_to_next":0},
+    {"key_id":"K12","causal_role":"AUTHORED_GROUND_CATCH","timing_class":"ONES","timing_provenance":"INFERRED","hold_frames":1,"travel_frames_to_next":0},
+    {"key_id":"K13","causal_role":"DEEP_LANDING_SKEW","timing_class":"FOURS","timing_provenance":"INFERRED","hold_frames":4,"travel_frames_to_next":2},
+    {"key_id":"K14","causal_role":"ROLL_AWAY_OVERSHOOT","timing_class":"TWOS","timing_provenance":"INFERRED","hold_frames":2,"travel_frames_to_next":2},
+    {"key_id":"K15","causal_role":"SECONDARY_LAG_SETTLE","timing_class":"TWOS","timing_provenance":"INFERRED","hold_frames":2,"travel_frames_to_next":2},
+    {"key_id":"K16","causal_role":"RECOVERY_DEBT_EXIT","timing_class":"FOURS","timing_provenance":"INFERRED","hold_frames":4,"travel_frames_to_next":0}
   ],
   "quality": {
-    "noodle_queen": {"after_tango":true,"current_worker":true,"status":"PASS"},
-    "tango": {"current_worker":true,"rounds":2,"status":"PASS"}
+    "tango": {
+      "status": "PASS",
+      "current_worker": true,
+      "rounds_total_lineage": 3,
+      "inspection_scope": "current worker decoded and inspected all 55 frames chronologically in five complete review sheets from the exact final Motion Dungeon render",
+      "verdict": "PASS — lopsided countermove and deep diagonal load precede release; the board clock visibly foreshortens, inverts endpoint order, and leads the body clock without cartwheel pitch; eligibility, recapture clamp, ground catch, landing sink, forward overshoot, secondary lag, and displaced recovery remain causally distinct. No visible defect earns key/timing/support/arc mutation."
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "current_worker": true,
+      "after_tango": true,
+      "rounds_total_lineage": 2,
+      "inspection_scope": "same exact final 55-frame render plus complete ASCII/JSON/VIDEO specimen",
+      "verdict": "PASS — TASTE + FUNCTION + CONTEMPT: the backward-loaded silhouette, independent board clock, late rendezvous, crooked landing payment, overshoot and non-reset exit form one specific readable performance; economy is serving the action rather than excusing missing acting."
+    }
   },
   "quality_worklog": [
-    {
-      "correction": "Keep the authored yaw values but render them as horizontal foreshortening plus A/B endpoint-order inversion across 90 degrees; preserve all support/contact/root semantics.",
-      "gate": "TANGO",
-      "highest_value_visible_defect": "The board clock reads as screen-plane pitch/cartwheel because a yaw angle was rendered as a long rotating diagonal. That weakens the central body/object clock idea and risks teaching the wrong motion.",
-      "round": 1,
-      "status": "REVISE_REQUIRED"
-    },
-    {
-      "gate":"TANGO",
-      "inspection_scope":"all 55 decoded frames in chronological review sheets after yaw-render correction",
-      "round":2,
-      "status":"PASS",
-      "verdict":"Asymmetric countermove and diagonal load precede a sharp release; body and board clocks visibly separate; board yaw now reads as foreshortening plus endpoint inversion rather than a cartwheel; recapture and ground catch are distinct authored gates; landing sinks after support, then rebounds past stack with secondary arm/knee lag and a displaced exit."
-    },
-    {
-      "gate":"NOODLE_QUEEN",
-      "inspection_scope":"same final actual render after Tango PASS plus complete specimen",
-      "round":1,
-      "status":"PASS",
-      "verdict":"TASTE + FUNCTION + CONTEMPT PASS: the backward-loaded opening, board-clock inversion, late body rendezvous, crooked landing payment, overshoot, and non-reset exit form a specific readable performance rather than generic stick-figure interpolation."
-    }
+    {"gate":"TANGO","round":1,"status":"REVISE_REQUIRED","highest_value_visible_defect":"The board clock reads as screen-plane pitch/cartwheel because a yaw angle was rendered as a long rotating diagonal. That weakens the central body/object clock idea and risks teaching the wrong motion.","correction":"Keep the authored yaw values but render them as horizontal foreshortening plus A/B endpoint-order inversion across 90 degrees; preserve all support/contact/root semantics."},
+    {"gate":"TANGO","round":2,"status":"PASS","historical_worker":true,"verdict":"After yaw-render correction, asymmetric countermove/load, clock separation, recapture and landing consequence were reported readable."},
+    {"gate":"TANGO","round":3,"status":"PASS","current_worker":true,"inspection_scope":"all 55 frames decoded from the exact canonical Motion Dungeon render and inspected chronologically in five complete review sheets","verdict":"PASS — lopsided countermove and deep diagonal load precede release; the board clock visibly foreshortens, inverts endpoint order, and leads the body clock without cartwheel pitch; eligibility, recapture clamp, ground catch, landing sink, forward overshoot, secondary lag, and displaced recovery remain causally distinct. No visible defect earns key/timing/support/arc mutation."},
+    {"gate":"NOODLE_QUEEN","round":2,"status":"PASS","current_worker":true,"inspection_scope":"same exact final render plus complete specimen, only after current-worker Tango PASS","verdict":"PASS — TASTE + FUNCTION + CONTEMPT: the backward-loaded silhouette, independent board clock, late rendezvous, crooked landing payment, overshoot and non-reset exit form one specific readable performance; economy is serving the action rather than excusing missing acting."}
   ],
-  "repo_path":"experiments/ascii-kinesis/v2-video-motion-009-shove-it-dual-clock-recapture-repair/",
-  "repo_readback":"PENDING",
-  "revision": {
-    "negative_fixture":"experiments/ascii-kinesis/v2-video-motion-003-shove-it-dual-clock-recapture/",
-    "predecessor_preserved":true,
-    "predecessor_status":"REVISE_REQUIRED_LOW_EFFORT",
-    "revises":"experiments/ascii-kinesis/v2-video-motion-003-shove-it-dual-clock-recapture/",
-    "source_change":false,
-    "successor_inventory":{"fresh_main_video_motion_dirs":["001","002","003","004","005","006","007","008","008"],"prior_legitimate_successors_revising_video_motion_003":0,"selected_storage_identity":"009"}
+  "contract_test": {
+    "candidate_scoped_status": "PASS",
+    "repo_global_status": "NOT_CLAIMED",
+    "script_byte_identity": "PASS_GIT_BLOB_SHA_MATCH",
+    "script_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c"
   },
-  "schema":"ascii-kinesis.v2.receipt",
-  "source_identity":{"author":"TheContreOfficial","license":"CC BY 3.0","page_url":"https://commons.wikimedia.org/wiki/File:Shove_it.webm","source_sha256":"352e33bdbd6b66e27396efc490acf432796ff6bac0a6d6df709fd71671f82ac3","title":"Shove it.webm"},
-  "status":"QUALITY_GATES_PASS_MEDIA_DECODE_PASS_CONTRACT_PASS_PERSIST_PENDING"
+  "repo_readback": "PENDING",
+  "issue_receipt": null,
+  "chat_delivery": {"part1_ascii":false,"part2_json":false,"part3_video":false},
+  "status": "QUALITY_GATES_PASS_MEDIA_DECODE_PASS_CONTRACT_PASS_PERSIST_PENDING",
+  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","FIX ARC","FIX SUPPORT","FIX RECAPTURE","FIX LANDING","FIX SECONDARY LAG","FIX CHAT DELIVERY","RERUN"]
 }
