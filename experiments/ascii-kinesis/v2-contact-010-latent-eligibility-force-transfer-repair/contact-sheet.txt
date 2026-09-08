@@ -1,7 +1,15 @@
+v2-contact-010-latent-eligibility-force-transfer-repair
+CONTACT ELIGIBILITY IS A LATENT STATE GATE: THE REACH MAY ENTER RANGE WITHOUT ACQUISITION; OWNED CONTACT BEGINS ONLY AFTER THE CENTER ARRIVES UNDER THE REACH, THEN THE LOCKED RELATIONSHIP FRAME OWNS SUPPORT TRANSFER UNTIL EXPLICIT RELEASE.
+SOURCE EVIDENCE: TSR asset 197250 / whole static sheet inherited; timing unavailable.
+RIGHTS: evidence only; independent ASCII rig; no source pixels/palette/layout/contours/tracing/choreography.
+TIMING: ONES/TWOS/FOURS are display classes, never seconds; every key INFERRED / STREET_FIGHTER-CAPCOM.
+CONTROL INVARIANT: E- never authorizes contact/custody even at identical visible separation.
+========================================================================
 C010-K00  LATENT_ELIGIBLE / SEPARATE  [FOURS/INFERRED]
-contact=NONE | eligibility=B:E+ | custody=NONE
-support=A:BOTH;B:BOTH
-
+eligibility=B:E+ | contact=NONE | custody=NONE
+support=A:BOTH;B:BOTH | root=A:DUAL;B:DUAL
+role=establish latent eligibility before any approach
+arc=A neutral; B compressed; wide negative space
 
 
 
@@ -25,9 +33,10 @@ _____________^___^_____________________^___^____________________________
 
 ========================================================================
 C010-K01  ASYMMETRIC_COIL  [FOURS/INFERRED]
-contact=NONE | eligibility=B:E+ | custody=NONE
-support=A:REAR_DOMINANT;B:BOTH
-
+eligibility=B:E+ | contact=NONE | custody=NONE
+support=A:REAR_DOMINANT;B:BOTH | root=A:foot_b;B:DUAL
+role=store approach force in A before reach
+arc=A COM sinks down-right while B stays compact
 
 
 
@@ -51,9 +60,10 @@ ______________^____^___________________^___^____________________________
 
 ========================================================================
 C010-K02  LOW_APPROACH  [TWOS/INFERRED]
-contact=NONE | eligibility=B:E+ | custody=NONE
-support=A:REAR_TO_PROBE;B:BOTH
-
+eligibility=B:E+ | contact=NONE | custody=NONE
+support=A:REAR_TO_PROBE;B:BOTH | root=A:foot_b->foot_f;B:DUAL
+role=approach without premature contact
+arc=A travels right on a shallow low arc; B remains still
 
 
 
@@ -76,10 +86,11 @@ _________________^_____^_______________^___^____________________________
 
 
 ========================================================================
-C010-K03  REACH_BEFORE_CONTACT  [ONES/INFERRED]
-contact=NONE | eligibility=B:E+ | custody=NONE
-support=A:FRONT_PROBE;B:BOTH
-
+C010-K03  FALSE_REACH / NO_CONTACT  [ONES/INFERRED]
+eligibility=B:E+ | contact=NONE | custody=NONE
+support=A:FRONT_PROBE;B:BOTH | root=A:foot_f;B:DUAL
+role=prove farthest reach is not acquisition
+arc=A hand reaches long while pelvis remains behind; gap remains
 
 
 
@@ -102,36 +113,11 @@ _____________________^_______^_________^___^____________________________
 
 
 ========================================================================
-C010-K04  ACQUIRE_ANCHOR  [ONES/INFERRED]
-contact=A.hand_f<->B.hand_f | eligibility=B:E+->CONSUMED | custody=A_PRIMARY
-support=A:FRONT_TRUSTED;B:BOTH
-
-
-
-
-
-
-
-
-                           A
-                            |
-                            O---          B
-                           /|   ----@--  |
-                          /  |         --O
-                         *   X          | -*
-                            / \         X
-                           /   \        |\
-                          /    \       | \
-_________________________^______^______^__^_____________________________
-
-
-
-
-========================================================================
-C010-K05  RELATIONSHIP_FRAME_LOCK  [TWOS/INFERRED]
-contact=HAND+TORSO_LOCK | eligibility=CONSUMED | custody=A_PRIMARY
-support=A:DUAL;B:REAR_DEGRADING
-
+C010-K04  CENTER_ARRIVES / ACQUIRE_ANCHOR  [TWOS/INFERRED]
+eligibility=B:E+->CONSUMED | contact=A.hand_f<->B.hand_f | custody=A_PRIMARY
+support=A:FRONT_TRUSTED;B:BOTH | root=A:foot_f;B:DUAL
+role=eligibility permits acquisition only after center catches reach
+arc=A pelvis advances under shortened arm; B yields only after anchor closes
 
 
 
@@ -140,23 +126,50 @@ support=A:DUAL;B:REAR_DEGRADING
 
 
                              A
-                              |         B
-                              O--      |
-                              |* ---@--O
-                               |      |*
-                               X      X
-                              / \     |\
-                             /   \   |  \
-                            /    \   |  \
-___________________________^______^__^___^______________________________
+                              |           B
+                              O-----@--  |
+                            //|        --O
+                           *   |        | -*
+                               X        X
+                              / \       |\
+                            //   \     | \
+___________________________^______^____^__^_____________________________
+
+
+
+
+========================================================================
+C010-K05  RELATIONSHIP_FRAME_LOCK  [TWOS/INFERRED]
+eligibility=CONSUMED | contact=HAND+TORSO_LOCK | custody=A_PRIMARY
+support=A:DUAL;B:REAR_DEGRADING | root=A:DUAL;B:foot_b
+role=convert point contact into an owned shared-force frame
+arc=shared center compresses between hips; A shortens both arms
+
+
+
+
+
+
+
+                              A         B
+                               |       |
+                               O----@--O
+                               |-*    |*
+                                |     X
+                                X     |\
+                              // \   |  \
+                            //    \  |  \
+___________________________^_______^_^___^______________________________
 
 
 
 
 ========================================================================
 C010-K06  LOAD_OPPOSING_ARCS  [FOURS/INFERRED]
-contact=HAND+TORSO_LOCK | eligibility=CONSUMED | custody=A_PRIMARY
-support=A:REAR+FRONT_BRACE;B:LOSING_GROUND
+eligibility=CONSUMED | contact=HAND+TORSO_LOCK | custody=A_PRIMARY
+support=A:REAR+FRONT_BRACE;B:LOSING_GROUND | root=A:foot_b@[27,17];B:PEEL
+role=store leverage in opposing arcs before support loss
+arc=A pelvis loads down-left while B pelvis peels up-left
 
 
 
@@ -165,23 +178,25 @@ support=A:REAR+FRONT_BRACE;B:LOSING_GROUND
 
                                        B
                                       |
-                              A       O-*
-                               |  --@-|
-                               O--   |
-                               | -*  X
-                                |    |\
-                                X   | \
-                              // \  |  ^
-                            //    \ ^
-___________________________^_______^____________________________________
+                                      O-*
+                             A     -@-|
+                              | ---  |
+                              O---*  X
+                              |      |\
+                              |     | \
+                              X     |  ^
+                            // --   ^
+___________________________^______^_____________________________________
 
 
 
 
 ========================================================================
 C010-K07  HIP_LEVER_PIVOT  [TWOS/INFERRED]
-contact=HAND+TORSO_LOCK | eligibility=CONSUMED | custody=A_PRIMARY
-support=A:REAR_ANCHOR;B:NONE
+eligibility=CONSUMED | contact=HAND+TORSO_LOCK | custody=A_PRIMARY
+support=A:REAR_ANCHOR;B:NONE | root=A:foot_b@[27,17];B:NONE
+role=make support loss purchase a cross-body lever
+arc=A rear anchor pins while B rotates diagonal across A hip
 
 
 
@@ -204,9 +219,11 @@ ___________________________^_______^____________________________________
 
 
 ========================================================================
-C010-K08  TRANSFER_SWEEP  [ONES/INFERRED]
-contact=HAND+TORSO_LOCK | eligibility=CONSUMED | custody=A_PRIMARY
-support=A:REAR_ANCHOR;B:NONE
+C010-K08  LOCKED_TRANSFER_SWEEP  [TWOS/INFERRED]
+eligibility=CONSUMED | contact=HAND+TORSO_LOCK | custody=A_PRIMARY
+support=A:REAR_ANCHOR;B:NONE | root=A:foot_b@[27,17];B:NONE
+role=transfer relationship without leaking custody
+arc=B sweeps right/up across shared center while A root remains pinned
 
 
 
@@ -220,116 +237,131 @@ support=A:REAR_ANCHOR;B:NONE
                             |          ^
                              |
                              X
-                            / \
-                           /   \\
-                          /      \
-_________________________^________^_____________________________________
+                            | \
+                            |  \\
+                           |     \
+___________________________^______^_____________________________________
+
+
+
+
+========================================================================
+C010-K08B  LOCKED_OVERSHOOT / RELEASE_THRESHOLD  [TWOS/INFERRED]
+eligibility=CONSUMED | contact=HAND+TORSO_LOCK | custody=A_PRIMARY
+support=A:REAR_ANCHOR;B:NONE | root=A:foot_b@[27,17];B:NONE
+role=hold custody through overshoot so release becomes its own event
+arc=A sinks against pinned rear foot while B reaches maximum locked right/up sweep
+
+
+
+
+                                               -B
+                                          --O---*
+                                     ----- /
+                                 -@--    //
+                          A    --      -X
+                           | --     ^--  \
+                           O---*          ^
+                           |
+                            |
+                            X
+                            |\\
+                           |   \\
+___________________________^_____^______________________________________
 
 
 
 
 ========================================================================
 C010-K09  RELEASE_FORK  [ONES/INFERRED]
-contact=RELEASED | eligibility=CONSUMED | custody=NONE
-support=A:REAR_DOMINANT;B:NONE
+eligibility=CONSUMED | contact=RELEASED | custody=NONE
+support=A:REAR_DOMINANT;B:NONE | root=A:foot_b@[27,17];B:NONE
+role=explicitly break custody after locked overshoot
+arc=A recoils left/down while B departs right/up on a separate clock
 
 
 
-                                            B
-                                           |
-                                           O---*
-                                         --|
-                                       *- |
-                         A                X--
-                          |  ---*          | ---^
-                          O--              ^
-                          |-*
+
+                                                  B
+                                                 /
+                                               -O---*
+                                           ----/
+                                         *-   /
+                                             X---
+                         A     -*             \  ----^
+                          | ---                ^
+                          O-*
+                          |
                            |
-                           X
-                          / --
-                         /    --
-________________________^________^______________________________________
+                           X-
+                           | ---
+___________________________^_____^______________________________________
 
 
 
 
 ========================================================================
 C010-K10  PARTNER_LAG / CARRIER_RECOIL  [TWOS/INFERRED]
-contact=NONE | eligibility=CONSUMED | custody=NONE
-support=A:REAR_DOMINANT;B:NONE
-
-
-
-
-                                                 B
-                                                |
-                                                O---*
-                                              --|
-                                            *- |
-                        A  *                   X--
-                         |/                     | ---^
-                         O---*                  ^
-                         |
-                          |
-                          X-
-                        //  ---
-_______________________^________^_______________________________________
-
-
-
-
-========================================================================
-C010-K11  DESCENT / SETTLE_BEGIN  [TWOS/INFERRED]
-contact=NONE | eligibility=CONSUMED | custody=NONE
-support=A:DUAL_REGAIN;B:PRECONTACT
-
+eligibility=CONSUMED | contact=NONE | custody=NONE
+support=A:REAR_DOMINANT;B:NONE | root=A:foot_b@[27,17];B:NONE
+role=show opposing recoil and secondary lag after release
+arc=A upper body trails recoil; B continues forward with limb lag
 
 
 
 
 
                                                       B
-                         A                           |
-                         *|                         -O--*
-                          O-                      *- |
-                          | -*                      |
-                           |                        X
-                           X                       | \
-                          / \\                     ^  \\
-                         /    \\                        ^
-________________________^_______^_______________________________________
+                                                     /
+                                                   -O---*
+                                                ---/
+                                              *-   /
+                           *                      X---
+                       A  /                        |  ---^
+                        |/                         ^
+                        O----*
+                         |
+                         X-
+                          \---
+___________________________^___^________________________________________
 
 
 
 
 ========================================================================
-C010-K12  PARTNER_CATCH / A_OVERSHOOT  [ONES/INFERRED]
-contact=NONE | eligibility=CONSUMED | custody=NONE
-support=A:FRONT_OVERSHOOT;B:FRONT_CATCH
+C010-K11  DESCENT / REGAIN_PREP  [TWOS/INFERRED]
+eligibility=CONSUMED | contact=NONE | custody=NONE
+support=A:DUAL_REGAIN;B:PRECONTACT | root=A:foot_b->DUAL;B:NONE
+role=begin settlement without reverse-interpolating the throw
+arc=A rebounds right into a new plant while B descends on a separate arc
 
 
 
 
 
 
-                           A
-                            |
-                            O-                         B
-                          //| -*                      |
-                         *   |                       -O
-                             X                     *- |-*
-                            / \                      |
-                           /   \                     X
-                          /     \                   / \\
-_________________________^_______^_________________^____^_______________
+
+                                                         B
+                                                        |
+                        *                              -O---*
+                        ||                          *-- |
+                         O---*                         |
+                          |                            X
+                          X                           | \\
+                          |--                         ^   \\
+                         |   --                             ^
+_________________________^______^_______________________________________
 
 
 
 
 ========================================================================
-C010-K13  RECOVERY_DEBT  [TWOS/INFERRED]
-contact=NONE | eligibility=CONSUMED | custody=NONE
-support=A:DUAL;B:DUAL_REGAIN
+C010-K12  PARTNER_CATCH / A_OVERSHOOT  [TWOS/INFERRED]
+eligibility=CONSUMED | contact=NONE | custody=NONE
+support=A:FRONT_OVERSHOOT;B:FRONT_CATCH | root=A:foot_f;B:foot_f
+role=separate landing consequence from release and give both bodies debt
+arc=A passes its stack while B compresses hard into first landing support
+
 
 
 
@@ -337,23 +369,26 @@ support=A:DUAL;B:DUAL_REGAIN
 
 
                             A
-                             |                          B
-                             O                         |
-                            /|-*                      -O
-                           /  |                     *- |-*
-                          *   X                       |
-                             / \                      X
-                            /   \                    / \
-                           /     \                   /  \
-__________________________^_______^_________________^____^______________
+                             |
+                             O-
+                            /| -*                         B
+                          //  |                          |
+                         *    X                      *---O-
+                             / \                        |  -*
+                           //   \                       X
+                          /      \                    ^- --
+_________________________^________^_________________________^___________
 
 
 
 
 ========================================================================
-C010-K14  READY_NEW_ADDRESS  [FOURS/INFERRED]
-contact=NONE | eligibility=SPENT | custody=NONE
-support=A:BOTH;B:BOTH
+C010-K13  RECOVERY_DEBT / SECONDARY_LAG  [TWOS/INFERRED]
+eligibility=CONSUMED | contact=NONE | custody=NONE
+support=A:DUAL;B:DUAL_REGAIN | root=A:DUAL;B:foot_f->DUAL
+role=pay recovery debt with different clocks rather than idle reset
+arc=A torso arrives late; B rebounds off catch while rear support returns
+
 
 
 
@@ -361,16 +396,41 @@ support=A:BOTH;B:BOTH
 
 
                              A
-                              |                          B
-                              O-                        |
-                            *-| -*                     -O
-                               |                     *- |-*
-                               X                       |
-                              / \                      X
-                              / \                     | \
-                             /   \                    |  \
-                             /   \                   |   \
-____________________________^_____^__________________^____^_____________
+                              |                            B
+                              O                           |
+                             /|-*                     *---O-
+                           //  |                         |  -*
+                          *    X                         X
+                             // \                       / \
+                           //    \\                     /  \\
+__________________________^________^___________________^_____^__________
+
+
+
+
+========================================================================
+C010-K14  READY_NEW_ADDRESS  [FOURS/INFERRED]
+eligibility=SPENT | contact=NONE | custody=NONE
+support=A:BOTH;B:BOTH | root=A:DUAL;B:DUAL
+role=recover to new addresses, not the initial idle
+arc=both actors settle displaced to the right with residual asymmetry
+
+
+
+
+
+
+                              A
+                               |
+                               O-                           B
+                             //| -*                        |
+                            *   |                         -O-
+                                X                      *-- | -*
+                               / \                        |
+                               / \                        X
+                              /   \                      / \
+                              /   \                      /  \\
+_____________________________^_____^____________________^_____^_________
 
 
 
