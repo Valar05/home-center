@@ -1,0 +1,124 @@
+{
+  "ascii_literal_text": true,
+  "ascii_sheet_sha256": "f1477f31d69ac9783d4c41b9fba9f3f832a6aac92376b4ecaeeafc54aefe4843",
+  "ascii_surface": "real preformatted DOM text",
+  "backward_compatible": true,
+  "compatibility": {
+    "ascii_kinesis_v2": true,
+    "backward_compatible": true,
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "uapl_v1_read_path_preserved": true
+  },
+  "compiled_media_tracked_separately": false,
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "FIX ARC",
+    "FIX SUPPORT",
+    "FIX LANDING",
+    "FIX SECONDARY LAG",
+    "RERUN"
+  ],
+  "experiment_id": "v2-airborne-016-crooked-catch-vertical-debt-repair",
+  "files": [
+    "build.py",
+    "manifest.json",
+    "motion.json",
+    "receipt.md",
+    "crooked-catch-vertical-debt-repair.motion.html"
+  ],
+  "format_version": 2,
+  "lane": "airborne",
+  "ligatures_disabled": true,
+  "media_bytes": 22293,
+  "media_filename": "crooked-catch-vertical-debt-repair.mp4",
+  "media_hash_policy": "Authoritative media is the exact MP4 embedded in the tracked SPA. The builder regenerates and verifies this byte identity in the authored runtime.",
+  "media_sha256": "99f22dda4f9ef8ab7a8fe16351e5ad54de9d1ee6ea69e07248030dc72a000256",
+  "motion_dungeon": {
+    "ascii_only_frame_render": true,
+    "authored_ascii_keys": 19,
+    "authored_bridge_keys": 10,
+    "connector_semantics_fail_closed": true,
+    "deterministic_connective_motion": true,
+    "duration_seconds": 2.25,
+    "explicit_holds": true,
+    "fps": 24,
+    "video_dimensions": [
+      640,
+      360
+    ],
+    "video_frames_total": 54
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "quality_gates": {
+    "noodle_queen": "PASS_FINAL_RENDER",
+    "tango": "PASS_AFTER_ONE_AUTHORED_RECOVERY_REVISION",
+    "tango_revision": "Post-overshoot recovery was too near-symmetric too early; K15/K16 and bridge B1516 were re-authored to preserve shoulder-height asymmetry, arm lag, knee load, and displaced recovery debt."
+  },
+  "reconstruction": "python3 build.py",
+  "repo_path": "experiments/ascii-kinesis/v2-airborne-016-crooked-catch-vertical-debt-repair/",
+  "repo_readback": {
+    "verified": false
+  },
+  "revision": {
+    "negative_fixture": "experiments/ascii-kinesis/v2-airborne-007-landing-pays-vertical-debt/",
+    "predecessor_preserved": true,
+    "revises": "experiments/ascii-kinesis/v2-airborne-007-landing-pays-vertical-debt/",
+    "source_change": false
+  },
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "source": {
+    "asset_id": 154243,
+    "game": "Sonic Advance 2",
+    "page_url": "https://www.spriters-resource.com/game_boy_advance/sonicadv2/asset/154243/",
+    "platform": "Game Boy Advance",
+    "reported_dimensions": [
+      1268,
+      1348
+    ],
+    "reported_format": "PNG",
+    "reported_size": "312.74 KB",
+    "section": "Playable Characters",
+    "site": "The Spriters Resource",
+    "source_timing_available": false,
+    "title": "Sonic",
+    "whole_sheet_evidence_inherited": true,
+    "whole_sheet_evidence_origin": "experiments/ascii-kinesis/v2-airborne-007-landing-pays-vertical-debt/{motion.json,manifest.json}"
+  },
+  "source_art_embedded": false,
+  "source_rights": {
+    "boundary": "No source pixels, palette, costume, character contours, exact silhouettes, layout, tracing, redistribution, close imitation, copied source choreography, or Drew work. The successor is an independently authored abstract ASCII biped.",
+    "classification": "copyright-restricted commercial-game sprite art used as analysis evidence only",
+    "source_art_embedded": false
+  },
+  "status": "CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "test_invocation": {
+    "candidate_isolated_status": "PASS",
+    "official_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "repo_global_boundary": "No full repository checkout in this standard-chat worker; candidate-isolated exact official logic is callable.",
+    "result": {
+      "entries_checked": [
+        "v2-airborne-016-crooked-catch-vertical-debt-repair"
+      ],
+      "ok": true,
+      "schema": "ascii-kinesis.swarm-contract-v2-test"
+    },
+    "tool": "tools/test_ascii_kinesis_swarm_contract_v2.py"
+  },
+  "video_packaging": "exact compiled MP4 bytes embedded as a data URI in tracked SPA; no tracked MP4 sidecar",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
+}
