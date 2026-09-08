@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT=Path(__file__).resolve().parent
 MOTION_PATH=ROOT/'motion.json'; ASCII_PATH=ROOT/'contact-sheet.txt'; SPA_PATH=ROOT/'latent-eligibility-force-transfer-repair.motion.html'
 TMP=ROOT/'.motion-build'; FRAMES=TMP/'frames'; MP4=TMP/'motion.mp4'
-W,H,GROUND_Y=72,22,17; IMG_W,IMG_H,FPS=768,400,24; TIMING={'ONES':1,'TWOS':2,'FOURS':4}
+W,H,GROUND_Y=72,22,17; IMG_W,IMG_H,FPS=480,270,24; TIMING={'ONES':1,'TWOS':2,'FOURS':4}
 JOINTS=['head','shoulder','pelvis','hand_f','hand_b','foot_f','foot_b']
 
 def expand_pose(p):
@@ -84,7 +84,7 @@ def sequence(m):
 
 def fonts():
  p='/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
- if Path(p).exists():return ImageFont.truetype(p,14),ImageFont.truetype(p,12)
+ if Path(p).exists():return ImageFont.truetype(p,10),ImageFont.truetype(p,9)
  return ImageFont.load_default(),ImageFont.load_default()
 
 def render_video(m):
@@ -92,12 +92,12 @@ def render_video(m):
  FRAMES.mkdir(parents=True);mainf,smallf=fonts();seq=sequence(m)
  for i,k in enumerate(seq):
   im=Image.new('RGB',(IMG_W,IMG_H),(8,8,8));d=ImageDraw.Draw(im)
-  d.text((12,8),f"{k['id']}  {k['phase']}",font=smallf,fill=(245,245,245))
-  d.text((12,27),f"ELIG {k['eligibility']}  CONTACT {k['contact']}  CUSTODY {k['custody']}",font=smallf,fill=(195,195,195))
-  d.text((12,44),f"SUPPORT {k['support_contact']}  ROOT {k['root']}",font=smallf,fill=(170,170,170))
-  d.multiline_text((12,66),render_ascii(k),font=mainf,fill=(248,248,248),spacing=-3)
+  d.text((8,6),f"{k['id']}  {k['phase']}",font=smallf,fill=(245,245,245))
+  d.text((8,20),f"ELIG {k['eligibility']}  CONTACT {k['contact']}  CUSTODY {k['custody']}",font=smallf,fill=(195,195,195))
+  d.text((8,34),f"SUPPORT {k['support_contact']}  ROOT {k['root']}",font=smallf,fill=(170,170,170))
+  d.multiline_text((8,52),render_ascii(k),font=mainf,fill=(248,248,248),spacing=-2)
   im.save(FRAMES/f'f-{i:04d}.png')
- subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate',str(FPS),'-i',str(FRAMES/'f-%04d.png'),'-c:v','libx264','-preset','medium','-crf','18','-pix_fmt','yuv420p','-movflags','+faststart',str(MP4)],check=True)
+ subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate',str(FPS),'-i',str(FRAMES/'f-%04d.png'),'-c:v','libx264','-preset','medium','-crf','32','-pix_fmt','yuv420p','-movflags','+faststart',str(MP4)],check=True)
  return seq
 
 def gz64(text):
