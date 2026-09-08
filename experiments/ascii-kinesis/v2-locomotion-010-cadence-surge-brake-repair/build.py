@@ -128,49 +128,13 @@ def render_mp4(frames, out):
     shutil.rmtree(frame_dir)
 
 def make_spa(sheet, media):
-    motion_text = (HERE / "motion.json").read_text(encoding="utf-8")
+    motion = json.loads((HERE / "motion.json").read_text(encoding="utf-8"))
+    motion_compact = json.dumps(motion, ensure_ascii=False, separators=(",", ":"))
     b64 = base64.b64encode(media).decode("ascii")
     title = M["title"]
-    return f'''<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{html.escape(title)}</title>
-<style>
-:root{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;color-scheme:dark;background:#0b0b0d;color:#f2f2ed}}
-*{{box-sizing:border-box}}
-body{{margin:0;padding:16px;max-width:1280px;margin-inline:auto}}
-nav{{display:flex;gap:8px;position:sticky;top:0;background:#0b0b0df2;padding:8px 0}}
-button{{font:inherit;padding:10px 16px;border:1px solid #555;background:#16161a;color:inherit;border-radius:8px}}
-button[aria-selected="true"]{{border-color:#ddd;background:#29292f}}
-.panel{{display:none}}
-.panel.active{{display:block}}
-pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.08;tab-size:2}}
-video{{width:100%;max-height:75vh;background:#000}}
-</style>
-</head>
-<body>
-<h1>{html.escape(title)}</h1>
-<nav aria-label="Primary views">
-<button data-view="ascii" aria-selected="true">ASCII</button>
-<button data-view="json" aria-selected="false">JSON</button>
-<button data-view="video" aria-selected="false">VIDEO</button>
-</nav>
-<section id="panel-ascii" class="panel active"><pre>{html.escape(sheet)}</pre></section>
-<section id="panel-json" class="panel"><pre>{html.escape(motion_text)}</pre></section>
-<section id="panel-video" class="panel"><video controls playsinline preload="metadata" src="data:video/mp4;base64,{b64}"></video></section>
-<script>
-const buttons=[...document.querySelectorAll('button[data-view]')];
-for(const button of buttons) button.addEventListener('click',()=>{{
-  for(const q of buttons) q.setAttribute('aria-selected',String(q===button));
-  for(const panel of document.querySelectorAll('.panel')) panel.classList.remove('active');
-  document.getElementById('panel-'+button.dataset.view).classList.add('active');
-}});
-</script>
-</body>
-</html>
-'''
+    bones = json.dumps(BONES, separators=(",", ":"))
+    order = json.dumps(ORDER, separators=(",", ":"))
+    return f"""<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>{html.escape(title)}</title><style>:root{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,\"Liberation Mono\",monospace;color-scheme:dark;background:#0b0b0d;color:#f2f2ed}}*{{box-sizing:border-box}}body{{margin:0;padding:16px;max-width:1280px;margin-inline:auto}}nav{{display:flex;gap:8px;position:sticky;top:0;background:#0b0b0df2;padding:8px 0}}button{{font:inherit;padding:10px 16px;border:1px solid #555;background:#16161a;color:inherit;border-radius:8px}}button[aria-selected=\"true\"]{{border-color:#ddd;background:#29292f}}.panel{{display:none}}.panel.active{{display:block}}pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,\"Liberation Mono\",monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.08;tab-size:2}}video{{width:100%;max-height:75vh;background:#000}}</style></head><body><h1>{html.escape(title)}</h1><nav aria-label=\"Primary views\"><button data-view=\"ascii\" aria-selected=\"true\">ASCII</button><button data-view=\"json\" aria-selected=\"false\">JSON</button><button data-view=\"video\" aria-selected=\"false\">VIDEO</button></nav><section id=\"panel-ascii\" class=\"panel active\"><pre id=\"ascii\"></pre></section><section id=\"panel-json\" class=\"panel\"><pre id=\"json\"></pre></section><section id=\"panel-video\" class=\"panel\"><video controls loop playsinline preload=\"metadata\" src=\"data:video/mp4;base64,{b64}\"></video></section><script>const motion={motion_compact};const ORDER={order};const BONES={bones};const W=motion.rig.grid.width,H=motion.rig.grid.height,G=motion.rig.grid.ground_y;function lp(a,b){{let[x0,y0]=a,[x1,y1]=b,dx=Math.abs(x1-x0),sx=x0<x1?1:-1,dy=-Math.abs(y1-y0),sy=y0<y1?1:-1,err=dx+dy,o=[];for(;;){{o.push([x0,y0]);if(x0===x1&&y0===y1)return o;let e=2*err;if(e>=dy){{err+=dy;x0+=sx}}if(e<=dx){{err+=dx;y0+=sy}}}}}}function af(k){{const j=Object.fromEntries(ORDER.map((n,i)=>[n,k.pose_rig.points[i]])),g=Array.from({{length:H}},()=>Array(W).fill(' '));for(let x=0;x<W;x++)g[G][x]='-';for(const[a,b]of BONES){{const pa=j[a],pb=j[b],dx=pb[0]-pa[0],dy=pb[1]-pa[1],c=dx*dy<0?'/':dx*dy>0?'\\\\':dy===0?'-':'|';for(const[x,y]of lp(pa,pb).slice(1,-1))if(x>=0&&x<W&&y>=0&&y<H&&g[y][x]===' ')g[y][x]=c}}for(const[n,[x,y]]of Object.entries(j))if(x>=0&&x<W&&y>=0&&y<H)g[y][x]=n==='head'?'O':n==='pelvis'?'@':n==='chest'?'+':(n.includes('elbow')||n.includes('knee'))?'o':'*';for(const[s,n]of [['L_FOOT','l_foot'],['R_FOOT','r_foot']]){{const[x,y]=j[n];if(k.support_contact.includes(s+'_PROBE'))g[y][x]='?';else if(k.support_contact.includes(s))g[y][x]='!'}}return g.map(r=>r.join('').trimEnd()).join('\\n')}}function sheet(){{let a=['ASCII KINESIS V2 LOCOMOTION 010 — CADENCE SURGE / BRAKE REPAIR','Legend: ! trusted support   ? probe-only contact   @ pelvis/root   + chest   - ground','Timing: ONES/TWOS/FOURS are PoseLab cadence classes; every decisive key here is INFERRED.','Phase law: cadence changes root spacing and holds without resetting L/R support order.','Source boundary: independent abstract ASCII only; no source pixels/palette/layout/contours/choreography are embedded.',''];for(const k of motion.keys){{a.push(`${{k.key_id}} ${{k.name}}  [${{k.timing_class}}/${{k.timing_provenance}}]  SUPPORT=${{k.support_contact}}  PHASE=${{k.cadence_phase}}${{k.authored_bridge_key?'  BRIDGE':''}}`,`ROOT: ${{k.motion_arc_root_note}}`,`ROLE: ${{k.causal_role}}`,`ATTITUDE: ${{k.attitude||'—'}}`,'',af(k),'','')}}return a.join('\\n').trimEnd()+'\\n'}}document.getElementById('ascii').textContent=sheet();document.getElementById('json').textContent=JSON.stringify(motion,null,2);const bs=[...document.querySelectorAll('button[data-view]')];for(const b of bs)b.addEventListener('click',()=>{{for(const q of bs)q.setAttribute('aria-selected',String(q===b));for(const p of document.querySelectorAll('.panel'))p.classList.remove('active');document.getElementById('panel-'+b.dataset.view).classList.add('active')}});</script></body></html>"""
 
 def main():
     sheet = contact_sheet()
