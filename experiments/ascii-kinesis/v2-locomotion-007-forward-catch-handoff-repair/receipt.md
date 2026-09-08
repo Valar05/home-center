@@ -1,6 +1,6 @@
 # ASCII Kinesis V2 Locomotion 007 — forward catch handoff repair
 
-Status: `QUALITY_GATES_PASS / REPO_READBACK_PENDING_THIS_WRITE / CHAT_DELIVERY_PENDING_CURRENT_RESPONSE`
+Status: `REPO_READBACK_PASS / QUALITY_GATES_PASS / CHAT_DELIVERY_PENDING_CURRENT_RESPONSE`
 
 Current-worker preflight: PASS. The exact commissioned Home Center campaign read lane for `1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s` and GitHub persistence/readback were both callable before judgment or mutation. Authorities read: campaign; issue #343 including global reset comment `5576901079` and latest schedule-manager correction `5579631527`; `skills/ascii-kinesis/SKILL.md`; `docs/ASCII_KINESIS_SWARM_CONTRACT_V2.md`.
 
@@ -19,5 +19,7 @@ Current-worker Tango inspection was performed on the actual deterministic 39-fra
 Noodle Queen followed Tango and independently returned `PASS` on that final render. TASTE: specific slingshot coil→flight split→bite/fold→rebound→tuck/debt silhouette progression. FUNCTION: support ownership/root travel remain causally legible. CONTEMPT: it does not read as mannequin posing, generic symmetry, equal spacing, straight endpoint tweening, planted-feet theater, reverse recoil, or return-to-idle placeholder motion.
 
 Contract boundary: `tools/test_ascii_kinesis_swarm_contract_v2.py` blob `09f0bcf233dbb770ce6b6df047fe18d94be8aa7c` was read this run. Candidate-scoped structural equivalence is PASS: V2 flags, exact `ASCII | JSON | VIDEO` primary order, literal preformatted ASCII/JSON surface, ligatures disabled, whitespace preserved, embedded VIDEO, decisive timing classes/provenance, abstract-rig-only source boundary. Full-repository script execution is `NOT_CLAIMED` because this Standard Chat exposes exact Home Center/GitHub persistence/readback but no authorized full-repository shell checkout.
+
+Exact repository readback: PASS at commit `cde925db32a4fc781915abddbfe1277dc13afba7` for the binding successor path. Readback confirmed manifest blob `2c3b4683e780b32f346337c23771f7c147a772d3`, motion blob `9361da968f23dd1a321342619c41f5d7a867ed8b`, SPA blob `d7df5e12d248a6d29bb2accce1dc7af1f9c505c4`, contact-sheet blob `53d8cdc012a66c3421f02bf41a071d48b189bae7`, and this receipt predecessor blob `2f3c5312338df4028b941b9378a22b5851bdc8c9`. The SPA readback contains exactly the primary tab controls `ASCII | JSON | VIDEO`, literal `<pre>` surfaces with ligatures disabled and whitespace preserved, and an embedded `data:video/mp4;base64,...` payload.
 
 Correction hooks: KEEP / REJECT / EXAGGERATE / COMPRESS / RETIME / CHANGE SOURCE / FIX ARC / FIX SUPPORT / FIX SECONDARY LAG / RERUN
