@@ -35,7 +35,7 @@ def glyph(a,b):
     return '\\' if dx*dy>0 else '/'
 
 def render_ascii(obj,label=True):
-    p=obj['pose_rig'];g=[[' ']*W for _ in range(H)]
+    raw=obj.get('pose_rig',obj.get('pose'));p=raw if isinstance(raw,dict) else dict(zip(JOINTS,raw));g=[[' ']*W for _ in range(H)]
     def put(x,y,c,overwrite=False):
         if 0<=x<W and 0<=y<H and (overwrite or g[y][x]==' '): g[y][x]=c
     for a,b in LINKS:
@@ -112,10 +112,10 @@ def font(size):
     return ImageFont.load_default()
 
 def frame(text,path,label):
-    im=Image.new('RGB',(960,540),'black'); d=ImageDraw.Draw(im)
-    d.text((18,12),'ASCII KINESIS V2 AIRBORNE 013 — DRAG CAPTURE LOAD TRANSFER',font=font(14),fill='white')
-    d.text((18,34),label,font=font(13),fill='white')
-    d.multiline_text((14,62),text,font=font(14),fill='white',spacing=1)
+    im=Image.new('RGB',(480,270),'black'); d=ImageDraw.Draw(im)
+    d.text((18,12),'ASCII KINESIS V2 AIRBORNE 013 — DRAG CAPTURE LOAD TRANSFER',font=font(8),fill='white')
+    d.text((18,34),label,font=font(8),fill='white')
+    d.multiline_text((14,62),text,font=font(8),fill='white',spacing=0)
     im.save(path)
 
 def make_video(d):
@@ -127,13 +127,13 @@ def make_video(d):
         subprocess.run([
             'ffmpeg','-hide_banner','-loglevel','error','-y',
             '-framerate',str(d['compile']['fps']),'-i',str(td/'f-%04d.png'),
-            '-c:v','libx264','-preset','veryslow','-crf','38','-pix_fmt','yuv420p',
+            '-c:v','libx264','-preset','veryslow','-crf','44','-pix_fmt','yuv420p',
             '-movflags','+faststart',str(MP4)
         ],check=True)
     return seq
 
 def html_page(d,sheet,media):
-    pretty=json.dumps(d,indent=2,sort_keys=True,ensure_ascii=False)
+    spa={k:d[k] for k in ('schema','format_version','experiment_id','lane','principle','source','revision','compatibility','timing_vocabulary','rig','keys','quality_gates','compile','ascii_sheet_sha256')};spa['bridge_keys']=[{x:b[x] for x in ('bridge_id','from_key','to_key','name','timing_class','timing_provenance','support_contact','contact_state','drag_surface_state','vertical_phase')} for b in d['bridge_keys']];spa['manifest']={'primary_tabs':['ASCII','JSON','VIDEO'],'video_source':'abstract_ascii_rig_only','source_art_embedded':False,'media_sha256':d['compile']['media_sha256'],'repo_path':'experiments/ascii-kinesis/v2-airborne-013-drag-capture-load-transfer/'};pretty=json.dumps(spa,indent=2,sort_keys=True,ensure_ascii=False)
     def pack(text): return base64.b64encode(gzip.compress(text.encode(),9,mtime=0)).decode()
     def parts(text,n=3600): return '[\n'+',\n'.join(json.dumps(text[i:i+n]) for i in range(0,len(text),n))+'\n]'
     V=parts(base64.b64encode(media).decode())
@@ -148,13 +148,13 @@ def main():
     duration=len(seq)/d['compile']['fps']
     d['compile'].update(media_sha256=sha,media_bytes=len(media),video_frames_total=len(seq),
                         duration_seconds=round(duration,6),video_file=MP4.name,
-                        video_dimensions=[960,540],codec='H.264',pixel_format='yuv420p',decode='PASS_FFPROBE_AND_FULL_FFMPEG_DECODE')
+                        video_dimensions=[480,270],codec='H.264',pixel_format='yuv420p',decode='PASS_FFPROBE_AND_FULL_FFMPEG_DECODE')
     d['ascii_sheet_sha256']=sheet_sha
-    MOTION.write_text(json.dumps(d,indent=2,sort_keys=True,ensure_ascii=False)+'\n')
+    MOTION.write_text(json.dumps(d,sort_keys=True,separators=(',',':'),ensure_ascii=False)+'\n')
     m=json.loads(MANIFEST.read_text())
     m.update(media_sha256=sha,media_bytes=len(media),ascii_sheet_sha256=sheet_sha)
     m['motion_dungeon'].update(video_frames_total=len(seq),duration_seconds=round(duration,6))
-    MANIFEST.write_text(json.dumps(m,indent=2,sort_keys=True,ensure_ascii=False)+'\n')
+    MANIFEST.write_text(json.dumps(m,sort_keys=True,separators=(',',':'),ensure_ascii=False)+'\n')
     SPA.write_text(html_page(d,sheet,media))
     print(json.dumps({'media_sha256':sha,'media_bytes':len(media),'frames':len(seq),
                       'duration_seconds':duration,'ascii_sha256':sheet_sha},sort_keys=True))
