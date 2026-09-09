@@ -1,0 +1,135 @@
+ASCII KINESIS V2 DEFENSE019 — HIGH-LINE DUCK / HEEL-ROLL RECOVERY
+SOURCE EVIDENCE: TSR asset 155651 The Bullet — Enter the Gungeon PC | static 1023x853 page metadata | source timing UNKNOWN
+SOURCE ROLE: STYLE_REFERENCE only. New choreography is synthetic; no source pose/timing/contact authority.
+TIMING: every decisive compile timing class INFERRED / STREET_FIGHTER-CAPCOM.
+SUPPORT: # full | / outer edge | ^ forefoot | . toe | : light toe | x unsupported | @ pelvis
+RIGHTS: independent abstract ASCII rig only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio.
+
+D019-K0 OFFSET_READY                        D019-K1 HIGH_LINE_READ
+FOURS/INFERRED SUP=L#+R#                    FOURS/INFERRED SUP=L#+R^
+THREAT=CLEAR                                THREAT=INCOMING_HIGH_LINE
+
+
+
+                O
+                |                                          O                       <
+               -o-                                         |
+            o-- | --o                                     -o----o
+           /    |    \\                                o-- |     \
+           /    |      o-                             /    |     \
+          o    |         -+                           /    |      o
+           \   |                                     o    |        \\
+            +  |                                      \   |          +
+               @                                       +  |
+              / \\                                        @
+            //    \                                      / \\
+           /       \\                                  //    \
+          o          o                                /       \\
+         /            \                              o          o-
+       //              \\                          //             --
+      o                  o                        o                 -o\
+____==#==______________==#==____________    ____==#==__________________^____________
+
+
+D019-K2 DIAGONAL_COMPRESSION                D019-K3 DEEP_CRESCENT_ENTRY
+TWOS/INFERRED SUP=L#+R.                     ONES/INFERRED SUP=L/+R.
+THREAT=APPROACHING_HIGH_LINE                THREAT=PRE_CLEARANCE
+
+
+
+
+                             <---------                          <---------
+
+             O
+              |
+             -o---o                                    O
+          o-- |    \\                                   |  --o
+         /    |      o                               o--o--  |
+         /    |      |                               |  |     |
+        o    |        |                             |   |     o
+         \   |        +                             o-  |    /
+          +  |                                        -+|   +
+             @                                          |
+           // --                                       -@-
+         //     --                                   --   ---
+        o         -o--                             o-        -o---
+      o-              ---o\                      \o               ---o\
+____==#==__________________.____________    ____/______________________.____________
+
+
+D019-K4 HIGH_LINE_CROSS                     D019-K5 CRESCENT_SIDE_SWAP
+TWOS/INFERRED SUP=L/+R^                     TWOS/INFERRED SUP=L^+R#
+THREAT=THREAT_OVERHEAD_NO_CONTACT           THREAT=CLEARING_HIGH_LINE
+
+
+
+
+              <---------                          <---------
+
+
+
+
+           O                                               O
+            |  --o                                        |  --o
+         o--o--  |                                     o--o--   \
+         |  |     |                                   /   |      o
+        |   |     o                                  o    |     /
+        o-  |    /                                    \  |      /
+          -+|   +                                      + |     +
+           -@-                                          -@-
+         --   ---                                     --   ---
+       o-        -o---                              o-        -o--
+     \o               ---o\                      /o-              ---o
+____/______________________^____________    ____^__________________==#==____________
+
+
+D019-K6 HEEL_SWITCH_UNWRAP                  D019-K7 REAR_DRIVE_RISE
+ONES/INFERRED SUP=L:+R#                     TWOS/INFERRED SUP=L^+R#
+THREAT=THREAT_CLEARING                      THREAT=CLEAR
+
+
+
+
+-------
+                                                               O
+                                                              |
+                                                             -o---o
+                 O                                        o-- |    \
+                | --o                                    /   |     \
+            o---o-   \                                  /    |      o
+           /    |    \                                 o     |      |
+           /    |     o                                |    |        |
+          o    |      |                                 |   @        +
+           \   |     |                                  + // \\
+            +  @-    +                                   /     \\
+             --  --                                    //        o
+           --      -o-                                o           \
+        -o-           --                            --             \\
+     /o-                -o                       /o-                 o
+____:__________________==#==____________    ____^__________________==#==____________
+
+
+D019-K8 TORSION_RISE_OVERSHOOT              D019-K9 DISPLACED_LOW_READY_DEBT
+FOURS/INFERRED SUP=L^+R#                    FOURS/INFERRED SUP=L:+R#
+THREAT=CLEAR                                THREAT=CLEAR
+
+
+
+
+                    O
+                   |                                          O
+                 --o---o                                      |
+              o--  |    \                                    -o---o
+             /    |      \                                o-- |    \
+            /     |       o                              /    |     \
+           o      |       |                             /    |       o
+           |     |         |                           o     |       |
+            |    @         +                            \    |       +
+            +   / \                                      +   @
+               /   \                                       // \
+             //     \                                     /    \\
+            /        o                                  //       o
+          -o          \                               -o          \
+        --             \\                           --             \\
+     /o-                 o                       /o-                 o
+____^__________________==#==____________    ____:__________________==#==____________
