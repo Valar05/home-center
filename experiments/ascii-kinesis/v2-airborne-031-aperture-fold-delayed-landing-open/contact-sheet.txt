@@ -1,0 +1,255 @@
+ASCII KINESIS V2 AIRBORNE031 — APERTURE FOLD / DELAYED LANDING OPEN
+ENVIRONMENT: floor y=30 | wall x=[52, 53, 54] | opening rows=[9, 20]
+Each decisive key below is a literal crop of the same global ASCII rig; x/y windows are stated explicitly.
+
+
+K0 — OFFSET_LOAD — FOURS — INFERRED | WINDOW x=1..27 y=16..32
+
+
+                  \h
+            O  \\\
+             o\
+           //|
+         h/  |
+             |
+             @
+            / \
+            / \
+           /   \
+          /     \
+          /     \
+_________^_______^_________
+SUPPORT=BOTH_FEET_GROUND (rear-loaded two-foot launch coil) | APERTURE_CONTACT=NONE
+ROOT: rear-loaded left start; root sits behind forward shoulder and right-hand swing line
+ROLE: establish asymmetric launch load and ordinary ground ownership before the clearance task
+
+K1 — SUPPORT_BREAK — ONES — INFERRED | WINDOW x=8..34 y=12..28
+
+
+                  \h
+            O  \\\
+             o\
+            /|
+          // |
+         h   |
+             @
+            / \
+           /   \
+          /    \
+         /      ^
+        ^
+SUPPORT=NONE (fully airborne) | APERTURE_CONTACT=NONE
+ROOT: root leaves both feet on a committed up-right ballistic lane; no air support appears
+ROLE: earned support break; directional commitment cannot be canceled by later local folding
+
+K2 — OPEN_RISE — TWOS — INFERRED | WINDOW x=18..44 y=7..23
+
+
+                   \h
+            O  \\\\
+             o\
+           //|
+         //  |
+       h/    |
+             @
+            / \
+           /  \
+          /    \
+          /    \
+         /      \
+        ^       \
+                 ^
+SUPPORT=NONE (fully airborne) | APERTURE_CONTACT=NONE
+ROOT: root continues up-right while limbs remain deliberately too open for the upcoming aperture
+ROLE: show the clearance problem before solving it; silhouette spends width/height while safely distant
+
+K3 — APEX_CLEARANCE_READ — FOURS — INFERRED | WINDOW x=27..53 y=4..20
+                         ##
+                         ##
+                         ##
+                         ##
+            O    \\h    ##
+             o\\\        ##
+           //|
+         //  |
+       h/    |
+             @
+            / \
+            / \
+           /   \
+          /    \
+          /     \
+         ^      \
+                 ^
+SUPPORT=NONE (fully airborne) | APERTURE_CONTACT=NONE
+ROOT: apex occurs before the wall; root path is still ballistic while the open silhouette visibly cannot clear unchanged
+ROLE: readable pre-aperture danger beat with no contact; clearance must come from local body organization
+
+K4 — LEAD_SIDE_FOLD — TWOS — INFERRED | WINDOW x=34..60 y=5..21
+                  ###
+                  ###
+                  ###
+                  ###
+            O
+             o
+            /|\h
+           / |
+          h  @
+            / \
+            / \
+           /   \
+           /    \
+          ^     \
+                 ^
+
+                  ###
+SUPPORT=NONE (fully airborne) | APERTURE_CONTACT=NONE
+ROOT: lead side folds first: right forearm and right knee retract; trailing side remains later and gives the fold attitude
+ROLE: author asymmetrical clearance preparation before the thin wall plane; no endpoint collision used
+
+K5 — APERTURE_TUCK — FOURS — INFERRED | WINDOW x=42..68 y=6..22
+          ###
+          ###
+          ###
+
+             O
+            o
+          //|\\
+         h   | h
+             @
+            / \
+           /  \
+           /   \
+          ^    ^
+
+
+          ###
+          ###
+SUPPORT=NONE (fully airborne) | APERTURE_CONTACT=NONE
+ROOT: compressed body crosses the wall opening entirely unsupported; root descends slightly while local envelope is minimized
+ROLE: solve clearance spatially without obstacle contact or magical support; apex debt turns into descent debt
+
+K6 — TRAILING_HEEL_CLEAR — TWOS — INFERRED | WINDOW x=50..76 y=8..24
+  ###
+
+
+            O
+             o\\h
+            /|
+          // |
+         h   |
+             @
+            / \
+           /  \
+          /    \
+         ^     \
+  ###           ^
+  ###
+  ###
+  ###
+SUPPORT=NONE (fully airborne) | APERTURE_CONTACT=NONE
+ROOT: root is past wall but trailing heel stays folded one beat longer; opening too early would clip the lower jamb
+ROLE: make clearance debt persist after root passes; local trailing lag is causal, not decorative
+
+K7 — LATE_LANDING_OPEN — TWOS — INFERRED | WINDOW x=60..86 y=12..28
+
+
+                   \h
+            O  \\\\
+             o\
+            /|
+          // |
+         /   |
+        h    @
+            / \
+            / \
+           /   \
+           /   \
+          /     \
+          /     \
+         ^       \
+                 \
+SUPPORT=NONE (fully airborne / separated precontact) | APERTURE_CONTACT=NONE
+ROOT: only after full clearance does the body reopen; right foot reaches for ground late while left side remains high and behind
+ROLE: convert clearance success into a landing-preparation deficit; preserve a visible precontact gap
+
+K8 — RIGHT_TOE_FIRST_CATCH — ONES — INFERRED | WINDOW x=67..93 y=15..31
+
+
+                 \h
+           O  \\\
+            o\
+          //|
+        //   |
+       h     |
+             @
+            / \
+           /  \
+          /    \
+         /      \
+        ^        \
+                 \
+__________________^________
+SUPPORT=RIGHT_FOOT_GROUND (right toe first contact; left foot free) | APERTURE_CONTACT=NONE
+ROOT: right toe alone earns support; root continues forward/down past the catch line and left foot remains airborne
+ROLE: support-specific costly catch created by delayed reopening rather than a generic two-foot landing
+
+K9 — UNILATERAL_CRUSH — FOURS — INFERRED | WINDOW x=70..96 y=17..33
+
+
+                 \h
+         O   \\\\
+          |o\
+         // |
+        /   |
+      //     |
+     h       @
+           //\
+          /   \
+        //    \
+       ^       \
+_______________^___________
+SUPPORT=RIGHT_FOOT_GROUND (right sole load deepens; left foot remains probe) | APERTURE_CONTACT=NONE
+ROOT: root drops and overruns the planted right foot; left leg is still a probe, torso remains diagonally behind the brake
+ROLE: pay vertical and forward velocity through one-sided compression rather than float or instant stabilization
+
+K10 — SECOND_SUPPORT_LAG_OVER — TWOS — INFERRED | WINDOW x=72..98 y=16..32
+
+
+       h/
+         //O
+           /o
+            |\
+             | \
+             |  \\
+             @    h
+            / \
+           /  \
+          /    \
+          /    \
+         /      \
+________^_______^__________
+SUPPORT=BOTH_FEET_GROUND (left foot joins late; staggered restack) | APERTURE_CONTACT=NONE
+ROOT: left foot finally joins after the crush; right arm and shoulder overshoot downward while pelvis begins to rise
+ROLE: separate support restack from secondary-body lag; recovery cannot be reverse interpolation
+
+K11 — DISPLACED_SETTLE — FOURS — INFERRED | WINDOW x=70..96 y=15..31
+
+
+
+             O
+             o
+            /|\
+          // |  \h
+         h   |
+             @
+            / \
+            / \
+           /   \
+           /   \
+          /     \
+          /     \
+_________^_______^_________
+SUPPORT=BOTH_FEET_GROUND (stable displaced two-foot stack) | APERTURE_CONTACT=NONE
+ROOT: body settles right of the aperture with a wider stance and slightly retained right-side drop; launch address is not restored
+ROLE: finish at a reusable but displaced state that remembers clearance and landing debt
