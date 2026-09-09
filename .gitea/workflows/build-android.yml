@@ -1,0 +1,28 @@
+name: Build Android On Phone
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'build.gradle*'
+      - 'settings.gradle*'
+      - 'gradle/**'
+      - '.gitea/workflows/build-android.yml'
+
+jobs:
+  build:
+    runs-on: phone-android
+    steps:
+      - uses: actions/checkout@v4
+      - name: Phone identity gate
+        run: |
+          test -n "${ANDROID_ROOT:-${ANDROID_DATA:-}}" || {
+            echo "Android identity missing; refusing cloud/laptop substitution" >&2
+            exit 90
+          }
+          getprop ro.product.model || true
+          java -version
+      - name: Build Android debug APK on the phone body
+        run: gradle :app:assembleDebug --no-daemon --stacktrace
