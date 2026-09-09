@@ -9,32 +9,32 @@
   "experiment_id": "v2-timing-014-constraint-dwell-redistribution",
   "files": {
     "build.py": {
-      "sha256": "02a1b8f2ad64cce1e75860799bfc80e806a16d1b94f19ad857d4011e6b88f72c"
+      "sha256": "8e34b23cbfb1a11f320c05c3cfdacfdae532cb7a52de388e906e9a7bdb45c86f"
     },
     "constraint-dwell-redistribution.motion.html": {
-      "sha256": "7ff43e2a718e79aa44676b84ebca138a3925e0228204d0836d2d5b607248c9f6"
+      "sha256": "651a25c762326bda18f3614bac79c0ff0a9e3f18e6840f7b278751f180f70e69"
     },
     "contact-sheet.txt": {
       "sha256": "2274ee4b12dcd88a0ffe1d135c7b7f7eab8287d6f16682faf0a02e881040182d"
     },
     "motion.json": {
-      "sha256": "b865f7a6c41eb1d2b7b5b39dc40fa07d01b4ba4b4282be161a8384534d391194"
+      "sha256": "9ce8a2e8eac8b96d4f6087c56b7150410103f29e92408d92a543228b8b86b401"
     }
   },
   "format_version": 2,
   "lane": "timing",
   "media": {
     "authoritative_location": "embedded_in_spa",
-    "bytes": 34470,
+    "bytes": 8119,
     "codec": "H.264",
     "decode": "PASS_CURRENT_WORKER_FFPROBE_AND_FULL_FFMPEG_DECODE",
     "duration_seconds": 3.2083333333333335,
     "fps": 24,
     "frames": 77,
-    "height": 324,
+    "height": 162,
     "pixel_format": "yuv420p",
-    "sha256": "c32d2cdfe2bdf65bab52dfcb020fe1277633e445d894b51f74e7c78e411ca364",
-    "width": 576
+    "sha256": "8747bdd3e8a1cead5fc0f1300d69cdf38f70612a2a22bdae10cbc75a78371e1f",
+    "width": 288
   },
   "primary_tabs": [
     "ASCII",
