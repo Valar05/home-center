@@ -49,7 +49,7 @@
     "decode": "PASS"
   },
   "payload_hashes": {
-    "contact_sheet_sha256": "e1c11cc91bef77ca70bb0814068824ffd775a34a9616665cefc974e3e6c4cd81",
+    "contact_sheet_sha256": "1933fee964004b9093ffe7eb102fe7f0e00462777648f72fd78ec1c32611841f",
     "motion_json_sha256": "4c150255250364f299bb95a37c45e82d316fc60c518ee05311d02fd348cec0b2"
   },
   "revision": {
