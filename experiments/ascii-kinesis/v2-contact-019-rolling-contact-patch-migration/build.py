@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
-import base64, hashlib, html, json, shutil, subprocess
+import base64, gzip, hashlib, json, shutil, subprocess
 
 ROOT = Path(__file__).resolve().parent
 MOTION_PATH = ROOT / "motion.json"
@@ -30,7 +30,7 @@ def bres(p0, p1):
         if x0==x1 and y0==y1: break
         e2=2*err
         if e2>=dy: err+=dy; x0+=sx
-        if e2<=dx: err+=dx; y0+=sy
+        if e2<=dx: err+=dx; x0+=0; y0+=sy
     return pts
 
 def linechar(a,b):
@@ -66,9 +66,12 @@ def font(size):
         raise SystemExit("MISSING_REQUIRED_FONT: DejaVuSansMono.ttf")
     return ImageFont.truetype(str(path), size)
 
+def b64gzip(text):
+    return base64.b64encode(gzip.compress(text.encode("utf-8"), compresslevel=9, mtime=0)).decode("ascii")
+
 def make_spa(ascii_text, motion_text, video_bytes):
-    a=html.escape(ascii_text)
-    j=html.escape(motion_text)
+    a=b64gzip(ascii_text)
+    j=b64gzip(motion_text)
     v=base64.b64encode(video_bytes).decode("ascii")
     return f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -80,10 +83,13 @@ pre{{font-family:"DejaVu Sans Mono",monospace;font-variant-ligatures:none;white-
 video{{max-width:100%;height:auto;border:1px solid #555}}
 </style></head><body>
 <nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
-<section id="ascii" class="active"><pre>{a}</pre></section>
-<section id="json"><pre>{j}</pre></section>
+<section id="ascii" class="active"><pre id="ascii-out"></pre></section>
+<section id="json"><pre id="json-out"></pre></section>
 <section id="video"><video controls autoplay loop muted playsinline src="data:video/mp4;base64,{v}"></video></section>
 <script>
+const A="{a}",J="{j}";
+async function inflate(s){{const u=Uint8Array.from(atob(s),c=>c.charCodeAt(0));const ds=new DecompressionStream("gzip");return await new Response(new Blob([u]).stream().pipeThrough(ds)).text();}}
+Promise.all([inflate(A),inflate(J)]).then(([a,j])=>{{document.getElementById("ascii-out").textContent=a;document.getElementById("json-out").textContent=j;}});
 const buttons=[...document.querySelectorAll("button[data-view]")];
 for(const b of buttons)b.onclick=()=>{{for(const s of document.querySelectorAll("section"))s.classList.toggle("active",s.id===b.dataset.view);}};
 </script></body></html>'''
