@@ -1,0 +1,72 @@
+{
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "format_version": 2,
+  "experiment_id": "v2-video-motion-011-throw-release-force-chain-repair",
+  "title": "Throw repair · rear-load → pelvis lead → release fork → displaced recovery debt",
+  "lane": "video-motion",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "source_audio_embedded": false,
+  "backward_compatible": true,
+  "revision": {
+    "revises": "experiments/ascii-kinesis/v2-video-motion-005-throw-release-force-chain/",
+    "negative_fixture": "experiments/ascii-kinesis/v2-video-motion-005-throw-release-force-chain/",
+    "predecessor_status": "REVISE_REQUIRED_LOW_EFFORT",
+    "preserve_predecessor": true,
+    "source_change": false,
+    "global_reset_issue_comment": 5576901079,
+    "prior_lane_closure_issue_comment": 5594139400,
+    "manager_reconciliation_issue_comment": 5594373787
+  },
+  "source": {
+    "title": "Throwing-slowmotion-man2013-stabilized.webm",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Throwing-slowmotion-man2013-stabilized.webm",
+    "author": "Nesnad",
+    "license_id": "CC BY 4.0",
+    "source_sha256": "bcb20541112226cccd9f4e123ba7af69dcdb2333b4d5ac8b018f6cc4639e639c",
+    "source_change": false
+  },
+  "media": {
+    "authoritative": "embedded_mp4_in_spa",
+    "tracked_mp4": false,
+    "sha256": "798131071058e3246c4954cc969b68b01ab89d764a4a53db8be7c7d8a2dd419d",
+    "bytes": 16540,
+    "codec_name": "h264",
+    "width": 768,
+    "height": 432,
+    "pix_fmt": "yuv420p",
+    "fps": 24,
+    "frames": 50,
+    "duration_s": 2.083333,
+    "decode_verified_current_worker": true
+  },
+  "quality": {
+    "tango": "PASS",
+    "noodle_queen": "PASS",
+    "current_worker_actual_render": true
+  },
+  "contract": {
+    "official_script_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "candidate_scoped": "PASS",
+    "repo_global": "NOT_CLAIMED"
+  },
+  "repository": {
+    "path": "experiments/ascii-kinesis/v2-video-motion-011-throw-release-force-chain-repair/",
+    "readback": "PENDING",
+    "main_commit": null
+  },
+  "issue_receipt": null,
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false
+  },
+  "status": "QUALITY_GATES_PASS_MEDIA_DECODE_PASS_CONTRACT_PASS_PERSIST_PENDING"
+}
