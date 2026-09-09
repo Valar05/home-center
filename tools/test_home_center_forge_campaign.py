@@ -1,18 +1,28 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import ast
+import ast, base64, gzip, re
 
 ROOT=Path(__file__).resolve().parents[1]
 forge=(ROOT/'tools/home_center_forge_campaign.py').read_text(encoding='utf-8')
 bootstrap=(ROOT/'tools/bootstrap_free_cloud_forge.sh').read_text(encoding='utf-8')
 remote=(ROOT/'tools/private_forge_remote_install.sh').read_text(encoding='utf-8')
-body=bootstrap+'\n'+remote
 skill=(ROOT/'skills/home-center-forge-campaign/SKILL.md').read_text(encoding='utf-8')
 portable=(ROOT/'.gitea/workflows/home-center-ci.yml').read_text(encoding='utf-8')
 android=(ROOT/'.gitea/workflows/build-android.yml').read_text(encoding='utf-8')
 canary=(ROOT/'.gitea/workflows/forge-canary.yml').read_text(encoding='utf-8')
 
 ast.parse(forge)
+
+payload_match=re.search(r"HC_FORGE_PAYLOAD'\n(?P<b64>.*?)\nHC_FORGE_PAYLOAD",bootstrap,re.S)
+assert payload_match,'canonical bootstrap payload missing'
+payload_b64=''.join(payload_match.group('b64').split())
+decoded=gzip.decompress(base64.b64decode(payload_b64)).decode('utf-8')
+body=bootstrap+'\n'+decoded+'\n'+remote
+
+for token in [
+    '--emit-impl','--self-test','Home Center private forge bootstrap self-test: PASS',
+]:
+    assert token in bootstrap, token
 
 for token in [
     'Judgment Jars','PLAN_ALLOWED','bootstrap_free_cloud_forge.sh',
@@ -44,14 +54,13 @@ for token in [
 ]:
     assert token in body, token
 
-assert "Tailscale\' not in forge" not in (ROOT/'tools/test_home_center_forge_campaign.py').read_text(encoding='utf-8')
 assert 'public_ipv6=$public6' not in body
 assert 'tcp:3000' not in body
 assert 'tcp:2222' not in body
 
 for token in ['runs-on: forge-linux-free','sh tools/home_center_ci_validate.sh']:
     assert token in portable, token
-for token in ['runs-on: forge-linux-free','bash -n tools/bootstrap_free_cloud_forge.sh','python3 tools/test_home_center_forge_campaign.py']:
+for token in ['runs-on: forge-linux-free','bootstrap_free_cloud_forge.sh --self-test','python3 tools/test_home_center_forge_campaign.py']:
     assert token in canary, token
 for token in ['runs-on: phone-android','gradle :app:assembleDebug']:
     assert token in android, token
