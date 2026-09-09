@@ -3,7 +3,7 @@
   "format_version": 2,
   "id": "v2-locomotion-016-load-release-stride-overrun",
   "lane": "locomotion",
-  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "title": "ASCII Kinesis V2 Locomotion 016 — Load-Release Stride Overrun",
   "slug": "load-release-stride-overrun",
   "primary_tabs": ["ASCII", "JSON", "VIDEO"],
@@ -67,6 +67,13 @@
       "all_13_authored_keys_inspected": true
     },
     "correction": "manifest/receipt media declaration reconciled to exact current motion+SPA bytes; authored keys/timing unchanged; official V2 manifest predicates normalized"
+  },
+  "chat_delivery": {
+    "ascii": true,
+    "json": true,
+    "video": true,
+    "order": "ASCII->JSON->VIDEO",
+    "byte_identical_video": true
   },
   "drew_accepted": false
 }
