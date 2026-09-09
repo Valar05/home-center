@@ -1,0 +1,348 @@
+ASCII KINESIS V2 · TIMING016 · TEMPO DEBT CATCH-UP
+primitive: RATE MODULATION WITH PHASE-DEBT REPAYMENT
+source evidence: TSR asset 11953 / Cress Albane / Tales of Phantasia / GBA
+source timing: UNAVAILABLE; ALL authored cadence INFERRED / STREET_FIGHTER-CAPCOM family
+rights firewall: commercial source art is evidence only; no source pixels/palette/contours/layout/tracing/choreography here
+legend: L/R/B = support owner, ^ = airborne/passing phase
+
+T016-K00  RUN_L_CONTACT  expose=4  class=FOURS  phase=0  debt=0  support=LEFT
+
+
+
+
+        O
+
+       +--
+     //|  -o
+    o  |
+      |
+      |
+      +
+      /\\
+     /   \\
+    /      =
+____=___________________________________________________________
+      L
+
+T016-K01  RUN_PASS_A  expose=2  class=TWOS  phase=1  debt=0  support=AIR
+
+
+            O
+
+          /+
+         / |\
+       o/  | \
+          |   \
+          |    o
+          |
+          +\
+          | \
+          |  \=
+           |
+           =
+________________________________________________________________
+          ^
+
+T016-K02  RUN_R_CONTACT  expose=4  class=FOURS  phase=2  debt=0  support=RIGHT
+
+
+
+
+                 O
+
+                +--
+              //|  -o
+             o  |
+               |
+               |
+               +
+              / \\
+              /   \\
+              /     =
+_____________=__________________________________________________
+               R
+
+T016-K03  RUN_PASS_B  expose=2  class=TWOS  phase=3  debt=0  support=AIR
+
+
+                       O
+
+                     /+
+                    / /\
+                  o/ /  \\
+                     /    o
+                     /
+                    /
+                    +\
+                    | \
+                    |  \=
+                     |
+                     =
+________________________________________________________________
+                    ^
+
+T016-K04A  RATE_DRAG_L_ENTRY  expose=3  class=STREET_FIGHTER-CAPCOM  phase=4.0  debt=2.0  support=LEFT
+
+
+
+
+
+
+                        O
+                           -o
+                       /+--
+                      / |
+                    o/  |
+                        |
+                        +\
+                       /  \
+                     //    \=
+____________________=___________________________________________
+                        L
+
+T016-K04B  RATE_DRAG_L_CREEP  expose=3  class=STREET_FIGHTER-CAPCOM  phase=4.5  debt=2.5  support=LEFT
+
+
+
+
+
+
+                        O
+                           --o
+                       -+--
+                     o- |
+                        |
+                         |
+                         +
+                        / \
+                      //   \
+_____________________=______=___________________________________
+                         L
+
+T016-K05  RATE_DRAG_PASS  expose=4  class=FOURS  phase=5  debt=3  support=BOTH
+
+
+
+
+
+                          O
+
+                       o--+
+                          |\\
+                          |  \\
+                           |   o
+                           +
+                           |\\
+                          |   \
+                          |    =
+__________________________=_____________________________________
+                           B
+
+T016-K06A  RATE_DRAG_R_ENTRY  expose=3  class=STREET_FIGHTER-CAPCOM  phase=6.0  debt=4.0  support=RIGHT
+
+
+
+
+
+
+                           O
+                               --o
+                           /+--
+                          / |
+                        o/  |
+                             |
+                             +
+                            / \
+                          //   \\
+_________________________=_______=______________________________
+                             R
+
+T016-K06B  RATE_DRAG_R_CREEP  expose=3  class=STREET_FIGHTER-CAPCOM  phase=6.5  debt=4.0  support=RIGHT
+
+
+
+
+
+
+                             O
+
+                            --+----o
+                          o-  |
+                              |
+                              |
+                              +
+                             / \
+                           //   \\
+__________________________=_______=_____________________________
+                              R
+
+T016-K07  REPAY_PASS_1  expose=2  class=TWOS  phase=7  debt=3  support=AIR
+
+
+
+
+                                 O
+
+                               /+---o
+                             // |
+                           o/   |
+                                |
+                                |
+                                +--
+                                |  --=
+                                |
+                                |
+________________________________=_______________________________
+                                ^
+
+T016-K08  REPAY_L  expose=2  class=TWOS  phase=0  debt=2  support=LEFT
+
+
+
+
+                                       O
+
+                                 o----+
+                                      /\
+                                     /  \\
+                                     /    o
+                                    /
+                                    +\
+                                   /  \\\
+                                  /      \=
+                                  /
+_________________________________=______________________________
+                                    L
+
+T016-K09  REPAY_PASS_2  expose=1  class=ONES  phase=1  debt=1  support=AIR
+
+
+                                            O
+
+                                          /+\
+                                         //  \
+                                       o/ /   \o
+                                          /
+                                         /
+                                        /
+                                        +\
+                                        | \
+                                        |  \=
+                                        |
+                                        =
+________________________________________________________________
+                                        ^
+
+T016-K10  REPAY_R  expose=2  class=TWOS  phase=2  debt=0  support=RIGHT
+
+
+
+
+                                                O
+
+                                               +--
+                                             //   -o
+                                            o /
+                                             /
+                                             /
+                                            +\
+                                            | \\
+                                            |   \\
+                                            |     \=
+____________________________________________=___________________
+                                            R
+
+T016-K11  STOP_ANTICIPATE  expose=4  class=FOURS  phase=3  debt=0  support=RIGHT
+
+
+
+
+
+                                               o   O
+                                                \\
+                                                  +
+                                                 / \\
+                                                /    \
+                                                /     o
+                                               +
+                                               |\\
+                                              |   \\
+                                              |     =
+______________________________________________=_________________
+                                               R
+
+T016-K12  BRAKE_PLANT  expose=3  class=STREET_FIGHTER-CAPCOM  phase=4  debt=0  support=BOTH
+
+
+
+
+
+
+
+
+                                              o\  O
+                                                \\
+                                                  \+
+                                                  / \
+                                                  /  \\
+                                                 +\    o
+                                               //  \\
+______________________________________________________=_________
+                                            =    B
+
+T016-K13  BRAKE_OVERSHOOT  expose=2  class=TWOS  phase=5  debt=0  support=LEFT
+
+
+
+
+
+
+                                                       O
+                                                o--
+                                                   ---+\
+                                                     /  \
+                                                    /    \o
+                                                   /
+                                                  +
+                                                 / \
+                                                /   \
+_____________________________________________________=__________
+                                              =   L
+
+T016-K14A  SETTLE_DISPLACED  expose=4  class=FOURS  phase=6.0  debt=0  support=RIGHT
+
+
+
+
+                                                 O
+
+                                                 +
+                                               //|\
+                                              o  | \
+                                                 |  o
+                                                 |
+                                                 +
+                                                / \
+                                                / \
+                                                /  \
+_______________________________________________=____=___________
+                                                 R
+
+T016-K14B  SECONDARY_LAG_SETTLE  expose=2  class=TWOS  phase=6.5  debt=0  support=RIGHT
+
+
+
+
+                                                 O
+
+                                                -+
+                                               o |\
+                                                 | \
+                                                 |  o
+                                                 |
+                                                 +
+                                                / \
+                                                / \
+                                                /  \
+_______________________________________________=____=___________
+                                                 R
