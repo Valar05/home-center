@@ -1,0 +1,65 @@
+{
+  "ascii_literal_text": true,
+  "backward_compatible": true,
+  "experiment_id": "v2-timing-021-refractory-consequence-admission",
+  "files": [
+    "build.py",
+    "contact-sheet.txt",
+    "manifest.json",
+    "motion.json",
+    "refractory-consequence-admission.motion.html",
+    "receipt.json"
+  ],
+  "format_version": 2,
+  "lane": "timing",
+  "lineage": {
+    "negative_fixture": null,
+    "revises": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT"
+  },
+  "media": {
+    "bytes": 16975,
+    "codec": "h264",
+    "fps": 24,
+    "frames": 31,
+    "height": 360,
+    "pix_fmt": "yuv420p",
+    "sha256": "53c939163e3b429100dd29a9483e14ee8a745c88939155e6a37043e29104726b",
+    "width": 780
+  },
+  "pocket_rule": "A CONSEQUENCE MAY CLOSE FULL-BODY ADMISSION. EARLY RETRIGGERS COALESCE; A NEW CONSEQUENCE IS EARNED ONLY AFTER RECOVERY REOPENS THE BODY.",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "primitive": "REFRACTORY_CONSEQUENCE_ADMISSION",
+  "quality": {
+    "actual_render_sha256": "53c939163e3b429100dd29a9483e14ee8a745c88939155e6a37043e29104726b",
+    "queen": "PASS",
+    "tango": "PASS"
+  },
+  "schema": "ascii-kinesis.manifest-v2",
+  "source": {
+    "asset_id": "5569",
+    "campaign_issue_comment": 5569195652,
+    "game": "Street Fighter 2",
+    "name": "Ryu",
+    "platform": "Game Boy/GBC",
+    "provider": "The Spriters Resource",
+    "rights": "evidence_only_no_source_pixels",
+    "source_roles": [
+      "POSE_REFERENCE",
+      "CONTACT_REFERENCE"
+    ],
+    "source_timing": "UNAVAILABLE_STATIC_SHEET",
+    "timing_authority": false,
+    "timing_provenance": "INFERRED"
+  },
+  "source_art_embedded": false,
+  "specimen_number": 21,
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "title": "Refractory Consequence Admission",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only"
+}
