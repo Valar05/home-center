@@ -53,7 +53,10 @@ def render(frames,out):
   d.text((12,22),f"{k['key_id']} {k['name']}  SUPPORT={k['support_contact']}  ROOT={k['root_owner']}  V={k['root_velocity_class']}",font=small,fill=(235,235,230))
   d.multiline_text((12,40),ascii_frame(k),font=font,fill=(245,245,238),spacing=0); d.text((12,495),f"{i+1:03d}/{len(frames):03d}",font=small,fill=(130,130,130))
   im.save(fd/f'f_{i:04d}.png',compress_level=9)
- subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate','24','-i',str(fd/'f_%04d.png'),'-c:v','libx264','-preset','veryslow','-crf',str(M['motion_dungeon']['compile']['crf']),'-pix_fmt','yuv420p','-movflags','+faststart','-map_metadata','-1','-metadata','comment=ASCII Kinesis abstract rig only',str(out)],check=True)
+ hi=HERE/'_hi.mp4'
+ subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate','24','-i',str(fd/'f_%04d.png'),'-c:v','libx264','-preset','veryslow','-crf','20','-pix_fmt','yuv420p','-movflags','+faststart','-map_metadata','-1','-metadata','comment=ASCII Kinesis abstract rig only',str(hi)],check=True)
+ subprocess.run(['ffmpeg','-y','-loglevel','error','-i',str(hi),'-vf','scale=640:-2','-c:v','libx264','-preset','veryslow','-crf',str(M['motion_dungeon']['compile']['crf']),'-pix_fmt','yuv420p','-movflags','+faststart','-map_metadata','-1',str(out)],check=True)
+ hi.unlink()
  shutil.rmtree(fd)
 def spa(media,sheet):
  z=base64.b64encode(gzip.compress(json.dumps(M,ensure_ascii=False,separators=(',',':')).encode(),compresslevel=9,mtime=0)).decode(); v=base64.b64encode(media).decode(); t=html.escape(M['title']); sh=html.escape(sheet)
