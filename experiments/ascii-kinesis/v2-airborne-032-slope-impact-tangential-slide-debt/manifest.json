@@ -57,10 +57,10 @@
     "repo_global_execution_claimed": false
   },
   "artifacts": {
-    "build_py_sha256": "76e097a0924cd7d022ae472042845a3f41926db970a1089c6d0c6db60220b5cb",
+    "build_py_sha256": "8301bcd34c68f76f778e6c52622454f2df587e3303c8747ff134fee066572516",
     "contact_sheet_sha256": "892c4fcfab87e0d310594dcf755fd03a599139a2abe834917efaa75fe42e7a2a",
-    "motion_json_sha256": "99524a51023e1a6cb89e35a5723448820b72d65db1cb05d8ede2f670f465986b",
-    "spa_sha256": "867067b40ba63bd084c8f2f2515b3977fb077540b70126c528a25b6caa9404c4"
+    "motion_json_sha256": "3cd2d6c8091d2a7a1d9169e83d6a82a7aa06f3e1906dfe44534053f10395cd11",
+    "spa_sha256": "bc755606a7b2a3432f3e72b9065d2e404fb20a6a4c0509a96a619de7dbc5b780"
   },
   "repo_readback": {
     "persisted": false,
