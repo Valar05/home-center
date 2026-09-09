@@ -1,1 +1,88 @@
-{"schema":"ascii-kinesis.manifest-v2","format_version":2,"experiment_id":"v2-airborne-030-opposed-flight-glance-split-landing-debt","lane":"airborne","number":30,"primary_tabs":["ASCII","JSON","VIDEO"],"ascii_literal_text":true,"video_required":true,"video_source":"abstract_ascii_rig_only","source_art_embedded":false,"backward_compatible":true,"lineage":{"revises":null,"negative_fixture":null,"source_change":"NOT_APPLICABLE_NEW_CONCEPT","successor_collision":false},"source":{"family":"The Spriters Resource — Billy & Jimmy — Double Dragon II: The Revenge — NES — Playable Characters","asset_id":"30327","campaign_artifact_id":"1icTndAfTH5fge6tCAL35HzU9X7dsKVzRa0ah_n6gwWk","source_authentic_timing":"UNKNOWN","evidence_role":"WHOLE_SHEET_RELATIONSHIP_CONTACT_EVIDENCE_ONLY","observed":["complete sheet includes neutral/travel/climb/jump/hit/fall/recovery families plus attacker-side and receiver-side contact families","static PNG does not encode source-authentic exposure timing"],"inferred":["two-body transient collision mechanics, all root arcs, support timing, contact geometry, landing sequence, recovery debt","all compile timing classes"],"unknown":["exact source chronology","exact source contact geometry","source-authentic durations","source hit-stop","exact opponent pairings"],"rights":"copyright-restricted evidence only; no source pixels, palette, costume, contours, layout, tracing, choreography, redistribution, audio, or close imitation in output","source_art_embedded":false},"motion_dungeon":{"method":"authored decisive ASCII keys + explicit holds + deterministic geometry-only transitions -> ASCII-only frame render -> H.264 MP4 -> self-contained SPA","connective_motion_cannot_invent":["support","contact","custody","root decisions","causal events"]},"media":{"filename":"embedded-in-spa-only","container":"MP4","video_codec":"h264","pixel_format":"yuv420p","width":692,"height":410,"fps":24,"frames":65,"bytes":17154,"sha256":"92075a359cee82a1672aa1889fd03993be000fa539dde41f745f13c701526808","decode":"PASS","source":"abstract_ascii_rig_only"},"hashes":{"contact_sheet_sha256":"473bfa11023665c50d3bf23784b965336590f7b770b4a190ac636857125f6b23","motion_json_sha256":"5983b30277e84d6d9de33ec0bf6cd7d2ee65b378df8b7e7a2718987f0180c0cc","mp4_sha256":"92075a359cee82a1672aa1889fd03993be000fa539dde41f745f13c701526808"},"quality":{"tango":{"status":"PASS","revision":"R2","current_worker":true,"actual_render_sha256":"92075a359cee82a1672aa1889fd03993be000fa539dde41f745f13c701526808","r0":"REVISE_REQUIRED — glancing collision under-read at playback scale","r1_correction":"same-body K5 two-frame INFERRED transient contact beat with explicit shared contact point; immediate unsupported split preserved","r1":"REVISE_REQUIRED — phantom inter-body contact marker survived into ground-support states","r2_correction":"same-body renderer marks inter-body * only for TRANSIENT contact; ground-only states no longer imply continued body relation","r2_judgment":"PASS — actual final R2 render (deterministic H.264 compression profile verified) reads as separated opposed launches → visible transient collision → immediate unsupported split → unequal divergent descents → staggered costly catches → independent displaced settles."},"noodle_queen":{"status":"PASS","current_worker":true,"actual_render_sha256":"92075a359cee82a1672aa1889fd03993be000fa539dde41f745f13c701526808","taste":"PASS","function":"PASS","contempt":"PASS","drew_accepted":false,"judgment":"PASS — actual final render preserves specific opposed-flight collision attitude, external impulse visibly bends both roots without magical support/custody, landing debts are unequal and costly, secondary lag survives, final stance is displaced rather than reset; compression remains legible and not placeholder."},"drew_accepted":false},"validator":{"official_blob":"7d9fc7608d54bca4a2cfbd36660c2d379e27fd78","boundary":"exact current official source predicates PASS against candidate-isolated reconstruction; no fresh repo-global shell checkout/run claimed"},"repo":{"path":"experiments/ascii-kinesis/v2-airborne-030-opposed-flight-glance-split-landing-debt/","persisted":false,"final_readback":false},"chat_delivery":{"part1_ascii":false,"part2_json":false,"part3_video":false},"issue_343_receipt":null,"drew_accepted":false}
+{
+  "schema": "ascii-kinesis.manifest-v2",
+  "format_version": 2,
+  "experiment_id": "v2-airborne-030-opposed-flight-glance-split-landing-debt",
+  "lane": "airborne",
+  "number": 30,
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "successor_collision": false
+  },
+  "source": {
+    "family": "The Spriters Resource — Billy & Jimmy — Double Dragon II: The Revenge — NES — Playable Characters",
+    "asset_id": "30327",
+    "campaign_artifact_id": "1icTndAfTH5fge6tCAL35HzU9X7dsKVzRa0ah_n6gwWk",
+    "source_authentic_timing": "UNKNOWN",
+    "decisive_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "evidence_role": "WHOLE_SHEET_RELATIONSHIP_CONTACT_EVIDENCE_ONLY",
+    "rights_firewall": true,
+    "source_art_embedded": false
+  },
+  "motion_dungeon": {
+    "method": "authored decisive ASCII keys + explicit holds + deterministic geometry-only transitions -> ASCII-only frame render -> H.264 MP4 -> self-contained SPA",
+    "connective_motion_cannot_invent": ["support", "contact", "custody", "root decisions", "causal events"]
+  },
+  "media": {
+    "filename": "embedded-in-spa-only",
+    "container": "MP4",
+    "video_codec": "h264",
+    "pixel_format": "yuv420p",
+    "width": 692,
+    "height": 410,
+    "fps": 24,
+    "frames": 63,
+    "bytes": 16996,
+    "sha256": "7c04bdcd654b573540592dae501c2490e165cd845608148a1b0f6cc3d6f88fc9",
+    "decode": "PASS",
+    "source": "abstract_ascii_rig_only"
+  },
+  "quality": {
+    "tango": {
+      "status": "PASS",
+      "revision": "R3",
+      "current_worker": true,
+      "actual_render_sha256": "7c04bdcd654b573540592dae501c2490e165cd845608148a1b0f6cc3d6f88fc9",
+      "judgment": "PASS — exact current-media reconstruction and decoded-frame inspection shows separated K4 precontact, a two-frame authored K5 transient collision, immediate unsupported split, unequal divergent descents, staggered costly catches, secondary lag, and independent displaced settles."
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "current_worker": true,
+      "actual_render_sha256": "7c04bdcd654b573540592dae501c2490e165cd845608148a1b0f6cc3d6f88fc9",
+      "taste": "PASS",
+      "function": "PASS",
+      "contempt": "PASS",
+      "drew_accepted": false,
+      "judgment": "PASS — external impulse remains legible and specific; post-contact paths visibly disagree; no support/custody is invented; landing debts remain unequal; recovery is displaced rather than reset."
+    },
+    "drew_accepted": false
+  },
+  "validator": {
+    "official_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "boundary": "current official source freshly read; exact final SPA/motion/manifest structural predicates checked by current-main readback and candidate-isolated construction; no fresh full-repository checkout/global-suite claim"
+  },
+  "repo": {
+    "path": "experiments/ascii-kinesis/v2-airborne-030-opposed-flight-glance-split-landing-debt/",
+    "persisted": true,
+    "final_readback": false,
+    "exact_one_spa": true,
+    "build_blob": "ad420269fb698e863e9d53573b2cdb6b72eeb846",
+    "contact_blob": "34c28c47942704b53032927c3d3cfa5ffb3345c4",
+    "motion_blob": "13a8d182ae24099ff74a975d1b412457f01d23c9",
+    "spa_blob": "987f4603c7070b70396c822d4095f521bd8e2cb0"
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false
+  },
+  "issue_343_receipt": null,
+  "drew_accepted": false
+}
