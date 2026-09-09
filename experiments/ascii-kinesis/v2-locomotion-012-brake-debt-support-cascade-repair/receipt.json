@@ -28,12 +28,12 @@
   },
   "media": {
     "authoritative": "embedded_mp4_in_spa",
-    "sha256": "6c511e40f567d0d992eb2340e12becb76e8d521439c06dd288e1f1b1244dfe65",
-    "bytes": 29928,
+    "sha256": "c7520b1bea382b862ee6ecc5c8a1c4b88e3386dd8f9fe56befc1dcc157d9abf8",
+    "bytes": 14978,
     "codec": "h264",
     "pix_fmt": "yuv420p",
-    "width": 960,
-    "height": 520,
+    "width": 640,
+    "height": 346,
     "fps": 24,
     "frames": 41
   },
@@ -60,5 +60,6 @@
     "FIX RECOVERY",
     "FIX SECONDARY LAG",
     "RERUN"
-  ]
+  ],
+  "delivery_encode": "Current-worker inspected deterministic 640x346 H.264 encode from the final abstract ASCII render; same 41 authored frames."
 }
