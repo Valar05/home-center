@@ -12,7 +12,7 @@ D013-K00  OFFSET_READY  [FOURS | INFERRED]
                                               O
                                              |
                                             /+--+
-                                          +- /   \
+                                          +- /   \\
                                         //   /     +\
                                        +    |        -o]
                                        /    |
@@ -130,6 +130,7 @@ D013-K04  FRONT_FOOT_PEEL  [TWOS | INFERRED]
 
 
 
+
                                       O
                                       |
                                      /+\
@@ -154,6 +155,7 @@ arc=root rises slightly but remains behind guard; rotation is banked, not execut
 --------------------------------------------------------------------
 
 D013-K05  PIVOT_BANK  [TWOS | INFERRED]
+
 
 
 
@@ -183,6 +185,7 @@ arc=rear foot stays x=33; pelvis shifts left/up and shoulder line twists debt=0.
 --------------------------------------------------------------------
 
 D013-K06  CROSS_BODY_EXIT  [ONES | INFERRED]
+
 
 
 
@@ -217,6 +220,7 @@ D013-K07  EXIT_FOOT_PREPLANT  [TWOS | INFERRED]
 
 
 
+
                               O
                              |
                             /+----+
@@ -241,6 +245,7 @@ arc=free exit foot reaches floor line far left while head/guard still lag right 
 --------------------------------------------------------------------
 
 D013-K08  EXIT_PLANT_ACQUIRE  [ONES | INFERRED]
+
 
 
 
@@ -277,6 +282,7 @@ D013-K09  PIVOT_OVERSHOOT  [TWOS | INFERRED]
 
 
 
+
                       O
                       |
                       +---+
@@ -299,6 +305,7 @@ arc=exit foot stays planted x=17 while pelvis overshoots to x=18/low; trailing o
 --------------------------------------------------------------------
 
 D013-K10  COUNTER_ROTATION_CATCH  [TWOS | INFERRED]
+
 
 
 
@@ -333,6 +340,7 @@ D013-K11  TRAIL_FOOT_REACQUIRE  [ONES | INFERRED]
 
 
 
+
                          O
                          |
                          +---+
@@ -357,6 +365,7 @@ arc=height recovery begins after dual support exists debt=0.34
 --------------------------------------------------------------------
 
 D013-K12  GUARD_REOPEN_OVERSHOOT  [TWOS | INFERRED]
+
 
 
 
@@ -386,6 +395,7 @@ arc=upper body catches up on a later clock than pelvis/support debt=0.27
 --------------------------------------------------------------------
 
 D013-K13  SECONDARY_LAG_SETTLE  [TWOS | INFERRED]
+
 
 
 
