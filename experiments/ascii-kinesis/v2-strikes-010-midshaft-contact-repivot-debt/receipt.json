@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-strikes-010-midshaft-contact-repivot-debt",
-  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "current_worker_liveness": {
     "home_center_campaign": "PASS",
     "github_persistence_readback": "PASS",
@@ -18,7 +18,7 @@
     "source_family": "Donatello — Teenage Mutant Ninja Turtles: Tournament Fighters — SNES",
     "source_timing": "UNKNOWN_STATIC_SHEET",
     "authored_timing": "INFERRED_STREET_FIGHTER_CAPCOM",
-    "strikes011_forbidden": true
+    "strikes011_forbidden_until_final_readback": true
   },
   "quality": {
     "prior_same_body_tango_r0": "REVISE_REQUIRED — K7 fixed MID_SHAFT_PIN missed rendered shaft by one ASCII cell",
@@ -48,7 +48,7 @@
   "repo": {
     "persistence": "PASS_CURRENT_MAIN",
     "readback": "PASS_CURRENT_MAIN_EXACT_SIX_FILE",
-    "final_readback": "PENDING_UNTIL_AFTER_USER_SURFACE",
+    "final_readback": "PENDING_ADDENDUM_AFTER_USER_SURFACE",
     "files": {
       "build.py": "3e872176db6247e9bb683e57b5e2dd463f937315",
       "contact_sheet.txt": "bcc3961cb35244cc669760cabf5c3909189ab764",
@@ -60,15 +60,17 @@
   },
   "issue_343": {
     "pre_chat_receipt": 5600174825,
-    "user_surface_closure": null,
+    "user_surface_closure": 5600220050,
     "final_readback_addendum": null
   },
   "chat_delivery": {
-    "part_1_ascii": false,
-    "part_2_json": false,
-    "part_3_visible_video": false,
-    "ordered": false,
-    "video_identity": null
+    "part_1_ascii": true,
+    "part_1_identity": "DETERMINISTIC_EXACT_PERSISTED_KEY_RECONSTRUCTION_NON_BYTE_IDENTICAL_WHITESPACE_SERIALIZATION",
+    "part_2_json": true,
+    "part_2_identity": "ACTUAL_PERSISTED_STRUCTURED_VALUES_PRETTY_SERIALIZATION_NON_BYTE_IDENTICAL",
+    "part_3_visible_video": true,
+    "ordered": true,
+    "video_identity": "BYTE_IDENTICAL_TO_PERSISTED_EMBEDDED_MEDIA"
   },
   "next_authorized": null
 }
