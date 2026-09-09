@@ -1,9 +1,15 @@
 {
   "DREW_ACCEPTED": false,
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false
+    "authoritative_media_sha256": "fafeed6a3e53985ccc5c77108930c3dcbf05b5da678ab930ca41acfa639e8973",
+    "chat_render_byte_identical_to_authoritative": false,
+    "chat_render_sha256": "50cd3e1d176c7148b4a5d7c6ffc4ddee2facbe571628454e0fa33888af6aa646",
+    "part1_ascii": true,
+    "part1_ascii_byte_identical": true,
+    "part2_json": true,
+    "part2_json_byte_identical": true,
+    "part3_video": true,
+    "part3_video_label": "deterministic reporting-chat render from exact persisted ASCII contact sheet + authored exposure ticks; explicitly non-byte-identical to authoritative persisted MP4"
   },
   "contract": {
     "candidate_isolated": "PASS_BY_DIRECT_PERSISTED_PREDICATE_READBACK_STANDARD_CHAT_NO_CHECKOUT_EXECUTION",
@@ -15,8 +21,8 @@
     "home_center_campaign_read": true
   },
   "experiment_id": "v2-timing-022-curvature-sign-crossing-phase-continuity",
-  "issue_343_receipt": null,
-  "issue_343_receipt_readback": false,
+  "issue_343_receipt": "5607698681",
+  "issue_343_receipt_readback": true,
   "media": {
     "bytes": 20905,
     "codec": "h264",
@@ -42,6 +48,8 @@
   },
   "repo": {
     "exact_six_file_readback": true,
+    "healthy_manifest_commit": "bf80b0654ff4792104aacc6bb7178eaf0df3bc30",
+    "healthy_manifest_blob": "6ea9965e8e4e14a8745cfe36d5a50308a65e72af",
     "manifest_reconciliation_commit": "c0ac563be7a86e1aedd7b8f0886fe9eee26a9d4c",
     "motion_blob": "df6ec6fc24df921de3477509b3c72e18d109cb04",
     "path": "experiments/ascii-kinesis/v2-timing-022-curvature-sign-crossing-phase-continuity/",
@@ -63,6 +71,6 @@
     "timing_provenance": "INFERRED",
     "whole_source_campaign_evidence_read": true
   },
-  "status": "PERSISTED_NOT_DELIVERED",
-  "three_part_chat_delivery": false
+  "status": "HEALTHY_USER_SURFACED",
+  "three_part_chat_delivery": true
 }
