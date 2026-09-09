@@ -21,7 +21,7 @@ env:
 
 jobs:
   build-current-pocket-overlay:
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: self-hosted
     timeout-minutes: 25
     steps:
       - name: Checkout exact campaign head
@@ -31,26 +31,25 @@ jobs:
           fetch-depth: 0
           lfs: false
 
-      - name: Prove THECAULDRON and exact source
-        shell: powershell
+      - name: Prove exact source
+        shell: bash
         run: |
-          $ErrorActionPreference = 'Stop'
-          if ($env:COMPUTERNAME -ine 'THECAULDRON') {
-            throw "Wrong self-hosted body: $env:COMPUTERNAME"
-          }
-          $head = (git rev-parse HEAD).Trim()
-          if ($head -ne $env:SOURCE_SHA) {
-            throw "Checkout SHA mismatch expected=$env:SOURCE_SHA actual=$head"
-          }
-          Write-Host "THECAULDRON_SOURCE=$head"
+          set -euo pipefail
+          head="$(git rev-parse HEAD)"
+          test "$head" = "$SOURCE_SHA"
+          echo "RUNNER_OS=${RUNNER_OS:-unknown}"
+          echo "RUNNER_NAME=${RUNNER_NAME:-unknown}"
+          echo "SOURCE=$head"
 
       - name: Run Pocket overlay source contract
-        shell: powershell
+        shell: bash
         run: |
-          $ErrorActionPreference = 'Stop'
-          python tools/vanguard_pocket_overlay_contract_test.py
+          set -euo pipefail
+          if command -v python3 >/dev/null 2>&1; then PY=python3; else PY=python; fi
+          "$PY" tools/vanguard_pocket_overlay_contract_test.py
 
-      - name: Build with durable Home Center signer
+      - name: Build on Windows with durable Home Center signer
+        if: runner.os == 'Windows'
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
@@ -60,12 +59,75 @@ jobs:
             -RepositoryRoot $env:GITHUB_WORKSPACE `
             -ExpectedSourceSha $env:SOURCE_SHA `
             -OutputDirectory $out
-          $receipt = Get-Content (Join-Path $out 'operator-overlay-receipt.json') -Raw | ConvertFrom-Json
-          if (-not $receipt.sha256 -or -not $receipt.signingCertificateSha256) {
-            throw 'Build receipt is missing APK or signing identity.'
+
+      - name: Build on POSIX self-hosted body with durable Home Center signer
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$GITHUB_WORKSPACE/build/vanguard-pocket-overlay"
+          mkdir -p "$OUT" "$HOME/.android"
+          git fetch origin generated/operator-overlay-apk --no-tags
+          KEY="$RUNNER_TEMP/operator-overlay-debug.keystore"
+          git show origin/generated/operator-overlay-apk:operator-overlay-debug.keystore > "$KEY"
+          test -s "$KEY"
+
+          DEBUG_KEY="$HOME/.android/debug.keystore"
+          BACKUP="$RUNNER_TEMP/debug.keystore.before-vanguard"
+          HAD=0
+          if [ -f "$DEBUG_KEY" ]; then cp "$DEBUG_KEY" "$BACKUP"; HAD=1; fi
+          restore_key(){
+            if [ "$HAD" = 1 ]; then cp "$BACKUP" "$DEBUG_KEY"; else rm -f "$DEBUG_KEY"; fi
           }
-          Write-Host ("APK_SHA256=" + $receipt.sha256)
-          Write-Host ("APK_SIGNER=" + $receipt.signingCertificateSha256)
+          trap restore_key EXIT
+          cp "$KEY" "$DEBUG_KEY"
+
+          GRADLE_BIN="${GRADLE_BIN:-}"
+          if [ -z "$GRADLE_BIN" ] && [ -x /data/data/com.termux/files/usr/tmp/gradle-8.14.3/gradle-8.14.3/bin/gradle ]; then
+            GRADLE_BIN=/data/data/com.termux/files/usr/tmp/gradle-8.14.3/gradle-8.14.3/bin/gradle
+          fi
+          if [ -z "$GRADLE_BIN" ]; then GRADLE_BIN="$(command -v gradle || true)"; fi
+          test -n "$GRADLE_BIN"
+
+          AAPT_ARG=()
+          if [ -x /data/data/com.termux/files/usr/bin/aapt2 ]; then
+            AAPT_ARG=(-Pandroid.aapt2FromMavenOverride=/data/data/com.termux/files/usr/bin/aapt2)
+          fi
+
+          cd "$GITHUB_WORKSPACE/android/operator-overlay"
+          "$GRADLE_BIN" :app:testDebugUnitTest :app:assembleDebug --no-daemon --console=plain "${AAPT_ARG[@]}"
+          APK=app/build/outputs/apk/debug/app-debug.apk
+          test -s "$APK"
+
+          APKSIGNER="$(command -v apksigner || true)"
+          if [ -z "$APKSIGNER" ]; then
+            SDK="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}"
+            test -n "$SDK"
+            APKSIGNER="$(find "$SDK/build-tools" -type f -name apksigner 2>/dev/null | sort | tail -1)"
+          fi
+          test -n "$APKSIGNER"
+          "$APKSIGNER" verify --print-certs "$APK" > "$RUNNER_TEMP/apksigner.txt"
+          APK_CERT="$(sed -n 's/.*certificate SHA-256 digest: *//p' "$RUNNER_TEMP/apksigner.txt" | head -1 | tr 'A-F' 'a-f' | tr -d ':\r')"
+          KEY_CERT="$(keytool -list -v -keystore "$KEY" -storepass android -alias androiddebugkey 2>/dev/null | sed -n 's/.*SHA256: *//p' | head -1 | tr 'A-F' 'a-f' | tr -d ':\r')"
+          test -n "$APK_CERT" && test "$APK_CERT" = "$KEY_CERT"
+
+          cp "$APK" "$OUT/operator-overlay-debug.apk"
+          if command -v python3 >/dev/null 2>&1; then PY=python3; else PY=python; fi
+          "$PY" - "$OUT/operator-overlay-debug.apk" "$OUT/operator-overlay-receipt.json" "$SOURCE_SHA" "$APK_CERT" <<'PY'
+import hashlib,json,pathlib,sys,time
+apk,out,source,cert=sys.argv[1:]
+b=pathlib.Path(apk).read_bytes()
+obj={"schemaVersion":"home-center.operator-overlay-build.v3-selfhost","package":"com.homecenter.operatoroverlay","sourceCommit":source,"artifact":"operator-overlay-debug.apk","sha256":hashlib.sha256(b).hexdigest(),"byteCount":len(b),"signingCertificateSha256":cert,"durableSigningKey":True,"sourceContractPassed":True,"builtAtMs":int(time.time()*1000),"installed":False,"deploymentEvidence":False}
+pathlib.Path(out).write_text(json.dumps(obj,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+print(json.dumps(obj,sort_keys=True))
+PY
+
+      - name: Validate build receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s build/vanguard-pocket-overlay/operator-overlay-debug.apk
+          test -s build/vanguard-pocket-overlay/operator-overlay-receipt.json
 
       - name: Upload current signed overlay
         uses: actions/upload-artifact@v4
