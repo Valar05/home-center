@@ -34,6 +34,8 @@
   "candidate_receipt_commit": "029e374abc63a9b49069cd177ad4b0beddb81aaa",
   "manifest_reconcile_commit": "1994a8a0516b25cafd2c2ef876806ee7964124b3",
   "final_manifest_commit": "213b92040e3653a5dc92fa1422b9d613649be968",
+  "healthy_receipt_commit": "2664dd91a29b8d80779798ddfd747c82cd799e8a",
+  "final_commit": "2664dd91a29b8d80779798ddfd747c82cd799e8a",
   "repo_blobs": {
     "build.py": "c97ba052dda8b23ad55f69e49966d4822493c21d",
     "contact-sheet.txt": "4aea62b1178e9153bdc6dab3efc43bc7d1214e0a",
