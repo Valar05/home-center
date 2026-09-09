@@ -1,0 +1,60 @@
+{
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "format_version": 2,
+  "experiment_id": "v2-locomotion-013-stride-phase-airborne-handoff-repair",
+  "lane": "locomotion",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "ligatures_disabled": true,
+  "whitespace_preserved": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "contact_sheet_file": "contact-sheet.txt",
+  "motion_file": "motion.json",
+  "builder_file": "build.py",
+  "spa_file": "stride-phase-airborne-handoff-repair.motion.html",
+  "receipt_file": "receipt.json",
+  "revision": {
+    "revises": "experiments/ascii-kinesis/v2-locomotion-006-stride-phase-airborne-handoff/",
+    "negative_fixture": "experiments/ascii-kinesis/v2-locomotion-006-stride-phase-airborne-handoff/",
+    "predecessor_preserved": true,
+    "source_change": false,
+    "repair_queue": "next-oldest after canonical HEALTHY Locomotion012 closure 5596184359",
+    "one_successor_binding": true,
+    "pre_creation_inventory": {
+      "v2_locomotion_013_count": 0,
+      "successor_collision": false
+    },
+    "global_reset_comment": 5576901079
+  },
+  "source": {
+    "asset_id": 4230,
+    "source_change": false,
+    "source_art_embedded": false
+  },
+  "media": {
+    "authoritative": "embedded_mp4_in_spa",
+    "sha256": "5b55e2edadbcd2a42cc444c64fb8f5811655c952660f69a6648cac70d23016d1",
+    "bytes": 33380,
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 960,
+    "height": 520,
+    "fps": 24,
+    "frames": 53
+  },
+  "contact_sheet_sha256": "b50077e6a9d6327a2fe3ca7217a0dc4b7595e43a24390a15f1c4ce3ff5e03a14",
+  "motion_sha256": "fd4db909fd547f8231d27c69e100e671e7dae56fdf653d3150392c9560f2ce8e",
+  "spa_sha256": "bc0a24948ab81602ce0fbb51ce881cfab9139cc1da463949225ead12e9913e00",
+  "contract_validator": {
+    "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "scope": "candidate-isolated"
+  }
+}
