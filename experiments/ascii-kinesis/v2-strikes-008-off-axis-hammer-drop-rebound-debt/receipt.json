@@ -1,0 +1,85 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "id": "v2-strikes-008-off-axis-hammer-drop-rebound-debt",
+  "status": "CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "current_worker_liveness": {
+    "home_center_campaign_read": true,
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "github_persistence_readback": true,
+    "mandatory_issue_comments_read": [
+      5576901079,
+      5592566123,
+      5593289237,
+      5594453954,
+      5595237307,
+      5595542730,
+      5595547531
+    ],
+    "latest_manager_reconciliation": 5595683159,
+    "skill_blob": "b2aaea5ee6babfdb788a028beb05e10159720776",
+    "swarm_contract_blob": "d02f015f526ca56c3f13072fc0e9d03157630fbd"
+  },
+  "inventory": {
+    "pre_creation_v2_strikes_008_count": 0,
+    "successor_collision": "NONE",
+    "binding_body": "v2-strikes-008-off-axis-hammer-drop-rebound-debt",
+    "no_strikes009_until_healthy": true
+  },
+  "source": {
+    "asset_id": 2879,
+    "campaign_issue_receipt": 5571393499,
+    "source_timing": "UNKNOWN",
+    "authored_timing": "INFERRED_STREET_FIGHTER_CAPCOM",
+    "source_art_embedded": false
+  },
+  "media": {
+    "sha256": "aade39e65b7a9c699c067a66addd5dd48d7ab496cd4534cedfd4b105178d301a",
+    "bytes": 11649,
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "width": 880,
+    "height": 440,
+    "fps": 24,
+    "frames": 49,
+    "seconds": 2.0416666666666665,
+    "ffprobe": "PASS_CURRENT_WORKER",
+    "ffmpeg_full_decode": "PASS_CURRENT_WORKER",
+    "render_source": "abstract_ascii_rig_only"
+  },
+  "quality": {
+    "tango": "PASS_CURRENT_WORKER_ACTUAL_49_FRAME_RENDER",
+    "noodle_queen": "PASS_AFTER_TANGO_CURRENT_WORKER_ACTUAL_FINAL_RENDER",
+    "drew_accepted": false
+  },
+  "contract": {
+    "official_validator_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "official_validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "official_repo_path_callable": false,
+    "candidate_isolated_equivalent_structural_logic": "PASS",
+    "exact_boundary": "NO_AUTHORIZED_FULL_REPOSITORY_CHECKOUT; NO OFFICIAL_REPO_PATH_EXECUTION CLAIMED"
+  },
+  "repo": {
+    "persisted": false,
+    "readback": false,
+    "commit": null,
+    "tracked_files": [
+      "build.py",
+      "manifest.json",
+      "motion.json",
+      "off-axis-hammer-drop-rebound-debt.motion.html",
+      "receipt.json"
+    ]
+  },
+  "issue_343_receipt": null,
+  "three_part_chat_delivery": {
+    "ascii": false,
+    "json": false,
+    "video": false,
+    "order": "ASCII -> JSON -> VIDEO"
+  },
+  "chat_media_identity": "PENDING",
+  "notes": [
+    "Tango and Queen PASS are from current-worker inspection of the actual locally constructed 49-frame candidate render; local construction is not used as repo completion proof.",
+    "HEALTHY is forbidden until GitHub persistence/readback, issue receipt, and ordered three-part visible chat delivery complete."
+  ]
+}

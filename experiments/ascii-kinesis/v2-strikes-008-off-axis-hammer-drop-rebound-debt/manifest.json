@@ -1,0 +1,97 @@
+{
+  "schema": "ascii-kinesis.manifest.v2",
+  "format_version": 2,
+  "id": "v2-strikes-008-off-axis-hammer-drop-rebound-debt",
+  "lane": "strikes",
+  "path": "experiments/ascii-kinesis/v2-strikes-008-off-axis-hammer-drop-rebound-debt/",
+  "revision": {
+    "kind": "fresh_post_debt_concept",
+    "pre_reset_debt_closed": true,
+    "closure_receipts": [
+      5592566123,
+      5593289237,
+      5594453954,
+      5595237307,
+      5595542730,
+      5595547531
+    ],
+    "created_after_issue_receipt": 5595542730,
+    "latest_manager_reconciliation": 5595683159,
+    "source_change": "N/A_FRESH_CONCEPT",
+    "successor_collision": "NONE_AT_CREATION",
+    "one_successor_law": "BIND_008_UNTIL_HEALTHY",
+    "strikes009_forbidden_until_healthy": true
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": 2879,
+    "name": "Hammer Kirby",
+    "game": "Kirby Super Star",
+    "platform": "SNES",
+    "authoritative_campaign_issue_receipt": 5571393499,
+    "source_sha256": "UNKNOWN_NOT_CAPTURED_IN_CAMPAIGN_RECEIPT",
+    "source_timing": "UNKNOWN_STATIC_SHEET"
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "artifacts": {
+    "build.py": {
+      "sha256": "f1fa5ae66eb03f584d4ad40c400add30f4314f730ea8d666ced14ed6137c1ddb",
+      "bytes": 10017
+    },
+    "motion.json": {
+      "sha256": "8b7a9a861f36a6c12d8ab0ed8710ae3e3d8dc6846af41e1ab5380260f62c5570",
+      "bytes": 19493
+    },
+    "off-axis-hammer-drop-rebound-debt.motion.html": {
+      "sha256": "fc198b23d3eac3a8dbb06620f325d10fdb7f007ad1c94772d312bf6773d1f7ea",
+      "bytes": 30346
+    },
+    "generated_contact_sheet": {
+      "sha256": "bd44d6a568244398734df89c4e4e79036147748cf05e2bb845f36e7cef24c447",
+      "bytes": 25224,
+      "tracked": false
+    },
+    "embedded_media": {
+      "sha256": "aade39e65b7a9c699c067a66addd5dd48d7ab496cd4534cedfd4b105178d301a",
+      "bytes": 11649,
+      "frame_count": 49,
+      "fps": 24,
+      "seconds": 2.0416666666666665
+    }
+  },
+  "quality": {
+    "tango": "PASS_CURRENT_WORKER_ACTUAL_49_FRAME_RENDER",
+    "noodle_queen": "PASS_AFTER_TANGO_CURRENT_WORKER_ACTUAL_FINAL_RENDER",
+    "drew_accepted": false
+  },
+  "contract": {
+    "official_validator_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "official_validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "official_repo_path_callable_from_this_chat": false,
+    "candidate_isolated_equivalent_structural_logic": "PASS",
+    "full_repo_global_shell_boundary": "NOT_CLAIMED_NO_AUTHORIZED_CHECKOUT",
+    "boundary_note": "Standard Chat exposes GitHub read/write but no authorized repository checkout, so the official repo-path script itself is not directly callable. Freshly fetched validator clauses were mirrored candidate-isolated and passed; exact official-script execution is not claimed."
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "FIX ARC",
+    "FIX SUPPORT",
+    "FIX CONTACT",
+    "FIX SECONDARY LAG",
+    "RERUN"
+  ]
+}
