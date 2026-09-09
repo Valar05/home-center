@@ -1,0 +1,59 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "experiment_id": "v2-airborne-032-slope-impact-tangential-slide-debt",
+  "status": "REPO_PERSISTENCE_IN_PROGRESS",
+  "current_worker_preflight": {
+    "home_center_campaign": "PASS",
+    "github_persistence_readback": "PASS"
+  },
+  "one_body_source_ownership": {
+    "pass": true,
+    "successor_collision": false,
+    "source_asset": "154243",
+    "new_concept": true
+  },
+  "actual_media": {
+    "authoritative": "embedded_mp4_in_spa",
+    "source": "abstract_ascii_rig_and_structured_timing_only",
+    "mime": "video/mp4",
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "sha256": "1237b890c0826e658534199015832ddcda6e18a9eb83ca3493e234f42fac61d6",
+    "bytes": 20389,
+    "width": 726,
+    "height": 460,
+    "fps": 24,
+    "frames": 71,
+    "decode": "PASS_FFMPEG_CURRENT_WORKER"
+  },
+  "quality": {
+    "tango": "PASS_CURRENT_WORKER_ACTUAL_RENDER",
+    "noodle_queen": "PASS_CURRENT_WORKER_SAME_ACTUAL_RENDER_TASTE_FUNCTION_CONTEMPT",
+    "same_render": true,
+    "post_pass_mutation": false
+  },
+  "contract": {
+    "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS_EXACT_CURRENT_OFFICIAL_VALIDATOR",
+    "repo_global_execution_claimed": false
+  },
+  "repo": {
+    "persisted": false,
+    "final_readback": false,
+    "six_file_readback": false,
+    "exact_one_spa": false
+  },
+  "issue_343_receipt": null,
+  "issue_343_receipt_readback": false,
+  "reporting_chat": {
+    "part1_ascii": false,
+    "part2_persisted_json": false,
+    "part3_visible_video": false
+  },
+  "campaign_propagation": {
+    "written": false,
+    "readback": false
+  },
+  "DREW_ACCEPTED": false,
+  "next_authorized": null
+}
