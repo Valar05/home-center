@@ -1,0 +1,7 @@
+requested=2026-09-09T22:40:00Z
+commission=deliver-real-local-image-to-primary-phone
+owner=Home Center
+renderer=THECAULDRON localhost ComfyUI
+shizuku=forbidden-from-baseline
+operator_terminal_work=forbidden
+source_parent=eb4331bf5326bdd9354efb0390b1c37a88c39cba
