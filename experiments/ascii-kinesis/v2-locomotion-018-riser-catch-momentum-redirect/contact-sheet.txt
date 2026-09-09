@@ -10,6 +10,7 @@ K00 CHARGE_LOAD · FOURS/4f · INFERRED · support=RIGHT · phase=charge
 
 
 
+
        O
           o
        T \\
@@ -29,6 +30,7 @@ K00 CHARGE_LOAD · FOURS/4f · INFERRED · support=RIGHT · phase=charge
 causal: High-commitment forward load begins on level ground; rear/right support owns propulsion.
 
 K01 LAST_LEVEL_PUSH · TWOS/2f · INFERRED · support=RIGHT · phase=charge
+
 
 
 
@@ -63,6 +65,7 @@ K02 RISER_1_PROBE · TWOS/2f · INFERRED · support=RIGHT · phase=probe
 
 
 
+
               O  o
              /T\\\
             / |
@@ -81,6 +84,7 @@ K02 RISER_1_PROBE · TWOS/2f · INFERRED · support=RIGHT · phase=probe
 causal: Lead/left foot discovers higher support while root remains low and charge continues.
 
 K03 RISER_1_EARNS_SUPPORT · ONES/1f · INFERRED · support=MIXED · phase=authorize
+
 
 
 
@@ -113,6 +117,7 @@ K04 REDIRECT_LIFT_1 · TWOS/2f · INFERRED · support=LEFT · phase=redirect
 
 
 
+
                O  o
                T \
               /|\
@@ -133,6 +138,7 @@ K04 REDIRECT_LIFT_1 · TWOS/2f · INFERRED · support=LEFT · phase=redirect
 causal: Horizontal charge is redirected upward only after high support earns authority.
 
 K05 REAR_RELEASE_1 · ONES/1f · INFERRED · support=LEFT · phase=release
+
 
 
 
@@ -164,6 +170,7 @@ K06 RISER_2_PROBE · TWOS/2f · INFERRED · support=LEFT · phase=probe
 
 
 
+
                   O
                      o
                  /T\\\
@@ -185,6 +192,7 @@ K06 RISER_2_PROBE · TWOS/2f · INFERRED · support=LEFT · phase=probe
 causal: Next higher tread is probed without granting it support ownership.
 
 K07 RISER_2_EARNS_SUPPORT · ONES/1f · INFERRED · support=MIXED · phase=authorize
+
 
 
 
@@ -240,6 +248,7 @@ causal: Second high support converts retained horizontal intent into rise.
 K09 REAR_RELEASE_2 · ONES/1f · INFERRED · support=RIGHT · phase=release
 
 
+
                      O
                         o
                      /T\\
@@ -261,9 +270,10 @@ K09 REAR_RELEASE_2 · ONES/1f · INFERRED · support=RIGHT · phase=release
              #
 ##############
 
-causal: Trailing leg releases and crosses toward the third tread while cadence remains continuous.
+causal: Trailing leg releases after root rises and crosses toward the third tread while cadence remains continuous.
 
 K10 RISER_3_PROBE · TWOS/2f · INFERRED · support=RIGHT · phase=probe
+
 
 
                        O
@@ -290,6 +300,7 @@ K10 RISER_3_PROBE · TWOS/2f · INFERRED · support=RIGHT · phase=probe
 causal: Third higher contact arrives before root height changes.
 
 K11 RISER_3_EARNS_SUPPORT · ONES/1f · INFERRED · support=MIXED · phase=authorize
+
 
 
                         O
