@@ -4,11 +4,7 @@
   "experiment_id": "v2-airborne-020-asymmetric-stall-flare-runout",
   "lane": "airborne",
   "concept_type": "fresh-concept",
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
@@ -48,8 +44,14 @@
   },
   "hashes": {
     "contact_sheet_sha256": "6c7ea21215a2c699f5f5c85ae0d2d13c2289b62eb5a156a06cd8847dad489a0c",
-    "motion_json_sha256": "1252d26eeca6fc4107122b1d871d2957efaad770fd9ba337965199f09dc78a33",
+    "motion_json_sha256": "68d8d6a7b3b4bc7ee5195a11d2275177d1bd32ae1b3a22455e0adc4a56705335",
     "media_sha256": "a5d5957d78a7c397c0d0eda909b1526f6ac9855614bc6aa0ce2a5f8d4f7b9577"
+  },
+  "git_blobs": {
+    "build.py": "6b8d1d622fd3caa4d6790d766a349d3f0f25ebec",
+    "contact-sheet.txt": "63eca2513ada894a8263ca6f1581819330742925",
+    "motion.json": "81eee8f7e947374c94295ef511fd6457d0ad8f62",
+    "asymmetric-stall-flare-runout.motion.html": "1dd19ed734fff1518a476cc30888e93c5d5a8bfa"
   },
   "quality": {
     "tango": "PASS",
@@ -58,11 +60,7 @@
       "stall/drop spacing was too even and read as generic diagonal descent",
       "two-foot brake compression underpaid vertical debt and read too upright"
     ],
-    "noodle_queen": {
-      "taste": "PASS",
-      "function": "PASS",
-      "contempt": "PASS"
-    },
+    "noodle_queen": {"taste": "PASS", "function": "PASS", "contempt": "PASS"},
     "novelty_against": [
       "v2-airborne-017-offaxis-tool-landing-debt",
       "v2-airborne-018-rider-chassis-counterpitch-landing-debt",
@@ -74,12 +72,6 @@
     "validator": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
     "candidate_isolated": "PASS",
-    "result": {
-      "schema": "ascii-kinesis.swarm-contract-v2-test",
-      "entries_checked": [
-        "v2-airborne-020-asymmetric-stall-flare-runout"
-      ],
-      "ok": true
-    }
+    "result": {"schema": "ascii-kinesis.swarm-contract-v2-test", "entries_checked": ["v2-airborne-020-asymmetric-stall-flare-runout"], "ok": true}
   }
 }
