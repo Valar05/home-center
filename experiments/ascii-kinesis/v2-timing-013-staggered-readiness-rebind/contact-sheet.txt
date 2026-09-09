@@ -1,0 +1,348 @@
+ASCII KINESIS V2 TIMING 013 — STAGGERED READINESS REBIND
+FRESH CONCEPT / PRE-RESET TIMING REPAIR DEBT EXHAUSTED
+SOURCE ART: NOT EMBEDDED. ABSTRACT GENERIC ASCII RIG ONLY.
+SOURCE TIMING: NONE OBSERVED. ALL PERFORMANCE TIMING IS INFERRED.
+PRINCIPLE: RECOVERY READINESS IS A VECTOR, NOT A BOOLEAN.
+POCKET: LANDING IS NOT READY. REBIND CONTACT, ORIENTATION, SUPPORT, THEN TASK.
+
+READINESS CODE: E=exit contact, O=orientation, S=bilateral support, T=task guard
+
+DECISIVE AUTHORED KEYS
+[K0] OFFSET_READY | FOURS / INFERRED | exposure=4t | EOST READY
+support/contact=BILATERAL / rear-biased
+root/arc=root x22, threat-facing but offset
+causal_role=pre-break ready with asymmetric guard and split stance
+
+
+
+
+                      O
+                      |
+                  <   |    >
+                  \  -+-  /
+                   o- | -o
+                      |
+                      |
+                      @
+                     / \
+                     /  \
+                    o    o
+                   /      \
+                   /      \
+      [===========================================]
+
+
+
+[K1] GUARD_CRUSH | FOURS / INFERRED | exposure=4t | .... WAIT
+support/contact=BILATERAL / rear foot owns load
+root/arc=root x20 y12, guard collapses inside silhouette
+causal_role=breaks task authority and compresses COM rear/down
+
+
+
+
+
+                    O
+                    |
+                     \
+                    <+
+                   o/|\>
+                    | o
+                    |
+                    @
+                    |\\
+                   |   o
+                   o    \
+                  /      \
+      [===========================================]
+
+
+
+[K2] FRONT_FOOT_PEEL | TWOS / INFERRED | exposure=2t | .... WAIT
+support/contact=LEFT_REAR_ONLY / right foot airborne
+root/arc=root stays back while exit foot peels
+causal_role=removes old exit support before pivot
+
+
+
+
+
+                    O
+                    |
+                     \
+                     +  >
+                   /<|\o
+                  o |
+                    |
+                    @
+                    |\\
+                   |   \o-
+                   o      -R
+                  /
+      [===========================================]
+
+
+
+[K3] REAR_ANCHOR_PIVOT | TWOS / INFERRED | exposure=2t | .... WAIT
+support/contact=LEFT_REAR_ONLY / right foot clear
+root/arc=root x22, torso banks right while guard remains shut
+causal_role=rear anchor banks root and stores rotational debt
+
+
+
+
+
+                      O
+                      |
+                       \>
+                       +\
+                     </|\o
+                    o |
+                      |
+                      @
+                     / \\
+                     /   o
+                    o     \R
+                   /
+      [===========================================]
+
+
+
+[K4] EXIT_PREPLANT | ONES / INFERRED | exposure=1t | .... WAIT
+support/contact=LEFT_REAR_ONLY / right foot one row above ground
+root/arc=root jumps +4 to x26; task lags behind pelvis
+causal_role=authored bridge: fast root sling before contact
+
+
+
+
+                           O
+                           |
+                           |
+                           +>
+                         //|\
+                      <o/ |  o
+                          |
+                          @
+                         / \\
+                       //    \o
+                      o        \
+                     /         \
+                     /          R
+      [===========================================]
+
+
+
+[K5] EXIT_CONTACT_REBIND | TWOS / INFERRED | exposure=2t | E... WAIT
+support/contact=RIGHT_EXIT_ONLY / old rear foot airborne
+root/arc=root accelerates +5 to x31; first readiness bit rebinds
+causal_role=new exit-foot contact exists but does not grant full recovery
+
+
+
+
+                                 O
+                                 |
+                                /
+                                +>
+                              //|\
+                           <o/ |  o
+                               @
+                              / \
+                             /   \
+                            o    \
+                           /      o
+                          L       |
+                                   |
+      [===========================================]
+
+
+
+[K6] ROTATIONAL_OVERSHOOT | TWOS / INFERRED | exposure=2t | E... WAIT
+support/contact=RIGHT_EXIT_ONLY / left foot airborne
+root/arc=root overtravels +3 to x34; head and guard lag farther right
+causal_role=contact brakes translation but rotation spends remaining debt
+
+
+
+                                    O
+                                    |
+                                   /
+                                   +>
+                                 //|\
+                               o/ |  o
+                              <   @
+                                 /|
+                                /  |
+                               o   |
+                              /    o
+                             L     |
+                                   |
+                                   |
+      [===========================================]
+
+
+
+[K7] COUNTER_ROTATION_CATCH | TWOS / INFERRED | exposure=2t | E... WAIT
+support/contact=RIGHT_EXIT_ONLY / left foot still airborne
+root/arc=root returns only -2 to x32 while shoulders counter-rotate across pelvis
+causal_role=authored counter-catch arrests overshoot without reverse-playing the pivot
+
+
+
+
+                               O
+                               |
+                                \
+                               -+ >
+                             o- |\\
+                            <   |  o
+                                @
+                               / \
+                              /  \
+                             o    o
+                            /     |
+                           L       |
+                                   |
+      [===========================================]
+
+
+
+[K8] ORIENTATION_REBIND | TWOS / INFERRED | exposure=2t | EO.. WAIT
+support/contact=RIGHT_EXIT_ONLY / left foot precontact
+root/arc=root x31; torso squares before second foot or guard
+causal_role=torso/head reacquire threat orientation while support and task remain incomplete
+
+
+
+
+                              O
+                              |
+                               \
+                               +
+                             </|\>
+                            o  |  o
+                               @
+                              / \
+                              /  \
+                             o    o
+                             |    |
+                            |      |
+                            L      |
+      [===========================================]
+
+
+
+[K9] SECOND_SUPPORT_REBIND | TWOS / INFERRED | exposure=2t | EOS. WAIT
+support/contact=BILATERAL / widened displaced stance
+root/arc=root sinks to y11; left foot acquires at x27
+causal_role=bilateral support returns after orientation; guard still withheld
+
+
+
+
+
+                              O
+                              |
+                               \
+                               +
+                             </|\>
+                            o  |  o
+                               @
+                              / \
+                              /  \
+                             o    o
+                            /     |
+                            /      |
+      [===========================================]
+
+
+
+[K10] GUARD_REOPEN_LAG | TWOS / INFERRED | exposure=2t | EOS. WAIT
+support/contact=BILATERAL / displaced
+root/arc=root holds while hands lag outward asymmetrically
+causal_role=task channel begins reopening only after body obligations are stable
+
+
+
+
+
+                               O
+                               |
+                          <    |
+                           \  -+-  >
+                            o- | -o
+                               |
+                               @
+                              / \
+                              /  \
+                             o    o
+                            /     |
+                            /      |
+      [===========================================]
+
+
+
+[K11] TASK_REBIND | FOURS / INFERRED | exposure=4t | EOST READY
+support/contact=BILATERAL / displaced
+root/arc=root x31; high-low asymmetric guard opens at new address
+causal_role=guard/task authority returns last; overall readiness becomes true
+
+
+
+
+
+                           <   O
+                           |   |
+                            |  |    >
+                            o--+-  /
+                               | -o
+                               |
+                               @
+                              / \
+                              /  \
+                             o    o
+                            /     |
+                            /      |
+      [===========================================]
+
+
+
+[K12] DISPLACED_READY_DEBT | FOURS / INFERRED | exposure=4t | EOST READY
+support/contact=BILATERAL / wider and farther right than K0
+root/arc=root x32; shoulder tilt and wider stance retain recovery debt
+causal_role=settle preserves history instead of returning to K0 idle geometry
+
+
+
+
+
+                                O
+                            <   |
+                            |   |
+                             | -+-  />
+                             o- | -o
+                                |
+                                @
+                               / \
+                               /  \
+                              o    o
+                             /      \
+                             /      \
+      [===========================================]
+
+
+
+CLOCK / REBIND RELATION
+  K0 begins fully ready. K1 invalidates all recovery obligations.
+  K5 reacquires EXIT_CONTACT only; the old rear foot is visibly airborne.
+  K8 reacquires ORIENTATION while the second support and guard remain incomplete.
+  K9 reacquires BILATERAL_SUPPORT while guard/task remains withheld.
+  K11 reacquires TASK last; only then is OVERALL ready true.
+  K12 preserves displaced ready debt rather than reverse-playing to K0.
+  Root spacing x20 -> x22 -> x26 -> x31 -> x34 -> x32 visibly spends acceleration, brake, overshoot, and catch.
+
+TIMING VOCABULARY
+  ONES=new key sample each display frame; TWOS=hold two frames; FOURS=hold four frames.
+  STREET_FIGHTER/CAPCOM=nonuniform authored gameplay timing.
+  All keys here are INFERRED; the source sheet does not establish exposure timing.
