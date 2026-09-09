@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-airborne-028-rising-platform-undercatch-relative-velocity-debt",
-  "status": "PERSISTED_NOT_DELIVERED",
+  "status": "HEALTHY_USER_SURFACED",
   "preflight": {
     "home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
     "home_center_campaign_read": true,
@@ -15,7 +15,7 @@
     "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
     "successor_collision": false,
     "airborne028_only": true,
-    "airborne029_forbidden_until_healthy": true
+    "airborne029_forbidden_until_healthy": false
   },
   "source": {
     "family": "The Spriters Resource / Dr Robuttnik (Elevator) / Sunky's Schoolhouse / PC / Playable Characters",
@@ -70,6 +70,11 @@
     "decode": true,
     "embedded_in_spa": true
   },
+  "payload_identity": {
+    "contact_sheet_sha256": "452450936ebd1070d40ff7f074822f53f6de39b0a41e015d53a0b5399f696a7a",
+    "motion_json_sha256": "cd8c35b326de34e1dcc2865a7587925d9fc6f430e59a5324faa9379fd549b945",
+    "spa_sha256": "b7bd472019e580efeba301d1b03810937000943bdfe72ecfd0f9f6799a15d1fc"
+  },
   "contract": {
     "validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
     "candidate_isolated_pass": true,
@@ -78,8 +83,9 @@
   },
   "repo": {
     "persisted": true,
-    "final_readback": false,
+    "final_readback": true,
     "builder_reconciliation_commit": "477f6b8591bdab836b25ee9a8f2ddac7db4f6eef",
+    "receipt_staging_commit": "dfad1723b70731cc97a7cf8e75eb2d2ee376df88",
     "blobs": {
       "build.py": "835db63c37d52e13b2811fcd4a2b6b42d93ae8e7",
       "contact-sheet.txt": "8354c4380032ed385451cb69f74fceae114dac3e",
@@ -88,13 +94,19 @@
       "rising-platform-undercatch-relative-velocity-debt.motion.html": "5f8fc382c574a48cb558a04792dded6f17236018"
     }
   },
-  "issue_343_receipt": null,
+  "issue_343_receipt": 5605539514,
+  "issue_343_receipt_readback": true,
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_visible_video": false,
-    "video_byte_identical": false
+    "part1_ascii": true,
+    "part1_complete": true,
+    "part1_payload_sha256": "452450936ebd1070d40ff7f074822f53f6de39b0a41e015d53a0b5399f696a7a",
+    "part2_json": true,
+    "part2_persisted_payload": true,
+    "part2_payload_sha256": "cd8c35b326de34e1dcc2865a7587925d9fc6f430e59a5324faa9379fd549b945",
+    "part3_visible_video": true,
+    "video_byte_identical": true,
+    "part3_media_sha256": "e690616494b5a881d8e9c94c44efe4d6fb3514caeca87fddeb905efb0eff7ff0"
   },
   "DREW_ACCEPTED": false,
-  "next_authorized": null
+  "next_authorized": "v2-airborne-029"
 }
