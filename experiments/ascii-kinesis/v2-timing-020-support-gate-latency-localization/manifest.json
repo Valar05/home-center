@@ -4,7 +4,7 @@
   "experiment_id": "v2-timing-020-support-gate-latency-localization",
   "lane": "timing",
   "title": "Timing020 — Support-Gate Latency Localization",
-  "status": "PERSISTED_NOT_DELIVERED",
+  "status": "HEALTHY_USER_SURFACED",
   "primary_tabs": [
     "ASCII",
     "JSON",
