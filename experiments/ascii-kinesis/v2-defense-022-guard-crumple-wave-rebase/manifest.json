@@ -1,0 +1,80 @@
+{
+  "schema": "ascii-kinesis.manifest-v2",
+  "format_version": 2,
+  "specimen_id": "v2-defense-022-guard-crumple-wave-rebase",
+  "lane": "defense",
+  "number": 22,
+  "title": "GUARD CRUMPLE / WAVE REBASE",
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "spa_file": "guard-crumple-wave-rebase.motion.html",
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "prior_closure_comment": 5610088288,
+    "successor_collision": false
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "30327",
+    "character": "Billy & Jimmy",
+    "game": "Double Dragon II: The Revenge",
+    "platform": "NES",
+    "source_role": "STYLE_REFERENCE",
+    "source_authentic_timing": "UNKNOWN",
+    "campaign_artifact": "1icTndAfTH5fge6tCAL35HzU9X7dsKVzRa0ah_n6gwWk",
+    "whole_source_sha256": "4bc16d9c88b58d6ad6d727b285f373c4caa1957b2762aebf44476a2f77f3e33c"
+  },
+  "timing": {
+    "compile_policy": "STREET_FIGHTER/CAPCOM",
+    "compile_provenance": "INFERRED"
+  },
+  "media": {
+    "file": "guard-crumple-wave-rebase.mp4",
+    "embedded_in_spa": true,
+    "sha256": "606a9f48777a7f71322812f70575fcafe27f7530aac8503caff14f0b9069cc0d",
+    "frames": 53,
+    "bytes": 19582,
+    "width": 800,
+    "height": 450,
+    "fps": 24,
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "decode_verified": true
+  },
+  "quality": {
+    "tango": "PASS",
+    "noodle_queen": "PASS",
+    "actual_render_sha256": "606a9f48777a7f71322812f70575fcafe27f7530aac8503caff14f0b9069cc0d"
+  },
+  "repo": {
+    "persisted": false,
+    "repo_readback": false,
+    "body_files_readback": 0,
+    "exactly_one_spa": false,
+    "commit": null,
+    "blobs": {}
+  },
+  "issue": {
+    "issue": 343,
+    "receipt_comment": null,
+    "readback": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_visible_video": false,
+    "ordered": false
+  },
+  "drew_accepted": false
+}
