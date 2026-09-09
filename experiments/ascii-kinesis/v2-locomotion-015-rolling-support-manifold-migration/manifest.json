@@ -10,7 +10,7 @@
   "source_art_embedded": false,
   "backward_compatible": true,
   "body_files": ["build.py", "contact-sheet.txt", "manifest.json", "motion.json", "rolling-support-manifold-migration.motion.html", "receipt.json"],
-  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "source": {
     "asset_id": 155651,
     "identity": "The Bullet — Enter the Gungeon — PC / Computer — Playable Characters",
@@ -34,5 +34,7 @@
     "actual_final_render_inspected": true,
     "current_worker_byte_identical_reconstruction": true
   },
-  "contract_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78"
+  "contract_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+  "issue_343_closure_receipt": 5605165298,
+  "drew_accepted": false
 }
