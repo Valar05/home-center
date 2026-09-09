@@ -1,6 +1,11 @@
 {
   "ascii_literal_text": true,
   "backward_compatible": true,
+  "chat_delivery": {
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_video": true
+  },
   "experiment_id": "v2-timing-021-refractory-consequence-admission",
   "files": [
     "build.py",
@@ -43,6 +48,7 @@
   },
   "repo": {
     "exact_six_file_readback": true,
+    "pre_delivery_issue_receipt": 5606576296,
     "spa_blob": "214857d77559a66527448bac4a1609b7e5f04eb6",
     "spa_persistence_commit": "343d5212d06ef3c4b9e5941928548520d14047ee"
   },
@@ -65,7 +71,8 @@
   },
   "source_art_embedded": false,
   "specimen_number": 21,
-  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
+  "three_part_chat_delivery": true,
   "title": "Refractory Consequence Admission",
   "video_required": true,
   "video_source": "abstract_ascii_rig_only"
