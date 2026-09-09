@@ -1,0 +1,266 @@
+T018-K0 DISPLACED_READY_START FOURS/4t INFERRED
+support=BILATERAL_RIGHT_BIASED | ready already carries slight rightward tool bias; root address x=16
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                O                                   #
+                |                                   #
+               /|\\                                 #
+             o/ |  \\o=================J            ###########
+                |
+                |                                 x
+                ^
+               / \
+              /   \
+              /   \
+ ______________________________________________________________
+------------------------------------------------------------------------
+T018-K1 RETURN_SPACE_READ FOURS/4t INFERRED
+support=BILATERAL_REAR_BIASED | eyes/shaft test the under-corner lane before commitment; no root travel yet
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+               O                                    #
+               |                                    #
+               /|\\                                 #
+            o// |  \\o==========                   ###########
+                |                ==========J
+               |                                  x
+               ^
+              / \
+             /   \
+             /    \
+ ______________________________________________________________
+------------------------------------------------------------------------
+T018-K2 ASYMMETRIC_COIL TWOS/2t INFERRED
+support=REAR_DOMINANT | root compresses back-left; shaft retracts and stores return reserve
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+              O                                     #
+              |                                     #
+              /|\\o==============J                 ###########
+           o// |
+              |                                   x
+              |
+             ^
+            / \
+           /   \
+ ______________________________________________________________
+------------------------------------------------------------------------
+T018-K3 RELEASE_BRIDGE ONES/1t INFERRED
+support=REAR_TO_FRONT_TRANSFER | one-tick authored bridge; root and shaft accelerate together without endpoint tween
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                  O                                 #
+                  |                                 #
+                 /|\\                               #
+              o// |   \\o=========                ###########
+                 |                  =========J
+                 |                                x
+                ^
+               / \
+              /   \
+              /     \
+ ______________________________________________________________
+------------------------------------------------------------------------
+T018-K4 CONTACT_SPIKE ONES/1t INFERRED
+support=FRONT_BIASED | target contact at x50/y10; source hit-stop remains unknown; compile uses one authored information spike
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                     O                              #
+                     |                              #
+                    /|\\                            #
+                 o// |  \\                        ###########
+                    |       \\o=========
+                    |                   ==========X
+                   ^
+                  / \
+                 /   \
+                 /     \
+ ______________________________________________________________
+------------------------------------------------------------------------
+T018-K5 FOLLOW_THROUGH TWOS/2t INFERRED
+support=FRONT_BIASED | tool head rises toward jamb after force completion; outgoing path is now geometrically spent
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                      O                             #
+                      |                             #
+                     /|\\                           #
+                  o// |  \\                       ###########
+                     |       \\o=================J
+                     |                            x
+                    ^
+                   / \
+                  /   \
+                  /     \
+ ______________________________________________________________
+------------------------------------------------------------------------
+T018-K6A RETURN_BRAKE_ENTRY TWOS/2t INFERRED
+support=FRONT_TO_DUAL_BRAKE | first braking state: root still forward while hook crowds the jamb underside; force shifts toward bilateral support
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                     O                              #
+                     |                              #
+                    /|\\              =========J  ###########
+                 o// |    \\o=========
+                     |                            x
+                    |
+                    ^
+                   / \
+                  /   \
+ ______________________________________________________________
+------------------------------------------------------------------------
+T018-K6B RETURN_BRAKE_SETTLE TWOS/2t INFERRED
+support=DUAL_COMPRESSED | second braking state: pelvis drops and shaft shortens before any rotation; braking remains active rather than a dead hold
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                   O                                #
+                   |                       ====J    ###########
+                   /|\\         ==========
+                o// |   \\o====                 x
+                    |
+                   |
+                   ^
+                 // \
+ ______________________________________________________________
+------------------------------------------------------------------------
+T018-K7 AXIAL_WITHDRAWAL TWOS/2t INFERRED
+support=BILATERAL | head retreats along already-proven shaft axis; no rotation yet
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                  O                                 #
+                  |                                 #
+                  /|\\                              ###########
+               o// |   \\o==============J
+                   |                              x
+                  |
+                  ^
+                 / \
+                /   \
+ ______________________________________________________________
+------------------------------------------------------------------------
+T018-K8 HOOK_CLEAR_BRIDGE ONES/1t INFERRED
+support=REAR_REACQUIRING | one-tick authored clearance bridge: hook finally leaves the corner's forbidden side volume
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                 O                                  #
+                 |                                  #
+                 /|\\          ======J             ###########
+              o// |   \\o======
+                  |                               x
+                 |
+                 ^
+                / \
+               /   \
+ ______________________________________________________________
+------------------------------------------------------------------------
+T018-K8R ROTATION_PICKUP_BRIDGE ONES/1t INFERRED
+support=REAR_REACQUIRING | after axial clearance, an authored one-tick diagonal pickup begins the return arc; no teleport to the rotated state
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                 O                =J                #
+                 |            ====                  #
+                 /|\\     ====                      ###########
+              o// |  \\o=
+                  |                               x
+                 |
+                 ^
+                / \
+               /   \
+ ______________________________________________________________
+------------------------------------------------------------------------
+T018-K9 ROTATE_AFTER_CLEAR TWOS/2t INFERRED
+support=REAR_DOMINANT | only after clear does shaft rotate upward/back; return geometry diverges from release path
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                               J                    #
+                             ==                     #
+                O          ==                       #
+                |         =                         #
+                /|\\    ==                          ###########
+             o// |  \\o
+                 |                                x
+                |
+                ^
+               / \
+              /   \
+ ______________________________________________________________
+------------------------------------------------------------------------
+T018-K10 COUNTERWEIGHT_OVERSHOOT TWOS/2t INFERRED
+support=REAR_DOMINANT | root overshoots left as tool mass crosses back; recovery has body consequence
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+             O                                      #
+             |            =J                        #
+             /|\\     ====                          #
+          o// |  \\o=                              ###########
+              |
+              |                                   x
+              ^
+             / \
+            /   \
+            /    \
+ ______________________________________________________________
+------------------------------------------------------------------------
+T018-K11 DISPLACED_READY_SETTLE FOURS/4t INFERRED
+support=BILATERAL_LEFT_BIASED | ready returns at a new address x=13 with changed tool angle; no idle reset
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+                                                    #
+             O                                      #
+             |                                      #
+             /|\\          =======J                 #
+          o// |  \\o=======                         ###########
+              |
+             |                                    x
+             ^
+            / \
+           /   \
+           /    \
+ ______________________________________________________________
+------------------------------------------------------------------------
