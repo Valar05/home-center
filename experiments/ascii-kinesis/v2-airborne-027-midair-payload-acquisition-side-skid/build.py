@@ -110,7 +110,10 @@ manifest={'format_version':2,'experiment_id':M['experiment_id'],'primary_tabs':[
           'rights_firewall':M['source']['rights_boundary'],'source_timing':M['source']['source_authentic_timing']}
 (ROOT/'manifest.json').write_text(json.dumps(manifest,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
 
+import gzip
 motion_text=(ROOT/'motion.json').read_text(encoding='utf-8'); b64=base64.b64encode(media).decode('ascii')
+ab64=base64.b64encode(gzip.compress(contact.encode('utf-8'),compresslevel=9,mtime=0)).decode('ascii')
+jb64=base64.b64encode(gzip.compress(motion_text.encode('utf-8'),compresslevel=9,mtime=0)).decode('ascii')
 page='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
 page+=f'<title>{html.escape(M["experiment_id"])}</title><style>'
 page+='body{font-family:system-ui,sans-serif;margin:0;background:#111;color:#eee}nav{position:sticky;top:0;background:#181818;padding:8px}'
@@ -118,9 +121,8 @@ page+='button{margin-right:8px;padding:8px 14px}section{display:none;padding:12p
 page+='pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;line-height:1.04}'
 page+='video{max-width:100%;background:#000}</style></head><body>'
 page+='<nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>'
-page+=f'<section id="ascii" class="active"><pre>{html.escape(contact)}</pre></section>'
-page+=f'<section id="json"><pre>{html.escape(motion_text)}</pre></section>'
+page+='<section id="ascii" class="active"><pre id="ascii-pre"></pre></section><section id="json"><pre id="json-pre"></pre></section>'
 page+=f'<section id="video"><video controls loop autoplay muted playsinline><source src="data:video/mp4;base64,{b64}" type="video/mp4"></video></section>'
-page+='<script>const bs=[...document.querySelectorAll("button[data-view]")];bs.forEach(b=>b.onclick=()=>{document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));document.getElementById(b.dataset.view).classList.add("active")})</script></body></html>'
+page+=f'<script>const A="{ab64}",J="{jb64}";async function z(b,id){{let u=Uint8Array.from(atob(b),c=>c.charCodeAt(0));let r=new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream("gzip")));document.getElementById(id).textContent=await r.text()}}z(A,"ascii-pre");z(J,"json-pre");const bs=[...document.querySelectorAll("button[data-view]")];bs.forEach(b=>b.onclick=()=>{{document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));document.getElementById(b.dataset.view).classList.add("active")}})</script></body></html>'
 (ROOT/'midair-payload-acquisition-side-skid.motion.html').write_text(page,encoding='utf-8')
 print(json.dumps({'ok':True,'frames':len(frames),'bytes':len(media),'media_sha256':sha,'contact_sheet_sha256':hashlib.sha256(contact.encode()).hexdigest()},sort_keys=True))
