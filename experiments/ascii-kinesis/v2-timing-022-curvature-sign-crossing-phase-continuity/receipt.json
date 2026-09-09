@@ -21,7 +21,8 @@
     "home_center_campaign_read": true
   },
   "experiment_id": "v2-timing-022-curvature-sign-crossing-phase-continuity",
-  "issue_343_receipt": "5607698681",
+  "issue_343_pre_delivery_receipt": "5607698681",
+  "issue_343_receipt": "5607762694",
   "issue_343_receipt_readback": true,
   "media": {
     "bytes": 20905,
@@ -50,6 +51,7 @@
     "exact_six_file_readback": true,
     "healthy_manifest_commit": "bf80b0654ff4792104aacc6bb7178eaf0df3bc30",
     "healthy_manifest_blob": "6ea9965e8e4e14a8745cfe36d5a50308a65e72af",
+    "healthy_receipt_creation_commit": "e712f3707912e236ff52a46028169fe24539348d",
     "manifest_reconciliation_commit": "c0ac563be7a86e1aedd7b8f0886fe9eee26a9d4c",
     "motion_blob": "df6ec6fc24df921de3477509b3c72e18d109cb04",
     "path": "experiments/ascii-kinesis/v2-timing-022-curvature-sign-crossing-phase-continuity/",
