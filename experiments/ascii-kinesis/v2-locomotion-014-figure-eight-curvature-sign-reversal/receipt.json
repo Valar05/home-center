@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "id": "v2-locomotion-014-figure-eight-curvature-sign-reversal",
-  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "current_worker_liveness": {
     "home_center_campaign": true,
     "github_persistence_readback": true
@@ -59,7 +59,7 @@
     "body_files": {
       "build.py": "8c4d7c534fb6ea2fe29e73359512c8d9e9d75dcf",
       "contact-sheet.txt": "a0ac2a66ef25ed30c58a610b5205974c16f91d14",
-      "manifest.json": "40413315fec2343b1dda4fe77bd6e21205f0c15b",
+      "manifest.json": "d2075495ecb0fbe41c34052bb29b644cdcdd8ac7",
       "motion.json": "cee66747122f97748b93b8cc8cc9ae5bf76d0ec8",
       "figure-eight-curvature-sign-reversal.motion.html": "e6ad3f6a051e6205d8c3f84c73f337c7f5836311"
     }
@@ -70,9 +70,12 @@
     "user_surface_closure": null
   },
   "chat_delivery": {
-    "ascii": false,
-    "json": false,
-    "video": false
+    "ascii": true,
+    "json": true,
+    "video": true,
+    "order": "ASCII->JSON->VIDEO",
+    "video_byte_identical_authoritative": true
   },
-  "drew_accepted": false
+  "drew_accepted": false,
+  "locomotion015_created": false
 }
