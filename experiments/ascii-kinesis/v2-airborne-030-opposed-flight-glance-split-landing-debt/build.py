@@ -46,8 +46,8 @@ def render_ascii(state):
     for tag in ('A','B'):
         g=body_grid(state['root_'+tag],state['joints_'+tag],tag,state.get('contact')!='NONE')
         for (x,y),ch in g.items():grid[y][x]=ch
-    if state.get('contact')!='NONE':
-        # mark geometric contact midpoint between near hands/shoulders
+    if 'TRANSIENT' in state.get('contact',''):
+        # mark only authored inter-body contact; ground support/contact must never draw a phantom body-body marker
         ax,ay=state['joints_A']['rhand']; bx,by=state['joints_B']['lhand']
         cx=round((ax+bx)/2); cy=round((ay+by)/2)
         if 0<=cx<W and 0<=cy<H:grid[cy][cx]='*'
