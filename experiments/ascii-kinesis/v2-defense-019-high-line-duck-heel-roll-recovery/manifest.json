@@ -1,0 +1,115 @@
+{
+  "schema": "ascii-kinesis.manifest.v2",
+  "format_version": 2,
+  "experiment_id": "v2-defense-019-high-line-duck-heel-roll-recovery",
+  "lane": "defense",
+  "kind": "NEW_CONCEPT",
+  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_CHAT_DELIVERY",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "spa": "high-line-duck-heel-roll-recovery.motion.html",
+  "media": {
+    "authoritative": "embedded_mp4",
+    "file_name_runtime": "high-line-duck-heel-roll-recovery.mp4",
+    "sha256": "a9e02437422e621bf6bd1c1a301d6b1bbae82456a923e9a4bf14263e1c2fea97",
+    "bytes": 17557,
+    "codec": "H.264",
+    "pixel_format": "yuv420p",
+    "resolution": [
+      800,
+      450
+    ],
+    "fps": 24,
+    "frames": 48,
+    "duration_seconds": 2.0,
+    "decode_verified": true,
+    "source": "Motion Dungeon from abstract ASCII rig + structured timing only",
+    "current_worker_byte_identical_reconstruction": true
+  },
+  "files": {
+    "build.py": {
+      "sha256": "535dca7003e92ded162e009ecb1760f166054617aa9cf578343d14d8de2c5454",
+      "git_blob": "6aa979d28334548005ead8c000bdb3ca962dd3a8"
+    },
+    "contact-sheet.txt": {
+      "sha256": "64a54269d4b05562a49cae5764a93a6290f63a8a948160b1f079415063d22f1e",
+      "git_blob": "ce8d8abd416e17208f195f48341e8cc4706462bb"
+    },
+    "motion.json": {
+      "sha256": "da7be0960c11e97c4cb751fba3a341a4f16e578284617226ad4b6523de521471",
+      "git_blob": "62cbb9f79077a041b7a1a160cf34cfb907c1f1b2"
+    },
+    "high-line-duck-heel-roll-recovery.motion.html": {
+      "sha256": "5888ce3a645210e530815d101434356c83df1df131d1273be5371652edc11c3f",
+      "git_blob": "b0d760b446c62c35a75e89f2489212df95e77739"
+    }
+  },
+  "source": {
+    "asset_id": "155651",
+    "provider": "The Spriters Resource",
+    "title": "The Bullet",
+    "game": "Enter the Gungeon",
+    "platform": "PC / Computer",
+    "page_url": "https://www.spriters-resource.com/pc_computer/enterthegungeon/asset/155651/",
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "campaign_evidence_document": "1IyEadga2zJOCNr9vr0MJsnZvRr0x8YxBFjrk-MSsGEc",
+    "whole_source_dimensions": [
+      1023,
+      853
+    ],
+    "whole_source_bytes": null,
+    "whole_source_sha256": null,
+    "source_authentic_timing": "UNKNOWN",
+    "compile_timing": "INFERRED / STREET_FIGHTER-CAPCOM"
+  },
+  "rights": {
+    "commercial_reference_evidence_only": true,
+    "source_pixels_in_output": false,
+    "source_choreography_in_output": false,
+    "redistribution": false
+  },
+  "quality": {
+    "tango_current_worker": "PASS",
+    "tango_actual_render_inspected": true,
+    "tango_visible_basis": "Fresh byte-identical 48-frame render inspection: the high threat is read before compression; the head traces a low left-to-right crescent beneath the passing line without guard contact; support pressure visibly rolls through full/edge/toe foot geometry while ankle locations remain fixed; pelvis lags the head side-swap; right-sole drive earns the rise; torsion overshoot and light-left-toe displaced ready debt prevent idle reset. No defect earned mutation.",
+    "noodle_queen_current_worker": "PASS",
+    "noodle_queen_after_tango": true,
+    "noodle_queen_basis": "TASTE + FUNCTION + CONTEMPT PASS: the fixed-location heel-roll evasion is a specific no-contact defensive sentence, visually distinct from prior exit/catch/custody bodies; asymmetric compression, crescent clearance, support-pressure transfer, delayed upper recovery and displaced finish read without metadata.",
+    "drew_accepted": false
+  },
+  "contract": {
+    "official_validator_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated_result": "PASS",
+    "full_repository_checkout_run_claimed": false,
+    "boundary": "Standard Chat has authenticated repository read/write/readback but no authorized full remote checkout shell; only candidate-isolated official-validator execution is claimed."
+  },
+  "repo_verification": {
+    "pre_write_main_commit": "1723853499d833a1a21dff0f0244d1a1449f1e8c",
+    "exact_six_file_inventory": false,
+    "exactly_one_spa": false,
+    "repo_readback": false,
+    "issue_343_receipt": null,
+    "issue_343_receipt_readback": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_visible_video": false,
+    "ordered_together": false,
+    "authoritative_video_sha256": "a9e02437422e621bf6bd1c1a301d6b1bbae82456a923e9a4bf14263e1c2fea97"
+  },
+  "compatibility": {
+    "offline_spa": true,
+    "exactly_one_motion_html": true,
+    "legacy_readers_preserved": true
+  }
+}
