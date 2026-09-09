@@ -2,7 +2,7 @@
 set -euo pipefail
 
 STATE="${HC_STATE_DIR:-$HOME/.local/state/home-center}/venice-fleshpunk-image"
-ATOM="$HOME/.local/share/atom"
+RUNTIME="$HOME/.local/share/fortress-image"
 BIN="$HOME/bin"
 PROMPT="${1:-a flesh-punk field mechanic in a rain-dark trench workshop, biomechanical tools, practical workwear, environmental composition}"
 SEED="${2:-8132026}"
@@ -23,20 +23,19 @@ PY
   exit 2
 }
 
-[ -d "$ATOM" ] || fail ATOM_NOT_INSTALLED "Atom runtime missing at $ATOM"
+[ -d "$RUNTIME" ] || fail IMAGE_RUNTIME_NOT_INSTALLED "standalone image runtime missing at $RUNTIME"
 [ -x "$BIN/venice-image" ] || fail IMAGE_COMMAND_MISSING "venice-image command is not installed"
-[ -x "$BIN/venice-image-ui" ] || fail IMAGE_UI_MISSING "venice-image-ui command is not installed"
-[ -f "$ATOM/tools/venice_fleshpunk_phone.sh" ] || fail GENERATOR_MISSING "installed generator source is missing"
-[ -f "$ATOM/tools/ssh_axis.py" ] || fail SSH_AXIS_MISSING "installed SSH Axis source is missing"
+[ -f "$RUNTIME/tools/venice_fleshpunk_phone.sh" ] || fail GENERATOR_MISSING "installed generator source is missing"
+[ -f "$RUNTIME/tools/ssh_axis.py" ] || fail SSH_AXIS_MISSING "installed SSH Axis source is missing"
 
-# Prove current workstation transport before starting the expensive render.
-if ! python "$ATOM/tools/ssh_axis.py" check --target cauldron --json >"$STATE/acceptance-ssh.json"; then
-  fail CAULDRON_SSH_UNCALLABLE "THECAULDRON failed the end-to-end SSH Axis canary"
+if ! FORTRESS_IMAGE_PROFILE=fleshpunk "$BIN/venice-image" doctor >"$STATE/acceptance-doctor.stdout" 2>"$STATE/acceptance-doctor.stderr"; then
+  detail="$(tail -c 3000 "$STATE/acceptance-doctor.stderr" 2>/dev/null || true)"
+  fail CAULDRON_SSH_UNCALLABLE "$detail"
 fi
 
 rm -f "$STATE/latest.json" "$STATE/latest.png"
 if ! "$BIN/venice-image" generate "$PROMPT" "$SEED" >"$STATE/acceptance-generate.stdout" 2>"$STATE/acceptance-generate.stderr"; then
-  detail="$(tail -c 3000 "$STATE/acceptance-generate.stderr" 2>/dev/null || true)"
+  detail="$(tail -c 5000 "$STATE/acceptance-generate.stderr" 2>/dev/null || true)"
   fail GENERATION_FAILED "$detail"
 fi
 
@@ -44,10 +43,12 @@ fi
 [ -s "$STATE/latest.json" ] || fail GENERATION_RECEIPT_MISSING "generator returned no generation receipt"
 
 python - "$STATE/latest.json" "$STATE/latest.png" "$STATE/acceptance-latest.json" <<'PY'
-import hashlib,json,sys,datetime,os
+import hashlib,json,sys,datetime
+from pathlib import Path
 receipt_path,png_path,out_path=sys.argv[1:]
 r=json.load(open(receipt_path,encoding='utf-8-sig'))
 actual=hashlib.sha256(open(png_path,'rb').read()).hexdigest()
+public=Path(str(r.get('publicPhonePath') or ''))
 errors=[]
 if not r.get('ok'): errors.append('generation receipt ok=false')
 if r.get('lora')!='drw_fleshpunk_v1.safetensors': errors.append(f"unexpected LoRA {r.get('lora')!r}")
@@ -55,6 +56,12 @@ if not r.get('loraSha256'): errors.append('missing LoRA SHA-256')
 if not r.get('promptId'): errors.append('missing ComfyUI promptId')
 if r.get('pngSha256')!=actual: errors.append('remote PNG SHA-256 does not match phone bytes')
 if r.get('phoneSha256')!=actual: errors.append('phone receipt SHA-256 does not match phone bytes')
+if not public.is_file():
+    errors.append(f'public PNG missing: {public}')
+    public_hash=None
+else:
+    public_hash=hashlib.sha256(public.read_bytes()).hexdigest()
+    if public_hash!=actual: errors.append('public Pictures PNG SHA-256 mismatch')
 obj={
   'schema':'venice-fleshpunk-phone-acceptance.v1',
   'ok':not errors,
@@ -67,6 +74,9 @@ obj={
     'loraRuntimeObserved':bool(r.get('loraSha256')),
     'generationObserved':bool(r.get('promptId')),
     'phoneArtifactDelivered':r.get('pngSha256')==actual and r.get('phoneSha256')==actual,
+    'publicPicturesArtifactDelivered':bool(public_hash and public_hash==actual),
+    'shizukuRequired':False,
+    'atomRequired':False,
     'drewPerceptualAccepted':False
   },
   'prompt':r.get('prompt'),
@@ -75,9 +85,11 @@ obj={
   'lora':r.get('lora'),
   'loraSha256':r.get('loraSha256'),
   'promptId':r.get('promptId'),
-  'phonePath':os.path.abspath(png_path),
+  'phonePath':str(Path(png_path).resolve()),
+  'publicPhonePath':str(public),
   'pngSha256':actual,
-  'accessibleSummary':r.get('accessibleSummary'),
+  'publicPhoneSha256':public_hash,
+  'accessibleSummary':r.get('requestDerivedAltText'),
   'observedAt':datetime.datetime.now(datetime.timezone.utc).isoformat()
 }
 open(out_path,'w',encoding='utf-8').write(json.dumps(obj,indent=2,ensure_ascii=False)+'\n')
@@ -86,9 +98,14 @@ if errors: raise SystemExit(3)
 PY
 
 if command -v termux-notification >/dev/null 2>&1; then
+  PUBLIC="$(python - "$STATE/latest.json" <<'PY'
+import json,sys
+print(json.load(open(sys.argv[1],encoding='utf-8')).get('publicPhonePath',''))
+PY
+)"
   termux-notification --id 6501 --title 'Fleshpunk image accepted' \
-    --content 'Runtime proof passed: THECAULDRON rendered with the Fleshpunk LoRA and the verified PNG returned to this phone.' \
-    --button1 'Open image' --button1-action "bash -l -c 'termux-open $STATE/latest.png'" >/dev/null 2>&1 || true
+    --content 'THECAULDRON rendered it and verified PNG bytes reached Pictures/Fortress.' \
+    --button1 'Open image' --button1-action "bash -l -c 'termux-open \"$PUBLIC\"'" >/dev/null 2>&1 || true
 fi
 
 cat "$STATE/acceptance-latest.json"

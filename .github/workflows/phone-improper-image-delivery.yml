@@ -1,0 +1,66 @@
+name: Phone Improper Image Delivery
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - campaigns/improper-image-delivery/run-token.txt
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  HOME_CENTER_GCP_PROJECT: home-center-dclar
+
+jobs:
+  deliver:
+    name: Home Center -> phone -> THECAULDRON -> Pictures
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          lfs: false
+
+      - name: Authenticate to Home Center GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+
+      - name: Install Home Center Firestore client
+        run: npm ci --prefix functions --omit=optional --ignore-scripts
+
+      - name: Source contract gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/test_phone_relay_shizuku_independence.py
+          python3 tools/test_improper_image_delivery_contract.py
+          node --check tools/github_dispatch_improper_image_campaign.mjs
+
+      - name: Execute fixed runtime campaign through Home Center queue
+        env:
+          HOME_CENTER_SOURCE_REF: ${{ github.sha }}
+          IMPROPER_IMAGE_EVIDENCE_DIR: runtime-evidence
+        run: node tools/github_dispatch_improper_image_campaign.mjs
+
+      - name: Preserve runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: improper-image-runtime-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: runtime-evidence/
+          if-no-files-found: warn
+          retention-days: 30
