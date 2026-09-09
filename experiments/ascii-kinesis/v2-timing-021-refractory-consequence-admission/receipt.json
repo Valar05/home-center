@@ -29,21 +29,24 @@
     "width": 780
   },
   "one_body_binding": {
-    "inventory_tree_sha": "dfad1723b70731cc97a7cf8e75eb2d2ee376df88",
     "successor_collision": false,
-    "timing021_count_before_create": 0
+    "timing021_count": 1
   },
   "quality": {
+    "current_worker_actual_render_inspection": "PASS",
     "queen": "PASS",
     "same_actual_render": true,
     "tango": "PASS"
   },
   "repo": {
+    "exact_six_file_readback": true,
     "final_receipt_commit": null,
+    "manifest_reconciliation_commit": "ad21a01dec6449662d0f8dea4b26e9e328dbd20c",
     "path": "experiments/ascii-kinesis/v2-timing-021-refractory-consequence-admission/",
-    "persisted": false,
-    "repo_readback": false,
-    "ship_commit": null
+    "persisted": true,
+    "repo_readback": true,
+    "ship_commit": "343d5212d06ef3c4b9e5941928548520d14047ee",
+    "spa_blob": "214857d77559a66527448bac4a1609b7e5f04eb6"
   },
   "schema": "ascii-kinesis.receipt-v2",
   "source": {
@@ -57,6 +60,6 @@
     "timing_provenance": "INFERRED",
     "whole_source_campaign_evidence_read": true
   },
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
   "three_part_chat_delivery": false
 }
