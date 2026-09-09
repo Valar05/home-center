@@ -1,0 +1,50 @@
+{
+  "schema": "ascii-kinesis.manifest-v2",
+  "format_version": 2,
+  "experiment_id": "v2-strikes-013-glancing-contact-force-axis-debt",
+  "lane": "strikes",
+  "kind": "fresh_post_debt_concept",
+  "revises": null,
+  "negative_fixture": null,
+  "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "216747",
+    "title": "Shaw (Sword)",
+    "game": "Cutthroat Island",
+    "platform": "SNES",
+    "campaign_evidence": "STRIKES PASS 003 — VERIFIED / 5570672329",
+    "source_authentic_timing": "UNKNOWN"
+  },
+  "rights_firewall": "PASS_NO_SOURCE_PIXELS_PALETTE_COSTUME_CONTOURS_LAYOUT_TRACING_CHOREOGRAPHY_REDISTRIBUTION_AUDIO_CLOSE_IMITATION",
+  "principle": "GLANCING_CONTACT_ROTATES_FORCE_AXIS",
+  "media": {
+    "codec": "H.264",
+    "pixel_format": "yuv420p",
+    "width": 880,
+    "height": 440,
+    "fps": 24,
+    "authoritative": "embedded_spa_mp4",
+    "sha256": "69c49f9290c879c4b6e272fe21ceeddab8dd0b2ab779cddb67df37231cf145a6",
+    "bytes": 21124,
+    "frames": 53,
+    "duration_seconds": 2.2083333333333335,
+    "decode": "PASS_CURRENT_WORKER_FFPROBE_AND_DECODED_FRAME_INSPECTION"
+  },
+  "quality": {
+    "tango": "PASS_CURRENT_WORKER_ACTUAL_RENDER_R1",
+    "noodle_queen": "PASS_CURRENT_WORKER_AFTER_TANGO_SAME_MEDIA",
+    "DREW_ACCEPTED": false
+  },
+  "files": ["build.py", "contact_sheet.txt", "glancing-contact-force-axis-debt.motion.html", "manifest.json", "motion.json", "receipt.json"],
+  "spa_sha256": "644b72c319b87781a9d2cefe300ff538e39c0d683e154abfed00f2eb070646ad",
+  "contact_sheet_sha256": "f5364ee76e2ae2639c2feb4b7b77c9f559b8730d84052bf31a75a6f0cef12418",
+  "motion_sha256": "8d70d9d33c4815812ed60934d0017a6d09ecdc140dfc427cbc59f55574b24e9c",
+  "builder_sha256": "2f23fc5eb55b39ac16b52bc916f012ab67706508fda0d017f07d8ab515f68657"
+}
