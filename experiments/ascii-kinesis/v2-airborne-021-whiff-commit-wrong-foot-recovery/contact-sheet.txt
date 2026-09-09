@@ -1,0 +1,337 @@
+A021-K0 OFFSET_REAR_LOAD [FOURS/INFERRED]
+root=(10.0,17.2) support=RIGHT_REAR_DOMINANT crop_x=0:29
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|        O    x                |
+|           \o                 |
+|         +\                   |
+|        /|                    |
+|       o  |                   |
+|     x-   @                   |
+|        // \                  |
+|       o    o                 |
+|      =      \                |
+|             !                |
+| _____________________________|
++------------------------------+
+role: rear-biased asymmetric load stores forward travel while the striking side stays withheld
+
+A021-K1 DIAGONAL_SUPPORT_BREAK [ONES/INFERRED]
+root=(14.3,14.4) support=RIGHT_BREAK_TO_NONE crop_x=0:29
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|               O              |
+|                              |
+|        x--o//+\              |
+|              | \\o           |
+|              |    -x         |
+|              @               |
+|          =/o/ \\             |
+|                 o=           |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+| _____________________________|
++------------------------------+
+role: rear support releases into an oblique launch whose forward debt is already committed
+
+A021-K2 RISING_TASK_CHAMBER [TWOS/INFERRED]
+root=(19.0,11.5) support=NONE crop_x=4:33
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                O             |
+|                              |
+|           o////+             |
+|         --     o             |
+|        x     x-|             |
+|           =/  |              |
+|             o/@\             |
+|                 \o           |
+|                   \=         |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|______________________________|
++------------------------------+
+role: the airborne task chambers across the body while the root keeps one ballistic arc
+
+A021-K3 CROSSBODY_COMMIT [ONES/INFERRED]
+root=(24.2,9.8) support=NONE crop_x=9:38
++------------------------------+
+|                              |
+|                              |
+|         x-       O           |
+|           o///               |
+|               //+\           |
+|                |  \o         |
+|                |  \=-x       |
+|              /@\\o           |
+|            o/                |
+|           =                  |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|______________________________|
++------------------------------+
+role: task commitment spends torso rotation and limb reach without inventing a root impulse
+
+A021-K4 WHIFF_APEX_OVERRUN [ONES/INFERRED]
+root=(29.0,9.2) support=NONE_NO_TASK_CONTACT crop_x=14:43
++------------------------------+
+|                              |
+|          x-                  |
+|            o/                |
+|              ///  O          |
+|                 /=           |
+|                ||\\          |
+|               @\o  o         |
+|             //      -x       |
+|            o                 |
+|          =/                  |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|______________________________|
++------------------------------+
+role: the task misses; absent contact force means follow-through must continue instead of recoiling
+
+A021-K5 FOLLOWTHROUGH_DROP [TWOS/INFERRED]
+root=(33.5,10.4) support=NONE crop_x=19:48
++------------------------------+
+|                              |
+|                              |
+|           x-                 |
+|             o/               |
+|               // O           |
+|                 +            |
+|                | \           |
+|               @\o\=          |
+|             //    o          |
+|            o       -         |
+|           /        x         |
+|          =                   |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|______________________________|
++------------------------------+
+role: gravity begins descent while the missed task keeps the torso ahead of the pelvis
+
+A021-K6 LATE_RETRACT_DESCENT [ONES/INFERRED]
+root=(37.5,12.8) support=NONE crop_x=23:52
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                 O            |
+|         x-                   |
+|           o////+             |
+|                |\            |
+|               | o            |
+|               @  x           |
+|              / \o\=          |
+|              o               |
+|              /               |
+|               /              |
+|               =              |
+|                              |
+|                              |
+|                              |
+|______________________________|
++------------------------------+
+role: limbs retract late, spending the remaining rotation to prepare a survivable landing
+
+A021-K7 WRONG_FOOT_PRECONTACT [TWOS/INFERRED]
+root=(42.0,14.9) support=NONE_PRECONTACT crop_x=27:56
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                  O-x         |
+|                  o           |
+|           o/////+            |
+|          -     |             |
+|         x      |             |
+|               @              |
+|              / \             |
+|              o  o            |
+|               / \            |
+|               =  \           |
+|                  =           |
+|                              |
+|______________________________|
++------------------------------+
+role: the body cannot square in time; the rear/right foot becomes the only reachable first support
+
+A021-K8 REAR_HEEL_CONTACT [ONES/INFERRED]
+root=(45.0,16.2) support=RIGHT_HEEL_FIRST crop_x=30:59
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                  O-x         |
+|                  o           |
+|           o/////+            |
+|          -     |             |
+|         x     @              |
+|              / \             |
+|              o  o            |
+|               / \            |
+|               = \            |
+|                 !            |
+|______________________________|
++------------------------------+
+role: wrong-foot first contact acquires support but cannot arrest the forward chest or remaining vertical debt
+
+A021-K9 LEAD_FOOT_SLAP_TRANSFER [ONES/INFERRED]
+root=(48.5,17.2) support=BOTH_TRANSFER_LEFT_CATCH crop_x=33:62
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                  Oo-x        |
+|                /+            |
+|              //|             |
+|            o/ @              |
+|          x-   /\             |
+|               o o            |
+|                / \           |
+|                 !!           |
+|______________________________|
++------------------------------+
+role: late left foot slaps down to widen the base while root continues forward into compression
+
+A021-K10 TWISTED_BRAKE_CRUSH [FOURS/INFERRED]
+root=(51.0,18.3) support=BOTH_DEEP_COMPRESSION crop_x=36:65
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|             O+               |
+|            //|\              |
+|           o   @\             |
+|          -  o/ \o            |
+|         x  /     x           |
+|           !      !           |
+|______________________________|
++------------------------------+
+role: deep unequal compression finally pays vertical and whiff-rotation debt rather than resetting to neutral
+
+A021-K11 UNWIND_REBOUND_LAG [TWOS/INFERRED]
+root=(54.0,16.8) support=BOTH_REBOUND crop_x=39:68
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|         x-      O            |
+|           o//                |
+|              //+             |
+|                |\            |
+|               | o            |
+|               @  -           |
+|             o/ \o x          |
+|            /    \            |
+|            /     \           |
+|           !      !           |
+|______________________________|
++------------------------------+
+role: ground reaction rebounds the root while the strike-side shoulder/hand remain visibly late
+
+A021-K12 DISPLACED_GUARD_EXIT [FOURS/INFERRED]
+root=(57.0,17.1) support=BOTH_GROUND_NEW_ADDRESS crop_x=42:71
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                O  x          |
+|                 \o           |
+|              /+\             |
+|           o// |              |
+|         x-    |              |
+|               @              |
+|              / \             |
+|             o   o            |
+|            /     \           |
+|            !     !           |
+|_____________________________ |
++------------------------------+
+role: readiness returns displaced with residual asymmetry and a guarded task side rather than an idle reset
