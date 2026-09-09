@@ -11,6 +11,7 @@ SPA=HERE/"rate-regime-hysteresis.motion.html"
 MP4=HERE/"rate-regime-hysteresis.mp4"
 FRAMES=Path(tempfile.mkdtemp(prefix="timing019-frames-"))
 W,H,GROUND_Y=72,19,16
+JOINT_ORDER=["head","neck","pelvis","l_shoulder","r_shoulder","l_elbow","r_elbow","l_hand","r_hand","l_knee","r_knee","l_foot","r_foot"]
 
 def line(c,x0,y0,x1,y1,ch):
     dx=abs(x1-x0); sx=1 if x0<x1 else -1
@@ -40,7 +41,7 @@ def make_pose(demand,joints,support):
     for x in range(16,W): c[GROUND_Y][x]="_"
     for x in range(18,W,5): c[17][x]="+"
     for j,ch in enumerate("WORLD DATUM"): c[18][16+j]=ch
-    p={k:tuple(v) for k,v in joints.items()}
+    p={name:(joints[i*2],joints[i*2+1]) for i,name in enumerate(JOINT_ORDER)} if isinstance(joints,list) else {k:tuple(v) for k,v in joints.items()}
     for a,b,ch in [
         ("head","neck","|"),("neck","pelvis","|"),
         ("neck","l_shoulder","-"),("neck","r_shoulder","-"),
