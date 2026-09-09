@@ -9,55 +9,70 @@ manifest=json.loads((HERE/"manifest.json").read_text(encoding="utf-8"))
 
 def render_video():
     frames_dir=HERE/".frames"
-    if frames_dir.exists(): shutil.rmtree(frames_dir)
+    if frames_dir.exists():
+        shutil.rmtree(frames_dir)
     frames_dir.mkdir()
-    font_candidates=[
+    candidates=[
         Path("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"),
         Path("/usr/share/fonts/truetype/liberation2/LiberationMono-Regular.ttf"),
     ]
-    font_path=next((p for p in font_candidates if p.exists()),None)
-    if font_path is None: raise SystemExit("monospace font unavailable")
-    font=ImageFont.truetype(str(font_path),8)
+    font_path=next((p for p in candidates if p.exists()),None)
+    if font_path is None:
+        raise SystemExit("monospace font unavailable")
+    font=ImageFont.truetype(str(font_path),13)
+    footer=ImageFont.truetype(str(font_path),9)
     counter=0
-    for k in motion["keys"]:
-        for _ in range(int(k["exposure_ticks"])):
-            im=Image.new("RGB",(320,280),"white")
+    for key in motion["keys"]:
+        for _ in range(int(key["exposure_ticks"])):
+            im=Image.new("RGB",(640,480),"white")
             d=ImageDraw.Draw(im)
-            d.text((6,4),f"{k['key_id']}  {k['causal_role']}  {k['timing_class']}",fill="black",font=font)
-            d.multiline_text((48,22),k["pose_rig"],fill="black",font=font,spacing=1)
-            cs=k["channel_state"]
-            d.text((6,266),f"ROOT y={cs['BODY_ROOT']['root_y']:02d} | HAND {cs['HAND_SWAY']['state']} | CANOPY {cs['CANOPY_CLOCK']['state']}",fill="black",font=font)
+            d.multiline_text((18,4),key["pose_rig"],fill="black",font=font,spacing=0)
+            d.text((18,458),"fixed world datum 0+  |  abstract ASCII rig only",fill="black",font=footer)
             im.save(frames_dir/f"frame_{counter:04d}.png")
-            counter+=1
+            counter += 1
     out=HERE/"scoped-gust-rephase.mp4"
-    subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate","24","-i",str(frames_dir/"frame_%04d.png"),"-c:v","libx264","-pix_fmt","yuv420p","-movflags","+faststart","-crf","28",str(out)],check=True)
-    return out
+    subprocess.run([
+        "ffmpeg","-y","-loglevel","error","-framerate","24",
+        "-i",str(frames_dir/"frame_%04d.png"),
+        "-c:v","libx264","-pix_fmt","yuv420p","-movflags","+faststart",
+        "-crf","26","-map_metadata","-1",str(out)
+    ],check=True)
+    return out,counter
 
 def contact_sheet():
-    parts=[]
-    for k in motion["keys"]:
-        cs=k["channel_state"]
-        parts += [
-            f"{k['key_id']}  {k['causal_role']}  {k['timing_class']}/{k['exposure_ticks']}t  CANOPY={cs['CANOPY_CLOCK']['state']}  HAND={cs['HAND_SWAY']['state']}\n",
-            k["pose_rig"],
-            f"ROOT_Y={cs['BODY_ROOT']['root_y']:02d}  {k['motion_arc_root_note'].split('; ',1)[-1]}\n",
-            "-"*79+"\n",
-        ]
-    return "".join(parts)
+    out=[]
+    for key in motion["keys"]:
+        cs=key["channel_state"]
+        out.append(
+            f"{key['key_id']}  {key['causal_role']}  {key['timing_class']}/{key['exposure_ticks']}t  "
+            f"ROOT=({cs['BODY_ROOT']['root_x']:02d},{cs['BODY_ROOT']['root_y']:02d})  "
+            f"CANOPY={cs['CANOPY_CLOCK']['state']}  HAND={cs['HAND_SWAY']['state']}\n"
+        )
+        out.append(key["pose_rig"])
+        out.append(key["motion_arc_root_note"]+"\n")
+        out.append("-"*96+"\n")
+    return "".join(out)
 
-video=render_video()
-declared=motion["compile"]["media"]["sha256"]
+video,frame_count=render_video()
 actual=hashlib.sha256(video.read_bytes()).hexdigest()
+declared=motion["compile"]["media"]["sha256"]
 if actual != declared:
     raise SystemExit(f"MEDIA_IDENTITY_MISMATCH declared={declared} actual={actual}")
+if frame_count != int(motion["compile"]["media"]["frames"]):
+    raise SystemExit("FRAME_COUNT_MISMATCH")
 sheet=contact_sheet()
 (HERE/"contact-sheet.txt").write_text(sheet,encoding="utf-8")
-b64=base64.b64encode(video.read_bytes()).decode("ascii")
 motion_text=(HERE/"motion.json").read_text(encoding="utf-8")
-page=f"""<!doctype html><meta charset="utf-8"><title>Timing017 scoped gust rephase</title>
+b64=base64.b64encode(video.read_bytes()).decode("ascii")
+page=f"""<!doctype html>
+<meta charset="utf-8">
+<title>Timing017 — scoped gust rephase</title>
 <style>
-body{{font-family:system-ui;margin:0}}nav{{display:flex;gap:.5rem;padding:.75rem;position:sticky;top:0;background:white}}
-button{{padding:.5rem .8rem}}section{{display:none;padding:1rem}}section.active{{display:block}}
+body{{font-family:system-ui;margin:0}}
+nav{{display:flex;gap:.5rem;padding:.75rem;position:sticky;top:0;background:white}}
+button{{padding:.5rem .8rem}}
+section{{display:none;padding:1rem}}
+section.active{{display:block}}
 pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.05}}
 video{{max-width:100%;height:auto}}
 </style>
@@ -67,9 +82,15 @@ video{{max-width:100%;height:auto}}
 <section id="video"><video controls autoplay loop muted playsinline src="data:video/mp4;base64,{b64}"></video></section>
 <script>
 const ids=["ascii","json","video"];
-for(const b of document.querySelectorAll("button[data-view]")) b.onclick=()=>{{
- for(const id of ids) document.getElementById(id).classList.toggle("active",id===b.dataset.view);
+for(const button of document.querySelectorAll("button[data-view]")) button.onclick=()=>{{
+  for(const id of ids) document.getElementById(id).classList.toggle("active",id===button.dataset.view);
 }};
-</script>"""
+</script>
+"""
 (HERE/manifest["spa_file"]).write_text(page,encoding="utf-8")
-print(json.dumps({"schema":"ascii-kinesis.motion-dungeon-build","ok":True,"media_sha256":actual,"frames":sum(int(k["exposure_ticks"]) for k in motion["keys"])}))
+print(json.dumps({
+    "schema":"ascii-kinesis.motion-dungeon-build",
+    "ok":True,
+    "media_sha256":actual,
+    "frames":frame_count
+},sort_keys=True))
