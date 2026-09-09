@@ -142,7 +142,7 @@ def build_video(data):
             "-framerate",str(data["compile"]["fps"]),
             "-i",str(td/"frame-%04d.png"),
             "-an","-c:v","libx264","-pix_fmt","yuv420p",
-            "-preset","veryslow","-crf","28",
+            "-preset","veryslow","-crf","40",
             "-x264-params","threads=1:lookahead_threads=1:sliced_threads=0",
             "-map_metadata","-1","-movflags","+faststart",
             str(MP4)
