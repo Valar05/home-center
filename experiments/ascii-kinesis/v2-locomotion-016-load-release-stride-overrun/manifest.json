@@ -1,10 +1,17 @@
 {
   "schema": "ascii-kinesis.specimen-manifest.v2",
+  "format_version": 2,
   "id": "v2-locomotion-016-load-release-stride-overrun",
   "lane": "locomotion",
   "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
   "title": "ASCII Kinesis V2 Locomotion 016 — Load-Release Stride Overrun",
   "slug": "load-release-stride-overrun",
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
   "revision": {
     "revises": null,
     "negative_fixture": null,
@@ -17,10 +24,7 @@
     "asset_id": 128015,
     "identity": "Bob — Bob the Builder: Fix It Fun! — Game Boy / GBC — Playable Characters",
     "url": "https://www.spriters-resource.com/game_boy_gbc/bobthebuilderfixitfun/asset/128015/",
-    "source_page_dimensions": [
-      506,
-      428
-    ],
+    "source_page_dimensions": [506, 428],
     "source_page_reported_format": "PNG",
     "source_page_reported_animations": 10,
     "campaign_evidence_id": "1MGaYrJDY7ki8MgxBWmGWDee5rMHdNxqVW2V49ylWV80",
@@ -34,11 +38,7 @@
     "novelty": "first locomotion specimen centered on an abrupt external-resistance change while the support domain remains feet; it studies acceleration/cadence debt rather than braking, curvature reversal, airborne handoff, support-height change, or rolling body support."
   },
   "spa_contract": {
-    "tabs": [
-      "ASCII",
-      "JSON",
-      "VIDEO"
-    ],
+    "tabs": ["ASCII", "JSON", "VIDEO"],
     "exactly_one_spa": true,
     "ascii_literal_selectable_aligned": true,
     "json_persisted_structured": true,
@@ -66,7 +66,7 @@
       "all_36_frames_inspected": true,
       "all_13_authored_keys_inspected": true
     },
-    "correction": "manifest/receipt media declaration reconciled to exact current motion+SPA bytes; authored keys/timing unchanged"
+    "correction": "manifest/receipt media declaration reconciled to exact current motion+SPA bytes; authored keys/timing unchanged; official V2 manifest predicates normalized"
   },
   "drew_accepted": false
 }
