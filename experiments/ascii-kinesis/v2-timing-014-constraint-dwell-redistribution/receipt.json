@@ -4,7 +4,7 @@
   "status": "HEALTHY_USER_SURFACED",
   "repo_path": "experiments/ascii-kinesis/v2-timing-014-constraint-dwell-redistribution/",
   "ship_commit": "87dd48f50f125be832cfc1e2ee47e73d2f67144a",
-  "verification_commit": null,
+  "verification_commit": "4dae800bc363454972514bc2a5793f152f13d220",
   "issue_343_receipt": 5596277094,
   "drew_accepted": false,
   "source": {
