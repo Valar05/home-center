@@ -1,0 +1,122 @@
+name: WDT Self-Proof Gate
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  self-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prove required OS organs exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            'wizard_dns_tango/os.py'
+            'wizard_dns_tango/mockray_daemon.py'
+            'wizard_dns_tango/tetsuya_tremorcle_morse.py'
+            'wizard_dns_tango/runtime_foley.py'
+            'wizard_dns_tango/visual_orchestrator.py'
+            'wizard_dns_tango/STAGE1_EXECUTION_CONTRACT.md'
+            'skills/mockery-forge/SKILL.md'
+          )
+          missing=0
+          for f in "${required[@]}"; do
+            if [[ -s "$f" ]]; then printf 'PASS artifact %s\n' "$f"; else printf 'FAIL artifact %s\n' "$f"; missing=1; fi
+          done
+          exit "$missing"
+
+      - name: Prove no fake release is possible
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import sys
+          contract = Path('wizard_dns_tango/STAGE1_EXECUTION_CONTRACT.md').read_text()
+          required = [
+              'Repository commits, plans, canaries, and generated assets are IMPLEMENTED evidence only.',
+              'physical user-surface proof',
+              'HOME CENTER RESTART BUTTON',
+              'No edging invariant',
+          ]
+          missing=[x for x in required if x not in contract]
+          if missing:
+              print('FAIL release contract missing:', missing)
+              sys.exit(1)
+          print('PASS release contract refuses repository-only victory')
+          PY
+
+      - name: Prove evidence channels fail closed
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import sys
+          morse=Path('wizard_dns_tango/tetsuya_tremorcle_morse.py').read_text()
+          foley=Path('wizard_dns_tango/runtime_foley.py').read_text()
+          checks={
+            'tremorcle_verified_gate': "kind in {'delivered','canary_pass'} and not evidence.get('verified',False)" in morse,
+            'foley_verified_gate': "kind in {'delivered','canary_pass'} and not evidence.get('verified',False)" in foley,
+            'tremorcle_receipt': 'tremorcles.jsonl' in morse,
+            'foley_hash': 'sha256' in foley and 'foley-receipts.jsonl' in foley,
+          }
+          for k,v in checks.items(): print(('PASS' if v else 'FAIL'), k)
+          if not all(checks.values()): sys.exit(1)
+          PY
+
+      - name: Prove visual schedule is evidence-driven
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import sys
+          s=Path('wizard_dns_tango/visual_orchestrator.py').read_text()
+          checks={
+            'event_stream': "events.jsonl" in s,
+            'queue': "queue.json" in s,
+            'time_age': "age_s" in s,
+            'mockray_visible': "mockray" in s,
+            'delivery_visible': "delivered" in s,
+          }
+          for k,v in checks.items(): print(('PASS' if v else 'FAIL'), k)
+          if not all(checks.values()): sys.exit(1)
+          PY
+
+      - name: Refuse Stage One acceptance without device evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          receipts=(receipts/wdt/device-stage1-accepted-*.json)
+          if (( ${#receipts[@]} == 0 )); then
+            echo 'BLOCKED — no physical-device Stage One acceptance receipt exists.'
+            echo 'This is correct behavior. CI will not convert implementation into delivery.'
+            exit 1
+          fi
+          python3 - "${receipts[@]}" <<'PY'
+          import json,sys
+          ok=False
+          for p in sys.argv[1:]:
+              try:
+                  x=json.load(open(p))
+              except Exception:
+                  continue
+              if x.get('physical_device') is True and x.get('restart_hc_button_tapped') is True and x.get('verified') is True:
+                  print('PASS physical acceptance',p)
+                  ok=True
+                  break
+          if not ok:
+              print('BLOCKED — receipts exist but none prove physical Stage One acceptance.')
+              sys.exit(1)
+          PY

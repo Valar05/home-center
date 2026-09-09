@@ -70,6 +70,26 @@ overlay_restart() {
   exec bash "$ROOT/tools/recover_adam_overlay_phone.sh"
 }
 
+home_center_reconnect() {
+  need_rish home-center-reconnect
+  local scheduler_out overlay_out heartbeat
+
+  scheduler_out="$(sh "$ROOT/tools/home_center_scheduler_tmux.sh" start 2>&1 || true)"
+  overlay_out="$(bash "$ROOT/tools/recover_adam_overlay_phone.sh" 2>&1 || true)"
+  heartbeat="$(rish "content query --uri content://com.homecenter.operatoroverlay.state/state 2>/dev/null || true" 2>&1 || true)"
+
+  printf '%s\n' "$scheduler_out" > "$STATE/home-center-reconnect-scheduler.txt"
+  printf '%s\n' "$overlay_out" > "$STATE/home-center-reconnect-overlay.txt"
+  printf '%s\n' "$heartbeat" > "$STATE/home-center-reconnect-state.txt"
+
+  if printf '%s\n' "$heartbeat" | grep -q 'last_heartbeat_ms='; then
+    json_receipt 1 home-center-reconnect "Reconnect attempt completed; scheduler/overlay recovery executed and overlay state is readable."
+  else
+    json_receipt 0 home-center-reconnect "Reconnect attempt ran but Home Center overlay state is still unreadable; inspect $STATE/home-center-reconnect-*.txt"
+    return 5
+  fi
+}
+
 chrome_open() {
   need_chromium_controller chrome-open
   exec python3 "$CHROMIUM" open "${1:-https://chatgpt.com/}"
@@ -115,6 +135,7 @@ help_text() {
 fortress-phone-ops commands:
   status
   overlay-restart
+  home-center-reconnect
   chrome-open [https://url]
   chrome-open-b64 <base64-url>
   chrome-navigate <https://url>
@@ -128,7 +149,8 @@ EOF
 op="${1:-help}"; shift || true
 case "$op" in
   status) status "$@" ;;
-  overlay-restart|restart|restart-overlay) overlay_restart "$@" ;;
+  overlay-restart|restart-overlay) overlay_restart "$@" ;;
+  home-center-reconnect|reconnect|reconnect-hc) home_center_reconnect "$@" ;;
   chrome-open|chrome|chromium) chrome_open "$@" ;;
   chrome-open-b64) chrome_open_b64 "$@" ;;
   chrome-navigate|navigate) chrome_navigate "$@" ;;
