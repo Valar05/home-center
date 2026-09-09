@@ -48,12 +48,12 @@
   },
   "primitive": "ROLLING_CONTACT_PATCH_MIGRATION",
   "authoritative_media": {
-    "sha256": "eab94ca37da80709b5393d988c43d2bda1c2fed920a2a3d42fdf5d991177331e",
-    "bytes": 47553,
+    "sha256": "36138fc081eb3ef00f65da25e5d31e16cd2d63bfcb2395d2ee8f22b3d5f053fa",
+    "bytes": 22649,
     "codec": "h264",
     "pixel_format": "yuv420p",
-    "width": 800,
-    "height": 450,
+    "width": 480,
+    "height": 270,
     "fps": 24,
     "frames": 32,
     "decode": "PASS"
