@@ -1,0 +1,308 @@
+ASCII KINESIS V2 CONTACT019 — ROLLING CONTACT PATCH MIGRATION
+Source: The Spriters Resource — The Bullet — Enter the Gungeon — PC / Computer — asset 155651
+Primitive: ROLLING_CONTACT_PATCH_MIGRATION
+Law: ground support ownership persists while the body-side rolling patch migrates.
+Legend: O head | o joint/end | + pelvis/root | x COM | * authored contact | . root arc | _ ground
+Timing: ONES/TWOS/FOURS = INFERRED; source-authentic timing UNKNOWN.
+Rights: evidence only; no source pixels/palette/costume/contours/layout/tracing/choreography/redistribution.
+
+C019-K0 READY_SEPARATE | FOURS INFERRED
+contact=FOOT_SUPPORT_ONLY patch=NONE support=GROUND_FEET force=BASELINE custody=NONE
+role=readable pre-roll state
+
+
+
+
+              O
+              |
+              o
+            o-|-o  -o
+           /  |  -o
+          o   |
+          |   |
+         |    + . .
+         o   / \
+            /  \
+           o    o
+          /      \
+          /       \
+         *         *
+_________*_________*____________________________________________
+
+
+
+C019-K1 ROLL_ELIGIBLE_LOW | TWOS INFERRED
+contact=PRECONTACT patch=NONE support=REAR_FOOT force=FOOT_ONLY custody=NONE
+role=lower COM and offer lead-side patch without touching
+
+
+
+
+
+
+
+                  O
+                  |
+                  o
+                o-|-o
+               /  |  \
+              o   |   o
+              |   +.   \
+             |   / \\. \
+             o  o    o  o
+               |      \
+               o       *
+_______________________*________________________________________
+
+
+
+C019-K2 ACQUIRE_HAND_PATCH | ONES INFERRED
+contact=ROLLING_CONTACT_ACQUIRED patch=LEAD_HAND_FOREARM support=GROUND_ROLL_PATCH_PLUS_REAR_FOOT force=RISING custody=NONE
+role=authored first rolling contact before foot release
+
+
+
+
+
+
+
+
+
+                      O
+                      |
+                    o-o
+                   /  |-o
+                  o   |  \
+                  |   +.  o
+                 |   / \ . \
+                 o  o   o  \
+                   o     *  *
+_________________________*__*___________________________________
+
+
+
+C019-K3 SHOULDER_PATCH_MIGRATION | TWOS INFERRED
+contact=ROLLING_LOCK patch=LEAD_SHOULDER support=GROUND_SINGLE_ROLL_PATCH force=LOAD_RISING custody=NONE
+role=foot releases only after rolling patch is load bearing
+
+
+
+
+
+
+
+
+
+
+                               -o
+                         o-   o
+                           o  |
+                            \| . -o
+                             +  o
+                           .  o-|
+                          o- / o
+                         o  *
+____________________________*___________________________________
+
+
+
+C019-K4 BACK_PATCH_LOAD_MAX | FOURS INFERRED
+contact=ROLLING_LOCK patch=UPPER_BACK support=GROUND_SINGLE_ROLL_PATCH force=MAX custody=NONE
+role=maximum curled load with COM over migrating patch
+
+
+
+
+
+
+
+
+                                   o
+                                   |  o
+                                  o  /
+                                  | o
+                                   |.
+                                  o+
+                              O  /|
+                           o   |.o
+                            o- o |
+                              o*o
+_______________________________*________________________________
+
+
+
+C019-K5 BACK_TO_HIP_PATCH | TWOS INFERRED
+contact=ROLLING_LOCK patch=HIP_SIDE support=GROUND_SINGLE_ROLL_PATCH force=FALLING_FROM_MAX custody=NONE
+role=rotation continues while contact patch migrates beneath body
+
+
+
+
+
+
+
+
+
+
+                                    o
+                                    | O
+                                   o  |    -o
+                                   |  o  -o o
+                                    o-.-o  /
+                                       |. o
+                                        |/  -o
+                                        *--o
+________________________________________*_______________________
+
+
+
+C019-K6 HIP_TO_FOOT_PROBE | TWOS INFERRED
+contact=ROLLING_LOCK patch=OUTER_HIP_THIGH support=GROUND_ROLL_PATCH force=DECAYING custody=NONE
+role=prepare exit support while rotation still owns body
+
+
+
+
+
+
+
+
+                                          O
+                                          |
+                                          o
+                                        o- -o
+                                       |   | -o
+                                       o    | .\
+                                        |   +-  o
+                                        o . | -o
+                                           |-o  -o
+                                           *
+___________________________________________*____________________
+
+
+
+C019-K7 FOOT_CATCH_RELEASE_ROLL | ONES INFERRED
+contact=ROLL_TO_FOOT_CAUSAL_JOIN patch=LEAD_FOOT support=GROUND_LEAD_FOOT force=CATCH_SPIKE custody=NONE
+role=rolling patch reaches lead foot and rotation releases into planted catch
+
+
+
+
+
+
+
+
+
+                                              O
+                                              |
+                                              o
+                                            o-|-o
+                                          o-   |.-o
+                                         |    .+-  -o
+                                         o   o-  -o
+                                            o      \
+                                                    *
+____________________________________________________*___________
+
+
+
+C019-K8 BRAKE_COMPRESSION | FOURS INFERRED
+contact=FOOT_SUPPORT_AFTER_ROLL patch=NONE support=GROUND_LEAD_FOOT force=HIGH_BRAKE custody=NONE
+role=root and torso spend remaining forward momentum against fixed catch foot
+
+
+
+
+
+
+
+                                                   O
+                                                  |
+                                                  o
+                                                o-|-o
+                                              o- |   \
+                                             |   .    o
+                                             o   +..   |
+                                               // \    o
+                                              o    o
+                                             /      |
+                                            o       *
+____________________________________________________*___________
+
+
+
+C019-K9 COUNTER_OVERSHOOT | TWOS INFERRED
+contact=DUAL_SUPPORT patch=NONE support=GROUND_BOTH_FEET force=REDISTRIBUTING custody=NONE
+role=rear support arrives after torso overshoot; upper body counter-swings
+
+
+
+
+
+
+
+                                                O
+                                                 |    -o
+                                                 o  -o
+                                               o-|-o
+                                             o-   |
+                                            |    .|
+                                            o     +
+                                                // .
+                                               o    o
+                                              /      \
+                                              /      \
+                                             *        *
+_____________________________________________*________*_________
+
+
+
+C019-K10 SETTLE_WITH_DEBT | FOURS INFERRED
+contact=DUAL_SUPPORT patch=NONE support=GROUND_BOTH_FEET_ASYMMETRIC force=SETTLING custody=NONE
+role=secondary arm and torso lag decay after support is already stable
+
+
+
+
+                                                   O
+                                                   |
+                                                   o
+                                                 o-|-o  -o
+                                                /  |  -o
+                                               o   |
+                                               |   |
+                                              |    +
+                                              o   . \
+                                                 /   \
+                                                o     o
+                                               /       \
+                                               /       \
+                                              *        *o
+______________________________________________*________*________
+
+
+
+C019-K11 READY_DISPLACED | FOURS INFERRED
+contact=FOOT_SUPPORT_ONLY patch=NONE support=GROUND_BOTH_FEET force=BASELINE custody=NONE
+role=action-capable exit with spatial and stance debt preserved
+
+
+
+
+                                                    O
+                                                    |
+                                                    o
+                                                  o-|-o
+                                                o-  |  \
+                                               |    |   o
+                                               o    |    \
+                                                   .+    \
+                                                   / \    o
+                                                  /   \
+                                                 o     o
+                                                /       \
+                                                /       \
+                                               *         *
+_______________________________________________*_________*______
+
+
