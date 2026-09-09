@@ -43,6 +43,7 @@ PY
 command -v git >/dev/null 2>&1 || fail 10 "git missing in Termux"
 command -v python3 >/dev/null 2>&1 || fail 11 "python3 missing in Termux"
 command -v tar >/dev/null 2>&1 || fail 12 "tar missing in Termux"
+command -v sha256sum >/dev/null 2>&1 || fail 13 "sha256sum missing in Termux"
 
 is_repo(){
   local dir="$1" remote
@@ -82,22 +83,25 @@ find_repo(){
 
 REPO="$(find_repo || true)"
 if [ -z "$REPO" ]; then
-  command -v gh >/dev/null 2>&1 || fail 13 "AUTHENTICATED_HOME_CENTER_REPO_UNAVAILABLE: no checkout found and gh is unavailable"
-  gh auth status >/dev/null 2>&1 || fail 14 "AUTHENTICATED_HOME_CENTER_REPO_UNAVAILABLE: no checkout found and gh is not authenticated"
+  command -v gh >/dev/null 2>&1 || fail 14 "AUTHENTICATED_HOME_CENTER_REPO_UNAVAILABLE: no checkout found and gh is unavailable"
+  gh auth status >/dev/null 2>&1 || fail 15 "AUTHENTICATED_HOME_CENTER_REPO_UNAVAILABLE: no checkout found and gh is not authenticated"
   CLONE="$STATE/source"
   if ! is_repo "$CLONE"; then
     rm -rf "$CLONE.part" 2>/dev/null || true
     say "No checkout found; cloning the private Home Center source into campaign state."
-    gh repo clone "$REPO_SLUG" "$CLONE.part" -- --filter=blob:none || fail 15 "Home Center clone failed"
+    gh repo clone "$REPO_SLUG" "$CLONE.part" -- --filter=blob:none || fail 16 "Home Center clone failed"
     rm -rf "$CLONE" 2>/dev/null || true
     mv "$CLONE.part" "$CLONE"
   fi
   REPO="$CLONE"
 fi
-is_repo "$REPO" || fail 16 "Resolved Home Center path is not the authorized repository"
+is_repo "$REPO" || fail 17 "Resolved Home Center path is not the authorized repository"
 
 say "Repository authority: $REPO"
-GIT_TERMINAL_PROMPT=0 git -C "$REPO" fetch --prune origin main "$CAMPAIGN_BRANCH" || fail 17 "Git fetch failed"
+GIT_TERMINAL_PROMPT=0 git -C "$REPO" fetch --prune origin \
+  '+refs/heads/main:refs/remotes/origin/main' \
+  '+refs/heads/campaign/vanguard-overlay-resurrection:refs/remotes/origin/campaign/vanguard-overlay-resurrection' \
+  || fail 18 "Git fetch failed"
 MAIN_SHA="$(git -C "$REPO" rev-parse origin/main)"
 CAMPAIGN_SHA="$(git -C "$REPO" rev-parse "origin/$CAMPAIGN_BRANCH")"
 say "Remote main: $MAIN_SHA"
@@ -119,7 +123,7 @@ PAIR="$HOME/.config/home-center/codex-hub.json"
 [ -s "$PAIR" ] || fail 22 "Home Center Termux pairing config is missing: $PAIR"
 
 RELAY_STATE="$HOME/.local/state/home-center"
-RELAY_LOG="$RELAY_STATE/phone-relay.log"
+RELAY_LOG="$STATE/phone-relay.log"
 RELAY_PID="$RELAY_STATE/phone-relay.pid"
 mkdir -p "$HOME/bin" "$RELAY_STATE"
 cat > "$HOME/bin/home-center-phone-relay" <<EOF
@@ -142,6 +146,9 @@ for PID in $(pgrep -f '[a]ndroid_phone_home_center_relay.py' 2>/dev/null || true
 done
 sleep 1
 
+# This log is campaign-owned and starts empty, so startup proof cannot be
+# accidentally satisfied by an old "online" line from a previous relay.
+: > "$RELAY_LOG"
 say "Starting reviewed Home Center phone relay."
 nohup "$HOME/bin/home-center-phone-relay" >>"$RELAY_LOG" 2>&1 </dev/null &
 NEW_PID=$!
@@ -153,7 +160,7 @@ for _ in $(seq 1 25); do
     tail -n 80 "$RELAY_LOG" || true
     fail 23 "Home Center relay exited during startup"
   fi
-  if tail -n 120 "$RELAY_LOG" 2>/dev/null | grep -q 'Home Center phone relay online: primary-phone'; then
+  if grep -q 'Home Center phone relay online: primary-phone' "$RELAY_LOG" 2>/dev/null; then
     RELAY_READY=true
     break
   fi
