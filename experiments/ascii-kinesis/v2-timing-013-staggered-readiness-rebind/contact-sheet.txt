@@ -41,6 +41,7 @@ causal_role=breaks task authority and compresses COM rear/down
 
 
 
+
                     O
                     |
                      \
@@ -61,6 +62,7 @@ causal_role=breaks task authority and compresses COM rear/down
 support/contact=LEFT_REAR_ONLY / right foot airborne
 root/arc=root stays back while exit foot peels
 causal_role=removes old exit support before pivot
+
 
 
 
@@ -89,6 +91,7 @@ causal_role=rear anchor banks root and stores rotational debt
 
 
 
+
                       O
                       |
                        \>
@@ -109,6 +112,7 @@ causal_role=rear anchor banks root and stores rotational debt
 support/contact=LEFT_REAR_ONLY / right foot one row above ground
 root/arc=root jumps +4 to x26; task lags behind pelvis
 causal_role=authored bridge: fast root sling before contact
+
 
 
 
@@ -136,19 +140,20 @@ causal_role=new exit-foot contact exists but does not grant full recovery
 
 
 
-                           O
-                           |
-                           |
-                           +>
-                         //|\
-                      <o/ |  o
-                          |
-                          @
-                         / \\
-                       //    \o
-                      o        \
-                     /         \
-                     /          R
+
+                                 O
+                                 |
+                                /
+                                +>
+                              //|\
+                           <o/ |  o
+                               @
+                              / \
+                             /   \
+                            o    \
+                           /      o
+                          L       |
+                                   |
       [===========================================]
 
 
@@ -157,6 +162,7 @@ causal_role=new exit-foot contact exists but does not grant full recovery
 support/contact=RIGHT_EXIT_ONLY / left foot airborne
 root/arc=root overtravels +3 to x34; head and guard lag farther right
 causal_role=contact brakes translation but rotation spends remaining debt
+
 
 
                                     O
@@ -184,6 +190,7 @@ causal_role=authored counter-catch arrests overshoot without reverse-playing the
 
 
 
+
                                O
                                |
                                 \
@@ -208,19 +215,20 @@ causal_role=torso/head reacquire threat orientation while support and task remai
 
 
 
-                               O
-                               |
-                                \
-                               -+ >
-                             o- |\\
-                            <   |  o
-                                @
-                               / \
+
+                              O
+                              |
+                               \
+                               +
+                             </|\>
+                            o  |  o
+                               @
+                              / \
                               /  \
                              o    o
-                            /     |
-                           L       |
-                                   |
+                             |    |
+                            |      |
+                            L      |
       [===========================================]
 
 
@@ -229,6 +237,7 @@ causal_role=torso/head reacquire threat orientation while support and task remai
 support/contact=BILATERAL / widened displaced stance
 root/arc=root sinks to y11; left foot acquires at x27
 causal_role=bilateral support returns after orientation; guard still withheld
+
 
 
 
@@ -257,6 +266,7 @@ causal_role=task channel begins reopening only after body obligations are stable
 
 
 
+
                                O
                                |
                           <    |
@@ -281,6 +291,7 @@ causal_role=guard/task authority returns last; overall readiness becomes true
 
 
 
+
                            <   O
                            |   |
                             |  |    >
@@ -301,6 +312,7 @@ causal_role=guard/task authority returns last; overall readiness becomes true
 support/contact=BILATERAL / wider and farther right than K0
 root/arc=root x32; shoulder tilt and wider stance retain recovery debt
 causal_role=settle preserves history instead of returning to K0 idle geometry
+
 
 
 
