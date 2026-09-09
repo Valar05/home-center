@@ -175,19 +175,12 @@ def build_spa(m,sheet,mp4):
 <body><nav><button data-view=\"ascii\">ASCII</button><button data-view=\"json\">JSON</button><button data-view=\"video\">VIDEO</button></nav>
 <section id=\"ascii\" class=\"active\"><pre id=\"a\"></pre></section>
 <section id=\"json\"><pre id=\"j\"></pre></section>
-<section id=\"video\"><video id=\"v\" controls autoplay loop muted playsinline></video></section>
+<section id=\"video\"><video id=\"v\" controls autoplay loop muted playsinline src=\"data:video/mp4;base64,{v}\"></video></section>
 <script>
-const A=[
-{js_chunks(a)}
-].join('');
-const J=[
-{js_chunks(j)}
-].join('');
-const V=[
-{js_chunks(v)}
-].join('');
+const A={json.dumps(a)};
+const J={json.dumps(j)};
 const D=async s=>new TextDecoder().decode(await new Response(new Blob([Uint8Array.from(atob(s),c=>c.charCodeAt(0))]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer());
-(async()=>{{document.getElementById('a').textContent=await D(A);document.getElementById('j').textContent=await D(J);document.getElementById('v').src='data:video/mp4;base64,'+V;}})();
+(async()=>{{document.getElementById('a').textContent=await D(A);document.getElementById('j').textContent=await D(J);}})();
 document.querySelectorAll('button[data-view]').forEach(b=>b.addEventListener('click',()=>{{document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));document.getElementById(b.dataset.view).classList.add('active')}}));
 </script></body></html>"""
 
