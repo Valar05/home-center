@@ -1,0 +1,92 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "experiment_id": "v2-airborne-027-midair-payload-acquisition-side-skid",
+  "status": "QUALITY_GATES_PASS_PENDING_REPO_READBACK_AND_CHAT_DELIVERY",
+  "preflight": {
+    "home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "home_center_campaign_read": true,
+    "github_persistence_readback_surface": true
+  },
+  "lineage": {
+    "fresh_post_debt_concept": true,
+    "revises": null,
+    "negative_fixture": null,
+    "successor_collision": false,
+    "airborne027_only": true,
+    "airborne028_forbidden_until_healthy": true
+  },
+  "source": {
+    "family": "The Spriters Resource / Characters, Enemies & Objects / Donkey Kong / NES / Miscellaneous",
+    "asset_id": 46026,
+    "timing": "UNKNOWN",
+    "decisive_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "rights_firewall": true
+  },
+  "quality": {
+    "tango_rounds": [
+      {
+        "round": 0,
+        "result": "REVISE_REQUIRED",
+        "actual_render": true,
+        "defect": "the payload/catch causal event under-reads: the one-character payload visually merges with the reaching hand and K4 already overlaps the task line, so the central mass-acquisition idea can look like an ordinary pose change",
+        "correction": "on the SAME 027 body, separate the incoming payload from both hands at K4, render it as a three-character abstract mass marker, author K5 with the two hands visibly bracketing that mass and hold K5 on TWOS, then make K6 pay the acquisition immediately with a three-cell downward root drop and only one cell of horizontal travel while support stays NONE"
+      },
+      {
+        "round": 1,
+        "result": "PASS",
+        "actual_render": true,
+        "finding": "the incoming <#> mass now remains visually separate through K4, K5 clearly brackets it with both hands on a held acquisition beat, K6 immediately steepens the root drop with almost no horizontal gain, K7 carries that debt into a near-vertical descent, and the K9→K10 forearm-knee skid preserves right-arm payload custody instead of reading as an ordinary landing"
+      }
+    ],
+    "tango_final": "PASS",
+    "noodle_queen": {
+      "result": "PASS",
+      "actual_render": true,
+      "taste": "opposed-flight intercept → abrupt payload fold → crooked one-arm carry → forearm-knee side skid is a specific silhouette sequence, not a generic jump with a prop",
+      "function": "load → support break → diagonal rise → separated precontact → two-hand midair acquisition → combined-mass descent steepening → one-arm prelanding transfer → diagonal forearm+knee catch → skid compression → authored hand-foot restack → loaded rise → displaced settle remains causally legible",
+      "contempt": "the payload changes the body instead of decorating it; contact does not grant magical air support; the free arm is sacrificed to landing support; custody survives compression; recovery keeps lateral/task debt and never reverse-interpolates to idle"
+    },
+    "actual_render_inspected": true
+  },
+  "media": {
+    "filename": "midair-payload-acquisition-side-skid.mp4",
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "width": 640,
+    "height": 360,
+    "fps": 24,
+    "sha256": "604a8d5f6b6db5e7d3e9fe6f1de4377b2e75b08530bb76fa72279d3a4e24bf8a",
+    "bytes": 14061,
+    "frames": 97,
+    "duration_seconds": 4.041666666666667,
+    "decode": true,
+    "embedded_in_spa": true
+  },
+  "contract": {
+    "validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "candidate_isolated_pass": true,
+    "boundary": "exact current validator logic run against candidate-isolated entry; no fresh full-repository checkout or repo-global shell run claimed"
+  },
+  "local_construction_sha256": {
+    "build.py": "dcf33f2631aa0ee591ecd71ff992d879f8383f3d37b26592e06540d8742cb379",
+    "contact-sheet.txt": "ceb34c491aefb6fcee41ce515dca13e82f0b7e7c9b861c55e81b6b078b94a57b",
+    "motion.json": "63f37dda7e8fe9f191852297924cb2656397f4a2b7c38c4bad6faff847453f89",
+    "manifest.json": "a2545a2e867799a75e8a0381c370a3d44446d5535d2bf5d06e0cf02c6a22f09b",
+    "midair-payload-acquisition-side-skid.motion.html": "06b0db5343bb13085c64f984b01b6fe2965abe989a9cc01843ba5be7f6f22ff8"
+  },
+  "repo": {
+    "persisted": false,
+    "final_readback": false,
+    "commit": null,
+    "blobs": {}
+  },
+  "issue_343_receipt": null,
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_visible_video": false,
+    "video_byte_identical": false
+  },
+  "DREW_ACCEPTED": false,
+  "next_authorized": null
+}
