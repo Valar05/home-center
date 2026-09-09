@@ -4,6 +4,7 @@
   "experiment_id": "v2-defense-018-guard-custody-handoff-exit",
   "lane": "defense",
   "kind": "NEW_CONCEPT",
+  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
   "primary_tabs": [
     "ASCII",
     "JSON",
@@ -27,21 +28,24 @@
     "frames": 66,
     "duration_seconds": 2.75,
     "decode_verified": true,
-    "source": "Motion Dungeon from abstract ASCII rig + structured timing only"
+    "source": "Motion Dungeon from abstract ASCII rig + structured timing only",
+    "current_worker_byte_identical_reconstruction": true
   },
   "files": {
-    "build.py": {"sha256": "52988e78f95fd7a29422d905a6161dfff8f4f4c28f25cf14a8e0568080c9949c"},
-    "contact-sheet.txt": {"sha256": "fd417e30f7053dff54dea620bab9811fb52b1dec6cbfb15fb7b06cda9880f72a"},
-    "motion.json": {"sha256": "080a19cb05fe427794deca5f0a497ba3c69018233701bcf4268f368c4fe8be11"},
-    "guard-custody-handoff-exit.motion.html": {"sha256": "126282fcf2492fef221932156e913152c7ccb187c917acb803af705c2b805394"}
+    "build.py": {"sha256": "52988e78f95fd7a29422d905a6161dfff8f4f4c28f25cf14a8e0568080c9949c", "git_blob": "b16e624b8197c5ebd18afbdcc8ab297af0d91aef"},
+    "contact-sheet.txt": {"sha256": "fd417e30f7053dff54dea620bab9811fb52b1dec6cbfb15fb7b06cda9880f72a", "git_blob": "64d13691258ad29375c6d46cbda686bd2870ead0"},
+    "motion.json": {"sha256": "080a19cb05fe427794deca5f0a497ba3c69018233701bcf4268f368c4fe8be11", "git_blob": "731fb437511b5920c74abcd26a232e7e2283e291"},
+    "guard-custody-handoff-exit.motion.html": {"sha256": "126282fcf2492fef221932156e913152c7ccb187c917acb803af705c2b805394", "git_blob": "e35da2da0303033089bd4dbc43348c846532e008"}
   },
   "source": {
     "asset_id": "1611",
     "page_url": "https://www.spriters-resource.com/nes/tloztheadventureoflink/asset/1611/",
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
-    "whole_source_sha256": "96e11718dfca7556d82befc487741681f9c0d23274f29c6ff7de5b5c53d8be06",
+    "whole_source_dimensions": [332, 275],
     "whole_source_bytes": 17862,
-    "source_authentic_timing": "UNKNOWN"
+    "whole_source_sha256": "96e11718dfca7556d82befc487741681f9c0d23274f29c6ff7de5b5c53d8be06",
+    "source_authentic_timing": "UNKNOWN",
+    "compile_timing": "INFERRED / STREET_FIGHTER-CAPCOM"
   },
   "rights": {
     "commercial_reference_evidence_only": true,
@@ -51,15 +55,31 @@
   },
   "quality": {
     "tango_current_worker": "PASS",
-    "tango_rounds": [
-      {
-        "round": 0,
-        "verdict": "PASS",
-        "visible_basis": "guard-custody swap precedes support exit; cross-body tension, unsupported leg sweep, outside preplant, compressed plant, overtravel, counter-torque, late reopen, displaced debt are legible in the actual 66-frame render"
-      }
-    ],
+    "tango_actual_render_inspected": true,
+    "tango_visible_basis": "Guard authority visibly transfers at K4-K5 before right-support exit at K6; contact is pre-positioned rather than farthest reach; the single-support guywire and free-leg sweep pay the lateral load; unsupported preplant becomes a compressed outside plant; torsion overshoot, counter-torque, late reopen, and displaced ready debt remain visible. No defect earned mutation.",
     "noodle_queen_current_worker": "PASS",
-    "noodle_queen_basis": "TASTE+FUNCTION+CONTEMPT: the concept reads as a specific guard-owner handoff rather than a generic block; support truth and delayed recovery remain visible and asymmetric."
+    "noodle_queen_after_tango": true,
+    "noodle_queen_basis": "TASTE + FUNCTION + CONTEMPT PASS: the sequence reads as a specific custody-transfer defense rather than a generic block, keeps asymmetrical silhouettes and support truth, and refuses neutral reset.",
+    "drew_accepted": false
+  },
+  "contract": {
+    "official_validator_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "official_validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "persisted_candidate_isolated_result": "PASS",
+    "full_repository_checkout_run_claimed": false,
+    "boundary": "Standard Chat has authenticated repository read/write/readback but no authorized full remote checkout shell; no repo-global validator execution is claimed."
+  },
+  "repo_verification": {
+    "pre_write_main_commit": "25daa91eb4c06ce8084d92054a1a455c8f74f4d0",
+    "exact_six_file_inventory": true,
+    "exactly_one_spa": true,
+    "post_write_readback_pending": true
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_visible_video": false,
+    "ordered_together": false
   },
   "compatibility": {
     "offline_spa": true,
