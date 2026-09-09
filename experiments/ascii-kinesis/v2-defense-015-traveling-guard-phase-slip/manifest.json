@@ -1,0 +1,151 @@
+{
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "format_version": 2,
+  "experiment_id": "v2-defense-015-traveling-guard-phase-slip",
+  "lane": "defense",
+  "principle": "Traveling guard phase-slip: a glancing high-line defense lets BASE/root travel continue while the guard/task channel compresses, lags, then rebinds only after a new support catch changes constraints.",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "ascii_surface": "real preformatted DOM text",
+  "ligatures_disabled": true,
+  "whitespace_preserved": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "compatibility": {
+    "v2_three_tab_read_path": true,
+    "historical_v1_v2_readability_preserved": true,
+    "source_fields_not_reinterpreted": true
+  },
+  "revision": {
+    "kind": "NEW_CONCEPT",
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "predecessor_health": "Defense014 HEALTHY issue #343 comment 5595507422",
+    "novelty_exclusions": [
+      "no Defense007 guard-support fork grammar",
+      "no Defense008 parry-exit plant grammar",
+      "no Defense009 wall clamp/lateral-slip grammar",
+      "no Defense010 directional hysteresis recovery grammar",
+      "no Defense011 floor support ladder grammar",
+      "no Defense012 airborne backdash handoff grammar",
+      "no Defense013 rear-anchor pivot/cross-body exit grammar",
+      "no Defense014 external tool-floor kickstand/support-transfer grammar"
+    ]
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "title": "Samus Aran (Power Suit)",
+    "game": "Metroid: Zero Mission",
+    "platform": "Game Boy Advance",
+    "category": "Playable Characters",
+    "asset_id": "106418",
+    "page_url": "https://www.spriters-resource.com/game_boy_advance/metzero/asset/106418/",
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "campaign_evidence_receipt": 5572162409,
+    "whole_source_evidence": {
+      "type": "static_png_whole_sheet",
+      "dimensions": [
+        1469,
+        2167
+      ],
+      "reported_size": "565.00 KB",
+      "exact_bytes": "UNKNOWN",
+      "sha256": "UNKNOWN",
+      "animations_count": 0,
+      "observed": [
+        "dense full-character pose families coexist with a large detached component/tile bank",
+        "repeated body organizations occur across differing composites",
+        "static sheet layout does not establish chronology or duration"
+      ],
+      "unknown": [
+        "exact assembly semantics",
+        "source cadence",
+        "hit-stop",
+        "exposure",
+        "BASE↔TASK synchronization"
+      ]
+    }
+  },
+  "rights": {
+    "source_art_status": "commercial_copyright_restricted_evidence_only",
+    "source_pixels_used": false,
+    "source_palette_used": false,
+    "source_costume_used": false,
+    "source_contours_used": false,
+    "source_layout_used": false,
+    "source_frames_traced": false,
+    "source_choreography_copied": false,
+    "redistribution": false,
+    "close_imitation": false,
+    "output_rig": "independent generic ASCII humanoid"
+  },
+  "files": [
+    "build.py",
+    "contact-sheet.txt",
+    "traveling-guard-phase-slip.motion.html",
+    "manifest.json",
+    "motion.json",
+    "receipt.md"
+  ],
+  "reconstruction": "python3 build.py",
+  "video_packaging": "authoritative embedded MP4 data URI in SPA",
+  "tracked_media_sidecar": false,
+  "media_sha256": "9c51df79d70fa1a0ab79e73786917e1aecf39353b217bd3984c626a8078524bc",
+  "media_bytes": 18288,
+  "media_frames": 51,
+  "media_decode_preflight": "PASS_FFPROBE_AND_FULL_FFMPEG_DECODE",
+  "ascii_sha256": "db226b88e160b334ab3b2965f133ffe236740327ffdaf79b8eab4870e9bb1d79",
+  "motion_dungeon": {
+    "authored_ascii_keys": 15,
+    "explicit_holds": true,
+    "deterministic_connective_motion": true,
+    "connector_semantics_fail_closed": true,
+    "ascii_only_frame_render": true,
+    "fps": 24,
+    "frames": 51
+  },
+  "timing_provenance_required": true,
+  "quality_gates": {
+    "tango_current_worker": "PASS_AFTER_ONE_SAME_BODY_REVISION",
+    "tango_final_basis": "actual 51-frame H.264 render inspected after revision; high-value prior defect (vertical mannequin collapse during crossstep/plant) corrected in D015-K5..K8",
+    "noodle_queen_current_worker": "PASS_AFTER_TANGO",
+    "noodle_queen_basis": {
+      "TASTE": "glancing fixed-point shear into a delayed crossing base creates a specific diagonal, off-clock defensive attitude",
+      "FUNCTION": "contact compression, task lag, continued base travel, authored preplant, new-foot catch, counterrotation, second-foot reacquisition, late guard rebind, and displaced moving-ready debt remain causally legible",
+      "CONTEMPT": "does not read as wall share, backdash, tool kickstand, rear-anchor pivot, planted-feet theater, straight tweening, reverse interpolation, or idle reset"
+    },
+    "drew_accepted": false
+  },
+  "contract_test": {
+    "validator_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "candidate_isolated": "PASS_EXACT_OFFICIAL_V2",
+    "result": {
+      "entries_checked": [
+        "v2-defense-015-traveling-guard-phase-slip"
+      ],
+      "ok": true,
+      "schema": "ascii-kinesis.swarm-contract-v2-test"
+    }
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "receipt_status": "QUALITY_GATES_PASS / REPO_READBACK_REQUIRED / CHAT_DELIVERY_REQUIRED"
+}
