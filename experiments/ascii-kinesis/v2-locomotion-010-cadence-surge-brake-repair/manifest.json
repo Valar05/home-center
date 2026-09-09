@@ -40,8 +40,8 @@
     "embedded": true,
     "tracked": false,
     "mime": "video/mp4",
-    "sha256": "3f955ee9f34ab77bbe149d0bb0b2dd436fb4809bbb091483d99d4941683ed2bb",
-    "bytes": 39111,
+    "sha256": "3f0ec4ed12b73b376f4817787f656d328f33a1a02f2a7c0f579db7fee6300ecc",
+    "bytes": 14173,
     "source": "abstract_ascii_rig_only",
     "decode": {
       "codec": "h264",
@@ -55,7 +55,7 @@
   },
   "quality": {
     "tango": "PASS",
-    "tango_iterations": 3,
+    "tango_iterations": 4,
     "noodle_queen": "PASS",
     "current_worker_actual_render_inspected": true,
     "decoded_frames_inspected": 52
