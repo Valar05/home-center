@@ -4,11 +4,7 @@
   "experiment_id": "v2-video-motion-011-throw-release-force-chain-repair",
   "title": "Throw repair · rear-load → pelvis lead → release fork → displaced recovery debt",
   "lane": "video-motion",
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
@@ -55,17 +51,18 @@
   },
   "contract": {
     "official_script_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
-    "candidate_scoped": "PASS",
+    "candidate_scoped_current_worker": "PASS",
     "repo_global": "NOT_CLAIMED"
   },
   "repository": {
     "path": "experiments/ascii-kinesis/v2-video-motion-011-throw-release-force-chain-repair/",
     "readback": "PASS_CURRENT_MAIN",
     "body_complete_commit": "6f68d46ddd0a2f6b97cc2e35769769f6e36cec38",
+    "receipt_reconciliation_commit": "1197131dcfcf09d05f4e8fe2ffa8e30db6b239fe",
     "spa_blob_sha": "40fa40c021c853859f01cb56080ab9856654acd1",
     "exactly_one_spa": true
   },
-  "issue_receipt": 5595097576,
+  "issue_receipt": 5595203237,
   "chat_delivery": {
     "part1_ascii": true,
     "part2_json": true,
