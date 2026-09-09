@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import subprocess
+import sys
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -8,6 +9,7 @@ INSTALL=ROOT/'tools'/'install_atom_phone.sh'
 ACCEPT=ROOT/'tools'/'accept_fortress_image_phone.sh'
 CAMPAIGN=ROOT/'tools'/'improper_image_delivery_campaign.sh'
 DOC=ROOT/'docs'/'IMPROPER_IMAGE_DELIVERY_CAMPAIGN.md'
+RELAY_TEST=ROOT/'tools'/'test_phone_relay_shizuku_independence.py'
 
 
 def require(text, needle, owner):
@@ -24,6 +26,7 @@ def main():
     for shell in (GEN,ACCEPT,CAMPAIGN):
         subprocess.run(['bash','-n',str(shell)],check=True)
     subprocess.run(['sh','-n',str(INSTALL)],check=True)
+    subprocess.run([sys.executable,str(RELAY_TEST)],check=True)
 
     gen=GEN.read_text()
     install=INSTALL.read_text()
@@ -76,6 +79,8 @@ def main():
         'unversioned remote runtime file',
         'Do not call repository code “deployed.”',
         'Do not make Drew manually run a repair script',
+        'Shizuku is not load-bearing',
+        'notification/open action is best-effort',
     ):
         require(doc,fragment,'campaign documentation')
 
