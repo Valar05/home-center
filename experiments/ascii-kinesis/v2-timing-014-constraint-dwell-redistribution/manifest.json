@@ -1,0 +1,62 @@
+{
+  "ascii_literal_text": true,
+  "backward_compatible": true,
+  "contract": {
+    "candidate_isolated": "PASS_EXACT_OFFICIAL_SCRIPT_BLOB_09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "official_validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "repo_global": "NOT_CLAIMED_STANDARD_CHAT_NO_AUTHORIZED_REMOTE_CHECKOUT"
+  },
+  "experiment_id": "v2-timing-014-constraint-dwell-redistribution",
+  "files": {
+    "build.py": {
+      "sha256": "02a1b8f2ad64cce1e75860799bfc80e806a16d1b94f19ad857d4011e6b88f72c"
+    },
+    "constraint-dwell-redistribution.motion.html": {
+      "sha256": "7ff43e2a718e79aa44676b84ebca138a3925e0228204d0836d2d5b607248c9f6"
+    },
+    "contact-sheet.txt": {
+      "sha256": "2274ee4b12dcd88a0ffe1d135c7b7f7eab8287d6f16682faf0a02e881040182d"
+    },
+    "motion.json": {
+      "sha256": "b865f7a6c41eb1d2b7b5b39dc40fa07d01b4ba4b4282be161a8384534d391194"
+    }
+  },
+  "format_version": 2,
+  "lane": "timing",
+  "media": {
+    "authoritative_location": "embedded_in_spa",
+    "bytes": 34470,
+    "codec": "H.264",
+    "decode": "PASS_CURRENT_WORKER_FFPROBE_AND_FULL_FFMPEG_DECODE",
+    "duration_seconds": 3.2083333333333335,
+    "fps": 24,
+    "frames": 77,
+    "height": 324,
+    "pixel_format": "yuv420p",
+    "sha256": "c32d2cdfe2bdf65bab52dfcb020fe1277633e445d894b51f74e7c78e411ca364",
+    "width": 576
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "quality": {
+    "drew_accepted": false,
+    "noodle_queen": "PASS_CURRENT_WORKER_AFTER_TANGO",
+    "tango": "PASS_CURRENT_WORKER_ACTUAL_RENDER"
+  },
+  "schema": "ascii-kinesis.manifest.v2",
+  "source": {
+    "asset_id": "602122",
+    "page": "https://www.spriters-resource.com/pc_computer/chasm/asset/602122/",
+    "source_art_embedded": false,
+    "source_timing_available": false,
+    "whole_source_inspected": true
+  },
+  "source_art_embedded": false,
+  "spa": "constraint-dwell-redistribution.motion.html",
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only"
+}
