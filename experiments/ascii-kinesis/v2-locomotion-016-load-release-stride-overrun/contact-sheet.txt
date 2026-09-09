@@ -1,0 +1,392 @@
+ASCII KINESIS V2 LOCOMOTION 016 — LOAD-RELEASE STRIDE OVERRUN
+Legend: ! trusted support   ? next support probe   @ pelvis/root   + chest   O head   # generic resisted load   _ ground
+Timing: every decisive key is INFERRED / STREET_FIGHTER-CAPCOM. ONES/TWOS/FOURS are display-frame exposure classes.
+Causality: resisted drive -> resistance falls -> load release -> spacing spike -> long first free probe -> surge catch -> shorter corrective catches -> displaced ready.
+Novel law: LOAD RELEASE CHANGES ROOT ACCELERATION BEFORE SUPPORT CADENCE CAN REPHASE.
+
+ROOT-SPACING MAP — S=start, R=release; vertical position encodes authored spacing from previous key:
+|--------------------------------------------------------------------|
+|                                                                    |
+|                           o    o                                   |
+|                                     o                              |
+|                      R                   o                         |
+|       o    o    o                             o    o    o          |
+|                                                              o     |
+|                                                                    |
+|  S                                                                 |
+|--------------------------------------------------------------------|
+
+K00 LEFT_LOAD_BRACE  [FOURS / INFERRED]  SUPPORT=L_FOOT  CONTACT=TRUSTED_CATCH  TASK=LOAD_HELD
+ROOT=[12, 23]  SPACING=0  LEAN=+22deg  LOAD_X=25  LOAD_V=+0.0
+ROLE: left support braces a resisted push; arms transmit load while COM stays behind the hands
+
+
+
+             O
+             /
+            /
+            /
+            +\
+           / \\o
+          /   \ \\
+         /     o\ \*
+         /       \\*#####
+        /           #   #
+       @            #   #
+      / \           #   #
+      /  \          #   #
+     o   \          #   #
+     /    o         #   #
+    /      \        #   #
+    /       \       #   #
+   /        \       #   #
+___!_________*________________
+
+
+
+
+K01 LEFT_DRIVE_RIGHT_PROBE  [TWOS / INFERRED]  SUPPORT=L_FOOT  CONTACT=PRECONTACT  TASK=LOAD_HELD
+ROOT=[15, 23]  SPACING=3  LEAN=+25deg  LOAD_X=28  LOAD_V=+3.0
+ROLE: left support drives the load while right foot probes ahead without stealing ownership
+
+
+
+             O
+             /
+            /
+            /
+            +\
+           / \\o
+          /   \ \\
+         /     o\ \*
+         /       \\*#####
+        /           #   #
+       @            #   #
+      / \           #   #
+      /  \          #   #
+     o   \          #   #
+     /    o         #   #
+    /      \        #   #
+    /       \       #   #
+   /         \      #   #
+___!__________?_______________
+
+
+
+
+K02 RIGHT_CATCH_LOAD_COMPRESSION  [FOURS / INFERRED]  SUPPORT=R_FOOT  CONTACT=TRUSTED_CATCH  TASK=LOAD_HELD
+ROOT=[19, 24]  SPACING=4  LEAN=+31deg  LOAD_X=32  LOAD_V=+4.0
+ROLE: right foot accepts load as body compresses forward; hands remain committed to resistance
+
+
+
+              O
+              /
+             /
+             /
+             +\
+            / \\o\
+           /   \  \\*#####
+          /     o---*#   #
+         /           #   #
+        @            #   #
+       / \           #   #
+       / \           #   #
+      o   o          #   #
+     /     \         #   #
+    /       \        #   #
+   *        \        #   #
+_____________!________________
+
+
+
+
+K03 RIGHT_DRIVE_LOAD_LIGHTENS  [TWOS / INFERRED]  SUPPORT=R_FOOT  CONTACT=PRECONTACT  TASK=LOAD_SLIPPING
+ROOT=[23, 23]  SPACING=4  LEAN=+35deg  LOAD_X=37  LOAD_V=+5.0
+ROLE: right support keeps driving as the external load begins to escape; left foot reaches but does not own
+
+
+
+           O
+           /
+           /
+          /
+          /
+          +\
+         / \\o
+        /   \ \\
+      //     o\ \*#####
+     /         \\*#   #
+    @             #   #
+    /\            #   #
+   /  \           #   #
+   /   o          #   #
+   o    \         #   #
+    \   \         #   #
+    \    \        #   #
+     \   \        #   #
+_____!____?___________________
+
+
+
+
+K04 LOAD_RELEASE_SPIKE  [ONES / INFERRED]  SUPPORT=R_FOOT  CONTACT=TRUSTED_CATCH  TASK=LOAD_RELEASED
+ROOT=[28, 22]  SPACING=5  LEAN=+43deg  LOAD_X=47  LOAD_V=+8.0
+ROLE: load outruns the hands; right support is still planted while torso surges into suddenly unresisted drive
+
+
+
+             O
+             /
+            /
+            /
+           /
+           +\
+          / \\o
+         /  \  \\
+        /    o\  \*
+       /       \\*
+      /                 #####
+     @                  #   #
+    / \                 #   #
+    /  \                #   #
+   /    o               #   #
+   o     \              #   #
+   \      \             #   #
+   \      \             #   #
+    \      \            #   #
+    \       ?           #   #
+____!____________________________
+
+
+
+
+K05 FIRST_FREE_LEFT_PROBE  [ONES / INFERRED]  SUPPORT=R_FOOT  CONTACT=PRECONTACT  TASK=LOAD_GONE_AHEAD
+ROOT=[35, 22]  SPACING=7  LEAN=+48deg  LOAD_X=59  LOAD_V=+12.0
+ROLE: right support is stretched to its limit while left foot probes far ahead under a torso already escaping
+
+
+
+              O
+              /
+             /
+             /
+            /
+            +
+           /|\
+          / |o
+         /  o \
+        /    \ \
+       /      \ *
+      /        *             #####
+     @                       #   #
+    / \                      #   #
+    /  \                     #   #
+   /    o                    #   #
+   o     \                   #   #
+   \      \                  #   #
+   \       \                 #   #
+    \      \                 #   #
+    \       \                #   #
+____!________?________________________
+
+
+
+
+K06 LEFT_CATCH_SURGE_COMPRESSION  [FOURS / INFERRED]  SUPPORT=L_FOOT  CONTACT=TRUSTED_CATCH  TASK=LOAD_GONE_AHEAD
+ROOT=[42, 24]  SPACING=7  LEAN=+38deg  LOAD_X=73  LOAD_V=+14.0
+ROLE: left catch finally owns the surge; pelvis drops while head, chest and arms overrun the planted foot
+
+
+
+             O
+            /
+            /
+           /
+           +
+          //\o
+         //   \
+       // o    \                   #####
+      /    \    *                  #   #
+     /      \                      #   #
+    @        *                     #   #
+    /\                             #   #
+   /  \                            #   #
+   o   o                           #   #
+    \   \                          #   #
+    \    \\                        #   #
+     \     *                       #   #
+_____!______________________________________
+
+
+
+
+K07 LEFT_DRIVE_RIGHT_RECOVERY_PROBE  [TWOS / INFERRED]  SUPPORT=L_FOOT  CONTACT=PRECONTACT  TASK=LOAD_OFFSTAGE
+ROOT=[48, 23]  SPACING=6  LEAN=+28deg  LOAD_X=95  LOAD_V=+13.0
+ROLE: left support drives a shorter second stride while arms lag behind the body; right foot probes for cadence recovery
+
+
+
+               O
+               /
+               /
+              /
+              /
+              +\
+             /  \o
+            o     \
+          //       \
+         / /        *
+        / *
+       @
+      / \
+      /  \
+     o    o
+     /     \
+    /       \
+    /       \
+   /         \
+___!__________?_______________
+
+
+
+
+K08 RIGHT_CATCH_OVERSTRIDE  [FOURS / INFERRED]  SUPPORT=R_FOOT  CONTACT=TRUSTED_CATCH  TASK=LOAD_OFFSTAGE
+ROOT=[53, 24]  SPACING=5  LEAN=+22deg  LOAD_X=95  LOAD_V=+4.0
+ROLE: right catch arrests the overstride; support rebinds before posture can fully restack
+
+
+
+              O
+              /
+             /
+             /
+             +\
+           //  \o
+          o/     \
+         //       \
+        //         *
+       */
+       @
+       /\
+      / \
+      o  o
+     /    \
+    /      \
+   *       \
+____________!_________________
+
+
+
+
+K09 RIGHT_SUPPORT_LEFT_COUNTERPROBE  [TWOS / INFERRED]  SUPPORT=R_FOOT  CONTACT=PRECONTACT  TASK=LOAD_OFFSTAGE
+ROOT=[57, 23]  SPACING=4  LEAN=+12deg  LOAD_X=95  LOAD_V=+0.0
+ROLE: right support owns a short corrective step while left foot probes back under the COM instead of matching prior stride length
+
+
+
+         O
+         |
+         |
+         |
+         +\
+       //  \o
+      o /    \\
+    // /       *
+   *  /
+      /
+     @
+    / \
+    / \
+   /   o
+   o    \
+    \    \
+     \   \
+     \    \
+______!____?__________________
+
+
+
+
+K10 LEFT_CATCH_BRAKE_SETTLE  [FOURS / INFERRED]  SUPPORT=L_FOOT  CONTACT=TRUSTED_CATCH  TASK=LOAD_OFFSTAGE
+ROOT=[60, 24]  SPACING=3  LEAN=+6deg  LOAD_X=95  LOAD_V=+0.0
+ROLE: left catch brakes the remaining surge; torso rises but the arms still carry release lag
+
+
+
+         O
+         |
+         |
+         |
+         +
+       // \o
+      o /   \\
+    // /      *
+   *   /
+      /
+      @
+     /\
+     / \
+    o  o
+     \  \
+     \  \
+      *  \
+_________!____________________
+
+
+
+
+K11 LEFT_DRIVE_RIGHT_PROBE_RECOVERY_DEBT  [TWOS / INFERRED]  SUPPORT=L_FOOT  CONTACT=PRECONTACT  TASK=LOAD_OFFSTAGE
+ROOT=[63, 23]  SPACING=3  LEAN=+3deg  LOAD_X=95  LOAD_V=+0.0
+ROLE: left support makes one modest drive while right foot probes; recovery retains a forward task-ready bias
+
+
+
+        O
+        |
+        |
+        |
+        +
+       //\o
+      o/   \
+    // /   \
+   *   /    *
+      /
+      @
+     / \
+     / \
+    o   o
+    /    \
+    /    \
+   /      \
+   /      \
+___!_______?__________________
+
+
+
+
+K12 RIGHT_CATCH_DISPLACED_READY  [FOURS / INFERRED]  SUPPORT=R_FOOT  CONTACT=TRUSTED_CATCH  TASK=LOAD_OFFSTAGE
+ROOT=[65, 23]  SPACING=2  LEAN=+1deg  LOAD_X=95  LOAD_V=+0.0
+ROLE: right catch stabilizes the new address with unequal feet and residual forward bias rather than returning to the initial brace
+
+
+
+        O
+        |
+        |
+        |
+        +
+       //\
+      o / o
+     / /   \
+    /  /   \
+   *   /    *
+       @
+      / \
+      / \
+     o   o
+    /    \
+    /     \
+   /      \
+   *       \
+___________!__________________
