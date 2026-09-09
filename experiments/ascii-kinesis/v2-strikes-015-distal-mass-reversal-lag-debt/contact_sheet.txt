@@ -1,0 +1,355 @@
+ASCII KINESIS V2 STRIKES015 — DISTAL MASS REVERSAL LAG DEBT
+SOURCE ART: NOT EMBEDDED | RIG: ABSTRACT ASCII ONLY | SOURCE TIMING: UNKNOWN | AUTHORED TIMING: INFERRED / STREET_FIGHTER-CAPCOM
+POCKET: THE HANDLE MAY REVERSE BEFORE THE DISTAL MASS IS ALLOWED TO.
+LEGEND: * offhand | # handle hand | ~ flexible tether | O distal mass | | abstract target plane | X explicit distal contact
+
+K00 OFFSET_READY | FOURS | INFERRED | SUPPORT=BOTH_FEET_STAGGERED | CONTACT=NONE
+ROOT/ARC: Root is left/back of the target; distal mass hangs forward-low with a slack diagonal tether.
+ROLE: Asymmetric baseline: offhand is forward as counterweight while the handle hand owns the rear pocket.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                          o                            |
+                          |                            |
+                     *-   |                            |
+                       -+ + +                          |
+                          |  -o                        |
+                          |    #~                      |
+                         |       ~~~                   |
+                         |          ~~                 |
+                         @            ~O               |
+                       -- --                           |
+                      /     \
+                     o       o
+                     |       |
+                     |        |
+  ___________________/________\___________________________________
+
+K01 REAR_COIL | FOURS | INFERRED | SUPPORT=REAR_FOOT_DOMINANT | CONTACT=NONE
+ROOT/ARC: Pelvis drops back/down while the handle hand retracts; distal mass remains forward, increasing tether angle.
+ROLE: Specific asymmetric load: root and handle move first while distal mass visibly resists the reversal.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                                                       |
+                   *    o                              |
+                   o    |                              |
+                    \\  |                              |
+                      + + +                            |
+                        |  -o                          |
+                        |   #~~                        |
+                       |       ~~~~~                   |
+                       |            ~~~                |
+                       @               ~O              |
+                     -- --
+                    /     \\
+                   o        o
+                    |        |
+  __________________/________\____________________________________
+
+K02 MASS_LATE_COIL | TWOS | INFERRED | SUPPORT=REAR_FOOT_DOMINANT | CONTACT=NONE
+ROOT/ARC: Chest counterwinds above the loaded pelvis; handle rises but distal mass still trails low/right.
+ROLE: Makes proximal/distal phase separation readable before the strike begins.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                   *     o                             |
+                    o    |                             |
+                     \\  |                             |
+                       + + +-#~                        |
+                         |     ~~~                     |
+                        |         ~~                   |
+                        |           ~~                 |
+                        |             ~~               |
+                       |                ~O             |
+                       @                               |
+                     -- --
+                    /     \\
+                   o        o
+                    |        |
+  __________________/________\____________________________________
+
+K03 HANDLE_ACCELERATION | ONES | INFERRED | SUPPORT=REAR_TO_LEAD_TRANSFER | CONTACT=NONE
+ROOT/ARC: Root drives forward before the hand clears; chain bends behind the accelerating handle.
+ROLE: Pelvis/support earns the sweep; the distal mass still trails and cannot teleport to the attack line.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                             o                         |
+                       *     |                         |
+                        o-   |                         |
+                          -+ + +--o-#                  |
+                             |     ~                   |
+                            |      ~                   |
+                            |     ~                    |
+                           |       ~~                  |
+                           @         ~~                |
+                         -- --         ~O              |
+                        /     \
+                       o       o
+                       |       |
+                       |        |
+  _____________________/________\_________________________________
+
+K04 PRECONTACT_ARC | TWOS | INFERRED | SUPPORT=LEAD_FOOT_ACQUIRING | CONTACT=NONE
+ROOT/ARC: Lead support accepts weight; handle is already forward while mass climbs through a visible curved approach with target gap.
+ROLE: Distinct precontact: root/handle commitment precedes mass arrival; contact is not merely maximum reach.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                                o                      |
+                                |             ~~~~~~O  |
+                           *-   |           ~~         |
+                             -+ + +----o--#~           |
+                                |                      |
+                               |                       |
+                               |                       |
+                              |                        |
+                              @                        |
+                            -- --                      |
+                           /     \
+                          o       o
+                          |       |
+                          |       |
+  ________________________/_______\_______________________________
+
+K05 DISTAL_CONTACT | TWOS | INFERRED | SUPPORT=LEAD_FOOT_BRACED | CONTACT=DISTAL_TARGET_CONTACT
+ROOT/ARC: Root advances only one cell into the contact hold; handle remains inside the target line while distal mass meets the explicit contact point.
+ROLE: Explicit distal contact event with the chain still angled; the body has not exhausted its forward/root range.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                                  o                    |
+                                  |                    |
+                                  |            ~~~~~~  |
+                             *--+ + +----o--#~~      ~~X
+                                 /                     |
+                                 /                     |
+                                /                      |
+                                /                      |
+                               @                       |
+                             -- --                     |
+                            /     \
+                           o       o
+                           |       |
+                           |       |
+  _________________________/_______\______________________________
+
+K06 HANDLE_BRAKE_FIRST | ONES | INFERRED | SUPPORT=LEAD_FOOT_DEEP_BRACE | CONTACT=RELEASED_AFTER_CONTACT
+ROOT/ARC: Lead support compresses and pelvis starts back while handle hand snaps one cell left; distal mass remains to the right.
+ROLE: The proximal clock reverses first. The distal endpoint is deliberately still late, exposing tether disagreement after impact.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                                                       |
+                                   o                   |
+                                   |                   |
+                                   |                   |
+                               *-+ + +---o-#~~~~~~~~~  |
+                                  /                  ~~|O
+                                  /                    |
+                                 /                     |
+                                 /                     |
+                                @                      |
+                              -- --
+                            //     \
+                           o        o
+                           |        |
+  _________________________/________\_____________________________
+
+K07 DISTAL_OVERSHOOT | TWOS | INFERRED | SUPPORT=LEAD_FOOT_DEEP_BRACE | CONTACT=NONE
+ROOT/ARC: Root retreats while the mass continues down/right; the tether steepens even though the handle is already recovering left.
+ROLE: Visible distal overshoot survives contact and handle reversal; recovery cannot be a mirrored rewind.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                                                       |
+                                 o                     |
+                                 |                     |
+                                 |                     |
+                             o-+ + +---o-#~~           |
+                              *  |          ~~~~       |
+                                |               ~~~~   |
+                                |                   ~~ |
+                                |                     ~|
+                               |                       |~O
+                               @
+                             -- --
+                           o-     -o
+                           |        |
+  _________________________/________\_____________________________
+
+K08 TETHER_CROSSOVER | TWOS | INFERRED | SUPPORT=LEAD_TO_DUAL_CATCH | CONTACT=NONE
+ROOT/ARC: Root continues left/up; distal mass finally reverses and crosses below the handle recovery line.
+ROLE: Separate distal reversal event: tether angle changes sign after the handle/root have already reversed.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                                                       |
+                               o                       |
+                               |                       |
+                               |                       |
+                           o*+ + +---o-#~              |
+                               |         ~~            |
+                              |            ~~          |
+                              |              ~~        |
+                             |                 ~       |
+                             @                  ~~     |
+                           -- --                  ~
+                          /     \\                 O
+                         o        o
+                          |        \
+  ________________________/_________\_____________________________
+
+K09 MASS_RECOIL_LAG | TWOS | INFERRED | SUPPORT=BOTH_FEET_CATCHING | CONTACT=NONE
+ROOT/ARC: Pelvis nearly stabilizes while mass continues leftward under the hand and rear foot widens.
+ROLE: Secondary lag transfers from root to distal mass; the body is mostly caught while the flexible tool is not.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                             o                         |
+                             |                         |
+                         o*  |                         |
+                           + + +---o                   |
+                             |      -#                 |
+                             |        ~                |
+                             |         ~               |
+                            |           ~              |
+                            |            ~             |
+                            @             ~            |
+                          -- --           ~
+                         /     --          O
+                        o        -o
+                         |         \\
+  _______________________/___________\____________________________
+
+K10 SUPPORT_TORQUE_CATCH | TWOS | INFERRED | SUPPORT=WIDE_DUAL_SUPPORT | CONTACT=NONE
+ROOT/ARC: Root counterleans into wide support while the returning mass rises behind the handle; offhand opens opposite the swing.
+ROLE: Support and offhand catch the tether's returning torque without stopping the distal clock instantly.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                           o                           |
+                       *   |                           |
+                       o-  |            O              |
+                         + + +---o-     ~              |
+                           |       -#~ ~               |
+                           |          ~~               |
+                            |                          |
+                            |                          |
+                            @                          |
+                          -- ---                       |
+                         /      --
+                        o         -o
+                        |           \
+                        |            \
+  ______________________/_____________\___________________________
+
+K11 SECONDARY_PENDULUM_SETTLE | TWOS | INFERRED | SUPPORT=BOTH_FEET_STABLE | CONTACT=NONE
+ROOT/ARC: Root holds its displaced address while the distal mass makes one smaller forward/down settle.
+ROLE: A reduced-amplitude pendulum settle pays residual flexible-tool debt after body stabilization.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                             o                         |
+                             |                         |
+                         *-  |                         |
+                           + + +--o                    |
+                             |     -#~                 |
+                             |        ~~~              |
+                             |           ~~            |
+                             |             O           |
+                             @                         |
+                           -- --                       |
+                          /     --
+                         o        -o
+                         |          \
+                         |          \
+  _______________________/___________\____________________________
+
+K12 DISPLACED_REENTRY | FOURS | INFERRED | SUPPORT=BOTH_FEET_STAGGERED | CONTACT=NONE
+ROOT/ARC: Ready re-entry stays four cells forward of K00; mass hangs in a shorter rear/low pocket rather than returning to its initial location.
+ROLE: Recovery debt closes at a new address with a changed tether rest angle; no idle reset.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                              o                        |
+                              |                        |
+                          *-  |                        |
+                            + + +--o                   |
+                              |     #                  |
+                              |      ~~                |
+                             |         ~               |
+                             |          ~              |
+                             @          ~              |
+                           -- --         O             |
+                          /     \\
+                         o        o
+                         |         \
+                         |         \
+  _______________________/__________\_____________________________
