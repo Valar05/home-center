@@ -1,0 +1,221 @@
+ASCII KINESIS V2 DEFENSE021 — LOW-LINE VOID HOP / STAGGER RECOVERY
+SOURCE EVIDENCE: TSR asset 38136 Blanka — Street Fighter 2 / Super Street Fighter 2 — Arcade | commissioned whole-sheet campaign evidence.
+SOURCE ROLE: STYLE_REFERENCE only. OBSERVED: grounded compact, airborne/near-airborne, tuck/extension, consequence and recovery families. Source-authentic timing UNKNOWN.
+PRINCIPLE: PRECOMPRESS -> BOTH-SUPPORT RELEASE -> ZERO-CONTACT LOW-LINE VOID -> ASYM TUCK -> RIGHT-FIRST CATCH -> SECOND PLANT -> PAID GUARD DEBT.
+TIMING: every decisive compile timing class INFERRED / STREET_FIGHTER-CAPCOM. ONES/TWOS/FOURS are hold classes, never seconds.
+SUPPORT: # full | ^ forefoot | : light toe | x unsupported | @ pelvis. Threat line is evidence-free authored geometry, never source art.
+RIGHTS: independent abstract ASCII rig only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio.
+
+K00 OFFSET_READY                                          K01 PRECOMPRESS
+FOURS/INFERRED SUP=L#+R#                                  FOURS/INFERRED SUP=L#+R#
+THREAT=LOW_LINE_FAR                                       THREAT=LOW_LINE_CLOSING
+
+
+
+
+                   O
+                   |
+                 --o-                                                        O
+              o--  | --o                                                     |
+             /     |    \\                                                 --o---o
+            /      |      o                                             o--  |    \
+           o        |   +-                                             /     |     \
+            \       |                                                //      |     -o
+             +      |                                               o        |   +-
+                    |                                                \        |
+                    @                                                 +       |
+                   / \                                                        |
+                  /   \                                                       |
+                  /   \                                                       @
+                 /     \                                                     / \
+                o       o                                                  //   \\
+               /         \                                                /       o
+               /         \                                               o         \
+              /           \                               --->          /           \
+              /           \                                             /           \
+             o             o                                           o             o
+___________==#==_________==#==________________________    ___________==#==_________==#==________________________
+
+
+K02 FOREFOOT_SPRING_LOAD                                  K03 SUPPORT_RELEASE
+TWOS/INFERRED SUP=L^+R^                                   ONES/INFERRED SUP=Lx+Rx
+THREAT=LOW_LINE_ENTERING                                  THREAT=LOW_LINE_AT_RELEASE
+
+
+
+
+
+                                                                              O
+                                                                              |
+                    O                                                       --o---o
+                    |                                                    o--  |    \
+               o----o---o                                              //     |     \
+              /     |    \\                                           o       |   +--o
+             /      |   +--o                                           \       |
+            /       |                                                   +      |
+           o         |                                                         |
+            \        |                                                         |
+             +       |                                                         @
+                     |                                                        / \
+                     @                                                       /   \
+                    / \                                                     /     \
+                  //   \                                                   o       o
+                 /      \                                                 /         \
+                o        o                                               /          \
+-------->      /          \                               ------------->x            \
+              /           \                                                          x
+             o             o
+___________^^^_____________^^^________________________    ______________________________________________________
+
+
+K04 ASYM_TUCK_ASCENT                                      K05 LOW_LINE_VOID_APEX
+ONES/INFERRED SUP=Lx+Rx                                   TWOS/INFERRED SUP=Lx+Rx
+THREAT=LOW_LINE_UNDER_ENTRY                               THREAT=LOW_LINE_PASSES_BENEATH
+
+
+                                                                               O
+                    O                                                          |
+                    |                                                       ---o--
+                  --o--                                                -o---   |  --o
+              o---  |  --o                                           --        |     \
+            --      |     \                                        o-          |      \
+          o-        |      \                                        \\          |     \
+           \         |      o                                         +         |      o
+            +        |    //                                                    |    //
+                     |   +                                                      @   +
+                     |                                                        -- \
+                    -@                                                      --    \\
+                  --  \                                                   o-        \
+                o-     \\                                                  \         o
+                 \       \                                                  \         \
+                 \        o                                                  x        \
+                  x        \                                                           \
+                           \                                                           x
+                            x
+
+------------------->                                      --------------------------------->
+
+
+______________________________________________________    ______________________________________________________
+
+
+K06 TRAILING_LEG_HANG                                     K07 REAR_LEG_SEEKS_FLOOR
+TWOS/INFERRED SUP=Lx+Rx                                   ONES/INFERRED SUP=Lx+Rx
+THREAT=LOW_LINE_CLEARING                                  THREAT=LOW_LINE_SPENT
+
+
+
+                      O
+                      |                                                         O
+               o------o--                                                       |
+             --       |  --o                                                 ---o--
+           --         |     \                                            o---   |  --o
+          o           |      \                                         //       |     \
+           \\          |      o                                      o/         |      \
+             +         |    //                                        --         |      o
+                       |   +                                            +        |    //
+                       @                                                         |   +
+                     // \                                                        |
+                   //    \                                                       @
+                 o/       \                                                    // \
+                  \        \                                                 //    \
+                   \        o                                               o       \
+                    x        |                                               \      \
+                             |                                               \       \
+                              |                                               x       o
+                              x                                                        \
+             --------------------------------->                                        \
+                                                                                        x
+
+______________________________________________________    ______________________________________________________
+
+
+K08 RIGHT_FIRST_CATCH                                     K09 RIGHT_LOAD_SWALLOW
+ONES/INFERRED SUP=Lx+R#                                   FOURS/INFERRED SUP=Lx+R#
+THREAT=LOW_LINE_SPENT                                     THREAT=LOW_LINE_SPENT
+
+
+
+
+
+                       O
+                       |
+                    ---o--                                                     O
+                o---   |  --o                                                   |
+              //       |     \\                                              ---o-----o
+            o/         |       o                                         o---   |      \
+             \         |     //                                        --       |       \
+              +         |   +                                        o-         |        o
+                        |                                             \\        |      --
+                        |                                               +        |   +-
+                        |                                                        |
+                       -@                                                        |
+                    ---  \                                                       |
+                  o-      \                                                     -@
+                   |       \                                                 ---  \
+                   x        o                                              o-      \\
+                             \                                              x        o
+                              \                                                       --
+                               o                                                        -o
+_____________________________==#==____________________    _____________________________==#==____________________
+
+
+K10 LEFT_TOE_PROBE                                        K11 SECOND_PLANT_TORSION_OVERSHOOT
+TWOS/INFERRED SUP=L:+R#                                   TWOS/INFERRED SUP=L#+R#
+THREAT=LOW_LINE_SPENT                                     THREAT=LOW_LINE_SPENT
+
+
+
+
+
+                                                                                  O
+                     O                                                            |
+                      |                                                        ---o-
+                   ---o-----o                                             -o---   | ---
+               o---   |      \                                         o--        |    -o
+             //       |       \                                         \         |      \
+            o         |        o                                         +        |       \
+             \        |      //                                                    |       o
+              +        |    +                                                      |     --
+                       |                                                           |   +-
+                       |                                                           |
+                       |                                                           @
+                       @                                                         -- \
+                     -- \                                                      --    \
+                   --    \\                                                  o-       \
+                 o-        o                                                /          o
+                /           \                                              /            \
+                /            \\                                           /             \
+               o               o                                         o               o
+_____________:_______________==#==____________________    _____________==#==___________==#==____________________
+
+
+K12 COUNTERTORQUE_GUARD_LAG                               K13 DISPLACED_LOW_READY_DEBT
+TWOS/INFERRED SUP=L#+R#                                   FOURS/INFERRED SUP=L#+R#
+THREAT=LOW_LINE_SPENT                                     THREAT=LOW_LINE_SPENT
+
+
+
+
+                                                                                 O
+                      O                                                          |
+                      |                                                        --o--
+                   ---o--                                                  o---  |  --o
+               o---   |  ---o                                             /      |     \
+              /       |      --                                          /       |      \
+             /        |        -o                                       o        |       o
+            o         |       --                                         \        |     /
+             \         |    +-                                            +       |   //
+              +        |                                                          |  +
+                       |                                                          |
+                       |                                                          @
+                       @                                                         / \
+                      / \                                                      //   \
+                    //   \\                                                   /      \
+                   /       \                                                 o        o
+                  o         o                                               /          \
+                 /           \                                              /           \
+                /             \                                            /            \
+                /             \                                            /             \
+               o               o                                          o               o
+_____________==#==___________==#==____________________    ______________==#==___________==#==___________________
