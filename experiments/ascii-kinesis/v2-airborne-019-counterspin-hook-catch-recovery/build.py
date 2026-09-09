@@ -93,15 +93,15 @@ for i,(key,s) in enumerate(zip(MOTION["keys"],states)):
 fd=ROOT/".frames"
 if fd.exists(): shutil.rmtree(fd)
 fd.mkdir()
-font=ImageFont.truetype(FONT,13)
+font=ImageFont.truetype(FONT,10)
 for i,txt in enumerate(frames):
-    img=Image.new("RGB",(512,288),(10,10,10))
+    img=Image.new("RGB",(384,216),(10,10,10))
     d=ImageDraw.Draw(img); d.multiline_text((8,4),txt,font=font,fill=(240,240,240),spacing=-1)
     img.save(fd/f"{i:04d}.png",compress_level=9)
 
 mp4=ROOT/"counterspin-hook-catch-recovery.mp4"
 subprocess.run(["ffmpeg","-y","-hide_banner","-loglevel","error","-framerate",str(FPS),"-i",str(fd/"%04d.png"),
-                "-c:v","libx264","-pix_fmt","yuv420p","-preset","medium","-crf","29","-threads","1",
+                "-c:v","libx264","-pix_fmt","yuv420p","-preset","medium","-crf","33","-threads","1",
                 "-movflags","+faststart",str(mp4)],check=True)
 shutil.rmtree(fd)
 media=mp4.read_bytes(); sha=hashlib.sha256(media).hexdigest()
