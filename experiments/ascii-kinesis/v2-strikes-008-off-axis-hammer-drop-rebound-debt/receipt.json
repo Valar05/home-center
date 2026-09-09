@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "id": "v2-strikes-008-off-axis-hammer-drop-rebound-debt",
-  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "current_worker_liveness": {
     "home_center_campaign_read": true,
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
@@ -78,17 +78,19 @@
       "receipt.json": "e7a79a45af4b2e4f6d69a761f88162f820ec8a62"
     }
   },
-  "issue_343_receipt": null,
+  "issue_343_receipt": 5596276724,
   "three_part_chat_delivery": {
-    "ascii": false,
-    "json": false,
-    "video": false,
+    "ascii": true,
+    "json": true,
+    "video": true,
     "order": "ASCII -> JSON -> VIDEO"
   },
-  "chat_media_identity": "PENDING",
+  "chat_media_identity": "BYTE_IDENTICAL_TO_PERSISTED_EMBEDDED_MEDIA",
   "notes": [
-    "Tango and Queen PASS are from current-worker inspection of the actual locally constructed 49-frame candidate render; local construction is not used as repo completion proof.",
-    "HEALTHY is forbidden until GitHub persistence/readback, issue receipt, and ordered three-part visible chat delivery complete.",
-    "GitHub current-main directory readback after initial persistence matched exactly five tracked files and all staged Git blob identities; the persisted SPA blob therefore contains the same byte-identical embedded media that decoded PASS current-worker."
-  ]
+    "Tango and Noodle Queen PASS were made by the current worker on the actual 49-frame render; local construction was never used as repository completion proof.",
+    "GitHub current-main readback proves exactly five tracked files and exact staged Git blob identities for build/manifest/motion/SPA before final receipt mutation.",
+    "Visible chat delivery completed in exact order: PART 1 complete ASCII (4 chunks) -> PART 2 actual persisted motion.json values (8 chunks; pretty serialization labeled non-byte-identical) -> PART 3 byte-identical visible MP4.",
+    "Issue #343 HEALTHY closure receipt 5596276724 was posted after chat delivery and readback."
+  ],
+  "closure_comment_readback": true
 }
