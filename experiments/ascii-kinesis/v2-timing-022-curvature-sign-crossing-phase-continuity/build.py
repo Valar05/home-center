@@ -36,6 +36,7 @@ def map_points(motion):
 
 def make_pose(k,motion):
     c=[[" "]*W for _ in range(H)]
+    # local support plane
     for x in range(3,49): c[19][x]="_"
     p={name:tuple(xy) for name,xy in k["joints"].items()}
     for a,b,ch in [
@@ -54,16 +55,19 @@ def make_pose(k,motion):
     for name,ch in glyphs.items():
         x,y=p[name]
         if 0<=x<W and 0<=y<H: c[y][x]=ch
+    # bank sign/heading glyphs
     bank=int(k["bank_deg"])
     arrow=">" if k["root_transform"]["heading_deg"]>=-8 and k["root_transform"]["heading_deg"]<=8 else ("↗" if k["root_transform"]["heading_deg"]>8 else "↘")
     px,py=p["pelvis"]
     if px+2<W: c[py][px+2]=arrow
+    # ASCII root S-curve map
     for x in range(51,77):
         if 0<=18<H: c[18][x]="."
     pts=map_points(motion)
     for idx,(mx,my) in enumerate(pts):
         if 0<=mx<W and 0<=my<H:
             c[my][mx]="@" if motion["keys"][idx]["key_id"]==k["key_id"] else "+"
+    # Labels remain ASCII.
     label=f"S-CURVE ROOT | bank={bank:+d} | curv={k['curvature_state']}"
     for i,ch in enumerate(label[:26]):
         if 51+i<W: c[2][51+i]=ch
@@ -79,6 +83,7 @@ def contact_text(motion):
             f"CURV={k['curvature_state']} BANK={k['bank_deg']:+d} SPEED={k['speed_norm']:.1f} "
             f"ROOT=({r['x']:.1f},{r['y']:.1f}) HDG={r['heading_deg']:+d}\n"
         )
+        # Compact literal aligned ASCII projection. Full numeric rig is in motion.json.
         bank=int(k["bank_deg"])
         shift=max(-2,min(2,round(bank/5)))
         head_pad=7+shift
@@ -136,6 +141,7 @@ def main():
     media=motion["compile"]["media"]
     media["sha256"]=got
     media["bytes"]=len(mp4)
+    # persist exact media identity into motion before SPA packing; rerender does not depend on it.
     raw=json.dumps(motion,ensure_ascii=False,sort_keys=True,separators=(",",":"))+"\n"
     MOTION.write_text(raw,encoding="utf-8")
     SPA.write_text(spa_text(contact,raw,mp4),encoding="utf-8")
