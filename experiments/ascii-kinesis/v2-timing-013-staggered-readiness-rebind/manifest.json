@@ -1,6 +1,6 @@
 {
   "ascii_literal_text": true,
-  "ascii_sheet_sha256": "bd8ceeb2ef27df896c5796a8035eb1e51a98d7e9b2679469943f05e02a7c063b",
+  "ascii_sheet_sha256": "f7f8440e51ba7303fb97345958fae9d3adde646c74bf6e89d842c40673b03b41",
   "ascii_surface": "pre",
   "backward_compatible": true,
   "contract_test": "python3 tools/test_ascii_kinesis_swarm_contract_v2.py",
@@ -17,8 +17,8 @@
   "format_version": 2,
   "lane": "timing",
   "ligatures_disabled": true,
-  "media_bytes": 8072,
-  "media_sha256": "8e438f3a75bef43b6bd3614aeadb9c731c90e277928df4f8b2e9518ba8176d7f",
+  "media_bytes": 8627,
+  "media_sha256": "4a4332948044b5932022d0761eb98637a77e24f05667b6e244d1ff1538937ce0",
   "motion_dungeon": {
     "ascii_only_frame_render": true,
     "authored_ascii_keys": 13,
@@ -26,7 +26,7 @@
     "deterministic_connective_motion": "none; authored bridge keys K4/K7/K10 carry transitions",
     "explicit_holds": true,
     "fps": 24,
-    "video_frames_total": 33
+    "video_frames_total": 35
   },
   "primary_tabs": [
     "ASCII",
@@ -35,21 +35,37 @@
   ],
   "quality_gates": {
     "noodle_queen": {
+      "actual_render_sha256": "4a4332948044b5932022d0761eb98637a77e24f05667b6e244d1ff1538937ce0",
       "contempt": "PASS",
       "function": "PASS",
-      "notes": "Staggered contact/orientation/support/task recovery is visible; displaced guard/stance preserve debt; no reverse interpolation or idle reset.",
+      "notes": "TASTE: compression→sling→contact-brake→overshoot→staggered reacquisition has specific rhythm and silhouettes. FUNCTION: contact, orientation, bilateral support, and task visibly return at different authored times without metadata-only gating. CONTEMPT: unequal holds and displaced debt avoid metronome recovery, idle reset, and placeholder straight tweening.",
       "status": "PASS",
-      "taste": "PASS"
+      "taste": "PASS",
+      "worker_scope": "current_worker"
     },
     "tango": {
       "recursion": [
         {
           "correction": "Retimed K5 and K8 to TWOS in the same Timing013 body and rerendered.",
           "highest_value_defect": "K5/K8 one-tick rebind states were unreadable at speed",
-          "verdict": "REVISE_REQUIRED"
+          "verdict": "REVISE_REQUIRED",
+          "worker_scope": "prior_candidate_evidence"
         },
         {
-          "verdict": "PASS"
+          "verdict": "PASS",
+          "worker_scope": "prior_candidate_evidence"
+        },
+        {
+          "correction": "Keep K5/K8 readable, but give the same authored states unequal temporal weight: K5 contact brake=3t, K6 overshoot flash=1t, K8 orientation reacquire=3t, K9 support plant=4t; K10 remains 2t. Retain displaced recovery and all support/guard causality.",
+          "highest_value_defect": "The core K5→K10 readiness ladder was semantically staggered but rhythmically flattened into six consecutive TWOS, so the timing lesson risked reading as metadata over a metronomic recovery.",
+          "verdict": "REVISE_REQUIRED",
+          "worker_scope": "current_worker"
+        },
+        {
+          "actual_render_sha256": "4a4332948044b5932022d0761eb98637a77e24f05667b6e244d1ff1538937ce0",
+          "notes": "The revised 35-frame phrase now has visibly unequal temporal weight: 3t exit-contact brake, 1t overshoot flash, 2t counter-catch, 3t orientation rebind, 4t support acquisition, 2t guard lag, 3t task rebind. K5/K8 remain readable; support/COM and displaced recovery stay causal.",
+          "verdict": "PASS",
+          "worker_scope": "current_worker"
         }
       ],
       "status": "PASS"
