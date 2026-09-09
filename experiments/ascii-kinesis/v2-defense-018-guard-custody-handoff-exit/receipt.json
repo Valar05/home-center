@@ -2,7 +2,7 @@
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-defense-018-guard-custody-handoff-exit",
   "lane": "defense",
-  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_CHAT_DELIVERY",
+  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
   "current_worker_liveness": {
     "home_center_campaign_read": true,
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
@@ -15,8 +15,8 @@
     "negative_fixture": null,
     "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
     "prior_closure_comment": 5601329856,
-    "inventory_before_creation_defense018_count": 0,
-    "successor_collision": false
+    "successor_collision": false,
+    "defense019_forbidden_until_healthy": true
   },
   "source": {
     "provider": "The Spriters Resource",
@@ -46,17 +46,18 @@
   },
   "quality": {
     "tango": {
-      "round": 0,
       "verdict": "PASS",
       "actual_render_inspected": true,
-      "basis": "The guard-custody swap is legible before support exit; contact is an authored constraint rather than farthest reach; the old lead foot becomes explicitly unsupported only after handoff; cross-body tension, free-leg sweep, unsupported preplant, compressed exit plant, torsion overshoot, counter-torque, late guard reopen, and displaced recovery debt all read in the actual final render. No visible defect earned churn."
+      "current_worker_reconfirmed": true,
+      "basis": "Fresh inspection of the byte-identical 66-frame render shows guard authority transferring at K4-K5 before right-support exit at K6; pre-positioned contact compresses the torso rather than extending to farthest reach; the one-foot guywire and free-leg sweep pay the lateral force; unsupported preplant becomes a compressed outside plant; torsion overshoot, counter-torque, late guard reopen, and displaced ready debt remain visible. No defect earned mutation."
     },
     "noodle_queen": {
       "verdict": "PASS",
       "after_tango_pass": true,
       "actual_render_inspected": true,
+      "current_worker_reconfirmed": true,
       "taste_function_contempt": "PASS",
-      "basis": "The motion reads as a specific threat-line custody transfer rather than a generic block. Support truth, delayed guard authority, asymmetric silhouette progression, overtravel and non-neutral recovery survive inspection."
+      "basis": "The actual final motion reads as a specific guard-custody transfer rather than a generic block. Support truth, delayed authority, asymmetric silhouettes, overtravel, and non-neutral recovery remain legible without metadata."
     },
     "drew_accepted": false
   },
@@ -71,25 +72,34 @@
     "frames": 66,
     "duration_seconds": 2.75,
     "decode_verified": true,
+    "current_worker_reconstruction_byte_identical": true,
     "generated_from": "abstract ASCII rig + exact structured timing only",
     "source_pixels_present": false
   },
   "contract": {
     "official_validator_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "official_validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
-    "candidate_isolated_run": true,
-    "candidate_isolated_result": "PASS",
-    "candidate_isolated_stdout": {"schema":"ascii-kinesis.swarm-contract-v2-test","entries_checked":["v2-defense-018-guard-custody-handoff-exit"],"ok":true},
+    "persisted_candidate_isolated_run": true,
+    "persisted_candidate_isolated_result": "PASS",
     "full_repository_checkout_run_claimed": false,
-    "boundary": "Standard Chat has authenticated repository read/write/readback but no authorized full remote checkout shell; no repo-global execution is claimed."
+    "boundary": "Standard Chat has authenticated repository read/write/readback but no authorized full remote checkout shell; no repo-global validator execution is claimed."
   },
   "repo": {
     "body_files_expected": 6,
+    "body_files_readback": 6,
     "one_spa_expected": true,
-    "repo_readback": false,
-    "commit": null,
-    "blobs": {},
-    "issue_343_receipt": null
+    "one_spa_readback": true,
+    "repo_readback": true,
+    "manifest_reconciliation_commit": "194faa65ffcb0abee43b9cf7fb5e489583e42479",
+    "blobs": {
+      "build.py": "b16e624b8197c5ebd18afbdcc8ab297af0d91aef",
+      "contact-sheet.txt": "64d13691258ad29375c6d46cbda686bd2870ead0",
+      "manifest.json": "c346a9e24eba89336b7572a6a01884aaa80a8c8a",
+      "motion.json": "731fb437511b5920c74abcd26a232e7e2283e291",
+      "guard-custody-handoff-exit.motion.html": "e35da2da0303033089bd4dbc43348c846532e008"
+    },
+    "issue_343_receipt": null,
+    "issue_343_receipt_readback": false
   },
   "chat_delivery": {
     "part1_ascii": false,
