@@ -7,7 +7,13 @@
   "revises": null,
   "negative_fixture": null,
   "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
-  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+  "one_body_rule": "BIND_THIS_013_UNTIL_HEALTHY",
+  "strikes014_forbidden": true,
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
   "ascii_literal_text": true,
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
@@ -19,8 +25,9 @@
     "title": "Shaw (Sword)",
     "game": "Cutthroat Island",
     "platform": "SNES",
-    "campaign_evidence": "STRIKES PASS 003 — VERIFIED / 5570672329",
-    "source_authentic_timing": "UNKNOWN"
+    "campaign_evidence": "STRIKES PASS 003 — VERIFIED / issue #343 comment 5570672329 / authoritative Home Center campaign",
+    "source_authentic_timing": "UNKNOWN",
+    "authored_timing": "INFERRED / STREET_FIGHTER-CAPCOM"
   },
   "rights_firewall": "PASS_NO_SOURCE_PIXELS_PALETTE_COSTUME_CONTOURS_LAYOUT_TRACING_CHOREOGRAPHY_REDISTRIBUTION_AUDIO_CLOSE_IMITATION",
   "principle": "GLANCING_CONTACT_ROTATES_FORCE_AXIS",
@@ -31,20 +38,40 @@
     "height": 440,
     "fps": 24,
     "authoritative": "embedded_spa_mp4",
-    "sha256": "69c49f9290c879c4b6e272fe21ceeddab8dd0b2ab779cddb67df37231cf145a6",
-    "bytes": 21124,
+    "sha256": "57f3de85600b0d5e00822369df918c3297af2d7819b8a6d40eaf39aef410a4b2",
+    "bytes": 14687,
     "frames": 53,
     "duration_seconds": 2.2083333333333335,
-    "decode": "PASS_CURRENT_WORKER_FFPROBE_AND_DECODED_FRAME_INSPECTION"
+    "decode": "PASS_CURRENT_AUTOMATION_WORKER_DETERMINISTIC_REBUILD_AND_DECODE"
   },
   "quality": {
-    "tango": "PASS_CURRENT_WORKER_ACTUAL_RENDER_R1",
-    "noodle_queen": "PASS_CURRENT_WORKER_AFTER_TANGO_SAME_MEDIA",
+    "tango": "PASS_CURRENT_AUTOMATION_WORKER_ACTUAL_RENDER",
+    "tango_reason": "Glancing contact visibly redirects the tool before the root/support reorient; the body continues through the old axis, then catches rotated angular debt with support, high tip overshoot, secondary lag, and displaced recovery.",
+    "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_CURRENT_AUTOMATION_WORKER_AFTER_TANGO_SAME_MEDIA",
     "DREW_ACCEPTED": false
   },
-  "files": ["build.py", "contact_sheet.txt", "glancing-contact-force-axis-debt.motion.html", "manifest.json", "motion.json", "receipt.json"],
-  "spa_sha256": "644b72c319b87781a9d2cefe300ff538e39c0d683e154abfed00f2eb070646ad",
-  "contact_sheet_sha256": "f5364ee76e2ae2639c2feb4b7b77c9f559b8730d84052bf31a75a6f0cef12418",
-  "motion_sha256": "8d70d9d33c4815812ed60934d0017a6d09ecdc140dfc427cbc59f55574b24e9c",
-  "builder_sha256": "2f23fc5eb55b39ac16b52bc916f012ab67706508fda0d017f07d8ab515f68657"
+  "validator": {
+    "source_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated_structural_predicates": "PASS",
+    "repo_global_execution": "NOT_CLAIMED_STANDARD_CHAT_NO_AUTHORIZED_FULL_CHECKOUT"
+  },
+  "files": [
+    "build.py",
+    "contact_sheet.txt",
+    "glancing-contact-force-axis-debt.motion.html",
+    "manifest.json",
+    "motion.json",
+    "receipt.json"
+  ],
+  "repo_blobs_before_manifest_reconciliation": {
+    "build.py": "e8d3f03c55c3131e7ce3cacab9df89ff36cc4c19",
+    "contact_sheet.txt": "0b5d9037b8d9bec09f3e7dbf7aa62cf5339346e1",
+    "glancing-contact-force-axis-debt.motion.html": "66734f0818cb4ce5e76d964524b7fffc42f7ea60",
+    "motion.json": "11afbd543d8ab2545a90818a57e607d8a189e78c"
+  },
+  "persistence": {
+    "spa_commit": "65f3de63f9a1bb1fd1dc9578151ffd9f0f1a09e0",
+    "spa_readback": "PASS_CURRENT_MAIN_EXACT",
+    "manifest_reconciled_by_current_worker": true
+  }
 }
