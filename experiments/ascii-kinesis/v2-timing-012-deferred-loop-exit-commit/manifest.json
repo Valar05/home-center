@@ -1,127 +1,57 @@
 {
-  "ascii_literal_text": true,
-  "ascii_sheet_sha256": "be5e81e53c81c1927bf2f16a48f758930f35195aea49a85b03ac20976a9f46b6",
-  "ascii_surface": "pre",
-  "backward_compatible": true,
-  "contract_test": "python3 tools/test_ascii_kinesis_swarm_contract_v2.py",
-  "contract_verification": "PASS_CANDIDATE_ISOLATED_OFFICIAL_V2",
-  "experiment_id": "v2-timing-012-deferred-loop-exit-commit",
-  "files": [
-    "build.py",
-    "contact-sheet.txt",
-    "manifest.json",
-    "motion.json",
-    "receipt.json",
-    "deferred-loop-exit-commit.motion.html"
-  ],
+  "schema": "ascii-kinesis.swarm-manifest.v2",
   "format_version": 2,
+  "experiment_id": "v2-timing-012-deferred-loop-exit-commit",
   "lane": "timing",
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+  "ascii_literal_text": true,
+  "ascii_surface": "pre",
   "ligatures_disabled": true,
-  "media_bytes": 10208,
-  "media_sha256": "6b0a5923284a350d8989bb1d152eec6f1313badb20fb865b066a150770d5dacd",
-  "motion_dungeon": {
-    "ascii_only_frame_render": true,
-    "authored_ascii_keys": 12,
-    "connector_semantics_fail_closed": true,
-    "deterministic_connective_motion": "authored keys only; K4 is explicit exit bridge",
-    "explicit_holds": true,
-    "fps": 24,
-    "video_frames_total": 49
-  },
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
-  "quality_gates": {
-    "noodle_queen": {
-      "actual_render_sha256": "6b0a5923284a350d8989bb1d152eec6f1313badb20fb865b066a150770d5dacd",
-      "contempt": "PASS — the specimen refuses both immediate input obedience and a polite return-to-idle; the event waits for authored phase authority and recovery remains displaced.",
-      "function": "PASS — the viewer can see the request arrive, remain latched while the body finishes its loop phase, then release only from the earned exit window into acceleration, brake, overshoot and debt.",
-      "placeholder_check": "PASS — timing insight survives without reading the JSON because the event pulse/latch and delayed release are visible in the animation.",
-      "prerequisite": "TANGO PASS iteration 2 on same render",
-      "status": "PASS",
-      "taste": "PASS — the low repeatable tell, one-frame torsion spike, deep exit sink, and long rightward slingshot create a specific authored rhythm rather than generic stick motion."
-    },
-    "tango": {
-      "actual_render_sha256": "6b0a5923284a350d8989bb1d152eec6f1313badb20fb865b066a150770d5dacd",
-      "inspection": "current-worker actual 49-frame H.264 render; all ordered frames inspected via decoded contact representations and frame-by-frame causal schedule",
-      "recursion": [
-        {
-          "correction": "Keep the same Timing012 body/timing. Change the single E_COMMIT arrival frame to a '*' pulse, then hold '!' through K1→K2→K3 while the body loop continues unchanged.",
-          "highest_value_defect": "The commit event arrival and the subsequent latched wait used the same auxiliary glyph, so the event instant relied too much on the video header rather than the performance surface.",
-          "iteration": 1,
-          "verdict": "REVISE_REQUIRED"
-        },
-        {
-          "highest_value_defect": null,
-          "iteration": 2,
-          "notes": "Two complete loops establish cadence; '*' arrival is distinct from the held '!'; the body preserves phase through K1/K2, sinks into K3 EXIT_WINDOW, then K4 explicitly transfers authority. K5/K6 root deltas accelerate (+4,+6), K7 brakes, K8 overshoots, K9 is a new cross-body recoil rather than reverse interpolation, and K10/K11 settle at a displaced address.",
-          "verdict": "PASS"
-        }
-      ],
-      "rejected_failure_classes_absent": [
-        "equalized spacing",
-        "global metronome cadence",
-        "metadata-only event response",
-        "straight tweening",
-        "endpoint interpolation",
-        "phase teleport",
-        "reverse interpolation",
-        "idle reset",
-        "full-body rekey inflation for auxiliary event only"
-      ],
-      "status": "PASS"
-    }
-  },
-  "reconstruction": "python3 build.py",
+  "whitespace_preserved": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "video_packaging": "embedded MP4 data URI in deferred-loop-exit-commit.motion.html",
+  "media_sha256": "5e232456075a9d508fce3928bdb8efab86f34d9efe34dff5010b24217b1e5dd2",
+  "media_bytes": 5159,
+  "ascii_sheet_sha256": "be5e81e53c81c1927bf2f16a48f758930f35195aea49a85b03ac20976a9f46b6",
+  "source_art_embedded": false,
+  "backward_compatible": true,
   "revision": {
     "kind": "fresh_concept",
-    "manager_reconciliation_issue_comment": 5594373787,
-    "negative_fixture": null,
-    "pre_reset_repair_debt_exhausted": true,
     "previous_closed": "v2-timing-011-effect-tail-outlives-body-repair",
     "previous_closure_issue_comment": 5592980023,
     "reconciliation_issue_comment": 5593970645,
-    "revises": null,
-    "source_change": true
-  },
-  "schema": "ascii-kinesis.swarm-manifest.v2",
-  "source": {
-    "asset_id": "602122",
-    "evidence_family_new_to_timing_lane": true,
-    "exact_archive": {
-      "bytes": 111688,
-      "entries": 61,
-      "pngs": 52,
-      "sha256": "7a47f6ef97b44b65b43f15a8d2a9281b1fc1cb95f543f631b0a21d76beba565f"
-    },
-    "inferred": [
-      "the teaching unit below treats a repeatable anticipation clock, a mid-loop commit request, a phase-safe exit window, and a committed surge/brake/recovery as an authored synthetic transfer test",
-      "every decisive-key timing class/exposure and the event tick are authored PoseLab choices"
-    ],
-    "observed": [
-      "archive identity/size/hash and full-frame inventory",
-      "named families include Ram Tell, Ram Tell Loop, Ram, Ram Brake, Tired",
-      "whole corpus was scanned before extraction",
-      "source-authentic playback/exposure timing was not established"
-    ],
-    "provider": "The Spriters Resource",
-    "rights_boundary": "Commercial source art is evidence only. No source pixels, palette, costume, contours, layout, tracing, choreography, redistribution, or close imitation enter this specimen.",
+    "manager_reconciliation_issue_comment": 5594373787,
+    "pre_reset_repair_debt_exhausted": true,
     "source_change": true,
-    "title": "Meatman — Chasm — PC / Computer — Enemies",
-    "unknown": [
-      "source chronology within or across families",
-      "source exposure durations/cadence",
-      "whether the game queues an input until a safe animation phase",
-      "hit-stop/cancel windows/gameplay state rules"
-    ],
-    "url": "https://www.spriters-resource.com/pc_computer/chasm/asset/602122/",
-    "whole_source_evidence": "Campaign-preserved audit inspected Sheet.png plus all 51 numbered frame PNGs by alpha geometry across Death 8, Idle 12, Ram 6, Ram Brake 3, Ram Tell 2, Ram Tell Loop 2, Tired 6, Walk 10, Wall Hit 2."
+    "revises": null,
+    "negative_fixture": null
   },
-  "source_art_embedded": false,
-  "video_packaging": "embedded MP4 data URI in deferred-loop-exit-commit.motion.html",
-  "video_required": true,
-  "video_source": "abstract_ascii_rig_only",
-  "whitespace_preserved": true
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "602122",
+    "title": "Meatman — Chasm — PC / Computer — Enemies",
+    "url": "https://www.spriters-resource.com/pc_computer/chasm/asset/602122/",
+    "exact_archive": {"bytes":111688,"sha256":"7a47f6ef97b44b65b43f15a8d2a9281b1fc1cb95f543f631b0a21d76beba565f","entries":61,"pngs":52},
+    "source_timing": "UNKNOWN",
+    "authored_timing_provenance": "INFERRED",
+    "rights_boundary": "Evidence only; no source pixels, palette, contours, layout, tracing, choreography, redistribution, or close imitation enter output."
+  },
+  "quality_gates": {
+    "tango": {"status":"PASS","actual_render_sha256":"5e232456075a9d508fce3928bdb8efab86f34d9efe34dff5010b24217b1e5dd2","final_iteration":3},
+    "noodle_queen": {"status":"PASS","actual_render_sha256":"5e232456075a9d508fce3928bdb8efab86f34d9efe34dff5010b24217b1e5dd2","prerequisite":"TANGO PASS iteration 3"}
+  },
+  "motion_dungeon": {
+    "authored_ascii_keys": 12,
+    "explicit_holds": true,
+    "deterministic_connective_motion": "authored keys only; K4 explicit exit bridge",
+    "connector_semantics_fail_closed": true,
+    "ascii_only_frame_render": true,
+    "fps": 24,
+    "video_frames_total": 49
+  },
+  "files": ["build.py","contact-sheet.txt","manifest.json","motion.json","receipt.json","deferred-loop-exit-commit.motion.html"],
+  "reconstruction": "python3 build.py",
+  "contract_test": "python3 tools/test_ascii_kinesis_swarm_contract_v2.py",
+  "contract_verification": "PASS_CANDIDATE_ISOLATED_OFFICIAL_V2"
 }
