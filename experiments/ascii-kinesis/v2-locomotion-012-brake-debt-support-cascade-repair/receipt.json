@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.swarm-receipt.v2",
   "experiment_id": "v2-locomotion-012-brake-debt-support-cascade-repair",
-  "status": "REPO_PERSIST_PENDING",
+  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
   "repo_path": "experiments/ascii-kinesis/v2-locomotion-012-brake-debt-support-cascade-repair/",
   "repository": "Valar05/home-center",
   "lineage": {
@@ -18,13 +18,25 @@
     "source_change": false
   },
   "liveness": {
-    "home_center_campaign_read": true,
-    "github_persistence_readback": true
+    "current_worker_home_center_campaign_read": true,
+    "current_worker_github_persistence_readback": true
+  },
+  "body_readback": {
+    "build_py_blob": "a33aea0a2597af05dc2c11548ca969fef0394827",
+    "manifest_json_blob": "dfdc8e5b8cebe9bc754c5a585f9cb8b72f081eca",
+    "motion_json_blob": "12edf3e0bb741f269de6b51592460e8fafd4cb5e",
+    "spa_blob": "4f17a85aa4864ba3c4dfff029d4ead03ab8b363c",
+    "motion_json_byte_identity_verified": true,
+    "ascii_sheet_sha256": "bbb678821eefb1ff28d58fd347a3febb272b936aabbeb31a1a376ed5bfcc44d0"
   },
   "quality": {
     "tango": "PASS",
     "noodle_queen": "PASS",
-    "actual_render_inspected": true
+    "taste": "PASS",
+    "function": "PASS",
+    "contempt": "PASS",
+    "actual_render_inspected": true,
+    "current_worker_basis": "Current worker reconstructed the authoritative 41 authored frames from the exact persisted motion.json and current build method, produced byte-identical H.264 media, decoded it, and visually inspected all 41 frames across chronological contact sheets. The fast support-owned entry, authored toe release and flight, brake anticipation at full speed, left probe/catch, deep compression, ownership cascade, secondary counterswing, right probe/catch, torso overshoot, authored counter-travel, and displaced recovery/exit debt remain legible. No authored-key mutation was warranted."
   },
   "media": {
     "authoritative": "embedded_mp4_in_spa",
@@ -35,18 +47,23 @@
     "width": 640,
     "height": 346,
     "fps": 24,
-    "frames": 41
+    "frames": 41,
+    "current_worker_byte_identical_reconstruction": true,
+    "current_worker_decode": "PASS"
   },
   "contract": {
     "official_validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
-    "candidate_isolated": "PASS",
-    "full_repo_runtime_claimed": false
+    "candidate_isolated_current_worker": "PASS",
+    "github_spa_readback_structural_contract": "PASS",
+    "full_repo_runtime_claimed": false,
+    "boundary": "Official validator logic was run candidate-isolated against the exact 012 manifest/motion contract and exact authoritative media; repository-wide runtime was not exposed in this standard-chat worker. Current-main SPA was separately read back through GitHub and directly satisfies the validator's ASCII|JSON|VIDEO, preformatted text, ligature, whitespace, video element, embedded data:video, and decisive-key provenance checks."
   },
   "verification": {
-    "repo_readback": false,
+    "repo_readback": true,
     "media_decode": true,
     "three_part_chat_delivery": false
   },
+  "artifact_mutation": "Receipt-only state reconciliation after current-worker verification; motion.json, manifest.json, build.py, and SPA were not changed.",
   "issue_receipt": null,
   "correction_hooks": [
     "KEEP",
@@ -61,5 +78,5 @@
     "FIX SECONDARY LAG",
     "RERUN"
   ],
-  "delivery_encode": "Current-worker inspected deterministic 640x346 H.264 encode from the final abstract ASCII render; same 41 authored frames."
+  "delivery_encode": "Authoritative embedded H.264 is 640x346, 24 fps, 41 authored frames, SHA-256 c7520b1bea382b862ee6ecc5c8a1c4b88e3386dd8f9fe56befc1dcc157d9abf8."
 }
