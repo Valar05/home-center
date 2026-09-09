@@ -154,18 +154,15 @@ def encode_mp4(m,frames):
     rc=p.wait()
     if rc: raise SystemExit(rc)
 
-def chunks(s,n=1800): return [s[i:i+n] for i in range(0,len(s),n)]
-def js_chunks(s): return "[\n"+",\n".join(json.dumps(c) for c in chunks(s))+"\n]"
-
 def build_spa(m,contact,video):
-    video_chunks=js_chunks(base64.b64encode(video).decode("ascii"))
-    ascii_chunks=js_chunks(base64.b64encode(gzip.compress(contact.encode(),compresslevel=9,mtime=0)).decode("ascii"))
-    json_chunks=js_chunks(base64.b64encode(gzip.compress(json.dumps(m,separators=(",",":"),ensure_ascii=False).encode(),compresslevel=9,mtime=0)).decode("ascii"))
+    video_chunks=json.dumps(base64.b64encode(video).decode("ascii"))
+    ascii_chunks=json.dumps(base64.b64encode(gzip.compress(contact.encode(),compresslevel=9,mtime=0)).decode("ascii"))
+    json_chunks=json.dumps(base64.b64encode(gzip.compress(json.dumps(m,separators=(",",":"),ensure_ascii=False).encode(),compresslevel=9,mtime=0)).decode("ascii"))
     return f'''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis V2 Strikes 006 — Deflected Hook Recovery Reframe</title>
 <style>:root{{color-scheme:dark;background:#080808;color:#eee;font-family:system-ui,sans-serif}}body{{margin:0}}main{{max-width:1240px;margin:auto;padding:10px}}nav{{position:sticky;top:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:#080808;padding:8px 0}}button{{min-height:44px;font:inherit}}section{{display:none}}section.active{{display:block}}pre{{white-space:pre;overflow:auto;font:12px/1.08 ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;user-select:text;background:#000;padding:10px}}video{{display:block;width:min(100%,960px);height:auto;background:#000}}</style></head><body><main>
 <h1>V2 Strikes 006 — Deflected Hook Recovery Reframe</h1><nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
 <section data-panel="ascii" class="active"><pre id="asciiText">loading…</pre></section><section data-panel="json"><pre id="jsonText">loading…</pre></section><section data-panel="video"><video id="player" controls autoplay muted loop playsinline></video></section></main>
-<script>const V={video_chunks}.join("");const A={ascii_chunks}.join("");const J={json_chunks}.join("");async function gunzip64(s){{const b=Uint8Array.from(atob(s),c=>c.charCodeAt(0));const ds=new DecompressionStream("gzip");return await new Response(new Blob([b]).stream().pipeThrough(ds)).text();}}document.getElementById("player").src="data:video/mp4;base64,"+V;Promise.all([gunzip64(A),gunzip64(J)]).then(([a,j])=>{{document.getElementById("asciiText").textContent=a;document.getElementById("jsonText").textContent=JSON.stringify(JSON.parse(j),null,2);}});const b=[...document.querySelectorAll('[data-view]')],p=[...document.querySelectorAll('[data-panel]')];b.forEach(x=>x.onclick=()=>p.forEach(y=>y.classList.toggle('active',y.dataset.panel===x.dataset.view)));</script></body></html>'''
+<script>const V={video_chunks};const A={ascii_chunks};const J={json_chunks};async function gunzip64(s){{const b=Uint8Array.from(atob(s),c=>c.charCodeAt(0));const ds=new DecompressionStream("gzip");return await new Response(new Blob([b]).stream().pipeThrough(ds)).text();}}document.getElementById("player").src="data:video/mp4;base64,"+V;Promise.all([gunzip64(A),gunzip64(J)]).then(([a,j])=>{{document.getElementById("asciiText").textContent=a;document.getElementById("jsonText").textContent=JSON.stringify(JSON.parse(j),null,2);}});const b=[...document.querySelectorAll('[data-view]')],p=[...document.querySelectorAll('[data-panel]')];b.forEach(x=>x.onclick=()=>p.forEach(y=>y.classList.toggle('active',y.dataset.panel===x.dataset.view)));</script></body></html>'''
 
 def main():
     m=json.loads(MOTION.read_text())
