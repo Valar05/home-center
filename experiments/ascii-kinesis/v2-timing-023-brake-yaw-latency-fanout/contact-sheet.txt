@@ -1,0 +1,87 @@
+TIMING023 - BRAKE/YAW LATENCY FANOUT
+Primitive: ORDERED_CAUSAL_FANOUT_WITH_RESIDUAL_MOTION
+Pocket rule: BRAKE OWNS SPEED; YAW OWNS DIRECTION. LET SUPPORT PAY THEM IN ORDER.
+========================================================================================
+K00 INCOMING_CARRY FOURS/4t PROV=INFERRED SUPPORT=LEFT_CARRY SPEED=1.00 YAW=+00 ROOT=(0.00,0.00)
+          O
+         /|____
+      __/ |   _\>
+          @---->
+         / \
+        *   +
+----------------------------------------------------------------------------------------
+K01 TURN_PRELOAD TWOS/2t PROV=INFERRED SUPPORT=LEFT_PRELOAD SPEED=0.76 YAW=+00 ROOT=(1.00,0.00)
+        O
+       /|____
+    __/ |   _\>
+       _@--->
+      /  \
+     *    +
+----------------------------------------------------------------------------------------
+K02 BRAKE_CATCH ONES/1t PROV=INFERRED SUPPORT=BOTH_BRAKE_CATCH SPEED=0.46 YAW=+00 ROOT=(1.62,0.00)
+       O
+   ___/|\___
+      _@_  >
+     /   \
+    *     *
+----------------------------------------------------------------------------------------
+K03 BRAKE_ABSORB STREET_FIGHTER/CAPCOM/4t PROV=INFERRED SUPPORT=BOTH_BRAKE_ABSORB SPEED=0.22 YAW=+00 ROOT=(1.88,0.00)
+      O
+  ___/|\___
+     \@/   .
+    _/ \_
+   *     *
+----------------------------------------------------------------------------------------
+K04 YAW_INIT_AFTER_BRAKE ONES/1t PROV=INFERRED SUPPORT=RIGHT_PIVOT SPEED=0.22 YAW=+25 ROOT=(2.05,0.08)
+        O
+      _/|
+   __/  |
+       _@_  \>
+      /   \
+     +     *
+----------------------------------------------------------------------------------------
+K05 YAW_CROSS_WITH_RESIDUAL_MOTION ONES/1t PROV=INFERRED SUPPORT=RIGHT_PIVOT SPEED=0.22 YAW=+55 ROOT=(2.18,0.20)
+       O
+      /|
+     / |
+   _/  @
+      / \
+     +   *
+        v
+----------------------------------------------------------------------------------------
+K06 YAW_RECEIVE TWOS/2t PROV=INFERRED SUPPORT=RIGHT_RECEIVE SPEED=0.25 YAW=+80 ROOT=(2.24,0.42)
+      O
+      |\
+      | \
+      |  @
+        / \
+       +   *
+         vv
+----------------------------------------------------------------------------------------
+K07 NEW_HEADING_CATCH TWOS/2t PROV=INFERRED SUPPORT=RIGHT_NEW_CATCH SPEED=0.35 YAW=+90 ROOT=(2.24,0.72)
+      O
+     /|\
+      |
+      @
+     / \
+    +   *
+      v
+----------------------------------------------------------------------------------------
+K08 REACCELERATE_NEW_HEADING ONES/1t PROV=INFERRED SUPPORT=LEFT_PUSH SPEED=0.70 YAW=+90 ROOT=(2.24,1.30)
+      O
+     /|\
+    / | \
+      @
+     / \
+    *   +
+      vvv
+----------------------------------------------------------------------------------------
+K09 NEW_HEADING_CARRY FOURS/4t PROV=INFERRED SUPPORT=LEFT_CARRY SPEED=1.00 YAW=+90 ROOT=(2.24,2.35)
+      O
+     /|\
+    / | \
+      @
+     / \
+    *   +
+      vvvvv
+----------------------------------------------------------------------------------------
