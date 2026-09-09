@@ -41,7 +41,6 @@ causal_role=breaks task authority and compresses COM rear/down
 
 
 
-
                     O
                     |
                      \
@@ -62,7 +61,6 @@ causal_role=breaks task authority and compresses COM rear/down
 support/contact=LEFT_REAR_ONLY / right foot airborne
 root/arc=root stays back while exit foot peels
 causal_role=removes old exit support before pivot
-
 
 
 
@@ -91,7 +89,6 @@ causal_role=rear anchor banks root and stores rotational debt
 
 
 
-
                       O
                       |
                        \>
@@ -115,6 +112,29 @@ causal_role=authored bridge: fast root sling before contact
 
 
 
+                           O
+                           |
+                           |
+                           +>
+                         //|\
+                      <o/ |  o
+                          |
+                          @
+                         / \\
+                       //    \o
+                      o        \
+                     /         \
+                     /          R
+      [===========================================]
+
+
+
+[K5] EXIT_CONTACT_REBIND | STREET_FIGHTER-CAPCOM / INFERRED | exposure=3t | E... WAIT
+support/contact=RIGHT_EXIT_ONLY / old rear foot airborne
+root/arc=root accelerates +5 to x31; first readiness bit rebinds
+causal_role=new exit-foot contact exists but does not grant full recovery
+
+
 
                            O
                            |
@@ -133,36 +153,10 @@ causal_role=authored bridge: fast root sling before contact
 
 
 
-[K5] EXIT_CONTACT_REBIND | TWOS / INFERRED | exposure=2t | E... WAIT
-support/contact=RIGHT_EXIT_ONLY / old rear foot airborne
-root/arc=root accelerates +5 to x31; first readiness bit rebinds
-causal_role=new exit-foot contact exists but does not grant full recovery
-
-
-
-
-                                 O
-                                 |
-                                /
-                                +>
-                              //|\
-                           <o/ |  o
-                               @
-                              / \
-                             /   \
-                            o    \
-                           /      o
-                          L       |
-                                   |
-      [===========================================]
-
-
-
-[K6] ROTATIONAL_OVERSHOOT | TWOS / INFERRED | exposure=2t | E... WAIT
+[K6] ROTATIONAL_OVERSHOOT | ONES / INFERRED | exposure=1t | E... WAIT
 support/contact=RIGHT_EXIT_ONLY / left foot airborne
 root/arc=root overtravels +3 to x34; head and guard lag farther right
 causal_role=contact brakes translation but rotation spends remaining debt
-
 
 
                                     O
@@ -190,6 +184,29 @@ causal_role=authored counter-catch arrests overshoot without reverse-playing the
 
 
 
+                               O
+                               |
+                                \
+                               -+ >
+                             o- |\\
+                            <   |  o
+                                @
+                               / \
+                              /  \
+                             o    o
+                            /     |
+                           L       |
+                                   |
+      [===========================================]
+
+
+
+[K8] ORIENTATION_REBIND | STREET_FIGHTER-CAPCOM / INFERRED | exposure=3t | EO.. WAIT
+support/contact=RIGHT_EXIT_ONLY / left foot precontact
+root/arc=root x31; torso squares before second foot or guard
+causal_role=torso/head reacquire threat orientation while support and task remain incomplete
+
+
 
                                O
                                |
@@ -208,36 +225,10 @@ causal_role=authored counter-catch arrests overshoot without reverse-playing the
 
 
 
-[K8] ORIENTATION_REBIND | TWOS / INFERRED | exposure=2t | EO.. WAIT
-support/contact=RIGHT_EXIT_ONLY / left foot precontact
-root/arc=root x31; torso squares before second foot or guard
-causal_role=torso/head reacquire threat orientation while support and task remain incomplete
-
-
-
-
-                              O
-                              |
-                               \
-                               +
-                             </|\>
-                            o  |  o
-                               @
-                              / \
-                              /  \
-                             o    o
-                             |    |
-                            |      |
-                            L      |
-      [===========================================]
-
-
-
-[K9] SECOND_SUPPORT_REBIND | TWOS / INFERRED | exposure=2t | EOS. WAIT
+[K9] SECOND_SUPPORT_REBIND | FOURS / INFERRED | exposure=4t | EOS. WAIT
 support/contact=BILATERAL / widened displaced stance
 root/arc=root sinks to y11; left foot acquires at x27
 causal_role=bilateral support returns after orientation; guard still withheld
-
 
 
 
@@ -266,7 +257,6 @@ causal_role=task channel begins reopening only after body obligations are stable
 
 
 
-
                                O
                                |
                           <    |
@@ -283,11 +273,10 @@ causal_role=task channel begins reopening only after body obligations are stable
 
 
 
-[K11] TASK_REBIND | FOURS / INFERRED | exposure=4t | EOST READY
+[K11] TASK_REBIND | STREET_FIGHTER-CAPCOM / INFERRED | exposure=3t | EOST READY
 support/contact=BILATERAL / displaced
 root/arc=root x31; high-low asymmetric guard opens at new address
 causal_role=guard/task authority returns last; overall readiness becomes true
-
 
 
 
@@ -312,7 +301,6 @@ causal_role=guard/task authority returns last; overall readiness becomes true
 support/contact=BILATERAL / wider and farther right than K0
 root/arc=root x32; shoulder tilt and wider stance retain recovery debt
 causal_role=settle preserves history instead of returning to K0 idle geometry
-
 
 
 
