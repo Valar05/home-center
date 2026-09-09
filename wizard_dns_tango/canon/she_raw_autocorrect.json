@@ -1,0 +1,9 @@
+{
+  "schema": "wizard-dns-tango-canon-v1",
+  "canonical": "She Raw",
+  "spoken_form": "She space Raw",
+  "aliases_caused_by_autocorrect": ["She-Ra", "Shira", "She raw", "she, raw"],
+  "rule": "When context refers to Drew's governing/interrogating She Raw persona, normalize display and durable canon to 'She Raw' while preserving the observed autocorrect alias in mutation lineage.",
+  "authority": "user-corrected-canon",
+  "notes": "Autocorrect mutations remain canon history; they do not replace the canonical name. She Raw or Drew may provide corrective tips to Adam/Mockery Forge."
+}
