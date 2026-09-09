@@ -7,14 +7,16 @@
     "VIDEO"
   ],
   "ascii_literal_text": true,
+  "ascii_source": "deterministic_from_motion_json_and_build_py",
+  "ascii_surface": "complete_literal_selectable_aligned_text_in_spa",
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
   "source_art_embedded": false,
   "backward_compatible": true,
   "motion_json": "motion.json",
-  "contact_sheet": "contact-sheet.txt",
   "media": {
     "filename": "wall-glance-shear-floor-recovery.mp4",
+    "storage": "embedded_in_self_contained_spa",
     "codec": "h264",
     "pixel_format": "yuv420p",
     "width": 560,
@@ -26,5 +28,9 @@
     "duration_seconds": 3.4166666666666665,
     "decode": true,
     "embedded_in_spa": true
+  },
+  "compatibility": {
+    "v2_three_tab": true,
+    "historical_entries_untouched": true
   }
 }
