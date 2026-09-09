@@ -17,5 +17,5 @@ jobs:
           java -version
       - name: Prove private-forge source contract
         run: |
-          bash -n tools/bootstrap_free_cloud_forge.sh
+          bash tools/bootstrap_free_cloud_forge.sh --self-test
           python3 tools/test_home_center_forge_campaign.py
