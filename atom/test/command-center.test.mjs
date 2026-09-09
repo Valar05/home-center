@@ -112,10 +112,30 @@ test('Atom owns the phone command surface and loads Vlad deterministically', asy
   assert.equal(manifest.terminalRequired, false);
   assert.equal(manifest.directChatgptOrchestration, false);
 
+  const index = await readFile(join(atomRoot, 'addons', 'chromium-throne', 'index.html'), 'utf8');
   const addon = await readFile(join(atomRoot, 'addons', 'chromium-throne', 'addon.mjs'), 'utf8');
   assert.equal(addon.includes('chatgpt.com'), false);
   assert.equal(addon.includes('input.type'), false);
   assert.equal(addon.includes('shell.exec'), false);
   assert.match(addon, /Vlad:/);
+
+  assert.match(index, /role="tablist"[^>]*aria-orientation="horizontal"/);
+  for (const view of ['command', 'missions', 'throne', 'receipts', 'diagnostics']) {
+    assert.match(index, new RegExp(`id="tab-${view}"[^>]*role="tab"[^>]*data-view="${view}"[^>]*aria-controls="${view}"`));
+    assert.match(index, new RegExp(`<section id="${view}"[^>]*role="tabpanel"[^>]*aria-labelledby="tab-${view}"`));
+  }
+  assert.match(index, /id="navLive"[^>]*role="status"[^>]*aria-live="polite"[^>]*aria-atomic="true"/);
+  assert.match(addon, /function activateView\(/);
+  assert.match(addon, /tab\.tabIndex=selected\?0:-1/);
+  assert.match(addon, /panel\.hidden=!selected/);
+  assert.match(addon, /ArrowRight/);
+  assert.match(addon, /ArrowLeft/);
+  assert.match(addon, /ArrowDown/);
+  assert.match(addon, /ArrowUp/);
+  assert.match(addon, /Home/);
+  assert.match(addon, /End/);
+  assert.match(addon, /event\.key!==['"]Escape['"]/);
+  assert.match(addon, /Returned to \$\{tab\.textContent\.trim\(\)\} tab\./);
+
   assert.equal(stderr, '');
 });
