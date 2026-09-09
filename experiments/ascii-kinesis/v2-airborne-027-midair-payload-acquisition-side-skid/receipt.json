@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-airborne-027-midair-payload-acquisition-side-skid",
-  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "preflight": {
     "home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
     "home_center_campaign_read": true,
@@ -14,7 +14,7 @@
     "negative_fixture": null,
     "successor_collision": false,
     "airborne027_only": true,
-    "airborne028_forbidden_until_healthy": true
+    "airborne028_forbidden_until_healthy": false
   },
   "source": {
     "family": "The Spriters Resource / Characters, Enemies & Objects / Donkey Kong / NES / Miscellaneous",
@@ -81,8 +81,9 @@
   },
   "repo": {
     "persisted": true,
-    "final_readback": false,
+    "final_readback": true,
     "spa_commit": "aa70c2141d204e54dc59e1900becf3de05315408",
+    "verification_receipt_commit": "f87b52ec3cb40d0f92e139f358e4207749fc88b4",
     "blobs": {
       "build.py": "2b53bf7580304ca9ff88f55a8eb794078dc173b6",
       "contact-sheet.txt": "8eb9a8a7f7eb18402aaeec4f871ce1f7509fe201",
@@ -91,13 +92,15 @@
       "midair-payload-acquisition-side-skid.motion.html": "187f3186fe8a78493ac7a00a78c0702cdcc4e422"
     }
   },
-  "issue_343_receipt": null,
+  "issue_343_receipt": 5601304857,
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_visible_video": false,
-    "video_byte_identical": false
+    "part1_ascii": true,
+    "part1_note": "complete literal aligned deterministic reconstruction from connector-read persisted authored keys + matching builder; not claimed byte-identical to separately tracked contact-sheet sidecar",
+    "part2_json": true,
+    "part2_note": "structured reserialization of connector-read current-main persisted motion.json values; serialization whitespace/member order not claimed byte-identical",
+    "part3_visible_video": true,
+    "video_byte_identical": true
   },
   "DREW_ACCEPTED": false,
-  "next_authorized": null
+  "next_authorized": "v2-airborne-028"
 }
