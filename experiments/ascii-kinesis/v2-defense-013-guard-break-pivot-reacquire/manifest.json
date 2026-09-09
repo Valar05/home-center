@@ -2,6 +2,18 @@
   "ascii_literal_text": true,
   "ascii_sha256": "8f4214e06ae02737220b4deae174c904bb15076ea94e76a6795f81af2e1f3ba9",
   "ascii_surface": "real preformatted DOM text",
+  "authoritative_media": {
+    "bytes": 15701,
+    "codec": "h264",
+    "decode": "fresh current-worker deterministic reconstruction matched byte-for-byte and was visually inspected",
+    "duration_seconds": 1.375,
+    "fps": "24/1",
+    "frames": 33,
+    "height": 450,
+    "role": "quality and motion identity",
+    "sha256": "f4d71f4804316e08be1225373ead9a1c0b62e4cf4f21836c58e5571a8ec3ac26",
+    "width": 800
+  },
   "backward_compatible": true,
   "compatibility": {
     "backward_compatible": true,
@@ -74,27 +86,26 @@
   ],
   "principle": "A guard break can preserve threat-facing authority by converting linear recoil into a support-owned pivot; the exit plant arrests rotation before the guard fully reopens.",
   "quality_gates": {
+    "history": {
+      "prior_noodle_queen": "PASS on corrected authoritative render",
+      "tango_iteration_1": "REVISE_REQUIRED: old rear foot visually remained on floor during declared EXIT_FOOT support; corrected in same 013 body by lifting it through K08..K10 and exaggerating head/guard lag plus free-leg sweep.",
+      "tango_iteration_2": "PASS on corrected authoritative render"
+    },
     "noodle_queen": {
       "actual_render_inspected": true,
-      "contempt": "It does not read as mannequin symmetry, equalized spacing, planted-feet theater, straight tweening, reverse interpolation, floating guard, or an idle reset.",
-      "function": "Support ownership, root travel, guard authority, first plant, rotational overshoot, counter-travel, restack, and late guard recovery remain causally legible.",
+      "contempt": "The final render does not read as mannequin symmetry, equal spacing, planted-feet theater, straight tweening, floating guard, reverse interpolation, idle reset, or placeholder connectors.",
+      "function": "Support ownership, root travel, guard authority, exit plant, overshoot/counter-rotation, reacquisition, and late guard recovery are causally legible.",
       "status": "PASS",
-      "taste": "The compression-to-pivot phrase has a specific hooked silhouette and threat-facing guard attitude rather than a generic backstep."
+      "taste": "Compression-to-pivot has a specific hooked silhouette and threat-facing guard attitude rather than a generic backstep."
     },
-    "tango": "PASS",
-    "tango_iteration_1": {
-      "correction": "Lift the old rear foot in D013-K08..K10 until D013-K11 reacquisition, and exaggerate D013-K06..K07 head/guard lag plus free-leg sweep so rear-anchor rotation is visibly distinct from a lateral slide.",
-      "highest_value_visible_defect": "During the first single-exit-foot support phase, the old rear foot still sat on the floor in the rendered ASCII, contradicting declared support ownership and making the pivot read as planted-feet theater.",
-      "status": "REVISE_REQUIRED"
-    },
-    "tango_iteration_2": {
+    "tango": {
       "actual_render_inspected": true,
-      "judgment": "Final 33-frame render reads as asymmetrical brace -> guard crush -> rear-anchor pivot -> visible cross-body sweep -> honest single-foot exit plant -> rotational overshoot -> counter-rotation -> second-foot reacquisition -> late guard reopen -> secondary settle -> displaced ready debt. The corrected old rear foot is visibly clear of the floor during EXIT_FOOT ownership, and contact is not farthest reach.",
+      "judgment": "Fresh current-worker inspection of the byte-identical authoritative 33-frame render reads asymmetrical brace -> guard crush -> rear-anchor pivot -> cross-body sweep -> honest EXIT_FOOT plant with old rear foot airborne -> rotational overshoot -> counter-rotation -> second-foot reacquisition -> late guard reopen -> secondary settle -> displaced ready debt.",
       "status": "PASS"
     }
   },
-  "receipt_status": "QUALITY_GATES_PASS / REPO_READBACK_REQUIRED / CHAT_DELIVERY_REQUIRED",
-  "reconstruction": "python3 build.py",
+  "receipt_status": "QUALITY_GATES_PASS / SPA_PERSISTED / POST_WRITE_READBACK_REQUIRED / ISSUE_RECEIPT_REQUIRED / CHAT_DELIVERY_REQUIRED",
+  "reconstruction": "python3 build.py reconstructs the authoritative 800x450 Motion Dungeon render from motion.json",
   "revision": {
     "fresh_source_family": "TSR asset 5555 / M. Bison / SSFII SNES",
     "kind": "NEW_CONCEPT_POST_RESET",
@@ -140,9 +151,22 @@
     }
   },
   "source_art_embedded": false,
+  "spa_presentation_media": {
+    "byte_identical_to_authoritative": false,
+    "bytes": 7392,
+    "codec": "h264",
+    "derivation": "deterministic transcode of the byte-identical authoritative abstract-ASCII render; no source pixels; no authored motion changes",
+    "duration_seconds": 1.375,
+    "fps": "24/1",
+    "frames": 33,
+    "height": 270,
+    "role": "offline VIDEO-tab presentation only",
+    "sha256": "02a58563d1ac58a28a7e0cea8d0b64afdcc52e4a2029cae432ac3ff7e4bc637c",
+    "width": 480
+  },
   "timing_provenance_required": true,
   "tracked_media_sidecar": false,
-  "video_packaging": "authoritative embedded MP4 data URI in SPA",
+  "video_packaging": "SPA embeds a deterministic presentation transcode of the authoritative abstract-ASCII Motion Dungeon render; authored frames/keys are unchanged; presentation bytes are explicitly non-byte-identical",
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
   "whitespace_preserved": true
