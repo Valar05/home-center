@@ -1,0 +1,200 @@
+v2-contact-017-distal-tool-brace-load-path
+DISTAL TOOL CONTACT CAN ADD A SECOND CONSTRAINT WITHOUT CHANGING HAND CUSTODY; THE LOAD PATH MUST CLOSE THROUGH BODY SUPPORT BEFORE THE TOOL TIP CAN BEAR FORCE, THEN UNLOAD BEFORE TIP RELEASE.
+REVISION: NEW_CONCEPT | revises=null | negative_fixture=null | source_change=NOT_APPLICABLE_NEW_CONCEPT
+SOURCE: TSR asset 2879 Hammer Kirby / Kirby Super Star / SNES — whole-family commissioned campaign evidence inspected; source-authentic timing UNKNOWN.
+SOURCE ROLE: POSE_REFERENCE + CONTACT_REFERENCE only; NOT_TIMING_REFERENCE.
+RIGHTS: evidence only; no source pixels/palette/costume/contours/layout/tracing/choreography/redistribution/close imitation.
+TIMING: every decisive key INFERRED / STREET_FIGHTER-CAPCOM; ONES/TWOS/FOURS are display classes.
+VISIBLE LAW: H=generic tool head, #=loaded support/contact anchor, dotted ground span=closed serial load path, o at tip=touching but deliberately unloaded. Hand custody remains A_PRIMARY throughout.
+==========================================================================
+K0 READY_TOOL_FREE [FOURS/INFERRED]
+tool_contact=NONE | tool_custody=A_PRIMARY | support=BOTH_FEET
+force_owner=GROUND_FEET | normal_force=0 | role=Readable pre-action tool custody with distal end clearly free.
+arc=upright read; tool high and forward
+
+                A
+                |           ===
+                |\--- ===
+                 | *
+                 |
+                / \
+               /    \
+             /        \
+            /          \
+___________^____________^___________________________________
+==========================================================================
+K1 REAR_PLANT_ELIGIBILITY [FOURS/INFERRED]
+tool_contact=NONE | tool_custody=A_PRIMARY | support=REAR_DOMINANT_STATIC
+force_owner=GROUND_REAR_FOOT | normal_force=0 | role=Rear plant and root stack become eligible before distal contact; coil spends height and creates a wide force base.
+arc=root sinks back while tool remains clear
+
+
+                  A
+                  |            ====
+                  |\ --*====
+                 |
+                 X
+               /    \
+              o        o
+            /            \
+__________^_______________^_________________________________
+==========================================================================
+K2 COMMIT_DESCENT_PRECONTACT [ONES/INFERRED]
+tool_contact=NONE | tool_custody=A_PRIMARY | support=REAR_DOMINANT
+force_owner=GROUND_REAR_FOOT | normal_force=0 | role=Body and tool commit toward ground while a visible distal gap remains.
+arc=tool descends fast; pelvis advances later than hands
+
+
+                     A
+                      |
+                      |\
+                     | *==*
+                     X        ===
+                  //   \\            ====
+                o         o
+              /             \
+____________^________________^______________________________
+==========================================================================
+K3 TIP_FIRST_CONTACT [ONES/INFERRED]
+tool_contact=TIP_POINT_ACQUIRE | tool_custody=A_PRIMARY | support=REAR_FOOT_PLUS_FRONT_TOUCH
+force_owner=GROUND_TIP_ONSET | normal_force=2 | role=Authored distal contact event; hand custody does not change and rear support remains the closing anchor.
+arc=tip arrives at ground before deep body compression
+
+
+
+                       |
+                        O
+                        |\ \\
+                       |     ==
+                     // \\       ==
+                  o         o        ==
+                /             \          ==   ^
+______________^________________^_____________=H_____________
+==========================================================================
+K4 SERIAL_CHAIN_LOAD_BUILD [TWOS/INFERRED]
+tool_contact=TIP_PINNED_LOAD | tool_custody=A_PRIMARY | support=REAR_FOOT_PLUS_TOOL
+force_owner=GROUND_TIP_AND_REAR_FOOT | normal_force=4 | role=Tip stays fixed while root continues into the rigid tool, visibly shortening/folding the body-tool chain.
+arc=pelvis moves into fixed distal anchor; rear foot stays planted
+
+
+
+                         |
+                          |
+                          |\
+                         |  * \
+                       -X       ==
+                  o-       \\       ==        ^
+               //             \          ==   !
+_____________^..................^............=H_____________
+==========================================================================
+K5 BRACE_LOAD_MAX [FOURS/INFERRED]
+tool_contact=TIP_PINNED_LOAD | tool_custody=A_PRIMARY | support=REAR_FOOT_PLUS_TOOL_FRONT_LIGHT
+force_owner=CLOSED_SERIAL_FORCE_LOOP | normal_force=7 | role=Maximum asymmetrical brace: wide rear-foot-to-tool base, cross-body compression, tool and body both bearing consequence.
+arc=root lowest; tool shaft and rear leg oppose each other
+
+
+
+                         A
+                          |
+                           O
+                          / \\\
+                         /      *=            ^
+                 o---    --         ==        !
+              //             -o          ==   !
+____________^....................^...........=H_____________
+==========================================================================
+K6 DISTAL_UNLOAD_THRESHOLD [TWOS/INFERRED]
+tool_contact=TIP_TOUCH_UNLOADED | tool_custody=A_PRIMARY | support=REAR_FOOT_RETAINS
+force_owner=GROUND_REAR_FOOT_ONLY | normal_force=0 | role=Distal force is deliberately unloaded while tip geometry still touches; torso begins retreat before release.
+arc=body rises/backtracks around still-touching tip; load arrow disappears
+
+
+
+                        |
+                         |
+                        / --
+                       /    * =*
+                     -X          ==
+                 o-      --          ==
+               /             \           ==
+_____________^__________________^____________=H_____________
+==========================================================================
+K7 TIP_RELEASE_FORK [ONES/INFERRED]
+tool_contact=NONE_RELEASED | tool_custody=A_PRIMARY | support=REAR_TO_BOTH_TRANSITION
+force_owner=GROUND_FEET | normal_force=0 | role=Tip separates only after unload; hand custody remains continuous and tool begins lagging behind body recoil.
+arc=gap opens at tip while root retreats faster than tool head
+
+
+                     A
+                      |
+                       O
+                      /  \--
+                     /        ==
+                   / --           ==
+                o        -o            ==
+              /             \              =H
+_____________^________________^_____________________________
+==========================================================================
+K8 BODY_RECOIL_TOOL_LAG [TWOS/INFERRED]
+tool_contact=NONE | tool_custody=A_PRIMARY | support=BOTH_FEET_UNSTABLE
+force_owner=GROUND_FEET | normal_force=0 | role=Body recoils first while heavy distal tool visibly trails, preserving opposite secondary lag.
+arc=root moves left/up; tool head remains far right/low
+
+
+                   |
+                    |
+                    |--
+                   |  \  -*
+                  X       ===
+                /    --         ====
+              o          \             =H
+             |            \
+____________^______________^________________________________
+==========================================================================
+K9 CATCH_AND_TOOL_OVERSHOOT [ONES/INFERRED]
+tool_contact=NONE | tool_custody=A_PRIMARY | support=FRONT_CATCH_PLUS_REAR
+force_owner=GROUND_CATCH | normal_force=0 | role=New support catch arrests body while tool overshoots upward through the hands.
+arc=tool head swings high as feet shorten root travel
+
+                 A
+                 |           ==
+                 O-      ==
+                 |\  =*
+                |
+                X
+              /    \\
+             o       |
+           /          |
+__________^____________^____________________________________
+==========================================================================
+K10 TORSO_COUNTER_OVERSHOOT [TWOS/INFERRED]
+tool_contact=NONE | tool_custody=A_PRIMARY | support=BOTH_FEET_BRAKE
+force_owner=GROUND_BRAKE | normal_force=0 | role=Torso counter-overshoots after the tool; recovery is not reverse interpolation.
+arc=head/shoulder pass behind pelvis while tool completes high arc
+
+             |           //
+              |       //
+              |\-- //
+               |*
+               |
+              / \
+             /    \
+           /       |
+          /         |
+_________^___________^______________________________________
+==========================================================================
+K11 SETTLE_DISPLACED [FOURS/INFERRED]
+tool_contact=NONE | tool_custody=A_PRIMARY | support=BOTH_FEET_STABLE
+force_owner=GROUND_FEET | normal_force=0 | role=Stable displaced recovery debt is paid without returning to K0 position or symmetry.
+arc=compact re-entry left of start; tool custody intact
+
+              A
+              |             =H
+              |\--  ====
+              | *
+              |
+             / \
+            /     \
+          /        |
+         /          |
+________^____________^______________________________________
