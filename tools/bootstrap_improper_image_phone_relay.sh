@@ -2,8 +2,9 @@
 set -euo pipefail
 
 # Bootstrap invariant: relay recovery must not depend on Git LFS payload
-# availability. Only deterministic executable source plus the single contract
-# document required by the acceptance test are materialized on the phone.
+# availability. Only deterministic executable source is checked out. The one
+# Markdown file needed by the contract test is materialized with `git show`,
+# which reads the Git blob directly and never asks LFS to smudge a checkout.
 export GIT_LFS_SKIP_SMUDGE=1
 export GIT_CONFIG_COUNT=2
 export GIT_CONFIG_KEY_0=filter.lfs.smudge
@@ -15,6 +16,7 @@ TARGET_SHA="dd6d89c6bc6e4326dad6a348b868578df1b3e4fe"
 STATE="$HOME/.local/state/home-center/improper-image-delivery"
 SOURCE="$STATE/bootstrap-source"
 LEGACY_WORKTREE="$HOME/.cache/fortress/improper-image-${TARGET_SHA:0:8}"
+DOC_REL="docs/IMPROPER_IMAGE_DELIVERY_CAMPAIGN.md"
 mkdir -p "$STATE" "$(dirname "$LEGACY_WORKTREE")"
 
 [ -f "$HOME/.config/home-center/codex-hub.json" ] || {
@@ -38,16 +40,20 @@ fi
 rm -rf "$LEGACY_WORKTREE"
 git worktree prune
 
-# Non-cone sparse patterns select the complete tools tree and exactly one docs
-# file required by test_improper_image_delivery_contract.py. Evidence assets are
-# not selected, so the broken/missing LFS objects cannot participate.
-git sparse-checkout set --no-cone '/tools/' '/docs/IMPROPER_IMAGE_DELIVERY_CAMPAIGN.md'
+# Normalize any sparse state left by prior attempts. Cone mode selects only the
+# deterministic tools tree; evidence images under docs/evidence are unreachable.
+git sparse-checkout set --cone tools
 git checkout --detach --force "$TARGET_SHA"
+
+# The contract test audits this exact Markdown file. Read the plain Git blob
+# directly instead of widening the sparse checkout into docs/.
+mkdir -p "$SOURCE/docs"
+git show "$TARGET_SHA:$DOC_REL" > "$SOURCE/$DOC_REL"
 
 test -f "$SOURCE/tools/test_improper_image_delivery_contract.py"
 test -f "$SOURCE/tools/setup_android_phone_home_center_relay.sh"
 test -f "$SOURCE/tools/android_phone_home_center_relay.py"
-test -f "$SOURCE/docs/IMPROPER_IMAGE_DELIVERY_CAMPAIGN.md"
+test -s "$SOURCE/$DOC_REL"
 
 python3 "$SOURCE/tools/test_improper_image_delivery_contract.py"
 bash "$SOURCE/tools/setup_android_phone_home_center_relay.sh"
@@ -55,7 +61,8 @@ bash "$SOURCE/tools/setup_android_phone_home_center_relay.sh"
 cat <<EOF
 HOME CENTER PHONE RELAY RETURNED
 Pinned source: $TARGET_SHA
-Sparse surface: tools/ + docs/IMPROPER_IMAGE_DELIVERY_CAMPAIGN.md
+Checkout surface: tools/ only
+Contract doc: materialized directly from pinned Git blob
 LFS surface: excluded
 Queued image canary: phc_improper_image_dd6d89c6_canary_v1
 Do not run another repair or image script. Return to ChatGPT/Home Center so the queued canary receipt can be consumed.
