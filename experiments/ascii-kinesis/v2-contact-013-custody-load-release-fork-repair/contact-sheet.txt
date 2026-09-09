@@ -1,0 +1,399 @@
+v2-contact-013-custody-load-release-fork-repair
+CUSTODY LATCHES BEFORE LOAD, STAYS UNBROKEN THROUGH LOAD_MAX, AND RELEASES AS A DISTINCT CLOCK FORK; ONLY THEN MAY PAYLOAD LAG AND BODY RECOIL DIVERGE.
+REVISION: revises=experiments/ascii-kinesis/v2-contact-006-custody-latch-load-release/ | negative_fixture=experiments/ascii-kinesis/v2-contact-006-custody-latch-load-release/ | source_change=false.
+SOURCE EVIDENCE: TSR asset 566037, Buffo — Mina the Hollower — PC / Computer; archive SHA-256 339c0d3308fe51ce303ae4673798d3015e0022b9291fbfcd1fcba1209d7a2443; 18 items (16 non-palette PNG + 2 palette); source timing/order unavailable.
+RIGHTS: evidence only; independent abstract ASCII rig; no source pixels/palette/layout/contours/tracing/choreography/redistribution/close imitation; Drew work not used.
+TIMING: ONES/TWOS/FOURS are display classes, never seconds; every decisive key INFERRED / STREET_FIGHTER-CAPCOM.
+VISIBLE LAW: @ is the custody seam; # is the current root pin; [Q] is the abstract payload. [Q] may not lead an independent clock until C013-K7 RELEASE.
+================================================================================================
+C013-K0  FREE_ASYMMETRIC_READY  [FOURS/INFERRED]
+contact=NONE | custody=NONE | support=A:BOTH | root=SEPARATE
+payload=FREE_GROUNDED | release_gate=CLOSED | support_phase=BOTH | force=[0, 0] | anchor=None | pin=None
+role=Carrier and payload begin as two independent systems; A is already oblique rather than mannequin-neutral.
+arc=Wide negative space; payload rests ahead/right while A rear side is visibly loaded.
+
+
+
+
+
+
+                    A
+                    |
+                     |
+                     O-
+                   //| ----
+                 // |      -*
+                *   |
+                   |
+                   X
+                  / \
+                  / \
+                 /   \
+                /     \
+                /     \                                  [Q]
+_______________^_______^________________________________________________________________________
+
+
+
+
+================================================================================================
+C013-K1  APPROACH_AND_DEEP_ACQUISITION_COIL  [FOURS/INFERRED]
+contact=NONE | custody=NONE | support=A:BOTH | root=SEPARATE
+payload=FREE_GROUNDED | release_gate=CLOSED | support_phase=BOTH | force=[0, 0] | anchor=None | pin=None
+role=A lowers COM and widens base before contact; reaching hand stays bent and short of the payload.
+arc=Lead hand arcs down/forward while rear hand and pelvis countercoil down/back; no contact-at-farthest-reach.
+
+
+
+
+
+
+
+                                A
+                                 \
+                                 \
+                                 -O-
+                               --/  ----
+                             --  /      ----
+                           --   /           --*
+                         *-     /
+                               X
+                             -- --
+                           --     --
+                         --         --                 [Q]
+________________________^______________^________________________________________________________
+
+
+
+
+================================================================================================
+C013-K2  ACQUIRE_ONE_ANCHOR  [ONES/INFERRED]
+contact=ONE_ANCHOR | custody=A_NEGOTIATING | support=A:BOTH | root=SEPARATE
+payload=FREE_GROUNDED | release_gate=CLOSED | support_phase=BOTH | force=[4, 1] | anchor=[51, 17] | pin=None
+role=Grip acquisition is an authored event while both feet still own ground; payload has not yet become a carried load.
+arc=The @ seam appears inside A's reach envelope with a flexed arm; payload is still low and close.
+
+
+
+
+
+
+
+                                    A
+                                     \
+                                     \
+                                     -O-
+                                  ---/  --
+                              ----  /     ---
+                            *-      /        ---
+                                   /            --
+                                  X               -@=
+                                -- --                [Q]
+                              --     --
+                            --         --
+___________________________^______________^_____________________________________________________
+
+
+
+
+================================================================================================
+C013-K3  LATCH_CUSTODY_AND_PIN_REAR_ROOT  [TWOS/INFERRED]
+contact=LATCHED | custody=A_PRIMARY | support=A:BOTH_REAR_PIN | root=A:foot_b@27,21
+payload=LATCHED_CARRY | release_gate=CLOSED | support_phase=REAR_PIN | force=[5, 1] | anchor=[50, 12] | pin=[27, 21]
+role=Custody becomes discrete A_PRIMARY before the large load; rear foot is now explicit world anchor.
+arc=A rises under the payload while torso counterleans left of the carried mass; front foot remains available.
+
+
+
+
+
+                                   A
+                                    \
+                                    \
+                                   --O--
+                               ---- |   ----
+                            *--     |       ----
+                                   |            --@==
+                                   |                [Q]>
+                                  |
+                                  X
+                                 / \\
+                                /    \
+                              //      \\
+                             /          \
+                            /            \\
+___________________________#_______________^____________________________________________________
+
+
+
+
+================================================================================================
+C013-K4  CARRY_CROSSBODY_LEVER  [TWOS/INFERRED]
+contact=LATCHED | custody=A_PRIMARY | support=A:BOTH_REAR_PIN | root=A:foot_b@27,21
+payload=LATCHED_CARRY | release_gate=CLOSED | support_phase=REAR_PIN | force=[-4, -1] | anchor=[43, 10] | pin=[27, 21]
+role=A translates the latched payload across the torso while the rear root remains invariant; body must reorganize under the carried mass.
+arc=Payload crosses above/behind the pelvis; free hand opens opposite the load, making leverage visibly asymmetric.
+
+
+
+
+
+
+                                       A
+                                       <==
+                                       | -=@=[Q]
+                                      -O-
+                                   ---/
+                                 --  /
+                              ---   /
+                            *-      /
+                                   /
+                                  X-
+                                --  ---
+                              --       --
+                            --           ---
+___________________________#_________________^__________________________________________________
+
+
+
+
+================================================================================================
+C013-K5  LOAD_MAX_REAR_PIN  [FOURS/INFERRED]
+contact=LATCHED | custody=A_PRIMARY | support=A:REAR_PIN_FRONT_LIGHT | root=A:foot_b@27,21
+payload=LATCHED_LOAD | release_gate=CLOSED | support_phase=REAR_PIN | force=[-7, 0] | anchor=[33, 11] | pin=[27, 21]
+role=LOAD_MAX parks the payload behind the body while A sinks toward the pinned rear root; front support becomes light but custody stays unbroken.
+arc=Payload and lead hand sit behind the shoulder line; torso and pelvis counter-rotate right, storing a visible throw spring.
+
+
+
+
+
+
+
+
+                             [Q]          A
+                          <======@-      /
+                                   ----  /
+                                       -O--
+                                       /   ----
+                                      /        --*
+                                     /
+                                    /
+                                  -X--
+                                --    ----
+                             ---          ----
+___________________________#____________________^_______________________________________________
+
+
+
+
+================================================================================================
+C013-K6  RELEASE_THRESHOLD_HELD  [FOURS/INFERRED]
+contact=LATCHED | custody=A_PRIMARY | support=A:REAR_PIN_FRONT_DRIVE | root=A:foot_b@27,21
+payload=LATCHED_LOAD | release_gate=ARMED_NOT_RELEASED | support_phase=REAR_PIN | force=[8, 0] | anchor=[49, 10] | pin=[27, 21]
+role=A drives out of LOAD_MAX but deliberately holds the release threshold; the payload is still latched and cannot lead yet.
+arc=Pelvis/shoulder shift right ahead of the payload while the rear pin survives; this long held threshold separates load from release.
+
+
+
+
+
+
+                                           A
+                                            \
+                                            \  --@=[Q]===>
+                                            -O-
+                                         ---/
+                                     ----  /
+                                  ---     /
+                                *-       /
+                                        /
+                                      -X-
+                                   ---   --
+                                ---        ---
+                             ---              --
+___________________________#_____________________^______________________________________________
+
+
+
+
+================================================================================================
+C013-K7  EXPLICIT_RELEASE_CLOCK_FORK  [ONES/INFERRED]
+contact=RELEASED | custody=NONE | support=A:FRONT_DRIVE_REAR_PEEL | root=A:foot_f@52,21
+payload=FREE_FLIGHT | release_gate=OPENED | support_phase=FRONT_DRIVE | force=[10, -1] | anchor=None | pin=[52, 21]
+role=Release is a separate authored causal event: custody opens only here as A transfers root ownership forward.
+arc=Throwing hand snaps ahead of the shoulder; payload begins a free trajectory while rear support peels.
+
+
+
+
+
+
+                                               A
+                                                \        --* [Q]
+                                                \   -----
+                                                -O--
+                                             ---/
+                                          ---  /
+                                       ---    /
+                                     *-      /
+                                            /
+                                          -X-
+                                      ----   --
+                                  ----         --
+                                ^-               --
+____________________________________________________#___________________________________________
+
+
+
+
+================================================================================================
+C013-K8  PAYLOAD_LAG_BODY_RECOIL_SPLIT  [ONES/INFERRED]
+contact=NONE | custody=NONE | support=A:FRONT_CATCH_REAR_TRAIL | root=A:foot_f@52,21
+payload=FREE_FLIGHT | release_gate=OPEN | support_phase=FRONT_CATCH | force=[-6, 1] | anchor=None | pin=[52, 21]
+role=Only after release does the payload lag independently; A recoils opposite the outgoing line while keeping the front catch.
+arc=Payload advances modestly as A shoulder/hand recoil left/down; free hand whips backward/up as secondary counter-motion.
+
+
+
+
+
+
+                                                                 [Q]
+                                             A
+                                    *--      |
+                                       -----  |
+                                            --O--------*
+                                              |
+                                             |
+                                             |
+                                             |
+                                            |
+                                           -X-
+                                       ----   --
+                                    ^--         ---
+____________________________________________________#___________________________________________
+
+
+
+
+================================================================================================
+C013-K9  PAYLOAD_LEADS_BODY_FOLLOWTHROUGH  [TWOS/INFERRED]
+contact=NONE | custody=NONE | support=A:FRONT_CATCH_REAR_TRAIL | root=A:foot_f@52,21
+payload=FREE_FLIGHT | release_gate=OPEN | support_phase=FRONT_CATCH | force=[0, 0] | anchor=None | pin=[52, 21]
+role=The payload now clearly outruns the body; A re-enters follow-through from recoil instead of reverse-playing the throw.
+arc=Payload arc descends right; throwing hand trails lower on a separate body clock while pelvis continues to spend forward debt.
+
+
+
+
+
+
+
+
+                                                 A
+                                       *--       |                         [Q]
+                                          ------  |
+                                                --O-
+                                                  | ----
+                                                 |      ----
+                                                 |          --*
+                                                |
+                                              --X
+                                          ----   \
+                                       ^--        \\
+____________________________________________________#___________________________________________
+
+
+
+
+================================================================================================
+C013-K10  PAYLOAD_GROUND_CONTACT_BODY_OVERSHOOT  [ONES/INFERRED]
+contact=NONE | custody=NONE | support=A:FRONT_CATCH_REAR_TRAIL | root=A:foot_f@56,21
+payload=GROUND_CONTACT | release_gate=OPEN | support_phase=FRONT_CATCH | force=[0, 0] | anchor=None | pin=[56, 21]
+role=Payload ground contact is authored separately from A's support; A torso overshoots past the front catch instead of snapping upright.
+arc=Head/shoulder continue right beyond pelvis as payload reaches ground; rear leg remains late.
+
+
+
+
+
+
+                                                             A
+                                                            /
+                                                           /
+                                              *-----      /
+                                                    -----O-
+                                                        /  ---
+                                                       /      ---
+                                                       /         -*
+                                                      /
+                                                    -X
+                                                 ---  \
+                                              ---      \
+                                           ---         \                         [Q]
+_________________________________________^______________#_______________________________________
+
+
+
+
+================================================================================================
+C013-K11  PAYLOAD_BOUNCE_SECONDARY_LAG_BODY_CATCH  [TWOS/INFERRED]
+contact=NONE | custody=NONE | support=A:BOTH_STAGGERED | root=SEPARATE_AFTER_RELEASE
+payload=SETTLING | release_gate=OPEN | support_phase=BOTH_STAGGERED | force=[0, 0] | anchor=None | pin=None
+role=Payload rebound is smaller and late while A's second support arrives; free hand remains behind the catch as secondary lag.
+arc=Object rises slightly back/left; A base widens without neutralizing the residual torso pitch.
+
+
+
+
+
+
+
+                                                        A
+                                            *--        /
+                                               -----   /
+                                                    --O--
+                                                      |  ------
+                                                     |         --*
+                                                     |
+                                                    |
+                                                   -X                         [Q]
+                                                 --  \
+                                               --     \
+                                             --        \
+___________________________________________^____________^_______________________________________
+
+
+
+
+================================================================================================
+C013-K12  SETTLE_WITH_DISPLACED_RECOVERY_DEBT  [FOURS/INFERRED]
+contact=NONE | custody=NONE | support=A:RECOVERED_DISPLACED | root=SEPARATE_DISPLACED_DEBT_UNPAID
+payload=SETTLED | release_gate=OPEN | support_phase=RECOVERED_DISPLACED | force=[0, 0] | anchor=None | pin=None
+role=Payload settles, but A does not return to idle: the final torso remains pitched over the throw-side address, the free hand trails high/back, and the base stays displaced.
+arc=Final head/shoulder line remains forward of pelvis while the trailing hand and rear foot lag behind; recovery debt is visible rather than semantic-only.
+
+
+
+
+
+
+
+                                                          A
+                                           *---          /
+                                               ------   /
+                                                     --O
+                                                      / --
+                                                     /    --
+                                                     /      --
+                                                    /         --
+                                                   X            *
+                                                 // \\
+                                                /     \
+                                              //       \\                       [Q]
+_____________________________________________^___________^______________________________________
+
+
+
+
