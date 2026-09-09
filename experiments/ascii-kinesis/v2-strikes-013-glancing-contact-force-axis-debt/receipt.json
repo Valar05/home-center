@@ -1,0 +1,16 @@
+{
+  "schema": "ascii-kinesis.receipt-v2",
+  "status": "CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "experiment_id": "v2-strikes-013-glancing-contact-force-axis-debt",
+  "one_body_rule": "BIND_THIS_013_UNTIL_HEALTHY",
+  "strikes014_forbidden": true,
+  "preflight": {"home_center_campaign": "PASS_CURRENT_WORKER", "github_persistence_readback": "PASS_CURRENT_WORKER_CAPABILITY"},
+  "source": {"asset_id": "216747", "campaign_receipt": 5570672329, "timing": "UNKNOWN_SOURCE_AUTHENTIC / INFERRED_AUTHORED"},
+  "media": {"codec": "H.264", "pixel_format": "yuv420p", "width": 880, "height": 440, "fps": 24, "authoritative": "embedded_spa_mp4", "sha256": "69c49f9290c879c4b6e272fe21ceeddab8dd0b2ab779cddb67df37231cf145a6", "bytes": 21124, "frames": 53, "duration_seconds": 2.2083333333333335, "decode": "PASS_CURRENT_WORKER_FFPROBE_AND_DECODED_FRAME_INSPECTION"},
+  "quality": {"tango": "PASS_CURRENT_WORKER_ACTUAL_RENDER", "queen": "PASS_TASTE_FUNCTION_CONTEMPT_AFTER_TANGO_SAME_MEDIA"},
+  "repo": {"persistence": "PENDING", "readback": "PENDING", "final_readback": "PENDING"},
+  "issue": {"pre_chat_receipt": null, "user_surface_closure": null, "final_readback_addendum": null},
+  "chat_delivery": {"ascii": false, "json": false, "video": false, "ordered": false},
+  "DREW_ACCEPTED": false,
+  "next_authorized": null
+}
