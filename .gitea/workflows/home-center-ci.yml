@@ -6,11 +6,24 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     runs-on: forge-linux-free
+    env:
+      GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out from this private Gitea instance
+        run: |
+          set -eu
+          work="$GITHUB_WORKSPACE/repo"
+          rm -rf "$work"
+          git -c http.extraHeader="Authorization: token ${GITEA_TOKEN}" \
+            clone --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$work"
+          git -C "$work" fetch --no-tags origin "$GITHUB_SHA"
+          git -C "$work" checkout --detach "$GITHUB_SHA"
       - name: Runtime identity
         run: |
           printf 'runner=forge-linux-free\n'
@@ -19,9 +32,14 @@ jobs:
           python3 --version
           java -version
       - name: Install function dependencies
-        run: npm --prefix functions ci
+        run: |
+          cd "$GITHUB_WORKSPACE/repo"
+          npm --prefix functions ci
       - name: Install optional browser worker dependencies
         run: |
+          cd "$GITHUB_WORKSPACE/repo"
           if [ -f browser-worker/package-lock.json ]; then npm --prefix browser-worker ci; fi
       - name: Run Home Center validation
-        run: sh tools/home_center_ci_validate.sh
+        run: |
+          cd "$GITHUB_WORKSPACE/repo"
+          sh tools/home_center_ci_validate.sh
