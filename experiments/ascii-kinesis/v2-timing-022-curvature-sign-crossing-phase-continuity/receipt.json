@@ -6,7 +6,7 @@
     "part3_video": false
   },
   "contract": {
-    "candidate_isolated": "PENDING",
+    "candidate_isolated": "PASS_BY_DIRECT_PERSISTED_PREDICATE_READBACK_STANDARD_CHAT_NO_CHECKOUT_EXECUTION",
     "repo_global": "UNCLAIMED_STANDARD_CHAT_NO_CHECKOUT",
     "validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78"
   },
@@ -35,17 +35,20 @@
   "quality": {
     "current_worker_actual_render_inspection": "PASS",
     "queen": "PASS",
+    "queen_basis": "positive-bank unwind crosses through a one-tick zero-curvature right catch without gait reset; negative bank is rebuilt under continuing alternating support; final tangent remains displaced",
     "same_actual_render": true,
     "tango": "PASS",
     "tango_highest_value_defect": "NONE"
   },
   "repo": {
-    "exact_six_file_readback": false,
+    "exact_six_file_readback": true,
+    "manifest_reconciliation_commit": "c0ac563be7a86e1aedd7b8f0886fe9eee26a9d4c",
+    "motion_blob": "df6ec6fc24df921de3477509b3c72e18d109cb04",
     "path": "experiments/ascii-kinesis/v2-timing-022-curvature-sign-crossing-phase-continuity/",
-    "persisted": false,
-    "repo_readback": false,
-    "ship_commit": null,
-    "spa_blob": null
+    "persisted": true,
+    "repo_readback": true,
+    "ship_commit": "b55b1ea7cfc50a5d1e76c8a0ef3bcd4a9b378059",
+    "spa_blob": "25f54cfef46d472540a4a520c43581aaff345c91"
   },
   "schema": "ascii-kinesis.receipt-v2",
   "source": {
@@ -60,6 +63,6 @@
     "timing_provenance": "INFERRED",
     "whole_source_campaign_evidence_read": true
   },
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "PERSISTED_NOT_DELIVERED",
   "three_part_chat_delivery": false
 }
