@@ -10,19 +10,33 @@ PROFILE="${3:-plain}"
 
 case "$PROFILE" in plain|fleshpunk) ;; *) echo 'PROFILE must be plain or fleshpunk' >&2; exit 64;; esac
 
-printf '%s\n' 'IMPROPER_IMAGE_CAMPAIGN stage=install'
-bash "$ROOT/tools/install_atom_phone.sh" | tee "$STATE/install.stdout"
-printf '%s\n' 'IMPROPER_IMAGE_CAMPAIGN stage=accept'
-"$HOME/bin/fortress-image-accept" "$PROMPT" "$SEED" "$PROFILE" | tee "$STATE/accept.stdout"
+printf '%s\n' 'IMPROPER_IMAGE_CAMPAIGN stage=install-standalone-runtime'
+bash "$ROOT/tools/install_fortress_image_phone.sh" >"$STATE/install.stdout" 2>"$STATE/install.stderr" || {
+  rc=$?
+  tail -c 5000 "$STATE/install.stderr" >&2 || true
+  exit "$rc"
+}
+
+printf '%s\n' 'IMPROPER_IMAGE_CAMPAIGN stage=accept-runtime'
+"$HOME/bin/fortress-image-accept" "$PROMPT" "$SEED" "$PROFILE" >"$STATE/accept.stdout" 2>"$STATE/accept.stderr" || {
+  rc=$?
+  tail -c 7000 "$STATE/accept.stderr" >&2 || true
+  [ ! -f "${HC_STATE_DIR:-$HOME/.local/state/home-center}/venice-fleshpunk-image/fortress-acceptance-latest.json" ] || \
+    cat "${HC_STATE_DIR:-$HOME/.local/state/home-center}/venice-fleshpunk-image/fortress-acceptance-latest.json" >&2
+  exit "$rc"
+}
+
 cp "${HC_STATE_DIR:-$HOME/.local/state/home-center}/venice-fleshpunk-image/fortress-acceptance-latest.json" "$STATE/acceptance-latest.json"
 python - "$STATE/acceptance-latest.json" <<'PY'
 import json,sys
 r=json.load(open(sys.argv[1],encoding='utf-8'))
 if not r.get('ok'):
     raise SystemExit('IMPROPER_IMAGE_CAMPAIGN BLOCKED: acceptance receipt ok=false')
+cap=r.get('capabilityState') or {}
+if cap.get('shizukuRequired') is not False:
+    raise SystemExit('IMPROPER_IMAGE_CAMPAIGN BLOCKED: receipt did not prove Shizuku independence')
+if not cap.get('publicPicturesArtifactDelivered'):
+    raise SystemExit('IMPROPER_IMAGE_CAMPAIGN BLOCKED: public Pictures delivery not proven')
 print('IMPROPER_IMAGE_CAMPAIGN ACCEPTED')
-print('profile='+str(r.get('profile')))
-print('promptId='+str(r.get('promptId')))
-print('publicPhonePath='+str(r.get('publicPhonePath')))
-print('pngSha256='+str(r.get('pngSha256')))
+print(json.dumps(r,ensure_ascii=False,sort_keys=True))
 PY
