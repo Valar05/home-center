@@ -4,10 +4,10 @@ Legend: O head | @ COM/root | x bar-constrained hands | L/R fixed visible ground
 OBSERVED source times are presentation anchors only. Successor acting/support bias/load lag/bridges/compile cadence are INFERRED.
 
 K0 OFFSET_RACK_READY | FOURS / INFERRED
-source_anchor 4.000s OBSERVED — near-upright loaded stack in slow-motion source presentation; not compile cadence
+source_anchor 4.000s OBSERVED
 support BILATERAL_VISIBLE_WEIGHT_SPLIT_UNKNOWN | load BAR_CARRIED_CONTINUOUS_ABSTRACT
-root/arc Root starts left of eventual recovery line; both visible foot anchors remain on ground.
-acting Crooked ready: torso leans into the left side of the base and the right knee stays softer; load is already owned, not floating.
+root/arc root left of recovery line; feet fixed
+acting crooked ready, soft right knee
 
 
 
@@ -38,8 +38,8 @@ _______________________L_________________R______________________
 K1 REAR_LOAD_COUNTERLEAN | FOURS / INFERRED
 source_anchor —
 support BILATERAL_LEFT_BIAS_INFERRED | load BAR_CARRIED_CONTINUOUS_ABSTRACT
-root/arc Root shifts back-left before meaningful descent; this is authored anticipation, not source-measured support split.
-acting Head and bar lag left while hips sit back; left knee accepts the setup before the deeper sink.
+root/arc back-left counterload before descent
+acting head/rack lag left; hips sit back
 
 
 
@@ -68,10 +68,10 @@ _______________________L_________________R______________________
 
 
 K2 HIP_BACK_SINK | TWOS / INFERRED
-source_anchor 4.500s OBSERVED — clear downward compression underway in slow-motion source presentation
+source_anchor 4.500s OBSERVED
 support BILATERAL_LEFT_BIAS_INFERRED | load BAR_CARRIED_CONTINUOUS_ABSTRACT
-root/arc Root drops and stays behind the mid-foot line; bar follows with a smaller downward arc.
-acting Hip retreat leads the descent; shoulders do not simply translate straight down.
+root/arc root drops behind base center
+acting hip retreat leads shoulders
 
 
 
@@ -102,8 +102,8 @@ _______________________L_________________R______________________
 K3 TORSION_BRIDGE | TWOS / INFERRED
 source_anchor —
 support BILATERAL_TRANSFER_INFERRED | load BAR_CARRIED_CONTINUOUS_ABSTRACT
-root/arc Root crosses slightly right while continuing down; the torso and bar remain left-lagged for a beat.
-acting Authored bridge prevents a symmetric elevator squat: hips begin to re-center before the rack does.
+root/arc root crosses right while descending
+acting hips recenter before rack
 
 
 
@@ -132,10 +132,10 @@ _______________________L_________________R______________________
 
 
 K4 DEEP_COIL | FOURS / INFERRED
-source_anchor 5.000s OBSERVED — body/load system visibly deeper in slow-motion source presentation
+source_anchor 5.000s OBSERVED
 support BILATERAL_TRANSFER_INFERRED | load BAR_CARRIED_CONTINUOUS_ABSTRACT
-root/arc Root drops to the deepest broad stance while the bar stays carried and slightly left of the pelvis.
-acting Knees split asymmetrically and the rack remains canted; compression is stored, not decorative squash.
+root/arc deep broad compression; rack left-lagged
+acting unequal knees store compression
 
 
 
@@ -164,10 +164,10 @@ _______________________L_________________R______________________
 
 
 K5 BOTTOM_DRIFT | TWOS / INFERRED
-source_anchor 5.500s OBSERVED — lowest sampled compression in selected source inspection
+source_anchor 5.500s OBSERVED
 support BILATERAL_RIGHTWARD_TRANSFER_INFERRED | load BAR_CARRIED_CONTINUOUS_ABSTRACT
-root/arc At the bottom the root drifts right while remaining low; support stays continuous.
-acting The bottom is not a frozen midpoint: pelvis slips across the base while the shoulders lag behind.
+root/arc low root drifts right
+acting pelvis shifts while shoulders lag
 
 
 
@@ -198,8 +198,8 @@ _______________________L_________________R______________________
 K6 REVERSAL_GATE | ONES / INFERRED
 source_anchor —
 support BILATERAL_RIGHTWARD_TRANSFER_INFERRED | load BAR_CARRIED_CONTINUOUS_ABSTRACT
-root/arc Root rises one row while torso/rack remain low: force direction changes before the load visually catches up.
-acting This authored gate makes reversal causal without inventing impact or support change.
+root/arc root rises before rack
+acting authored force-direction reversal
 
 
 
@@ -228,10 +228,10 @@ _______________________L_________________R______________________
 
 
 K7 HIP_DRIVE_LEADS_LOAD | ONES / INFERRED
-source_anchor 6.000s OBSERVED — body/load system visibly ascending in slow-motion source presentation
+source_anchor 6.000s OBSERVED
 support BILATERAL_RIGHT_BIAS_INFERRED | load BAR_CARRIED_CONTINUOUS_ABSTRACT
-root/arc Pelvis rises and moves right while rack still trails lower/left.
-acting Leg drive precedes upper-stack recovery; the load has inertia and the body has to earn it upward.
+root/arc pelvis rises/right; rack trails
+acting leg drive earns load rise
 
 
 
@@ -262,8 +262,8 @@ _______________________L_________________R______________________
 K8 RACK_CATCH_UP | TWOS / INFERRED
 source_anchor —
 support BILATERAL_RIGHT_BIAS_INFERRED | load BAR_CARRIED_CONTINUOUS_ABSTRACT
-root/arc Shoulders/bar accelerate upward after the hip lead; root continues on a shallower arc.
-acting Upper body catches the bar without erasing the earlier lag; left shoulder still trails.
+root/arc rack accelerates after hip lead
+acting left shoulder still trails
 
 
 
@@ -294,8 +294,8 @@ _______________________L_________________R______________________
 K9 ASCENT_CORKSCREW | TWOS / INFERRED
 source_anchor —
 support BILATERAL_RIGHT_BIAS_INFERRED | load BAR_CARRIED_CONTINUOUS_ABSTRACT
-root/arc Root rises toward center while shoulders rotate through a different line.
-acting Right side stands first; left shoulder and left knee finish later, keeping the ascent from becoming mirrored interpolation.
+root/arc root rises while shoulders unwind
+acting right side finishes first
 
 
 
@@ -324,10 +324,10 @@ _______________________L_________________R______________________
 
 
 K10 LOCKOUT_OVERRUN | TWOS / INFERRED
-source_anchor 6.500s OBSERVED — source presentation has returned near initial upright stack
+source_anchor 6.500s OBSERVED
 support BILATERAL_RIGHT_BIAS_INFERRED | load BAR_CARRIED_CONTINUOUS_ABSTRACT
-root/arc Root and rack overshoot right/up past the original ready line; support remains grounded.
-acting Force does not stop at 'standing': bar and head carry past neutral while the left leg is still catching up.
+root/arc root/rack overrun right/up
+acting force carries past neutral
 
 
 
@@ -358,8 +358,8 @@ _______________________L_________________R______________________
 K11 LOAD_REBOUND_SAG | TWOS / INFERRED
 source_anchor —
 support BILATERAL_RIGHT_BIAS_INFERRED | load BAR_CARRIED_CONTINUOUS_ABSTRACT
-root/arc Root gives back a row while the rack drops/tilts more sharply; knees soften under the rebound.
-acting Secondary load lag answers the lockout; this is not reverse playback because root, rack, and knees repay on different clocks.
+root/arc root gives back; rack sags more
+acting load/knees repay on different clocks
 
 
 
@@ -390,8 +390,8 @@ _______________________L_________________R______________________
 K12 TORSO_SETTLE_LAG | TWOS / INFERRED
 source_anchor —
 support BILATERAL_TRANSFER_INFERRED | load BAR_CARRIED_CONTINUOUS_ABSTRACT
-root/arc Root moves slightly left while the rack remains right-biased and canted.
-acting Torso unwinds across the base; head and bar disagree briefly about where neutral is.
+root/arc root crosses left; rack stays right
+acting torso/head/rack settle off-clock
 
 
 
@@ -420,10 +420,10 @@ _______________________L_________________R______________________
 
 
 K13 SUPPORT_REBALANCE | TWOS / INFERRED
-source_anchor 6.750s OBSERVED — late settle sample in source presentation
+source_anchor 6.750s OBSERVED
 support BILATERAL_REBALANCING_INFERRED | load BAR_CARRIED_CONTINUOUS_ABSTRACT
-root/arc Root steadies near the new right-shifted line while knees remain unequally flexed.
-acting Recovery spends a dedicated support-rebalance phase instead of snapping back to the opener.
+root/arc root steadies on new line
+acting dedicated support rebalance
 
 
 
@@ -454,8 +454,8 @@ _______________________L_________________R______________________
 K14 READY_DISPLACED | FOURS / INFERRED
 source_anchor —
 support BILATERAL_RIGHT_DOMINANT_INFERRED | load BAR_CARRIED_CONTINUOUS_ABSTRACT
-root/arc Ready returns on a different root/support line than K0; no idle reset.
-acting The repetition ends organized but not erased: rack is flatter, root remains right-shifted, and left knee keeps a trace of paid debt.
+root/arc ready remains right-shifted
+acting organized without idle reset
 
 
 
