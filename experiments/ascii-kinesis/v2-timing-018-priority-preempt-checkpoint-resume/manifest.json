@@ -1,0 +1,47 @@
+{
+  "ascii_literal_text": true,
+  "backward_compatible": true,
+  "contract": {
+    "candidate_isolated": "PASS_CURRENT_WORKER",
+    "official_validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "repo_global": "NOT_CLAIMED_STANDARD_CHAT_NO_AUTHORIZED_REMOTE_CHECKOUT"
+  },
+  "experiment_id": "v2-timing-018-priority-preempt-checkpoint-resume",
+  "format_version": 2,
+  "lane": "timing",
+  "media": {
+    "authoritative": "embedded_spa_mp4",
+    "bytes": 6427,
+    "codec": "h264",
+    "fps": 24,
+    "frames": 35,
+    "height": 180,
+    "pix_fmt": "yuv420p",
+    "sha256": "b54e254e78eee76cba97dbe94f3e48e9e2880cd02dcee4cbfd7f57110888251c",
+    "width": 320
+  },
+  "novel_primitive": "PRIORITY_PREEMPT_WITH_CHECKPOINT_RESUME",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "quality": {
+    "drew_accepted": false,
+    "noodle_queen": "PASS_CURRENT_WORKER_AFTER_TANGO",
+    "tango": "PASS_CURRENT_WORKER_AFTER_ONE_SAME_BODY_REVISION"
+  },
+  "schema": "ascii-kinesis.manifest.v2",
+  "source": {
+    "asset_id": "97821",
+    "page": "https://www.spriters-resource.com/pc_computer/nuclearthrone/asset/97821/",
+    "provider": "The Spriters Resource",
+    "source_art_embedded": false,
+    "source_timing_available": false,
+    "whole_source_inspected": true
+  },
+  "source_art_embedded": false,
+  "spa_file": "priority-preempt-checkpoint-resume.motion.html",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only"
+}

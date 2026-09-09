@@ -1,0 +1,78 @@
+{
+  "chat_delivery": {
+    "order": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false,
+    "three_part_chat_delivery": false
+  },
+  "contract": {
+    "candidate_isolated": "PASS_CURRENT_WORKER",
+    "official_validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "repo_global": "NOT_CLAIMED_STANDARD_CHAT_NO_AUTHORIZED_REMOTE_CHECKOUT"
+  },
+  "current_worker_liveness": {
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "github_persistence_readback": "PASS",
+    "home_center_campaign_read": "PASS"
+  },
+  "drew_accepted": false,
+  "experiment_id": "v2-timing-018-priority-preempt-checkpoint-resume",
+  "issue_343_receipt": null,
+  "lineage": {
+    "kind": "fresh_post_debt_concept",
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "successor_collision": false,
+    "timing018_inventory_before_creation": 0
+  },
+  "media": {
+    "authoritative": "embedded_spa_mp4",
+    "bytes": 6427,
+    "codec": "h264",
+    "decode": "PASS_CURRENT_WORKER",
+    "fps": 24,
+    "frames": 35,
+    "height": 180,
+    "pix_fmt": "yuv420p",
+    "sha256": "b54e254e78eee76cba97dbe94f3e48e9e2880cd02dcee4cbfd7f57110888251c",
+    "width": 320
+  },
+  "next_authorized": "BLOCKED_UNTIL_TIMING018_HEALTHY",
+  "quality": {
+    "noodle_queen": {
+      "actual_render_sha256": "b54e254e78eee76cba97dbe94f3e48e9e2880cd02dcee4cbfd7f57110888251c",
+      "after_tango": true,
+      "dimensions": [
+        "TASTE",
+        "FUNCTION",
+        "CONTEMPT"
+      ],
+      "status": "PASS"
+    },
+    "tango": {
+      "actual_render_sha256": "b54e254e78eee76cba97dbe94f3e48e9e2880cd02dcee4cbfd7f57110888251c",
+      "r0": "REVISE_REQUIRED_REVERSE_RETRACE_RISK",
+      "r1": "PASS_AFTER_SAME_BODY_LOWER_CROSSSTEP_RESUME_REAUTHOR",
+      "rounds": 2,
+      "status": "PASS"
+    }
+  },
+  "repo": {
+    "file_count": 6,
+    "final_readback": "PENDING_POSTWRITE",
+    "path": "experiments/ascii-kinesis/v2-timing-018-priority-preempt-checkpoint-resume/",
+    "ship_commit": null
+  },
+  "schema": "ascii-kinesis.receipt.v2",
+  "source": {
+    "all_decisive_timing_provenance": "INFERRED",
+    "asset_id": "97821",
+    "source_timing": "UNAVAILABLE",
+    "whole_source_inspected_current_worker": true
+  },
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE"
+}
