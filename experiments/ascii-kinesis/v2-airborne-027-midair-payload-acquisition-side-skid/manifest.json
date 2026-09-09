@@ -1,0 +1,32 @@
+{
+  "format_version": 2,
+  "experiment_id": "v2-airborne-027-midair-payload-acquisition-side-skid",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "motion_json": "motion.json",
+  "contact_sheet": "contact-sheet.txt",
+  "media": {
+    "filename": "midair-payload-acquisition-side-skid.mp4",
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "width": 640,
+    "height": 360,
+    "fps": 24,
+    "sha256": "604a8d5f6b6db5e7d3e9fe6f1de4377b2e75b08530bb76fa72279d3a4e24bf8a",
+    "bytes": 14061,
+    "frames": 97,
+    "duration_seconds": 4.041666666666667,
+    "decode": true,
+    "embedded_in_spa": true
+  },
+  "rights_firewall": "Commercial source art is evidence only. No source pixels, palette, costume, contours, layout, tracing, choreography, redistribution, source audio, or close imitation enter the output.",
+  "source_timing": "UNKNOWN"
+}
