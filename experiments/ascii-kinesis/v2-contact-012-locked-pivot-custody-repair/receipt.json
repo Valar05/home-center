@@ -1,0 +1,97 @@
+{
+  "schema": "ascii-kinesis.contact-repair-receipt.v2",
+  "experiment_id": "v2-contact-012-locked-pivot-custody-repair",
+  "canonical_path": "experiments/ascii-kinesis/v2-contact-012-locked-pivot-custody-repair/",
+  "status": "PERSISTED_READBACK_PENDING",
+  "current_worker_liveness": {
+    "home_center_campaign_read": "PASS",
+    "campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "github_persistence_readback": "PASS"
+  },
+  "revision": {
+    "revises": "experiments/ascii-kinesis/v2-contact-005-locked-pivot-before-release/",
+    "negative_fixture": "experiments/ascii-kinesis/v2-contact-005-locked-pivot-before-release/",
+    "source_change": false,
+    "predecessor_preserved": true
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "566049",
+    "title": "Pinky",
+    "game": "Mina the Hollower",
+    "platform": "PC / Computer",
+    "url": "https://www.spriters-resource.com/pc_computer/minathehollower/asset/566049/",
+    "archive_bytes": 88774,
+    "archive_sha256": "fb1c69d5b2a31553e24d14191841090e08963e424b1686869ca03909f653244d",
+    "png_count": 71,
+    "named_family_count": 22,
+    "whole_source_inspected": true,
+    "source_authentic_timing": "UNAVAILABLE"
+  },
+  "rights": {
+    "source_art_role": "evidence_only",
+    "source_pixels_embedded": false,
+    "source_pixels_rendered": false,
+    "palette_copied": false,
+    "layout_copied": false,
+    "contours_traced": false,
+    "choreography_copied": false,
+    "redistribution": false,
+    "close_imitation": false,
+    "output": "independent abstract ASCII relationship rig"
+  },
+  "media": {
+    "sha256": "6acbf2f50287dad69da9b9e22ffeb5fbda456b71e6b1eacd78d863c223674770",
+    "bytes": 14266,
+    "codec": "H.264/libx264",
+    "width": 760,
+    "height": 440,
+    "fps": 24,
+    "frames": 34,
+    "pixel_format": "yuv420p",
+    "decode": "PASS",
+    "source": "abstract_ascii_rig_only"
+  },
+  "current_worker_actual_render_review": {
+    "result": "PASS",
+    "evidence": [
+      "asymmetrical separated start and deep coil",
+      "eligibility and acquisition precede lock",
+      "A rear-root pin is earned before locked-frame rotation",
+      "B support peels BOTH to NEAR_ONLY to TOE_DRAG to NONE while A_PRIMARY custody remains unbroken",
+      "locked-frame pivot and apex are visually distinct",
+      "release threshold is authored and held before the later release fork",
+      "split recoil, partner lag, catch, overshoot and secondary lag remain readable",
+      "final recovery remains displaced and unpaid rather than resetting to idle"
+    ]
+  },
+  "tango": {
+    "result": "PASS",
+    "fresh_current_worker": true,
+    "revised_same_successor_before_pass": true
+  },
+  "noodle_queen": {
+    "result": "PASS",
+    "fresh_current_worker": true,
+    "taste": "PASS",
+    "function": "PASS",
+    "contempt": "PASS"
+  },
+  "contract": {
+    "result": "PASS",
+    "boundary": "candidate-isolated official V2 contract",
+    "script": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "script_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "result_json": {"schema":"ascii-kinesis.swarm-contract-v2-test","entries_checked":["v2-contact-012-locked-pivot-custody-repair"],"ok":true}
+  },
+  "repo": {
+    "spa_blob_sha": "f0c0c2642b74d570e034656b807371e63250d481",
+    "spa_tabs": ["ASCII", "JSON", "VIDEO"],
+    "spa_embedded_video": true,
+    "spa_structural_readback": "PASS",
+    "literal_truncation_marker_present": false,
+    "final_directory_readback": "PENDING_AFTER_THIS_PERSIST"
+  },
+  "chat_delivery": "PENDING_THIS_REPORTING_CHAT",
+  "issue_343_closure": "PENDING_POST_DELIVERY"
+}
