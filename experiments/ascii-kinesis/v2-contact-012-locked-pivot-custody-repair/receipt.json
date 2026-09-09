@@ -2,7 +2,7 @@
   "schema": "ascii-kinesis.contact-repair-receipt.v2",
   "experiment_id": "v2-contact-012-locked-pivot-custody-repair",
   "canonical_path": "experiments/ascii-kinesis/v2-contact-012-locked-pivot-custody-repair/",
-  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
+  "status": "CURRENT_CHAT_DELIVERED_READY_FOR_ISSUE_CLOSURE",
   "current_worker_liveness": {
     "home_center_campaign_read": "PASS",
     "campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
@@ -65,18 +65,8 @@
       "final recovery remains displaced and unpaid rather than resetting to idle"
     ]
   },
-  "tango": {
-    "result": "PASS",
-    "fresh_current_worker": true,
-    "revised_same_successor_before_pass": true
-  },
-  "noodle_queen": {
-    "result": "PASS",
-    "fresh_current_worker": true,
-    "taste": "PASS",
-    "function": "PASS",
-    "contempt": "PASS"
-  },
+  "tango": {"result":"PASS","fresh_current_worker":true,"revised_same_successor_before_pass":true},
+  "noodle_queen": {"result":"PASS","fresh_current_worker":true,"taste":"PASS","function":"PASS","contempt":"PASS"},
   "contract": {
     "result": "PASS",
     "boundary": "candidate-isolated official V2 contract",
@@ -92,14 +82,17 @@
       "build.py": "9fc921fc1c34c09057e9bb7dbcba027a483ac54c",
       "locked-pivot-custody-repair.motion.html": "f0c0c2642b74d570e034656b807371e63250d481",
       "manifest.json": "46f53c24a2bd3c13156bcc1f6c978b71f0df8703",
-      "motion.json": "f6d4c82d2115191f08b6ca94a5296b8d4232a9f6",
-      "receipt.json_before_this_verification_update": "11e66fc0135d0f5d1dc5d30311cad3916f86cb6f"
+      "motion.json": "f6d4c82d2115191f08b6ca94a5296b8d4232a9f6"
     },
     "spa_tabs": ["ASCII", "JSON", "VIDEO"],
     "spa_embedded_video": true,
     "spa_structural_readback": "PASS",
     "literal_truncation_marker_present": false
   },
-  "chat_delivery": "PENDING_THIS_REPORTING_CHAT",
-  "issue_343_closure": "PENDING_POST_DELIVERY"
+  "chat_delivery": {
+    "result": "PASS",
+    "order": ["PART 1 complete copyable ASCII", "PART 2 actual structured persisted JSON", "PART 3 visible authoritative animation media"],
+    "media_sha256": "6acbf2f50287dad69da9b9e22ffeb5fbda456b71e6b1eacd78d863c223674770"
+  },
+  "issue_343_closure": "PENDING_NEXT_ACTION"
 }
