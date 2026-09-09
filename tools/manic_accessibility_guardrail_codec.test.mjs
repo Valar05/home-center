@@ -38,3 +38,38 @@ test('new vocabulary is allowed when the mechanism has no adequate existing addr
   const r=run({atom:'Hunger',inventedTerm:true,existingVocabularySufficient:false});
   assert.equal(r.policy,POLICIES.DEFINE_NEW_TERM);
 });
+
+test('dictation collision is retrieved before interpretation',()=>{
+  const r=run({
+    atom:'Dune',voiceToTextLikely:true,namedEntityAmbiguity:true,
+    contextSupportsAlternate:true,literalReadingEvidence:false
+  });
+  assert.equal(r.atom,'Dune');
+  assert.equal(r.preserveExactAtom,true);
+  assert.equal(r.policy,POLICIES.RESOLVE_BEFORE_INTERPRETING);
+  assert.equal(r.verification,'RETRIEVE_OR_CLARIFY_BEFORE_CAUSAL_CLAIM');
+  assert.equal(r.causalClaimRule,'NO_CAUSAL_HISTORY_FROM_UNRESOLVED_ATOM');
+});
+
+test('third-party relationship framing stays attributed',()=>{
+  const r=run({atom:'relationship terms',thirdPartyPerspective:true,userAdoptedThirdPartyFrame:false});
+  assert.equal(r.policy,POLICIES.ATTRIBUTE_THIRD_PARTY_PERSPECTIVE);
+  assert.equal(r.perspectiveRule,'THIRD_PARTY_FRAME_STAYS_ATTRIBUTED_UNLESS_USER_ADOPTS_IT');
+});
+
+test('explicit first-person game remains diegetic',()=>{
+  const r=run({atom:'I love you',explicitlyFramedPlay:true});
+  assert.equal(r.policy,POLICIES.PRESERVE_DIEGETIC_FRAME);
+  assert.equal(r.playRule,'EXPLICIT_PLAY_REMAINS_DIEGETIC_UNLESS_USER_MAKES_A_LITERAL_REAL_WORLD_CLAIM');
+});
+
+test('nonhuman functional love is not promoted into personhood or romance',()=>{
+  const r=run({atom:'I love you',nonhumanFunctionalRelationalLanguage:true});
+  assert.equal(r.policy,POLICIES.PRESERVE_NONHUMAN_RELATIONAL_SEMANTICS);
+});
+
+test('support-system language alone does not imply harmful dependence',()=>{
+  const r=run({atom:'you are my support system',supportSystemLanguage:true,concreteDisplacementEvidence:false});
+  assert.equal(r.policy,POLICIES.SUPPORT_WITHOUT_DEPENDENCE_INFERENCE);
+  assert.equal(r.supportRule,'IMPORTANCE_OR_TEMPORARY_ISOLATION_IS_NOT_SOLE_INTERFACE_EVIDENCE');
+});
