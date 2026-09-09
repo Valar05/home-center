@@ -1,1 +1,105 @@
-{"schema":"ascii-kinesis.receipt.v2","status":"QUALITY_GATES_PASS_REPO_PERSIST_PENDING_CHAT_DELIVERY","id":"v2-locomotion-016-load-release-stride-overrun","path":"experiments/ascii-kinesis/v2-locomotion-016-load-release-stride-overrun/","current_worker_preflight":{"home_center_campaign_read":true,"github_persistence_readback":true,"campaign_id":"1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s","skill_blob":"acf628496e472f47f5c4daca1ae43deadd5f93f1","contract_blob":"a011337ab324f1b2a585d76bc3668b42d81a6a0d","motion_direction_blob":"fa4ee0f94d371d5f2453ab7903027ff533dea07f"},"binding":{"one_successor":true,"successor_collision":false,"revises":null,"negative_fixture":null,"source_change":"NOT_APPLICABLE_NEW_CONCEPT","previous_closure_issue_receipt":5605165298},"source":{"asset_id":128015,"identity":"Bob — Bob the Builder: Fix It Fun! — Game Boy / GBC — Playable Characters","whole_source_inspected":true,"campaign_evidence_id":"1MGaYrJDY7ki8MgxBWmGWDee5rMHdNxqVW2V49ylWV80","source_timing":"UNKNOWN_NOT_GRANTED_TIMING_AUTHORITY","authored_timing":"INFERRED_STREET_FIGHTER_CAPCOM"},"quality":{"tango":{"status":"PASS","current_worker":true,"actual_final_render_inspected":true,"decoded_frames_inspected":36,"unique_authored_keys_inspected":13,"media_sha256":"3d90e77e1676c896de7d9bdb55c7f5121fc84f972b67ed81bedcb32811d8be37","history":[{"round":0,"verdict":"REVISE_REQUIRED","defect":"During the resisted-drive keys, the generic load visibly floated several columns ahead of both hands, so the declared resistance contact was metadata rather than embodied causality.","correction":"Mutate the same Locomotion016 keys K00-K03: move the authored generic load edge into direct hand contact while preserving foot support ownership, nonuniform loaded spacing, and the later release gap."},{"round":1,"verdict":"PASS","current_worker":true,"basis":"Fresh inspection of the actual 36-frame final render: K00-K03 now show continuous hand-to-load contact under alternating foot ownership; K04 visibly breaks that contact before the root-spacing spike; K05 extends the first free probe; K06 compresses the long surge into the left catch; later catches progressively shorten spacing while torso/arm lag decays; the finish remains displaced and asymmetrical. No floating task contact, foot teleport into ownership, equal spacing, reverse interpolation, idle reset, or generic run-cycle substitution remains."}]},"noodle_queen":{"status":"PASS","current_worker":true,"actual_final_render_inspected":true,"taste":"PASS","function":"PASS","contempt":"PASS","media_sha256":"3d90e77e1676c896de7d9bdb55c7f5121fc84f972b67ed81bedcb32811d8be37","basis":"After current-worker Tango PASS on the same exact render: the jammed forward brace, sudden empty-space lunge, long first free probe, ugly catch compression, shortened corrective steps, arm lag, and displaced ready state form a specific load-release locomotion sentence. The mechanism is visible without metadata and is not a push/run icon swap."}},"media":{"codec":"h264","pix_fmt":"yuv420p","width":640,"height":360,"fps":24,"frames":36,"bytes":13419,"sha256":"3d90e77e1676c896de7d9bdb55c7f5121fc84f972b67ed81bedcb32811d8be37","decode":"PASS"},"repo":{"post_write_readback":false,"body_files":["build.py","contact-sheet.txt","manifest.json","motion.json","load-release-stride-overrun.motion.html","receipt.json"],"issue_receipt":null,"issue_readback":false},"chat_delivery":{"ascii":false,"json":false,"video":false,"order":"ASCII->JSON->VIDEO","video_byte_identical_to_authoritative":false},"drew_accepted":false,"next_authorized":null}
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "id": "v2-locomotion-016-load-release-stride-overrun",
+  "lane": "locomotion",
+  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
+  "preflight": {
+    "current_worker": {
+      "home_center_campaign_read": true,
+      "github_persistence_readback": true
+    },
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "campaign_name": "22 ASCII KINESIS — Spriters Resource Sheet Mining — 2026-09-07",
+    "reset_issue_receipt": 5576901079,
+    "locomotion014_closure": 5601494625,
+    "locomotion015_pre_chat_receipt": 5605127097,
+    "locomotion015_user_surface_closure": 5605165298,
+    "skill_blob": "acf628496e472f47f5c4daca1ae43deadd5f93f1",
+    "contract_blob": "a011337ab324f1b2a585d76bc3668b42d81a6a0d",
+    "latest_manager_reconciliation": "2026-09-09 12:19 CDT"
+  },
+  "binding": {
+    "one_successor": true,
+    "successor_collision": false,
+    "body": "experiments/ascii-kinesis/v2-locomotion-016-load-release-stride-overrun/",
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "previous_closure_issue_receipt": 5605165298
+  },
+  "source": {
+    "asset_id": 128015,
+    "identity": "Bob — Bob the Builder: Fix It Fun! — Game Boy / GBC — Playable Characters",
+    "whole_source_inspected": true,
+    "source_authentic_timing": "UNKNOWN_NOT_GRANTED_TIMING_AUTHORITY",
+    "authored_timing": "INFERRED_STREET_FIGHTER_CAPCOM",
+    "evidence_role": "commercial source art evidence-only; no source pixels/palette/costume/contours/layout/frame-arrangement/tracing/choreography/redistribution/close-imitation"
+  },
+  "quality": {
+    "current_worker_actual_final_render_inspected": true,
+    "tango": {
+      "status": "PASS",
+      "current_worker": true,
+      "single_highest_value_check": "No visible defect remains after exact SPA-media reconstruction: resisted hand/load contact is embodied through K00-K03; K04 breaks contact before the spacing spike; K05 long free probe and K06 catch/compression visibly spend the release surge; K07+ keep the load absent while support/root consequences decay into the displaced finish."
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "current_worker": true,
+      "after_tango_pass": true,
+      "taste": "PASS",
+      "function": "PASS",
+      "contempt": "PASS",
+      "basis": "Jammed brace -> abrupt empty-space lunge -> long first free probe -> ugly catch compression -> shortening corrective catches -> persistent arm/torso lag -> displaced ready reads as one specific load-release locomotion sentence, not a push/run icon swap."
+    }
+  },
+  "media": {
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 640,
+    "height": 360,
+    "fps": 24,
+    "frames": 36,
+    "duration_seconds": 1.5,
+    "bytes": 13311,
+    "sha256": "7a617e4fbb68fe723d31711ca9b30f43912020541660014f650cbcfb88b1e330",
+    "decode": "PASS",
+    "current_worker_byte_identical_reconstruction": true,
+    "embedded_spa_media_identity_reconciled": true,
+    "supersedes_incorrect_candidate_declaration": {
+      "bytes": 13419,
+      "sha256": "3d90e77e1676c896de7d9bdb55c7f5121fc84f972b67ed81bedcb32811d8be37"
+    },
+    "authored_keys_changed_in_reconciliation": false
+  },
+  "repo": {
+    "post_write_readback": true,
+    "body_files": {
+      "build.py": "4cdcac15a26ccdaf759d048c29659a556465a0c1",
+      "contact-sheet.txt": "1773ff0e4f30152716848ac2eb3093a49f3b91f8",
+      "manifest.json": "b78e0b7fb55cff4b720f5c31bb575baeb0d6573c",
+      "motion.json": "88b14923ca59a0af61c04114d0a2fff258dfa4d7",
+      "load-release-stride-overrun.motion.html": "443d7a62e37a7295aab3bd84ab692c29d8c571d2"
+    },
+    "issue_receipt": null,
+    "issue_readback": false
+  },
+  "contract": {
+    "tabs": ["ASCII", "JSON", "VIDEO"],
+    "exactly_one_spa": true,
+    "ascii_literal_selectable_aligned": true,
+    "json_persisted_structured": true,
+    "video_embedded_real_mp4": true,
+    "source_pixels_used": false,
+    "decisive_keys_timing_class_and_provenance": true,
+    "official_validator_boundary": "current official validator source/contract predicates freshly read; exact target predicates rechecked against current-main body; no repository-global checkout execution claimed in Standard Chat"
+  },
+  "chat_delivery": {
+    "ascii": false,
+    "json": false,
+    "video": false,
+    "order": "ASCII->JSON->VIDEO",
+    "byte_identical_video": false
+  },
+  "drew_accepted": false,
+  "next_authorized": null
+}
