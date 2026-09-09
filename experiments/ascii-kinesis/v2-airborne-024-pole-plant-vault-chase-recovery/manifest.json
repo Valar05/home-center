@@ -1,0 +1,81 @@
+{
+  "schema": "ascii-kinesis.manifest.v2",
+  "format_version": 2,
+  "experiment_id": "v2-airborne-024-pole-plant-vault-chase-recovery",
+  "lane": "airborne",
+  "concept_type": "fresh-concept",
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "source": {
+    "provider": "The Spriters Resource",
+    "title": "Eric Lecarde",
+    "game": "Castlevania: Bloodlines",
+    "platform": "Sega Genesis",
+    "asset_id": "5791",
+    "url": "https://www.spriters-resource.com/sega_genesis/cvbl/asset/5791/",
+    "whole_sheet_inspected": true,
+    "evidence_sha256": "489e54a403dfd52737a780d68bab8e36f284f9c178eb5a2a8aa5080e26fb90c7",
+    "timing": "UNKNOWN"
+  },
+  "timing": {
+    "policy": "STREET_FIGHTER/CAPCOM",
+    "all_decisive_keys_provenance": "INFERRED"
+  },
+  "quality": {
+    "tango": "REVISE_REQUIRED -> same-body grip/tool ownership correction -> PASS",
+    "noodle_queen": "PASS",
+    "actual_render_inspected": true
+  },
+  "media": {
+    "filename": "pole-plant-vault-chase-recovery.mp4",
+    "embedded_in_spa": true,
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "fps": 24,
+    "frames": 79,
+    "width": 560,
+    "height": 300,
+    "bytes": 10898,
+    "sha256": "3030811308a60cbc2197f4f5587e61e73ba433093c86ca782505ac4772d9d487",
+    "decode": "PASS"
+  },
+  "payload_hashes": {
+    "contact_sheet_sha256": "e1c11cc91bef77ca70bb0814068824ffd775a34a9616665cefc974e3e6c4cd81",
+    "motion_json_sha256": "4c150255250364f299bb95a37c45e82d316fc60c518ee05311d02fd348cec0b2"
+  },
+  "revision": {
+    "fresh_after": "Airborne023 HEALTHY_USER_SURFACED issue 5597871761",
+    "source_change": true,
+    "revises": null,
+    "negative_fixture": null
+  },
+  "files": [
+    "build.py",
+    "contact-sheet.txt",
+    "manifest.json",
+    "motion.json",
+    "receipt.json",
+    "pole-plant-vault-chase-recovery.motion.html"
+  ],
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ]
+}
