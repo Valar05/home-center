@@ -4,7 +4,7 @@
 This is the deterministic entrance that was missing from the phone worker. Model
 memory and Drive search may suggest names, but they never establish Jar authority.
 A task-level Jar route is usable only after the canonical registry and exact native
-Jar source have both been freshly read.
+Jar source have both been freshly read and the context load has been receipted.
 """
 from __future__ import annotations
 
@@ -23,6 +23,7 @@ from judgment_jar_common import (
     normalize_key,
     read_config,
 )
+from judgment_jar_receipts import ReceiptError, record as record_receipt
 from judgment_jar_registry import ensure_registry, fetch_native_source
 
 
@@ -125,6 +126,48 @@ def _source_text(snapshot: dict[str, Any]) -> str:
     return ""
 
 
+def _receipt_source_load(
+    registry: dict[str, Any],
+    jar: dict[str, Any],
+    config: dict[str, Any],
+    task: str,
+    text: str,
+    registry_id: str,
+    source: dict[str, Any],
+) -> None:
+    references = [
+        str(value)
+        for value in (jar.get("sourceFileId"), jar.get("sourceUrl"), registry_id)
+        if str(value or "").strip()
+    ]
+    try:
+        result = record_receipt(
+            registry,
+            jar,
+            config,
+            output_kind="context_packet",
+            output_text=text,
+            summary=f"Fresh canonical task-level Judgment Jar source: {jar.get('title') or jar.get('id')}",
+            actor="Vlad",
+            intent="resolve task-mentioned canonical Judgment Jar before model execution",
+            surface="jar",
+            decision_action="canonical registry exact ID -> canonical Jar exact ID -> fresh native source",
+            input_text=task,
+            references=references,
+            source="judgment-jar-task-router",
+            metadata={
+                "registryFileId": registry_id,
+                "sourceState": str(source.get("state") or ""),
+                "sourceSha256": str(source.get("sourceSha256") or ""),
+                "failClosed": True,
+            },
+        )
+    except (ReceiptError, OSError, ValueError) as exc:
+        raise RegistryError(f"JAR_UNRESOLVED: canonical Jar context receipt failed: {exc}") from exc
+    if result.get("ok") is not True or result.get("state") not in {"PENDING_HOME_CENTER", "DELIVERED"}:
+        raise RegistryError("JAR_UNRESOLVED: canonical Jar context receipt was not durably captured")
+
+
 def task_source_packet(
     task: str,
     *,
@@ -182,6 +225,7 @@ def task_source_packet(
         text = _source_text(source)
         if not text.strip():
             raise RegistryError(f"JAR_UNRESOLVED: canonical source for {jar.get('id')} was empty")
+        _receipt_source_load(registry, jar, config, task, text, registry_id, source)
         chunks.extend([
             "",
             f"--- CANONICAL JAR: {jar.get('title') or jar.get('id')} ---",
