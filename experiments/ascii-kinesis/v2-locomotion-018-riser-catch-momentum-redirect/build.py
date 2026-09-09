@@ -107,9 +107,14 @@ def ascii_pose(k):
         x=terr[i]["x0"]; ya=terr[i-1]["y"]; yb=terr[i]["y"]
         a=to_grid((x,ya)); b=to_grid((x,yb)); grid_line(grid,*a,*b,"#")
     p=body_points(k)
-    for a,b,ch in [("root","chest","|"),("left_sh","left_elbow","/"),("left_elbow","left_hand","/"),("right_sh","right_elbow","\\"),("right_elbow","right_hand","\\"),("root","left_knee","/"),("left_knee","left_foot","/"),("root","right_knee","\\"),("right_knee","right_foot","\\")]:
+    for a,b,ch in [
+        ("root","chest","|"),("left_sh","left_elbow","/"),("left_elbow","left_hand","/"),
+        ("right_sh","right_elbow","\\"),("right_elbow","right_hand","\\"),
+        ("root","left_knee","/"),("left_knee","left_foot","/"),
+        ("root","right_knee","\\"),("right_knee","right_foot","\\")]:
         aa=to_grid(p[a]); bb=to_grid(p[b]); grid_line(grid,*aa,*bb,ch)
-    for nm,ch in [("head","O"),("chest","T"),("root","@"),("left_foot","_"),("right_foot","_"),("left_hand","o"),("right_hand","o")]:
+    for nm,ch in [("head","O"),("chest","T"),("root","@"),("left_foot","_"),("right_foot","_"),
+                  ("left_hand","o"),("right_hand","o")]:
         x,y=to_grid(p[nm])
         if 0<=y<24 and 0<=x<64: grid[y][x]=ch
     for side in ("left","right"):
@@ -133,6 +138,8 @@ def make_contact_sheet():
     return "\n".join(out).rstrip()+"\n"
 
 def make_spa(ascii_text, motion_text, mp4_bytes):
+    # Exact persisted ASCII/JSON are gzip-compressed only for transport inside the
+    # self-contained SPA; Chromium's built-in DecompressionStream restores bytes.
     ab64=base64.b64encode(gzip.compress(ascii_text.encode("utf-8"),mtime=0)).decode("ascii")
     jb64=base64.b64encode(gzip.compress(motion_text.encode("utf-8"),mtime=0)).decode("ascii")
     vb64=base64.b64encode(mp4_bytes).decode("ascii")
@@ -165,10 +172,18 @@ def main():
             idx += 1
     if idx != int(MOTION["timing"]["total_frames"]):
         raise SystemExit(f"frame count mismatch {idx}")
-    cmd=["ffmpeg","-hide_banner","-loglevel","error","-y","-framerate",str(FPS),"-i",str(FRAMES_DIR/"frame-%04d.png"),"-an","-c:v","libx264","-pix_fmt","yuv420p","-preset","veryslow","-crf","28","-movflags","+faststart","-map_metadata","-1","-metadata","creation_time=1970-01-01T00:00:00Z","-threads","1",str(MP4)]
+    cmd=["ffmpeg","-hide_banner","-loglevel","error","-y","-framerate",str(FPS),"-i",str(FRAMES_DIR/"frame-%04d.png"),
+         "-vf","scale=480:270:flags=area","-an","-c:v","libx264","-pix_fmt","yuv420p","-preset","veryslow","-crf","34",
+         "-movflags","+faststart","-map_metadata","-1","-metadata","creation_time=1970-01-01T00:00:00Z",
+         "-threads","1",str(MP4)]
     subprocess.run(cmd,check=True)
-    ascii_text=make_contact_sheet(); ASCII.write_text(ascii_text,encoding="utf-8")
-    motion_text=(HERE/"motion.json").read_text(encoding="utf-8"); mp4=MP4.read_bytes()
+    ascii_text=make_contact_sheet()
+    ASCII.write_text(ascii_text,encoding="utf-8")
+    motion_text=(HERE/"motion.json").read_text(encoding="utf-8")
+    mp4=MP4.read_bytes()
     SPA.write_text(make_spa(ascii_text,motion_text,mp4),encoding="utf-8")
-    print(json.dumps({"frames":idx,"fps":FPS,"mp4_bytes":len(mp4),"mp4_sha256":hashlib.sha256(mp4).hexdigest(),"ascii_sha256":hashlib.sha256(ascii_text.encode()).hexdigest(),"motion_sha256":hashlib.sha256(motion_text.encode()).hexdigest(),"spa_sha256":hashlib.sha256(SPA.read_bytes()).hexdigest()},sort_keys=True))
+    print(json.dumps({"frames":idx,"fps":FPS,"mp4_bytes":len(mp4),"mp4_sha256":hashlib.sha256(mp4).hexdigest(),
+                      "ascii_sha256":hashlib.sha256(ascii_text.encode()).hexdigest(),
+                      "motion_sha256":hashlib.sha256(motion_text.encode()).hexdigest(),
+                      "spa_sha256":hashlib.sha256(SPA.read_bytes()).hexdigest()},sort_keys=True))
 if __name__=="__main__": main()
