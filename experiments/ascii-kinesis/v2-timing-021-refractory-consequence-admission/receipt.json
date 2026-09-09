@@ -1,9 +1,9 @@
 {
   "DREW_ACCEPTED": false,
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_video": true
   },
   "contract": {
     "candidate_isolated": "PASS",
@@ -15,8 +15,8 @@
     "home_center_campaign_read": true
   },
   "experiment_id": "v2-timing-021-refractory-consequence-admission",
-  "issue_343_receipt": null,
-  "issue_343_receipt_readback": false,
+  "issue_343_receipt": 5606615151,
+  "issue_343_receipt_readback": true,
   "media": {
     "bytes": 16975,
     "codec": "h264",
@@ -33,15 +33,16 @@
     "timing021_count": 1
   },
   "quality": {
-    "current_worker_actual_render_inspection": "PASS",
+    "current_worker_actual_render_inspection": "PASS_BYTE_IDENTICAL_AUTHORITATIVE_RECONSTRUCTION",
     "queen": "PASS",
     "same_actual_render": true,
     "tango": "PASS"
   },
   "repo": {
     "exact_six_file_readback": true,
+    "final_manifest_commit": "c8649b9b30b9522c9e69dd1ffd453e62ebc08fcb",
     "final_receipt_commit": null,
-    "manifest_reconciliation_commit": "ad21a01dec6449662d0f8dea4b26e9e328dbd20c",
+    "manifest_blob": "a4c8e6f5ab3e487497a05a1d8a14c0db979101f9",
     "path": "experiments/ascii-kinesis/v2-timing-021-refractory-consequence-admission/",
     "persisted": true,
     "repo_readback": true,
@@ -60,6 +61,6 @@
     "timing_provenance": "INFERRED",
     "whole_source_campaign_evidence_read": true
   },
-  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
-  "three_part_chat_delivery": false
+  "status": "HEALTHY_USER_SURFACED",
+  "three_part_chat_delivery": true
 }
