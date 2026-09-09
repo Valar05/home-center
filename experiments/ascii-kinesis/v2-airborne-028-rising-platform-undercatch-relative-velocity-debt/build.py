@@ -116,11 +116,4 @@ try:
     ],check=True)
 finally:
     shutil.rmtree(tmp)
-# Deterministic delivery pack: preserve authored frames while reducing the self-contained SPA payload.
-PACKED=HERE/".air028-packed.mp4"
-subprocess.run([
-    "ffmpeg","-y","-loglevel","error","-i",str(OUT),"-vf","scale=640:306:flags=lanczos",
-    "-c:v","libx264","-crf","40","-preset","veryslow","-pix_fmt","yuv420p","-movflags","+faststart",str(PACKED)
-],check=True)
-PACKED.replace(OUT)
 print(OUT)
