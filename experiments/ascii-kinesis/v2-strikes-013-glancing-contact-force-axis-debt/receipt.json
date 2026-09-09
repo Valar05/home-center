@@ -64,8 +64,8 @@
     "repo_global_execution": "NOT_CLAIMED_STANDARD_CHAT_NO_AUTHORIZED_FULL_CHECKOUT"
   },
   "issue": {
-    "pre_chat_receipt": null,
-    "pre_chat_receipt_readback": false,
+    "pre_chat_receipt": 5607490439,
+    "pre_chat_receipt_readback": true,
     "user_surface_closure": null,
     "final_readback_addendum": null
   },
