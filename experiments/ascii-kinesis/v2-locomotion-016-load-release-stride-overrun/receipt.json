@@ -13,6 +13,7 @@
     "locomotion015_user_surface_closure": 5605165298,
     "skill_blob": "acf628496e472f47f5c4daca1ae43deadd5f93f1",
     "contract_blob": "a011337ab324f1b2a585d76bc3668b42d81a6a0d",
+    "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
     "latest_manager_reconciliation": "2026-09-09 12:19 CDT"
   },
   "binding": {
@@ -52,11 +53,11 @@
     "body_files": {
       "build.py": "4cdcac15a26ccdaf759d048c29659a556465a0c1",
       "contact-sheet.txt": "1773ff0e4f30152716848ac2eb3093a49f3b91f8",
-      "manifest.json": "b78e0b7fb55cff4b720f5c31bb575baeb0d6573c",
+      "manifest.json": "40b681509c37f90207ce387b21878b7d4dab17f0",
       "motion.json": "88b14923ca59a0af61c04114d0a2fff258dfa4d7",
       "load-release-stride-overrun.motion.html": "443d7a62e37a7295aab3bd84ab692c29d8c571d2"
     },
-    "issue_receipt": 5606597322,
+    "pre_chat_issue_receipt": 5606597322,
     "issue_readback": true
   },
   "contract": {
@@ -67,7 +68,9 @@
     "video_embedded_real_mp4": true,
     "source_pixels_used": false,
     "decisive_keys_timing_class_and_provenance": true,
-    "official_validator_boundary": "current official validator source/contract predicates freshly read; exact target predicates rechecked against current-main body; no repository-global checkout execution claimed in Standard Chat"
+    "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated_official_validator": "PASS",
+    "repository_global_checkout_execution": "UNCLAIMED_STANDARD_CHAT_BOUNDARY"
   },
   "chat_delivery": {"ascii": false, "json": false, "video": false, "order": "ASCII->JSON->VIDEO", "byte_identical_video": false},
   "drew_accepted": false,
