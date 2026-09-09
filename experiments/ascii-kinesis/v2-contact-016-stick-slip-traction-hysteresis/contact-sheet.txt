@@ -1,0 +1,213 @@
+v2-contact-016-stick-slip-traction-hysteresis
+STICK-SLIP TRACTION HYSTERESIS — contact is not the same thing as tangential lock. Normal contact remains support-bearing while static traction pins a world patch, threshold failure becomes kinetic slip, and static traction may reacquire only at a new displaced patch after slip decays.
+REVISION: NEW_CONCEPT | revises=null | negative_fixture=null | source_change=NOT_APPLICABLE_NEW_CONCEPT
+SOURCE: TSR asset 154243 Sonic / Sonic Advance 2 / Game Boy Advance — whole-family campaign evidence inspected; source-authentic timing UNKNOWN.
+RIGHTS: evidence only; no source pixels/palette/costume/contours/layout/tracing/choreography/redistribution/close imitation.
+TIMING: every decisive key INFERRED / STREET_FIGHTER-CAPCOM; ONES/TWOS/FOURS are display classes.
+VISIBLE LAW: # static patch | abandoned patch : slip trail. Normal contact persists through slip; custody is NONE.
+========================================================================
+C016-K0 BODY_FIRST_APPROACH [TWOS/INFERRED]
+contact=FREE | custody=NONE | support=REAR_DOMINANT | force=BODY_MOMENTUM | patch=None
+role=body advances before lead-foot acquisition; front foot remains short of the traction patch | arc=pelvis advances right while rear foot owns support; lead foot probes ahead
+
+                        A
+                        |
+                       /O----*
+                     *  |
+                        X
+                       / \
+                      o   o
+                     /     \
+                    ^       ^
+
+========================================================================
+C016-K1 ELIGIBLE_PLANT [TWOS/INFERRED]
+contact=STICK | custody=NONE | support=FRONT_ELIGIBLE_REAR_PRESENT | force=STATIC_TRACTION | patch=55
+role=lead foot acquires normal contact and static traction at patch 55 before COM arrives | arc=front patch pins at x55 while pelvis remains behind it
+
+                           A
+                           |
+                          /O-----*
+                        *  |
+                           X
+                          / \
+                         o   o
+                        /     \
+                       ^       ^
+                                 >>
+_________________________________#__________________________
+========================================================================
+C016-K2 STATIC_DWELL [TWOS/INFERRED]
+contact=STICK | custody=NONE | support=FRONT_DOMINANT | force=STATIC_TRACTION | patch=55
+role=continuous support-bearing contact holds the same world patch while the body keeps arriving | arc=pelvis/shoulder drift right over a front foot that does not move
+
+                             A
+                             |
+                            /O-----*
+                          *  |
+                             X
+                            / \
+                           o   o
+                          /     \
+                         ^       ^
+                                 +++>
+_________________________________#__________________________
+========================================================================
+C016-K3 COM_OVERRUN [FOURS/INFERRED]
+contact=STICK | custody=NONE | support=FRONT_DOMINANT | force=STATIC_TRACTION | patch=55
+role=COM overtakes the pinned foot, increasing shear without breaking contact | arc=torso leans beyond the fixed patch; rear chain trails and compresses
+
+                                A
+                                |
+                               /O-----*
+                             *  |
+                                X
+                               / \
+                              o   o
+                             /   /
+                            ^   ^
+                                 ++++>
+_________________________________#__________________________
+========================================================================
+C016-K4 SHEAR_LOAD [FOURS/INFERRED]
+contact=STICK | custody=NONE | support=FRONT_DOMINANT | force=STATIC_TRACTION | patch=55
+role=static traction carries rising tangential load while normal contact remains unchanged | arc=body becomes a long forward lever around the fixed front patch
+
+                                   A
+                                   |
+                                  /O------*
+                                *  |
+                                   X
+                                  / \
+                                 o   o
+                                /   /
+                               ^   ^
+                                 +++++>
+_________________________________#__________________________
+========================================================================
+C016-K5 HELD_SHEAR_THRESHOLD [FOURS/INFERRED]
+contact=STICK_THRESHOLD | custody=NONE | support=FRONT_DOMINANT | force=STATIC_TRACTION_LIMIT | patch=55
+role=threshold is held visibly before failure; custody remains NONE and the front patch is still fixed | arc=maximum forward body lever with the traction patch still pinned at x55
+
+                                     A
+                                     |
+                                    /O-------*
+                                  *  |
+                                     X
+                                    / \
+                                   o   o
+                                  /   /
+                                 ^   ^
+                                 ++++++>
+_________________________________#__________________________
+========================================================================
+C016-K6 SLIP_BREAK [ONES/INFERRED]
+contact=SLIP | custody=NONE | support=FRONT_SLIDING_REAR_LIGHT | force=KINETIC_TRACTION | patch=57
+role=static lock breaks as a separate authored event while normal foot contact remains support-bearing | arc=front foot releases world patch 55 and begins rightward skid; body continues forward
+
+                                       A
+                                       |
+                                      /O-----*
+                                    *  |
+                                       X
+                                      / \
+                                     o   o
+                                    /   /
+                                   ^   ^
+                                 |:>
+_________________________________|:^_________________________
+========================================================================
+C016-K7 KINETIC_SLIDE [TWOS/INFERRED]
+contact=SLIP | custody=NONE | support=FRONT_SLIDING | force=KINETIC_TRACTION | patch=61
+role=visible skid travel follows the break; the body and support move together but not as a rigid skating block | arc=lead foot travels four cells while torso overshoots farther; rear chain lags
+
+                                          A
+                                          |
+                                         /O-----*
+                                       *  |
+                                          X
+                                         / \
+                                        o   o
+                                       /   /
+                                      ^   ^
+                                 |:::::>
+_________________________________|:::::^_____________________
+========================================================================
+C016-K8 SLIP_SPEED_COLLAPSE [TWOS/INFERRED]
+contact=SLIP | custody=NONE | support=FRONT_SLIDING | force=KINETIC_TRACTION | patch=64
+role=slip persists but spacing collapses before re-stick eligibility | arc=front foot advances less; pelvis advances less; rear leg begins catch
+
+                                            A
+                                            |
+                                           /O-----*
+                                         *  |
+                                            X
+                                           / \
+                                          o   o
+                                         /   /
+                                        ^   ^
+                                 |::::::::>
+_________________________________|::::::::^__________________
+========================================================================
+C016-K9 RESTICK_ELIGIBLE [ONES/INFERRED]
+contact=RESTICK_ELIGIBLE | custody=NONE | support=FRONT_SLIDING_REAR_CATCHING | force=KINETIC_TRACTION_DECAY | patch=66
+role=slip velocity decays enough to permit static lock, but lock has not reacquired yet | arc=front foot nearly stops at a displaced patch while rear support closes the gap
+
+                                             A
+                                             |
+                                            /O-----*
+                                          *  |
+                                             X
+                                            / \
+                                           o   o
+                                          /   /
+                                         ^   ^
+                                 |:::::::::::
+_________________________________|::::::::::^________________
+========================================================================
+C016-K10 DISPLACED_RESTICK [FOURS/INFERRED]
+contact=RESTICK | custody=NONE | support=FRONT_RESTICK_REAR_CATCH | force=STATIC_TRACTION_NEW_PATCH | patch=66
+role=static traction reacquires at new world patch x66; the rear catch remains wide so the recovery must pay overrun debt | arc=front foot locks at x66; pelvis rebounds left while the rear foot catches far behind to create a braking base
+
+                                           A
+                                           |
+                                      *-----O------*
+                                           |
+                                           X
+                                          / \
+                                        o     o
+                                       /       \
+                                    ^           ^
+                                          <<
+____________________________________________#_______________
+========================================================================
+C016-K11 DUAL_SUPPORT_SETTLE [ONES/INFERRED]
+contact=RESTICK | custody=NONE | support=BOTH | force=STATIC_TRACTION_NEW_PATCH | patch=66
+role=rear support joins the new front patch and visibly brakes the overrun without collapsing immediately to neutral | arc=front patch stays fixed while torso counterleans left across a wide dual-support base; free-side arm lags behind
+
+                                         A
+                                         |
+                                   *-----O--------*
+                                          \
+                                           X
+                                          / \
+                                        o     o
+                                       /       \
+                                     ^          ^
+                                          <
+____________________________________________#_______________
+========================================================================
+C016-K12 DISPLACED_RECOVERY_DEBT [FOURS/INFERRED]
+contact=RESTICK | custody=NONE | support=BOTH | force=STATIC_TRACTION_NEW_PATCH | patch=66
+role=recovery settles at the displaced patch with visible residual asymmetry instead of resetting to opening idle | arc=root remains displaced beyond the original patch; torso retains a small counterlean and rear-side lag as the base narrows
+
+                                          A
+                                          |
+                                     *----O------*
+                                           \
+                                            X
+                                           / \
+                                         o    o
+                                        /      \
+                                       ^       ^
+____________________________________________#_______________
