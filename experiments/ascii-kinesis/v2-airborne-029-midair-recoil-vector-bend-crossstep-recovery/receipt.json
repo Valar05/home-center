@@ -1,15 +1,85 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-airborne-029-midair-recoil-vector-bend-crossstep-recovery",
-  "status": "REPO_STAGE_READY_PENDING_GITHUB_READBACK_AND_CHAT_DELIVERY",
-  "preflight": {"home_center_campaign_read": true, "github_persistence_readback": true, "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s"},
-  "ownership": {"one_body": true, "successor_collision": false, "source_asset_id": "106418", "source_authentic_timing": "UNKNOWN", "decisive_compile_timing": "INFERRED / STREET_FIGHTER-CAPCOM"},
-  "repo": {"persisted": false, "final_readback": false, "spa_present": false},
-  "media": {"sha256": "ee0b4974907286b21c6a833282f911e6f34ef02023d42659aa9b7bebadb0a88b", "bytes": 36578, "fps": 24, "frames": 57, "width": 800, "height": 382, "codec": "H.264", "pixel_format": "yuv420p", "decode": "PASS"},
-  "quality": {"tango": {"round": 0, "verdict": "PASS", "render_sha256": "ee0b4974907286b21c6a833282f911e6f34ef02023d42659aa9b7bebadb0a88b", "inspection": "actual 57-frame render shows asymmetric preload and toe release, clean unsupported rise, visible puck ejection, root-vector bend left/down without support, crossed-foot precontact/contact, deep one-foot crush, late second support, upper-body/bar overrun, and displaced settle", "highest_value_visible_defect": null}, "noodle_queen": {"verdict": "PASS", "dimensions": ["TASTE", "FUNCTION", "CONTEMPT"], "render_sha256": "ee0b4974907286b21c6a833282f911e6f34ef02023d42659aa9b7bebadb0a88b", "inspection": "task impulse visibly owns the midair direction change; the crooked crossed catch pays recoil and gravity debt; recovery hunts/restacks instead of reversing to launch pose; silhouette progression is specific rather than generic jump dressing"}},
-  "contract": {"validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78", "candidate_isolated": "PASS_CURRENT_VALIDATOR_RULES", "full_repo_boundary": "Exact current validator blob read through GitHub. Candidate-isolated structural execution is performed on the exact candidate; no repo-global checkout execution is claimed in Standard Chat."},
-  "issue_343": {"closure_receipt": null, "closure_receipt_readback": false, "final_addendum": null},
-  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_visible_video": false, "video_byte_identical": false, "part3_media_sha256": null},
+  "status": "REPO_PERSISTED_READBACK_PASS_PENDING_ISSUE_AND_CHAT_DELIVERY",
+  "preflight": {
+    "home_center_campaign_read": true,
+    "github_persistence_readback": true,
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s"
+  },
+  "ownership": {
+    "one_body": true,
+    "successor_collision": false,
+    "source_asset_id": "106418",
+    "source_authentic_timing": "UNKNOWN",
+    "decisive_compile_timing": "INFERRED / STREET_FIGHTER-CAPCOM"
+  },
+  "repo": {
+    "persisted": true,
+    "final_readback": true,
+    "exact_six_files": true,
+    "spa_present": true,
+    "spa_count": 1
+  },
+  "media": {
+    "authoritative": {
+      "sha256": "ee0b4974907286b21c6a833282f911e6f34ef02023d42659aa9b7bebadb0a88b",
+      "bytes": 36578,
+      "fps": 24,
+      "frames": 57,
+      "width": 800,
+      "height": 382,
+      "codec": "H.264",
+      "pixel_format": "yuv420p",
+      "decode": "PASS"
+    },
+    "spa_presentation": {
+      "sha256": "e822658d63930c2ae433c8fa309859cd732f45dfe42e8f47aa3e0fff0feeec1f",
+      "bytes": 5509,
+      "fps": 24,
+      "frames": 57,
+      "width": 400,
+      "height": 192,
+      "codec": "H.264",
+      "pixel_format": "yuv420p",
+      "decode": "PASS",
+      "byte_identical_to_authoritative": false
+    }
+  },
+  "quality": {
+    "tango": {
+      "round": 0,
+      "verdict": "PASS",
+      "render_sha256": "ee0b4974907286b21c6a833282f911e6f34ef02023d42659aa9b7bebadb0a88b",
+      "highest_value_visible_defect": null
+    },
+    "noodle_queen": {
+      "verdict": "PASS",
+      "dimensions": [
+        "TASTE",
+        "FUNCTION",
+        "CONTEMPT"
+      ],
+      "render_sha256": "ee0b4974907286b21c6a833282f911e6f34ef02023d42659aa9b7bebadb0a88b"
+    }
+  },
+  "contract": {
+    "validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS_CURRENT_VALIDATOR_RULES",
+    "full_repo_boundary": "Exact current validator and exact current candidate files read from GitHub; candidate-isolated structural predicates verified in Standard Chat. No fresh repo-global shell checkout/run claimed."
+  },
+  "issue_343": {
+    "closure_receipt": null,
+    "closure_receipt_readback": false,
+    "final_addendum": null
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_visible_video": false,
+    "video_byte_identical": false,
+    "part3_media_sha256": null
+  },
   "DREW_ACCEPTED": false,
   "next_authorized": null
 }
