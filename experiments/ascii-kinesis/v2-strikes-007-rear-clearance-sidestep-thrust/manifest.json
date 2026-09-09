@@ -1,0 +1,93 @@
+{
+  "schema": "ascii-kinesis.manifest.v2",
+  "format_version": 2,
+  "id": "v2-strikes-007-rear-clearance-sidestep-thrust",
+  "lane": "strikes",
+  "path": "experiments/ascii-kinesis/v2-strikes-007-rear-clearance-sidestep-thrust/",
+  "revision": {
+    "kind": "fresh_post_debt_concept",
+    "pre_reset_debt_closed": true,
+    "closure_receipts": [
+      5592566123,
+      5593289237,
+      5594453954,
+      5595237307
+    ],
+    "created_after_issue_receipt": 5595237307,
+    "latest_manager_reconciliation": 5594808897,
+    "source_change": "N/A_FRESH_CONCEPT",
+    "successor_collision": "NONE_AT_CREATION",
+    "one_successor_law": "BIND_007_UNTIL_HEALTHY",
+    "strikes008_forbidden_until_healthy": true
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": 255871,
+    "name": "Spear",
+    "game": "Legend of Heroes",
+    "platform": "Arcade",
+    "authoritative_campaign_issue_receipt": 5572842500,
+    "source_sha256": "e850b6944ee00b9087d67d3aebf96d7a8676a495c80bfcaf091df9949d41f611",
+    "source_timing": "UNKNOWN_STATIC_SHEET"
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "artifacts": {
+    "build.py": {
+      "sha256": "f32b984f67b20740b8634e2407928165729bea2afadac99669eda243b55884b7",
+      "bytes": 9990
+    },
+    "motion.json": {
+      "sha256": "f5c3a701b44bb7f6706b6914df297374d89d0d675c62e9f833d45ca7700f05b7",
+      "bytes": 20196
+    },
+    "rear-clearance-sidestep-thrust.motion.html": {
+      "sha256": "12cfcbb07d7e3102fa2d724cccc1c74d3f1520b10f3372699c1c94933586073a",
+      "bytes": 30749
+    },
+    "generated_contact_sheet": {
+      "sha256": "4b9a6611c1e29b34149c12b510a096f87236e98d638ae902b10dd21046b075ad",
+      "bytes": 28581,
+      "tracked": false
+    },
+    "embedded_media": {
+      "sha256": "114f5089fd890efa8ef1656c523d17294fb6caccc61bee9c3e42919b1962b13a",
+      "bytes": 12040,
+      "frame_count": 44,
+      "fps": 24,
+      "seconds": 1.8333333333333333
+    }
+  },
+  "quality": {
+    "tango": "PASS_CURRENT_WORKER_ACTUAL_44_FRAME_RENDER",
+    "noodle_queen": "PASS_AFTER_TANGO_CURRENT_WORKER_ACTUAL_FINAL_RENDER",
+    "drew_accepted": false
+  },
+  "contract": {
+    "official_validator_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "official_validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "candidate_isolated_exact_validator_logic": "PASS",
+    "full_repo_global_shell_boundary": "NOT_CLAIMED_NO_AUTHORIZED_CHECKOUT"
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "FIX ARC",
+    "FIX SUPPORT",
+    "FIX CONTACT",
+    "FIX SECONDARY LAG",
+    "RERUN"
+  ]
+}
