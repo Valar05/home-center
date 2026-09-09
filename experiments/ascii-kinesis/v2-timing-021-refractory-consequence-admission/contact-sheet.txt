@@ -1,0 +1,252 @@
+T021-K0 READY_OPEN FOURS/4t PROVENANCE=INFERRED REFRACTORY=OPEN EVENT=NONE ROOT=(44,10) OWNER=BOTH SUPPORT=BOTH_FEET
+
+
+
+                                            O
+                                            |
+                                           -o-
+                                         o- | -o
+                                        /   |   \\
+                                        /   |     o
+                                       o    |      \
+                                       /    @       o
+                                      /    / \
+                                      o   /   \
+                                          /   \
+                                         o     o
+                                         /      \
+                                        /       \
+                                        /        \
+   _____________________________________*________*_________________________
+--------------------------------------------------------------------------------------------
+T021-K1 FIRST_EVENT_ADMITTED ONES/1t PROVENANCE=INFERRED REFRACTORY=CLOSES_ON_COMMIT EVENT=ADMITTED_NEW_CONSEQUENCE ROOT=(42,11) OWNER=LEFT SUPPORT=BOTH_FEET_TRANSIENT
+
+
+
+
+                                         O
+                                          |
+                                         -o-
+                                       o- | -o
+                                      /   |   \!>>>
+                                      /   |     o
+                                     o    |      \o
+                                    /     @
+                                    o    / \
+                                        /   \\
+                                        /     o
+                                       o       \
+                                       /        \
+                                      /         \
+   ___________________________________*__________+_________________________
+--------------------------------------------------------------------------------------------
+T021-K2 RECOIL_SUPPORT_BREAK TWOS/2t PROVENANCE=INFERRED REFRACTORY=CLOSED EVENT=NONE ROOT=(39,11) OWNER=LEFT SUPPORT=LEFT_DOMINANT_RIGHT_SKID
+
+
+
+
+                                      O
+                                       |
+                                      -o-
+                                    o- | -o
+                                   /   |   \\
+                                   /   |     o
+                                  o    |      \o
+                                 /     @
+                                 o    / \
+                                      /  \\
+                                     /     o
+                                     o      \
+                                     /       \
+                                    /         \
+   _________________________________*__________+___________________________
+--------------------------------------------------------------------------------------------
+T021-K3 CONSEQUENCE_HANG FOURS/4t PROVENANCE=INFERRED REFRACTORY=CLOSED EVENT=NONE ROOT=(37,12) OWNER=LEFT SUPPORT=LEFT_ONLY_RIGHT_UNTRUSTED
+
+
+
+
+
+                                    O
+                                     |
+                                    -o-
+                                  o- | -o
+                                  /  |   \\
+                                 /   |     o
+                                 o   |      \o
+                                /    @
+                                o   / \
+                                    /  \\
+                                   o     o
+                                   /      \\
+                                  /         \+
+   _______________________________*________________________________________
+--------------------------------------------------------------------------------------------
+T021-K4 EARLY_RETRIGGER_COALESCED ONES/1t PROVENANCE=INFERRED REFRACTORY=CLOSED EVENT=COALESCED_INTO_EXISTING_CONSEQUENCE ROOT=(37,12) OWNER=LEFT SUPPORT=LEFT_ONLY_RIGHT_UNTRUSTED
+
+
+
+
+
+                                    O
+                                     |
+                                    -o-      \o
+                                  o- | --o\\o  x>>>
+                                  /  |
+                                 /   |
+                                 o   |
+                                /    @
+                                o   / \
+                                    /  \\
+                                   o     o
+                                   /      \\
+                                  /         \+
+   _______________________________*________________________________________
+--------------------------------------------------------------------------------------------
+T021-K5 ABSORB_WITHOUT_RESTART TWOS/2t PROVENANCE=INFERRED REFRACTORY=CLOSED EVENT=ABSORBED_NO_FULLBODY_REKEY ROOT=(38,12) OWNER=LEFT SUPPORT=LEFT_ONLY_RIGHT_PROBE
+
+
+
+
+
+                                     O
+                                      |
+                                     -o-
+                                   o- | -o             >>>
+                                  /   |   \\
+                                  o   |     o
+                                 /    |      \
+                                 o    @       o
+                                     / \
+                                     /  \\
+                                    o     o
+                                    /      \\
+                                   /         \+
+   ________________________________*_______________________________________
+--------------------------------------------------------------------------------------------
+T021-K6 SUPPORT_REASSESS TWOS/2t PROVENANCE=INFERRED REFRACTORY=CLOSED EVENT=NONE ROOT=(39,11) OWNER=LEFT SUPPORT=LEFT_PLUS_RIGHT_PROBE
+
+
+
+
+                                       O
+                                       |
+                                      -o-
+                                    o- | -o
+                                    /  |   \
+                                   /   |   \
+                                   o   |    o
+                                  /    @     \
+                                  o   / \    o
+                                      /  \
+                                     /    \
+                                     o     o
+                                     /      \
+                                    /        \\
+   _________________________________*__________+___________________________
+--------------------------------------------------------------------------------------------
+T021-K7 RECOVERY_GATE_REOPENS FOURS/4t PROVENANCE=INFERRED REFRACTORY=OPEN EVENT=NONE ROOT=(40,10) OWNER=BOTH SUPPORT=BOTH_FEET_WEIGHT_SHARED
+
+
+
+                                        O
+                                        |
+                                       -o-
+                                     o- | -o
+                                     /  |   \
+                                    /   |   \
+                                    o   |    o
+                                   /    @     \
+                                   o   / \    o
+                                       /  \
+                                      /   \
+                                      o    o
+                                      /     \
+                                     /      \
+                                     /       \
+   __________________________________*_______*_____________________________
+--------------------------------------------------------------------------------------------
+T021-K8 LATE_RETRIGGER_ADMITTED ONES/1t PROVENANCE=INFERRED REFRACTORY=CLOSES_ON_COMMIT EVENT=ADMITTED_NEW_CONSEQUENCE ROOT=(38,11) OWNER=RIGHT SUPPORT=BOTH_FEET_TRANSIENT
+
+
+
+
+                                      O
+                                      |
+                                     -o-
+                                   o- | -o
+                                  /   |   \    !>>>
+                                 o    |    \
+                                o     |     o
+                                      @      \
+                                     / \      o
+                                     /  \
+                                    o    \
+                                    /     o
+                                   /       \
+                                   /        \
+   ________________________________+_________*_____________________________
+--------------------------------------------------------------------------------------------
+T021-K9 SECOND_RECOIL_DIFFERENT_SUPPORT TWOS/2t PROVENANCE=INFERRED REFRACTORY=CLOSED EVENT=NONE ROOT=(35,11) OWNER=RIGHT SUPPORT=RIGHT_DOMINANT_LEFT_SKID
+
+
+
+
+                                  O
+                                   |
+                                  -o-
+                                o- | -o
+                               /   |   \\
+                               /   |     o
+                              o    |      \o
+                             /     @
+                             o    / \
+                                  /  \\
+                                 /     o
+                                 o      \
+                                /        \
+                                /        \
+   ____________________________+__________*________________________________
+--------------------------------------------------------------------------------------------
+T021-K10 SECOND_AFTERMATH FOURS/4t PROVENANCE=INFERRED REFRACTORY=CLOSED EVENT=NONE ROOT=(33,12) OWNER=RIGHT SUPPORT=RIGHT_ONLY_LEFT_UNTRUSTED
+
+
+
+
+
+                                O
+                                 |
+                                -o-
+                              o- | -o
+                             /   |   \
+                            o    |    \
+                           /     |     o
+                           o     @      \
+                                / \      o
+                                /  \\
+                               o     o
+                              /       \
+                             +         \
+   _____________________________________*__________________________________
+--------------------------------------------------------------------------------------------
+T021-K11 RECOVER_NEW_ADDRESS FOURS/4t PROVENANCE=INFERRED REFRACTORY=OPEN EVENT=NONE ROOT=(35,10) OWNER=BOTH SUPPORT=BOTH_FEET_WEIGHT_SHARED
+
+
+
+                                   O
+                                   |
+                                  -o-
+                                o- | -o
+                                /  |   \
+                               /   |   \
+                               o   |    o
+                              /    @     \
+                              o   / \     o
+                                  /  \
+                                 /   \
+                                 o    o
+                                 /     \
+                                /      \
+                                /       \
+   _____________________________*_______*__________________________________
+--------------------------------------------------------------------------------------------
