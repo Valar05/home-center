@@ -147,6 +147,7 @@ K4 — CONTACT_PREP — TWOS — INFERRED
 
 
 
+
 ________________________________________________________________________________________________
 SUPPORT A=NONE | B=NONE | CONTACT=NONE
 ROOT: A near shoulder/forearm aligns to incoming line; B presents near upper arm; roots still free
@@ -170,6 +171,7 @@ K5 — GLANCING_BODY_IMPULSE — TWOS — INFERRED
                                              /    \    ^
                                             ^     \
                                                    ^
+
 
 
 
@@ -211,11 +213,13 @@ K6 — SPLIT_VELOCITY — TWOS — INFERRED
 
 
 
+
 ________________________________________________________________________________________________
 SUPPORT A=NONE | B=NONE | CONTACT=NONE
 ROOT: A deflects down-right with stronger descent; B deflects up-left briefly before gravity wins
 
 K7 — DIVERGENT_DESCENT — TWOS — INFERRED
+
 
 
 
@@ -230,7 +234,7 @@ K7 — DIVERGENT_DESCENT — TWOS — INFERRED
                                 // |
                                h   |
                                    @                   h\   A
-                                  / \                    \\\\O
+                                  / \                    \\\O
                                   /  \                       \o
                                  /    \                      /|
                                 /      ^                    /  |
@@ -292,12 +296,13 @@ K9 — A_CRUSH_B_LATE_CATCH — TWOS — INFERRED
 
 
 
+
                                   h
                                 \\
                            B  \\
                             \\
                            o                               h\\\\ A
-                         //                                     \\\\o
+                         //                                     \\\o
                        h/ |                                        / |
                          |                                        /  |
                          @\                                       /   |
@@ -311,6 +316,7 @@ SUPPORT A=RIGHT_FOOT_DOMINANT_LEFT_FOOT_PROBE | B=LEFT_FOOT_FIRST | CONTACT=GROU
 ROOT: A root overruns its first catch then left foot probes; B left foot catches later with torso still offset
 
 K10 — SPLIT_RECOVERY_OVERrun — TWOS — INFERRED
+
 
 
 
@@ -356,18 +362,19 @@ K11 — DISPLACED_SETTLE — FOURS — INFERRED
 
 
 
-                            B                                   A
-                             O                                   O
-                             o                                   o
-                           //|\                                 /|\\
-                         h/  | \\                             // |  \h
-                             |   h                           h   |
-                             @                                   @
-                            / \                                 / \
-                           /   \                               /   \
-                           /   \                               /   \
-                          /     \                             /     \
-                         ^       ^                           ^       ^
+
+                             B                                   A
+                              O                                   O
+                              o                                   o
+                            //|\                                 /|\\
+                          h/  | \\                             // |  \h
+                              |   h                           h   |
+                              @                                   @
+                             / \                                 / \
+                            /   \                               /   \
+                            /   \                               /   \
+                           /     \                             /     \
+                          ^       ^                           ^       ^
 ________________________________________________________________________________________________
 SUPPORT A=BOTH_FEET_STABLE | B=BOTH_FEET_STABLE | CONTACT=GROUND_ONLY
 ROOT: both bodies settle farther apart than their original convergence line; collision history remains visible in stance asymmetry
