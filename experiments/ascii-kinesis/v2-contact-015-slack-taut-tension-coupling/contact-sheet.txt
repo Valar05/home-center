@@ -1,0 +1,356 @@
+v2-contact-015-slack-taut-tension-coupling
+ATTACHMENT IS NOT A LOAD PATH — an attached relationship can remain geometrically present while transmitting zero force until slack reaches a taut threshold.
+REVISION: kind=NEW_CONCEPT | revises=None | negative_fixture=None | source_change=NOT_APPLICABLE_NEW_CONCEPT
+SOURCE EVIDENCE: TSR asset 500827, Green Army Man — Toy Story — Sega Genesis; commissioned whole 576x720 sheet record re-inspected after fresh preflight.
+OBSERVED SOURCE HOOK: whole-sheet record includes Parachute / Soldier descends by parachute among eight named families; this earns an external-drag relationship problem, not this synthetic choreography.
+RIGHTS: evidence only; independent generic ASCII body+tether+drag plate; no source pixels/palette/costume/contours/layout/tracing/choreography/redistribution/close imitation; Drew work not used.
+TIMING: all decisive keys INFERRED / STREET_FIGHTER-CAPCOM; ONES/TWOS/FOURS are display classes, never seconds.
+VISIBLE LAW: [D] is generic external drag; ~ means ATTACHED BUT SLACK (zero load); =/@ means TAUT load path. CUSTODY and body support remain NONE.
+================================================================================================
+C015-K0  ATTACHED_SLACK_READ  [FOURS/INFERRED]
+contact=ATTACHED_SLACK | custody=NONE | support=NONE | force_owner=GRAVITY_DOMINANT
+force=[0, 2] | anchor=[25, 5]
+role=same tether exists but is visibly slack and carries no force
+arc=wide sag and quiet free-fall read
+
+
+
+
+
+                        [D]
+                          ~~
+                            ~~                   A
+                              ~                  |
+                               ~~                |
+                                 ~~           ~~~O-
+                                   ~~   ~~~~~~-- | ----
+                                     ~~~   *-    |     -*
+                                                  |
+                                                  |
+                                                  X
+                                                 /+\
+                                                / v \\
+                                               /      \\
+                                              o        o
+                                             |          \
+                                             |           \
+                                            |            \
+                                            ^             ^
+
+
+
+
+
+================================================================================================
+C015-K1  FALL_SPENDS_SLACK  [TWOS/INFERRED]
+contact=ATTACHED_SLACK | custody=NONE | support=NONE | force_owner=GRAVITY_DOMINANT
+force=[1, 3] | anchor=[25, 5]
+role=body travels first; tether length demand increases without force transmission
+arc=pelvis drops/right while drag plate remains independent
+
+
+
+
+
+                        [D]
+                          ~~
+                            ~~
+                              ~                     A
+                               ~~                   |
+                                 ~                  |
+                                  ~~             ~~~O-
+                                    ~~    ~~~~*~~-  | --
+                                      ~~~~           |  --
+                                                     |    -*
+                                                      |
+                                                      X
+                                                     /+\\
+                                                   //  + \
+                                                  /    +  \\
+                                                 o     v    o
+                                                /            \
+                                               /              \
+                                               /              \
+                                              ^                ^
+
+
+
+
+================================================================================================
+C015-K2  TAUT_ELIGIBILITY  [TWOS/INFERRED]
+contact=TAUT_ELIGIBLE | custody=NONE | support=NONE | force_owner=GRAVITY_DOMINANT
+force=[1, 3] | anchor=[25, 5]
+role=line is nearly straight but tension has not acquired yet
+arc=one visible bend remains; COM is still on the free trajectory
+
+
+
+
+
+                        [D]
+                           ~~~
+                              ~~~
+                                 ~~~
+                                    ~~~                 A
+                                       ~~~~~            |
+                                            ~~~~~~~~   |
+                                                    ~~~O-
+                                                 *---  | ----
+                                                        |    -*
+                                                        |
+                                                         |
+                                                         X
+                                                        /+--
+                                                      //  + --
+                                                     /    +   -o
+                                                    o     v     \
+                                                   /             \
+                                                  /               \
+                                                 ^                 ^
+
+
+
+
+================================================================================================
+C015-K3  TAUT_ACQUIRE  [ONES/INFERRED]
+contact=TAUT_LOAD | custody=NONE | support=NONE | force_owner=EXTERNAL_TENSION
+force=[-4, -3] | anchor=[25, 5]
+role=slack reaches zero; tension activates without any custody event
+arc=straight line snaps into a diagonal force axis before body trajectory has fully turned
+
+
+
+
+
+                        [===
+                            ====
+                                =====
+                                     ====@
+                                         =====            A
+                                              =====       |
+                                                   ====  |
+                                                       ==O---
+                                                     < --|   ---*
+                                                     --+  |
+                                                   *-   + |
+                                                         ++|
+                                                           X
+                                                          / \\
+                                                        //    \\
+                                                       /        o
+                                                      o          \
+                                                     /            \
+                                                    /              \
+                                                   ^                ^
+
+
+
+
+================================================================================================
+C015-K4  TENSION_DWELL  [FOURS/INFERRED]
+contact=TAUT_LOAD | custody=NONE | support=NONE | force_owner=EXTERNAL_TENSION
+force=[-5, -4] | anchor=[25, 5]
+role=persistent tension bends the COM path while the attachment topology remains unchanged
+arc=shoulders rotate toward anchor; feet trail down-right under the new load path
+
+
+
+
+
+                        [===
+                            =====
+                                 =====
+                                      ==@==             A
+                                           =====        |
+                                                =====  |
+                                                  <  ==O---
+                                                   ++ /|   ---*
+                                                     /  |
+                                                    / + |
+                                                   /   ++|
+                                                  *      X
+                                                        / \\
+                                                       /    \\
+                                                       /      o
+                                                      /        \
+                                                     o          \
+                                                    /           \
+                                                   /             ^
+                                                  ^
+
+
+
+
+================================================================================================
+C015-K5  PENDULAR_OVERSHOOT  [TWOS/INFERRED]
+contact=TAUT_LOAD | custody=NONE | support=NONE | force_owner=EXTERNAL_TENSION
+force=[-4, -3] | anchor=[25, 5]
+role=body overshoots left of the first tension-balanced path while the tether remains taut
+arc=pelvis swings sharply left under the anchor; hands and feet stay rightward one beat, exposing pendular debt
+
+
+
+
+
+                        [===
+                            ====
+                                ====           A
+                                    @====      |
+                                         ====  |
+                                             ==O-
+                                        <     /| ----
+                                         ++  / |     -*
+                                           // |
+                                          / ++|
+                                         /    X-
+                                        *    |  ---
+                                             |     ---
+                                            |         -o
+                                            |           \
+                                           |             \
+                                           o             \
+                                          /               ^
+                                          /
+                                         ^
+
+
+
+
+================================================================================================
+C015-K6  COUNTERSWING_SECONDARY_LAG  [TWOS/INFERRED]
+contact=TAUT_LOAD | custody=NONE | support=NONE | force_owner=EXTERNAL_TENSION
+force=[-3, -2] | anchor=[25, 5]
+role=COM reverses right under the same taut relationship while distal limbs retain left-swing debt
+arc=pelvis/shoulder counter-swing right; head and free-side chain lag, making the sign reversal visible rather than metadata-only
+
+
+
+
+
+                        [===
+                            =====
+                                 ====           A
+                                     @====      |
+                                          =====  |
+                                               ==O-
+                                               --| --
+                                             --   |  --
+                                           *-  <+ |    -*
+                                                 ++|
+                                                   X
+                                                  / \
+                                                 /   \\
+                                                 /     \
+                                                /       o
+                                               o         \
+                                              /           \
+                                             /            \
+                                            ^              ^
+
+
+
+
+
+================================================================================================
+C015-K7  DAMPING_THRESHOLD  [TWOS/INFERRED]
+contact=TAUT_SETTLE | custody=NONE | support=NONE | force_owner=EXTERNAL_TENSION
+force=[-2, -1] | anchor=[25, 5]
+role=a smaller left correction spends remaining oscillation under reduced tension
+arc=second swing amplitude is visibly smaller; line stays taut and force magnitude falls
+
+
+
+
+
+                        [==
+                           ====
+                               ===
+                                  ==@=        A
+                                      ===     |
+                                         ==== |
+                                             =O-
+                                            //| ---
+                                          //  |    -*
+                                         *     |
+                                            <+ |
+                                              +X
+                                              / \
+                                             /   \\
+                                             /     \
+                                            o       o
+                                           |         |
+                                           |         |
+                                          |           |
+                                          ^           ^
+
+
+
+
+================================================================================================
+C015-K8  SETTLE_UNDER_ANCHOR  [FOURS/INFERRED]
+contact=TAUT_SETTLE | custody=NONE | support=NONE | force_owner=EXTERNAL_TENSION
+force=[-1, -1] | anchor=[25, 5]
+role=system settles into a new displaced equilibrium with attachment still taut
+arc=body is no longer on original free-fall line; negative space remains asymmetrical
+
+
+
+
+
+                        [==
+                           ====
+                               ====
+                                   =@=         A
+                                      ====     |
+                                          ==== |
+                                              =O
+                                            -- |--
+                                          *-   |  --
+                                                |   -*
+                                               <|
+                                                X
+                                               / \
+                                              /   \
+                                              /    \
+                                             o      o
+                                            |        |
+                                            |        |
+                                           |          |
+                                           ^          ^
+
+
+
+
+================================================================================================
+C015-K9  DISPLACED_RECOVERY  [FOURS/INFERRED]
+contact=TAUT_SETTLE | custody=NONE | support=NONE | force_owner=EXTERNAL_TENSION
+force=[-1, -1] | anchor=[25, 5]
+role=recovery is a damped, displaced hang rather than a reset to the opening free state
+arc=free-side limbs rest asymmetrically; line remains visibly load-bearing
+
+
+
+
+
+                        [===
+                            ====
+                                ====           A
+                                    @====      |
+                                         ====  |
+                                             ==O
+                                            -- |--
+                                          *-   |  --
+                                                |   -*
+                                               <|
+                                                X
+                                               / \
+                                              /   \
+                                              /    \
+                                             o      o
+                                            |        |
+                                            |        |
+                                           |          |
+                                           ^          ^
+
+
+
