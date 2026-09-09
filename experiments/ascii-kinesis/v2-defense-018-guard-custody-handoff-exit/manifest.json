@@ -4,12 +4,8 @@
   "experiment_id": "v2-defense-018-guard-custody-handoff-exit",
   "lane": "defense",
   "kind": "NEW_CONCEPT",
-  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
+  "status": "HEALTHY_USER_SURFACED",
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
@@ -71,15 +67,20 @@
   },
   "repo_verification": {
     "pre_write_main_commit": "25daa91eb4c06ce8084d92054a1a455c8f74f4d0",
+    "manifest_reconciliation_commit": "194faa65ffcb0abee43b9cf7fb5e489583e42479",
+    "pre_delivery_receipt_binding_commit": "b8f1cac43d7d4a83ac17898d3a2b36fa45307a7f",
     "exact_six_file_inventory": true,
     "exactly_one_spa": true,
-    "post_write_readback_pending": true
+    "repo_readback": true,
+    "issue_343_receipt": 5604698537,
+    "issue_343_receipt_readback": true
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_visible_video": false,
-    "ordered_together": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_visible_video": true,
+    "ordered_together": true,
+    "authoritative_video_sha256": "91df338a3b9699877f8b5a9b88c1acef64353152a04ea5226af188b8da354700"
   },
   "compatibility": {
     "offline_spa": true,
