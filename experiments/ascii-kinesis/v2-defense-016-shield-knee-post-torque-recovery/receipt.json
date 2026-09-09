@@ -1,0 +1,148 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "experiment_id": "v2-defense-016-shield-knee-post-torque-recovery",
+  "status": "QUALITY_GATES_PASS / CONTRACT_PASS / REPO_READBACK_REQUIRED / CHAT_DELIVERY_REQUIRED",
+  "current_worker_preflight": {
+    "home_center_campaign": "PASS",
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "github_persistence_readback": "PASS",
+    "governing_reset": 5576901079,
+    "defense006_closure": 5591342224,
+    "defense013_closure": 5594519570,
+    "defense014_closure": 5595507422,
+    "defense015_closure": 5596100356,
+    "defense015_correction": 5596161856,
+    "manager_reconciliation": 5596224424,
+    "skill_blob": "b2aaea5ee6babfdb788a028beb05e10159720776",
+    "contract_blob": "d02f015f526ca56c3f13072fc0e9d03157630fbd"
+  },
+  "inventory": {
+    "precreation_defense016_count": 0,
+    "successor_collision": false,
+    "defense017_created": false
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "title": "Cress Albane",
+    "game": "Tales of Phantasia",
+    "platform": "Game Boy Advance",
+    "asset_id": "11953",
+    "page_url": "https://www.spriters-resource.com/game_boy_advance/top/asset/11953/",
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "campaign_evidence_receipt": 5570783460,
+    "whole_source_evidence": {
+      "type": "static_png_whole_sheet",
+      "dimensions": [696,834],
+      "reported_size": "68.25 KB",
+      "uploader": "Gors",
+      "animations_count": "UNKNOWN",
+      "observed": [
+        "whole sheet contains labeled Idle, Guard, Damaged, Dead, Knocked Out & Getting Up, Walk, Run & Stop, and multiple attack families",
+        "swordless variants and separate sword/shield graphics coexist with body-state families",
+        "guard, consequence, recovery, and equipment channels can be separated as state families",
+        "static sheet layout does not establish chronology or source-authentic playback timing"
+      ],
+      "unknown": [
+        "source-authentic frame chronology",
+        "source exposure duration",
+        "source hit-stop",
+        "source support/contact mechanics",
+        "exact source byte identity and SHA-256"
+      ]
+    }
+  },
+  "rights": {
+    "source_art_status": "commercial_copyright_restricted_evidence_only",
+    "source_pixels_used": false,
+    "source_palette_used": false,
+    "source_costume_used": false,
+    "source_contours_used": false,
+    "source_layout_used": false,
+    "source_frames_traced": false,
+    "source_choreography_copied": false,
+    "redistribution": false,
+    "close_imitation": false,
+    "output_rig": "independent generic ASCII humanoid with abstract guard-channel glyph"
+  },
+  "evidence_boundary": {
+    "OBSERVED": [
+      "campaign source identity, asset 11953 and source page",
+      "static PNG whole-sheet dimensions 696x834 and reported size 68.25 KB",
+      "uploader Gors",
+      "labeled family inventory and separate body/equipment graphics described by campaign receipt 5570783460"
+    ],
+    "INFERRED": [
+      "all Defense016 acting and chronology",
+      "left-side contact direction",
+      "guard-column constraint",
+      "COM/root path",
+      "support break and knee-post topology",
+      "around-step reacquisition",
+      "overshoot/settle/secondary lag/recovery debt",
+      "all ONES/TWOS/FOURS timing and STREET_FIGHTER/CAPCOM compile cadence"
+    ],
+    "UNKNOWN": [
+      "source-authentic timing/chronology/hit-stop/exposure",
+      "source-authentic support/contact mechanics",
+      "exact source byte/hash identity"
+    ]
+  },
+  "quality": {
+    "tango_current_worker": "PASS_AFTER_TWO_SAME_BODY_REVISIONS",
+    "tango_final_basis": "actual 60-frame H.264 render inspected frame-by-frame as a complete timing sheet after revisions; fixed-endpoint guard shear, explicit rear support break, low knee+rear-foot tripod, authored knee-post push before release, around-step preplant/catch, overshoot, second-foot reacquisition, late guard reopen, secondary lag, and displaced ready debt remain visible",
+    "tango_revisions": [
+      {
+        "render_sha256": "4ec37b264302f65d45839e3163c39c68c05e029fb85a4bf0fc8b4638a5f3f02f",
+        "verdict": "REVISE_REQUIRED",
+        "defect": "knee-post phase read as a narrow upright crouch rather than a dominant body-floor support event",
+        "correction": "reauthored D016-K7..K10 and downstream rear-foot continuity: deeper pelvis/head drop, wider rear post, free lower-leg fold, stronger torso rotation, explicit K floor marker"
+      },
+      {
+        "render_sha256": "56b148e20c4fa21813b44627cd23b57aa6fd49fc749c6d0f683336624c33e81a",
+        "verdict": "REVISE_REQUIRED",
+        "defect": "height recovery still snapped on the same frame as knee release; support had not visibly generated the rise",
+        "correction": "inserted authored D016-K8B KNEE_POST_PUSH with knee+rear-foot still pinned, visible countercoil and partial rise before support release"
+      }
+    ],
+    "tango_final_render_sha256": "99fdab0a5bc595c410dd9634cca46d9b08955234426f65800b73daeb4a812bcf",
+    "noodle_queen_current_worker": "PASS_AFTER_TANGO",
+    "noodle_queen_basis": {
+      "TASTE": "the long fixed guard column collapses into a crooked low tripod, then unwinds through a distinct around-step arc; silhouettes change in kind rather than by polite interpolation",
+      "FUNCTION": "brace -> contact constraint -> pinned body shear -> rear-only support break -> contact-release fold -> knee-post acquisition -> low torque spill -> supported push -> knee release -> around-step preplant -> new-foot catch -> overtravel -> second-foot reacquire -> late guard reopen is causally legible",
+      "CONTEMPT": "the sequence refuses a neutral reset and avoids the accepted Defense013 pivot exit, Defense014 tool-floor kickstand, Defense015 traveling phase-slip, planted-feet theater, reverse interpolation, and generic connectors"
+    },
+    "drew_accepted": false
+  },
+  "media": {
+    "authority": "embedded_mp4_in_spa",
+    "sha256": "99fdab0a5bc595c410dd9634cca46d9b08955234426f65800b73daeb4a812bcf",
+    "bytes": 22892,
+    "frames": 60,
+    "fps": 24,
+    "resolution": [800,450],
+    "codec": "H.264",
+    "pixel_format": "yuv420p",
+    "decode": "PASS_FFPROBE_AND_FULL_FFMPEG_DECODE",
+    "source": "abstract_ascii_rig_and_timing_only",
+    "duration_seconds": 2.5
+  },
+  "contract_test": {
+    "status": "PASS_EXACT_OFFICIAL_V2_CANDIDATE_ISOLATED",
+    "validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "result": {
+      "entries_checked": ["v2-defense-016-shield-knee-post-torque-recovery"],
+      "ok": true,
+      "schema": "ascii-kinesis.swarm-contract-v2-test"
+    },
+    "full_repo_global_execution": "NOT_CLAIMED_STANDARD_CHAT_NO_COMPLETE_CHECKOUT"
+  },
+  "repo_readback": {"status": "PENDING"},
+  "issue_343_receipt": null,
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_visible_video": false,
+    "ordered_together": false
+  },
+  "drew_accepted": false
+}
