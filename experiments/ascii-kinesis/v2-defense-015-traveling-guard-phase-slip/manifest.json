@@ -4,11 +4,7 @@
   "experiment_id": "v2-defense-015-traveling-guard-phase-slip",
   "lane": "defense",
   "principle": "Traveling guard phase-slip: a glancing high-line defense lets BASE/root travel continue while the guard/task channel compresses, lags, then rebinds only after a new support catch changes constraints.",
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "ascii_surface": "real preformatted DOM text",
   "ligatures_disabled": true,
@@ -51,10 +47,7 @@
     "campaign_evidence_receipt": 5572162409,
     "whole_source_evidence": {
       "type": "static_png_whole_sheet",
-      "dimensions": [
-        1469,
-        2167
-      ],
+      "dimensions": [1469,2167],
       "reported_size": "565.00 KB",
       "exact_bytes": "UNKNOWN",
       "sha256": "UNKNOWN",
@@ -95,13 +88,13 @@
     "receipt.md"
   ],
   "reconstruction": "python3 build.py",
+  "ascii_persistence": "tracked contact-sheet.txt is the exact repo ASCII sidecar; SPA ASCII is a deterministic complete render from the same persisted motion semantics and may be a non-byte-identical presentation serialization",
   "video_packaging": "authoritative embedded MP4 data URI in SPA",
   "tracked_media_sidecar": false,
   "media_sha256": "9c51df79d70fa1a0ab79e73786917e1aecf39353b217bd3984c626a8078524bc",
   "media_bytes": 18288,
   "media_frames": 51,
   "media_decode_preflight": "PASS_FFPROBE_AND_FULL_FFMPEG_DECODE",
-  "ascii_sha256": "db226b88e160b334ab3b2965f133ffe236740327ffdaf79b8eab4870e9bb1d79",
   "motion_dungeon": {
     "authored_ascii_keys": 15,
     "explicit_holds": true,
@@ -128,24 +121,11 @@
     "validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
     "candidate_isolated": "PASS_EXACT_OFFICIAL_V2",
     "result": {
-      "entries_checked": [
-        "v2-defense-015-traveling-guard-phase-slip"
-      ],
+      "entries_checked": ["v2-defense-015-traveling-guard-phase-slip"],
       "ok": true,
       "schema": "ascii-kinesis.swarm-contract-v2-test"
     }
   },
-  "correction_hooks": [
-    "KEEP",
-    "REJECT",
-    "EXAGGERATE",
-    "COMPRESS",
-    "RETIME",
-    "CHANGE SOURCE",
-    "PROMOTE",
-    "SPAWN VARIANT",
-    "FIX BLOCKER",
-    "RERUN"
-  ],
+  "correction_hooks": ["KEEP", "REJECT", "EXAGGERATE", "COMPRESS", "RETIME", "CHANGE SOURCE", "PROMOTE", "SPAWN VARIANT", "FIX BLOCKER", "RERUN"],
   "receipt_status": "QUALITY_GATES_PASS / REPO_READBACK_REQUIRED / CHAT_DELIVERY_REQUIRED"
 }
