@@ -1,0 +1,402 @@
+K0 OFFSET_CROUCH  FOURS/INFERRED
+SUPPORT=BOTH_OFFSET CUSTODY=FREE CONTACTS=left_foot_ground,right_foot_ground
+ARC=Low offset crouch, chest turned toward an incoming payload line; both feet own the root.
+
+
+
+
+
+
+                                              <#>
+
+
+
+
+
+
+        O
+
+         +\
+       //| \\o
+      o  |    -x
+     -    |
+    x     |
+          @
+         / \
+        o    o
+       /      \
+ ______!_______!___________________________________________________________
+
+K1 REAR_LOAD  FOURS/INFERRED
+SUPPORT=LEFT_DOMINANT_BOTH CUSTODY=FREE CONTACTS=left_foot_ground,right_foot_ground
+ARC=Root sinks left; right shoulder and hand open toward the intercept while payload continues leftward.
+
+
+
+
+
+
+
+                                           <#>
+
+
+
+
+
+         O
+       x
+       -  +\
+        o/|  \\o--x
+           |
+           |
+            |
+           /@
+         o/  \
+        /     o
+ _______!_______!__________________________________________________________
+
+K2 SUPPORT_BREAK  ONES/INFERRED
+SUPPORT=NONE CUSTODY=FREE CONTACTS=NONE
+ARC=Rear-leg punch breaks support and commits the root up-right; payload remains independent and left-moving.
+
+
+
+
+
+
+
+
+                                       <#>
+
+
+               O
+
+          x-o//+\
+               | \\o-
+               |     -x
+               |
+               |
+               @
+              / \
+              /   o\
+             o      \=
+            /
+           =
+ __________________________________________________________________________
+
+K3 ASCEND_REACH  TWOS/INFERRED
+SUPPORT=NONE CUSTODY=FREE CONTACTS=NONE
+ARC=Root travels up-right; right arm reaches ahead of chest while opposite leg trails long.
+
+
+
+
+
+                     O
+
+                     +\o-
+                   //|    --x      <#>
+                 //  |
+                o   |
+               -    |
+              x     @
+                   / \
+                  /    o
+                 o      \\
+               //         =
+              =
+
+
+
+
+
+
+ __________________________________________________________________________
+
+K4 APEX_INTERCEPT_PREP  TWOS/INFERRED
+SUPPORT=NONE CUSTODY=FREE CONTACTS=NONE
+ARC=Near-apex scissor; both hands split around the incoming payload path before contact.
+
+
+
+                         -xO
+                        o/
+                          /+
+                           |\
+                          |   o-
+                          |     -x
+                         @         <#>
+                       // \
+                    /o/    \\
+                  =/         o
+                              \\
+                                =
+
+
+
+
+
+
+
+
+
+
+ __________________________________________________________________________
+
+K5 PAYLOAD_ACQUIRE  TWOS/INFERRED
+SUPPORT=NONE CUSTODY=TWO_HAND CONTACTS=left_hand_payload,right_hand_payload
+ARC=Opposed trajectories meet in air; both hands acquire the payload while root remains unsupported and begins losing horizontal travel.
+
+
+
+
+                             O
+
+                              +
+                             o|\
+                             |-- o-
+                             |  *<#>*
+                           /@
+                       /o//  \
+                     =/       \\
+                                o
+                                 \\
+                                   =
+
+
+
+
+
+
+
+
+ __________________________________________________________________________
+
+K6 MASS_FOLD  FOURS/INFERRED
+SUPPORT=NONE CUSTODY=TWO_HAND CONTACTS=left_hand_payload,right_hand_payload
+ARC=Combined mass produces an immediate three-cell root drop with only one cell of horizontal travel; payload remains visibly bracketed across the chest and no support or second impulse explains the steepening.
+
+
+
+
+
+
+
+                               O
+
+                               /+
+                             o/| \o
+                              |*<#>*
+                           //@
+                       /o//   \
+                     =/        \
+                               \
+                                o
+                                 \
+                                  =
+
+
+
+
+
+ __________________________________________________________________________
+
+K7 CARRY_COUNTERSWEEP  TWOS/INFERRED
+SUPPORT=NONE CUSTODY=TWO_HAND CONTACTS=left_hand_payload,right_hand_payload
+ARC=Payload is swept across the chest toward the left hip as the body descends almost vertically; trailing leg counterbalances and the root has effectively spent its horizontal flight.
+
+
+
+
+
+
+
+
+
+
+                             O
+
+                             /+o
+                          o// |
+                           -  |
+                           <#>
+                             @\
+                            /   \\o\
+                          //        \=
+                         o
+                        /
+                       =
+
+
+ __________________________________________________________________________
+
+K8 ONE_ARM_TRANSFER_PRECONTACT  TWOS/INFERRED
+SUPPORT=NONE CUSTODY=RIGHT_ARM CONTACTS=right_hand_payload
+ARC=Right arm clamps payload to ribs while left forearm and knee aim for a diagonal side-skid landing; root still descends.
+
+
+
+
+
+
+
+
+
+
+
+                              O
+
+                               +\
+                              /| \o
+                             / | -
+                            / |  <#>
+                           o  @\
+                          -  /   \\o\
+                          -  /       \=
+                         x  o
+                           /
+                          =
+ __________________________________________________________________________
+
+K9 FOREARM_KNEE_CONTACT  ONES/INFERRED
+SUPPORT=LEFT_FOREARM_AND_KNEE_SKID CUSTODY=RIGHT_ARM CONTACTS=left_forearm_ground,left_knee_ground,right_hand_payload
+ARC=Left forearm and knee hit together on a diagonal; payload remains clamped right while root carries forward into the skid.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                               O
+
+                                +\
+                               /| <#>
+                              /|   -
+                              /@\\\*o\
+                             o/       \=
+                           -- /
+ _________________________!__!_____________________________________________
+                           =/
+
+K10 SIDE_SKID_CRUSH  FOURS/INFERRED
+SUPPORT=LEFT_FOREARM_AND_KNEE_SKID CUSTODY=RIGHT_ARM CONTACTS=left_forearm_ground,left_knee_ground,right_hand_payload
+ARC=Root slides forward while shoulder and payload lag high-right; left side absorbs and smears the remaining momentum.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                   O
+                                     <#>
+                                    + -
+                                   |  *
+                                 /@\
+                                o/   \\o\
+                              -- /       \=
+ ____________________________!__!__________________________________________
+                             =/
+
+K11 HAND_FOOT_RESTACK_BRIDGE  TWOS/INFERRED
+SUPPORT=LEFT_HAND_RIGHT_FOOT CUSTODY=RIGHT_ARM CONTACTS=left_hand_ground,right_foot_ground,right_hand_payload
+ARC=Skid converts into a hand-foot bridge; right foot catches the root while payload stays on the task side.
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                     O
+
+                                      +\
+                                     /| \o
+                                     /| <#>
+                                    /|   *
+                                    /@
+                                   o/ \\
+                                  - /   o
+                                  -o     \
+ ________________________________!________!________________________________
+                                 =
+
+K12 CARRY_RISE  TWOS/INFERRED
+SUPPORT=RIGHT_FOOT CUSTODY=RIGHT_ARM CONTACTS=right_foot_ground,right_hand_payload
+ARC=Left hand releases support; right foot raises the root while payload keeps the torso laterally biased.
+
+
+
+
+
+
+
+
+
+
+
+                                       O
+
+                                       +\\
+                                      /|  \\o
+                                     o |    -
+                                    -   |  <#>
+                                   x    |
+                                        @
+                                       / \
+                                      /    o
+                                     o      \
+                                    /       \
+ __________________________________=_________!_____________________________
+
+K13 DISPLACED_LOADED_SETTLE  FOURS/INFERRED
+SUPPORT=BOTH_OFFSET CUSTODY=RIGHT_ARM CONTACTS=left_foot_ground,right_foot_ground,right_hand_payload
+ARC=Settles far downrange with payload still off-center and shoulder skew retained; no idle reset and no custody drop.
+
+
+
+
+
+
+
+
+
+
+
+                                          O
+
+                                          +\
+                                        o/| \\
+                                       -  |   \o
+                                      x    |   -
+                                           |  <#>
+                                           @
+                                          / \\
+                                         o    o
+                                         /     \
+                                        /      \
+ _______________________________________!_______!__________________________
