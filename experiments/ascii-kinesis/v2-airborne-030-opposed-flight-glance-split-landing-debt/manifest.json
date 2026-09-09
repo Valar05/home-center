@@ -71,7 +71,7 @@
   "repo": {
     "path": "experiments/ascii-kinesis/v2-airborne-030-opposed-flight-glance-split-landing-debt/",
     "persisted": true,
-    "final_readback": false,
+    "final_readback": true,
     "exact_one_spa": true,
     "build_blob": "ad420269fb698e863e9d53573b2cdb6b72eeb846",
     "contact_blob": "34c28c47942704b53032927c3d3cfa5ffb3345c4",
@@ -79,10 +79,12 @@
     "spa_blob": "987f4603c7070b70396c822d4095f521bd8e2cb0"
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_video": true
   },
-  "issue_343_receipt": null,
-  "drew_accepted": false
+  "issue_343_receipt": 5609215587,
+  "issue_receipt_readback": true,
+  "drew_accepted": false,
+  "next_authorized": "v2-airborne-031"
 }
