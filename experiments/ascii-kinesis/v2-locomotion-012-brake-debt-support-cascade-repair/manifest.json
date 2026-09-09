@@ -1,0 +1,49 @@
+{
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "format_version": 2,
+  "experiment_id": "v2-locomotion-012-brake-debt-support-cascade-repair",
+  "lane": "locomotion",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "contact_sheet_file": "contact-sheet.txt",
+  "motion_file": "motion.json",
+  "builder_file": "build.py",
+  "spa_file": "brake-debt-support-cascade-repair.motion.html",
+  "receipt_file": "receipt.json",
+  "revision": {
+    "revises": "experiments/ascii-kinesis/v2-locomotion-005-brake-debt-support-cascade/",
+    "negative_fixture": "experiments/ascii-kinesis/v2-locomotion-005-brake-debt-support-cascade/",
+    "predecessor_preserved": true,
+    "source_change": false,
+    "repair_queue": "next-oldest after HEALTHY Locomotion011 closure 5595532843"
+  },
+  "media": {
+    "authoritative": "embedded_mp4_in_spa",
+    "sha256": "6c511e40f567d0d992eb2340e12becb76e8d521439c06dd288e1f1b1244dfe65",
+    "bytes": 29928,
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 960,
+    "height": 520,
+    "fps": 24,
+    "frames": 41
+  },
+  "contract_validator": {
+    "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "scope": "candidate-isolated"
+  },
+  "source": {
+    "asset_id": 21628,
+    "source_change": false,
+    "source_art_embedded": false
+  }
+}
