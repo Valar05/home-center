@@ -1,0 +1,113 @@
+{
+  "schema": "ascii-kinesis-v2-receipt",
+  "id": "v2-locomotion-015-rolling-support-manifold-migration",
+  "status": "REPO_RECEIPT_STAGED_PENDING_READBACK_ISSUE_AND_CHAT",
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "one_successor_binding": true,
+    "created_new_body_this_run": false,
+    "successor_collision": false
+  },
+  "current_worker_preflight": {
+    "home_center_campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "home_center_campaign_read": true,
+    "github_persistence_readback": true,
+    "issue_343_read": true,
+    "global_reset_5576901079_read": true,
+    "locomotion014_closure_5601494625_read": true,
+    "latest_manager_reconciliation_read": true,
+    "skill_blob": "acf628496e472f47f5c4daca1ae43deadd5f93f1",
+    "contract_blob": "a011337ab324f1b2a585d76bc3668b42d81a6a0d",
+    "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78"
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": 155651,
+    "identity": "The Bullet — Enter the Gungeon — PC / Computer — Playable Characters",
+    "campaign_evidence_id": "1IyEadga2zJOCNr9vr0MJsnZvRr0x8YxBFjrk-MSsGEc",
+    "whole_source_dimensions": [1023, 853],
+    "whole_source_inspected": true,
+    "source_authentic_timing": "UNKNOWN_UNAVAILABLE",
+    "authored_timing": "INFERRED_STREET_FIGHTER_CAPCOM",
+    "rights_firewall": "PASS_NO_SOURCE_PIXELS_PALETTE_COSTUME_CONTOURS_LAYOUT_FRAME_ARRANGEMENT_TRACING_CHOREOGRAPHY_REDISTRIBUTION_CLOSE_IMITATION"
+  },
+  "novelty": {
+    "mechanism": "ROLLING_SUPPORT_MANIFOLD_MIGRATION",
+    "summary": "trusted support migrates foot -> forearm -> loaded arm -> upper back -> hip -> foot while grounded root travel continues",
+    "new_vs_prior_locomotion": true
+  },
+  "authoritative_media": {
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 640,
+    "height": 360,
+    "fps": 24,
+    "frames": 37,
+    "bytes": 12530,
+    "sha256": "d7feed09cb91e75ee7a120c736abcb44787636bb9c3e1970f7e451696f338f1f",
+    "current_worker_byte_identical_reconstruction": true,
+    "decode": "PASS",
+    "actual_render_inspected": true
+  },
+  "quality": {
+    "tango": {
+      "status": "PASS",
+      "current_worker": true,
+      "basis": "Fresh byte-identical 37-frame render inspection: asymmetric committed entry; probe-before-owner transfer; foot-to-forearm-to-arm-to-back-to-hip support migration; nonuniform root spacing; exit foot rebind before posture recovery; overrun, brake and displaced settle. No floating support, generic barrel-roll interpolation, planted-feet theater, reverse playback, or idle reset remains."
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "current_worker": true,
+      "taste": "PASS",
+      "function": "PASS",
+      "contempt": "PASS",
+      "basis": "The support-manifold migration is visible without metadata: low shoulder entry, inversion, body-contact cascade, leg sweep, staggered foot rebind, ugly overrun and displaced finish form a specific locomotion sentence rather than a run/roll icon swap."
+    }
+  },
+  "contract": {
+    "spa_exact_primary_tabs": ["ASCII", "JSON", "VIDEO"],
+    "literal_aligned_ascii": true,
+    "structured_motion_json": true,
+    "embedded_real_mp4": true,
+    "abstract_ascii_rig_only": true,
+    "decisive_timing_provenance": true,
+    "official_validator_boundary": "CURRENT_VALIDATOR_SOURCE_READ; EXACT_PERSISTED_TARGET_STRUCTURAL_PREDICATES_RECHECKED_IN_STANDARD_CHAT; REPOSITORY_GLOBAL_CHECKOUT_EXECUTION_NOT_CLAIMED",
+    "candidate_predicates": "PASS"
+  },
+  "repo": {
+    "path": "experiments/ascii-kinesis/v2-locomotion-015-rolling-support-manifold-migration/",
+    "expected_body_files": [
+      "build.py",
+      "contact-sheet.txt",
+      "manifest.json",
+      "motion.json",
+      "rolling-support-manifold-migration.motion.html",
+      "receipt.json"
+    ],
+    "pre_receipt_blobs": {
+      "build.py": "047454a42b323d84aa821dc516c1a43fc44d2477",
+      "contact-sheet.txt": "32fe43746841dd438bcc5d6e7c4974b755a71b60",
+      "manifest.json": "b9dd13be9958d81350e64f0e2db84ef82733ef2f",
+      "motion.json": "65ed38af4b875fa383f3ea7b3f35713e8996e5cc",
+      "rolling-support-manifold-migration.motion.html": "3b4fa7e13acbec3cd2653978c51c43b1f9727285"
+    },
+    "post_write_readback": false
+  },
+  "issue_343": {
+    "pre_chat_receipt_comment_id": null,
+    "final_closure_comment_id": null,
+    "final_closure_readback": false
+  },
+  "chat_delivery": {
+    "order": "ASCII->JSON->VIDEO",
+    "ascii": false,
+    "json": false,
+    "video": false,
+    "video_byte_identical_to_authoritative": true
+  },
+  "drew_accepted": false,
+  "next_authorized": null,
+  "notes": "No art/timing mutation was manufactured in this run because the freshly reconstructed actual render passed Tango and Noodle Queen. Locomotion016 remains forbidden until this same body completes repo readback, issue receipt and ordered chat delivery."
+}
