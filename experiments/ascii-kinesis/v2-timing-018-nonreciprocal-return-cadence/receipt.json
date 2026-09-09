@@ -1,0 +1,42 @@
+{
+  "contract": {
+    "execution_note": "exact validator source predicates executed against isolated candidate tree; stderr contained unrelated spreadsheet-runtime warmup timeout while validator exited 0 with ok=true",
+    "official_v2": "PASS_CANDIDATE_ISOLATED_CURRENT_WORKER",
+    "repository_global_execution": "NOT_CLAIMED_STANDARD_CHAT_NO_AUTHORIZED_FULL_CHECKOUT",
+    "validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c"
+  },
+  "drew_accepted": false,
+  "experiment_id": "v2-timing-018-nonreciprocal-return-cadence",
+  "lineage": {
+    "kind": "FRESH_CONCEPT",
+    "no_successor_collision": true,
+    "previous_closed": "Timing017"
+  },
+  "media": {
+    "authoritative_sha256": "6d6bdefaaa209e2b7f25d4ffd82f423255e178779e09fedb66c08fc45ede6440",
+    "bytes": 10592,
+    "decode": "PASS_CURRENT_WORKER_FFMPEG",
+    "deterministic_rebuild": "PASS_BYTE_IDENTICAL",
+    "dimensions": [620, 260],
+    "fps": 24,
+    "frame_count": 30
+  },
+  "quality": {
+    "noodle_queen": "PASS_CURRENT_WORKER_AFTER_TANGO_TASTE_FUNCTION_CONTEMPT",
+    "tango": "PASS_CURRENT_WORKER_ACTUAL_RENDER_AFTER_SAME_BODY_REVISIONS"
+  },
+  "schema": "ascii-kinesis.receipt.v2",
+  "ship_commit": null,
+  "source": {
+    "asset_id": "215612",
+    "sha256": "86a8011900b0e37ed030b949d9a690519b57c85afe18ddcb1e2504723283e52c",
+    "timing": "UNAVAILABLE_STATIC_SHEET"
+  },
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "verification": {
+    "issue_343_receipt": null,
+    "repo_readback": false,
+    "three_part_chat_delivery": false
+  },
+  "verification_commit": null
+}
