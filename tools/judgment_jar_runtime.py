@@ -11,9 +11,11 @@ if str(ROOT / "tools") not in sys.path:
     sys.path.insert(0, str(ROOT / "tools"))
 
 from judgment_jar_common import CONFIG_PATH, read_config
+from judgment_jar_task_router import task_source_packet
 
 
-def active_jars(limit: int | None = None) -> str:
+def active_jars(task: str | None = None, limit: int | None = None) -> str:
+    """Return the bounded default packet plus any freshly resolved task Jar sources."""
     config = read_config(CONFIG_PATH)
     runtime = dict(config.get("runtime") or {})
     selected = [str(value) for value in runtime.get("defaultPhoneJarIds") or [] if str(value).strip()]
@@ -38,9 +40,22 @@ def active_jars(limit: int | None = None) -> str:
     text = result.stdout
     if not text.strip():
         raise RuntimeError("receipt-governed Judgment Jar loading returned no context")
+
+    if task and str(task).strip():
+        try:
+            extra = task_source_packet(str(task), root=ROOT, config_path=CONFIG_PATH)
+        except Exception as exc:
+            # Jar routing must fail closed before the model sees an ungrounded task.
+            message = str(exc)
+            if "JAR_UNRESOLVED" in message:
+                raise RuntimeError(message) from exc
+            raise RuntimeError(f"JAR_UNRESOLVED: task-level canonical Jar routing failed: {exc}") from exc
+        if extra.strip():
+            text = text.rstrip() + "\n\n" + extra
+
     if len(text) > bounded_limit:
         raise RuntimeError(
-            "receipt-governed default Judgment Jar packet exceeds the configured phone bound "
-            f"({len(text)} > {bounded_limit} characters); narrow defaultPhoneJarIds instead of clipping receipted context"
+            "receipt-governed Judgment Jar packet exceeds the configured phone bound "
+            f"({len(text)} > {bounded_limit} characters); narrow the selected Jars instead of clipping receipted context"
         )
     return text
