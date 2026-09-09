@@ -1,0 +1,126 @@
+ASCII KINESIS V2 DEFENSE018 — GUARD CUSTODY HANDOFF / EXIT
+SOURCE EVIDENCE: TSR asset 1611 Link — Zelda II NES | whole 332x275 PNG campaign custody | source timing UNKNOWN
+TIMING: every decisive compile timing class INFERRED / STREET_FIGHTER-CAPCOM | # support | x unsupported | @ pelvis
+RIGHTS: independent abstract ASCII rig only; no source pixels/palette/costume/contours/layout/tracing/choreography.
+
+D018-K0 CROOKED_READY                      D018-K1 GUARD_PRELOAD                      D018-K2 PRECONTACT_APERTURE
+FOURS/INFERRED SUP=L#+R#                   FOURS/INFERRED SUP=L#+R#                   ONES/INFERRED SUP=L#+R#
+
+
+
+               O
+               |                                         O
+              -o-                                        |                                          O
+            o- | --o                                    -o-                                         |
+           /   |    \\                                o- | --o-                                    -o-
+           /   |      o-                              |  |     --o-                              o- | --o-
+          o-   |        -+                            o--|         -+<------------                | |     --o---+------------
+            -+ |                                         --+                                      o------+
+               |                                         |                                          |
+               @                                         |                                          |
+              / \                                        @                                          |
+            //   \\                                     / \\                                        @
+           /       \                                   /    \                                      / --
+          o         o                                 /      \\                                  //    --
+         /           \                               o         o                                o        -o
+        /             \                             /           \                              /           \
+        /              \                           /             \\                           /             \\
+_______#________________#_______________   _______#________________#_______________   _______#________________#_______________
+
+
+D018-K3 LEAD_GUARD_CONTACT                 D018-K4 CROSS_HAND_ACQUIRE                 D018-K5 GUARD_CUSTODY_HANDOFF
+ONES/INFERRED SUP=L#+R#                    FOURS/INFERRED SUP=L#+R#                   TWOS/INFERRED SUP=L#+Rt
+
+
+
+
+
+             O
+             |                                        O                                         O
+            -o-                                        |                                         |
+          o- | --o----o---+------------               -o-          --+------------               o          ----+------------
+           \ |   ----+                              o--| --o----o--+                           o--------o---
+            o----                                      --o----                                   |  -o--
+             |                                         |                                         |      --o
+             |                                         |                                         |         -+
+             |                                         |                                         |
+             @-                                        |                                         |
+            /  ----                                    @-                                        @-
+          //       -o                                //  ----                                  //  ----
+         o           \                              o        -o-                              o        -o-
+        /             \\                           /            --                           |            ---
+_______#________________#_______________   _______#________________#_______________   _______#________________#_______________
+
+
+D018-K6 CROSS_BODY_GUYWIRE                 D018-K7 CONTACT_RELEASE_FREE_LEG_SWEEP     D018-K8 OUTSIDE_PREPLANT
+FOURS/INFERRED SUP=L#                      TWOS/INFERRED SUP=L#                       ONES/INFERRED SUP=L#
+
+
+
+
+
+                                                                                                 O
+                                                    O                                            |
+        O                                            |                                           o-
+         \            ----+------------              o-                                        o-| --
+          o  -----o---                             o-----                                        --- -o
+        o----                                        | ---oo------+                              |  -o--\
+          |  -o                                      |     \\                                    |      -o+
+          |    --                                    |       o                                   |      +
+          |      -o                                  |     +-                                    @
+          |     +-                                   @                                          / \
+          @--     -x                                / --                                      //   \\
+        //   ---o-                                 /    xo                                   o       o
+       o                                          o                                          |        \
+       |                                          |                                          |         x
+_______#________________________________   _______#________________________________   _______#________________________________
+
+
+D018-K9 EXIT_PLANT_COMPRESSION             D018-K10 TORSION_OVERSHOOT                 D018-K11 COUNTER_TORQUE_GUARD_REOPEN
+FOURS/INFERRED SUP=L#+R#                   TWOS/INFERRED SUP=L#+R#                    TWOS/INFERRED SUP=L#+R#
+
+
+
+
+
+                                                                                                  O
+                                                           O                                      |
+             O                                            /                                       o-
+            |                                            o--         -+                         //| --o--
+            o-                                         //|  --o----o-                          o  |      --o--+
+          o-| --                                      o  |                                      ||
+           --   -o-                                    \ |                                      o|
+            |-o--  -o-+                                 \|                                       \
+            |    --+                                     o-                                      @+
+            |                                            @ --+                                  / \
+            |                                          // \                                    /   \\
+            @                                        //    \\                                  /     \
+          -- --                                     o        o                                o       o
+        o-     -o                                  /         |                                |        \
+       |         \                                 /         |                               |         \
+_______#__________#_____________________   _______#__________#_____________________   _______#__________#_____________________
+
+
+D018-K12 DISPLACED_READY_DEBT
+FOURS/INFERRED SUP=L#+R#
+
+
+
+
+           O
+           |
+           o-
+         //| --o
+        o  |    --
+        |  |      -o-
+        | |          --+
+        o |
+         \|
+          @
+         / \
+        /   \\
+        /     \
+       o       o
+       |        \
+       |         \
+_______#__________#_____________________
