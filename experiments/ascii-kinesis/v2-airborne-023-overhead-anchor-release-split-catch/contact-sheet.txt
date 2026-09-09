@@ -1,0 +1,409 @@
+AIRBORNE023 — OVERHEAD ANCHOR RELEASE / SPLIT-CATCH
+independent generic ASCII rig; commercial source art not reproduced
+all decisive timing INFERRED / STREET_FIGHTER-CAPCOM; # = synthetic overhead support; ! = active contact
+
+A023-K0 ONE_HAND_BACKSWING_LOAD [FOURS/INFERRED]
+root=(9.5,14.3) support=RIGHT_HAND_OVERHEAD crop_x=0:39
++----------------------------------------+
+|                                        |
+|                                        |
+|         -----!-----                    |
+|              -                         |
+|             -                          |
+|             -                          |
+|            o                           |
+|        O  \                            |
+|          \                             |
+|        /+                              |
+|      o/ |                              |
+|     -    |                             |
+|    x     @                             |
+|        // \                            |
+|       o    o                           |
+|      /      \                          |
+|     =        =                         |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+| _______________________________________|
++----------------------------------------+
+role: single overhead hand owns support while the root hangs behind the anchor; bent left knee and trailing free arm load an asymmetric backswing
+
+A023-K1 UNDER_ANCHOR_SLING [TWOS/INFERRED]
+root=(13.0,16.2) support=RIGHT_HAND_OVERHEAD crop_x=0:39
++----------------------------------------+
+|                                        |
+|                                        |
+|         -----!-----                    |
+|              -                         |
+|              -                         |
+|              -                         |
+|              -                         |
+|              -                         |
+|              o                         |
+|         x-   \                         |
+|           o/\                          |
+|             +                          |
+|             |                          |
+|        =/   |                          |
+|          o//@                          |
+|              \\                        |
+|                o                       |
+|                 \=                     |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+| _______________________________________|
++----------------------------------------+
+role: root passes below the anchor before release; shoulder is long, left knee leads, and the free arm swings forward so support break is momentum-earned
+
+A023-K2 FORWARD_TANGENT_RELEASE [ONES/INFERRED]
+root=(17.2,13.7) support=RIGHT_HAND_BREAK_TO_NONE crop_x=0:39
++----------------------------------------+
+|                                        |
+|                                        |
+|         -----#-----                    |
+|                                        |
+|                x                       |
+|                -                       |
+|                 o O                    |
+|             x   \                      |
+|              o///+                     |
+|                  |                     |
+|                  |                     |
+|            =/   |                      |
+|              o//@\\o\=                 |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+| _______________________________________|
++----------------------------------------+
+role: right hand releases only after the root has crossed the anchor; body leaves on a specific up-right tangent while the released shoulder remains stretched behind
+
+A023-K3 RISING_REACHBACK [TWOS/INFERRED]
+root=(22.0,10.4) support=NONE crop_x=2:41
++----------------------------------------+
+|                                        |
+|                                        |
+|       -----#---x-    O                 |
+|                 --                     |
+|                   o\                   |
+|                -o///+                  |
+|              x-     |                  |
+|               =/   |                   |
+|                 o//@\                  |
+|                      \o\               |
+|                         \=             |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|________________________________________|
++----------------------------------------+
+role: root climbs while the just-released arm visibly lags behind the torso; legs split rather than folding symmetrically
+
+A023-K4 FORWARD_APEX_SPLIT [ONES/INFERRED]
+root=(27.0,8.6) support=NONE crop_x=7:46
++----------------------------------------+
+|                                        |
+|                       O                |
+|  -----#-----   x-                      |
+|                  o\\/+                 |
+|                  /// |                 |
+|                o/   |  \=              |
+|              x-     |\o                |
+|                   /@\                  |
+|                 o/                     |
+|               =/                       |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|________________________________________|
++----------------------------------------+
+role: apex is a single sharp split silhouette: chest advances, lead leg opens downward, released shoulder still trails; no hover or second impulse
+
+A023-K5 APEX_EXIT_LEG_SWITCH [ONES/INFERRED]
+root=(31.3,9.0) support=NONE crop_x=11:50
++----------------------------------------+
+|                                        |
+|                                        |
+|---#-----              O                |
+|               x-                       |
+|                 -o\\/+                 |
+|                   //|                  |
+|                 o/  |   \=             |
+|                -   @\\\o               |
+|               x   o                    |
+|                  /                     |
+|                 =                      |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|________________________________________|
++----------------------------------------+
+role: gravity wins immediately after apex; legs switch ownership and the torso rolls slightly forward instead of holding a poster pose
+
+A023-K6 DESCENT_SCISSOR_PREP [TWOS/INFERRED]
+root=(36.1,11.1) support=NONE crop_x=16:55
++----------------------------------------+
+|                                        |
+|                                        |
+|----                                    |
+|                                        |
+|                      O                 |
+|                                        |
+|                     /+                 |
+|                  o//|                  |
+|                ox   |                  |
+|              x-    @\                  |
+|                   /  \o\=              |
+|                  o                     |
+|                  /                     |
+|                 /                      |
+|                 =                      |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|________________________________________|
++----------------------------------------+
+role: lead left leg lengthens under the falling COM while the right leg stays folded; arms counter-rotate to prepare a narrow first support
+
+A023-K7 LEFT_TOE_PRECONTACT [ONES/INFERRED]
+root=(40.2,15.5) support=NONE_PRECONTACT crop_x=20:59
++----------------------------------------+
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                     O                  |
+|                                        |
+|                o////+                  |
+|              x-   o\|                  |
+|                  - |                   |
+|                  x @\                  |
+|                   /  \o                |
+|                   /    \               |
+|                  o      =              |
+|                  /                     |
+|                  /                     |
+|                  /                     |
+|                  =                     |
+|________________________________________|
++----------------------------------------+
+role: left toe arrives beneath the pelvis before contact while the rear leg and released arm are still late; root continues down-forward
+
+A023-K8 LEFT_TOE_FIRST_CATCH [ONES/INFERRED]
+root=(42.7,16.6) support=LEFT_TOE_FIRST crop_x=23:62
++----------------------------------------+
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                    O                   |
+|                                        |
+|               o////+                   |
+|              -    \|                   |
+|             x     o|                   |
+|                  - @\                  |
+|                  x/  \o                |
+|                   /    \               |
+|                  o     \               |
+|                  /      =              |
+|                 /                      |
+|                 /                      |
+|_________________!______________________|
++----------------------------------------+
+role: left toe becomes the first floor constraint but does not freeze the body; root keeps dropping and traveling while the rear foot is still airborne
+
+A023-K9 RIGHT_WIDE_CATCH [TWOS/INFERRED]
+root=(46.0,17.7) support=LEFT_TOE_PLUS_RIGHT_WIDE crop_x=26:65
++----------------------------------------+
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                  O                     |
+|                                        |
+|                o//+                    |
+|               -   |\                   |
+|              x     @o                  |
+|                  // \-                 |
+|                 o     xo               |
+|                 /       \              |
+|                /        \              |
+|                /         \             |
+|________________!_________!_____________|
++----------------------------------------+
+role: right foot lands wide rather than stacking under the torso; the support polygon opens late while the released shoulder continues to overrun
+
+A023-K10 SPLIT_STANCE_DEBT_CRUSH [TWOS/INFERRED]
+root=(48.4,19.0) support=BOTH_FEET_DEEP_SPLIT crop_x=28:67
++----------------------------------------+
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                 O                      |
+|                                        |
+|                  +|                    |
+|                o/  @\o-                |
+|               -   /   \-o              |
+|              x   o       \             |
+|                 /         \            |
+|                 /         \            |
+|________________!___________!___________|
++----------------------------------------+
+role: both feet stay unequally placed while pelvis drops to its lowest point and chest twists through; vertical debt is paid without a symmetric squat
+
+A023-K11 SHOULDER_LATE_REBOUND [TWOS/INFERRED]
+root=(51.6,17.1) support=BOTH_FEET_REBOUND crop_x=32:71
++----------------------------------------+
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|              x-    O                   |
+|                o//                     |
+|                   /+                   |
+|                    |\\                 |
+|                    |  o                |
+|                    @   -x              |
+|                   / \                  |
+|                  /   \                 |
+|                 o     o                |
+|                 /      \               |
+|                /       \               |
+|                /        \              |
+|________________!________!______________|
++----------------------------------------+
+role: ground reaction lifts the root before the released right shoulder catches up; free-arm swing overshoots across the chest as secondary debt
+
+A023-K12 LEAD_STEP_RELEASE [TWOS/INFERRED]
+root=(54.8,16.6) support=RIGHT_FOOT_SUPPORT_LEFT_STEP crop_x=35:74
++----------------------------------------+
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                     O                  |
+|                                        |
+|               x-o///+                  |
+|                     |\                 |
+|                     | \                |
+|                    |   o               |
+|                    @    -x             |
+|                  o/ \                  |
+|                  /   \                 |
+|                 /     o                |
+|                 =     \                |
+|                        \               |
+|                        \               |
+|________________________!_______________|
++----------------------------------------+
+role: left foot releases into one forward step while the right foot owns support; torso is still canted from the overhead release rather than returning to idle
+
+A023-K13 DISPLACED_FORWARD_REENTRY [FOURS/INFERRED]
+root=(58.3,16.5) support=LEFT_NEW_ADDRESS_RIGHT_RELEASE crop_x=38:77
++----------------------------------------+
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                                        |
+|                     O                  |
+|                                        |
+|               x-   /+\                 |
+|                 o// | \o               |
+|                    |    -x             |
+|                    @                   |
+|                   / \\                 |
+|                   /   o                |
+|                  /     \               |
+|                  o      \              |
+|                 /       \              |
+|                 /        =             |
+|                /                       |
+|________________!_______________________|
++----------------------------------------+
+role: left foot plants at a new address as the rear foot begins to unload; the right shoulder remains high and slightly late, preserving recovery debt
