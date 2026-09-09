@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-timing-020-support-gate-latency-localization",
-  "status": "PERSISTED_NOT_DELIVERED",
+  "status": "HEALTHY_USER_SURFACED",
   "current_worker_liveness": true,
   "home_center_campaign_read": true,
   "github_persistence_readback": true,
@@ -19,17 +19,25 @@
   },
   "primitive": "SUPPORT_GATE_LATENCY_LOCALIZATION",
   "repo_readback": true,
-  "issue_343_receipt": 5604991002,
+  "issue_343_receipt": 5605015640,
   "issue_343_receipt_readback": true,
-  "three_part_chat_delivery": false,
+  "pre_delivery_issue_receipt": 5604991002,
+  "three_part_chat_delivery": true,
+  "chat_delivery": {
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_video": true,
+    "video_byte_identical": true,
+    "video_sha256": "be610de836435367aaf4b7169c315b55d184646283cba0e54d44921caf282ea1"
+  },
   "ship_commit": "ba12f8dc86eda7192889941e421eb6dfddd24197",
   "candidate_receipt_commit": "029e374abc63a9b49069cd177ad4b0beddb81aaa",
   "manifest_reconcile_commit": "1994a8a0516b25cafd2c2ef876806ee7964124b3",
-  "final_commit": null,
+  "final_manifest_commit": "213b92040e3653a5dc92fa1422b9d613649be968",
   "repo_blobs": {
     "build.py": "c97ba052dda8b23ad55f69e49966d4822493c21d",
     "contact-sheet.txt": "4aea62b1178e9153bdc6dab3efc43bc7d1214e0a",
-    "manifest.json": "8a465c9e4c17132a38a668be9b6c578a24d395e7",
+    "manifest.json": "47e9f32a81ea84a49d55f1589b250ea5e7654a65",
     "motion.json": "3c0040029bc989b75750ef61d3808e21a705fdf2",
     "support-gate-latency-localization.motion.html": "ab03e7ee6660493072b81681756bb8126b90555b"
   },
