@@ -60,6 +60,8 @@ TWOS/INFERRED SUP=R#                 ONES/INFERRED SUP=R#                 FOURS/
 
 
 
+
+
                                                 O
          O                                       |                                    O
           \           +                          o--                                  |
@@ -78,6 +80,7 @@ ________________________#_________   ________________________#_________   _____#
 
 D017-K9 COUNTER_TORQUE_OVERTRAVEL    D017-K10 SECOND_FOOT_REACQUIRE_LAT   D017-K11 DISPLACED_READY_DEBT
 TWOS/INFERRED SUP=L#                 TWOS/INFERRED SUP=L#+R#              FOURS/INFERRED SUP=L#+R#
+
 
 
 
