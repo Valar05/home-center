@@ -30,11 +30,16 @@ jobs:
     env:
       PROJECT: ${{ inputs.project || 'home-center-dclar' }}
       REGION: ${{ inputs.region || 'us-central1' }}
+      GIT_LFS_SKIP_SMUDGE: '1'
     steps:
       - uses: actions/checkout@v4
         with:
           ref: refs/heads/main
           fetch-depth: 0
+          lfs: false
+          sparse-checkout: |
+            functions
+          sparse-checkout-cone-mode: true
 
       - uses: actions/setup-node@v4
         with:
