@@ -65,10 +65,10 @@ def spa(m,a,v):
 def main():
  m=json.loads(M.read_text());a=sheet(m);A.write_text(a);
  if T.exists():shutil.rmtree(T)
- F.mkdir(parents=True);font='/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf';mf=ImageFont.truetype(font,12);sf=ImageFont.truetype(font,11);q=seq(m)
+ F.mkdir(parents=True);font='/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf';mf=ImageFont.truetype(font,9);sf=ImageFont.truetype(font,9);q=seq(m)
  for i,k in enumerate(q):
-  im=Image.new('RGB',(800,450),(8,8,8));d=ImageDraw.Draw(im);d.text((10,8),f"{k['id']}  {k['phase']}",font=sf,fill=(245,245,245));d.text((10,24),f"RELATION {k['contact']}   CUSTODY {k['custody']}   BODY SUPPORT {k['support']}",font=sf,fill=(205,205,205));d.text((10,40),f"FORCE OWNER {k['force_owner']}   FORCE {k['force']}",font=sf,fill=(175,175,175));d.multiline_text((10,62),ascii_frame(k),font=mf,fill=(248,248,248),spacing=-2);im.save(F/f'f-{i:04d}.png')
- subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate','24','-i',str(F/'f-%04d.png'),'-c:v','libx264','-preset','medium','-crf','36','-pix_fmt','yuv420p','-movflags','+faststart',str(V)],check=True);v=V.read_bytes();h=hashlib.sha256(v).hexdigest();e=m['motion_dungeon'].get('media_sha256');
+  im=Image.new('RGB',(640,360),(8,8,8));d=ImageDraw.Draw(im);d.text((10,8),f"{k['id']}  {k['phase']}",font=sf,fill=(245,245,245));d.text((10,24),f"RELATION {k['contact']}   CUSTODY {k['custody']}   BODY SUPPORT {k['support']}",font=sf,fill=(205,205,205));d.text((10,40),f"FORCE OWNER {k['force_owner']}   FORCE {k['force']}",font=sf,fill=(175,175,175));d.multiline_text((10,62),ascii_frame(k),font=mf,fill=(248,248,248),spacing=-2);im.save(F/f'f-{i:04d}.png')
+ subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate','24','-i',str(F/'f-%04d.png'),'-c:v','libx264','-preset','medium','-crf','39','-pix_fmt','yuv420p','-movflags','+faststart',str(V)],check=True);v=V.read_bytes();h=hashlib.sha256(v).hexdigest();e=m['motion_dungeon'].get('media_sha256');
  if e and h!=e:raise SystemExit(f'media hash mismatch expected={e} got={h}')
  S.write_text(spa(m,a,v));print(json.dumps({'frames':len(q),'media_sha256':h,'media_bytes':len(v),'sheet_sha256':hashlib.sha256(a.encode()).hexdigest(),'spa_sha256':hashlib.sha256(S.read_bytes()).hexdigest()},sort_keys=True))
 if __name__=='__main__':main()
