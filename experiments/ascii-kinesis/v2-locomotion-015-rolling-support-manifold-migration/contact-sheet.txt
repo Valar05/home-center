@@ -1,0 +1,384 @@
+ASCII KINESIS V2 LOCOMOTION 015 — ROLLING SUPPORT-MANIFOLD MIGRATION
+Legend: ! trusted support owner   ? next support probe   @ pelvis/root   + chest   O head   _ ground
+Timing: ONES/TWOS/FOURS are display-frame exposure classes; every decisive timing is INFERRED / STREET_FIGHTER-CAPCOM.
+Support law: trusted contact migrates L_FOOT -> R_FOOT -> L_FOREARM -> L_ARM -> UPPER_BACK -> R_HIP -> R_FOOT without a semantic airborne gap.
+
+ROOT/HEIGHT MAP — authored root travel only; no source choreography:
+|--------------------------------------------------------------------------------------|
+|                                                            ..o.....o..o.o            |
+|           S.....o......o..                            ..o..              .E          |
+|                           ..o.                   ...o.                               |
+|                               ..o...o....o....o..                                    |
+|                                                                                      |
+|                                                                                      |
+|                                                                                      |
+|                                                                                      |
+|                                                                                      |
+|                                                                                      |
+|--------------------------------------------------------------------------------------|
+
+K00 ENTRY_LEFT_CATCH  [FOURS / INFERRED]  SUPPORT=L_FOOT  CONTACT=TRUSTED_CATCH
+ROOT=[12, 24]  BODY_ROLL=-8deg  SPACING=0  ANGULAR_V=+0.0
+ROLE: left catch owns committed travel; rear torso still carries entry velocity
+
+
+
+         O
+         /
+        /
+        /
+       /+--o
+     o/ /   \
+     / /     *
+    /  /
+    * /
+      @
+     / \
+     /  \
+    o    o
+    /     \
+    /      \
+   /       \
+   /        *
+___!______________________
+
+
+
+
+K01 LEFT_DRIVE_RIGHT_PROBE  [TWOS / INFERRED]  SUPPORT=L_FOOT  CONTACT=PRECONTACT
+ROOT=[18, 24]  BODY_ROLL=-12deg  SPACING=6  ANGULAR_V=-4.0
+ROLE: left support drives root while right reaches for faster catch
+
+
+
+          O
+          /
+         /
+         /
+        /+--o
+      o/ /   \
+      / /     *
+     /  /
+     * /
+       @
+      / \
+     /   \
+    o    \
+    /     o
+    /      \
+   /        \
+   /         \
+___!__________?___________
+
+
+
+
+K02 RIGHT_CATCH_ROLL_LOAD  [FOURS / INFERRED]  SUPPORT=R_FOOT  CONTACT=TRUSTED_CATCH
+ROOT=[25, 25]  BODY_ROLL=-24deg  SPACING=7  ANGULAR_V=-12.0
+ROLE: right catch accepts travel and begins off-axis roll preparation
+
+
+
+            O
+            /
+           /
+          /+
+       o/// \o
+       / /    \
+      /  /     *
+      * @
+       / \
+       / \
+      o   o
+     /     \
+    /       \
+   *        \
+_____________!____________
+
+
+
+
+K03 RIGHT_LOAD_LEFT_FOREARM_PROBE  [ONES / INFERRED]  SUPPORT=R_FOOT  CONTACT=PRECONTACT
+ROOT=[30, 26]  BODY_ROLL=-42deg  SPACING=5  ANGULAR_V=-18.0
+ROLE: right foot remains owner while left forearm probes the floor; support must not teleport
+
+
+
+             O
+            /
+            +--o
+          //   \
+         @o     \
+       //\\     *
+      o   \\
+     /    o\
+    /      \\
+   *       \?
+____________!_____________
+
+
+
+
+K04 LEFT_FOREARM_CATCH_FOOT_RELEASE  [TWOS / INFERRED]  SUPPORT=L_FOREARM  CONTACT=TRUSTED_CATCH
+ROOT=[34, 27]  BODY_ROLL=-62deg  SPACING=4  ANGULAR_V=-24.0
+ROLE: forearm takes load before both feet release; shoulder becomes next eligible contact
+
+
+
+          O
+         / /o
+         +/ \
+     o-@o    \
+    /  |\    *
+   *   o \
+        *\
+_________!________________
+
+
+
+
+
+
+K05 LEFT_SHOULDER_CATCH_TUCK  [FOURS / INFERRED]  SUPPORT=L_ARM  CONTACT=TRUSTED_CATCH
+ROOT=[38, 28]  BODY_ROLL=-92deg  SPACING=4  ANGULAR_V=-30.0
+ROLE: loaded left arm/shoulder-side contact owns ground while pelvis passes over it; upper back becomes next eligible contact
+
+
+
+    o  o
+   / \ /\
+   *  @O*
+      / /o
+      ?/  \
+     //*  *
+_____!____________________
+
+
+
+
+
+
+
+K06 UPPER_BACK_ROLL_OVER  [TWOS / INFERRED]  SUPPORT=UPPER_BACK  CONTACT=TRUSTED_CATCH
+ROOT=[43, 27]  BODY_ROLL=-148deg  SPACING=5  ANGULAR_V=-26.0
+ROLE: upper back carries root while legs sweep past; hip is next contact, not a reset
+
+
+
+          *
+         /  *
+         / /
+    O   o o
+    \   //
+     \ ?
+     \ /
+    o\ /
+   * \\ /*
+______!o__________________
+
+
+
+
+
+K07 RIGHT_HIP_CATCH_LEG_SWEEP  [TWOS / INFERRED]  SUPPORT=R_HIP  CONTACT=TRUSTED_CATCH
+ROOT=[48, 27]  BODY_ROLL=-205deg  SPACING=5  ANGULAR_V=-18.0
+ROLE: right hip arrests rotation enough to sling the right foot toward a trustworthy exit contact
+
+
+
+   *O       *
+   \ \     /
+    o\    o
+      +   /
+       \ / o
+       o // \\
+        \/    ?
+________!*________________
+
+
+
+
+
+
+K08 HIP_DRIVE_RIGHT_FOOT_PROBE  [ONES / INFERRED]  SUPPORT=R_HIP  CONTACT=PRECONTACT
+ROOT=[54, 26]  BODY_ROLL=-236deg  SPACING=6  ANGULAR_V=-11.0
+ROLE: hip remains owner while right foot probes ahead; root must not rise before the foot can carry it
+
+
+
+     O
+      \
+   *  \
+    \  +     *
+     o/\    /
+        \  o
+        o  /
+        \\/ o
+        \ */ \
+         \/   \\
+_________!______?_________
+
+
+
+
+K09 RIGHT_FOOT_CATCH_REBIND  [TWOS / INFERRED]  SUPPORT=R_FOOT  CONTACT=TRUSTED_CATCH
+ROOT=[58, 24]  BODY_ROLL=-258deg  SPACING=4  ANGULAR_V=-6.0
+ROLE: right foot becomes first trustworthy upright support while head/torso still lag behind
+
+
+
+      O
+      \
+       \
+   *\  +
+     o/\\
+        \o
+        \ \
+         \ *
+         @
+        / \
+        o  o
+       /    \
+      *     \
+             \
+_____________!____________
+
+
+
+
+K10 RIGHT_DRIVE_LEFT_PROBE  [TWOS / INFERRED]  SUPPORT=R_FOOT  CONTACT=PRECONTACT
+ROOT=[63, 23]  BODY_ROLL=-272deg  SPACING=5  ANGULAR_V=-2.0
+ROLE: right support drives out of the roll; left foot probes distinctly ahead while torso still carries overrun
+
+
+
+        O
+        |
+        |
+   *\   |
+     o--+
+        \\o
+         \ \\
+         \   *
+         \
+          \
+          @
+           \
+           \
+            o
+             \
+             \\
+              \\
+______________!_?_________
+
+
+
+
+K11 LEFT_CATCH_EXIT_SURGE  [ONES / INFERRED]  SUPPORT=L_FOOT  CONTACT=TRUSTED_CATCH
+ROOT=[69, 22]  BODY_ROLL=-276deg  SPACING=6  ANGULAR_V=+3.0
+ROLE: left catch spends residual forward velocity rather than freezing both feet
+
+
+
+         O
+         /
+        /
+        /
+       /+--o
+     o/ |   \
+    /   |    *
+   *    |
+        |
+        |
+        @
+        /\
+       / \
+       o  o
+       /   \
+       /    \
+      /      *
+      /
+______!___________________
+
+
+
+
+K12 LEFT_SUPPORT_TORSO_OVERRUN  [FOURS / INFERRED]  SUPPORT=L_FOOT  CONTACT=PRECONTACT
+ROOT=[72, 22]  BODY_ROLL=-269deg  SPACING=3  ANGULAR_V=+7.0
+ROLE: left foot stays owner while torso and arms overshoot; right foot only probes
+
+
+
+            O
+            /
+           /
+      *    /
+       \  /+\
+        o//  \o
+          /    \
+         /     \
+         /      *
+        /
+        @
+       / \
+       / \
+      o   \
+     /    o
+     /     \
+    /       \
+    /        \
+___!__________?___________
+
+
+
+
+K13 LEFT_DRIVE_RIGHT_PROBE_BRAKE  [TWOS / INFERRED]  SUPPORT=L_FOOT  CONTACT=PRECONTACT
+ROOT=[74, 23]  BODY_ROLL=-263deg  SPACING=2  ANGULAR_V=+4.0
+ROLE: left support brakes root while right probe closes the recovery gap
+
+
+
+          O
+          /
+         /
+         /
+        /+\
+      o/ / \o
+    */   /   \
+        /     *
+        /
+        @
+       / \
+       / \
+      o   o
+     /     \
+    /       \
+    /       \
+___!_________?____________
+
+
+
+
+K14 RIGHT_CATCH_DISPLACED_SETTLE  [FOURS / INFERRED]  SUPPORT=R_FOOT  CONTACT=TRUSTED_CATCH
+ROOT=[76, 24]  BODY_ROLL=-260deg  SPACING=2  ANGULAR_V=+0.0
+ROLE: right catch stabilizes a displaced asymmetrical ready state with rotation debt spent
+
+
+
+        O
+        |
+        |
+        |
+       /+
+     o/ /\o
+    /   /  \
+   *   /    *
+       /
+       @
+      / \
+      / \
+     o   o
+    /     \
+    /     \
+   *       \
+___________!______________
