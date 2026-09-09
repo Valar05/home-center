@@ -14,6 +14,16 @@ WORLD_W = int(MOTION["rig"]["world_grid"]["width"])
 WORLD_H = int(MOTION["rig"]["world_grid"]["height"])
 CROSS = tuple(MOTION["rig"]["world_grid"]["crossover_xy"])
 
+def pose_dict(key):
+    p=key["pose_rig"]
+    return {n:tuple(v) for n,v in zip(MOTION["rig"]["joints"],p)} if isinstance(p,list) else {n:tuple(v) for n,v in p.items()}
+
+def mech_dict(key):
+    m=key["mechanics"]
+    if isinstance(m,list):
+        return {"root_xy":[m[0],m[1]],"heading_deg":m[2],"curvature":m[3],"bank_units":m[4],"spacing_from_prev":m[5]}
+    return m
+
 def line_points(a,b):
     x0,y0=a; x1,y1=b; dx=abs(x1-x0); sx=1 if x0<x1 else -1
     dy=-abs(y1-y0); sy=1 if y0<y1 else -1; err=dx+dy; out=[]
@@ -25,7 +35,7 @@ def line_points(a,b):
         if e<=dx: err+=dx; y0+=sy
 
 def draw_rig(g,key,offset=(0,0)):
-    j={n:tuple(v) for n,v in key["pose_rig"].items()}
+    j=pose_dict(key)
     ox,oy=offset
     def q(p): return (p[0]-ox,p[1]-oy)
     h=len(g); w=len(g[0]) if h else 0
@@ -52,7 +62,7 @@ def draw_rig(g,key,offset=(0,0)):
                 g[y][x]="~"
 
 def local_ascii(key):
-    j={n:tuple(v) for n,v in key["pose_rig"].items()}
+    j=pose_dict(key)
     xs=[p[0] for p in j.values()]; ys=[p[1] for p in j.values()]
     minx,maxx=min(xs)-3,max(xs)+3; miny,maxy=min(ys)-3,max(ys)+3
     w=max(22,maxx-minx+1); h=max(16,maxy-miny+1)
@@ -80,7 +90,7 @@ def root_map():
     cx,cy=CROSS; g[cy][cx]="x"
     pts=[]
     for key in MOTION["keys"]:
-        x,y=[int(round(v)) for v in key["mechanics"]["root_xy"]]
+        x,y=[int(round(v)) for v in mech_dict(key)["root_xy"]]
         pts.append((x,y))
         if 0<x<WORLD_W-1 and 0<y<WORLD_H-1: g[y][x]="o"
     for a,b in zip(pts,pts[1:]):
@@ -100,7 +110,7 @@ def make_contact_sheet():
         root_map(),""
     ]
     for key in MOTION["keys"]:
-        m=key["mechanics"]
+        m=mech_dict(key)
         lines += [
             f'{key["key_id"]} {key["name"]}  [{key["timing_class"]} / {key["timing_provenance"]}]  SUPPORT={key["support_contact"]}  CONTACT={key["contact_state"]}',
             f'ROOT={m["root_xy"]}  HEADING={m["heading_deg"]:+.1f}deg  CURVATURE={m["curvature"]:+.2f}  BANK={m["bank_units"]:+.2f}  SPACING={m["spacing_from_prev"]}',
@@ -126,7 +136,7 @@ def render_mp4(path: Path):
         d.text((16,8),"ASCII KINESIS · LOCOMOTION 014 · FIGURE-EIGHT CURVATURE SIGN REVERSAL",font=small,fill=(190,190,190))
         d.text((16,24),f'{key["key_id"]} {key["name"]}   support={key["support_contact"]}   {key["contact_state"]}',font=small,fill=(238,238,235))
         d.multiline_text((18,42),art,font=font,fill=(246,246,240),spacing=0)
-        mech=key["mechanics"]
+        mech=mech_dict(key)
         d.text((16,501),f'heading={mech["heading_deg"]:+.1f}°  curvature={mech["curvature"]:+.2f}  bank={mech["bank_units"]:+.2f}  frame {i+1:02d}/{len(frames)} · abstract ASCII only',font=small,fill=(160,160,160))
         im.save(tmp/f"f_{i:04d}.png",compress_level=9)
     subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate",str(FPS),"-i",str(tmp/"f_%04d.png"),
