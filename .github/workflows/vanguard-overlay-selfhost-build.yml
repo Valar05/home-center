@@ -1,6 +1,9 @@
 name: Vanguard Overlay Selfhost Build
 
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - campaign/vanguard-overlay-resurrection
@@ -13,6 +16,9 @@ concurrency:
   group: vanguard-overlay-selfhost-build
   cancel-in-progress: true
 
+env:
+  SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
 jobs:
   build-current-pocket-overlay:
     runs-on: [self-hosted, Windows, X64]
@@ -21,7 +27,7 @@ jobs:
       - name: Checkout exact campaign head
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ env.SOURCE_SHA }}
           fetch-depth: 0
           lfs: false
 
@@ -33,8 +39,8 @@ jobs:
             throw "Wrong self-hosted body: $env:COMPUTERNAME"
           }
           $head = (git rev-parse HEAD).Trim()
-          if ($head -ne $env:GITHUB_SHA) {
-            throw "Checkout SHA mismatch expected=$env:GITHUB_SHA actual=$head"
+          if ($head -ne $env:SOURCE_SHA) {
+            throw "Checkout SHA mismatch expected=$env:SOURCE_SHA actual=$head"
           }
           Write-Host "THECAULDRON_SOURCE=$head"
 
@@ -52,7 +58,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path $out | Out-Null
           & ./tools/build_operator_overlay_signed.ps1 `
             -RepositoryRoot $env:GITHUB_WORKSPACE `
-            -ExpectedSourceSha $env:GITHUB_SHA `
+            -ExpectedSourceSha $env:SOURCE_SHA `
             -OutputDirectory $out
           $receipt = Get-Content (Join-Path $out 'operator-overlay-receipt.json') -Raw | ConvertFrom-Json
           if (-not $receipt.sha256 -or -not $receipt.signingCertificateSha256) {
@@ -64,7 +70,7 @@ jobs:
       - name: Upload current signed overlay
         uses: actions/upload-artifact@v4
         with:
-          name: vanguard-pocket-overlay-${{ github.sha }}
+          name: vanguard-pocket-overlay-${{ env.SOURCE_SHA }}
           path: |
             build/vanguard-pocket-overlay/operator-overlay-debug.apk
             build/vanguard-pocket-overlay/operator-overlay-receipt.json
