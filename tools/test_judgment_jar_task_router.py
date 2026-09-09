@@ -34,6 +34,9 @@ archive = {
     "aliases": ["pasta-fahr"],
 }
 registry = {
+    "schema": "home-center.judgment-jars.registry.v2",
+    "registryDigest": "test-registry-digest",
+    "sourceCommit": "test-source-commit",
     "homeCenter": {
         "state": "synced",
         "complete": True,
@@ -49,14 +52,22 @@ assert [item["sourceFileId"] for item in resolved] == [PASTA_ID]
 assert router.resolve_task_jars(registry, "What do you think of Pastafarian?") == []
 assert router.resolve_task_jars(registry, "Pasta'Fahr, report.")[0]["sourceFileId"] == PASTA_ID
 assert router.has_explicit_jar_signal("Call the judgment jar") is True
+assert router.has_explicit_jar_signal("Put the mason jar on the shelf") is False
 
 with tempfile.TemporaryDirectory(prefix="jar-task-router-") as temp:
+    receipt_state = Path(temp) / "receipts"
     config_path = Path(temp) / "judgment-jars.json"
     config_path.write_text(json.dumps({
         "schema": "home-center.judgment-jars.config.v1",
         "repositorySourcePattern": ".continue/rules/*judgement-jar*.md",
         "homeCenter": {"registryFileId": REGISTRY_ID},
         "runtime": {},
+        "receipts": {
+            "schema": "home-center.judgment-jar-usage-receipt.v1",
+            "surfaces": ["jar"],
+            "outputKinds": ["context_packet"],
+            "stateDir": str(receipt_state),
+        },
     }), encoding="utf-8")
 
     original_ensure = router.ensure_registry
@@ -83,6 +94,20 @@ with tempfile.TemporaryDirectory(prefix="jar-task-router-") as temp:
         assert "Trace the noodle" in packet
         assert ARCHIVE_ID not in packet
         assert "Pastafarian" not in packet
+        pending = list((receipt_state / "pending").glob("*.json"))
+        assert len(pending) == 1, "canonical task Jar load must create one durable pending receipt"
+        receipt = json.loads(pending[0].read_text(encoding="utf-8"))
+        assert receipt["jar"]["sourceFileId"] == PASTA_ID
+        assert receipt["invocation"]["source"] == "judgment-jar-task-router"
+        assert receipt["receiptDeliveryState"] == "PENDING_HOME_CENTER"
+
+        # Ordinary containers are not Judgment Jar invocations.
+        assert router.task_source_packet(
+            "Put the mason jar on the shelf",
+            root=Path(temp),
+            cache=Path(temp) / "cache.json",
+            config_path=config_path,
+        ) == ""
 
         router.fetch_native_source = lambda *args, **kwargs: {
             "state": "stale",
@@ -124,13 +149,15 @@ assert "JAR_UNRESOLVED" in runtime
 
 print(json.dumps({
     "ok": True,
-    "schema": "judgment-jar-task-router-contract.v1",
+    "schema": "judgment-jar-task-router-contract.v2",
     "canonicalRegistryFileId": REGISTRY_ID,
     "canonicalPastaFahrFileId": PASTA_ID,
     "voiceAlias": "pasta apostrophe far",
     "pastafarianDoesNotResolve": True,
+    "ordinaryMasonJarDoesNotTrigger": True,
     "archiveDoesNotResolve": True,
     "staleNativeSourceFailsClosed": True,
     "unknownExplicitJarFailsClosed": True,
+    "contextReceiptCaptured": True,
     "planningAndExecutionWired": True,
 }, sort_keys=True))
