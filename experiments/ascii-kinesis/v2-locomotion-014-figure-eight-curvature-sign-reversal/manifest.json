@@ -1,0 +1,48 @@
+{
+  "schema": "ascii-kinesis.manifest.v2",
+  "format_version": 2,
+  "id": "v2-locomotion-014-figure-eight-curvature-sign-reversal",
+  "title": "ASCII Kinesis V2 Locomotion 014 — Figure-Eight Curvature Sign Reversal",
+  "lane": "locomotion",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "revises": null,
+  "negative_fixture": null,
+  "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+  "source_asset_id": 566077,
+  "source_archive_sha256": "d4947e1821e24a9096417a596f974a2178790b49285c5335abb4f99a53959ce3",
+  "motion_file": "motion.json",
+  "contact_sheet_file": "contact-sheet.txt",
+  "spa_file": "figure-eight-curvature-sign-reversal.motion.html",
+  "builder_file": "build.py",
+  "receipt_file": "receipt.json",
+  "authoritative_media": {
+    "fps": 24,
+    "timing_hold_frames": {
+      "ONES": 1,
+      "TWOS": 2,
+      "FOURS": 4
+    },
+    "frame_count": 55,
+    "duration_seconds": 2.291667,
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 960,
+    "height": 520,
+    "media_bytes": 39346,
+    "media_sha256": "8a31370c9b7ee60c49c55ba838318ab8beacdc70d7993db5563f71b6103b02ff",
+    "decode": "PASS",
+    "ascii_only_frame_render": true,
+    "source_sprite_pixels_used": false,
+    "source_audio_used": false
+  },
+  "drew_accepted": false
+}
