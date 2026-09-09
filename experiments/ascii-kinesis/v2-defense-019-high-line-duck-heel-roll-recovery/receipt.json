@@ -2,7 +2,7 @@
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-defense-019-high-line-duck-heel-roll-recovery",
   "lane": "defense",
-  "status": "REPO_VERIFIED_CHAT_DELIVERY_PENDING",
+  "status": "HEALTHY_USER_SURFACED",
   "current_worker_liveness": {
     "home_center_campaign_read": true,
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
@@ -16,7 +16,8 @@
     "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
     "prior_closure_comment": 5604698537,
     "successor_collision": false,
-    "defense020_forbidden_until_healthy": true
+    "defense020_forbidden_until_healthy": false,
+    "next_authorized_after_fresh_preflight": "v2-defense-020"
   },
   "source": {
     "provider": "The Spriters Resource",
@@ -51,7 +52,7 @@
       "verdict": "PASS",
       "actual_render_inspected": true,
       "current_worker_reconfirmed": true,
-      "basis": "Fresh byte-identical 48-frame inspection: threat read precedes compression; the head clears through a low crescent with zero contact; fixed feet visibly change floor authority from full/edge/toe to the opposite full support; right-side drive earns the rise; torsion overshoot and displaced light-left-toe low-ready debt remain visible. No mutation earned."
+      "basis": "Fresh byte-identical 48-frame inspection: threat read precedes compression; the head clears through a low crescent with zero contact; fixed ankle positions visibly change floor authority from full/edge/toe to opposite full support; right-side drive earns the rise; torsion overshoot counter-settles into displaced light-left-toe low-ready debt. No mutation earned."
     },
     "noodle_queen": {
       "verdict": "PASS",
@@ -93,25 +94,28 @@
     "repo_readback": true,
     "spa_write_commit": "811dfd9ce4e7d353a70c08743c9361558d3ddf45",
     "manifest_reconcile_commit": "9770323f2b98ddb426d81314b1c28c0c8df47cd8",
+    "healthy_manifest_write_commit": "f5480cc7ce99ab664e7391309a29338947881652",
     "observed_main_commit_after_spa_write": "f01c6bde8de677d267e90d94dd9189ce63385fa5",
     "blobs": {
       "build.py": "6aa979d28334548005ead8c000bdb3ca962dd3a8",
       "contact-sheet.txt": "ce8d8abd416e17208f195f48341e8cc4706462bb",
-      "manifest.json": "9d09cb8c564f3e903b0ce026ecdfdb64c5a8edf4",
+      "manifest.json": "bf15dd20832cf32d8dd22e02229610c663e16b3a",
       "motion.json": "62cbb9f79077a041b7a1a160cf34cfb907c1f1b2",
       "high-line-duck-heel-roll-recovery.motion.html": "93d20a9d6112f1de6b5e55d8277c991f182cb935"
     },
-    "issue_343_receipt": null,
-    "issue_343_receipt_readback": false,
-    "final_issue_closure_readback": false
+    "issue_343_receipt": 5607767106,
+    "issue_343_receipt_readback": true,
+    "final_issue_closure_readback": true,
+    "final_receipt_readback_required": true
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_visible_video": false,
-    "ordered_together": false,
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_visible_video": true,
+    "ordered_together": true,
     "ascii_git_blob": "ce8d8abd416e17208f195f48341e8cc4706462bb",
     "json_git_blob": "62cbb9f79077a041b7a1a160cf34cfb907c1f1b2",
-    "visible_video_sha256": null
-  }
+    "visible_video_sha256": "a9e02437422e621bf6bd1c1a301d6b1bbae82456a923e9a4bf14263e1c2fea97"
+  },
+  "DREW_ACCEPTED": false
 }
