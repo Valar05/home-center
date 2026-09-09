@@ -1,0 +1,394 @@
+AIRBORNE022 — CEILING TUCK / PALM-CATCH DEBT
+source art not reproduced; generic ASCII rig; all decisive timing INFERRED / STREET_FIGHTER-CAPCOM
+
+A022-K0 OFFSET_LEFT_LOAD [FOURS/INFERRED]
+root=(10.0,17.5) support=LEFT_DOMINANT_GROUND crop_x=0:33
++----------------------------------+
+|                                  |
+|                                  |
+|                      ------------|
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|        O                         |
+|              x                   |
+|         +\\\o                    |
+|       //|                        |
+|      o  |                        |
+|    x-    |                       |
+|          @                       |
+|        o/ \                      |
+|        /   o                     |
+|       /     \=                   |
+|       !                          |
+| _________________________________|
++----------------------------------+
+role: asymmetric left-leg coil stores a low forward-right launch while the right side stays long
+
+A022-K1 CANTED_SUPPORT_BREAK [ONES/INFERRED]
+root=(14.5,14.4) support=LEFT_BREAK_TO_NONE crop_x=0:33
++----------------------------------+
+|                                  |
+|                                  |
+|                      ------------|
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|               O                  |
+|                                  |
+|        x-o////+\                 |
+|               | \o               |
+|              |    -x             |
+|             /@                   |
+|          =o/  \\                 |
+|                 o                |
+|                  \=              |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+| _________________________________|
++----------------------------------+
+role: left support drives up-right and releases before the torso can square
+
+A022-K2 OPEN_RISE [TWOS/INFERRED]
+root=(19.5,11.3) support=NONE crop_x=3:36
++----------------------------------+
+|                                  |
+|                                  |
+|                   ---------------|
+|                                  |
+|                  O               |
+|                                  |
+|          x-o////+\\\o            |
+|                 |    -x          |
+|            =/   |                |
+|              o//@                |
+|                  \o              |
+|                    \=            |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|__________________________________|
++----------------------------------+
+role: body opens into rise before the overhead-clearance task begins
+
+A022-K3 EARLY_CLEARANCE_READ [TWOS/INFERRED]
+root=(24.5,9.5) support=NONE crop_x=7:40
++----------------------------------+
+|                                  |
+|                                  |
+|               ------------------ |
+|                 O    x           |
+|                //+\\o            |
+|             o//  |               |
+|            -     |  \=           |
+|            x    | \o             |
+|            =/o//@\               |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|__________________________________|
++----------------------------------+
+role: head, shoulders, and task-side hand read the overhead limit early without contacting it while the root still rises
+
+A022-K4 CEILING_TUCK_APEX [FOURS/INFERRED]
+root=(29.5,8.7) support=NONE crop_x=13:46
++----------------------------------+
+|                                  |
+|                                  |
+|         ------------------       |
+|            x                     |
+|             o///  O              |
+|           =/    //+ \=           |
+|             o//  |\oo            |
+|                /@\   -x          |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|__________________________________|
++----------------------------------+
+role: a sharp asymmetric pike/tuck buys overhead clearance at the apex instead of inventing a second impulse
+
+A022-K5 TUCKED_UNDERPASS [TWOS/INFERRED]
+root=(34.5,9.0) support=NONE crop_x=17:50
++----------------------------------+
+|                                  |
+|                                  |
+|     ------------------           |
+|             x-                   |
+|               o/    =            |
+|                 //  O            |
+|            =      |o             |
+|             o///@|  \o           |
+|                       -x         |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|__________________________________|
++----------------------------------+
+role: the compact body travels beneath the clearance plane with both hands visibly clear and limbs deliberately phase-lagged
+
+A022-K6 LATE_UNFOLD_DROP [ONES/INFERRED]
+root=(39.0,10.9) support=NONE crop_x=22:55
++----------------------------------+
+|                                  |
+|                                  |
+|------------------                |
+|                                  |
+|                                  |
+|           x-o///  O              |
+|                 //+              |
+|                  |\              |
+|                  | \             |
+|                /@\\o\=           |
+|              o/     -            |
+|            =/        x           |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|__________________________________|
++----------------------------------+
+role: clearance debt forces a late unfold; the right arm drops early because the feet are still folded behind
+
+A022-K7 PALM_PRECONTACT [TWOS/INFERRED]
+root=(43.2,13.8) support=NONE_PRECONTACT crop_x=26:59
++----------------------------------+
+|                                  |
+|                                  |
+|--------------                    |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                   O              |
+|                                  |
+|             o////+               |
+|           x-     |\              |
+|                 | \              |
+|                 @\ \             |
+|                /  \o             |
+|               o    \-            |
+|              /      -            |
+|              =      =-           |
+|                      x           |
+|                                  |
+|                                  |
+|                                  |
+|__________________________________|
++----------------------------------+
+role: right palm reaches under the forward chest before either foot can own support
+
+A022-K8 RIGHT_PALM_FIRST [ONES/INFERRED]
+root=(46.0,15.6) support=RIGHT_HAND_FIRST crop_x=29:62
++----------------------------------+
+|                                  |
+|                                  |
+|-----------                       |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                  O               |
+|             o//                  |
+|            -   //+               |
+|           x      |               |
+|                 @\\              |
+|               //  oo             |
+|              o    - \            |
+|             /     - =            |
+|             =      -             |
+|                    -             |
+|                    !             |
+|__________________________________|
++----------------------------------+
+role: right palm acquires the first ground constraint but cannot arrest the body's down-forward COM
+
+A022-K9 PALM_LEFT_FOOT_CATCH [ONES/INFERRED]
+root=(49.0,17.2) support=RIGHT_HAND_PLUS_LEFT_FOOT crop_x=32:65
++----------------------------------+
+|                                  |
+|                                  |
+|--------                          |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                O                 |
+|                                  |
+|             o///+                |
+|            -   /@\\              |
+|           x  o/  \ o             |
+|              /    o-             |
+|             /      \=            |
+|             !       -            |
+|                     !            |
+|__________________________________|
++----------------------------------+
+role: left foot arrives late, creating an asymmetric two-point brace while the torso still dives past both anchors
+
+A022-K10 TRIPOD_DEBT_CRUSH [FOURS/INFERRED]
+root=(52.0,18.5) support=RIGHT_HAND_PLUS_BOTH_FEET_DEEP crop_x=35:68
++----------------------------------+
+|                                  |
+|                                  |
+|-----                             |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|               O                  |
+|                                  |
+|               +|@                |
+|             oo/ \\o              |
+|           x-/     -\             |
+|             !      -!            |
+|                    !             |
+|__________________________________|
++----------------------------------+
+role: both feet join the planted hand in a low tripod crush that pays delayed landing and forward-overturn debt
+
+A022-K11 HAND_RELEASE_LEG_TAKEOVER [ONES/INFERRED]
+root=(54.5,17.6) support=BOTH_FEET_HAND_RELEASE crop_x=37:70
++----------------------------------+
+|                                  |
+|                                  |
+|---                               |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                 O                |
+|                 +                |
+|               //|\               |
+|             o/  | \              |
+|           x-    @\\              |
+|               o/  \o             |
+|              /      -x           |
+|              !      !            |
+|                                  |
+|__________________________________|
++----------------------------------+
+role: grounded legs take over support before the hand releases, preventing a magical pop-up
+
+A022-K12 CROSSBODY_REBOUND_LAG [TWOS/INFERRED]
+root=(57.5,16.3) support=BOTH_FEET_REBOUND crop_x=41:74
++----------------------------------+
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                   O              |
+|          x-o///                  |
+|                //+               |
+|                  |               |
+|                 | \              |
+|                 @ \              |
+|               // \o              |
+|              o    o-             |
+|             /      x             |
+|             !      !             |
+|                                  |
+|                                  |
+|__________________________________|
++----------------------------------+
+role: ground reaction rebounds the root while the formerly planted arm remains low and the opposite shoulder overshoots
+
+A022-K13 DISPLACED_CROUCH_EXIT [FOURS/INFERRED]
+root=(61.0,17.1) support=BOTH_GROUND_NEW_ADDRESS crop_x=42:75
++----------------------------------+
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                                  |
+|                    O             |
+|                       x          |
+|                  /+\\o           |
+|                o/ |              |
+|              x-   |              |
+|                   @              |
+|                  / \             |
+|                 o   o            |
+|                /     \           |
+|               !       !          |
+|                                  |
+|_________________________________ |
++----------------------------------+
+role: readiness returns at a new address with residual shoulder asymmetry and a low base rather than idle reset
