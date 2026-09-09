@@ -2,11 +2,7 @@
   "format_version": 2,
   "id": "v2-locomotion-010-cadence-surge-brake-repair",
   "lane": "locomotion",
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
@@ -40,9 +36,10 @@
     "embedded": true,
     "tracked": false,
     "mime": "video/mp4",
-    "sha256": "3f0ec4ed12b73b376f4817787f656d328f33a1a02f2a7c0f579db7fee6300ecc",
-    "bytes": 14173,
+    "sha256": "79f31fa56017b16082cdc6d0784bf49df86c2c4505e53dc28bd2654131ddb572",
+    "bytes": 11369,
     "source": "abstract_ascii_rig_only",
+    "compile_crf": 40,
     "decode": {
       "codec": "h264",
       "pix_fmt": "yuv420p",
@@ -55,10 +52,12 @@
   },
   "quality": {
     "tango": "PASS",
-    "tango_iterations": 4,
+    "tango_iterations_prior_authoring": 4,
     "noodle_queen": "PASS",
     "current_worker_actual_render_inspected": true,
-    "decoded_frames_inspected": 52
+    "decoded_frames_inspected": 52,
+    "current_worker_tango_basis": "fresh reconstruction from exact persisted motion geometry/timing: slow asymmetric carry and right-foot coil visibly accelerate into widening authored flight/catch gaps, then left brake coil collapses spacing before heel probe/acquire, deep right-foot arrest, torso overshoot, backward recovery displacement, and non-idle exit debt",
+    "current_worker_noodle_queen_basis": "specific crooked surge and braking silhouettes, legible support-phase continuity and COM consequence, distinct acceleration versus arrest, and recovery that spends residual momentum rather than resetting to idle"
   },
   "contract": {
     "script": "tools/test_ascii_kinesis_swarm_contract_v2.py",
@@ -67,9 +66,7 @@
     "status": "PASS",
     "repo_global_claimed": false,
     "exit_code": 0,
-    "entries_checked": [
-      "v2-locomotion-010-cadence-surge-brake-repair"
-    ]
+    "entries_checked": ["v2-locomotion-010-cadence-surge-brake-repair"]
   },
   "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY"
 }
