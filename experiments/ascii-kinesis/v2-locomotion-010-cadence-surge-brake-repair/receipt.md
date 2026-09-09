@@ -6,79 +6,38 @@ Canonical successor: `experiments/ascii-kinesis/v2-locomotion-010-cadence-surge-
 Revises / negative fixture: `experiments/ascii-kinesis/v2-locomotion-003-cadence-phase-continuity/`
 Predecessor preserved: true
 Source change: false
+No Locomotion011 created.
 
 ## Current-worker liveness
-PASS — exact commissioned Home Center campaign read and GitHub persistence/readback were available before judgment or mutation.
+PASS — this worker first read the exact commissioned Home Center campaign `1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s` and verified GitHub persistence/readback before judgment or mutation. Reset `5576901079`, Locomotion002 HEALTHY closure `5586172173`, manager reconciliation `5592633902`, current `skills/ascii-kinesis/SKILL.md`, and current `docs/ASCII_KINESIS_SWARM_CONTRACT_V2.md` were freshly reread.
 
 ## Source / rights
-The Spriters Resource asset 128015 — Bob — Bob the Builder: Fix It Fun! — Game Boy / GBC.
-Inherited entire-sheet evidence: 506x428 PNG, 16,443 bytes, SHA-256 `1c7e36243f943571fca88290f22f88a1c1510fe7f11865157862b320a9c5c7d6`.
-Source-authentic exposure timing unavailable. Copyright-restricted source is evidence only; no Drew work, source pixels, palette, layout, contours, tracing, choreography, redistribution, or close imitation enters this repair.
+The Spriters Resource asset `128015` — Bob — Bob the Builder: Fix It Fun! — Game Boy / GBC.
+Inherited whole-sheet evidence: 506×428 PNG, 16,443 bytes, SHA-256 `1c7e36243f943571fca88290f22f88a1c1510fe7f11865157862b320a9c5c7d6`.
+Source-authentic exposure timing is unavailable. Copyright-restricted source is evidence only; no Drew work, source pixels, palette, layout, contours, tracing, choreography, redistribution, or close imitation enters this independently authored abstract ASCII repair.
 
-## Performance law
-`CADENCE CHANGES SPACING WITHOUT RESETTING SUPPORT PHASE`.
-Slow asymmetric L-support carry -> R-foot surge coil -> widening root gaps through alternating authored flights/catches -> last long L catch -> counterlean brake -> short flight -> R heel probe/acquire -> deep absorption -> forward torso overshoot -> backward rebound -> displaced recovery steps -> unresolved L-step exit debt.
+## Timing / support law
+All 30 decisive-key timings are `INFERRED / STREET_FIGHTER-CAPCOM`; `1s/2s/4s` means ONES/TWOS/FOURS, never seconds. Generated connectors: none. Every geometry-changing transition state is authored. Support sequence remains explicit through walk carry → right surge coil → alternating run catches/flights → left brake coil → short brake flight → right heel probe/acquire → deep right-foot arrest → left recovery probe/acquire → right recovery step → unresolved exit debt.
 
-## Timing
-All decisive-key timings are INFERRED / STREET_FIGHTER-CAPCOM. `1s/2s/4s` means ONES/TWOS/FOURS, never seconds.
+## Motion Dungeon / authoritative media
+Pipeline: authored ASCII keys → explicit holds/timing → deterministic authored-state playback → ASCII-only frames → MP4 → self-contained SPA.
+Current exact `motion.json` compile facts are authoritative: H.264/yuv420p, 960×480, 24 fps, 52 frames, 2.166667 s, CRF 40, 11,369 bytes, SHA-256 `79f31fa56017b16082cdc6d0784bf49df86c2c4505e53dc28bd2654131ddb572`.
+Current-worker deterministic reconstruction matched that identity byte-for-byte and full ffmpeg decode passed. No source pixels enter media.
 
-- K00 `WALK_LEFT_CARRY` — FOURS — INFERRED — support `L_FOOT` — phase `WALK_L_SUPPORT`
-- K01 `WALK_LEFT_TOE_ROLL` — TWOS — INFERRED — support `L_FOOT` — phase `WALK_L_SUPPORT`
-- K02 `RIGHT_FOOT_SEARCH` — TWOS — INFERRED — support `L_FOOT+R_FOOT_PROBE` — phase `WALK_R_PRECONTACT`
-- K03 `RIGHT_FOOT_ACQUIRE` — TWOS — INFERRED — support `R_FOOT` — phase `WALK_R_SUPPORT`
-- K04 `RIGHT_COIL_FOR_SURGE` — FOURS — INFERRED — support `R_FOOT` — phase `ACCEL_R_LOAD`
-- K05 `RIGHT_DRIVE_SPIKE` — ONES — INFERRED — support `R_FOOT` — phase `ACCEL_R_RELEASE`
-- K06 `FIRST_FLIGHT_TRAIL` — ONES — INFERRED — support `NONE` — phase `ACCEL_FLIGHT`
-- K07 `LEFT_PRECONTACT_LONG` — ONES — INFERRED — support `NONE` — phase `RUN_L_PRECONTACT`
-- K08 `LEFT_CATCH_FAST` — ONES — INFERRED — support `L_FOOT` — phase `RUN_L_SUPPORT`
-- K09 `LEFT_CATCH_ABSORB` — TWOS — INFERRED — support `L_FOOT` — phase `RUN_L_LOAD`
-- K10 `LEFT_DRIVE_WHIP` — ONES — INFERRED — support `L_FOOT` — phase `RUN_L_RELEASE`
-- K11 `SECOND_FLIGHT_OPEN` — ONES — INFERRED — support `NONE` — phase `RUN_FLIGHT`
-- K12 `RIGHT_OVERSTRIDE_REACH` — ONES — INFERRED — support `NONE` — phase `RUN_R_PRECONTACT`
-- K13 `RIGHT_CATCH_SURGE` — ONES — INFERRED — support `R_FOOT` — phase `RUN_R_SUPPORT`
-- K14 `RIGHT_STIFF_SPRING` — ONES — INFERRED — support `R_FOOT` — phase `RUN_R_LOAD`
-- K15 `RIGHT_DRIVE_LOW` — ONES — INFERRED — support `R_FOOT` — phase `RUN_R_RELEASE`
-- K16 `LEFT_CATCH_RUNOUT` — ONES — INFERRED — support `L_FOOT` — phase `RUN_L_SUPPORT`
-- K17 `LEFT_BRAKE_COIL` — TWOS — INFERRED — support `L_FOOT` — phase `BRAKE_L_LOAD`
-- K18 `LEFT_BRAKE_REBOUND` — ONES — INFERRED — support `L_FOOT` — phase `BRAKE_L_RELEASE`
-- K19 `SHORT_FLIGHT_BRAKE` — ONES — INFERRED — support `NONE` — phase `BRAKE_FLIGHT`
-- K20 `RIGHT_HEEL_PROBE` — ONES — INFERRED — support `R_FOOT_PROBE` — phase `BRAKE_R_PRECONTACT`
-- K21 `RIGHT_HEEL_ACQUIRE` — ONES — INFERRED — support `R_FOOT` — phase `BRAKE_R_SUPPORT`
-- K22 `RIGHT_BRAKE_DEEP` — FOURS — INFERRED — support `R_FOOT` — phase `BRAKE_R_LOAD`
-- K23 `TORSO_FORWARD_OVERSHOOT` — TWOS — INFERRED — support `R_FOOT` — phase `BRAKE_R_OVERSHOOT`
-- K24 `LEFT_RECOVERY_PROBE` — TWOS — INFERRED — support `R_FOOT+L_FOOT_PROBE` — phase `RECOVERY_L_PRECONTACT`
-- K25 `LEFT_RECOVERY_ACQUIRE` — TWOS — INFERRED — support `L_FOOT` — phase `RECOVERY_L_SUPPORT`
-- K26 `LEFT_REBOUND_SETTLE` — ONES — INFERRED — support `L_FOOT` — phase `RECOVERY_L_SETTLE`
-- K27 `RIGHT_STEP_SEARCH` — TWOS — INFERRED — support `L_FOOT+R_FOOT_PROBE` — phase `RECOVERY_R_PRECONTACT`
-- K28 `RIGHT_RECOVERY_STEP` — TWOS — INFERRED — support `R_FOOT` — phase `RECOVERY_R_SUPPORT`
-- K29 `EXIT_WITH_LEFT_DEBT` — TWOS — INFERRED — support `R_FOOT` — phase `EXIT_R_SUPPORT`
-
-## Motion Dungeon / media
-Authored ASCII keys are semantic authority. Generated connectors: none. Every transition geometry state is authored; holds are explicit.
-MP4 derives solely from the abstract ASCII rig + structured timing.
-H.264/yuv420p, 960x480, 24 fps, 52 frames, 2.166667 s; CRF 38.
-SHA-256 `3f0ec4ed12b73b376f4817787f656d328f33a1a02f2a7c0f579db7fee6300ecc`; 14,173 bytes.
-Decode: PASS.
+## Correction-worthy finding fixed in this run
+Fresh GitHub readback found a stale partial body: `contact-sheet.txt` existed, but the required `cadence-surge-brake-repair.motion.html` SPA was absent. `manifest.json` / this receipt also still named an older CRF-38 media identity (`3f0ec4ed...`, 14,173 bytes) while current `motion.json` and deterministic `build.py` bind CRF-40 media `79f31fa...`, 11,369 bytes. The same canonical 010 was repaired in place: exactly one self-contained SPA was added and manifest/receipt media identity was aligned to current authoritative `motion.json`. No motion-key/source change was made because fresh visible inspection did not earn one.
 
 ## Current-worker Tango recursive gate
-`PASS` after fresh inspection of the final 52-frame render. No inherited PASS was assumed.
-Highest-value checks passed: crooked pre-surge compression, widening root spacing through authored flights, exact L/R support continuity, visibly shorter braking travel, heel probe before acquire, deep arrest, secondary torso overshoot, backward recovery displacement, and non-idle exit debt. No generated connector exists to invent state.
+`PASS` on the actual reconstructed final 52-frame render after antagonistic chronological inspection. Highest-value visible defect at acceptance scale: none. The render visibly establishes a crooked slow carry and right-foot compression; acceleration through widening authored root gaps and alternating support ownership; distinct low runout; a left-foot braking coil that collapses travel before support changes; short brake flight; heel probe before acquisition; deep right-foot arrest; torso-forward overshoot after root arrest; backward/displaced recovery; and an exit that preserves locomotor debt. It does not read as symmetric gait cycling, equalized spacing, straight root tweening, phase reset, planted-feet theater, reverse recoil, or idle recovery.
 
 ## Current-worker Noodle Queen
-`PASS` after Tango PASS — TASTE + FUNCTION + CONTEMPT on the same actual final render.
-Specific silhouette progression and force/support causality read authored rather than symmetric gait-cycle placeholder motion.
+`PASS` after Tango on the same actual render + repaired specimen. TASTE + FUNCTION + CONTEMPT pass: surge and arrest have different silhouettes and force logic; support continuity is readable; COM consequences are embodied; the brake spends momentum in compression and overshoot; secondary lag/recovery remain displaced; the phrase has enough authored attitude not to read as placeholder gait interpolation.
 
-## Contract boundary
-Exact repository test source blob `09f0bcf233dbb770ce6b6df047fe18d94be8aa7c` was executed candidate-isolated against this exact six-file body and exited 0.
-No full-repository runtime TESTED claim is made in this lane.
+## SPA / contract
+The canonical SPA primary tabs are exactly `ASCII | JSON | VIDEO`; literal ASCII/JSON use real selectable `<pre>` surfaces with ligatures disabled and whitespace preserved; VIDEO embeds the exact authoritative MP4 data URI and works without source art or network media.
+Exact validator source: `tools/test_ascii_kinesis_swarm_contract_v2.py` blob `09f0bcf233dbb770ce6b6df047fe18d94be8aa7c`. Candidate-isolated exact-script structural execution is PASS for only `v2-locomotion-010-cadence-surge-brake-repair`. No full-repository runtime TESTED claim is made from that isolated execution.
 
-## Repository body
-Tracked: `build.py`, `contact-sheet.txt`, `manifest.json`, `motion.json`, `receipt.md`, and exactly one `cadence-surge-brake-repair.motion.html`.
-The SPA primary tabs are exactly `ASCII | JSON | VIDEO`; ASCII is literal selectable `<pre>` text; JSON is the actual structured payload; VIDEO embeds the authoritative MP4 bytes.
-
-## Acceptance state
-Exact post-write GitHub readback is the durable verification surface.
-Issue #343 receipt is posted after that readback.
-Current reporting chat must still surface exactly PART 1 ASCII -> PART 2 JSON -> PART 3 visible animation media. `DREW_ACCEPTED` remains distinct.
+## Acceptance boundary
+Exact post-write GitHub readback and issue #343 receipt are required next in this same run. Reporting chat must then surface exactly PART 1 complete ASCII → PART 2 actual persisted motion JSON → PART 3 visible actual media. `DREW_ACCEPTED` remains distinct.
 
 Correction hooks: `KEEP | REJECT | EXAGGERATE | COMPRESS | RETIME | CHANGE SOURCE | FIX ARC | FIX SUPPORT | FIX RECOVERY | FIX SECONDARY LAG | FIX CHAT DELIVERY | RERUN`.
