@@ -1,7 +1,7 @@
 v2-contact-014-impulse-without-custody
 IMPULSE WITHOUT CUSTODY — a brief contact seam can transmit momentum without ever granting object ownership.
 REVISION: kind=NEW_CONCEPT | revises=None | negative_fixture=None | source_change=NOT_APPLICABLE_NEW_CONCEPT
-SOURCE EVIDENCE: TSR asset 155651, The Bullet — Enter the Gungeon — PC / Computer; whole 1023x853 campaign sheet evidence inspected; static-sheet source timing unavailable.
+SOURCE EVIDENCE: TSR asset 155651, The Bullet — Enter the Gungeon — PC / Computer; current-worker fresh read of whole 1023x853 campaign evidence; static-sheet source timing unavailable.
 OBSERVED SOURCE HOOK: complete sheet includes labeled kick table/barrel family; this earns a body→environment-object contact problem but not this synthetic choreography.
 RIGHTS: evidence only; independent generic ASCII rig; no source pixels/palette/costume/contours/layout/tracing/choreography/redistribution/close imitation; Drew work not used.
 TIMING: every decisive key is INFERRED / STREET_FIGHTER-CAPCOM. ONES/TWOS/FOURS are display classes, never seconds.
@@ -9,7 +9,7 @@ VISIBLE LAW: [O] is a generic object, @ is a TRANSIENT NON-CUSTODIAL seam, # is 
 ================================================================================================
 C014-K0  SEPARATE_READ  [FOURS/INFERRED]
 contact=NONE | custody=NONE | object_support=GROUND_STATIC | support=BOTH | root=CENTERED
-force=[0, 0] | object=[70, 20]
+force=[0, 0] | object=[66, 20]
 role=establish independent body and object with wide negative space
 arc=quiet asymmetry; lead hand/leg slightly advanced; no relationship yet
 
@@ -32,7 +32,7 @@ arc=quiet asymmetry; lead hand/leg slightly advanced; no relationship yet
                    o       o
                    |       |
                    |        |
-                  |         |                                        [O]
+                  |         |                                    [O]
                   |          |
 __________________^__________^__________________________________________________________________
 
@@ -43,10 +43,9 @@ __________________^__________^__________________________________________________
 ================================================================================================
 C014-K1  STEP_IN_ASYMMETRY  [TWOS/INFERRED]
 contact=NONE | custody=NONE | object_support=GROUND_STATIC | support=REAR_DOMINANT | root=FORWARD_SPEND
-force=[2, 0] | object=[70, 20]
+force=[2, 0] | object=[66, 20]
 role=body moves first; object remains inert
 arc=pelvis advances and drops before striking limb; rear side still owns support
-
 
 
 
@@ -66,7 +65,7 @@ arc=pelvis advances and drops before striking limb; rear side still owns support
                      o-        \\
                      |           o
                     |             |
-                    |             |                                  [O]
+                    |             |                              [O]
                    |               |
 ___________________^_______________^____________________________________________________________
 
@@ -77,7 +76,7 @@ ___________________^_______________^____________________________________________
 ================================================================================================
 C014-K2  DEEP_COIL_REAR_PIN  [FOURS/INFERRED]
 contact=NONE | custody=NONE | object_support=GROUND_STATIC | support=REAR_PIN | root=A_REAR_PIN
-force=[4, 0] | object=[70, 20]
+force=[4, 0] | object=[66, 20]
 role=store impulse in root-to-hip chain
 arc=rear foot world-locks while pelvis sinks left of the eventual contact axis; arms counter-rotate
 
@@ -100,7 +99,7 @@ arc=rear foot world-locks while pelvis sinks left of the eventual contact axis; 
                     o-         --
                     |            -o
                    |               \
-                   |                \                                [O]
+                   |                \                            [O]
                   |                 \
 __________________#__________________^__________________________________________________________
 
@@ -111,31 +110,31 @@ __________________#__________________^__________________________________________
 ================================================================================================
 C014-K3  ELIGIBILITY_GAP  [TWOS/INFERRED]
 contact=ELIGIBLE_GAP | custody=NONE | object_support=GROUND_STATIC | support=REAR_PIN | root=A_REAR_PIN
-force=[4, 0] | object=[70, 20]
+force=[4, 0] | object=[66, 20]
 role=committed reach becomes eligible but contact has not happened
-arc=front leg travels on a shallow rising arc; deliberate gap remains while the compact force axis stays inside the body
+arc=front leg enters a shallow rising arc while a deliberate gap remains; diagonal arm counter-swing loads the strike without creating contact
 
 
 
 
 
 
-                                   A
-                                   |
-                                  |
-                                 -O--
-                             ---- |  --*
-                           *-     |
-                                 |
-                                 |
-                                -X-->
-                              --    -----
-                           ---           -----
-                         --                   --o-
-                       o-                         ---
-                      /                              ---
-                     /                                  ---          [O]
-                     /                                     -^
+                                     A
+                                    /    --*
+                                    /----
+                                   O-
+                                 //|
+                                /  |
+                              //  |
+                            //    |
+                           *     -X-->
+                               --    -----
+                            ---           ------
+                          --                    --o
+                        o-                         --
+                       /                             --
+                      /                                --        [O]
+                     /                                   ^
 ____________________#___________________________________________________________________________
 
 
@@ -145,30 +144,30 @@ ____________________#___________________________________________________________
 ================================================================================================
 C014-K4  IMPACT_JOIN  [ONES/INFERRED]
 contact=IMPACT_JOIN | custody=NONE | object_support=GROUND_SHEAR | support=REAR_PIN | root=A_REAR_PIN
-force=[4, 0] | object=[70, 20]
+force=[4, 0] | object=[66, 20]
 role=first non-custodial seam; force ownership becomes leg-to-object while rear root remains pinned
-arc=contact occurs inside committed body travel; the visible force vector is local to the seam rather than a torso-to-object beam
+arc=contact occurs before full extension: bent lead chain meets the object face while counter-rotated arms keep the body mass inside the force line
 
 
 
 
 
 
-                                       A
-                                       |
-                                      |
-                                     -O--
-                                   -- |  ---*
-                                 --   |
-                               *-    |
-                                     |
-                                    -X--
-                                 ---    ------
-                               --             ------
-                            ---                     --o--
-                          o-                             ----      ===>
-                         /                                   ----
-                        /                                        --^@[O]
+                                          A
+                                         /
+                                         /  ----*
+                                        O---
+                                      //|
+                                    //  |
+                                   /   |
+                                 //    |
+                               //     -X--
+                              *    ---    -----
+                                ---            ------
+                             ---                     --o-
+                           o-                            --    ===>
+                          /                                ---
+                        //                                    -^@[O]
                        /
 ______________________#_________________________________________________________________________
 
@@ -179,9 +178,9 @@ ______________________#_________________________________________________________
 ================================================================================================
 C014-K5  IMPULSE_DWELL  [FOURS/INFERRED]
 contact=IMPULSE_COUPLED | custody=NONE | object_support=GROUND_SHEAR | support=REAR_PIN | root=A_REAR_PIN
-force=[5, 0] | object=[72, 20]
+force=[5, 0] | object=[68, 20]
 role=brief force dwell while body COM continues through the rooted chain; object begins shearing but is never carried
-arc=pelvis advances after seam formation; front foot stays at the object face while a short local seam-axis shows force transfer and rear foot remains fixed
+arc=pelvis advances after seam formation; lead leg extends under load while the local seam stays short and the rear foot remains world-pinned
 
 
 
@@ -189,21 +188,21 @@ arc=pelvis advances after seam formation; front foot stays at the object face wh
 
 
 
-                                           A
-                                           |
-                                          |
-                                          O--
-                                        --|  ---*
-                                      -- |
-                                    --   |
-                                  *-    |
-                                       -X--
-                                   ----    -----
-                               ----             ------
-                             o-                       --o---         ===>
-                           //                               ------
-                          /                                       ---^@[O]
-                        //
+                                             A
+                                            /
+                                            /  ---*
+                                           O---
+                                         //|
+                                        /  |
+                                      //  |
+                                     /    |
+                                   //    -X--
+                                  *  ----    -----
+                                 ----             -----
+                              o--                      --o--     ===>
+                            --                              ----
+                          --                                    --=[O]
+                        --
 _______________________#________________________________________________________________________
 
 
@@ -213,9 +212,9 @@ _______________________#________________________________________________________
 ================================================================================================
 C014-K6  SEPARATION_GATE  [ONES/INFERRED]
 contact=SEPARATED | custody=NONE | object_support=GROUND_SLIDING | support=REAR_PIN | root=A_REAR_PIN
-force=[-5, 0] | object=[77, 20]
+force=[-5, 0] | object=[74, 20]
 role=relationship ends; object gains independent lead while body takes opposing recoil
-arc=object jumps ahead only after separation; striking foot retracts; torso still overcommitted
+arc=object jumps ahead only after separation; striking foot retracts; torso remains overcommitted
 
 
 
@@ -223,21 +222,21 @@ arc=object jumps ahead only after separation; striking foot retracts; torso stil
 
 
 
-                                            A
-                                           /
-                                           /
-                                          O-
-                                        -/  ----
-                                      -- /      -*
-                                    --  /
-                                  --    /
-                                 *  <=-X-
-                                   ---   ---
-                               ----         ----
-                             o-                 ---
-                           //                      -o-----
-                          /                               -----^            [O]
-                        //
+                                             A
+                                            /
+                                            /
+                                           O-
+                                         -/  ----
+                                       -- /      -*
+                                     --  /
+                                   --    /
+                                  * <==-X-
+                                    ---   ---
+                                ----         ----
+                              o-                 ---
+                            --                      -o---
+                          --                             ---^            [O]
+                        --
 _______________________#________________________________________________________________________
 
 
@@ -247,7 +246,7 @@ _______________________#________________________________________________________
 ================================================================================================
 C014-K7  OBJECT_LEADS_BODY_LAGS  [TWOS/INFERRED]
 contact=SEPARATED | custody=NONE | object_support=GROUND_SLIDING | support=REAR_PIN | root=RECOIL_ARC
-force=[-4, 1] | object=[83, 20]
+force=[-4, 1] | object=[81, 20]
 role=post-contact clocks split; object coasts while body recoil and free-side lag are visible
 arc=object continues right; head/shoulder reverse left; rear foot stays fixed one beat longer
 
@@ -270,7 +269,7 @@ arc=object continues right; head/shoulder reverse left; rear foot stays fixed on
                               ---       ---
                             o-             --
                            /                 -o-
-                         //                     ----                              [O]
+                         //                     ----                            [O]
                         /                           --^
 _______________________#________________________________________________________________________
 
@@ -281,7 +280,7 @@ _______________________#________________________________________________________
 ================================================================================================
 C014-K8  BODY_OVERSHOOT_SECONDARY_LAG  [TWOS/INFERRED]
 contact=SEPARATED | custody=NONE | object_support=GROUND_SLIDING | support=REAR_DOMINANT | root=RECOIL_OVERSHOOT
-force=[-3, 1] | object=[87, 20]
+force=[-3, 1] | object=[86, 20]
 role=body pays recoil beyond neutral; hands and head lag the pelvis reversal
 arc=counter-sweep arcs left/down instead of reverse-playing the approach
 
@@ -303,7 +302,7 @@ arc=counter-sweep arcs left/down instead of reverse-playing the approach
                          o-          \\
                         /              o
                         /               --
-                       /                  --                                          [O]
+                       /                  --                                         [O]
                        /                    --
 ______________________^_______________________^_________________________________________________
 
@@ -350,29 +349,29 @@ C014-K10  OBJECT_SETTLE_BODY_REBOUND  [TWOS/INFERRED]
 contact=SEPARATED | custody=NONE | object_support=GROUND_SETTLED | support=CATCH_LEFT | root=REBOUND_OFFSET
 force=[0, 0] | object=[91, 20]
 role=object settles first; body rebounds with remaining task-side lag
-arc=small rebound right after catch; silhouette opens, but start pose is not recovered
+arc=small diagonal rebound after catch; open asymmetry retains visible post-impact debt
 
 
 
 
-                                     A
+                                      A
+                                      |
                                      |
+                                     |
+                                  ---O-
+                              *---   | --
+                                     |   --
+                                    |      -*
                                     |
-                                    |
-                                    O-
-                                   /| ---
-                                 // |    -*
-                                /   |
-                               *    |
                                     X
-                                   / \\
-                                 //    \
-                                /       \\
-                               o          o
-                              /            |
-                             /             |                                              [O]
-                             /              |
-____________________________^_______________^___________________________________________________
+                                  // --
+                                 /     --
+                               //        --
+                              o            o
+                             |              |
+                             |              |                                             [O]
+                            |                |
+____________________________^________________^__________________________________________________
 
 
 
@@ -383,29 +382,30 @@ C014-K11  DISPLACED_READY_DEBT_PAID  [FOURS/INFERRED]
 contact=SEPARATED | custody=NONE | object_support=GROUND_SETTLED | support=BOTH_DISPLACED | root=READY_OFFSET
 force=[0, 0] | object=[91, 20]
 role=recovery completes in a displaced ready state with object permanently moved
-arc=body restacks two character-columns forward of initial ready; object remains downstream
+arc=body remains forward-biased with unequal arm and leg shapes; no return to the initial idle silhouette
 
 
 
 
-                                       A
+
+
+                                         A
+                                         |
+                                  *---  |
+                                      --O-
+                                        | ----
+                                        |     -*
                                        |
                                        |
-                                      -O-
-                                   --- | --
-                                 *-    |   -*
-                                      |
-                                      |
-                                      X
-                                     / \
-                                    /   \
-                                   /     \
-                                  o       o
-                                  |       |
-                                 |         |
-                                 |         |                                              [O]
-                                |           |
-________________________________^___________^___________________________________________________
+                                       X
+                                      / \
+                                    //   \\
+                                   /       \
+                                  o         o
+                                 |           \
+                                 |            \                                           [O]
+                                |              \
+________________________________^_______________^_______________________________________________
 
 
 
