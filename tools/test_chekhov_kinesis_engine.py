@@ -32,7 +32,7 @@ def test_coffee_pot_aggressive_membership_without_invented_mechanics():
     assert by_id["coffee.opinion"]["mechanics"]["status"] == "UNKNOWN"
 
 
-def test_halligan_compresses_to_wedge_and_architecture():
+def test_halligan_compresses_to_wedge_and_architecture_without_fake_hand_hold():
     item = {
         "id": "arsenal.tetsuya.halligan",
         "label": "Halligan",
@@ -42,10 +42,23 @@ def test_halligan_compresses_to_wedge_and_architecture():
     }
     record = engine.derive_graph({"frameId": "sim-frame-chekhov-arsenal-v4", "items": [item]})["items"][0]
     assert record["evidence"]["sourceRefs"] == ["drive:1RrgqSJxFYu4_27pcY5DUWVAqwn8-IUifiuc49-xEmpE"]
+    assert "HOLD" not in record["mechanics"]["primitives"]
+    assert record["mechanics"]["compression"]["channels"]["body_interface"] == "unknown"
     assert "WEDGE" in record["mechanics"]["primitives"]
     assert "BECOME_ARCHITECTURE" in record["mechanics"]["primitives"]
     assert "ROLE_CHANGE" in record["mechanics"]["fourthDoorClasses"]
     assert "SYSTEM_CHANGE" in record["mechanics"]["fourthDoorClasses"]
+
+
+def test_explicit_hand_hold_can_still_support_body_interface():
+    record = engine.derive_graph([{
+        "id": "sword.held",
+        "label": "Sword",
+        "chekhov": True,
+        "text": "He held the sword loosely in his right hand.",
+    }])["items"][0]
+    assert "HOLD" in record["mechanics"]["primitives"]
+    assert record["mechanics"]["compression"]["channels"]["body_interface"] == ["HOLD"]
 
 
 def test_nonviolent_ordinary_object_is_not_auto_admitted():
