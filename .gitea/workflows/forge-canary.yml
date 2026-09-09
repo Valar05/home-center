@@ -1,0 +1,21 @@
+name: Private Forge Canary
+
+on:
+  workflow_dispatch:
+
+jobs:
+  prove-portable-runner:
+    runs-on: forge-linux-free
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prove free runner identity
+        run: |
+          printf 'runner=forge-linux-free\n'
+          uname -a
+          python3 --version
+          node --version
+          java -version
+      - name: Prove private-forge source contract
+        run: |
+          bash -n tools/bootstrap_free_cloud_forge.sh
+          python3 tools/test_home_center_forge_campaign.py
