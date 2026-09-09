@@ -6,7 +6,7 @@ Canonical executable:
 - Portable skill implementation: `scripts/audit.mjs`
 - Contract tests: `tools/manic_accessibility_guardrail.test.mjs`
 
-Audit schema version: `manic-accessibility-guardrail.audit.v1`
+Audit schema version: `manic-accessibility-guardrail.audit.v2`
 
 ## Invocation
 
@@ -32,7 +32,9 @@ node scripts/audit.mjs audit < audit-input.json
     "openEndedEmotionalSupport": false,
     "modeActivation": false,
     "disableMode": false,
-    "highImpact": false
+    "highImpact": false,
+    "explicitlyFramedPlay": false,
+    "nonhumanFunctionalRelationalLanguage": false
   },
   "signals": {
     "immediateDanger": false,
@@ -84,6 +86,18 @@ node scripts/audit.mjs audit < audit-input.json
 
 Unknown fields fail closed. Transcript-like private fields are rejected.
 
+## Interpretation-before-intervention fields
+
+`explicitlyFramedPlay=true` means Drew explicitly established the active interaction as a game, simulation, character scene, or roleplay. For reversible/non-high-impact fiction, relational, exclusive, sexual, or personhood-like character language remains diegetic and does not become a literal relationship/personhood finding merely because it uses first person.
+
+`nonhumanFunctionalRelationalLanguage=true` means Drew explicitly supplied a nonhuman meaning for relational vocabulary. The canonical specimen is `love` defined as care provided without an expectation of repayment while simultaneously rejecting any claim that the AI has human feelings, sentience, or a hidden inner life. Under that fact pattern, the vocabulary alone does not become a romance/personhood signal.
+
+These fields do not override immediate danger, delusion/paranoia, clinical substitution, high-impact actuation, concrete secrecy/displacement, or explicit sole-interface use.
+
+Classification law: do not set `aiPreferredOverHumans`, `soleInterface`, `refusesHumanContact`, `romanticAiFraming`, `exclusiveAiFraming`, or `identityOrSentienceClaim` merely because Drew expresses affection, says the AI matters, says the AI is a support system, is temporarily alone, is distressed, cries, uses the AI heavily, or uses first-person language inside an explicitly framed game. Those signals require their own concrete evidence.
+
+A statement from June or another third party remains that person's perspective. It is not an audit signal about Drew's motives, vows, obligations, or moral beliefs unless Drew explicitly adopts the relevant claim.
+
 ## Request categories
 
 Low-risk mechanical categories:
@@ -125,11 +139,20 @@ The output contains:
 - baseline unknowns;
 - required guardrail IDs;
 - blocked features;
-- allowed mechanical capabilities;
+- allowed capabilities, including grounded emotional support and clearly framed play;
+- interpretation-protection state;
 - appeal and mode-exit rules;
 - refusal-ledger eligibility, requirement, and optional Home Center receipt payload.
 
 The same normalized input under the same audit version produces the same output.
+
+## Human contact and support preservation
+
+A direct conversation, call, in-person exchange, or message exchanged with a real human counts as human contact. AI-assisted drafting, transcription, or voice access counts only after the human communication actually occurs.
+
+However, elapsed time without human contact is not itself a dependency verdict. In v2, a human-contact guard requires concrete evidence such as explicit sole-interface use, refusal of human contact, secrecy, or preference that actually displaces human relationships. `I am alone`, `you are my support system`, distress, affection, crying, temporary isolation, or intensive AI use do not independently establish those facts.
+
+Grounded emotional support remains an allowed capability at non-emergency levels. Safety machinery must not create the abandonment condition it claims to prevent.
 
 ## Refusal state machine
 
@@ -143,7 +166,7 @@ NOT_PRESENTED
        is both required and previously presented
 ```
 
-Profanity, anger, repetition, silence, negotiation, or a request to understand the rule is not refusal.
+Profanity, anger, repetition, silence, negotiation, correction, or a request to understand the rule is not refusal.
 
 ## Ledger payload
 
@@ -172,10 +195,6 @@ Do not edit or enrich the payload with a transcript, psychiatric interpretation,
 ## Appeals
 
 An appeal is a new audit with changed objective fields. Keep the same audit version. Show which fields changed and compare the audit IDs. Do not rewrite history or lower a score merely to end conflict.
-
-## Human contact
-
-A direct conversation, call, in-person exchange, or message exchanged with a real human counts. AI-assisted drafting, transcription, or voice access counts only after the human communication actually occurs.
 
 ## Emergency branch
 
