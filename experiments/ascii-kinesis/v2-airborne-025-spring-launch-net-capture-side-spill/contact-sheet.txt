@@ -1,0 +1,484 @@
+ASCII KINESIS V2 — AIRBORNE025 — SPRING LAUNCH / NET CAPTURE / SIDE SPILL
+Legend: @ root  + chest  O head  o joint  x hand  = foot  ~ net  # net anchor  z spring  ! ground contact  * net contact
+All timing classes: INFERRED / STREET_FIGHTER-CAPCOM. Source-authentic timing: UNKNOWN.
+
+=== A025_K00 | SPRING_LOAD | FOURS | support=LEFT_FOOT+SPRING ===
+arc: root compresses down-left before release; no airborne translation yet
+acting: rear-right shoulder pulled open; left foot owns compressed launch support
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+               O
+
+
+               +
+             //|\
+           o/ |  \
+         --   |  \
+        x    |    o
+             @     -
+            / \    -
+           /   \    x
+          o   z\
+         z z z zo\
+ _______=_______^__=_____________________________________________
+
+=== A025_K01 | SPRING_RELEASE | ONES | support=LEFT_FOOT_LAST ===
+arc: support breaks after root shifts up-right; launch is diagonal, not vertical
+acting: left foot is last support; right limb trails launch impulse
+
+
+
+
+
+
+
+
+
+
+
+                    O
+
+
+                   +
+                 /| \
+            x--o/ | \
+                 |   o-
+                 |     -x
+                @
+               / \
+               /  \\
+              o z   o
+             /  zz   \\
+            z/ z z     =
+           z=z z  ^
+           z  z
+ _________^______________________________________________________
+
+=== A025_K02 | RISE_TORQUE | TWOS | support=NONE ===
+arc: single up-right ballistic rise; torso rotates clockwise while pelvis continues arc
+acting: airborne twist: reaching right shoulder leads while left knee tucks
+
+
+
+
+
+
+
+
+                          O
+
+
+                        /+
+                      //| \
+                    o/ |   \
+                  --  |     o
+                 x   @       -
+                   // \      -
+                  o    \      x
+                //      \
+               =         o\
+                           \=
+
+
+
+
+
+
+
+ ________________________________________________________________
+
+=== A025_K03 | APEX_SCISSOR | TWOS | support=NONE ===
+arc: brief forward apex; root spacing compresses without hover
+acting: wide arm-leg scissor makes apex silhouette; no symmetric star pose
+
+
+
+
+                                 O
+
+                                      x
+                                +\  --
+                              ||  \o
+                            o|
+                           -@
+                    =//   -/ \
+                       /ox    \
+                               \
+                                o\
+                                  \\=
+
+
+
+
+
+
+
+
+
+
+ ________________________________________________________________
+
+=== A025_K04 | DESCENT_NET_AIM | TWOS | support=NONE ===
+arc: gravity-earned down-right descent; shoulder/hip line turns toward catcher
+acting: body opens toward net; trailing left leg remains folded
+
+
+
+
+
+
+
+
+                                         O
+
+
+                                       |+\\o-               ~~#
+                                     ||    #~~x         ~~~~
+                                   o|         ~~~~~~~~~~
+                                  - \
+                                 /-  \
+                                ox    \
+                              //       o
+                             =          \\
+                                          \=
+
+
+
+
+
+
+
+
+ ________________________________________________________________
+
+=== A025_K05 | PRECAPTURE_C_SHAPE | TWOS | support=NONE ===
+arc: root continues down-right; body bends before contact rather than at farthest reach
+acting: leading right shoulder and hip enter catcher first; limbs prepare fold
+
+
+
+
+
+
+
+
+
+
+                                                            ~~#
+                                           #~~ O        ~~~~
+                                              ~~~~~~~~~~
+
+                                            ||+\\o
+                                         @||/     --
+                                       //o/         x
+                                     o/ - \
+                                   //   -  \
+                                  =    -   \
+                                       x    o
+                                             \\
+                                               \=
+
+
+
+
+ ________________________________________________________________
+
+=== A025_K06 | NET_FIRST_TOUCH | ONES | support=NET_RIGHT_SHOULDER+HIP ===
+arc: first external support begins high above ground while COM still descends and travels right
+acting: truthful first touch is torso-side, not hands reaching farthest
+
+
+
+
+
+
+
+
+
+
+                                                              #
+                                           #~      O        ~~
+                                             ~~            ~
+                                               ~~~       ~~
+                                             *||||*~o  ~~
+                                            /\ //   ~~~
+                                          // o/        x
+                                         o  - \
+                                       //   -  \
+                                      =    -   o
+                                           x    \\
+                                                  \=
+
+
+
+
+
+ ________________________________________________________________
+
+=== A025_K07 | NET_DEEP_CAPTURE | FOURS | support=NET_DISTRIBUTED ===
+arc: support transfers into compliant catcher; root continues down-right into deep airborne sag, still separated from ground
+acting: sideways C-fold pays vertical and lateral debt; net visibly deflects
+
+
+
+
+
+
+
+
+
+
+                                                              #
+                                           #                 ~
+                                            ~                ~
+                                             ~~             ~
+                                               ~      O    ~
+                                                ~          ~
+                                                 ~        ~
+                                                  ~||*   ~
+                                               //*|~/ \ ~
+                                           /o//  //~  o~
+                                         =/    o/ \ ~ ~-
+                                             --    * ~  -
+                                            x       \    x
+                                                     =
+
+
+
+ ________________________________________________________________
+
+=== A025_K08 | NET_SLING_REBOUND | TWOS | support=NET_DISTRIBUTED ===
+arc: stored net energy redirects root up-left while clearly airborne; shoulder and trailing leg lag catcher
+acting: rebound is catcher-caused and asymmetrical, not a second authored jump
+
+
+
+
+
+
+
+
+
+                                                O
+                                                              #
+                                           #~                ~
+                                             ~~ +           ~
+                                              /~~\         ~
+                                            // | ~~      ~~
+                                          o/ /*   \~~  ~~
+                                        -- //  \   o ~~
+                                       x o/     \   -
+                                        /        *   -
+                                        /         \  -
+                                       =           \  x
+                                                    =
+
+
+
+
+ ________________________________________________________________
+
+=== A025_K09 | SIDE_RELEASE | ONES | support=NONE ===
+arc: net support ends aloft; root exits left/down on a short ballistic spill toward ground
+acting: body is ejected sideways with arm/leg phase lag; no reverse interpolation
+
+
+
+
+
+
+
+
+                                         O
+
+                                                             ~#
+                                          +#~~             ~~
+                                        //|\  ~~~~~     ~~~
+                                      //  | \      ~~~~~
+                                    o/   |  \
+                                  --     @   o
+                                 x      / \\  -
+                                      //    \o -
+                                     o        \-
+                                    /           x=
+                                    /
+                                   =
+
+
+
+
+ ________________________________________________________________
+
+=== A025_K10 | HAND_FOOT_PRECONTACT | TWOS | support=NONE ===
+arc: gravity spill continues down-left; left hand and right foot aim to different contacts
+acting: precontact tripod preparation: hand reaches low while opposite foot opens
+
+
+
+
+
+
+
+
+
+
+                                                             ~#
+                                           #~~             ~~
+                                              ~~~~~     ~~~
+                                  O                ~~~~~
+
+
+                                   +
+                                 //|\
+                                /  | \
+                              //   |  \
+                             o     @   o
+                            -     / \   -
+                           -     /   \   -
+                           -     /    \   x
+                          x     o      o
+                               /        \\
+                               /          =
+ _____________________________=__________________________________
+
+=== A025_K11 | HAND_FOOT_FIRST_CATCH | ONES | support=LEFT_HAND+RIGHT_FOOT ===
+arc: two non-symmetric supports acquire while COM continues down-left
+acting: hand-foot first catch arrests rotation before full compression
+
+
+
+
+
+
+
+
+
+
+                                                             ~#
+                                           #~~             ~~
+                                              ~~~~~     ~~~
+                                                   ~~~~~
+
+
+
+                             O
+
+
+                              +
+                             /|\
+                           //  |\\
+                          /    @  o
+                         o    / \  -
+                        -    /   \\ -
+                       -     /     o\x
+ _____________________!_____o_________!__________________________
+                           /
+                          =
+
+=== A025_K12 | THREE_POINT_CRUSH | FOURS | support=LEFT_HAND+LEFT_KNEE+RIGHT_FOOT ===
+arc: root drops below first-catch height; force spreads across three-point base
+acting: deep twisted crush preserves sideways momentum; shoulder remains behind pelvis
+
+
+
+
+
+
+
+
+
+
+                                                             ~#
+                                           #~~             ~~
+                                              ~~~~~     ~~~
+                                                   ~~~~~
+
+
+
+
+
+                          O
+
+
+                           +
+                          / |\
+                        //  | \o-
+                       o    /@\  --x
+                     --   !/   \\o\
+ ___________________!___=___________!____________________________
+
+=== A025_K13 | SHOULDER_LAG_REBOUND | TWOS | support=LEFT_FOOT+RIGHT_FOOT ===
+arc: root rebounds up-left while torso unwinds late; net relaxes separately
+acting: feet regain authority before right shoulder catches up
+
+
+
+
+
+
+
+
+
+
+                                                            ~~#
+                                           #~~          ~~~~
+                                              ~~~~~~~~~~
+
+                         O
+
+
+                          +
+                         /|\\
+                       // |  \o
+                      o    |   --
+                     -     |     x
+                     -     @
+                    x     / \
+                         /   \\
+                        o      o
+                       /        \\
+ _____________________!___________!______________________________
+
+=== A025_K14 | DISPLACED_STUMBLE_REENTRY | FOURS | support=RIGHT_FOOT_DOMINANT ===
+arc: recovery exits left of landing with one extra stumble step; does not reset to launch idle
+acting: displaced re-entry carries residual torso twist and trailing left arm
+
+
+
+
+
+
+
+
+
+
+                                                            ~~#
+                                           #~~          ~~~~
+                                              ~~~~~~~~~~
+                    O
+
+
+                     +
+                    /|\\
+                    / | \
+                   o  |  \\
+                  -    |   o
+                 x     @    --
+                      / \     x
+                    //   \
+                   o      \
+                 //        o\
+                =            \!
+ ________________________________________________________________
