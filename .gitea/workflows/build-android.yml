@@ -11,18 +11,37 @@ on:
       - 'gradle/**'
       - '.gitea/workflows/build-android.yml'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: phone-android
+    env:
+      GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out from this private Gitea instance
+        run: |
+          set -eu
+          work="$GITHUB_WORKSPACE/repo"
+          rm -rf "$work"
+          git -c http.extraHeader="Authorization: token ${GITEA_TOKEN}" \
+            clone --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$work"
+          git -C "$work" fetch --no-tags origin "$GITHUB_SHA"
+          git -C "$work" checkout --detach "$GITHUB_SHA"
       - name: Phone identity gate
         run: |
-          test -n "${ANDROID_ROOT:-${ANDROID_DATA:-}}" || {
-            echo "Android identity missing; refusing cloud/laptop substitution" >&2
+          command -v getprop >/dev/null 2>&1 || {
+            echo "Android getprop missing; refusing cloud/laptop substitution" >&2
             exit 90
           }
-          getprop ro.product.model || true
+          getprop ro.product.model
           java -version
+          command -v gradle >/dev/null 2>&1 || {
+            echo "Gradle missing on phone; Android runner is not ready" >&2
+            exit 91
+          }
       - name: Build Android debug APK on the phone body
-        run: gradle :app:assembleDebug --no-daemon --stacktrace
+        run: |
+          cd "$GITHUB_WORKSPACE/repo"
+          gradle :app:assembleDebug --no-daemon --stacktrace
