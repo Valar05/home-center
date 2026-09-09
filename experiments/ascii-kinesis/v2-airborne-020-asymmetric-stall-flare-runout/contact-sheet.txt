@@ -1,0 +1,337 @@
+A020-K0 OFFSET_GROUND_LOAD [FOURS/INFERRED]
+root=(12.0,17.0) support=REAR_RIGHT_DOMINANT crop_x=0:29
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|           O    -x            |
+|             \\o              |
+|           +\                 |
+|         //|                  |
+|        o   |                 |
+|       -    @                 |
+|      x   // \                |
+|         o    o               |
+|        =      \              |
+|               !              |
+| _____________________________|
++------------------------------+
+role: asymmetrical load stores forward travel and roll bias before release
+
+A020-K1 CANTED_SUPPORT_BREAK [ONES/INFERRED]
+root=(16.5,14.7) support=REAR_BREAK_TO_NONE crop_x=1:30
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|           x-    O            |
+|             o/               |
+|               /+\            |
+|                | \o          |
+|               |    -x        |
+|               @\             |
+|           =/o/  \o\=         |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|______________________________|
++------------------------------+
+role: rear support releases into a canted launch rather than a symmetric jump
+
+A020-K2 OPEN_RISE [ONES/INFERRED]
+root=(21.5,11.8) support=NONE crop_x=7:36
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                O   -x        |
+|                 \\o          |
+|         -o////+\             |
+|       x-      |              |
+|               |              |
+|         =/   /@              |
+|           /o/  \             |
+|                 o            |
+|                  \=          |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|______________________________|
++------------------------------+
+role: airborne body opens into a broad asymmetric lift silhouette while root continues one launch arc
+
+A020-K3 ONE_SIDE_TUCK_BANK [TWOS/INFERRED]
+root=(26.2,10.0) support=NONE crop_x=11:40
++------------------------------+
+|                              |
+|                              |
+|                              |
+|            O                 |
+|              +\\\\o--x       |
+|              o               |
+|           =/  x              |
+|             o/@              |
+|                \\            |
+|                  o           |
+|                   \=         |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|______________________________|
++------------------------------+
+role: one side tucks early, committing body attitude while root still rises
+
+A020-K4 STALL_APEX [ONES/INFERRED]
+root=(31.0,9.4) support=NONE crop_x=16:45
++------------------------------+
+|                              |
+|                              |
+|                              |
+|           O                  |
+|                 \\\o         |
+|             +o\\    -x       |
+|              /@x             |
+|            o/  \             |
+|          =/    \             |
+|                 o            |
+|                  \=          |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|______________________________|
++------------------------------+
+role: brief one-sided stall owns the apex silhouette; no hover and no relaunch
+
+A020-K5 KNIFE_DROP [ONES/INFERRED]
+root=(33.2,11.8) support=NONE crop_x=18:47
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|            O        -x       |
+|                \\\o-         |
+|             +\\              |
+|              o               |
+|               x\o\=          |
+|             //               |
+|            o                 |
+|          =/                  |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|______________________________|
++------------------------------+
+role: gravity earns a steeper descent while bank remains visibly unresolved
+
+A020-K6 LEAD_SIDE_FLARE [ONES/INFERRED]
+root=(35.4,13.8) support=NONE crop_x=20:49
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|              O               |
+|        x-                    |
+|          -o///+\             |
+|               | \o           |
+|               |   -          |
+|               @\   x         |
+|              /  \o\=         |
+|             o                |
+|             /                |
+|             =                |
+|                              |
+|                              |
+|                              |
+|______________________________|
++------------------------------+
+role: the previously folded side opens first, beginning attitude recovery while descent continues
+
+A020-K7 FULL_FLARE_PRECONTACT [TWOS/INFERRED]
+root=(40.5,15.2) support=NONE_PRECONTACT crop_x=25:54
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|         x-      O            |
+|           o//                |
+|              //+\            |
+|                | \\o         |
+|               |     -x       |
+|               @              |
+|               /\\            |
+|               /  o\          |
+|               o    \=        |
+|                /             |
+|                /             |
+|                 =            |
+|______________________________|
++------------------------------+
+role: second side opens after the first; torso levels and legs scissor before ground contact
+
+A020-K8 LEAD_TOE_STRIKE [ONES/INFERRED]
+root=(45.0,16.2) support=LEFT_LEAD_CONTACT crop_x=30:59
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|          x-                  |
+|            o/    O           |
+|              //              |
+|                /+            |
+|                | \o          |
+|               @    -x        |
+|               /\\            |
+|               o  o\=         |
+|               /              |
+|                /             |
+|                !             |
+|______________________________|
++------------------------------+
+role: first contact takes vertical load without arresting forward travel or attitude debt
+
+A020-K9 CROSS_STEP_RUNOUT [TWOS/INFERRED]
+root=(50.0,16.9) support=RIGHT_CROSS_SUPPORT crop_x=35:64
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                 O -x         |
+|                 \o           |
+|              //+             |
+|           o//  |             |
+|         x-    |              |
+|               @              |
+|              / \             |
+|             o   o            |
+|           =/     \           |
+|                  !           |
+|______________________________|
++------------------------------+
+role: support transfers forward to pay lateral/roll debt with a real runout step
+
+A020-K10 TWO_FOOT_BRAKE_CRUSH [FOURS/INFERRED]
+root=(53.0,18.0) support=BOTH_CONTACT_COMPRESSION crop_x=38:67
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|              O               |
+|              +\\\o           |
+|            //|    -x         |
+|           o   @              |
+|         x-  o/ \o            |
+|            /     \           |
+|            !     !           |
+|______________________________|
++------------------------------+
+role: deep grounded compression pays remaining vertical/forward debt and stores rebound
+
+A020-K11 BRAKE_REBOUND_LAG [TWOS/INFERRED]
+root=(55.5,16.6) support=BOTH_GROUNDED_REBOUND crop_x=41:70
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|         x-      O            |
+|           o//                |
+|              //+             |
+|                |\            |
+|               | o            |
+|               @  -x          |
+|             o/ \o            |
+|            /    \            |
+|            /     \           |
+|           !      !           |
+|______________________________|
++------------------------------+
+role: root rebounds while the long-side arm lags, preventing reverse-play recovery
+
+A020-K12 DISPLACED_FLIGHT_EXIT [FOURS/INFERRED]
+root=(58.5,17.0) support=BOTH_GROUND_NEW_ADDRESS crop_x=42:71
++------------------------------+
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                              |
+|                 O   x        |
+|                   \o         |
+|             o///+\           |
+|            -    |            |
+|           x    |             |
+|                @             |
+|               / \\           |
+|              o    o          |
+|             /      \         |
+|             !      !         |
+|_____________________________ |
++------------------------------+
+role: readiness returns with residual asymmetry at a displaced location instead of idle reset
