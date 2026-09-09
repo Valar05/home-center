@@ -3,19 +3,135 @@
   "format_version": 2,
   "experiment_id": "v2-airborne-029-midair-recoil-vector-bend-crossstep-recovery",
   "lane": "airborne",
-  "status": "REPO_STAGE_READY_PENDING_GITHUB_READBACK_AND_CHAT_DELIVERY",
-  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+  "status": "REPO_PERSISTED_READBACK_PASS_PENDING_ISSUE_AND_CHAT_DELIVERY",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
   "ascii_literal_text": true,
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
   "source_art_embedded": false,
   "backward_compatible": true,
-  "lineage": {"revises": null, "negative_fixture": null, "source_change": "NOT_APPLICABLE_NEW_CONCEPT", "successor_collision": false, "predecessor_closed": "v2-airborne-028", "predecessor_final_addendum": "5605551109"},
-  "source": {"campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s", "campaign_evidence_file_id": "1H3ceHukijHxTRnsCuxsG1-ylAd-MQ5kmNM5z4Kon77U", "provider": "The Spriters Resource", "asset_id": "106418", "title": "Samus Aran (Power Suit)", "game": "Metroid: Zero Mission", "platform": "Game Boy Advance", "category": "Playable Characters", "source_authentic_timing": "UNKNOWN", "decisive_compile_timing": "INFERRED / STREET_FIGHTER-CAPCOM", "rights_firewall": true, "observed": ["whole commissioned source evidence records dense full-character pose families plus a detached component/tile bank", "static sheet layout does not establish playback chronology or exposure duration", "source page reports Animations (0)"], "inferred": ["all Airborne029 abstract rig geometry", "all decisive timing classes", "reaction-bar/puck task abstraction and resulting authored recoil performance"], "unknown": ["source-authentic chronology", "source-authentic exposure duration", "source hit-stop", "exact source assembly semantics"]},
-  "concept": {"slug": "midair-recoil-vector-bend-crossstep-recovery", "primitive": "unsupported midair reaction impulse changes root velocity before crossed ground catch", "causal_chain": "preload -> clean ballistic rise -> unsupported task pulse -> opposite root-vector bend -> gravity descent -> separated crossed-foot contact -> one-foot crush -> late second support -> task overshoot -> displaced settle"},
-  "media": {"sha256": "ee0b4974907286b21c6a833282f911e6f34ef02023d42659aa9b7bebadb0a88b", "bytes": 36578, "fps": 24, "frames": 57, "width": 800, "height": 382, "codec": "H.264", "pixel_format": "yuv420p"},
-  "quality_gates": {"actual_render_decode": "PASS", "tango": {"round": 0, "verdict": "PASS", "render_sha256": "ee0b4974907286b21c6a833282f911e6f34ef02023d42659aa9b7bebadb0a88b", "inspection": "actual 57-frame render shows asymmetric preload and toe release, clean unsupported rise, visible puck ejection, root-vector bend left/down without support, crossed-foot precontact/contact, deep one-foot crush, late second support, upper-body/bar overrun, and displaced settle", "highest_value_visible_defect": null}, "noodle_queen": {"verdict": "PASS", "dimensions": ["TASTE", "FUNCTION", "CONTEMPT"], "render_sha256": "ee0b4974907286b21c6a833282f911e6f34ef02023d42659aa9b7bebadb0a88b", "inspection": "task impulse visibly owns the midair direction change; the crooked crossed catch pays recoil and gravity debt; recovery hunts/restacks instead of reversing to launch pose; silhouette progression is specific rather than generic jump dressing"}},
-  "contract": {"validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78", "candidate_isolated": "PASS_CURRENT_VALIDATOR_RULES", "full_repo_boundary": "Exact current validator blob read through GitHub. Candidate-isolated structural execution is performed on the exact candidate; no repo-global checkout execution is claimed in Standard Chat."},
-  "files": {"build": "build.py", "ascii": "contact-sheet.txt", "json": "motion.json", "spa": "midair-recoil-vector-bend-crossstep-recovery.motion.html", "receipt": "receipt.json"},
-  "payload_sha256": {"ascii": "40e16d34e4d8b09b9811d55cd8d349f77de4f1ab4af15accf5dc5c5d34627896", "json": "6ee48c96cb71f6568e83eae8307b415c394832fceb52d66126862a56fd6d0909", "spa": "b45604e121179ff03b557641999173b55d12522ea98437a9d416edda0fbaa416"}
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "successor_collision": false,
+    "predecessor_closed": "v2-airborne-028",
+    "predecessor_final_addendum": "5605551109"
+  },
+  "source": {
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "campaign_evidence_file_id": "1H3ceHukijHxTRnsCuxsG1-ylAd-MQ5kmNM5z4Kon77U",
+    "provider": "The Spriters Resource",
+    "asset_id": "106418",
+    "title": "Samus Aran (Power Suit)",
+    "game": "Metroid: Zero Mission",
+    "platform": "Game Boy Advance",
+    "category": "Playable Characters",
+    "source_authentic_timing": "UNKNOWN",
+    "decisive_compile_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "rights_firewall": true
+  },
+  "concept": {
+    "slug": "midair-recoil-vector-bend-crossstep-recovery",
+    "primitive": "unsupported midair reaction impulse changes root velocity before crossed ground catch",
+    "causal_chain": "preload -> clean ballistic rise -> unsupported task pulse -> opposite root-vector bend -> gravity descent -> separated crossed-foot contact -> one-foot crush -> late second support -> task overshoot -> displaced settle"
+  },
+  "authoritative_media": {
+    "sha256": "ee0b4974907286b21c6a833282f911e6f34ef02023d42659aa9b7bebadb0a88b",
+    "bytes": 36578,
+    "fps": 24,
+    "frames": 57,
+    "width": 800,
+    "height": 382,
+    "codec": "H.264",
+    "pixel_format": "yuv420p",
+    "decode": "PASS"
+  },
+  "spa_presentation_media": {
+    "sha256": "e822658d63930c2ae433c8fa309859cd732f45dfe42e8f47aa3e0fff0feeec1f",
+    "bytes": 5509,
+    "fps": 24,
+    "frames": 57,
+    "width": 400,
+    "height": 192,
+    "codec": "H.264",
+    "pixel_format": "yuv420p",
+    "decode": "PASS",
+    "byte_identical_to_authoritative": false,
+    "derivation": "deterministic presentation from exact persisted abstract ASCII frame sequence; no source pixels"
+  },
+  "quality_gates": {
+    "current_worker_actual_render": "PASS",
+    "tango": {
+      "round": 0,
+      "verdict": "PASS",
+      "render_sha256": "ee0b4974907286b21c6a833282f911e6f34ef02023d42659aa9b7bebadb0a88b",
+      "highest_value_visible_defect": null,
+      "inspection": "clean unsupported rise; visible reaction pulse; support-free root-vector bend left/down; separated crossed catch; one-foot crush; late second support; task/body overrun; displaced settle"
+    },
+    "noodle_queen": {
+      "verdict": "PASS",
+      "dimensions": [
+        "TASTE",
+        "FUNCTION",
+        "CONTEMPT"
+      ],
+      "render_sha256": "ee0b4974907286b21c6a833282f911e6f34ef02023d42659aa9b7bebadb0a88b",
+      "inspection": "specific recoil causality and crooked support recovery read as authored performance rather than generic jump dressing"
+    }
+  },
+  "contract": {
+    "validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS_CURRENT_VALIDATOR_RULES",
+    "full_repo_boundary": "Standard Chat: exact current validator source and exact current candidate files read from GitHub; candidate-isolated structural predicates verified. No fresh repo-global checkout/shell execution claimed."
+  },
+  "repo": {
+    "same_body": true,
+    "persisted": true,
+    "final_readback": true,
+    "exact_six_files": true,
+    "spa_present": true,
+    "spa_count": 1
+  },
+  "files": {
+    "build": {
+      "path": "build.py",
+      "blob": "abeece4199a915c370f15645a887fc15e82aa8a7"
+    },
+    "ascii": {
+      "path": "contact-sheet.txt",
+      "blob": "b85d82895157fc68ac6428268189c16cdf7f3bb0",
+      "sha256": "40e16d34e4d8b09b9811d55cd8d349f77de4f1ab4af15accf5dc5c5d34627896"
+    },
+    "json": {
+      "path": "motion.json",
+      "blob": "0b648cba42db6ca5f65ef72a1563f589ea536ba0",
+      "sha256": "5840dfd24a03a54072571c812eb09b00649b714628d548222e25200b0a7bee07"
+    },
+    "spa": {
+      "path": "midair-recoil-vector-bend-crossstep-recovery.motion.html",
+      "blob": "cade77ee3164fc987f8f8ae977ef41a5085032c3",
+      "sha256": "b35e7f8336adfbac90db9e2c59f5b7b383c6454eab74b715cf2e844b4e89a012"
+    },
+    "receipt": {
+      "path": "receipt.json",
+      "blob": "58630421e4e83d21215f9b7af9d39fc96182b34e"
+    }
+  },
+  "issue_343": {
+    "closure_receipt": null,
+    "closure_receipt_readback": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_visible_video": false,
+    "video_byte_identical_to_authoritative": false
+  },
+  "DREW_ACCEPTED": false,
+  "next_authorized": null
 }
