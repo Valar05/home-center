@@ -110,11 +110,11 @@ def load_font(size):
     return ImageFont.load_default()
 
 def render_video(d,t):
-    font=load_font(11); small=load_font(9)
+    font=load_font(8); small=load_font(7)
     with tempfile.TemporaryDirectory(prefix='ak-t012-') as td:
         td=Path(td)
         for st in t:
-            im=Image.new('RGB',(560,320),'black'); dr=ImageDraw.Draw(im)
+            im=Image.new('RGB',(420,240),'black'); dr=ImageDraw.Draw(im)
             k=st['key']
             labels=[
                 f"ASCII KINESIS / TIMING 012 / {st['frame']:02d}",
@@ -130,7 +130,7 @@ def render_video(d,t):
         subprocess.run([
             'ffmpeg','-hide_banner','-loglevel','error','-y',
             '-framerate',str(d['compile']['fps']),'-i',str(td/'f%04d.png'),
-            '-map_metadata','-1','-c:v','libx264','-preset','veryslow','-crf','38','-threads','1',
+            '-map_metadata','-1','-c:v','libx264','-preset','veryslow','-crf','44','-threads','1',
             '-pix_fmt','yuv420p','-movflags','+faststart',str(MP4)
         ],check=True)
 
@@ -158,7 +158,7 @@ def main():
         'media_bytes':len(media),
         'ascii_sheet_sha256':sha((a+'\n').encode()),
         'video_codec':'H.264 yuv420p',
-        'video_dimensions':'560x320'
+        'video_dimensions':'420x240'
     })
     MOTION.write_text(json.dumps(d,indent=2,sort_keys=True)+'\n')
     SPA.write_text(page(d,a,media))
@@ -178,7 +178,7 @@ def main():
         'repo_path':f'experiments/ascii-kinesis/{ENTRY}/','ship_commit':None,'verification_commit':None,'issue_343_receipt':None,
         'source':d['source'],'revision':d['revision'],'media_sha256':sha(media),'media_bytes':len(media),'ascii_sheet_sha256':d['compile']['ascii_sheet_sha256'],
         'tango':d['quality_gates']['tango'],'noodle_queen':d['quality_gates']['noodle_queen'],
-        'verification':{'repo_readback':False,'contract_test':'PASS_CANDIDATE_ISOLATED_OFFICIAL_V2','media_decode':'PASS_H264_560x320_24FPS_49FRAMES','three_part_chat_delivery':False},
+        'verification':{'repo_readback':False,'contract_test':'PASS_CANDIDATE_ISOLATED_OFFICIAL_V2','media_decode':'PASS_H264_420x240_24FPS_49FRAMES','three_part_chat_delivery':False},
         'correction_hooks':d['correction_hooks']
     }
     RECEIPT.write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
