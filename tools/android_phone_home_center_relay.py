@@ -1,9 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/python
 from __future__ import annotations
-import hashlib, json, os, secrets, subprocess, sys, time, urllib.request, urllib.error
+import hashlib, json, os, secrets, subprocess, sys, threading, time, urllib.request, urllib.error
 from pathlib import Path
 CFG=Path(os.path.expanduser('~/.config/home-center')); PAIR=CFG/'codex-hub.json'; NODE=CFG/'phone-relay.json'
-BASE=os.getenv('HC_PHONE_RELAY_BASE','https://us-central1-home-center-dclar.cloudfunctions.net/phoneHandsRelay'); DEVICE_ID=os.getenv('HC_PHONE_DEVICE_ID','primary-phone'); POLL=float(os.getenv('HC_PHONE_RELAY_POLL_SECONDS','2.0')); OVERLAY_HEARTBEAT_SECONDS=float(os.getenv('HC_OPERATOR_OVERLAY_HEARTBEAT_SECONDS','10.0'))
+BASE=os.getenv('HC_PHONE_RELAY_BASE','https://us-central1-home-center-dclar.cloudfunctions.net/phoneHandsRelay'); DEVICE_ID=os.getenv('HC_PHONE_DEVICE_ID','primary-phone'); POLL=float(os.getenv('HC_PHONE_RELAY_POLL_SECONDS','2.0')); OVERLAY_HEARTBEAT_SECONDS=float(os.getenv('HC_OPERATOR_OVERLAY_HEARTBEAT_SECONDS','10.0')); POCKET_SPEECH_POLL_SECONDS=float(os.getenv('HC_POCKET_OVERLAY_SPEECH_POLL_SECONDS','1.0'))
 STATE_DIR=Path(os.getenv('HC_PHONE_STATE_DIR',os.path.expanduser('~/.local/state/home-center'))); HEARTBEAT=Path(os.getenv('HC_PHONE_RELAY_HEARTBEAT',str(STATE_DIR/'phone-relay-heartbeat.json')))
 ROOT=Path(__file__).resolve().parent.parent; RELAY_SOURCE_SHA256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(); sys.path.insert(0,str(ROOT/'tools'))
 from android_phone_hands_bridge import observe as hands_observe, act as hands_act
@@ -15,10 +15,12 @@ from android_phone_status_tts import execute as status_tts_execute
 from android_phone_termux_shell import execute as termux_shell_execute
 from android_phone_diagnostics import execute as diagnostics_execute
 from android_operator_overlay import execute as overlay_execute, heartbeat as overlay_heartbeat, control_gate as overlay_control_gate, screen_activity as overlay_screen_activity
+from operator_overlay_pocket_speech import consume_pending_pocket_speech
 from venice_reactor import execute as venice_execute
 FACTORY_ACTIONS={'file_stat','file_hash','file_list','file_mkdir','file_copy','file_move','armory_inventory','armory_ingest'}; ARMORY_ACTIONS={'armory_doctor','armory_slice'}; WINDOW_ACTIONS={'window_status','window_probe','window_compose','window_focus','window_swap'}; STATUS_TTS_ACTIONS={'status_tts_doctor','status_say'}; TERMUX_SHELL_ACTIONS={'phone_shell'}; DIAGNOSTIC_ACTIONS={'phone_diagnostics'}; OVERLAY_ACTIONS={'operator_overlay_status','operator_overlay_start','operator_overlay_update'}; VENICE_ACTIONS={'venice_ingest','venice_observe','venice_mine','venice_status'}
 SCREEN_DIRECT_ACTIONS={'tap','swipe','text','keyevent','home','back','recents','launch','force_stop'}; SCREEN_WINDOW_ACTIONS={'window_compose','window_focus','window_swap'}
 DEVICE_CAPABILITIES=['phone_hands','phone_files','armory_worker','window_composer','status_tts','termux_shell','operator_overlay','local_qwen','coding_dungeon','voice','phone_diagnostics_readonly','venice_reactor','venice_audio_features']
+_pocket_speech_lock=threading.Lock()
 def _screen_profile(action):
  k=str((action or {}).get('action') or '')
  if k in SCREEN_WINDOW_ACTIONS:return {'leaseMs':2500,'yieldMs':0}
@@ -85,8 +87,16 @@ def execute_action(a):
  screen=_screen_profile(a)
  if screen:overlay_screen_activity(screen['leaseMs'],screen['yieldMs'])
  return dispatch(a)
+def _consume_pocket_speech_background():
+ if not _pocket_speech_lock.acquire(blocking=False):return
+ try:
+  result=consume_pending_pocket_speech()
+  if result.get('handled'):print(json.dumps({'pocketOverlaySpeech':result},ensure_ascii=False),flush=True)
+ except Exception as exc:
+  print('pocket-overlay speech warning: '+str(exc),file=sys.stderr,flush=True)
+ finally:_pocket_speech_lock.release()
 def loop(once=False):
- dev=ensure_device();did=dev['deviceId'];secret=dev['deviceToken'];print(f'Home Center phone relay online: {did}',flush=True);last=0.0
+ dev=ensure_device();did=dev['deviceId'];secret=dev['deviceToken'];print(f'Home Center phone relay online: {did}',flush=True);last=0.0;last_speech=0.0
  while True:
   try:
    now=time.monotonic()
@@ -94,6 +104,8 @@ def loop(once=False):
     try:overlay_heartbeat()
     except Exception as exc:print('operator-overlay heartbeat warning: '+str(exc),file=sys.stderr,flush=True)
     last=now
+   if now-last_speech>=POCKET_SPEECH_POLL_SECONDS:
+    threading.Thread(target=_consume_pocket_speech_background,name='pocket-overlay-speech',daemon=True).start();last_speech=now
    pulled=http('/pull',{'deviceId':did,'deviceToken':secret,'leaseMs':90000});cmd=pulled.get('command');write_heartbeat(did,'poll_ok',cmd.get('commandId') if isinstance(cmd,dict) else '')
    if cmd:
     cid=cmd['commandId']
