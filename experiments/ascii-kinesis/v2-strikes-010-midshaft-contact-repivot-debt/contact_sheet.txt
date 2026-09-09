@@ -1,0 +1,370 @@
+ASCII KINESIS V2 — STRIKES010 — MID-SHAFT CONTACT RE-PIVOT DEBT
+Decisive authored ASCII keys. 64×24 abstract rig. Source pixels absent.
+Timing: all decisive keys INFERRED / STREET_FIGHTER-CAPCOM; ONES/TWOS/FOURS are display-frame classes, never seconds.
+Principle: MID-SHAFT CONTACT CREATES A TEMPORARY TOOL PIVOT.
+
+K0 CROOKED_READY | FOURS INFERRED | hold=4f | support=BOTH_FEET | tool_contact=NONE
+root/arc: already slightly off-center; enough room to spend without implying idle perfection
+
+
+
+
+
+
+                    o
+                    |
+                    |                             T
+                    |                             |
+                  +o+ +--o                        |
+            <=======|--*= -*
+                    |    ============>
+                    |
+                    |
+                    @
+                  -- --
+                 /     -o
+                o       |
+                |       \
+                /
+   __________________________________________________________
+
+
+K1 REAR_HAND_LOAD | FOURS INFERRED | hold=4f | support=REAR_FOOT_DOMINANT | tool_contact=NONE
+root/arc: rear support lengthens; hands separate and preload a long rigid tool
+
+
+
+
+                                        =>
+                                     ===
+                                   ==
+               o                ===
+               |             ===                  T
+               |       -* ===                     |
+                |   --o ==                        |
+              +-o-+-*===
+                | ===
+               ==|
+             ==  |
+          ===     |
+        <=        @
+               --- --
+             o-      -o
+            |          \
+            /
+   __________________________________________________________
+
+
+K2 ASYMMETRIC_COIL | TWOS INFERRED | hold=2f | support=REAR_FOOT_DOMINANT | tool_contact=NONE
+root/arc: deep corkscrew coil; tool plane and pelvis are deliberately not mirrored
+
+
+
+
+                                         =>
+                                       ==
+                                     ==
+                                  ===
+                                ==
+              o               ==                  T
+              |        --* ===                    |
+              |     -o-  ==                       |
+              |   --   ==
+            +-+o+---*==
+               \  ==
+               \==
+             ===\
+           ==   \
+         ==      @
+       <=     --- ---
+            o-       -o
+           /           \
+   __________________________________________________________
+
+
+K3 ROOT_BRACE | TWOS INFERRED | hold=2f | support=REAR_TO_FRONT_TRANSFER | tool_contact=NONE
+root/arc: root begins to earn the sweep before the staff crosses the target lane
+
+
+
+
+                                           =>
+                                         ==
+                                      ===
+                o                  ===
+                |                ==               T
+                |        -*   ===                 |
+                |    --o-  ===                    |
+              +-o-+--    ==
+                |  --*===
+                 |  ==
+                 |==
+              === |
+            ==    @
+          <=   --- ---
+             o-       -o
+            |           -\
+            /
+   __________________________________________________________
+
+
+K4 SWEEP_ENTRY | ONES INFERRED | hold=1f | support=FRONT_FOOT_ACCEPTING | tool_contact=NONE
+root/arc: body commits first; tool accelerates through a distinct entry
+
+
+
+
+
+
+                    o                         =>
+                    |                      ===
+                    |                  ====       T
+                    |   --o--*      ===           |
+                  +-o-+-         ===              |
+                    |  --*    ===
+                    |      ===
+                    |  ====
+                    |==
+                 ===@
+               <= -- ---
+                --      -o
+              o-          -\
+             |
+             /
+   __________________________________________________________
+
+
+K5 PRECONTACT | ONES INFERRED | hold=1f | support=FRONT_FOOT_BRACED | tool_contact=NONE
+root/arc: mid-shaft is visibly one step short of the contact post
+
+
+
+
+
+
+                       o
+                       |                        =>
+                       |                    ====  T
+                       |   --o--*        ===      |
+                     +-o-+-           ===         |
+                       |  --*     ====
+                       |       ===
+                      |     ===
+                      | ====
+                     =@=
+                   <-- ---
+                  --      -o
+                o-          -\
+               /
+              /
+   __________________________________________________________
+
+
+K6 MID_SHAFT_CONTACT | ONES INFERRED | hold=3f | support=FRONT_FOOT_BRACED | tool_contact=MID_SHAFT_PIN
+root/arc: explicit contact at x=50 while the far tip still owns forward overshoot debt
+
+
+
+
+
+
+                         o
+                         |                                ==>
+                         |                        T  =====
+                         |                     ===X==
+                       +-+ +--            =====   |
+                         |o-  --o-   =====
+                        |   -- ===-*=
+                        | ====-*
+                       <==
+                       @
+                    --- ---
+                  --       -o
+                o-           -\
+               /
+              /
+   __________________________________________________________
+
+
+K7 PINNED_REPIVOT_COMPRESSION | TWOS INFERRED | hold=2f | support=FRONT_FOOT_PINNED_REAR_STRETCHED | tool_contact=MID_SHAFT_PIN
+root/arc: contact point stays fixed while pelvis/chest overrun and shaft rotates around the acquired constraint
+
+
+
+
+
+                                                           =>
+                                                         ==
+                           o                          ===
+                           |                      T ==
+                           |                     =X=
+                           |                   == |
+                         + + +--            ===
+                          \|    --o       ==
+                          | o      \\  ===
+                          |  \\      *=
+                          |    \\ ===
+                         |      =*
+                         @   ===
+                     ---- ----o
+                 -o--    <=    \
+               /-
+   __________________________________________________________
+
+
+K8 FAR_TIP_OVERSHOOT | TWOS INFERRED | hold=2f | support=FRONT_FOOT_PINNED_REAR_STRETCHED | tool_contact=MID_SHAFT_PIN
+root/arc: far tip sweeps past the hit line around the pinned middle; force consequence is not a frozen pose
+
+
+
+
+                                                           =>
+                                                         ==
+                                                       ==
+                            o                        ==
+                            |                     T==
+                            |                    =X
+                            |                  == |
+                          + + +--           ===
+                           \|    --o      ==
+                           | o      \\  ==
+                           |  \\      *=
+                           |    \\  ==
+                          |       *=
+                          @     ==
+                      ---- ----o
+                  -o--      <=  \
+                /-
+   __________________________________________________________
+
+
+K9 PEEL_RELEASE | ONES INFERRED | hold=1f | support=FRONT_FOOT_TO_REAR_RECOVERY | tool_contact=RELEASED
+root/arc: hands peel the shaft off the post before the root has finished overrun
+
+
+
+
+
+                                                           =>
+                            o                            ==
+                            |                          ==
+                            |                     T ===
+                            |                     |=
+                          +-+ +----o---*       ===|
+                            |o-              ==
+                            |  ---         ==
+                            |     -*    ===
+                           |          ==
+                           |       ===
+                           @     ==
+                       ---- ---==
+                    o--      <=-o
+                  //             \
+                 /
+   __________________________________________________________
+
+
+K10 BUTT_YANK_RECOIL | TWOS INFERRED | hold=2f | support=REAR_FOOT_CATCHING | tool_contact=NONE
+root/arc: body snaps back first at the pelvis; rear end of tool is yanked while far tip remains late
+
+
+
+
+
+
+                      o
+                      |                           =>
+                      |                        ===
+                      |                     ===   T
+                    +-+ +----o--*        ===      |
+                      |o--            ===         |
+                       |  --*      ===
+                       |        ===
+                        |    ===
+                        @ ===
+                      --=--
+                    --=    \\
+                  <-         o
+                 /            \
+                 /             \
+                /
+   __________________________________________________________
+
+
+K11 TIP_LAG_CROSSBODY | TWOS INFERRED | hold=2f | support=REAR_FOOT_CATCHED | tool_contact=NONE
+root/arc: tool crosses low after the torso has already reversed; explicit secondary lag
+
+
+
+
+
+
+                    o
+             <==    |
+                ====|                             T
+                   -o---*                         |
+                  + + +---o=                      |
+                    |      -*====
+                     |           ====
+                     |               ====
+                      |                  ====
+                      @                      ==>
+                    -- ---
+                  --      -o
+                o-          |
+               |            \
+               /
+   __________________________________________________________
+
+
+K12 SUPPORT_CATCH | TWOS INFERRED | hold=2f | support=BOTH_FEET_REACQUIRING | tool_contact=NONE
+root/arc: second support catches the remaining tool torque instead of resetting the pose
+
+
+
+
+
+
+
+                   o
+                   |                              T
+                   |                              |
+          <==      |                              |
+             ====+o+-+*-o
+                  =|==== -*
+                   |    =====
+                    |        =====
+                    |             ======
+                    @                   ==>
+                 --- ---
+               o-       -o
+              |           \
+              /
+   __________________________________________________________
+
+
+K13 DISPLACED_SETTLE_DEBT | FOURS INFERRED | hold=4f | support=BOTH_FEET_CROOKED | tool_contact=NONE
+root/arc: settle remains left/back and staff stays low; recovery debt is visible rather than an idle reset
+
+
+
+
+
+
+
+                  o
+                  |                               T
+         <==      |                               |
+            ===== |                               |
+                +o+-+*-o
+                  |   ==-*=
+                  |        =====
+                   |            =====
+                   |                 ==>
+                   @
+                --- ---
+              o-       -o
+             |           \
+             /
+   __________________________________________________________
+
