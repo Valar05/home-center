@@ -4,7 +4,7 @@
   "experiment_id": "v2-defense-019-high-line-duck-heel-roll-recovery",
   "lane": "defense",
   "kind": "NEW_CONCEPT",
-  "status": "REPO_VERIFIED_CHAT_DELIVERY_PENDING",
+  "status": "HEALTHY_USER_SURFACED",
   "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
@@ -65,7 +65,7 @@
   "quality": {
     "tango_current_worker": "PASS",
     "tango_actual_render_inspected": true,
-    "tango_basis": "Fresh byte-identical 48-frame inspection: high-line read precedes compression; head traverses a low crescent under the threat with zero contact; fixed ankle locations retain visibly changing FULL/EDGE/FOREFOOT/TOE floor authority; right-side support earns the rise; torsion overshoot and lower right-shifted light-left-toe finish preserve recovery debt. No visible defect earned motion mutation.",
+    "tango_basis": "Fresh byte-identical 48-frame inspection: high-line read precedes compression; head traverses a low crescent under the threat with zero contact; fixed ankle locations retain visibly changing FULL/EDGE/FOREFOOT/TOE floor authority; right-side support earns the rise; torsion overshoot is followed by counter-settle; lower right-shifted light-left-toe finish preserves recovery debt. No visible defect earned motion mutation.",
     "noodle_queen_current_worker": "PASS",
     "noodle_queen_after_tango": true,
     "noodle_queen_basis": "TASTE + FUNCTION + CONTEMPT PASS: a specific fixed-foot heel-roll evasion, with readable threat, pressure transfer, delayed rise, asymmetric overshoot and paid non-idle recovery debt.",
@@ -81,6 +81,7 @@
   "repo_verification": {
     "observed_main_commit_after_spa_write": "f01c6bde8de677d267e90d94dd9189ce63385fa5",
     "spa_write_commit": "811dfd9ce4e7d353a70c08743c9361558d3ddf45",
+    "manifest_reconcile_commit": "9770323f2b98ddb426d81314b1c28c0c8df47cd8",
     "exact_six_file_inventory": true,
     "exactly_one_spa": true,
     "repo_readback": true,
@@ -90,15 +91,19 @@
       "motion.json": "62cbb9f79077a041b7a1a160cf34cfb907c1f1b2",
       "high-line-duck-heel-roll-recovery.motion.html": "93d20a9d6112f1de6b5e55d8277c991f182cb935"
     },
-    "issue_343_receipt": null,
-    "issue_343_receipt_readback": false
+    "issue_343_receipt": 5607767106,
+    "issue_343_receipt_readback": true,
+    "final_issue_closure_readback": true
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_visible_video": false,
-    "ordered_together": false,
-    "authoritative_video_sha256": "a9e02437422e621bf6bd1c1a301d6b1bbae82456a923e9a4bf14263e1c2fea97"
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_visible_video": true,
+    "ordered_together": true,
+    "ascii_git_blob": "ce8d8abd416e17208f195f48341e8cc4706462bb",
+    "json_git_blob": "62cbb9f79077a041b7a1a160cf34cfb907c1f1b2",
+    "authoritative_video_sha256": "a9e02437422e621bf6bd1c1a301d6b1bbae82456a923e9a4bf14263e1c2fea97",
+    "visible_video_sha256": "a9e02437422e621bf6bd1c1a301d6b1bbae82456a923e9a4bf14263e1c2fea97"
   },
   "compatibility": {
     "offline_spa": true,
