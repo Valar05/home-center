@@ -1,0 +1,532 @@
+ASCII KINESIS V2 · LOCOMOTION 018 · RISER CATCH MOMENTUM REDIRECT
+legend: @ root/COM · * support owner · + probe · # terrain · O head
+source evidence: Bullwinkle / NES / asset 81106 · timing authority UNKNOWN · authored timing INFERRED / STREET_FIGHTER-CAPCOM
+
+K00 CHARGE_LOAD · FOURS/4f · INFERRED · support=RIGHT · phase=charge
+
+
+
+
+
+
+
+       O
+          o
+       T \\
+    o//|\
+       |
+      |                            #############################
+      @                            #
+     \ /                           #
+     \ /                   #########
+    \   /                  #
+    \   /           ########
+    \   /           #
+    \   /    ########
+    \   /    #
+####_###_#####
+    *
+causal: High-commitment forward load begins on level ground; rear/right support owns propulsion.
+
+K01 LAST_LEVEL_PUSH · TWOS/2f · INFERRED · support=RIGHT · phase=charge
+
+
+
+
+
+
+
+           O
+              o
+          /T\\\
+         / |
+        o/ |
+          |                        #############################
+          @                        #
+         \ /                       #
+        \  /               #########
+       \    /              #
+       \    /       ########
+       \    /       #
+       \    /########
+       \    _#
+#######_######
+
+causal: Last level push lengthens horizontal spacing before terrain discontinuity.
+
+K02 RISER_1_PROBE · TWOS/2f · INFERRED · support=RIGHT · phase=probe
+
+
+
+
+
+
+
+
+              O  o
+             /T\\\
+            / |
+          o/ |
+             |                     #############################
+            @                      #
+           \ /                     #
+          \   /            #########
+         \    /            #
+         \    /     ########
+         \    /     #
+        \    #_######
+        \    #+
+########_#####
+        *
+causal: Lead/left foot discovers higher support while root remains low and charge continues.
+
+K03 RISER_1_EARNS_SUPPORT · ONES/1f · INFERRED · support=MIXED · phase=authorize
+
+
+
+
+
+
+
+              O
+                 o
+             /T\\\
+            / |
+           o/|
+             |                     #############################
+            @                      #
+           \ /                     #
+           \  /            #########
+          \   /            #
+          \   /     ########
+          \   /     #
+         \   #_######
+         \   #*
+#########_####
+         *
+causal: Mixed-height dual support authorizes the first rise; root is held before lift.
+
+K04 REDIRECT_LIFT_1 · TWOS/2f · INFERRED · support=LEFT · phase=redirect
+
+
+
+
+
+
+               O  o
+               T \
+              /|\
+            o/ |
+              |
+              @
+             \/                    #############################
+             \ /                   #
+            \  /                   #
+            \  /           #########
+           \   /           #
+           \   /    ########
+          \    /    #
+          \  ##_#####
+         \   # *
+#########_####
+
+causal: Horizontal charge is redirected upward only after high support earns authority.
+
+K05 REAR_RELEASE_1 · ONES/1f · INFERRED · support=LEFT · phase=release
+
+
+
+
+
+                O
+                   o
+               /T \\
+              o |
+                |
+                @
+               / \
+               / \                 #############################
+              /   \                #
+              /   \                #
+              /   \        #########
+              /   \        #
+               /  \ ########
+               /  _ #
+             ##_#####
+             # *
+##############
+
+causal: Low rear support releases after root rises; swing leg chases the next tread.
+
+K06 RISER_2_PROBE · TWOS/2f · INFERRED · support=LEFT · phase=probe
+
+
+
+
+
+                  O
+                     o
+                 /T\\\
+                o |
+                 |
+                 @
+                / \
+                /  \               #############################
+               /    \              #
+               /     \             #
+               /     \     #########
+               /      \    #
+               /    ##_#####
+               /    # +
+             ##_#####
+             # *
+##############
+
+causal: Next higher tread is probed without granting it support ownership.
+
+K07 RISER_2_EARNS_SUPPORT · ONES/1f · INFERRED · support=MIXED · phase=authorize
+
+
+
+
+
+                  O
+                     o
+                  /T\\
+                o/ |
+                  |
+                  @
+                 / \
+                 /  \              #############################
+                /    \             #
+                /    \             #
+                /     \    #########
+                /     \    #
+               /    ##_#####
+               /    # *
+             ##_#####
+             # *
+##############
+
+causal: Second mixed-height split authorizes another vertical redirection; root holds.
+
+K08 REDIRECT_LIFT_2 · TWOS/2f · INFERRED · support=RIGHT · phase=redirect
+
+
+
+
+                    O
+                       o
+                   /T\\\
+                  o |
+                    |
+                    |
+                    @
+                   / \
+                   / \
+                  /   \            #############################
+                  /   \            #
+                  /   \            #
+                  /   \    #########
+                 /    \    #
+                 /  ##_#####
+                 _  # *
+             ########
+             #
+##############
+
+causal: Second high support converts retained horizontal intent into rise.
+
+K09 REAR_RELEASE_2 · ONES/1f · INFERRED · support=RIGHT · phase=release
+
+
+                     O
+                        o
+                     /T\\
+                    o |
+                      |
+                      |
+                      @
+                      \/
+                       \
+                       \/
+                       \/          #############################
+                       \/          #
+                       \ /         #
+                      \  / #########
+                      \  _ #
+                    ##_#####
+                    # *
+             ########
+             #
+##############
+
+causal: Trailing leg releases and crosses toward the third tread while cadence remains continuous.
+
+K10 RISER_3_PROBE · TWOS/2f · INFERRED · support=RIGHT · phase=probe
+
+
+                       O
+                          o
+                       /T\\
+                      o |
+                        |
+                       |
+                       @
+                       \/
+                      \  //
+                      \    /
+                      \     /      #############################
+                      \     /      #
+                      \      /     #
+                      \    ##_######
+                      \    # +
+                    ##_#####
+                    # *
+             ########
+             #
+##############
+
+causal: Third higher contact arrives before root height changes.
+
+K11 RISER_3_EARNS_SUPPORT · ONES/1f · INFERRED · support=MIXED · phase=authorize
+
+
+                        O
+                          o
+                       /T\\
+                      o |
+                        |
+                        |
+                        @
+                       \ /
+                       \  /
+                      \    /
+                      \     /      #############################
+                      \     /      #
+                      \      /     #
+                      \    ##_######
+                      \    # *
+                    ##_#####
+                    # *
+             ########
+             #
+##############
+
+causal: Third mixed-height support split gates the next rise.
+
+K12 REDIRECT_LIFT_3 · TWOS/2f · INFERRED · support=LEFT · phase=redirect
+
+                         O
+                            o
+                         /T\\
+                        o |
+                          |
+                          |
+                          @
+                          \/
+                         \ /
+                         \  /
+                        \   /
+                        \   /
+                        \   /      #############################
+                        \    /     #
+                         \   /     #
+                         \ ##_######
+                         _ # *
+                    ########
+                    #
+             ########
+             #
+##############
+
+causal: Third redirection climbs sharply; head and arms lag the upward root impulse.
+
+K13 TOP_PROBE · TWOS/2f · INFERRED · support=LEFT · phase=probe
+
+                           O
+                              o
+                           /T\\
+                          o |
+                            |
+                            |
+                            @\
+                            / \\
+                             /  \\
+                             /    \
+                             /     \
+                             /     \
+                             /     #_###########################
+                             /     #+
+                             /     #
+                           ##_######
+                           # *
+                    ########
+                    #
+             ########
+             #
+##############
+
+causal: Top tread is reached by a long probe while lower support still owns the body.
+
+K14 TOP_EARNS_SUPPORT · ONES/1f · INFERRED · support=MIXED · phase=authorize
+
+                            O
+                               o
+                            /T\\
+                           o |
+                             |
+                            |
+                            @\
+                             /\\
+                             /  \\
+                              /   \
+                              /    \
+                              /    \
+                              /    #_###########################
+                             /     #*
+                             /     #
+                           ##_######
+                           # *
+                    ########
+                    #
+             ########
+             #
+##############
+
+causal: Top contact earns authority; the root is again held before the final rise.
+
+K15 TOP_RELEASE_SURGE · ONES/1f · INFERRED · support=RIGHT · phase=release_surge
+                                   o
+                                /T\\
+                              // |
+                              o  |
+                                |
+                                @
+                                /\
+                               /  \
+                               /  \
+                               /   \
+                               /   \
+                               /    \
+                               /    \
+                               /   #_###########################
+                               /   #*
+                               _   #
+                           #########
+                           #
+                    ########
+                    #
+             ########
+             #
+##############
+
+causal: Freed from vertical gating, residual charge produces a sudden horizontal spacing spike.
+
+K16 OVERTRAVEL · ONES/1f · INFERRED · support=RIGHT · phase=overrun
+                                       O  o
+                                      T \\
+                                   o//|\
+                                     |
+                                     |
+                                    @
+                                    \/
+                                     \/
+                                     \ /
+                                     \ /
+                                     \ /
+                                    \   /
+                                    \   /
+                                   #_###_#######################
+                                   #*   +
+                                   #
+                           #########
+                           #
+                    ########
+                    #
+             ########
+             #
+##############
+
+causal: Root overruns the top support; torso and arms continue forward after the climb is complete.
+
+K17 CATCH_COMPRESSION · TWOS/2f · INFERRED · support=LEFT · phase=catch
+                                        O
+
+                                        To
+                                      / |\\
+                                      o |
+                                        |
+                                        @
+                                       \ /
+                                       \  /
+                                      \    /
+                                      \    /
+                                      \    /
+                                      \    /
+                                   ###_####_####################
+                                   #       *
+                                   #
+                           #########
+                           #
+                    ########
+                    #
+             ########
+             #
+##############
+
+causal: Long forward catch step arrests the overrun by compressing the root downward and counterleaning.
+
+K18 SHORT_CORRECTION · TWOS/2f · INFERRED · support=LEFT · phase=correction
+                                           O
+                                            o
+                                         / T\
+                                         o |
+                                           |
+                                           |
+                                           @
+                                           /\
+                                            \
+                                            /\
+                                            /\
+                                           /  \
+                                           /  \
+                                   ########_##_#################
+                                   #       *  +
+                                   #
+                           #########
+                           #
+                    ########
+                    #
+             ########
+             #
+##############
+
+causal: A shorter correction step pays remaining forward debt without resetting phase.
+
+K19 DISPLACED_SETTLE · FOURS/4f · INFERRED · support=BOTH_BIASED_LEFT · phase=settle
+
+                                            T o
+                                           o| \
+                                            |
+                                            |
+                                            @
+                                            /\
+                                           / \
+                                           /  \
+                                           /  \
+                                           /  \
+                                            /  \
+                                            /  \
+                                   #########_##_################
+                                   #        *
+                                   #
+                           #########
+                           #
+                    ########
+                    #
+             ########
+             #
+##############
+
+causal: Settle finishes displaced beyond the stair entry with residual arm/head lag rather than idle reset.
