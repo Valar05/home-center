@@ -2,7 +2,7 @@
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-defense-018-guard-custody-handoff-exit",
   "lane": "defense",
-  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
+  "status": "USER_SURFACE_PASS_FINAL_ISSUE_BIND_PENDING",
   "current_worker_liveness": {
     "home_center_campaign_read": true,
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
@@ -91,21 +91,26 @@
     "one_spa_readback": true,
     "repo_readback": true,
     "manifest_reconciliation_commit": "194faa65ffcb0abee43b9cf7fb5e489583e42479",
-    "pre_delivery_receipt_commit": "ed913a7bd3f6cb52a70401f98f657e08d3034007",
+    "pre_delivery_receipt_binding_commit": "b8f1cac43d7d4a83ac17898d3a2b36fa45307a7f",
+    "user_surface_manifest_commit": "2cd4f2fafa4fce06a24bef2b6dca7d7ffa8de3b8",
     "blobs": {
       "build.py": "b16e624b8197c5ebd18afbdcc8ab297af0d91aef",
       "contact-sheet.txt": "64d13691258ad29375c6d46cbda686bd2870ead0",
-      "manifest.json": "c346a9e24eba89336b7572a6a01884aaa80a8c8a",
+      "manifest.json": "05b4103f82231d15f5ed5524e4cb09cc2622696d",
       "motion.json": "731fb437511b5920c74abcd26a232e7e2283e291",
       "guard-custody-handoff-exit.motion.html": "e35da2da0303033089bd4dbc43348c846532e008"
     },
     "issue_343_receipt": 5604698537,
-    "issue_343_receipt_readback": true
+    "issue_343_receipt_readback": true,
+    "final_issue_closure_readback": false
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_visible_video": false,
-    "ordered_together": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_visible_video": true,
+    "ordered_together": true,
+    "ascii_git_blob": "64d13691258ad29375c6d46cbda686bd2870ead0",
+    "json_git_blob": "731fb437511b5920c74abcd26a232e7e2283e291",
+    "visible_video_sha256": "91df338a3b9699877f8b5a9b88c1acef64353152a04ea5226af188b8da354700"
   }
 }
