@@ -22,7 +22,7 @@ def line(c,x0,y0,x1,y1,ch):
         if x0==x1 and y0==y1: break
         e2=2*err
         if e2>=dy: err+=dy; x0+=sx
-        if e2<=dx: err+=dx; y0+=sy
+        if e2<=dx: err+=dx; x0+=0; y0+=sy
 
 def make_pose(demand,joints,support):
     c=[[" "]*W for _ in range(H)]
@@ -87,8 +87,8 @@ def render_video(motion):
 def spa_text(contact,motion_raw,mp4):
     css="body{font-family:system-ui,sans-serif;margin:0;background:#111;color:#eee}nav{display:flex;gap:.5rem;padding:.75rem;position:sticky;top:0;background:#111}button{padding:.6rem 1rem}section{display:none;padding:1rem}section.active{display:block}pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.05}video{max-width:100%;height:auto}"
     video_b64=base64.b64encode(mp4).decode("ascii")
-    ascii_b64=base64.b64encode(gzip.compress(contact.encode("utf-8"),compresslevel=9)).decode("ascii")
-    json_b64=base64.b64encode(gzip.compress(motion_raw.encode("utf-8"),compresslevel=9)).decode("ascii")
+    ascii_b64=base64.b64encode(gzip.compress(contact.encode("utf-8"),compresslevel=9,mtime=0)).decode("ascii")
+    json_b64=base64.b64encode(gzip.compress(motion_raw.encode("utf-8"),compresslevel=9,mtime=0)).decode("ascii")
     return f'''<!doctype html>
 <html><head><meta charset="utf-8"><title>Timing019 - Rate Regime Hysteresis</title><style>{{css}}</style></head>
 <body>
