@@ -10,7 +10,7 @@ BUILD = ROOT / ".motion-build"
 VIDEO = BUILD / "motion.mp4"
 SPA = ROOT / "rolling-contact-patch-migration.motion.html"
 W, H, GROUND = 64, 22, 18
-CANVAS = (800, 450)
+CANVAS = (480, 270)
 TIMING_FRAMES = {"ONES": 1, "TWOS": 2, "FOURS": 4}
 BONES = [
     ("head","neck"),("neck","shoulder_l"),("neck","shoulder_r"),
@@ -58,7 +58,7 @@ def render_ascii(key):
         if 0<=x<W and 0<=y+1<H: g[y+1][x]="*"
     cx,cy=key["com"]
     if 0<=cx<W and 0<=cy<H and g[cy][cx]==" ": g[cy][cx]="x"
-    return "\n".join("".join(row) for row in g)
+    return "\n".join("".join(row).rstrip() for row in g)
 
 def font(size):
     path=Path("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf")
@@ -94,18 +94,18 @@ def main():
     if BUILD.exists(): shutil.rmtree(BUILD)
     BUILD.mkdir()
     frame_dir=BUILD/"frames"; frame_dir.mkdir()
-    f14=font(14); f12=font(12)
+    f14=font(9); f12=font(8)
     index=0
     for key in motion["keys"]:
         art=render_ascii(key)
         for _ in range(TIMING_FRAMES[key["timing_class"]]):
             im=Image.new("RGB",CANVAS,(12,12,12)); d=ImageDraw.Draw(im)
-            d.text((18,14),"ASCII KINESIS V2 CONTACT019  |  ROLLING CONTACT PATCH MIGRATION",font=f12,fill=(230,230,230))
-            d.text((18,34),f'{key["key_id"]}  {key["name"]}  [{key["timing_class"]} / {key["timing_provenance"]}]',font=f12,fill=(230,230,230))
-            y=58
+            d.text((8,6),"CONTACT019 | ROLLING CONTACT PATCH MIGRATION",font=f12,fill=(230,230,230))
+            d.text((8,18),f'{key["key_id"]} {key["name"]} [{key["timing_class"]}]',font=f12,fill=(230,230,230))
+            y=32
             for ln in art.splitlines():
-                d.text((18,y),ln,font=f14,fill=(240,240,240)); y+=15
-            d.text((18,408),f'patch={key["rolling_patch"]}  support={key["support_owner"]}  force={key["normal_force"]}  custody=NONE',font=f12,fill=(220,220,220))
+                d.text((8,y),ln,font=f14,fill=(240,240,240)); y+=9
+            d.text((8,248),f'patch={key["rolling_patch"]} support={key["support_owner"]} custody=NONE',font=f12,fill=(220,220,220))
             im.save(frame_dir/f"{index:04d}.png"); index+=1
     subprocess.run([
         "ffmpeg","-y","-loglevel","error","-framerate","24","-i",str(frame_dir/"%04d.png"),
