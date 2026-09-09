@@ -1,0 +1,407 @@
+ASCII KINESIS V2 STRIKES012 — LIMB REVERSAL / ROOT OVERRUN DEBT
+SOURCE ART: NOT EMBEDDED | RIG: ABSTRACT ASCII ONLY | SOURCE TIMING: UNKNOWN | AUTHORED TIMING: INFERRED / STREET_FIGHTER-CAPCOM
+POCKET: CONTACT CAN REVERSE THE STRIKING LIMB BEFORE THE BODY CLOCK REVERSES.
+
+K0 READ_OFFSET | FOURS | INFERRED | SUPPORT=BOTH_REAR_BIASED | CONTACT=NONE
+ROLE: Readable offset stance banks options before commitment.
+
+
+
+
+
+
+
+
+                                                    T
+                     o                              |
+                     |                              |
+                      |                             |
+                   -+ + +                           |
+                 o-   |  -o                         |
+                 *    |    *                        |
+                      |                             |
+                      |
+                      |
+                      @
+                    -- --
+                  //     \
+                 o        o
+                 |         |
+  _______________/_________\__________________________________
+
+
+
+K1 REAR_COIL | FOURS | INFERRED | SUPPORT=REAR_DOMINANT | CONTACT=NONE
+ROLE: Asymmetric anticipation stores root and shoulder torque.
+
+
+
+
+
+
+
+
+                                                    T
+                                                    |
+                 o                                  |
+                 |                                  |
+                  |   -o*                           |
+                + + +-                              |
+              o-  |                                 |
+               |   |                                |
+               *   |
+                   |
+                    |
+                    @
+                  -- ---
+                o-      -o
+                |         \
+  ______________/__________\__________________________________
+
+
+
+K2 PELVIS_COMMIT_BRIDGE | TWOS | INFERRED | SUPPORT=REAR_TO_FRONT_TRANSFER | CONTACT=NONE
+ROLE: Authored body-before-limb bridge prevents telescoping-arm attack.
+
+
+
+
+
+
+
+
+                                                    T
+                     o                              |
+                     |                              |
+                      |                             |
+                    + + +---o-*                     |
+                  o-  |                             |
+                  |   |                             |
+                  *   |                             |
+                       |
+                       |
+                       @
+                     -- --
+                   //     \\
+                  o         o
+                 |           |
+  _______________/___________\________________________________
+
+
+
+K3 ENTRY | ONES | INFERRED | SUPPORT=FRONT_ACQUIRING | CONTACT=NONE
+ROLE: Directional commitment with visible body ownership.
+
+
+
+
+
+
+
+
+                                                    T
+                        o                           |
+                        |                           |
+                         |    --o---*               |
+                       + + +--                      |
+                     o-  |                          |
+                     |   |                          |
+                     *   |                          |
+                         |
+                         |
+                         @
+                       -- --
+                     --     \\
+                   o-         o
+                  |            |
+  ________________/____________\______________________________
+
+
+
+K4 PRECONTACT | TWOS | INFERRED | SUPPORT=FRONT_DOMINANT | CONTACT=PRECONTACT_GAP
+ROLE: Distinct precontact silhouette preserves a readable contact instant.
+
+
+
+
+
+
+
+
+                                                    T
+                           o                        |
+                           |                        |
+                            |      ----o------*     |
+                         -+ + +----                 |
+                       o-   |                       |
+                       |    |                       |
+                       *    |                       |
+                           |
+                           |
+                           @
+                         -- --
+                       --     \\
+                     o-         o
+                    /            \
+  _________________/______________\___________________________
+
+
+
+K5 CONTACT | FOURS | INFERRED | SUPPORT=FRONT_DOMINANT_BRACED | CONTACT=HAND_TARGET_CONTACT
+ROLE: Explicit impact / hit-stop candidate; target becomes the local limb brake.
+
+
+
+
+
+
+
+
+                                                    T
+                             o                      |
+                             |                      |
+                              |       -----o--------X
+                           -+ + +-----              |
+                         o-   |                     |
+                        |     |                     |
+                        *     |                     |
+                             |
+                             |
+                             @
+                          --- --
+                        --      \\
+                      o-          o
+                     /             \
+  __________________/_______________\_________________________
+
+
+
+K6 LOCAL_REVERSAL_ROOT_OVERRUN | ONES | INFERRED | SUPPORT=FRONT_DOMINANT_SHEAR | CONTACT=RELEASED_AFTER_CONTACT
+ROLE: Core fork: contact reverses the striking limb before body inertia reverses.
+
+
+
+
+
+
+
+
+                                                    T
+                                  o                 |
+                                  |                 |
+                                   |                |
+                                -+ + +---o-         |
+                              o-   |       -*       |
+                             |     |                |
+                             *     |                |
+                                  |
+                                  |
+                                  @
+                               --- --
+                            ---      \\
+                          o-           o
+                        //              |
+  _____________________/________________\_____________________
+
+
+
+K7 SHOULDER_COMPRESSION | TWOS | INFERRED | SUPPORT=FRONT_DOMINANT_CATCH | CONTACT=NONE
+ROLE: Force transfer becomes body compression rather than reverse interpolation.
+
+
+
+
+
+
+
+
+                                                    T
+                                                    |
+                               o                    |
+                               |                    |
+                               |                    |
+                                |                   |
+                              + + +---o             |
+                            o-  |      -*           |
+                             |   |
+                             *   |
+                                  |
+                                  |
+                                   @
+                               ---- ---
+                          -o---        -o
+  ______________________/________________\____________________
+
+
+
+K8 SUPPORT_CATCH | TWOS | INFERRED | SUPPORT=WIDE_SPLIT_CATCH | CONTACT=NONE
+ROLE: Support catches residual momentum after local limb reversal.
+
+
+
+
+
+
+
+
+                                                    T
+                                                    |
+                             o                      |
+                             |                      |
+                             |                      |
+                              |                     |
+                            + + +-                  |
+                          o-  |   --o-              |
+                           |   |      -*
+                           *   |
+                                |
+                                |
+                                 @
+                             ---- ---
+                         -o--        --o
+  _____________________/_________________\____________________
+
+
+
+K9 LIMB_LAG_RECOIL | ONES | INFERRED | SUPPORT=WIDE_SPLIT_CATCH | CONTACT=NONE
+ROLE: Secondary limb lag keeps recoil from reading as mirrored playback.
+
+
+
+
+
+
+
+
+                                                    T
+                           o                        |
+                           |                        |
+                           |                        |
+                            |                       |
+                          + + +                     |
+                         o  |  --                   |
+                          *  |   -o                 |
+                             |     \
+                              |     *
+                              |
+                               @
+                           ---- ---
+                        o--        --o
+                       /              \\
+  ____________________/_________________\_____________________
+
+
+
+K10 TORSO_OVERSHOOT | TWOS | INFERRED | SUPPORT=REAR_REACQUIRING | CONTACT=NONE
+ROLE: Authored recoil overshoot creates recovery debt and a crooked silhouette.
+
+
+
+
+
+
+
+
+                                                    T
+                                                    |
+                        o                           |
+                        | --*                       |
+                        o-                          |
+                        ||                          |
+                       + + +                        |
+                          \ --                      |
+                           \  -o
+                            \   \\
+                             @    *
+                           -- ---
+                         --      --
+                       o-          -o
+                      /              \\
+  ___________________/_________________\______________________
+
+
+
+K11 SECONDARY_LAG | TWOS | INFERRED | SUPPORT=REAR_DOMINANT | CONTACT=NONE
+ROLE: Hand/shoulder settle lags body recovery.
+
+
+
+
+
+
+
+
+                                                    T
+                          o                         |
+                          |                         |
+                           |                        |
+                         +o+-*-                     |
+                           |   -o                   |
+                           |     \                  |
+                           |      *                 |
+                            |
+                            |
+                            @
+                          -- ---
+                        --      --
+                      o-          -o
+                     |              \\
+  ___________________/________________\_______________________
+
+
+
+K12 DISPLACED_SETTLE | FOURS | INFERRED | SUPPORT=BOTH_FRONT_DISPLACED | CONTACT=NONE
+ROLE: Recovery debt remains visible instead of returning to idle.
+
+
+
+
+
+
+
+
+                                                    T
+                           o                        |
+                           |                        |
+                            |                       |
+                          + + +                     |
+                        o-  |  -o                   |
+                        *   |    *                  |
+                            |                       |
+                            |
+                            |
+                            @
+                          -- ---
+                        --      --
+                      o-          -o
+                     |              \\
+  ___________________/________________\_______________________
+
+
+
+K13 REENTRY_WITH_DEBT | FOURS | INFERRED | SUPPORT=BOTH_READY_DISPLACED | CONTACT=NONE
+ROLE: Re-entry is ready but not reset.
+
+
+
+
+
+
+
+
+                                                    T
+                            o                       |
+                            |                       |
+                             |                      |
+                           + + +-o                  |
+                         o-  |    *                 |
+                         *   |                      |
+                             |                      |
+                             |
+                             |
+                             @
+                           -- --
+                         --     --
+                       o-         -o
+                      |             \\
+  ____________________/_______________\_______________________
