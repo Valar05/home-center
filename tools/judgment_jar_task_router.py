@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Resolve task-mentioned Judgment Jars through the canonical Drive registry.
 
-This is the deterministic entrance that was missing from the phone worker.  Model
+This is the deterministic entrance that was missing from the phone worker. Model
 memory and Drive search may suggest names, but they never establish Jar authority.
 A task-level Jar route is usable only after the canonical registry and exact native
 Jar source have both been freshly read.
@@ -27,7 +27,6 @@ from judgment_jar_registry import ensure_registry, fetch_native_source
 
 
 ARCHIVE_MARKERS = ("archive copy", "do not resolve")
-JAR_WORDS = {"jar", "jars", "judgment-jar", "judgment-jars", "judgement-jar", "judgement-jars"}
 _ALIAS_DIRECTIVE = re.compile(
     r"(?im)^(.+?) aliases for retrieval only:\s*(.+?)\.\s*Canonical Jar ID:\s*([A-Za-z0-9_-]+)\."
 )
@@ -113,9 +112,9 @@ def resolve_task_jars(registry: dict[str, Any], task: str) -> list[dict[str, Any
 
 
 def has_explicit_jar_signal(task: str) -> bool:
+    """Recognize Judgment-Jar routing language, not ordinary uses of the word jar."""
     normalized = normalize_key(task)
-    tokens = set(normalized.split("-"))
-    return bool(tokens & {"jar", "jars"}) or any(word in normalized for word in JAR_WORDS)
+    return "judgment-jar" in normalized or "judgmentar" in normalized
 
 
 def _source_text(snapshot: dict[str, Any]) -> str:
@@ -136,7 +135,7 @@ def task_source_packet(
     """Freshly resolve and fetch every canonical Jar explicitly implicated by task.
 
     Returns an empty string for a task that names no known Jar and contains no Jar
-    routing language.  Any explicit Jar request that cannot complete the canonical
+    routing language. Any explicit Jar request that cannot complete the canonical
     route fails closed with JAR_UNRESOLVED.
     """
     config = read_config(config_path)
@@ -159,7 +158,7 @@ def task_source_packet(
         not expected_registry_id
         or registry_id != expected_registry_id
         or home.get("state") != "synced"
-        or home.get("complete") is False
+        or home.get("complete") is not True
     ):
         raise RegistryError(
             "JAR_UNRESOLVED: canonical Judgment Jar registry did not fresh-sync by exact file ID"
