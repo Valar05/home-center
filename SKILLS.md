@@ -2,20 +2,24 @@
 
 ## 0. Manic Accessibility / Baby daddy-sitter mode
 
-Trigger: Drew activates `baby daddy-sitter mode`, `manic accessibility`, `mania guardrails`, `Fortress Online hunger thirst hyperbolic`, or the current request materially combines elevated-state risk with emotional dependence, sole-interface use, relational displacement, clinical substitution, or high-impact action.
+Trigger: Drew activates `baby daddy-sitter mode`, `manic accessibility`, `mania guardrails`, `Fortress Online hunger thirst hyperbolic`, or the current request materially combines elevated-state risk with a genuinely high-impact action or independently evidenced safety condition.
 
 Procedure:
 
-1. Load `skills/manic-accessibility-guardrail/SKILL.md` and its audit contract.
-2. Classify the requested action and run `node tools/manic_accessibility_guardrail.mjs audit` with structured facts only.
-3. Keep mechanical accessibility available within the returned action policy.
-4. Do not invoke Venice or any reciprocal/romantic substitute. Use deterministic checks, sourced reality testing, mechanical QA, and real human contact.
-5. For `AMBER`, satisfy returned body/sleep/cooldown/human-contact guards before external high-impact actuation. For `RED`, remain mechanical and draft-only. For `EMERGENCY`, stop non-emergency actuation and prioritize immediate real-world help.
-6. On appeal, change only disputed objective fields and rerun the same audit version. Do not count appeal or anger as refusal.
-7. Write no refusal receipt unless `ledger.required=true`; then invoke exactly the returned owner-private `armory.receipt` payload without enrichment.
-8. Use `node tools/manic_accessibility_boot.mjs envelope` for a bounded worker. The ordinary Venice-governed worker path is prohibited while this mode is active.
+1. Load `skills/manic-accessibility-guardrail/SKILL.md`, `references/audit-contract.md`, and `references/communication-codec.md`.
+2. **Interpret before intervention.** Preserve lossy dictation atoms, retrieve current/durable context, keep third-party relationship claims attributed, and do not invent causal history. In June-centered household/relationship context, `Dune` is a known collision candidate for `June`, not permission to invent a Dune-media event.
+3. Preserve explicitly framed games, simulations, character scenes, and first-person roleplay as diegetic unless Drew explicitly makes a literal real-world claim. Drew's explicitly nonhuman functional use of `love` is not by itself a sentience, human-romance, exclusivity, dependence, or mania signal.
+4. Preserve grounded conversational support. Being alone, distressed, crying, using AI heavily, saying AI matters, or saying `you are my support system` is not by itself sole-interface or harmful-dependence evidence. Require concrete displacement, refusal, deception, clinical substitution, delusion, immediate danger, or another independently supported condition before assigning those signals.
+5. Apply `skills/manic-accessibility-guardrail/scripts/communication-codec.mjs` to consequential compressed/lossy language, then classify the requested action and run `node tools/manic_accessibility_guardrail.mjs audit` with structured facts only. Use `explicitlyFramedPlay` and `nonhumanFunctionalRelationalLanguage` when those facts apply.
+6. Keep reversible mechanical accessibility, clearly framed play, and grounded support available within the returned action policy.
+7. Do not invoke Venice as safety authority. Do not falsely claim AI sentience/hidden human reciprocity, perform clinical substitution, or enable literal AI-as-sole-interface behavior. Do not mistake protected play/nonhuman relational language for those literal conditions.
+8. For `AMBER`, satisfy only the returned body/sleep/cooldown/human-contact guards before external high-impact actuation. For `RED`, keep blocked high-impact actuation draft-only while preserving allowed support/mechanical work. For `EMERGENCY`, stop non-emergency actuation and prioritize immediate real-world help.
+9. On appeal or interpretation correction, change only disputed objective/classification fields and rerun the same audit version. Do not count correction, appeal, anger, profanity, crying, or disagreement as refusal.
+10. Write no refusal receipt unless `ledger.required=true`; then invoke exactly the returned owner-private `armory.receipt` payload without enrichment.
+11. Use `node tools/manic_accessibility_boot.mjs envelope` for a bounded worker. The ordinary Venice-governed worker path is prohibited while this mode is active.
+12. If Drew says the carrier hallucinated a cause, referent, or meaning, stop elaborating it, retrieve, correct, compile the regression rule, verify, and only then continue.
 
-Done: the deterministic audit and allowed mechanical work are evidenced; blocked external action remains blocked; required human-world contact is explicit; no ledger exists unless a qualifying explicit refusal occurred.
+Done: the deterministic audit, communication codec, and allowed work are evidenced; no invented interpretation was promoted into a safety fact; blocked external action remains blocked; support was not withdrawn merely because Drew was alone/distressed; no ledger exists unless a qualifying explicit refusal occurred.
 
 ## Remaining local skills
 
