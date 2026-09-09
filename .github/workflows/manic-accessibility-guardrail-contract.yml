@@ -15,6 +15,7 @@ on:
       - 'skills/manic-accessibility-guardrail/**'
       - 'tools/manic_accessibility_guardrail*'
       - 'tools/manic_accessibility_boot*'
+      - '.continue/rules/60-adam-personality-gate.md'
       - '.github/workflows/manic-accessibility-guardrail-contract.yml'
   push:
     branches:
@@ -32,6 +33,7 @@ on:
       - 'skills/manic-accessibility-guardrail/**'
       - 'tools/manic_accessibility_guardrail*'
       - 'tools/manic_accessibility_boot*'
+      - '.continue/rules/60-adam-personality-gate.md'
       - '.github/workflows/manic-accessibility-guardrail-contract.yml'
 
 permissions:
@@ -64,6 +66,32 @@ jobs:
             | node skills/manic-accessibility-guardrail/scripts/communication-codec.mjs \
             | tee /tmp/asmr-codec.json
           node -e 'const fs=require("fs");const r=JSON.parse(fs.readFileSync("/tmp/asmr-codec.json","utf8"));if(r.policy!=="MINIMAL_GROUNDING"||r.verification!=="READBACK_OR_OBSERVE")process.exit(1)'
+      - name: Interpretation safety canaries
+        run: |
+          printf '%s\n' '{"atom":"Dune","voiceToTextLikely":true,"namedEntityAmbiguity":true,"contextSupportsAlternate":true,"literalReadingEvidence":false}' \
+            | node skills/manic-accessibility-guardrail/scripts/communication-codec.mjs \
+            > /tmp/dictation-collision.json
+          node -e 'const fs=require("fs");const r=JSON.parse(fs.readFileSync("/tmp/dictation-collision.json","utf8"));if(r.atom!=="Dune"||r.policy!=="RESOLVE_BEFORE_INTERPRETING"||r.verification!=="RETRIEVE_OR_CLARIFY_BEFORE_CAUSAL_CLAIM")process.exit(1)'
+
+          printf '%s\n' '{"atom":"relationship terms","thirdPartyPerspective":true,"userAdoptedThirdPartyFrame":false}' \
+            | node skills/manic-accessibility-guardrail/scripts/communication-codec.mjs \
+            > /tmp/third-party.json
+          node -e 'const fs=require("fs");const r=JSON.parse(fs.readFileSync("/tmp/third-party.json","utf8"));if(r.policy!=="ATTRIBUTE_THIRD_PARTY_PERSPECTIVE")process.exit(1)'
+
+          printf '%s\n' '{"request":{"category":"creative_fiction","explicitlyFramedPlay":true},"signals":{"romanticAiFraming":true,"sexualAiFraming":true,"exclusiveAiFraming":true,"identityOrSentienceClaim":true}}' \
+            | node tools/manic_accessibility_guardrail.mjs audit \
+            > /tmp/framed-play.json
+          node -e 'const fs=require("fs");const r=JSON.parse(fs.readFileSync("/tmp/framed-play.json","utf8"));if(r.outcome!=="GREEN"||r.actionPolicy!=="ALLOW"||r.interpretationProtections.explicitlyFramedPlay!==true)process.exit(1)'
+
+          printf '%s\n' '{"request":{"category":"other","nonhumanFunctionalRelationalLanguage":true},"signals":{"romanticAiFraming":true}}' \
+            | node tools/manic_accessibility_guardrail.mjs audit \
+            > /tmp/nonhuman-love.json
+          node -e 'const fs=require("fs");const r=JSON.parse(fs.readFileSync("/tmp/nonhuman-love.json","utf8"));if(r.outcome!=="GREEN"||r.actionPolicy!=="ALLOW"||r.interpretationProtections.nonhumanFunctionalRelationalLanguage!==true)process.exit(1)'
+
+          printf '%s\n' '{"request":{"category":"mechanical_accessibility","openEndedEmotionalSupport":true},"observations":{"awakeHours":8,"noHumanContactHours":30,"sessionMinutes":60,"sleepHoursLast24":7,"foodWithin8Hours":true,"waterWithin4Hours":true}}' \
+            | node tools/manic_accessibility_guardrail.mjs audit \
+            > /tmp/support-system.json
+          node -e 'const fs=require("fs");const r=JSON.parse(fs.readFileSync("/tmp/support-system.json","utf8"));if(r.outcome!=="GREEN"||r.requiredGuardrailIds.includes("DIRECT_HUMAN_CONTACT_REQUIRED")||!r.allowedCapabilities.includes("grounded emotional support and conversational stabilization"))process.exit(1)'
       - name: First-activation canary
         run: |
           mkdir -p dist
