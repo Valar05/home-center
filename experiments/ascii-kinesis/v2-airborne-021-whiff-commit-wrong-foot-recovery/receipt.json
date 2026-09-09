@@ -1,7 +1,7 @@
 {
-  "closure_commit": null,
+  "closure_commit": "2c619393798b6c93c31fb18858d0b8ef8c4d2a62",
   "contract": {
-    "boundary": "candidate-isolated exact official validator; no full-repository checkout claimed",
+    "boundary": "candidate-isolated exact official validator; no full-repository checkout claimed; exact current-main structural readback separately verified persisted SPA",
     "result": {
       "entries_checked": [
         "v2-airborne-021-whiff-commit-wrong-foot-recovery"
@@ -13,25 +13,48 @@
   },
   "drew_accepted": false,
   "experiment_id": "v2-airborne-021-whiff-commit-wrong-foot-recovery",
-  "issue_343_receipt": null,
-  "media_sha256": "f6e9ad303ad63aaa65e0a6c3e39359438ef7fa36d43363fdcf7fd45a85b86a23",
+  "issue_343_receipt": 5595790946,
+  "media": {
+    "bytes": 11960,
+    "codec": "H.264",
+    "decode": "PASS",
+    "fps": 24,
+    "frames": 69,
+    "height": 270,
+    "pixel_format": "yuv420p",
+    "sha256": "f6e9ad303ad63aaa65e0a6c3e39359438ef7fa36d43363fdcf7fd45a85b86a23",
+    "width": 480
+  },
   "quality": {
     "noodle_queen": "PASS",
     "tango": "PASS"
   },
+  "repo_readback": {
+    "build_py_blob": "982deadcac3f8f617e041e767919bddbccc12ca9",
+    "contact_sheet_blob": "df32a267ec13551e3574f2300b81f5bb22a68a94",
+    "manifest_blob": "3e4470da685a8004516eeade041c28e2f303d3ed",
+    "motion_json_blob": "35dd3169604b1aa825035ce763b76ca9d64ed95c",
+    "spa_blob": "03230fbd6c26d51e3f1dc15ee61a74a842513c9a"
+  },
   "schema": "ascii-kinesis.receipt.v2",
-  "status": "QUALITY_GATES_PASS_MEDIA_DECODE_PASS_CONTRACT_PASS_REPO_PERSIST_PENDING",
+  "source": {
+    "asset_id": "36303",
+    "provider": "The Spriters Resource",
+    "source_authentic_timing": "UNKNOWN",
+    "timing_provenance": "INFERRED / STREET_FIGHTER-CAPCOM"
+  },
+  "status": "HEALTHY_USER_SURFACED",
   "verification": {
     "contract_candidate_isolated": true,
     "current_main_inventory_no_preexisting_021": true,
     "github_persistence": true,
     "home_center_campaign_read": true,
-    "issue_receipt": false,
+    "issue_receipt": true,
     "media_decode": true,
     "noodle_queen_current_worker": true,
-    "repo_readback": false,
+    "repo_readback": true,
     "source_from_authoritative_campaign": true,
     "tango_current_worker": true,
-    "three_part_chat_delivery": false
+    "three_part_chat_delivery": true
   }
 }
