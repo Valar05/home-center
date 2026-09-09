@@ -1,0 +1,72 @@
+name: Vanguard Overlay Selfhost Build
+
+on:
+  push:
+    branches:
+      - campaign/vanguard-overlay-resurrection
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vanguard-overlay-selfhost-build
+  cancel-in-progress: true
+
+jobs:
+  build-current-pocket-overlay:
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact campaign head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          lfs: false
+
+      - name: Prove THECAULDRON and exact source
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:COMPUTERNAME -ine 'THECAULDRON') {
+            throw "Wrong self-hosted body: $env:COMPUTERNAME"
+          }
+          $head = (git rev-parse HEAD).Trim()
+          if ($head -ne $env:GITHUB_SHA) {
+            throw "Checkout SHA mismatch expected=$env:GITHUB_SHA actual=$head"
+          }
+          Write-Host "THECAULDRON_SOURCE=$head"
+
+      - name: Run Pocket overlay source contract
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          python tools/vanguard_pocket_overlay_contract_test.py
+
+      - name: Build with durable Home Center signer
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:GITHUB_WORKSPACE 'build/vanguard-pocket-overlay'
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          & ./tools/build_operator_overlay_signed.ps1 `
+            -RepositoryRoot $env:GITHUB_WORKSPACE `
+            -ExpectedSourceSha $env:GITHUB_SHA `
+            -OutputDirectory $out
+          $receipt = Get-Content (Join-Path $out 'operator-overlay-receipt.json') -Raw | ConvertFrom-Json
+          if (-not $receipt.sha256 -or -not $receipt.signingCertificateSha256) {
+            throw 'Build receipt is missing APK or signing identity.'
+          }
+          Write-Host ("APK_SHA256=" + $receipt.sha256)
+          Write-Host ("APK_SIGNER=" + $receipt.signingCertificateSha256)
+
+      - name: Upload current signed overlay
+        uses: actions/upload-artifact@v4
+        with:
+          name: vanguard-pocket-overlay-${{ github.sha }}
+          path: |
+            build/vanguard-pocket-overlay/operator-overlay-debug.apk
+            build/vanguard-pocket-overlay/operator-overlay-receipt.json
+          if-no-files-found: error
+          retention-days: 7
