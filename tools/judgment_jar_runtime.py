@@ -14,8 +14,14 @@ from judgment_jar_common import CONFIG_PATH, read_config
 from judgment_jar_task_router import task_source_packet
 
 
-def active_jars(task: str | None = None, limit: int | None = None) -> str:
-    """Return the bounded default packet plus any freshly resolved task Jar sources."""
+def active_jars(task: str | int | None = None, limit: int | None = None) -> str:
+    """Return the bounded default packet plus any freshly resolved task Jar sources.
+
+    Before task-aware routing this function accepted one positional integer limit.
+    Preserve that call shape so the repair does not break existing carriers.
+    """
+    if isinstance(task, int) and not isinstance(task, bool) and limit is None:
+        limit, task = task, None
     config = read_config(CONFIG_PATH)
     runtime = dict(config.get("runtime") or {})
     selected = [str(value) for value in runtime.get("defaultPhoneJarIds") or [] if str(value).strip()]
