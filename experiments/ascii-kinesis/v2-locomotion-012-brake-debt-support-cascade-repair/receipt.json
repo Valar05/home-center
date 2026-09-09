@@ -1,0 +1,64 @@
+{
+  "schema": "ascii-kinesis.swarm-receipt.v2",
+  "experiment_id": "v2-locomotion-012-brake-debt-support-cascade-repair",
+  "status": "REPO_PERSIST_PENDING",
+  "repo_path": "experiments/ascii-kinesis/v2-locomotion-012-brake-debt-support-cascade-repair/",
+  "repository": "Valar05/home-center",
+  "lineage": {
+    "revises": "experiments/ascii-kinesis/v2-locomotion-005-brake-debt-support-cascade/",
+    "negative_fixture": "experiments/ascii-kinesis/v2-locomotion-005-brake-debt-support-cascade/",
+    "predecessor_preserved": true,
+    "source_change": false,
+    "repair_queue": "next-oldest after HEALTHY Locomotion011 closure 5595532843"
+  },
+  "source": {
+    "identity": "Sonic the Hedgehog — Sonic the Hedgehog — Sega Genesis",
+    "asset_id": 21628,
+    "url": "https://www.spriters-resource.com/sega_genesis/sonicth1/asset/21628/",
+    "source_change": false
+  },
+  "liveness": {
+    "home_center_campaign_read": true,
+    "github_persistence_readback": true
+  },
+  "quality": {
+    "tango": "PASS",
+    "noodle_queen": "PASS",
+    "actual_render_inspected": true
+  },
+  "media": {
+    "authoritative": "embedded_mp4_in_spa",
+    "sha256": "6c511e40f567d0d992eb2340e12becb76e8d521439c06dd288e1f1b1244dfe65",
+    "bytes": 29928,
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 960,
+    "height": 520,
+    "fps": 24,
+    "frames": 41
+  },
+  "contract": {
+    "official_validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "candidate_isolated": "PASS",
+    "full_repo_runtime_claimed": false
+  },
+  "verification": {
+    "repo_readback": false,
+    "media_decode": true,
+    "three_part_chat_delivery": false
+  },
+  "issue_receipt": null,
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "FIX ARC",
+    "FIX SUPPORT",
+    "FIX RECOVERY",
+    "FIX SECONDARY LAG",
+    "RERUN"
+  ]
+}
