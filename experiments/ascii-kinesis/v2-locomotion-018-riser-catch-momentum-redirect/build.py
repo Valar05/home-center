@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import base64, json, math, subprocess, hashlib, html
+import base64, json, math, subprocess, hashlib, html, gzip
 from pathlib import Path
 from PIL import Image, ImageDraw
 
@@ -107,14 +107,9 @@ def ascii_pose(k):
         x=terr[i]["x0"]; ya=terr[i-1]["y"]; yb=terr[i]["y"]
         a=to_grid((x,ya)); b=to_grid((x,yb)); grid_line(grid,*a,*b,"#")
     p=body_points(k)
-    for a,b,ch in [
-        ("root","chest","|"),("left_sh","left_elbow","/"),("left_elbow","left_hand","/"),
-        ("right_sh","right_elbow","\\"),("right_elbow","right_hand","\\"),
-        ("root","left_knee","/"),("left_knee","left_foot","/"),
-        ("root","right_knee","\\"),("right_knee","right_foot","\\")]:
+    for a,b,ch in [("root","chest","|"),("left_sh","left_elbow","/"),("left_elbow","left_hand","/"),("right_sh","right_elbow","\\"),("right_elbow","right_hand","\\"),("root","left_knee","/"),("left_knee","left_foot","/"),("root","right_knee","\\"),("right_knee","right_foot","\\")]:
         aa=to_grid(p[a]); bb=to_grid(p[b]); grid_line(grid,*aa,*bb,ch)
-    for nm,ch in [("head","O"),("chest","T"),("root","@"),("left_foot","_"),("right_foot","_"),
-                  ("left_hand","o"),("right_hand","o")]:
+    for nm,ch in [("head","O"),("chest","T"),("root","@"),("left_foot","_"),("right_foot","_"),("left_hand","o"),("right_hand","o")]:
         x,y=to_grid(p[nm])
         if 0<=y<24 and 0<=x<64: grid[y][x]=ch
     for side in ("left","right"):
@@ -138,32 +133,25 @@ def make_contact_sheet():
     return "\n".join(out).rstrip()+"\n"
 
 def make_spa(ascii_text, motion_text, mp4_bytes):
-    a=html.escape(ascii_text); j=html.escape(motion_text); b64=base64.b64encode(mp4_bytes).decode("ascii")
+    ab64=base64.b64encode(gzip.compress(ascii_text.encode("utf-8"),mtime=0)).decode("ascii")
+    jb64=base64.b64encode(gzip.compress(motion_text.encode("utf-8"),mtime=0)).decode("ascii")
+    vb64=base64.b64encode(mp4_bytes).decode("ascii")
     title="ASCII Kinesis V2 · Locomotion 018 · Riser Catch Momentum Redirect"
-    return f'''<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{title}</title>
-<style>
-:root{{color-scheme:dark}}body{{margin:0;background:#0f1114;color:#edf0f3;font-family:system-ui,sans-serif}}
-header{{padding:14px 18px;border-bottom:1px solid #343943}}h1{{font-size:18px;margin:0 0 10px}}
+    return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{title}</title><style>
+:root{{color-scheme:dark}}body{{margin:0;background:#0f1114;color:#edf0f3;font-family:system-ui,sans-serif}}header{{padding:14px 18px;border-bottom:1px solid #343943}}
 nav{{display:flex;gap:8px}}button{{font:inherit;padding:7px 12px;background:#1a1e24;color:inherit;border:1px solid #4a515d;border-radius:6px}}
 button[aria-selected="true"]{{background:#303641}}main{{padding:14px 18px}}section[hidden]{{display:none}}
 pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.05;border:1px solid #343943;padding:12px;max-height:78vh}}
-video{{display:block;width:min(100%,960px);height:auto;background:#000;border:1px solid #343943}}
-.meta{{font-family:ui-monospace,monospace;font-size:12px;margin:0 0 10px;color:#b7bec8}}
-</style></head><body>
-<header><h1>{title}</h1><nav>
-<button data-view="ascii" aria-selected="true">ASCII</button>
-<button data-view="json" aria-selected="false">JSON</button>
-<button data-view="video" aria-selected="false">VIDEO</button>
-</nav></header><main>
-<section id="ascii"><pre>{a}</pre></section>
-<section id="json" hidden><pre>{j}</pre></section>
-<section id="video" hidden><p class="meta">authoritative embedded H.264/yuv420p · abstract ASCII rig only</p>
-<video controls loop muted playsinline src="data:video/mp4;base64,{b64}"></video></section>
-</main><script>
-const buttons=[...document.querySelectorAll('button[data-view]')];
-for(const b of buttons)b.addEventListener('click',()=>{{for(const q of buttons)q.setAttribute('aria-selected',q===b?'true':'false');for(const s of document.querySelectorAll('main section'))s.hidden=s.id!==b.dataset.view;}});
+video{{display:block;width:min(100%,960px);height:auto;background:#000;border:1px solid #343943}}</style></head><body>
+<header><h1>{title}</h1><nav><button data-view="ascii" aria-selected="true">ASCII</button><button data-view="json" aria-selected="false">JSON</button><button data-view="video" aria-selected="false">VIDEO</button></nav></header>
+<main><section id="ascii"><pre id="ascii-pre">loading exact persisted ASCII…</pre></section><section id="json" hidden><pre id="json-pre">loading exact persisted JSON…</pre></section>
+<section id="video" hidden><video controls loop muted playsinline src="data:video/mp4;base64,{vb64}"></video></section></main>
+<script>
+const A="{ab64}",J="{jb64}";
+async function gunzip64(s){{const b=Uint8Array.from(atob(s),c=>c.charCodeAt(0));const ds=new DecompressionStream("gzip");return await new Response(new Blob([b]).stream().pipeThrough(ds)).text();}}
+Promise.all([gunzip64(A),gunzip64(J)]).then(([a,j])=>{{document.getElementById("ascii-pre").textContent=a;document.getElementById("json-pre").textContent=j;}});
+const buttons=[...document.querySelectorAll('button[data-view]')];for(const b of buttons)b.addEventListener('click',()=>{{for(const q of buttons)q.setAttribute('aria-selected',q===b?'true':'false');for(const x of document.querySelectorAll('main section'))x.hidden=x.id!==b.dataset.view;}});
 </script></body></html>
 '''
 
@@ -177,18 +165,10 @@ def main():
             idx += 1
     if idx != int(MOTION["timing"]["total_frames"]):
         raise SystemExit(f"frame count mismatch {idx}")
-    cmd=["ffmpeg","-hide_banner","-loglevel","error","-y","-framerate",str(FPS),"-i",str(FRAMES_DIR/"frame-%04d.png"),
-         "-an","-c:v","libx264","-pix_fmt","yuv420p","-preset","veryslow","-crf","28",
-         "-movflags","+faststart","-map_metadata","-1","-metadata","creation_time=1970-01-01T00:00:00Z",
-         "-threads","1",str(MP4)]
+    cmd=["ffmpeg","-hide_banner","-loglevel","error","-y","-framerate",str(FPS),"-i",str(FRAMES_DIR/"frame-%04d.png"),"-an","-c:v","libx264","-pix_fmt","yuv420p","-preset","veryslow","-crf","28","-movflags","+faststart","-map_metadata","-1","-metadata","creation_time=1970-01-01T00:00:00Z","-threads","1",str(MP4)]
     subprocess.run(cmd,check=True)
-    ascii_text=make_contact_sheet()
-    ASCII.write_text(ascii_text,encoding="utf-8")
-    motion_text=(HERE/"motion.json").read_text(encoding="utf-8")
-    mp4=MP4.read_bytes()
+    ascii_text=make_contact_sheet(); ASCII.write_text(ascii_text,encoding="utf-8")
+    motion_text=(HERE/"motion.json").read_text(encoding="utf-8"); mp4=MP4.read_bytes()
     SPA.write_text(make_spa(ascii_text,motion_text,mp4),encoding="utf-8")
-    print(json.dumps({"frames":idx,"fps":FPS,"mp4_bytes":len(mp4),"mp4_sha256":hashlib.sha256(mp4).hexdigest(),
-                      "ascii_sha256":hashlib.sha256(ascii_text.encode()).hexdigest(),
-                      "motion_sha256":hashlib.sha256(motion_text.encode()).hexdigest(),
-                      "spa_sha256":hashlib.sha256(SPA.read_bytes()).hexdigest()},sort_keys=True))
+    print(json.dumps({"frames":idx,"fps":FPS,"mp4_bytes":len(mp4),"mp4_sha256":hashlib.sha256(mp4).hexdigest(),"ascii_sha256":hashlib.sha256(ascii_text.encode()).hexdigest(),"motion_sha256":hashlib.sha256(motion_text.encode()).hexdigest(),"spa_sha256":hashlib.sha256(SPA.read_bytes()).hexdigest()},sort_keys=True))
 if __name__=="__main__": main()
