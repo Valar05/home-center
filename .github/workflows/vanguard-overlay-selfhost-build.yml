@@ -113,14 +113,7 @@ jobs:
 
           cp "$APK" "$OUT/operator-overlay-debug.apk"
           if command -v python3 >/dev/null 2>&1; then PY=python3; else PY=python; fi
-          "$PY" - "$OUT/operator-overlay-debug.apk" "$OUT/operator-overlay-receipt.json" "$SOURCE_SHA" "$APK_CERT" <<'PY'
-import hashlib,json,pathlib,sys,time
-apk,out,source,cert=sys.argv[1:]
-b=pathlib.Path(apk).read_bytes()
-obj={"schemaVersion":"home-center.operator-overlay-build.v3-selfhost","package":"com.homecenter.operatoroverlay","sourceCommit":source,"artifact":"operator-overlay-debug.apk","sha256":hashlib.sha256(b).hexdigest(),"byteCount":len(b),"signingCertificateSha256":cert,"durableSigningKey":True,"sourceContractPassed":True,"builtAtMs":int(time.time()*1000),"installed":False,"deploymentEvidence":False}
-pathlib.Path(out).write_text(json.dumps(obj,indent=2,sort_keys=True)+"\n",encoding="utf-8")
-print(json.dumps(obj,sort_keys=True))
-PY
+          "$PY" -c 'import hashlib,json,pathlib,sys,time; apk,out,source,cert=sys.argv[1:]; b=pathlib.Path(apk).read_bytes(); obj={"schemaVersion":"home-center.operator-overlay-build.v3-selfhost","package":"com.homecenter.operatoroverlay","sourceCommit":source,"artifact":"operator-overlay-debug.apk","sha256":hashlib.sha256(b).hexdigest(),"byteCount":len(b),"signingCertificateSha256":cert,"durableSigningKey":True,"sourceContractPassed":True,"builtAtMs":int(time.time()*1000),"installed":False,"deploymentEvidence":False}; pathlib.Path(out).write_text(json.dumps(obj,indent=2,sort_keys=True)+"\n",encoding="utf-8"); print(json.dumps(obj,sort_keys=True))' "$OUT/operator-overlay-debug.apk" "$OUT/operator-overlay-receipt.json" "$SOURCE_SHA" "$APK_CERT"
 
       - name: Validate build receipt
         shell: bash
