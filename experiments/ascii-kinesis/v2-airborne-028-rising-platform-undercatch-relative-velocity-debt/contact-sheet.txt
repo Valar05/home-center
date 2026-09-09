@@ -55,6 +55,7 @@ K1 REAR_HEEL_LOAD | FOURS INFERRED | support=LEFT_DOMINANT_FIXED
 
 
 
+
           O
        x  |
         / /o\\
@@ -112,6 +113,7 @@ K3 LONG_DIAGONAL_FLIGHT | TWOS INFERRED | support=NONE
 
 
 
+
                           O
                           |
                           o\\\o\\
@@ -130,12 +132,14 @@ K3 LONG_DIAGONAL_FLIGHT | TWOS INFERRED | support=NONE
 
 
 
+
                                             [===========]
 L                                                 ^>
 __________________
 
 
 K4 APEX_OPEN | FOURS INFERRED | support=NONE
+
 
 
 
@@ -214,6 +218,7 @@ K6 UNDERCATCH_PRECONTACT | TWOS INFERRED | support=NONE
 
 
 
+
                                            O
                                             |
                                             o\
@@ -233,6 +238,7 @@ __________________
 
 
 K7 LEAD_TOE_UNDERCATCH | ONES INFERRED | support=RIGHT_TOE_MOVING_PLATFORM
+
 
 
 
@@ -309,6 +315,7 @@ K9 PLATFORM_CARRY_OVERSHOOT | TWOS INFERRED | support=RIGHT_FOOT_MOVING_PLATFORM
 
 
 
+
                                                 O
                                                 |
                                                  o\\
@@ -331,6 +338,7 @@ __________________
 
 
 K10 TRAIL_HEEL_SHEAR_CATCH | ONES INFERRED | support=DUAL_MOVING_SHEAR
+
 
 
 
