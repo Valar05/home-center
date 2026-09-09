@@ -1,0 +1,396 @@
+ASCII KINESIS V2 STRIKES014 — OFFHAND COUNTERTORQUE / IMPACT DEBT
+SOURCE ART: NOT EMBEDDED | RIG: ABSTRACT ASCII ONLY | SOURCE TIMING: UNKNOWN | AUTHORED TIMING: INFERRED / STREET_FIGHTER-CAPCOM
+POCKET: IMPACT TORQUE CAN BE PAID BY THE NON-STRIKING SIDE BEFORE THE STRIKING LIMB RECOVERS.
+LEGEND: * offhand/countertorque hand | # striking hand | > implement tip | | abstract target plane | X explicit impact
+
+K00 OFFSET_READY | FOURS | INFERRED | SUPPORT=BOTH_FEET_STAGGERED | CONTACT=NONE
+ROOT/ARC: Root starts left of target with lead foot forward; offhand occupies forward negative space.
+ROLE: Readable asymmetric baseline; striking hand is rear/low and offhand is forward/high.
+
+
+
+
+
+
+                                                    |
+                                                    |
+                                                    |
+                           o                        |
+                           |                        |
+                      *-   |                        |
+                        -+ + +                      |
+                           |  -o                    |
+                           |   |                    |
+                          |    #-                   |
+                          |      --                 |
+                          @        ->               |
+                        -- --                       |
+                       /     \
+                      o       o
+                      |       |
+                      |       |
+  ____________________/_______\_______________________________
+
+K01 REAR_COIL | FOURS | INFERRED | SUPPORT=REAR_FOOT_DOMINANT | CONTACT=NONE
+ROOT/ARC: Root shifts back/down one cell while chest counter-rotates; rear foot owns load.
+ROLE: Specific asymmetrical coil: striking side winds behind pelvis while offhand reaches forward as counterweight.
+
+
+
+
+
+
+                                                    |
+                                                    |
+                                                    |
+                                                    |
+                    *    o                          |
+                    o    |                          |
+                     \\  |                          |
+                       + + +-                       |
+                         |   -o                     |
+                         |     |                    |
+                        |      #-                   |
+                        |        ----               |
+                        @            ->             |
+                      -- --
+                     /     \
+                    o       o
+                     |       |
+  ___________________/_______\________________________________
+
+K02 COUNTERWIND_LOAD | TWOS | INFERRED | SUPPORT=REAR_FOOT_DOMINANT | CONTACT=NONE
+ROOT/ARC: Pelvis stays back as chest rises; implement head climbs while offhand remains long.
+ROLE: Separates offhand counterweight from strike hand load before directional commitment.
+
+
+
+
+
+
+                                                    |
+                                                    |
+                                                    |
+                    *     o                         |
+                     o    |                         |
+                      \\  |                         |
+                        + + +-        -->           |
+                          |   -o  ----              |
+                         |      #-                  |
+                         |                          |
+                         |                          |
+                        |                           |
+                        @                           |
+                      -- --
+                     /     \
+                    o       o
+                     |       |
+  ___________________/_______\________________________________
+
+K03 DIAGONAL_ENTRY | ONES | INFERRED | SUPPORT=REAR_TO_LEAD_TRANSFER | CONTACT=NONE
+ROOT/ARC: Root advances first; lead foot opens and chest follows one beat behind.
+ROLE: Root earns the strike before the implement closes the target line.
+
+
+
+
+
+
+                                                    |
+                                                    |
+                                                    |
+                             o                      |
+                        *    |             ->       |
+                        o-   |          ---         |
+                          -+ + +--o   --            |
+                             |     -#-              |
+                             |                      |
+                            |                       |
+                            |                       |
+                            @                       |
+                          -- --                     |
+                         /     \
+                        o       o
+                        |       |
+                        |       |
+  ______________________/_______\_____________________________
+
+K04 PRECONTACT_GAP | TWOS | INFERRED | SUPPORT=LEAD_FOOT_ACQUIRING | CONTACT=NONE
+ROOT/ARC: Lead support accepts weight while root still travels; implement tip holds a visible two-cell gap.
+ROLE: Distinct precontact silhouette; no target contact yet and contact is not terminal reach.
+
+
+
+
+
+
+                                                    |
+                                                    |
+                                                    |
+                                o                   |
+                                |                -> |
+                           *-   |            ----   |
+                             -+ + +---o   ---       |
+                                |      -#-          |
+                                |                   |
+                               |                    |
+                               |                    |
+                               @                    |
+                             -- --                  |
+                            /     |
+                           o      o
+                           |      |
+                           |      |
+  _________________________/______\___________________________
+
+K05 IMPACT | TWOS | INFERRED | SUPPORT=LEAD_FOOT_BRACED | CONTACT=IMPLEMENT_TARGET_CONTACT
+ROOT/ARC: Root advances only one cell into contact; lead leg braces and torso continues to wind.
+ROLE: Explicit contact instant/hold before farthest implement reach. Offhand begins crossing inward to catch torque.
+
+
+
+
+
+
+                                                    |
+                                                    |
+                                                    |
+                                  o                 |
+                                  |                 |
+                                  |               --X
+                              o*+ + +---o    -----  |
+                                  |      -#--       |
+                                 |                  |
+                                 |                  |
+                                |                   |
+                                @                   |
+                              -- --                 |
+                             /     |
+                            o      o
+                            |      |
+                            |      |
+  __________________________/______\__________________________
+
+K06 OFFHAND_COUNTERTORQUE_CATCH | TWOS | INFERRED | SUPPORT=LEAD_FOOT_BRACED | CONTACT=RELEASED_AFTER_CONTACT
+ROOT/ARC: Root/chest overrun slightly forward while offhand crosses the torso opposite the strike.
+ROLE: Contralateral hand crosses the sternum and clamps on the striking side, visibly catching rotational debt while the implement overshoots.
+
+
+
+
+
+
+                                                    |
+                                                    |
+                                                    |
+                                                    |
+                                    o               |
+                                    |               |
+                                    |               |
+                                  + + +--o       ---|-->
+                                   -o-    -#-----   |
+                                   |  --*           |
+                                   |                |
+                                  |                 |
+                                  @                 |
+                                -- --
+                              //     |
+                             o       o
+                             |      |
+  ___________________________/______\_________________________
+
+K07 TORSION_OVERSHOOT | TWOS | INFERRED | SUPPORT=LEAD_FOOT_DEEP_BRACE | CONTACT=NONE
+ROOT/ARC: Pelvis drops into lead support; chest yaw passes the pelvis while implement tip drifts high/right.
+ROLE: Cross-body clamp survives the implement's high/right overshoot; tool and offhand now carry different post-impact debts.
+
+
+
+
+
+
+                                                    |
+                                                    |
+                                                    |
+                                                    |
+                                      o             | -->
+                                      |           --|-
+                                      |       ----  |
+                                    + + +--o#-      |
+                                     o|             |
+                                     |--            |
+                                     |  -*          |
+                                    |               |
+                                    |               |
+                                   @
+                                --- --
+                              o-      o
+                              |      |
+  ____________________________/______\________________________
+
+K08 ROOT_RECOIL_LEADS | TWOS | INFERRED | SUPPORT=LEAD_FOOT_TO_DUAL_CATCH | CONTACT=NONE
+ROOT/ARC: Root begins retreat before the implement; torso comes back while tip remains extended.
+ROLE: Pelvis/root recoil leads while the offhand remains cross-body and the implement remains long; neither secondary channel reverse-interpolates.
+
+
+
+
+
+
+                                                    |
+                                                    |
+                                                    |
+                                                    |
+                                   o                |
+                                   |                |->
+                                   |             ---|
+                                 + + +---o   ----   |
+                                  -o-     -#-       |
+                                  |  --*            |
+                                  |                 |
+                                 |                  |
+                                 @                  |
+                               -- --
+                              /     \
+                             o       o
+                             |       |
+  ___________________________/_______\________________________
+
+K09 IMPLEMENT_LAG_REPAY | TWOS | INFERRED | SUPPORT=BOTH_FEET_CATCHING | CONTACT=NONE
+ROOT/ARC: Support widens; tool finally trails back while offhand still guards the torque channel.
+ROLE: Secondary lag moves from root to implement; negative space reopens unevenly.
+
+
+
+
+
+
+                                                    |
+                                                    |
+                                                    |
+                                                    |
+                                o                   |
+                                |                   |
+                                |                   |
+                              + + +-                |
+                               -o-  -o              |
+                                | --* -#--          |
+                               |          ----      |
+                               |              -->   |
+                               @                    |
+                             -- --
+                            /     \\
+                           o        o
+                           |         \
+  _________________________/__________\_______________________
+
+K10 OFFHAND_RELEASE_LAG | TWOS | INFERRED | SUPPORT=BOTH_FEET_BRACED | CONTACT=NONE
+ROOT/ARC: Root is stable but offhand releases later than the implement, preserving contralateral debt.
+ROLE: Offhand is the last major body channel to unwind; it does not mirror the initial reach.
+
+
+
+
+
+
+                                                    |
+                                                    |
+                                                    |
+                               o                    |
+                               |                    |
+                               |                    |
+                            o* + +-                 |
+                               |   -o               |
+                               |     |              |
+                              |      #-             |
+                              |        --           |
+                              @          --         |
+                            -- --          ->       |
+                           /     \\
+                          o        o
+                          |         \
+                           |        \
+  _________________________/_________\________________________
+
+K11 SUPPORT_RESTACK_DISPLACED | TWOS | INFERRED | SUPPORT=LEAD_AND_REAR_RESTACK | CONTACT=NONE
+ROOT/ARC: Rear foot steps under a root that remains forward of the starting address.
+ROLE: Support catches remaining torque without returning to the original stance.
+
+
+
+
+
+
+                                                    |
+                                                    |
+                                                    |
+                              o                     |
+                           *  |                     |
+                          o-  |                     |
+                            + + +                   |
+                              |  -o                 |
+                              |    #-               |
+                              |      ---            |
+                              |         ->          |
+                              @                     |
+                            -- --                   |
+                           /     \
+                          o       o
+                          |       |
+                           |       |
+  _________________________/_______\__________________________
+
+K12 SECONDARY_SETTLE | TWOS | INFERRED | SUPPORT=BOTH_FEET_STABLE | CONTACT=NONE
+ROOT/ARC: Chest settles past root then recenters; tool tip makes a small delayed downward settle.
+ROLE: Small authored overshoot/settle prevents a hard snap to ready.
+
+
+
+
+
+
+                                                    |
+                                                    |
+                                                    |
+                             o                      |
+                             |                      |
+                         o*  |                      |
+                           + + +                    |
+                             |  -o                  |
+                             |    #                 |
+                              |    --               |
+                              |      --             |
+                              @        ->           |
+                            -- --                   |
+                           /     \
+                          o       o
+                          |       |
+                           |       |
+  _________________________/_______\__________________________
+
+K13 DISPLACED_REENTRY | FOURS | INFERRED | SUPPORT=BOTH_FEET_STAGGERED | CONTACT=NONE
+ROOT/ARC: Ready returns three to four cells forward of K00 with a narrower rear-side implement pocket.
+ROLE: Recovery debt is paid at a new address; silhouette echoes readiness without resetting to idle.
+
+
+
+
+
+
+                                                    |
+                                                    |
+                                                    |
+                               o                    |
+                               |                    |
+                           *-  |                    |
+                             + + +                  |
+                               |  -o                |
+                               |   #-               |
+                              |      ---            |
+                              |         ->          |
+                              @                     |
+                            -- --                   |
+                           /     \
+                          o       o
+                          |       |
+                           |       |
+  _________________________/_______\__________________________
