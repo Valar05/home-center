@@ -1,14 +1,74 @@
 {
-  "schema":"ascii-kinesis.receipt.v2",
-  "experiment_id":"v2-strikes-010-midshaft-contact-repivot-debt",
-  "status":"QUALITY_GATES_PASS_REPO_PERSIST_PENDING_READBACK",
-  "current_worker_liveness":{"home_center_campaign":"PASS","github_persistence_readback":"PASS","campaign_id":"1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s","issue_343":"PASS","reset_comment":5576901079,"strikes009_user_surface_closure":5596570107,"strikes009_final_readback_addendum":5598056339,"manager_reconciliation":5599453212},
-  "ownership":{"one_body_rule":"BIND_THIS_010_UNTIL_HEALTHY","source_asset_id":23976,"source_family":"Donatello — Teenage Mutant Ninja Turtles: Tournament Fighters — SNES","strikes011_forbidden":true},
-  "quality":{"tango_round_0":"REVISE_REQUIRED — K7 fixed MID_SHAFT_PIN missed the rendered shaft by one ASCII cell","same_body_mutation":"K7 tool_butt [25,17]→[25,20], left_hand [33,15]→[33,17], right_hand [37,14]→[37,15]","tango_round_1":"PASS_CURRENT_WORKER_ACTUAL_RENDER","noodle_queen":"PASS_CURRENT_WORKER_ACTUAL_RENDER","drew_accepted":false},
-  "media":{"sha256":"8f86fabfb37ad06b3b829ea83f216f4c4b3f94fe866bec82ded6a193f61d4c45","bytes":18066,"codec":"h264","pix_fmt":"yuv420p","width":880,"height":440,"fps":24,"frames":53,"decode":"PASS"},
-  "contract":{"candidate_isolated_official_validator":"PASS","repo_wide_validator":"NOT_EXECUTED_NO_FULL_CHECKOUT_IN_STANDARD_CHAT_CONSTRUCTION; NO_GLOBAL_PASS_CLAIM"},
-  "repo":{"persistence":"WRITTEN_PENDING_EXACT_READBACK","readback":"PENDING","final_readback":"PENDING","expected_files":["build.py","motion.json","contact_sheet.txt","manifest.json","receipt.json","midshaft-contact-repivot-debt.motion.html"],"exactly_one_motion_html":true},
-  "issue_343":{"pre_chat_receipt":null,"user_surface_closure":null,"final_readback_addendum":null},
-  "chat_delivery":{"part_1_ascii":false,"part_2_json":false,"part_3_visible_video":false,"ordered":false},
-  "next_authorized":null
+  "schema": "ascii-kinesis.receipt.v2",
+  "experiment_id": "v2-strikes-010-midshaft-contact-repivot-debt",
+  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
+  "current_worker_liveness": {
+    "home_center_campaign": "PASS",
+    "github_persistence_readback": "PASS",
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "issue_343": "PASS",
+    "reset_comment": 5576901079,
+    "strikes009_user_surface_closure": 5596570107,
+    "strikes009_final_readback_addendum": 5598056339,
+    "manager_reconciliation": 5599453212
+  },
+  "ownership": {
+    "one_body_rule": "BIND_THIS_010_UNTIL_HEALTHY",
+    "source_asset_id": 23976,
+    "source_family": "Donatello — Teenage Mutant Ninja Turtles: Tournament Fighters — SNES",
+    "source_timing": "UNKNOWN_STATIC_SHEET",
+    "authored_timing": "INFERRED_STREET_FIGHTER_CAPCOM",
+    "strikes011_forbidden": true
+  },
+  "quality": {
+    "prior_same_body_tango_r0": "REVISE_REQUIRED — K7 fixed MID_SHAFT_PIN missed rendered shaft by one ASCII cell",
+    "prior_same_body_mutation": "K7 tool_butt [25,17]→[25,20], left_hand [33,15]→[33,17], right_hand [37,14]→[37,15]",
+    "current_worker_tango": "PASS_BYTE_IDENTICAL_ACTUAL_53_FRAME_RENDER_REINSPECTION",
+    "current_worker_noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_ON_SAME_RENDER",
+    "drew_accepted": false
+  },
+  "media": {
+    "sha256": "8f86fabfb37ad06b3b829ea83f216f4c4b3f94fe866bec82ded6a193f61d4c45",
+    "bytes": 18066,
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 880,
+    "height": 440,
+    "fps": 24,
+    "frames": 53,
+    "decode": "PASS",
+    "current_worker_reconstruction_identity": "BYTE_IDENTICAL"
+  },
+  "contract": {
+    "official_validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "candidate_isolated_official_validator": "PASS",
+    "candidate_isolated_stdout": "{\"entries_checked\":[\"v2-strikes-010-midshaft-contact-repivot-debt\"],\"ok\":true,\"schema\":\"ascii-kinesis.swarm-contract-v2-test\"}",
+    "repo_wide_validator": "NOT_EXECUTED_NO_FULL_CHECKOUT_IN_STANDARD_CHAT; NO_GLOBAL_PASS_CLAIM"
+  },
+  "repo": {
+    "persistence": "PASS_CURRENT_MAIN",
+    "readback": "PASS_CURRENT_MAIN_EXACT_SIX_FILE",
+    "final_readback": "PENDING_UNTIL_AFTER_USER_SURFACE",
+    "files": {
+      "build.py": "3e872176db6247e9bb683e57b5e2dd463f937315",
+      "contact_sheet.txt": "bcc3961cb35244cc669760cabf5c3909189ab764",
+      "manifest.json": "15094b04b4d3db35602ebfb02e800a5a109a9cfa",
+      "midshaft-contact-repivot-debt.motion.html": "3ac230e341877d37e5983855f877791a75f8f668",
+      "motion.json": "8906d6ff75a434a7d336a00aaf727031cee10726"
+    },
+    "exactly_one_motion_html": true
+  },
+  "issue_343": {
+    "pre_chat_receipt": 5600174825,
+    "user_surface_closure": null,
+    "final_readback_addendum": null
+  },
+  "chat_delivery": {
+    "part_1_ascii": false,
+    "part_2_json": false,
+    "part_3_visible_video": false,
+    "ordered": false,
+    "video_identity": null
+  },
+  "next_authorized": null
 }
