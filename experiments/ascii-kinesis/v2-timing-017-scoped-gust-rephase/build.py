@@ -17,20 +17,20 @@ def render_video():
     ]
     font_path=next((p for p in font_candidates if p.exists()),None)
     if font_path is None: raise SystemExit("monospace font unavailable")
-    font=ImageFont.truetype(str(font_path),16)
+    font=ImageFont.truetype(str(font_path),8)
     counter=0
     for k in motion["keys"]:
         for _ in range(int(k["exposure_ticks"])):
-            im=Image.new("RGB",(640,560),"white")
+            im=Image.new("RGB",(320,280),"white")
             d=ImageDraw.Draw(im)
-            d.text((18,12),f"{k['key_id']}  {k['causal_role']}  {k['timing_class']}",fill="black",font=font)
-            d.multiline_text((130,50),k["pose_rig"],fill="black",font=font,spacing=1)
+            d.text((6,4),f"{k['key_id']}  {k['causal_role']}  {k['timing_class']}",fill="black",font=font)
+            d.multiline_text((48,22),k["pose_rig"],fill="black",font=font,spacing=1)
             cs=k["channel_state"]
-            d.text((18,530),f"ROOT y={cs['BODY_ROOT']['root_y']:02d} | HAND {cs['HAND_SWAY']['state']} | CANOPY {cs['CANOPY_CLOCK']['state']}",fill="black",font=font)
+            d.text((6,266),f"ROOT y={cs['BODY_ROOT']['root_y']:02d} | HAND {cs['HAND_SWAY']['state']} | CANOPY {cs['CANOPY_CLOCK']['state']}",fill="black",font=font)
             im.save(frames_dir/f"frame_{counter:04d}.png")
             counter+=1
     out=HERE/"scoped-gust-rephase.mp4"
-    subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate","24","-i",str(frames_dir/"frame_%04d.png"),"-c:v","libx264","-pix_fmt","yuv420p","-movflags","+faststart","-crf","18",str(out)],check=True)
+    subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate","24","-i",str(frames_dir/"frame_%04d.png"),"-c:v","libx264","-pix_fmt","yuv420p","-movflags","+faststart","-crf","28",str(out)],check=True)
     return out
 
 def contact_sheet():
