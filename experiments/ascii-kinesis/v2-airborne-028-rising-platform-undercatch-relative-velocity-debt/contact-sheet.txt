@@ -15,22 +15,22 @@ K0 FIXED_LEDGE_READ | FOURS INFERRED | support=BOTH_FIXED_LEDGE
 
 
 
-       O
-        |
-        o\\
-      //|  \o
-    /o  |    \x
-   x     |
-         |
-         @
-        / \\
-       o    o
-       /     \
-      /      \
-L     =       =
-______!_______!___
-                                              [===========]
-                                                     ^>
+
+
+         O
+          |
+          o\
+       ///| \o\
+      o   |    x
+     /    |
+    x     |
+          @
+         / \\
+        o    o
+        /     \
+L      =       =                               [===========]
+_______!_______!__                                   ^>
+
 
 K1 REAR_HEEL_LOAD | FOURS INFERRED | support=LEFT_DOMINANT_FIXED
 
@@ -50,20 +50,20 @@ K1 REAR_HEEL_LOAD | FOURS INFERRED | support=LEFT_DOMINANT_FIXED
 
 
 
-        O
-        |
-    x   /o\
-     /o/ | \\\
-          |   \o
-          |     \x
-           |
-          /@
-        o/  \
-        /    o
-       /      \
-L      =       =
-_______!_______!__                           [===========]
-                                                    ^>
+
+
+          O
+       x  |
+        / /o\\
+        o/ |  \\o\
+           |      \x
+            |
+            |
+           /@
+         o/  \                                [===========]
+        /     o                                     ^>
+L       =      \=
+________!_______!_
 
 
 K2 SUPPORT_BREAK | ONES INFERRED | support=NONE
@@ -80,24 +80,24 @@ K2 SUPPORT_BREAK | ONES INFERRED | support=NONE
 
 
 
-                O
-                |
-           x/o//o\
-                | \\o\
-                |     \x
-                |
-                |
-                @
-               / \\
-              /    o
-             o      \\
-            /         =
-            /
-           =
 
-L                                           [===========]
-__________________                                 ^>
 
+                 O
+                 |
+            x/o//o\\
+                 |  \o\
+                 |     \x
+                 |
+                 |
+                 @
+                / \\
+                /   o\
+               o      \=                     [===========]
+              /                                    ^>
+             =
+
+L
+__________________
 
 
 K3 LONG_DIAGONAL_FLIGHT | TWOS INFERRED | support=NONE
@@ -108,62 +108,64 @@ K3 LONG_DIAGONAL_FLIGHT | TWOS INFERRED | support=NONE
 
 
 
-                         O
-                         |    \x
-                         o\\o\
-                       //|
-                     //  |
-                    o   |
-                   /    |
-                  x     @
-                       \ //
-                     \\    o
-                    o       /
-                  \\         =
-                 =
+
+
+                          O
+                          |
+                          o\\\o\\
+                         /|      \x
+                       // |
+                      o   |
+                     /    |
+                    x     @
+                         / \\
+                        /    o
+                       o      \\
+                     //         =
+                    =
+
+                                            [===========]
+                                                  ^>
 
 
 
 
-
-
-                                           [===========]
-L                                                 ^>
+L
 __________________
-
 
 
 K4 APEX_OPEN | FOURS INFERRED | support=NONE
 
 
-                           x
-                           /    O
-                            /   |
-                            o////o
-                                 |\
-                                |  \\
-                                |    o
-                                @\    \\
-                               /  \     x
-                             //    \o\
-                            o         \=
-                          //
-                         =
+
+
+
+                                   x
+                                  / O
+                                 o/ |
+                                   o
+                                   |\\\
+                                  |    o\
+                                  |      \x
+                                  @
+                               /// \\
+                             /o      \
+                           =/         o
+                                       \\
+                                         =
 
 
 
 
-
-
-
-
-
-                                          [===========]
+                                           [===========]
                                                  ^>
+
+
+
+
 
 L
 __________________
-
 
 
 K5 DESCENT_AIM | TWOS INFERRED | support=NONE
@@ -173,31 +175,31 @@ K5 DESCENT_AIM | TWOS INFERRED | support=NONE
 
 
 
-                                     O
-                                      |
-                                      o\\
-                                     /|  \\o\
-                                    / |      \x
-                                   o  |
-                                  /   @\\
-                                 x   /   \o
-                                     /     \
-                                    o       =
-                                    /
-                                   /
-                                   =
 
 
 
 
-                                          [===========]
-                                                 ^>
+
+                                       O
+                                        |
+                                       /o\
+                                      / | \o\
+                                    o/  |    \x
+                                   /   |
+                                  x    @
+                                      / \\
+                                    //    o
+                                   o       \\
+                                  /        [===========]
+                                 =               ^>
+
+
+
 
 
 
 L
 __________________
-
 
 
 K6 UNDERCATCH_PRECONTACT | TWOS INFERRED | support=NONE
@@ -209,28 +211,29 @@ K6 UNDERCATCH_PRECONTACT | TWOS INFERRED | support=NONE
 
 
 
-                                        O
-                                        |
-                                         o\\\\o\
-                                        /|      \x
-                                        / |
-                                       /  |
-                                      o   @
-                                     /   / \\
-                                    x    /   o
-                                        o     \
-                                        /     \
-                                       /       =
-                                       =   [===========]
-                                                  ^>
 
+
+
+
+
+                                           O
+                                            |
+                                            o\
+                                           /| \o\
+                                         // |    \x
+                                        o  |
+                                       /   @\
+                                       /  /  \o
+                                      x  /     \\
+                                        o        =
+                                       /   [===========]
+                                      =          ^>
 
 
 
 
 L
 __________________
-
 
 
 K7 LEAD_TOE_UNDERCATCH | ONES INFERRED | support=RIGHT_TOE_MOVING_PLATFORM
@@ -244,26 +247,27 @@ K7 LEAD_TOE_UNDERCATCH | ONES INFERRED | support=RIGHT_TOE_MOVING_PLATFORM
 
 
 
-                                          O
-                                          |
-                                           o\\
-                                         //|  \\o\
-                                        /   |     \x
-                                       o    |
-                                      /     @
-                                     x     / \o
-                                          /    \\
-                                         o  [===========]
-                                       //        ! ^>
-                                      =
 
 
 
+
+
+                                             O
+                                              |
+                                              o\
+                                             /| \o\
+                                           // |    \x
+                                          o  |
+                                         /   @\
+                                         /  /  \o
+                                        x  /     \
+                                          o [===========]
+                                         /        !>
+                                        =
 
 
 L
 __________________
-
 
 
 K8 RELATIVE_VELOCITY_CRUSH | FOURS INFERRED | support=RIGHT_FOOT_MOVING_PLATFORM
@@ -278,25 +282,26 @@ K8 RELATIVE_VELOCITY_CRUSH | FOURS INFERRED | support=RIGHT_FOOT_MOVING_PLATFORM
 
 
 
-                                                   x
-                                                 \\
-                                         O     \o
-                                          | \\\
-                                          o|        //=
-                                         /  |    /o/
-                                       /o    |@o/
-                                      x       [===========]
-                                                  !  ^>
 
 
 
+
+
+
+                                             O      \x
+                                              |  \o\
+                                          =  /o\\
+                                           // |
+                                          o/o/ |
+                                         /    /@\\o
+                                        x    [===========]
+                                                   !>
 
 
 
 
 L
 __________________
-
 
 
 K9 PLATFORM_CARRY_OVERSHOOT | TWOS INFERRED | support=RIGHT_FOOT_MOVING_PLATFORM
@@ -308,19 +313,21 @@ K9 PLATFORM_CARRY_OVERSHOOT | TWOS INFERRED | support=RIGHT_FOOT_MOVING_PLATFORM
 
 
 
-                                             O
-                                              |
-                                              o\
-                                           /o/ |\\
-                                          x    |  \\
-                                                |   \o\
-                                                |      \x
-                                          =/   //@\
-                                            /o/    o\
-                                                 [===========]
-                                                      ! ^>
 
 
+
+
+                                                O
+                                                |
+                                                 o\\
+                                               //|  \\o\
+                                              o   |     \x
+                                            x/    |
+                                                   |
+                                                  /@\
+                                                 /   o
+                                              /o[===========]
+                                            =/        !>
 
 
 
@@ -329,7 +336,6 @@ K9 PLATFORM_CARRY_OVERSHOOT | TWOS INFERRED | support=RIGHT_FOOT_MOVING_PLATFORM
 
 L
 __________________
-
 
 
 K10 TRAIL_HEEL_SHEAR_CATCH | ONES INFERRED | support=DUAL_MOVING_SHEAR
@@ -340,19 +346,22 @@ K10 TRAIL_HEEL_SHEAR_CATCH | ONES INFERRED | support=DUAL_MOVING_SHEAR
 
 
 
-                                                   O
-                                                    |
-                                                    o\\\
-                                                   /|   \\o\\x
-                                                 // |
-                                                o    |
-                                              x/     |
-                                                    /@\
-                                                /o//   \o\
-                                              =/     [===========]
-                                              !            !^>
 
 
+
+
+                                                       O
+                                                       |
+                                                       o\\
+                                                      /|  \o\
+                                                    // |     \x
+                                                   o   |
+                                                  /    |
+                                                 x     @
+                                                    /// \\
+                                                   o      o
+                                                 =/[===========]
+                                                 !       ^> !
 
 
 
@@ -361,7 +370,6 @@ K10 TRAIL_HEEL_SHEAR_CATCH | ONES INFERRED | support=DUAL_MOVING_SHEAR
 
 L
 __________________
-
 
 
 K11 LOADED_RISE | TWOS INFERRED | support=LEFT_DOMINANT_MOVING
@@ -372,19 +380,21 @@ K11 LOADED_RISE | TWOS INFERRED | support=LEFT_DOMINANT_MOVING
 
 
 
-                                                         O
-                                                         |
-                                                  x    //o
-                                                   /o//  |\
-                                                         | \
-                                                         |  o
-                                                         |   \
-                                                        /@\   x
-                                                      o/   \o
-                                                    =/   [===========]
-                                                    !         ! ^>
 
 
+                                                           O
+                                                          |
+                                                          o\\
+                                                        //|  \o
+                                                       o  |    \\
+                                                      /    |     x
+                                                     x     |
+                                                           @
+                                                         // \\
+                                                        o     o
+                                                       /       \
+                                                      ============]
+                                                      !     ^>  !
 
 
 
@@ -394,7 +404,6 @@ K11 LOADED_RISE | TWOS INFERRED | support=LEFT_DOMINANT_MOVING
 
 L
 __________________
-
 
 
 K12 PLATFORM_BRAKE_BODY_LAG | FOURS INFERRED | support=DUAL_MOVING_BRAKING
@@ -402,22 +411,25 @@ K12 PLATFORM_BRAKE_BODY_LAG | FOURS INFERRED | support=DUAL_MOVING_BRAKING
 
 
 
-                                                               O
+
+
+
+
+
+                                                                O
+                                                                |
+                                                              /o\
+                                                            // | \o\
+                                                         /o/   |    \x
+                                                        x     |
                                                               |
-                                                       x    //o\   \x
-                                                        /o//  | \o\
-                                                             |
-                                                             |
-                                                             |
-                                                            |
-                                                           /@\
-                                                         o/   \o
-                                                        /       \
-                                                       =    [===========]
-                                                       !         ! ^>
-
-
-
+                                                              @
+                                                            // \\
+                                                           o     o
+                                                          /       \
+                                                          /       \
+                                                        [===========]
+                                                         !    ^>   !
 
 
 
@@ -426,7 +438,6 @@ K12 PLATFORM_BRAKE_BODY_LAG | FOURS INFERRED | support=DUAL_MOVING_BRAKING
 
 L
 __________________
-
 
 
 K13 DISPLACED_SETTLE | FOURS INFERRED | support=RIGHT_DOMINANT_MOVING_STOPPED
@@ -437,21 +448,23 @@ K13 DISPLACED_SETTLE | FOURS INFERRED | support=RIGHT_DOMINANT_MOVING_STOPPED
 
 
 
-                                                             O
-                                                             |
-                                                             o\
-                                                           //| \\o
-                                                          o  |    \
-                                                        x/    |    x
-                                                              |
-                                                             /@\\o
-                                                           o/     \
-                                                         =/  [===========]
-                                                         !         !^>
 
 
 
 
+                                                                O
+                                                                |
+                                                                o\
+                                                              //| \o
+                                                             o  |   \x
+                                                            /   |
+                                                           x    |
+                                                                @
+                                                              // \\
+                                                             o     o
+                                                            /       \
+                                                         [============
+                                                           !   ^>    !
 
 
 
@@ -459,4 +472,3 @@ K13 DISPLACED_SETTLE | FOURS INFERRED | support=RIGHT_DOMINANT_MOVING_STOPPED
 
 L
 __________________
-
