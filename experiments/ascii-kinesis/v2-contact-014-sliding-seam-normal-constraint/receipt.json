@@ -1,0 +1,99 @@
+{
+  "schema": "ascii-kinesis.receipt-v2",
+  "experiment_id": "v2-contact-014-sliding-seam-normal-constraint",
+  "path": "experiments/ascii-kinesis/v2-contact-014-sliding-seam-normal-constraint/",
+  "status": "QUALITY_GATES_PASS_MEDIA_DECODE_PASS_CONTRACT_PASS_REPO_PERSIST_PENDING",
+  "current_worker_liveness": {
+    "home_center_campaign_read": "PASS",
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "github_persistence_readback": "PASS"
+  },
+  "inventory": {
+    "precreation_v2_contact_014_count": 0,
+    "successor_collision": false,
+    "binding": "THIS_BODY"
+  },
+  "revision": {
+    "kind": "NEW_CONCEPT",
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT"
+  },
+  "source": {
+    "asset_id": "602122",
+    "family": "Meatman — Chasm — PC / Computer — Enemies",
+    "url": "https://www.spriters-resource.com/pc_computer/chasm/asset/602122/",
+    "archive_bytes": 111688,
+    "archive_sha256": "7a47f6ef97b44b65b43f15a8d2a9281b1fc1cb95f543f631b0a21d76beba565f",
+    "whole_source_campaign_audit": "PASS",
+    "source_authentic_timing": "UNKNOWN"
+  },
+  "novelty": {
+    "problem": "persistent unilateral sliding contact",
+    "principle": "CONTACT MAY OWN THE NORMAL AXIS WITHOUT OWNING THE TANGENT.",
+    "distinct_from_prior_contact_repair_problems": true
+  },
+  "quality": {
+    "tango": {
+      "rounds": [
+        {
+          "round": 0,
+          "verdict": "REVISE_REQUIRED",
+          "defect": "contact arm read as farthest-reach mannequin brace; body sat too far from the seam",
+          "correction": "move K3-K8 torso/root geometry closer to the wall while preserving rear/lead support ownership and seam travel"
+        },
+        {
+          "round": 1,
+          "verdict": "PASS",
+          "actual_render": "50 decoded frames inspected as ordered timing montage plus decisive frames"
+        }
+      ],
+      "final": "PASS"
+    },
+    "noodle_queen": {
+      "verdict": "PASS",
+      "taste": "crooked wall approach, deep compression, migrating seam and peel silhouette are specific rather than generic",
+      "function": "normal-axis ownership, tangent slide, support catch and later release remain causally readable",
+      "contempt": "the wall does not become metadata-only support; recovery stays displaced and asymmetrical"
+    }
+  },
+  "media": {
+    "sha256": "4de8cc7c8cfad1c9671e1edfeaac9cf22ee2c348fc31e471bca6f5ebac5d7892",
+    "bytes": 16519,
+    "codec": "H.264",
+    "pix_fmt": "yuv420p",
+    "width": 800,
+    "height": 450,
+    "fps": 24,
+    "frames": 50,
+    "duration_s": 2.083333,
+    "ffprobe": "PASS",
+    "ffmpeg_decode": "PASS"
+  },
+  "contract": {
+    "validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "candidate_isolated": "PASS",
+    "result": {
+      "schema": "ascii-kinesis.swarm-contract-v2-test",
+      "entries_checked": [
+        "v2-contact-014-sliding-seam-normal-constraint"
+      ],
+      "ok": true
+    },
+    "boundary": "Exact current validator logic from blob 09f0bcf233dbb770ce6b6df047fe18d94be8aa7c run candidate-isolated; no full-repository checkout execution claimed."
+  },
+  "repo": {
+    "persistence": "PENDING",
+    "readback": "PENDING",
+    "commit": null,
+    "file_blobs": {}
+  },
+  "issue_receipt": null,
+  "chat_delivery": {
+    "part_1_ascii": false,
+    "part_2_json": false,
+    "part_3_video": false,
+    "ordered_together": false
+  },
+  "drew_accepted": false
+}
