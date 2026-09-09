@@ -112,7 +112,7 @@ D013-K03  CRUSH_HOLD  [FOURS | INFERRED]
                                  /   @\        -o]
                                 |   /  \\
                                 o  /     -+\
-                                  +         \\\\
+                                  +         \\\\\
                                  =              -=
   ________________________________________________________________
                                  R
@@ -125,7 +125,6 @@ arc=rear foot is the only trustworthy anchor; pelvis continues down-left debt=0.
 --------------------------------------------------------------------
 
 D013-K04  FRONT_FOOT_PEEL  [TWOS | INFERRED]
-
 
 
 
@@ -159,7 +158,6 @@ D013-K05  PIVOT_BANK  [TWOS | INFERRED]
 
 
 
-
                                    O
                                    |
                                   /+\
@@ -185,7 +183,6 @@ arc=rear foot stays x=33; pelvis shifts left/up and shoulder line twists debt=0.
 --------------------------------------------------------------------
 
 D013-K06  CROSS_BODY_EXIT  [ONES | INFERRED]
-
 
 
 
@@ -220,7 +217,6 @@ D013-K07  EXIT_FOOT_PREPLANT  [TWOS | INFERRED]
 
 
 
-
                               O
                              |
                             /+----+
@@ -238,14 +234,13 @@ D013-K07  EXIT_FOOT_PREPLANT  [TWOS | INFERRED]
                                  R
 
 
-support=REAR_FOOT root=PIVING contact=NONE guard=CARRIED readiness=LOCKED_OUT facing=RIGHT
+support=REAR_FOOT root=PIVOTING contact=NONE guard=CARRIED readiness=LOCKED_OUT facing=RIGHT
 role=preplant: exit foot reaches floor line while root still rotates/travels
 arc=free exit foot reaches floor line far left while head/guard still lag right of pelvis; rear anchor remains sole support debt=0.52
 
 --------------------------------------------------------------------
 
 D013-K08  EXIT_PLANT_ACQUIRE  [ONES | INFERRED]
-
 
 
 
@@ -282,7 +277,6 @@ D013-K09  PIVOT_OVERSHOOT  [TWOS | INFERRED]
 
 
 
-
                       O
                       |
                       +---+
@@ -305,7 +299,6 @@ arc=exit foot stays planted x=17 while pelvis overshoots to x=18/low; trailing o
 --------------------------------------------------------------------
 
 D013-K10  COUNTER_ROTATION_CATCH  [TWOS | INFERRED]
-
 
 
 
@@ -340,7 +333,6 @@ D013-K11  TRAIL_FOOT_REACQUIRE  [ONES | INFERRED]
 
 
 
-
                          O
                          |
                          +---+
@@ -365,7 +357,6 @@ arc=height recovery begins after dual support exists debt=0.34
 --------------------------------------------------------------------
 
 D013-K12  GUARD_REOPEN_OVERSHOOT  [TWOS | INFERRED]
-
 
 
 
@@ -395,7 +386,6 @@ arc=upper body catches up on a later clock than pelvis/support debt=0.27
 --------------------------------------------------------------------
 
 D013-K13  SECONDARY_LAG_SETTLE  [TWOS | INFERRED]
-
 
 
 
