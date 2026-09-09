@@ -14,12 +14,24 @@ permissions:
 env:
   HOME_CENTER_GCP_PROJECT: home-center-dclar
 
+concurrency:
+  group: phone-improper-image-delivery
+  cancel-in-progress: false
+
 jobs:
   deliver:
     name: Home Center -> phone -> THECAULDRON -> Pictures
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 25
     steps:
+      - name: Refuse the wrong execution body
+        shell: powershell
+        run: |
+          if ($env:COMPUTERNAME -ine 'THECAULDRON') {
+            throw "Refusing image campaign control plane on $env:COMPUTERNAME; expected THECAULDRON."
+          }
+          Write-Host "CONTROL_PLANE_BODY_OK computer=$env:COMPUTERNAME"
+
       - name: Checkout exact source
         uses: actions/checkout@v4
         with:
@@ -40,21 +52,38 @@ jobs:
           cache-dependency-path: functions/package-lock.json
 
       - name: Install Home Center Firestore client
+        shell: powershell
         run: npm ci --prefix functions --omit=optional --ignore-scripts
 
       - name: Source contract gate
-        shell: bash
+        shell: powershell
         run: |
-          set -euo pipefail
-          python3 tools/test_phone_relay_shizuku_independence.py
-          python3 tools/test_improper_image_delivery_contract.py
+          $ErrorActionPreference = 'Stop'
+          $bash = Get-Command bash -ErrorAction SilentlyContinue
+          if (-not $bash) {
+            $candidates = @(
+              (Join-Path $env:ProgramFiles 'Git\bin\bash.exe'),
+              (Join-Path ${env:ProgramFiles(x86)} 'Git\bin\bash.exe')
+            )
+            $found = $candidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+            if (-not $found) { throw 'Git Bash is required for shell contract syntax checks.' }
+            $env:PATH = "$(Split-Path $found -Parent);$env:PATH"
+          }
+          python tools/test_phone_relay_shizuku_independence.py
+          if ($LASTEXITCODE -ne 0) { throw 'Shizuku-independence source contract failed.' }
+          python tools/test_improper_image_delivery_contract.py
+          if ($LASTEXITCODE -ne 0) { throw 'Improper-image source contract failed.' }
           node --check tools/github_dispatch_improper_image_campaign.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Home Center runtime dispatcher syntax failed.' }
 
       - name: Execute fixed runtime campaign through Home Center queue
+        shell: powershell
         env:
           HOME_CENTER_SOURCE_REF: ${{ github.sha }}
           IMPROPER_IMAGE_EVIDENCE_DIR: runtime-evidence
-        run: node tools/github_dispatch_improper_image_campaign.mjs
+        run: |
+          node tools/github_dispatch_improper_image_campaign.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Home Center improper-image runtime campaign failed.' }
 
       - name: Preserve runtime evidence
         if: always()
