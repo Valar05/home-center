@@ -1,0 +1,386 @@
+{
+  "schema": "ascii-kinesis.motion-v2",
+  "version": 2,
+  "experiment_id": "v2-contact-014-sliding-seam-normal-constraint",
+  "lane": "contact",
+  "principle": "CONTACT MAY OWN THE NORMAL AXIS WITHOUT OWNING THE TANGENT.",
+  "novelty": {
+    "problem": "persistent unilateral sliding contact",
+    "mechanism": "a surface owns normal separation while tangent motion remains free; the contact seam migrates before a separately earned peel/release",
+    "not_a_permutation_of": [
+      "scoped grapple",
+      "asymmetric custody",
+      "persistent support transfer",
+      "latent eligibility force transfer",
+      "occlusion anchor custody",
+      "locked pivot custody",
+      "custody load release"
+    ]
+  },
+  "revision": {
+    "kind": "NEW_CONCEPT",
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT"
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "602122",
+    "title": "Meatman",
+    "game": "Chasm",
+    "platform": "PC / Computer",
+    "category": "Enemies",
+    "url": "https://www.spriters-resource.com/pc_computer/chasm/asset/602122/",
+    "archive_bytes": 111688,
+    "archive_sha256": "7a47f6ef97b44b65b43f15a8d2a9281b1fc1cb95f543f631b0a21d76beba565f",
+    "archive_entries": 61,
+    "png_count": 52,
+    "families": [
+      "Death",
+      "Idle",
+      "Ram",
+      "Ram Brake",
+      "Ram Tell",
+      "Ram Tell Loop",
+      "Tired",
+      "Walk",
+      "Wall Hit"
+    ],
+    "whole_source_boundary": "Sheet.png plus all 51 numbered frames were campaign-audited; whole frame corpus alpha geometry scanned before extraction.",
+    "timing_authenticity": "UNKNOWN"
+  },
+  "provenance": {
+    "OBSERVED": [
+      "Campaign evidence identifies the exact 111,688-byte asset-602122 archive and 61-entry / 52-PNG family inventory.",
+      "Wall Hit 00->01 changes local alpha shape while image-space alpha centroid barely translates; this supports a general compression-against-constraint reading.",
+      "Ram Brake has larger horizontal centroid shift; Tired keeps a stable bottom-contact proxy; Death collapses downward.",
+      "No source-authentic playback exposure or chronology is established."
+    ],
+    "INFERRED": [
+      "All Contact014 acting, rig geometry, wall relationship, normal/tangent ownership, support changes, seam migration, release logic, arcs, holds and connective motion.",
+      "Every decisive key timing class under STREET_FIGHTER/CAPCOM."
+    ],
+    "UNKNOWN": [
+      "Source-authentic frame order, exposure duration, hit-stop, hitbox, collision normals, root/support mechanics and exact contact chronology."
+    ]
+  },
+  "rights": {
+    "source_art_role": "EVIDENCE_ONLY",
+    "drew_work_used": false,
+    "source_art_embedded": false,
+    "forbidden": [
+      "source pixels",
+      "palette",
+      "costume",
+      "contours",
+      "exact silhouettes",
+      "layout",
+      "tracing",
+      "choreography",
+      "redistribution",
+      "close imitation"
+    ],
+    "output": "independently authored generic ASCII rig"
+  },
+  "rig": {
+    "actors": [
+      "A",
+      "WALL"
+    ],
+    "joints": [
+      "head",
+      "shoulder",
+      "pelvis",
+      "hand_f",
+      "hand_b",
+      "foot_f",
+      "foot_b"
+    ],
+    "wall": {
+      "x": 64,
+      "ground_y": 21,
+      "type": "UNILATERAL_SURFACE"
+    },
+    "relationship_fields": [
+      "contact",
+      "relationship_owner",
+      "normal_axis",
+      "tangent_axis",
+      "seam",
+      "support",
+      "root"
+    ]
+  },
+  "relationship": {
+    "state_path": [
+      "FREE",
+      "ELIGIBLE_NO_CONTACT",
+      "NORMAL_CONTACT",
+      "SLIDING_CONTACT",
+      "LEAD_FOOT_CATCH",
+      "PEEL_LOAD_THRESHOLD",
+      "NORMAL_RELEASE",
+      "RECOVER"
+    ],
+    "owner_rule": "WALL_NORMAL_CONSTRAINT owns only the normal axis during contact; tangent motion and body custody remain with A.",
+    "support_rule": "wall contact never silently becomes full support; rear/lead foot ownership is explicitly authored.",
+    "release_rule": "normal contact may release only after lead-foot catch and a held peel-load threshold."
+  },
+  "timing": {
+    "policy": "STREET_FIGHTER/CAPCOM",
+    "nominal_fps": 24,
+    "classes": {
+      "ONES": 1,
+      "TWOS": 2,
+      "FOURS": 4
+    },
+    "note": "1s/2s/4s mean ONES/TWOS/FOURS display classes, never seconds; all Contact014 decisive timing is INFERRED."
+  },
+  "keys": [
+    {
+      "id": "C014-K0",
+      "p": "FREE_READY",
+      "timing": "FOURS",
+      "provenance": "INFERRED",
+      "a": [[33,7],[35,10],[33,15],[41,11],[29,12],[39,21],[28,21]],
+      "contact": "FREE",
+      "relationship_owner": "NONE",
+      "support": "BOTH_REAR_BIAS",
+      "root": "A_REAR_DOMINANT",
+      "seam": [64,10],
+      "normal_axis": "OPEN",
+      "tangent_axis": "OPEN",
+      "force": [0,0],
+      "role": "Establish a displaced asymmetrical free state with the wall present but irrelevant.",
+      "arc": "Root starts left of the wall with rear-biased support; front hand is deliberately low and inside reach."
+    },
+    {
+      "id": "C014-K1",
+      "p": "ASYM_APPROACH",
+      "timing": "TWOS",
+      "provenance": "INFERRED",
+      "a": [[38,7],[41,10],[37,15],[50,9],[31,13],[45,21],[31,21]],
+      "contact": "FREE",
+      "relationship_owner": "NONE",
+      "support": "REAR_DRIVE_LEAD_PROBE",
+      "root": "A_REAR_DRIVE",
+      "seam": [64,10],
+      "normal_axis": "OPEN",
+      "tangent_axis": "OPEN",
+      "force": [3,-1],
+      "role": "Body-first approach: rear support drives while the lead side opens a crooked path toward the surface.",
+      "arc": "Pelvis travels right on a shallow rise; front hand arcs ahead and high without reaching the seam."
+    },
+    {
+      "id": "C014-K2",
+      "p": "ELIGIBLE_COIL",
+      "timing": "FOURS",
+      "provenance": "INFERRED",
+      "a": [[43,8],[46,11],[40,16],[59,10],[34,14],[48,21],[34,21]],
+      "contact": "ELIGIBLE_NO_CONTACT",
+      "relationship_owner": "NONE",
+      "support": "REAR_PIN_LEAD_LIGHT",
+      "root": "A_REAR_PIN",
+      "seam": [64,10],
+      "normal_axis": "OPEN",
+      "tangent_axis": "OPEN",
+      "force": [4,0],
+      "role": "Eligibility before acquisition: hand is near the seam while rear foot and lowered COM store the normal load.",
+      "arc": "Root is still left of the seam; front hand stops short; rear foot is the world-readable anchor."
+    },
+    {
+      "id": "C014-K3",
+      "p": "NORMAL_ACQUIRE",
+      "timing": "ONES",
+      "provenance": "INFERRED",
+      "a": [[50,9],[54,12],[46,16],[64,10],[41,15],[53,21],[38,21]],
+      "contact": "NORMAL_CONTACT",
+      "relationship_owner": "WALL_NORMAL_CONSTRAINT",
+      "support": "REAR_PIN_LEAD_PROBE",
+      "root": "A_REAR_PIN",
+      "seam": [64,10],
+      "normal_axis": "LOCKED",
+      "tangent_axis": "AVAILABLE",
+      "force": [-5,0],
+      "role": "Acquire the wall in the normal axis only; contact is a unilateral constraint, not body custody.",
+      "arc": "Front hand meets the seam inside committed reach while the rear pin prevents a floaty farthest-reach snatch."
+    },
+    {
+      "id": "C014-K4",
+      "p": "COMPRESSION_BANK",
+      "timing": "FOURS",
+      "provenance": "INFERRED",
+      "a": [[51,11],[55,13],[47,17],[64,10],[42,17],[53,21],[38,21]],
+      "contact": "NORMAL_CONTACT",
+      "relationship_owner": "WALL_NORMAL_CONSTRAINT",
+      "support": "REAR_PIN_LEAD_UNWEIGHT",
+      "root": "A_REAR_PIN",
+      "seam": [64,10],
+      "normal_axis": "LOCKED",
+      "tangent_axis": "AVAILABLE",
+      "force": [-6,1],
+      "role": "Denied normal displacement becomes torso/pelvis compression rather than dead wall-sticking.",
+      "arc": "Hand stays on the same seam cell while head and pelvis fold down-left around the fixed rear foot."
+    },
+    {
+      "id": "C014-K5",
+      "p": "TANGENT_UNLOCK",
+      "timing": "TWOS",
+      "provenance": "INFERRED",
+      "a": [[52,12],[56,14],[47,18],[64,12],[41,18],[52,21],[38,21]],
+      "contact": "SLIDING_CONTACT",
+      "relationship_owner": "WALL_NORMAL_CONSTRAINT",
+      "support": "REAR_PIN_FRONT_FLOAT",
+      "root": "A_REAR_PIN",
+      "seam": [64,12],
+      "normal_axis": "LOCKED",
+      "tangent_axis": "SLIDING",
+      "force": [-5,2],
+      "role": "The relationship changes class: normal stays owned by the wall while tangent becomes explicitly free.",
+      "arc": "Contact seam migrates downward two rows; root does not advance through the wall."
+    },
+    {
+      "id": "C014-K6",
+      "p": "DEEP_TANGENT_SLIDE",
+      "timing": "TWOS",
+      "provenance": "INFERRED",
+      "a": [[51,14],[55,16],[46,19],[64,15],[40,19],[52,21],[38,21]],
+      "contact": "SLIDING_CONTACT",
+      "relationship_owner": "WALL_NORMAL_CONSTRAINT",
+      "support": "REAR_COMPRESSING",
+      "root": "A_REAR_PIN",
+      "seam": [64,15],
+      "normal_axis": "LOCKED",
+      "tangent_axis": "SLIDING",
+      "force": [-4,4],
+      "role": "Persistent contact carries a visible vertical slide; the body pays with knee/torso compression and secondary-arm lag.",
+      "arc": "Hand/seam drop three rows while x stays locked; pelvis drops and retreats slightly, proving tangent motion under normal constraint."
+    },
+    {
+      "id": "C014-K7",
+      "p": "LEAD_FOOT_CATCH",
+      "timing": "ONES",
+      "provenance": "INFERRED",
+      "a": [[51,15],[55,17],[47,19],[64,16],[40,20],[54,21],[40,21]],
+      "contact": "SLIDING_CONTACT",
+      "relationship_owner": "WALL_NORMAL_CONSTRAINT",
+      "support": "LEAD_CATCH_REAR_LIGHT",
+      "root": "A_LEAD_CATCH",
+      "seam": [64,16],
+      "normal_axis": "LOCKED",
+      "tangent_axis": "SLIDING",
+      "force": [-3,3],
+      "role": "A new ground support catches the vertical debt while wall contact persists; support ownership changes without contact release.",
+      "arc": "Lead foot lands farther right as pelvis overshoots down; wall seam remains acquired at a lower address."
+    },
+    {
+      "id": "C014-K8",
+      "p": "PEEL_LOAD_THRESHOLD",
+      "timing": "FOURS",
+      "provenance": "INFERRED",
+      "a": [[49,14],[54,16],[49,18],[64,16],[42,18],[54,21],[42,21]],
+      "contact": "NORMAL_CONTACT",
+      "relationship_owner": "WALL_NORMAL_CONSTRAINT",
+      "support": "LEAD_PRIMARY_REAR_REBUILD",
+      "root": "A_LEAD_PRIMARY",
+      "seam": [64,16],
+      "normal_axis": "LOCKED",
+      "tangent_axis": "AVAILABLE",
+      "force": [-2,-1],
+      "role": "Lead support turns the body away while the hand still owns normal contact; this is a held release threshold, not release yet.",
+      "arc": "Pelvis rises and shifts left while the hand remains at the seam; force normal magnitude visibly falls."
+    },
+    {
+      "id": "C014-K9",
+      "p": "NORMAL_RELEASE",
+      "timing": "ONES",
+      "provenance": "INFERRED",
+      "a": [[46,12],[50,15],[47,18],[60,16],[39,16],[53,21],[42,21]],
+      "contact": "FREE",
+      "relationship_owner": "NONE",
+      "support": "LEAD_PRIMARY",
+      "root": "A_LEAD_PRIMARY",
+      "seam": [64,16],
+      "normal_axis": "OPEN",
+      "tangent_axis": "OPEN",
+      "force": [-4,-2],
+      "role": "Separately authored release: the hand breaks normal contact after the foot has earned a peel vector.",
+      "arc": "Hand leaves the seam first while pelvis is already driving away; release is not reverse interpolation."
+    },
+    {
+      "id": "C014-K10",
+      "p": "RECOIL_OVERSHOOT",
+      "timing": "TWOS",
+      "provenance": "INFERRED",
+      "a": [[42,10],[46,13],[45,17],[55,13],[35,15],[51,21],[40,21]],
+      "contact": "FREE",
+      "relationship_owner": "NONE",
+      "support": "LEAD_PRIMARY_REAR_TRAIL",
+      "root": "A_LEAD_PRIMARY",
+      "seam": [64,16],
+      "normal_axis": "OPEN",
+      "tangent_axis": "OPEN",
+      "force": [-5,-2],
+      "role": "Body recoil overshoots away from the wall while the former contact arm remains late and high.",
+      "arc": "Pelvis crosses left slower than head/chest; front hand trails near the old relationship line."
+    },
+    {
+      "id": "C014-K11",
+      "p": "SECONDARY_LAG_CATCH",
+      "timing": "TWOS",
+      "provenance": "INFERRED",
+      "a": [[40,10],[44,13],[45,17],[50,12],[33,17],[50,21],[40,21]],
+      "contact": "FREE",
+      "relationship_owner": "NONE",
+      "support": "SPLIT_CATCH",
+      "root": "A_SPLIT_CATCH",
+      "seam": [64,16],
+      "normal_axis": "OPEN",
+      "tangent_axis": "OPEN",
+      "force": [1,1],
+      "role": "Secondary limbs arrive late; split support catches recoil without erasing the previous downward slide.",
+      "arc": "Rear hand/foot trail behind the chest while the root arrests at a new address."
+    },
+    {
+      "id": "C014-K12",
+      "p": "DISPLACED_RECOVERY",
+      "timing": "FOURS",
+      "provenance": "INFERRED",
+      "a": [[42,8],[45,11],[45,16],[50,10],[37,13],[51,21],[39,21]],
+      "contact": "FREE",
+      "relationship_owner": "NONE",
+      "support": "BOTH_LEAD_BIAS",
+      "root": "A_DISPLACED_READY",
+      "seam": [64,16],
+      "normal_axis": "OPEN",
+      "tangent_axis": "OPEN",
+      "force": [0,0],
+      "role": "Recover asymmetrically near—but not against—the wall, preserving spatial and support debt instead of resetting.",
+      "arc": "Final stance remains closer to the wall and more lead-biased than K0."
+    }
+  ],
+  "motion_dungeon": {
+    "pipeline": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SELF-CONTAINED SPA",
+    "semantic_authority": "decisive keys",
+    "connective_rule": "interpolate geometry only while current semantic relationship remains authoritative; acquisition/release hard-cut",
+    "media_codec": "H.264",
+    "media_width": 800,
+    "media_height": 450,
+    "fps": 24,
+    "media_sha256": "4de8cc7c8cfad1c9671e1edfeaac9cf22ee2c348fc31e471bca6f5ebac5d7892",
+    "media_bytes": 16519,
+    "frames": 50
+  },
+  "compatibility": {
+    "v2_tabs": ["ASCII","JSON","VIDEO"],
+    "literal_ascii": true,
+    "source_art_embedded": false,
+    "backward_compatible": true
+  },
+  "manifest_facts": {
+    "entry_path": "experiments/ascii-kinesis/v2-contact-014-sliding-seam-normal-constraint/",
+    "required_spa": "sliding-seam-normal-constraint.motion.html",
+    "expected_files": ["build.py","contact-sheet.txt","manifest.json","motion.json","sliding-seam-normal-constraint.motion.html","receipt.json"]
+  },
+  "correction_hooks": ["KEEP","REJECT","EXAGGERATE","COMPRESS","RETIME","CHANGE SOURCE","PROMOTE","SPAWN VARIANT","FIX BLOCKER","RERUN"]
+}
