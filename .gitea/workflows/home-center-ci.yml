@@ -1,0 +1,27 @@
+name: Home Center Portable CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: forge-linux-free
+    steps:
+      - uses: actions/checkout@v4
+      - name: Runtime identity
+        run: |
+          printf 'runner=forge-linux-free\n'
+          uname -a
+          node --version
+          python3 --version
+          java -version
+      - name: Install function dependencies
+        run: npm --prefix functions ci
+      - name: Install optional browser worker dependencies
+        run: |
+          if [ -f browser-worker/package-lock.json ]; then npm --prefix browser-worker ci; fi
+      - name: Run Home Center validation
+        run: sh tools/home_center_ci_validate.sh
