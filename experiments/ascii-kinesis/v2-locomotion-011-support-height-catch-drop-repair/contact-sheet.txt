@@ -1,0 +1,720 @@
+ASCII KINESIS V2 LOCOMOTION 011 — SUPPORT-HEIGHT CATCH / DROP REPAIR
+Legend: ! trusted support   ? probe-only contact   @ pelvis/root   + chest   _ support surface   | riser
+Timing: ONES/TWOS/FOURS are PoseLab cadence classes; every decisive key is INFERRED.
+Causal law: lower support must become trustworthy before pelvis/root height may fall.
+Source boundary: independent abstract ASCII only; no Bullwinkle source pixels/palette/layout/contours/choreography embedded.
+
+K0 HIGH_STRIDE_ENTRY  [FOURS / INFERRED]  SUPPORT=L_FOOT+R_FOOT  ROOT_OWNER=HIGH_STEP
+ROOT: pelvis (20,17): high-plane travel arrives already asymmetric; no neutral reset
+ROLE: stable high support / entry debt
+ATTITUDE: rear shoulder drags while head already reads the edge
+
+
+
+
+
+
+
+
+
+
+                  O      //*
+                  \   /o/
+                   \//
+                  /+
+               o// \
+             //     \
+            *       \
+                    @
+                   / \
+                   /  \
+                  o    o
+                  /     \
+                 /       \
+_________________!________!___________|
+                                      |
+                                      |
+                                      |
+                                      __________________________________________
+
+
+
+
+K1 EDGE_LOAD  [TWOS / INFERRED]  SUPPORT=L_FOOT  ROOT_OWNER=HIGH_STEP
+ROOT: pelvis (25,17): advances toward edge while height stays locked; left leg takes the whole root
+ROLE: asymmetrical edge unweight / anticipation
+ATTITUDE: torso leans away from the drop as the free side opens
+
+
+
+
+
+
+
+
+                               /*
+                             //
+                       O    o
+                       \  //
+                        \/
+                      //+
+                   o//  \
+                 //      \
+                *        \
+                         @
+                        / \\
+                        /   \o
+                       o      \\
+                       /        *
+                      /
+______________________!_______________|
+                                      |
+                                      |
+                                      |
+                                      __________________________________________
+
+
+
+
+K1A EDGE_HOVER  [ONES / INFERRED]  SUPPORT=L_FOOT  ROOT_OWNER=HIGH_STEP  BRIDGE
+ROOT: pelvis (27,16): tiny upward coil while the trusted foot still owns root; no descent yet
+ROLE: authored bridge / toe-edge suspension
+ATTITUDE: free knee leads down while both arms counter backward
+
+
+
+
+
+
+
+
+
+                         O
+                         \
+                          \ //o
+                     o----+/   \\
+                   //     \      *
+                  *        \
+                           \
+                           @
+                          / \\
+                         /    \\
+                         /      o
+                        o        \
+                        /         \
+                       /           \
+_______________________!____________*_|
+                                      |
+                                      |
+                                      |
+                                      __________________________________________
+
+
+
+
+K2 LOWER_REACH  [TWOS / INFERRED]  SUPPORT=L_FOOT  ROOT_OWNER=HIGH_STEP
+ROOT: pelvis (29,16): root stays high as right leg lengthens below the edge; reach spends balance, not height
+ROLE: lower-plane search before contact
+ATTITUDE: long diagonal from trusted rear foot to probing toe; chest counterleans uphill
+
+
+
+
+
+
+
+
+                                  *
+                           O    //
+                           |  /o
+                           |//
+                         //+
+                      o//   \
+                    //      \
+                   *         \
+                             @
+                            / \
+                           /   \
+                          /     \
+                         o       \
+                         /        o
+                        /          \
+________________________!_____________|
+                                     \|
+                                      |
+                                      |*
+                                      __________________________________________
+
+
+
+
+K3 LOWER_FOOT_PROBE  [TWOS / INFERRED]  SUPPORT=L_FOOT+R_FOOT_PROBE  ROOT_OWNER=HIGH_STEP
+ROOT: pelvis (31,16): probe touches lower plane at y27 but root remains owned by high left foot
+ROLE: probe-only contact / evidence of reach
+ATTITUDE: body stretches across two heights; probe leg is nearly straight and upper body stays uphill
+
+
+
+
+
+
+
+
+
+                            O       *
+                            \     //
+                             \ //o
+                           //+/
+                       o///   \
+                      /       \
+                     /         \
+                    *          @
+                              / \
+                            //  \
+                           /     \
+                          o       \
+                          /       \
+                         /         o
+_________________________!____________|
+                                     \|
+                                      |
+                                      |\
+                                      __?_______________________________________
+
+
+
+
+K4 LOWER_SUPPORT_ACQUIRE  [FOURS / INFERRED]  SUPPORT=L_FOOT+R_FOOT  ROOT_OWNER=MIXED_HEIGHT_SUPPORT
+ROOT: pelvis (32,16): unchanged high root after lower-foot trust is earned; mixed-height support is held and readable
+ROLE: trustworthy lower support acquisition / causal join
+ATTITUDE: right knee bends under new load while shoulders counterrotate uphill
+
+
+
+
+
+
+
+
+
+                             O
+                             \
+                              \
+                       /o-----+\\
+                     */        \ \\o
+                               \    \\
+                                \     *
+                                @
+                               / \
+                             //  \
+                            /     \
+                           o       \
+                           /       \
+                          /         o
+__________________________!___________|
+                                      |
+                                      |
+                                      |\
+                                      __!_______________________________________
+
+
+
+
+K4A DROP_PRELOAD  [ONES / INFERRED]  SUPPORT=L_FOOT+R_FOOT  ROOT_OWNER=MIXED_HEIGHT_SUPPORT  BRIDGE
+ROOT: pelvis (33,17): first downward centimeter occurs only after K4 acquisition; both supports compress before the fall
+ROLE: authored bridge / mixed-height preload
+ATTITUDE: elbows widen as pelvis folds between the supports
+
+
+
+
+
+
+
+
+
+
+                              O
+                              \
+                               \
+                        /o-----+\\
+                      */        \ \\o
+                                \    \\
+                                 \     *
+                                 @
+                               // \
+                             //   \
+                            o      \
+                           /        \
+                           /        \
+__________________________!__________o|
+                                      |
+                                      |\
+                                      |\
+                                      __!_______________________________________
+
+
+
+
+K5 DROP_COMMIT  [ONES / INFERRED]  SUPPORT=L_FOOT+R_FOOT  ROOT_OWNER=MIXED_HEIGHT_SUPPORT
+ROOT: pelvis (36,19): accelerated diagonal drop begins after trust; low foot bears increasing share while old foot remains a high brace
+ROLE: earned root drop / weight transfer
+ATTITUDE: chest hangs uphill while pelvis dives toward the lower foot
+
+
+
+
+
+
+
+
+
+
+
+                                O
+                                \
+                        *\       \
+                          \o-----+\
+                                  \\\
+                                  \  \o
+                                   \   \\
+                                   \     *
+                                   /@
+                                ///  \
+                              o/     \
+                            //        \
+___________________________!__________o
+                                      |\
+                                      |\
+                                      | \
+                                      __!_______________________________________
+
+
+
+
+K5A DROP_ACCEL  [ONES / INFERRED]  SUPPORT=L_FOOT+R_FOOT  ROOT_OWNER=MIXED_HEIGHT_SUPPORT  BRIDGE
+ROOT: pelvis (39,21): root accelerates down/forward; right low support arrests vertical fall while left high brace stretches to its limit
+ROLE: authored bridge / maximum mixed-height shear
+ATTITUDE: arms trail uphill; legs form a steep split-level scissor
+
+
+
+
+
+
+
+
+
+
+
+
+                                  O
+                          *       \
+                           \\      \
+                             o-----+
+                                    \\
+                                    \ \\
+                                     \  o
+                                      \  \\
+                                      \    *
+                                    ///@
+                              /o////   \
+____________________________!_________| \
+                                      | o
+                                      | \
+                                      |  \
+                                      ___!______________________________________
+
+
+
+
+K6 OLD_SUPPORT_RELEASE  [ONES / INFERRED]  SUPPORT=R_FOOT  ROOT_OWNER=LOW_STEP
+ROOT: pelvis (41,21): old high foot releases only after the root has reached the low support envelope
+ROLE: release old support / root ownership transfer complete
+ATTITUDE: released leg folds behind while torso still resists downhill
+
+
+
+
+
+
+
+
+
+
+
+
+                                    O
+                                    \
+                            *        \
+                             \\      \
+                               o-----+\
+                                      \\\
+                                       \ \o
+                                       \   \\
+                                        \    *
+                                  /o-----@
+                                */       |
+______________________________________|  |
+                                      |  o
+                                      |  \
+                                      |   \
+                                      ____!_____________________________________
+
+
+
+
+K6A DROP_OVERSHOOT  [TWOS / INFERRED]  SUPPORT=R_FOOT  ROOT_OWNER=LOW_STEP  BRIDGE
+ROOT: pelvis (43,22): body sinks one row past nominal low stack; support arrests root while upper body and old leg lag
+ROLE: overshoot / impact absorption on low support
+ATTITUDE: crooked C silhouette with trailing arm and leg still uphill
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                      O
+                                      \
+                             *\        \
+                               \\      \
+                                 o-----+\
+                                        \\\\
+                                         \  \o
+                                         \    \\
+                                          \     *
+                                     o-----@
+______________________________________|    |
+                                  *   |    |
+                                      |    o
+                                      |    |
+                                      _____!____________________________________
+
+
+
+
+K7 ARREST_REBOUND  [TWOS / INFERRED]  SUPPORT=R_FOOT  ROOT_OWNER=LOW_STEP
+ROOT: pelvis (45,20): support rebound lifts one row and advances two; upper body remains late, preventing reverse interpolation
+ROLE: settle rebound / secondary lag
+ATTITUDE: pelvis rebounds forward while head and left arm remain uphill for a beat
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                        O
+                                        \        *
+                                         \     //
+                                       //+----o
+                                  /o///   \
+                               *//         \
+                                            \
+                                           //@
+                                       o///  /
+                                      /     /
+______________________________________|     /
+                                    * |     o
+                                      |     |
+                                      |     |
+                                      ______!___________________________________
+
+
+
+
+K8 TRAIL_SWING_SEARCH  [ONES / INFERRED]  SUPPORT=R_FOOT  ROOT_OWNER=LOW_STEP
+ROOT: pelvis (48,20): trusted right foot carries forward travel while released left leg swings past the body toward low plane
+ROLE: low-plane reacquisition search
+ATTITUDE: free leg slashes forward; arms counter-swing rather than mirror
+
+
+
+
+
+
+
+
+
+
+
+
+                                            O       /*
+                                            \     //
+                                             \ //o
+                                             +/
+                                           // \
+                                         o/   \
+                                       //      \
+                                      *        \
+                                                @
+                                               / \\
+                                               /   o
+______________________________________|       /     \
+                                      |       o      \\
+                                      |       /        *
+                                      |      /
+                                      _______!__________________________________
+
+
+
+
+K9 LEFT_LOW_PROBE  [TWOS / INFERRED]  SUPPORT=R_FOOT+L_FOOT_PROBE  ROOT_OWNER=LOW_STEP
+ROOT: pelvis (50,20): search foot touches lower plane without stealing root; right support still owns the body
+ROLE: probe low plane / brake setup
+ATTITUDE: lead toe reaches far ahead while torso remains behind the new contact
+
+
+
+
+
+
+
+
+
+
+
+
+                                              O
+                                              \      //*
+                                               \ //o/
+                                               +/
+                                             // \
+                                           o/   \
+                                         //      \
+                                        *        \
+                                                  @
+                                                 / \
+                                                 /  \
+______________________________________|         /    o
+                                      |         o     \
+                                      |        /       \
+                                      |        /        \
+                                      ________!__________?______________________
+
+
+
+
+K10 LEFT_LOW_ACQUIRE  [FOURS / INFERRED]  SUPPORT=R_FOOT+L_FOOT  ROOT_OWNER=LOW_STEP_MIXED
+ROOT: pelvis (52,21): lead foot earns low support and the pelvis compresses into the wide base instead of popping upright
+ROLE: trustworthy low-plane reacquisition / catch absorption
+ATTITUDE: wide split-base compression; chest stays uphill while lead elbow spears downhill
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                O
+                                                \         //*
+                                                 \  ///o//
+                                                 +//
+                                               // \
+                                             o/   \
+                                           //      \
+                                         */        \
+                                                    @
+                                                   / \
+______________________________________|           /  \
+                                      |           /   o
+                                      |          o     \
+                                      |        //       \
+                                      ________!__________!______________________
+
+
+
+
+K10A RIGHT_UNWEIGHT_REBOUND  [ONES / INFERRED]  SUPPORT=L_FOOT  ROOT_OWNER=LOW_STEP  BRIDGE
+ROOT: pelvis (54,19): catch rebounds upward/forward only after K10; left foot owns root while rear foot peels high
+ROLE: authored recovery bridge / release from compression
+ATTITUDE: pelvis rebounds but head and rear arm remain uphill; free knee snaps forward
+
+
+
+
+
+
+
+
+
+
+
+
+                                                  O
+                                                  \
+                                           *\      \
+                                             \\   /+----o
+                                               o//  \    \\
+                                                     \     \*
+                                                     \
+                                                      @
+                                                      \
+                                                     / \
+                                                     o \
+______________________________________|            //  o
+                                      |           *     \
+                                      |                 \
+                                      |                  \
+                                      ___________________!______________________
+
+
+
+
+K11 RIGHT_LOW_PROBE  [ONES / INFERRED]  SUPPORT=L_FOOT+R_FOOT_PROBE  ROOT_OWNER=LOW_STEP
+ROOT: pelvis (57,19): recovery stride opens; right toe reaches lower plane without stealing root from left foot
+ROLE: recovery step probe / displaced travel debt
+ATTITUDE: head and right hand spear forward while free leg stretches to a tentative toe
+
+
+
+
+
+
+
+
+
+                                                                /*
+                                                       O      //
+                                                       |   /o/
+                                                       | //
+                                                     //+/
+                                                  o//  \
+                                                 /      \
+                                               //       \
+                                              *          \
+                                                         @
+                                                         /\\
+                                                        /   \\
+                                                        /     o
+______________________________________|                 o      \
+                                      |                 |       \
+                                      |                 |       \
+                                      |                 |        \
+                                      __________________!_________?_____________
+
+
+
+
+K12 RIGHT_LOW_ACQUIRE_CRUSH  [TWOS / INFERRED]  SUPPORT=L_FOOT+R_FOOT  ROOT_OWNER=LOW_STEP_MIXED
+ROOT: pelvis (60,21): the recovery foot earns support and absorbs forward debt with a second visible compression
+ROLE: recovery catch / overshoot arrest
+ATTITUDE: shoulders stay rotated into travel while hips sag between the low supports
+
+
+
+
+
+
+
+
+
+
+
+
+                                                          O
+                                                          |       //*
+                                                          |   /o//
+                                                          | //
+                                                        //+/
+                                                     o//  \
+                                                    /      \
+                                                  //       \
+                                                 *          \
+                                                            @
+                                                           / \
+______________________________________|                    /  \
+                                      |                   /   \
+                                      |                   o    o
+                                      |                  /      \\
+                                      __________________!_________!_____________
+
+
+
+
+K12A CATCH_REBOUND_LAG  [TWOS / INFERRED]  SUPPORT=L_FOOT+R_FOOT  ROOT_OWNER=LOW_STEP_MIXED  BRIDGE
+ROOT: pelvis (62,19): low-plane catch rebounds one row while arms and head continue their prior arcs
+ROLE: secondary lag / settle bridge
+ATTITUDE: hips recover first; head and left arm still trail the catch, making the rebound crooked
+
+
+
+
+
+
+
+
+
+
+
+
+                                                            O       //*
+                                                            |   /o//
+                                                            | //
+                                                           /+/
+                                                         //  \
+                                                       o/    \
+                                                      /       \
+                                                    //        @
+                                                   *         /\
+                                                             / \
+                                                            /  \
+______________________________________|                     /   \
+                                      |                    o    o
+                                      |                   /      \
+                                      |                  /       \
+                                      __________________!_________!_____________
+
+
+
+
+K13 BOTTOM_RESTACK_WITH_DEBT  [FOURS / INFERRED]  SUPPORT=L_FOOT+R_FOOT  ROOT_OWNER=LOW_STEP_MIXED
+ROOT: pelvis (64,19): final restack remains displaced and forward-biased; support is trustworthy but locomotor torque is unresolved
+ROLE: bottom restack / continuing recovery debt
+ATTITUDE: head and right hand still lead out of frame while left arm drags behind the pelvis
+
+
+
+
+
+
+
+
+
+                                                                          /*
+                                                                   O    //
+                                                                   / /o/
+                                                                  ///
+                                                                  +
+                                                                ///
+                                                              // /
+                                                            o/   /
+                                                          //    /
+                                                        //      @
+                                                       *       /\
+                                                               / \
+                                                              /  \
+______________________________________|                       /   \
+                                      |                      o    o
+                                      |                     /      \
+                                      |                    /       \
+                                      ____________________!_________!___________
