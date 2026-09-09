@@ -64,7 +64,11 @@
     "three_part_chat_delivery": false
   },
   "artifact_mutation": "Receipt-only state reconciliation after current-worker verification; motion.json, manifest.json, build.py, and SPA were not changed.",
-  "issue_receipt": null,
+  "issue_receipt": {
+    "issue": 343,
+    "comment_id": 5596184359,
+    "state": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY"
+  },
   "correction_hooks": [
     "KEEP",
     "REJECT",
