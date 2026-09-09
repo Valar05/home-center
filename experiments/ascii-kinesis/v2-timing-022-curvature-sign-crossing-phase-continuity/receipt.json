@@ -1,0 +1,65 @@
+{
+  "DREW_ACCEPTED": false,
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false
+  },
+  "contract": {
+    "candidate_isolated": "PENDING",
+    "repo_global": "UNCLAIMED_STANDARD_CHAT_NO_CHECKOUT",
+    "validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78"
+  },
+  "current_worker_liveness": {
+    "github_persistence_readback": true,
+    "home_center_campaign_read": true
+  },
+  "experiment_id": "v2-timing-022-curvature-sign-crossing-phase-continuity",
+  "issue_343_receipt": null,
+  "issue_343_receipt_readback": false,
+  "media": {
+    "bytes": 20905,
+    "codec": "h264",
+    "decode_pass": true,
+    "fps": 24,
+    "frames": 31,
+    "height": 360,
+    "pix_fmt": "yuv420p",
+    "sha256": "fafeed6a3e53985ccc5c77108930c3dcbf05b5da678ab930ca41acfa639e8973",
+    "width": 780
+  },
+  "one_body_binding": {
+    "successor_collision": false,
+    "timing022_count": 1
+  },
+  "quality": {
+    "current_worker_actual_render_inspection": "PASS",
+    "queen": "PASS",
+    "same_actual_render": true,
+    "tango": "PASS",
+    "tango_highest_value_defect": "NONE"
+  },
+  "repo": {
+    "exact_six_file_readback": false,
+    "path": "experiments/ascii-kinesis/v2-timing-022-curvature-sign-crossing-phase-continuity/",
+    "persisted": false,
+    "repo_readback": false,
+    "ship_commit": null,
+    "spa_blob": null
+  },
+  "schema": "ascii-kinesis.receipt-v2",
+  "source": {
+    "archive_entries_inspected": 61,
+    "asset_id": "566077",
+    "campaign_evidence_file_id": "1m1AEz8Wi66rICM7_aQvqwJRTqKQ29g5VzIQPmfFOxTY",
+    "source_roles": [
+      "POSE_REFERENCE",
+      "CONTACT_REFERENCE"
+    ],
+    "timing_authority": false,
+    "timing_provenance": "INFERRED",
+    "whole_source_campaign_evidence_read": true
+  },
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "three_part_chat_delivery": false
+}
