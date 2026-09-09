@@ -1,0 +1,67 @@
+{
+  "schema": "ascii-kinesis.v2-receipt",
+  "experiment_id": "v2-timing-013-staggered-readiness-rebind",
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "repo_path": "experiments/ascii-kinesis/v2-timing-013-staggered-readiness-rebind/",
+  "ship_commit": null,
+  "verification_commit": null,
+  "issue_343_receipt": null,
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "5555",
+    "title": "M. Bison — Super Street Fighter II: The New Challengers — SNES",
+    "url": "https://www.spriters-resource.com/snes/supersf2/sheet/5555/",
+    "source_dimensions": "1175x1309 PNG",
+    "source_bytes": 175378,
+    "source_sha256": "46b841549e8f18977c633d186a396b3074445fd6c2a1cc50fecd79f637585f66",
+    "campaign_evidence": "issue #343 closure 5594519570 / exact campaign raster identity",
+    "whole_source_inspected": true,
+    "timing_observed": false,
+    "timing_policy": "ALL DECISIVE TIMING INFERRED / STREET_FIGHTER-CAPCOM",
+    "source_art_embedded": false,
+    "rights": "Commercial copyrighted source used only for critical motion analysis. No source pixels, palette, costume, contours, layout, tracing, source choreography, redistribution, or close imitation enter output."
+  },
+  "revision": {
+    "kind": "FRESH_CONCEPT",
+    "negative_fixture": null,
+    "predecessor_closed_by": "5594760503",
+    "revises": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "storage_identity": "Timing013"
+  },
+  "media_sha256": "4a4332948044b5932022d0761eb98637a77e24f05667b6e244d1ff1538937ce0",
+  "media_bytes": 8627,
+  "ascii_sheet_sha256": "f7f8440e51ba7303fb97345958fae9d3adde646c74bf6e89d842c40673b03b41",
+  "tango": {
+    "status": "PASS",
+    "worker_scope": "current_reporting_worker",
+    "actual_render_sha256": "4a4332948044b5932022d0761eb98637a77e24f05667b6e244d1ff1538937ce0",
+    "notes": "Fresh reconstruction exactly matched the persisted authoritative media hash and was decoded/inspected as the actual 35-frame render. The visible phrase reads offset-ready -> crush/compression -> foot peel -> rear-anchor pivot -> one-frame preplant -> exit-contact brake -> one-frame rotational overshoot -> counter-rotation catch -> orientation rebind -> bilateral support rebind -> guard lag -> task rebind -> displaced ready debt. Unequal 3/1/2/3/4/2/3 exposure through K5-K11 keeps the readiness vector visibly staggered rather than metadata-only; support/contact ownership and root displacement remain causal; no straight tween, reverse interpolation, phase teleport, idle reset, or generic bridge defect earns revision."
+  },
+  "noodle_queen": {
+    "status": "PASS",
+    "worker_scope": "current_reporting_worker_after_tango",
+    "actual_render_sha256": "4a4332948044b5932022d0761eb98637a77e24f05667b6e244d1ff1538937ce0",
+    "taste": "PASS",
+    "function": "PASS",
+    "contempt": "PASS",
+    "notes": "TASTE: the compression, hooked pivot, overshoot/catch, and late guard reopen have a specific authored rhythm. FUNCTION: contact, orientation, bilateral support, and task readiness return at visibly distinct moments and overall readiness waits for all four. CONTEMPT: the phrase does not collapse into metronome recovery, mannequin symmetry, placeholder interpolation, or return-to-idle cleanup."
+  },
+  "verification": {
+    "repo_readback": false,
+    "contract_test": "PASS_CANDIDATE_ISOLATED_OFFICIAL_V2; exact current validator predicates freshly read; no fresh repo-global checkout execution claimed in Standard Chat",
+    "media_decode": "PASS_H264_480x270_24FPS_35FRAMES_SHA_MATCH",
+    "three_part_chat_delivery": false
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "FIX BLOCKER",
+    "RERUN"
+  ]
+}
