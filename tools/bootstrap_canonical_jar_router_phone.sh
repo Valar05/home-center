@@ -83,8 +83,6 @@ Path(out).write_text(json.dumps(obj,indent=2,sort_keys=True)+"\n",encoding="utf-
 print(json.dumps(obj,sort_keys=True))
 PY
 
-# Push the canary's already-captured typed Jar receipt through the existing Home
-# Center heartbeat path, then verify the exact fingerprint by reading the remote ledger.
 LAST_CAPTURED="$JAR_RECEIPT_STATE/last-captured.json"
 [ -f "$LAST_CAPTURED" ] || { echo "BLOCKED: live canary did not capture a Jar receipt." >&2; exit 6; }
 FINGERPRINT="$(python3 - "$LAST_CAPTURED" "$PASTA_ID" <<'PY'
@@ -96,26 +94,58 @@ print(obj['dedupFingerprint'])
 PY
 )"
 
-python3 tools/judgment_jars.py flush-receipts >/dev/null
-
+# Preserve the existing oldest-first outbox contract. Drain it through its existing
+# primitive until this exact canary receipt is delivered. Historical quarantine or
+# backoff remains a real blocker; this campaign does not route around it.
 python3 - "$FINGERPRINT" "$INSTALL_RECEIPT" "$CANARY_JSON" "$RECEIPT" "$EXPECTED" "$REGISTRY_ID" "$PASTA_ID" <<'PY'
 import json,sys,time
 from pathlib import Path
 from home_center_mcp_client import HomeCenterMcp
+from judgment_jar_common import CONFIG_PATH, read_config
+from judgment_jar_receipts import flush, paths
 
 fingerprint,install_path,canary_path,out_path,commit,registry_id,pasta_id=sys.argv[1:]
-state=Path.home()/'.local/state/home-center/vlad-swarm/judgment-jar-receipts/home-center-ledger.json'
-if not state.is_file():
-    raise SystemExit('BLOCKED: Home Center receipt ledger identity is unavailable after flush')
-ledger=json.loads(state.read_text(encoding='utf-8'))
-file_id=str(ledger.get('fileId') or '')
-title=str(ledger.get('title') or 'Judgment Jar Usage Receipts — Vlad and Home Center')
+config=read_config(CONFIG_PATH)
+state=paths(config)
+
+def delivered_receipt():
+    directory=state['delivered']
+    if not directory.is_dir():
+        return None
+    for path in directory.glob('*.json'):
+        try:
+            obj=json.loads(path.read_text(encoding='utf-8'))
+        except Exception:
+            continue
+        if obj.get('dedupFingerprint') == fingerprint:
+            return obj
+    return None
+
+delivered=delivered_receipt()
+last_flush=None
+for _ in range(25):
+    if delivered is not None:
+        break
+    last_flush=flush(config,limit=100)
+    delivered=delivered_receipt()
+    if delivered is not None:
+        break
+    blocked=(last_flush or {}).get('blocked')
+    if blocked:
+        raise SystemExit('BLOCKED: ordered Judgment Jar receipt outbox blocked before canary delivery: '+json.dumps(blocked,sort_keys=True))
+if delivered is None:
+    raise SystemExit('BLOCKED: canary receipt not delivered after bounded oldest-first outbox drain')
+
+home=delivered.get('homeCenter') or {}
+file_id=str(home.get('fileId') or '')
+title=str(home.get('title') or 'Judgment Jar Usage Receipts — Vlad and Home Center')
 if not file_id:
-    raise SystemExit('BLOCKED: Home Center receipt ledger has no file ID')
+    raise SystemExit('BLOCKED: delivered canary receipt has no Home Center ledger file ID')
 remote=HomeCenterMcp().read_document(file_id,title)
 marker='judgmentJarReceiptFingerprint: '+fingerprint
 if marker not in remote:
     raise SystemExit('BLOCKED: Home Center remote receipt readback failed')
+
 install=json.loads(Path(install_path).read_text(encoding='utf-8'))
 canary=json.loads(Path(canary_path).read_text(encoding='utf-8'))
 if install.get('ok') is not True or install.get('canonicalTaskJarRouting') is not True:
