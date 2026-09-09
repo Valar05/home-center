@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-airborne-024-pole-plant-vault-chase-recovery",
-  "status": "REPO_VERIFIED_CHAT_DELIVERY_PENDING",
+  "status": "HEALTHY_USER_SURFACED",
   "current_worker_liveness": "PASS_HOME_CENTER_CAMPAIGN_PLUS_GITHUB",
   "source": {
     "provider": "The Spriters Resource",
@@ -25,16 +25,17 @@
     "bytes": 10898,
     "sha256": "3030811308a60cbc2197f4f5587e61e73ba433093c86ca782505ac4772d9d487",
     "decode": "PASS",
-    "video_source": "abstract_ascii_rig_only"
+    "video_source": "abstract_ascii_rig_only",
+    "current_worker_byte_identical_rebuild": "PASS"
   },
   "quality": {
-    "tango": "REVISE_REQUIRED -> same-body grip/tool ownership correction -> PASS on actual final 79-frame render",
-    "noodle_queen": "PASS TASTE+FUNCTION+CONTEMPT on actual final render"
+    "tango": "CURRENT_WORKER_PASS on byte-identical actual final 79-frame render; prior same-body REVISE_REQUIRED detached-looking shaft -> grip/tool ownership correction retained",
+    "noodle_queen": "CURRENT_WORKER_PASS TASTE+FUNCTION+CONTEMPT on same actual final render"
   },
   "contract": {
     "official_validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
-    "candidate_isolated_execution": "PASS",
-    "current_repo_structural_readback": "PASS",
+    "candidate_isolated_execution": "PASS_PERSISTED_EVIDENCE",
+    "current_repo_structural_readback": "PASS_FRESH_CURRENT_WORKER",
     "full_repo_shell_execution": "NOT_CLAIMED_CURRENT_CHAT_NO_AUTHORIZED_SHELL_SURFACE"
   },
   "repo_readback": {
@@ -46,14 +47,18 @@
     "spa_size": 30972,
     "primary_tabs": ["ASCII", "JSON", "VIDEO"],
     "contact_sheet_sha256": "1933fee964004b9093ffe7eb102fe7f0e00462777648f72fd78ec1c32611841f",
-    "motion_json_sha256": "4c150255250364f299bb95a37c45e82d316fc60c518ee05311d02fd348cec0b2"
+    "motion_json_sha256": "4c150255250364f299bb95a37c45e82d316fc60c518ee05311d02fd348cec0b2",
+    "final_receipt_readback": "PENDING_THIS_WRITE"
   },
-  "issue_343_receipt": "PENDING",
+  "issue_343_receipt": 5598590487,
   "chat_delivery": {
-    "ascii": false,
-    "json": false,
-    "video": false
+    "ascii": true,
+    "ascii_note": "complete aligned deterministic reconstruction from exact persisted authored keys; explicitly non-byte-identical to compact tracked sidecar",
+    "json": true,
+    "json_note": "structured persisted-SPA values reserialized with current-worker gate annotations; non-byte-identical formatting",
+    "video": true,
+    "video_note": "visible byte-identical authoritative MP4"
   },
   "drew_accepted": false,
-  "next_authorized": "NONE_UNTIL_CHAT_DELIVERY_AND_DURABLE_CLOSURE"
+  "next_authorized": "v2-airborne-025 only after final receipt readback"
 }
