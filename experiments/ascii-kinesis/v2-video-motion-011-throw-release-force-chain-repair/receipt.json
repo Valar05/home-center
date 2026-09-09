@@ -1,0 +1,80 @@
+{
+  "schema": "ascii-kinesis.swarm-receipt.v2",
+  "experiment_id": "v2-video-motion-011-throw-release-force-chain-repair",
+  "lane": "video-motion",
+  "status": "QUALITY_GATES_PASS_MEDIA_DECODE_PASS_CONTRACT_PASS_PERSIST_PENDING",
+  "current_worker_liveness": {
+    "home_center_campaign": "PASS",
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "github_persistence_readback": "PASS"
+  },
+  "authority": {
+    "global_reset_issue_comment": 5576901079,
+    "prior_lane_closure_issue_comment": 5594139400,
+    "manager_reconciliation_issue_comment": 5594373787,
+    "skill_blob_sha": "b2aaea5ee6babfdb788a028beb05e10159720776",
+    "contract_blob_sha": "d02f015f526ca56c3f13072fc0e9d03157630fbd",
+    "official_validator_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c"
+  },
+  "lineage": {
+    "revises": "experiments/ascii-kinesis/v2-video-motion-005-throw-release-force-chain/",
+    "negative_fixture": "experiments/ascii-kinesis/v2-video-motion-005-throw-release-force-chain/",
+    "predecessor_status": "REVISE_REQUIRED_LOW_EFFORT",
+    "preserve_predecessor": true,
+    "source_change": false,
+    "global_reset_issue_comment": 5576901079,
+    "prior_lane_closure_issue_comment": 5594139400,
+    "manager_reconciliation_issue_comment": 5594373787
+  },
+  "source": {
+    "title": "Throwing-slowmotion-man2013-stabilized.webm",
+    "page_url": "https://commons.wikimedia.org/wiki/File:Throwing-slowmotion-man2013-stabilized.webm",
+    "author": "Nesnad",
+    "license_id": "CC BY 4.0",
+    "source_sha256": "bcb20541112226cccd9f4e123ba7af69dcdb2333b4d5ac8b018f6cc4639e639c",
+    "selected_action_segment_s": [6.0, 12.0],
+    "release_forward_arc_window_s": [8.0, 10.0],
+    "source_change": false
+  },
+  "media": {
+    "authoritative": "embedded_mp4_in_spa",
+    "tracked_mp4": false,
+    "sha256": "798131071058e3246c4954cc969b68b01ab89d764a4a53db8be7c7d8a2dd419d",
+    "bytes": 16540,
+    "codec_name": "h264",
+    "width": 768,
+    "height": 432,
+    "pix_fmt": "yuv420p",
+    "fps": 24,
+    "frames": 50,
+    "duration_s": 2.083333,
+    "decode_verified_current_worker": true
+  },
+  "quality": {
+    "tango": {
+      "status": "PASS",
+      "current_worker": true,
+      "inspection_scope": "actual authoritative render; all 50 decoded frames plus focused f14-f24 release sheet",
+      "verdict": "PASS",
+      "highest_value_visible_defect": "NONE",
+      "basis": "Crooked rear-load anticipation visibly precedes pelvis/root drive; torso then shoulder/arm sling accelerates. Object remains hand-adjacent through authored RELEASE_GATE and forks only on the next authored FREE key, before the arm reaches its later follow-through extrema. Front-side support absorbs the throw, rear support peels, counter-rotation and catch compression pay the force debt, and recovery remains displaced rather than returning to idle."
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "current_worker": true,
+      "after_tango": true,
+      "inspection_scope": "same final 50-frame authoritative render plus complete three-part specimen structure",
+      "verdict": "TASTE + FUNCTION + CONTEMPT PASS",
+      "basis": "The rear-loaded corkscrew, withheld object release, hard object/body clock fork, cross-body spill, front-catch compression and crooked displaced recovery form a specific throw attitude. Force transfer and custody are legible without source choreography, and the ending carries debt instead of politely resetting."
+    }
+  },
+  "contract": {
+    "official_script_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "candidate_scoped": "PASS",
+    "repo_global": "NOT_CLAIMED"
+  },
+  "repo_readback": {"status": "PENDING", "main_commit": null, "files": null},
+  "issue_receipt": null,
+  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_video": false},
+  "correction_hooks": ["KEEP", "REJECT", "EXAGGERATE", "COMPRESS", "RETIME", "CHANGE SOURCE", "FIX SUPPORT", "FIX CUSTODY", "FIX RELEASE", "FIX BODY_OBJECT_ARC", "FIX RECOVERY", "FIX CHAT DELIVERY", "RERUN"]
+}
