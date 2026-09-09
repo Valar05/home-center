@@ -13,7 +13,6 @@
   "video_source": "abstract_ascii_rig_only",
   "source_art_embedded": false,
   "backward_compatible": true,
-  "contact_sheet_file": "contact-sheet.txt",
   "motion_file": "motion.json",
   "spa_file": "support-height-catch-drop-repair.motion.html",
   "builder_file": "build.py",
@@ -36,8 +35,8 @@
     "timing_evidence": "Source-authentic decisive-key exposure timing unavailable; all authored compile timing is INFERRED."
   },
   "motion_dungeon": {
-    "media_sha256": "94dac1e4fbd8045ed2b98db18afd3526134f9cd0a25736b805afdbbf0aaea1bc",
-    "media_bytes": 29165,
+    "media_sha256": "72a77787a8405bce48f1c353418462ef701e96833362bde7108ad2307e45343a",
+    "media_bytes": 16028,
     "frame_count": 45,
     "fps": 24,
     "codec": "h264",
