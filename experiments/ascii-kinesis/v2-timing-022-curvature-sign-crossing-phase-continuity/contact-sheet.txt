@@ -1,0 +1,112 @@
+K00 ESTABLISH_POSITIVE_CURVE FOURS/4t PROV=INFERRED GAIT=CATCH OWNER=LEFT CURV=POSITIVE BANK=+6 SPEED=1.0 ROOT=(0.0,0.0) HDG=+18
+        O
+       /|\
+       @^/
+      / \
+     *   +
+  S: POSITIVE       bank  +6
+  ----------------------------------------------
+K01 POSITIVE_CURVE_PASS TWOS/2t PROV=INFERRED GAIT=PASS OWNER=LEFT CURV=POSITIVE BANK=+8 SPEED=1.0 ROOT=(1.0,0.7) HDG=+24
+         O
+        /|\
+       @^/
+      / \
+     *   +
+  S: POSITIVE       bank  +8
+  ----------------------------------------------
+K02 POSITIVE_CURVE_RIGHT_CATCH ONES/1t PROV=INFERRED GAIT=CATCH OWNER=RIGHT CURV=POSITIVE BANK=+10 SPEED=1.0 ROOT=(2.0,1.6) HDG=+30
+         O
+        /|\
+       @^/
+      / \
+     +   *
+  S: POSITIVE       bank +10
+  ----------------------------------------------
+K03 UNWIND_OLD_BANK_PASS TWOS/2t PROV=INFERRED GAIT=PASS OWNER=RIGHT CURV=POSITIVE_DECAY BANK=+8 SPEED=1.0 ROOT=(3.0,2.4) HDG=+25
+         O
+        /|\
+       @^/
+      / \
+     +   *
+  S: POSITIVE_DECAY bank  +8
+  ----------------------------------------------
+K04 LAST_POSITIVE_LOAD_LEFT_CATCH STREET_FIGHTER/CAPCOM/3t PROV=INFERRED GAIT=CATCH OWNER=LEFT CURV=POSITIVE_DECAY BANK=+5 SPEED=1.0 ROOT=(4.0,2.9) HDG=+16
+        O
+       /|\
+       @^/
+      / \
+     *   +
+  S: POSITIVE_DECAY bank  +5
+  ----------------------------------------------
+K05 INFLECTION_APPROACH_PASS ONES/1t PROV=INFERRED GAIT=PASS OWNER=LEFT CURV=APPROACH_ZERO BANK=+2 SPEED=1.0 ROOT=(5.0,2.5) HDG=+7
+       O
+      /|\
+       @>
+      / \
+     *   +
+  S: APPROACH_ZERO  bank  +2
+  ----------------------------------------------
+K06 ZERO_CURVATURE_RIGHT_CATCH ONES/1t PROV=INFERRED GAIT=CATCH OWNER=RIGHT CURV=ZERO BANK=+0 SPEED=1.0 ROOT=(6.0,1.6) HDG=+0
+       O
+      /|\
+       @>
+      / \
+     +   *
+  S: ZERO           bank  +0
+  ----------------------------------------------
+K07 NEGATIVE_CURVE_RELEASE_PASS TWOS/2t PROV=INFERRED GAIT=PASS OWNER=RIGHT CURV=NEGATIVE BANK=-4 SPEED=1.0 ROOT=(7.0,0.3) HDG=-10
+      O
+     /|\
+       @\v
+      / \
+     +   *
+  S: NEGATIVE       bank  -4
+  ----------------------------------------------
+K08 NEGATIVE_CURVE_LEFT_CATCH STREET_FIGHTER/CAPCOM/3t PROV=INFERRED GAIT=CATCH OWNER=LEFT CURV=NEGATIVE BANK=-8 SPEED=1.0 ROOT=(8.0,-1.1) HDG=-20
+     O
+    /|\
+       @\v
+      / \
+     *   +
+  S: NEGATIVE       bank  -8
+  ----------------------------------------------
+K09 NEGATIVE_BANK_READ_PASS TWOS/2t PROV=INFERRED GAIT=PASS OWNER=LEFT CURV=NEGATIVE BANK=-10 SPEED=1.0 ROOT=(9.0,-2.2) HDG=-28
+     O
+    /|\
+       @\v
+      / \
+     *   +
+  S: NEGATIVE       bank -10
+  ----------------------------------------------
+K10 NEGATIVE_CURVE_RIGHT_CATCH ONES/1t PROV=INFERRED GAIT=CATCH OWNER=RIGHT CURV=NEGATIVE_DECAY BANK=-8 SPEED=1.0 ROOT=(10.0,-2.8) HDG=-24
+     O
+    /|\
+       @\v
+      / \
+     +   *
+  S: NEGATIVE_DECAY bank  -8
+  ----------------------------------------------
+K11 EXIT_UNWIND_PASS TWOS/2t PROV=INFERRED GAIT=PASS OWNER=RIGHT CURV=NEGATIVE_DECAY BANK=-5 SPEED=1.0 ROOT=(11.0,-2.5) HDG=-15
+      O
+     /|\
+       @\v
+      / \
+     +   *
+  S: NEGATIVE_DECAY bank  -5
+  ----------------------------------------------
+K12 TANGENT_REACQUIRE_LEFT_CATCH STREET_FIGHTER/CAPCOM/3t PROV=INFERRED GAIT=CATCH OWNER=LEFT CURV=APPROACH_ZERO BANK=-2 SPEED=1.0 ROOT=(12.0,-1.7) HDG=-6
+       O
+      /|\
+       @>
+      / \
+     *   +
+  S: APPROACH_ZERO  bank  -2
+  ----------------------------------------------
+K13 TANGENT_EXIT_CONTINUE FOURS/4t PROV=INFERRED GAIT=PASS OWNER=LEFT CURV=ZERO BANK=+0 SPEED=1.0 ROOT=(13.0,-0.9) HDG=+0
+       O
+      /|\
+       @>
+      / \
+     *   +
+  S: ZERO           bank  +0
+  ----------------------------------------------
