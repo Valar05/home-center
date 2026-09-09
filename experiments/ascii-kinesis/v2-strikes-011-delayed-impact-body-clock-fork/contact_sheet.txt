@@ -1,0 +1,385 @@
+ASCII KINESIS V2 STRIKES011 — DELAYED IMPACT / BODY CLOCK FORK
+SOURCE ART: NOT EMBEDDED | RIG: ABSTRACT ASCII ONLY | TIMING: INFERRED / STREET_FIGHTER-CAPCOM
+POCKET: RELEASE FORKS THE CLOCK. DELAYED CONTACT BELONGS TO THE THREAT, NOT THE BODY.
+
+K0 READY_OFFSET | FOURS | INFERRED | SUPPORT=BOTH_REAR_BIASED | CONTACT=NONE | THREAT=HELD_INTERNAL
+ROLE: readiness with open firing lane; asymmetrical base already biased away from neutral
+
+
+
+
+
+
+
+                        o                                                     T
+                        |                                                     |
+                        |                                                     |
+                     -+ + +                                                   |
+                   o-   |  -o                                                 |
+                   *    |    *                                                |
+                        |                                                     |
+                        |                                                     |
+                        |
+                        @
+                      -- --
+                    //     \
+                   o        o
+                  |          |
+                  /          \
+  ____________________________________________________________________________________
+
+
+
+K1 REAR_HAND_LOAD | FOURS | INFERRED | SUPPORT=RIGHT_REAR_DOMINANT | CONTACT=NONE | THREAT=HELD_INTERNAL
+ROLE: rear foot and pelvis accept load before upper-body release
+
+
+
+
+
+
+
+                                                                              T
+                     o                                                        |
+                     |                                                        |
+                     |                                                        |
+                 o-+ + +--                                                    |
+                 *   |    ---o                                                |
+                      |       --                                              |
+                      |         -*                                            |
+                      |
+                       |
+                       @
+                    --- ---
+                  o-       --o
+                  |           \
+                  /            \
+  ____________________________________________________________________________________
+
+
+
+K2 TORSO_COIL_CHAMBER | FOURS | INFERRED | SUPPORT=RIGHT_REAR_DOMINANT | CONTACT=NONE | THREAT=HELD_INTERNAL
+ROLE: pelvis stays braced while shoulder line coils and rear hand chambers
+
+
+
+
+
+
+
+                                                                              T
+                    o                                                         |
+                    |                                                         |
+                    |                                                         |
+                *-+ + +---                                                    |
+                    |     ---o--                                              |
+                     |          ---*                                          |
+                     |                                                        |
+                     |
+                      |
+                      @
+                    -- ----
+                  o-       --o
+                  |           \\
+                  /             \
+  ____________________________________________________________________________________
+
+
+
+K3 ROOT_DRIVE | TWOS | INFERRED | SUPPORT=RIGHT_TO_LEFT_TRANSFER | CONTACT=NONE | THREAT=HELD_INTERNAL
+ROLE: frontward root commitment begins before release hand reaches the launch gate
+
+
+
+
+
+
+
+                           o                                                  T
+                           |                                                  |
+                            |                                                 |
+                         -+ + +---o-*                                         |
+                       o-   |                                                 |
+                       |   |                                                  |
+                       *   |                                                  |
+                          |                                                   |
+                          |
+                         @
+                       -- ---
+                     //      -o
+                    o          |
+                   |           \
+                   /
+  ____________________________________________________________________________________
+
+
+
+K4 PRE_RELEASE | TWOS | INFERRED | SUPPORT=LEFT_FRONT_BRACE | CONTACT=HAND_OWNS_THREAT | THREAT=HAND_LOCKED
+ROLE: front foot catches; releasing hand extends while threat is still owned by hand
+
+
+
+
+
+
+                                o
+                                |                                             T
+                                 |                                            |
+                               + + +--oo                                      |
+                             -- /                                             |
+                           o-  /                                              |
+                          /    /                                              |
+                         *    /                                               |
+                             /                                                |
+                            @
+                          -- --
+                        --     \
+                      o-        o
+                      |         |
+                     |          \
+                     /
+  ____________________________________________________________________________________
+
+
+
+K5 RELEASE_FORK | ONES | INFERRED | SUPPORT=LEFT_FRONT_BRACE | CONTACT=RELEASE_EVENT | THREAT=FREE
+ROLE: grip constraint breaks; body clock and detached threat clock become independent
+
+
+
+
+
+
+                                  o
+                                  |                                           T
+                                   |                                          |
+                                -+ + +-o* >                                   |
+                              --  /                                           |
+                            o-   /                                            |
+                           /     /                                            |
+                           /    /                                             |
+                          *    /                                              |
+                              @
+                            -- --
+                          --     |
+                        o-       o
+                       /        |
+                       /        \
+                      /
+  ____________________________________________________________________________________
+
+
+
+K6 BODY_OVERRUN_THREAT_LEADS | ONES | INFERRED | SUPPORT=LEFT_FRONT_BRACE | CONTACT=NONE | THREAT=FREE
+ROLE: pelvis and chest overrun launch while threat gains separation
+
+
+
+
+
+
+                                    o                                         T
+                                    |             >                           |
+                                     |                                        |
+                                  -+ +*o                                      |
+                               ---  /                                         |
+                             o-    /                                          |
+                           //     /                                           |
+                          *      /                                            |
+                                @
+                             --- --
+                           --     |
+                         o-       o
+                        /        /
+                        /       \
+                       /
+  ____________________________________________________________________________________
+
+
+
+K7 BODY_RECOIL_FOLD | TWOS | INFERRED | SUPPORT=LEFT_FRONT_TO_BOTH | CONTACT=NONE | THREAT=FREE
+ROLE: body begins recoil while free threat continues forward on its own clock
+
+
+
+
+
+
+                                                                              T
+                              o                            >                  |
+                              |                                               |
+                              |                                               |
+                       o----+ + +                                             |
+                     *-       |  -o                                           |
+                              |   *                                           |
+                              |                                               |
+                              |
+                              @
+                            -- --
+                          --     o
+                        o-      |
+                       /        \
+                      /
+  ____________________________________________________________________________________
+
+
+
+K8 RECOVERY_PLANT_THREAT_PRECONTACT | TWOS | INFERRED | SUPPORT=BOTH_LEFT_FRONT_BIASED | CONTACT=THREAT_PRECONTACT | THREAT=FREE
+ROLE: rear support reacquires; body guard reforms while threat approaches target independently
+
+
+
+
+
+
+                                                                              T
+                           o                                                  |
+                           |                                             >    |
+                           |                                                  |
+                     o---+ + +                                                |
+                    *      |  o                                               |
+                           |  *                                               |
+                           |                                                  |
+                            |
+                            |
+                            @
+                         --- --
+                      o--      o
+                     |         |
+                     /         \
+  ____________________________________________________________________________________
+
+
+
+K9 DELAYED_THREAT_CONTACT | TWOS | INFERRED | SUPPORT=BOTH_LEFT_FRONT_BIASED | CONTACT=THREAT_TARGET_CONTACT | THREAT=CONTACT
+ROLE: detached threat reaches target after body recovery has already begun
+
+
+
+
+
+
+                                                                              T
+                          o                                                   |
+                          |                                                   |
+                          |                                                   |
+                    *o--+ + +o                                                X
+                          |  *                                                |
+                          |                                                   |
+                          |                                                   |
+                           |
+                           |
+                           @
+                        --- --
+                      o-      -o
+                     |         |
+                     /         \
+  ____________________________________________________________________________________
+
+
+
+K10 THREAT_OVERSHOOT_BODY_CONTINUES | ONES | INFERRED | SUPPORT=BOTH | CONTACT=CONTACT_RELEASED | THREAT=SPENT
+ROLE: impact consequence belongs to threat clock; body keeps settling instead of snapping back toward contact
+
+
+
+
+
+
+                                                                              T
+                         o                                                    |
+                         |                                                    |
+                         |                                                    |
+                    *--+ + +o                                                 |
+                         |  *                                                 |   *
+                         |                                                    |
+                         |                                                    |
+                          |
+                          |
+                          @
+                       --- --
+                     o-      -o
+                    |          |
+                    /          \
+  ____________________________________________________________________________________
+
+
+
+K11 SECONDARY_ARM_LAG | TWOS | INFERRED | SUPPORT=BOTH_REAR_RECATCH | CONTACT=NONE | THREAT=NONE
+ROLE: release arm trails torso recovery and repays rotational debt after threat is already spent
+
+
+
+
+
+
+                                                                              T
+                        o                                                     |
+                        |                                                     |
+                        |                                                     |
+                    *-+ + +-                                                  |
+                        |   -o                                                |
+                        |     \
+                        |      *                                              |
+                         |
+                         |
+                         @
+                      --- --
+                    o-      -o
+                    |         |
+                    /         \
+  ____________________________________________________________________________________
+
+
+
+K12 GUARD_REACQUIRE | TWOS | INFERRED | SUPPORT=BOTH | CONTACT=NONE | THREAT=NONE
+ROLE: support and guard regain action authority; firing shoulder remains displaced
+
+
+
+
+
+
+                                                                              T
+                         o                                                    |
+                         |                                                    |
+                         |                                                    |
+                   *o--+ + +-o                                                |
+                         |   *                                                |
+                         |                                                    |
+                         |                                                    |
+                         |
+                         |
+                         @
+                      --- --
+                    o-      -o
+                    |         |
+                    /         \
+  ____________________________________________________________________________________
+
+
+
+K13 DISPLACED_SETTLE | FOURS | INFERRED | SUPPORT=BOTH_DISPLACED | CONTACT=NONE | THREAT=NONE
+ROLE: settle preserves a narrower base and lower releasing shoulder instead of returning to K0
+
+
+
+
+
+
+                                                                              T
+                          o                                                   |
+                          |                                                   |
+                          |                                                   |
+                     o--+ + +                                                 |
+                    *     |  -o                                               |
+                          |   *                                               |
+                          |                                                   |
+                          |
+                          |
+                          @
+                       --- --
+                     o-      -o
+                     |         |
+                     /         \
+  ____________________________________________________________________________________
