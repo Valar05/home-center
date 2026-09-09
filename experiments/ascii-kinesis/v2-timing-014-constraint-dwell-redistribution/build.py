@@ -201,35 +201,26 @@ def render_mp4(frames):
     return out
 
 def build_spa(ascii_text, mp4_path):
-    data = base64.b64encode(mp4_path.read_bytes()).decode("ascii")
+    import gzip
+    video_data = base64.b64encode(mp4_path.read_bytes()).decode("ascii")
     motion_text = json.dumps(MOTION, sort_keys=True, ensure_ascii=True, separators=(",", ":"))
-    css = """
-    :root{color-scheme:dark;background:#080808;color:#f3f3f3;font-family:system-ui,sans-serif}
-    body{margin:0;padding:1rem;max-width:100vw;overflow-x:hidden}
-    nav{display:flex;gap:.5rem;position:sticky;top:0;background:#080808;padding:.5rem 0}
-    button{font:inherit;padding:.55rem .9rem}
-    section{display:none}
-    section.active{display:block}
-    pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-        font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.08}
-    video{max-width:100%;height:auto;border:1px solid currentColor}
-    """
-    script = """
-    const tabs=[...document.querySelectorAll('[data-view]')];
-    const panels=[...document.querySelectorAll('main section')];
-    function show(v){panels.forEach(p=>p.classList.toggle('active',p.id===v));}
-    tabs.forEach(b=>b.addEventListener('click',()=>show(b.dataset.view)));
-    show('ascii');
-    """
+    ascii_gz = base64.b64encode(gzip.compress(ascii_text.encode("utf-8"), compresslevel=9, mtime=0)).decode("ascii")
+    json_gz = base64.b64encode(gzip.compress(motion_text.encode("utf-8"), compresslevel=9, mtime=0)).decode("ascii")
+    css = ":root{color-scheme:dark;background:#080808;color:#f3f3f3;font-family:system-ui,sans-serif}body{margin:0;padding:1rem;max-width:100vw;overflow-x:hidden}nav{display:flex;gap:.5rem;position:sticky;top:0;background:#080808;padding:.5rem 0}button{font:inherit;padding:.55rem .9rem}section{display:none}section.active{display:block}pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.08}video{max-width:100%;height:auto;border:1px solid currentColor}"
+    script = f"""
+const blobs={{ascii:"{ascii_gz}",json:"{json_gz}"}};
+async function gunzip64(s){{const b=Uint8Array.from(atob(s),c=>c.charCodeAt(0));return await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'))).text();}}
+Promise.all([gunzip64(blobs.ascii),gunzip64(blobs.json)]).then(([a,j])=>{{document.getElementById('ascii-pre').textContent=a;document.getElementById('json-pre').textContent=j;}});
+const tabs=[...document.querySelectorAll('[data-view]')],panels=[...document.querySelectorAll('main section')];
+function show(v){{panels.forEach(p=>p.classList.toggle('active',p.id===v));}}
+tabs.forEach(b=>b.addEventListener('click',()=>show(b.dataset.view)));show('ascii');
+"""
     page = (
-        "<!doctype html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" "
-        "content=\"width=device-width,initial-scale=1\"><title>Timing014 Constraint Dwell Redistribution</title>"
-        f"<style>{css}</style></head><body>"
-        "<nav><button data-view=\"ascii\">ASCII</button><button data-view=\"json\">JSON</button>"
-        "<button data-view=\"video\">VIDEO</button></nav><main>"
-        f"<section id=\"ascii\"><pre>{html.escape(ascii_text)}</pre></section>"
-        f"<section id=\"json\"><pre>{html.escape(motion_text)}</pre></section>"
-        f"<section id=\"video\"><video controls loop muted playsinline src=\"data:video/mp4;base64,{data}\"></video></section>"
+        "<!doctype html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
+        "<title>Timing014 Constraint Dwell Redistribution</title>" + f"<style>{css}</style></head><body>" +
+        "<nav><button data-view=\"ascii\">ASCII</button><button data-view=\"json\">JSON</button><button data-view=\"video\">VIDEO</button></nav><main>" +
+        "<section id=\"ascii\"><pre id=\"ascii-pre\"></pre></section><section id=\"json\"><pre id=\"json-pre\"></pre></section>" +
+        f"<section id=\"video\"><video controls loop muted playsinline src=\"data:video/mp4;base64,{video_data}\"></video></section>" +
         f"</main><script>{script}</script></body></html>"
     )
     out = HERE / "constraint-dwell-redistribution.motion.html"
