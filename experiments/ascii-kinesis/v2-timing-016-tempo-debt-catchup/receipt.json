@@ -9,7 +9,7 @@
     "home_center_campaign_read": true
   },
   "drew_accepted": false,
-  "issue_343_receipt": null,
+  "issue_343_receipt": 5597834514,
   "media": {
     "bytes": 10964,
     "decode": true,
@@ -25,12 +25,12 @@
     "status": "PASS",
     "taste": "PASS"
   },
-  "repo_readback": false,
+  "repo_readback": true,
   "schema": "ascii-kinesis.receipt.v2",
   "source_family": "The Spriters Resource — Cress Albane — Tales of Phantasia — Game Boy Advance — asset 11953",
   "source_timing": "UNAVAILABLE_STATIC_SHEET",
   "specimen_id": "v2-timing-016-tempo-debt-catchup",
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "HEALTHY_USER_SURFACED",
   "tango": {
     "rounds": [
       {
@@ -48,6 +48,6 @@
     ],
     "status": "PASS"
   },
-  "three_part_chat_delivery": false,
+  "three_part_chat_delivery": true,
   "whole_source_inspection": true
 }
