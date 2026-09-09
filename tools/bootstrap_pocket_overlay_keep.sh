@@ -8,6 +8,10 @@ set -euo pipefail
 # It then installs/resumes the durable Vanguard overlay campaign from the exact
 # remote branch. It does not claim Pocket playback or overlay deployment merely
 # because the bootstrap itself succeeds.
+#
+# IMPORTANT: this bootstrap never hydrates Git LFS payloads. The control plane
+# does not depend on historical art/evidence blobs, and a missing LFS object must
+# never be allowed to block relay recovery again.
 
 REPO_SLUG="Valar05/home-center"
 CAMPAIGN_BRANCH="campaign/vanguard-overlay-resurrection"
@@ -88,8 +92,11 @@ if [ -z "$REPO" ]; then
   CLONE="$STATE/source"
   if ! is_repo "$CLONE"; then
     rm -rf "$CLONE.part" 2>/dev/null || true
-    say "No checkout found; cloning the private Home Center source into campaign state."
-    gh repo clone "$REPO_SLUG" "$CLONE.part" -- --filter=blob:none || fail 16 "Home Center clone failed"
+    say "No checkout found; cloning the private Home Center source into campaign state without Git LFS hydration."
+    GIT_LFS_SKIP_SMUDGE=1 gh repo clone "$REPO_SLUG" "$CLONE.part" -- --filter=blob:none || fail 16 "Home Center clone failed"
+    if command -v git-lfs >/dev/null 2>&1 || git lfs version >/dev/null 2>&1; then
+      git -C "$CLONE.part" lfs install --local --skip-smudge >/dev/null 2>&1 || true
+    fi
     rm -rf "$CLONE" 2>/dev/null || true
     mv "$CLONE.part" "$CLONE"
   fi
