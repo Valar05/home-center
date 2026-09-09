@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-airborne-029-midair-recoil-vector-bend-crossstep-recovery",
-  "status": "REPO_PERSISTED_READBACK_PASS_PENDING_ISSUE_AND_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "preflight": {
     "home_center_campaign_read": true,
     "github_persistence_readback": true,
@@ -19,7 +19,12 @@
     "final_readback": true,
     "exact_six_files": true,
     "spa_present": true,
-    "spa_count": 1
+    "spa_count": 1,
+    "build_blob": "abeece4199a915c370f15645a887fc15e82aa8a7",
+    "contact_blob": "b85d82895157fc68ac6428268189c16cdf7f3bb0",
+    "manifest_blob": "ddae9eb311d04f8dae7e22d36b1e83f3bf6fc9a4",
+    "motion_blob": "0b648cba42db6ca5f65ef72a1563f589ea536ba0",
+    "spa_blob": "cade77ee3164fc987f8f8ae977ef41a5085032c3"
   },
   "media": {
     "authoritative": {
@@ -69,17 +74,17 @@
     "full_repo_boundary": "Exact current validator and exact current candidate files read from GitHub; candidate-isolated structural predicates verified in Standard Chat. No fresh repo-global shell checkout/run claimed."
   },
   "issue_343": {
-    "closure_receipt": null,
-    "closure_receipt_readback": false,
+    "closure_receipt": 5607099327,
+    "closure_receipt_readback": true,
     "final_addendum": null
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_visible_video": false,
-    "video_byte_identical": false,
-    "part3_media_sha256": null
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_visible_video": true,
+    "video_byte_identical": true,
+    "part3_media_sha256": "ee0b4974907286b21c6a833282f911e6f34ef02023d42659aa9b7bebadb0a88b"
   },
   "DREW_ACCEPTED": false,
-  "next_authorized": null
+  "next_authorized": "v2-airborne-030"
 }
