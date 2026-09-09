@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "id": "v2-locomotion-014-figure-eight-curvature-sign-reversal",
-  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_CHAT_DELIVERY",
+  "status": "READY_FOR_REPOSITORY_READBACK_AND_CURRENT_CHAT_DELIVERY",
   "current_worker_liveness": {
     "home_center_campaign": true,
     "github_persistence_readback": true
@@ -19,12 +19,12 @@
     "whole_source_inspected": true
   },
   "media": {
-    "sha256": "d84a0130ea2cb784a2eec8618a93aa7857f6be2df4baf33f9d49e61cd677bdf3",
-    "bytes": 43796,
+    "sha256": "169cf649b94a2ff3fc79cb89817c8a9e21279b8ef449fffc324e83f131c1fd52",
+    "bytes": 7407,
     "codec": "h264",
     "pix_fmt": "yuv420p",
-    "width": 960,
-    "height": 520,
+    "width": 384,
+    "height": 256,
     "fps": "24/1",
     "frames": 55,
     "duration_seconds": 2.291667,
@@ -38,7 +38,9 @@
       "function": "PASS",
       "contempt": "PASS"
     },
-    "current_worker_actual_render_inspected": true
+    "current_worker_actual_render_inspected": true,
+    "tango_basis": "Fresh byte-identical 55-frame inspection: upright gravity, nonuniform catch/probe gait, near-zero-curvature crossover without phase reset, earned opposite bank, and displaced exit debt all read on the current authoritative render.",
+    "queen_basis": "After Tango PASS, the exact current render reads as embodied changing-curvature locomotion rather than decorative path following; support continuity, bank asymmetry, uneven spacing and crooked recovery are specific and economical."
   },
   "contract": {
     "validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
@@ -50,7 +52,7 @@
       "ok": true,
       "schema": "ascii-kinesis.swarm-contract-v2-test"
     },
-    "boundary": "candidate-isolated official validator PASS; full-repo global-green not claimed"
+    "boundary": "exact current official validator blob 09f0bcf233dbb770ce6b6df047fe18d94be8aa7c executed candidate-isolated against the exact reconstructed six-file Locomotion014 body; PASS. Full-repository global-green is not claimed from Standard Chat."
   },
   "repo": {
     "post_write_readback": false,
