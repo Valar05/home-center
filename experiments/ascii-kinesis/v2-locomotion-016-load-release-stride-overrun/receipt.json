@@ -2,7 +2,7 @@
   "schema": "ascii-kinesis.receipt.v2",
   "id": "v2-locomotion-016-load-release-stride-overrun",
   "lane": "locomotion",
-  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "preflight": {
     "current_worker": {"home_center_campaign_read": true, "github_persistence_readback": true},
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
@@ -53,11 +53,12 @@
     "body_files": {
       "build.py": "4cdcac15a26ccdaf759d048c29659a556465a0c1",
       "contact-sheet.txt": "1773ff0e4f30152716848ac2eb3093a49f3b91f8",
-      "manifest.json": "40b681509c37f90207ce387b21878b7d4dab17f0",
+      "manifest.json": "68756deaa1ef2cfcbee1767f4c99f36eca5ff19d",
       "motion.json": "88b14923ca59a0af61c04114d0a2fff258dfa4d7",
       "load-release-stride-overrun.motion.html": "443d7a62e37a7295aab3bd84ab692c29d8c571d2"
     },
     "pre_chat_issue_receipt": 5606597322,
+    "closure_issue_receipt": 5606660191,
     "issue_readback": true
   },
   "contract": {
@@ -72,7 +73,7 @@
     "candidate_isolated_official_validator": "PASS",
     "repository_global_checkout_execution": "UNCLAIMED_STANDARD_CHAT_BOUNDARY"
   },
-  "chat_delivery": {"ascii": false, "json": false, "video": false, "order": "ASCII->JSON->VIDEO", "byte_identical_video": false},
+  "chat_delivery": {"ascii": true, "json": true, "video": true, "order": "ASCII->JSON->VIDEO", "byte_identical_video": true},
   "drew_accepted": false,
-  "next_authorized": null
+  "next_authorized": "v2-locomotion-017"
 }
