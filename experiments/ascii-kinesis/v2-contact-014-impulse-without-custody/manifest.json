@@ -1,0 +1,76 @@
+{
+  "schema": "ascii-kinesis.manifest.v2",
+  "format_version": 2,
+  "experiment_id": "v2-contact-014-impulse-without-custody",
+  "lane": "contact",
+  "entry": "experiments/ascii-kinesis/v2-contact-014-impulse-without-custody/",
+  "concept_kind": "NEW_CONCEPT",
+  "revises": null,
+  "negative_fixture": null,
+  "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "155651",
+    "title": "The Bullet",
+    "game": "Enter the Gungeon",
+    "platform": "PC / Computer",
+    "url": "https://www.spriters-resource.com/pc_computer/enterthegungeon/asset/155651/",
+    "campaign_evidence_id": "1IyEadga2zJOCNr9vr0MJsnZvRr0x8YxBFjrk-MSsGEc",
+    "whole_source_inspected": true,
+    "source_authentic_timing": "UNAVAILABLE",
+    "rights_firewall": "PASS"
+  },
+  "novelty": "IMPULSE_WITHOUT_CUSTODY",
+  "files": {
+    "builder": "build.py",
+    "ascii": "contact-sheet.txt",
+    "motion": "motion.json",
+    "spa": "impulse-without-custody.motion.html",
+    "receipt": "receipt.json"
+  },
+  "media": {
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 800,
+    "height": 450,
+    "fps": 24,
+    "frames": 46,
+    "bytes": 19894,
+    "sha256": "d185d145a8c52813c2828d24bc8f82bbb8723d38e1e320cde6502e9f3416b781",
+    "generated_from": "abstract ASCII rig + structured timing via Motion Dungeon"
+  },
+  "quality": {
+    "tango": "PASS_CURRENT_WORKER_ACTUAL_RENDER_AFTER_SAME_BODY_CORRECTION",
+    "noodle_queen": "PASS_CURRENT_WORKER_AFTER_TANGO",
+    "drew_accepted": false
+  },
+  "construction_hashes": {
+    "build_py_sha256": "d707505921ba8867b431e9f4c5e5099c64f7a0e276a2d258b63e3fbcc7c6fbdd",
+    "contact_sheet_sha256": "24b4d691525253bb11fba13c05653061c94c8e1d531fc8575a6251f9c9d6f6dd",
+    "motion_json_sha256": "988a78fe8143367862619c2b8777987360c8125c617be4299a4a8a6706006979",
+    "spa_sha256": "abf48e4f49047465c5d73b19ef9127f6e9a97798cc8f53575865afc98ce8df30"
+  },
+  "contract": {
+    "official_validator": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "candidate_isolated": "PASS_CURRENT_VALIDATOR_BLOB_09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "repo_global": "NOT_CLAIMED"
+  },
+  "repo_state": "PERSISTENCE_PENDING_AFTER_CANDIDATE_ISOLATED_PASS",
+  "issue_343_receipt": null,
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false,
+    "ordered_together": false
+  }
+}
