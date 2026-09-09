@@ -8,7 +8,8 @@ T014-K2  DRIVE_1               class=TWOS    hold=4   provenance=INFERRED  suppo
 T014-K3  DRIVE_SURGE           class=ONES    hold=2   provenance=INFERRED  support=REAR_RELEASE_FRONT_SEEK  contact=NONE
 T014-K4  PRECONTACT            class=ONES    hold=1   provenance=INFERRED  support=FRONT_SEEK_REAR_RELEASE  contact=NONE
 T014-K5  WALL_CONTACT          class=ONES    hold=1   provenance=INFERRED  support=FRONT_BRAKE_REAR_TRAIL  contact=LEAD_HAND_WALL
-T014-K6  COMPRESSION_BANK      class=FOURS   hold=12  provenance=INFERRED  support=BOTH_COMPRESSED_FRONT_HEAVY  contact=LEAD_HAND_WALL
+T014-K6A  COMPRESSION_ENTRY     class=TWOS    hold=4   provenance=INFERRED  support=FRONT_CATCH_REAR_FOLD  contact=LEAD_HAND_WALL
+T014-K6B  DEEP_COMPRESSION_SETTLE  class=TWOS    hold=6   provenance=INFERRED  support=BOTH_COMPRESSED_FRONT_HEAVY  contact=LEAD_HAND_WALL
 T014-K7  SUPPORT_SHEAR         class=TWOS    hold=4   provenance=INFERRED  support=FRONT_HEAVY_REAR_PEEL  contact=LEAD_HAND_WALL
 T014-K8  PEEL_RELEASE          class=ONES    hold=2   provenance=INFERRED  support=REAR_REACQUIRE_FRONT_UNLOAD  contact=WALL_RELEASED
 T014-K9  REBOUND_OVERSHOOT     class=TWOS    hold=4   provenance=INFERRED  support=REAR_CATCH_FRONT_FLOAT  contact=NONE
@@ -83,7 +84,7 @@ T014-K4 PRECONTACT                    T014-K5 WALL_CONTACT
 ===============_========_======#====  =================_=======_=====#====
                                                                           
 
-T014-K6 COMPRESSION_BANK              T014-K7 SUPPORT_SHEAR               
+T014-K6A COMPRESSION_ENTRY            T014-K6B DEEP_COMPRESSION_SETTLE    
                                                                           
                                                                           
                                #                                     #    
@@ -91,59 +92,81 @@ T014-K6 COMPRESSION_BANK              T014-K7 SUPPORT_SHEAR
                                #                                     #    
                                #                                     #    
                                #                                     #    
-                               #                                     #    
-                         O     #                              O      #    
-                               #                                     #    
-                             --*                                   --*    
-                      +++--+-  #                           +++---+-  #    
-                    +-/        #                        -+-/         #    
-                   / /         #                      *-  /          #    
-                  * @          #                         @-          #    
-                   / --        #                        |  --        #    
-                  +    -+      #                        +    -+      #    
-                 /       \\    #                       |       --    #    
-================_==========_===#====  =================_==========_==#====
-                                                                          
-
-T014-K8 PEEL_RELEASE                  T014-K9 REBOUND_OVERSHOOT           
-                                                                          
-                                                                          
-                               #                                     #    
-                               #                                     #    
-                               #                                     #    
-                               #                  O                  #    
-                               #                                     #    
-                    O          #                                     #    
-                               #                  +++                #    
-                               #                   /\--+-            #    
-              *-  +++---+---*  #                  + \    -*          #    
-                +--|           #                 /   @               #    
-                  |            #                *    |\              #    
-                  @            #                    |  \             #    
-                  |--          #                    |   +            #    
-                 |   -+        #                    +    |           #    
-                 +     \       #                    |    |           #    
-                |       \      #                   |      |          #    
-================_========_=====#====  =============_======_==========#====
+                         O     #                                     #    
+                               #                               O     #    
+                             --*                                     #    
+                      +++--+-  #                                   --*    
+                    +-/        #                            +++--+-  #    
+                   / /         #                          +-/        #    
+                  * @          #                         / /         #    
+                   / --        #                        * @          #    
+                   /   -+      #                         / --        #    
+                  +      \     #                        +    -+      #    
+                 /        \    #                       /       \\    #    
+================_==========_===#====  ================_==========_===#====
                                                                           
 
-T014-K10 COUNTER_CATCH                T014-K11 DISPLACED_READY            
+T014-K7 SUPPORT_SHEAR                 T014-K8 PEEL_RELEASE                
                                                                           
                                                                           
                                #                                     #    
                                #                                     #    
                                #                                     #    
                                #                                     #    
-                O              #                    O                #    
+                               #                                     #    
+                               #                          O          #    
+                        O      #                                     #    
+                               #                                     #    
+                             --*                    *-  +++---+---*  #    
+                     +++---+-  #                      +--|           #    
+                  -+-/         #                        |            #    
+                *-  /          #                        @            #    
+                   @-          #                        |--          #    
+                  |  --        #                       |   -+        #    
+                  +    -+      #                       +     \       #    
+                 |       --    #                      |       \      #    
+=================_==========_==#====  ================_========_=====#====
+                                                                          
+
+T014-K9 REBOUND_OVERSHOOT             T014-K10 COUNTER_CATCH              
+                                                                          
+                                                                          
                                #                                     #    
                                #                                     #    
-              +++              #                   +++               #    
-              /|-              #                   /|-               #    
-             + | -+            #                  +|  -+             #    
-           *- |    |           #                *- @    |            #    
-              @    *           #                  / \   *            #    
-             / \               #                  /  \               #    
-             /  \              #                 +    +              #    
-            +    +             #                /      \             #    
-           |      \            #                /      \             #    
-===========_=======_===========#====  =========_========_============#====
+            O                  #                                     #    
+                               #                      O              #    
+                               #                                     #    
+            +++                #                                     #    
+             /\--+-            #                    +++              #    
+            + \    -*          #                    /|-              #    
+           /   @               #                   + | -+            #    
+          *    |\              #                 *- |    |           #    
+              |  \             #                    @    *           #    
+              |   +            #                   / \               #    
+              +    |           #                   /  \              #    
+              |    |           #                  +    +             #    
+             |      |          #                 |      \            #    
+=============_======_==========#====  ===========_=======_===========#====
+                                                                          
+
+T014-K11 DISPLACED_READY                                                  
+                                                                          
+                                                                          
+                               #                                          
+                               #                                          
+                               #                                          
+                               #                                          
+              O                #                                          
+                               #                                          
+                               #                                          
+             +++               #                                          
+             /|-               #                                          
+            +|  -+             #                                          
+          *- @    |            #                                          
+            / \   *            #                                          
+            /  \               #                                          
+           +    +              #                                          
+          /      \             #                                          
+          /      \             #                                          
+=========_========_============#====                                      
+                                                                          
