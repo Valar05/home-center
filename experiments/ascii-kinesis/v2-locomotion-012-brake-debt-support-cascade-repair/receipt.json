@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.swarm-receipt.v2",
   "experiment_id": "v2-locomotion-012-brake-debt-support-cascade-repair",
-  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
+  "status": "HEALTHY",
   "repo_path": "experiments/ascii-kinesis/v2-locomotion-012-brake-debt-support-cascade-repair/",
   "repository": "Valar05/home-center",
   "lineage": {
@@ -61,13 +61,21 @@
   "verification": {
     "repo_readback": true,
     "media_decode": true,
-    "three_part_chat_delivery": false
+    "three_part_chat_delivery": true
   },
-  "artifact_mutation": "Receipt-only state reconciliation after current-worker verification; motion.json, manifest.json, build.py, and SPA were not changed.",
+  "reporting_chat": {
+    "part_1_ascii": "complete deterministic persisted-motion contact sheet surfaced",
+    "part_1_ascii_sha256": "bbb678821eefb1ff28d58fd347a3febb272b936aabbeb31a1a376ed5bfcc44d0",
+    "part_2_json": "actual persisted motion.json values surfaced",
+    "part_2_motion_blob": "12edf3e0bb741f269de6b51592460e8fafd4cb5e",
+    "part_3_video": "actual byte-identical authoritative media surfaced visibly",
+    "part_3_media_sha256": "c7520b1bea382b862ee6ecc5c8a1c4b88e3386dd8f9fe56befc1dcc157d9abf8"
+  },
+  "artifact_mutation": "Receipt-only closure after current-worker verification and exact reporting-chat delivery; motion.json, manifest.json, build.py, and SPA were not changed.",
   "issue_receipt": {
     "issue": 343,
     "comment_id": 5596184359,
-    "state": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY"
+    "state": "HEALTHY"
   },
   "correction_hooks": [
     "KEEP",
