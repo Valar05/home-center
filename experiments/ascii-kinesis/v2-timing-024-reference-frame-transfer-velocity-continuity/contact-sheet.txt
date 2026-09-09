@@ -1,0 +1,84 @@
+TIMING024 - REFERENCE-FRAME TRANSFER / VELOCITY CONTINUITY
+Primitive: REFERENCE_FRAME_AUTHORITY_TRANSFER_WITH_VELOCITY_CONTINUITY
+Pocket rule: TRANSFER SUPPORT AUTHORITY FIRST; PAY VELOCITY DEBT AFTER.
+================================================================================================
+K00 OLD_FRAME_CARRY FOURS/4t PROV=INFERRED SUPPORT=OLD_MOVING_BOTH SPEED=1.00 ROOTX=0.00 FRAME=OLD_OWNS
+        O
+       /|\
+        @ >>>
+       / \
+      *   *
+   ===>======
+------------------------------------------------------------------------------------------------
+K01 EXIT_PREP TWOS/2t PROV=INFERRED SUPPORT=OLD_MOVING_TRAIL SPEED=0.95 ROOTX=1.00 FRAME=OLD_OWNS
+       O
+      /|\
+      _@ >>>
+     /  \
+    *    +
+ ===>======   ____
+------------------------------------------------------------------------------------------------
+K02 FIXED_PROBE TWOS/2t PROV=INFERRED SUPPORT=OLD_MOVING_TRAIL_NEW_PROBE SPEED=0.90 ROOTX=1.80 FRAME=PROBE_NO_OWNERSHIP
+      O
+     /|\
+     _@ >>>
+    /   \
+   *     :
+===>====      ____
+------------------------------------------------------------------------------------------------
+K03 DUAL_FRAME_OVERLAP ONES/1t PROV=INFERRED SUPPORT=OLD_MOVING_PLUS_NEW_FIXED SPEED=0.82 ROOTX=2.50 FRAME=DUAL_CONSTRAINT
+      O
+     /|\
+      @ >>>
+     / \
+    *   *
+===>*===  *____
+------------------------------------------------------------------------------------------------
+K04 OWNERSHIP_TRANSFER ONES/1t PROV=INFERRED SUPPORT=NEW_FIXED_LEAD SPEED=0.78 ROOTX=3.10 FRAME=NEW_OWNS_VELOCITY_UNPAID
+       O
+      /|\
+       @ >>>
+      /  \
+     +    *
+===>      *____
+------------------------------------------------------------------------------------------------
+K05 INHERITED_CARRY STREET_FIGHTER/CAPCOM/3t PROV=INFERRED SUPPORT=NEW_FIXED_LEAD SPEED=0.72 ROOTX=3.80 FRAME=NEW_OWNS_VELOCITY_UNPAID
+        O >>>
+       /|\
+      _ @
+        /\
+       + *
+________*____
+------------------------------------------------------------------------------------------------
+K06 BRAKE_ABSORB FOURS/4t PROV=INFERRED SUPPORT=NEW_FIXED_BRAKE SPEED=0.38 ROOTX=4.30 FRAME=NEW_OWNS_BRAKING
+      O >>
+    __/|\
+      _@_
+     /   \
+    *     *
+____*_____*____
+------------------------------------------------------------------------------------------------
+K07 SECOND_FIXED_CATCH ONES/1t PROV=INFERRED SUPPORT=NEW_FIXED_NEXT_CATCH SPEED=0.18 ROOTX=4.60 FRAME=NEW_OWNS_SECOND_CATCH
+      O >
+     /|\
+     _@_
+    /   \
+   *     *
+___*_____*____
+------------------------------------------------------------------------------------------------
+K08 FIXED_FRAME_SETTLE TWOS/2t PROV=INFERRED SUPPORT=NEW_FIXED_BOTH SPEED=0.06 ROOTX=4.75 FRAME=NEW_OWNS_NEAR_ZERO
+      O
+     /|\
+      @>
+     / \
+    *   *
+____*___*____
+------------------------------------------------------------------------------------------------
+K09 DISPLACED_RESTACK FOURS/4t PROV=INFERRED SUPPORT=NEW_FIXED_STABLE SPEED=0.00 ROOTX=4.85 FRAME=NEW_OWNS_STABLE
+       O
+      /|\
+       @
+      / \
+     *   *
+_____*___*____
+------------------------------------------------------------------------------------------------
