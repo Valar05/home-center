@@ -1,0 +1,437 @@
+ASCII KINESIS V2 DEFENSE 014 — TOOL KICKSTAND CATCH / RECOVERY
+abstract rig only — TSR Hammer Kirby asset 2879 is campaign evidence only; no source pixels or choreography enter output
+performance law: high brace -> crush -> rear-foot yield -> tool-head floor catch -> kickstand hang -> far-foot probe/acquire -> tool unload -> counter-travel -> dual-support restack -> late tool reopen -> displaced ready debt
+novelty: external tool-floor support owns the middle of the recovery; no Defense013 rear-anchor pivot / cross-body exit grammar
+support legend: R=old rear foot, N=new foot, T=tool-head floor anchor, f/t=secondary foot, floor=_; tool shaft=#
+
+D014-K00  OFFSET_TOOL_READY  [FOURS | INFERRED]
+
+
+
+
+                                             O
+                                            |
+                                           /+\        #}
+                                        +-- / --+   ##
+                                       /    /    \##
+                                       /   |    ##+
+                                      +    |  ## |
+                                      /    @##   o
+                                     |    ##\
+                                     o  ##   \
+                                      ##/     \
+                                    ## +       +
+                                  {#  /         \
+                                      /          \
+                                     |           \
+  ___________________________________=____________=_______________
+                                     L            R
+
+
+
+support=BOTH_FEET root=GROUNDED contact=NONE tool=OWNED readiness=READY_DEBT
+role=before-state: asymmetrical diagonal tool guard with unequal stance and slight task debt
+arc=tool claims high-right negative space while pelvis sits behind the diagonal debt=0.14
+
+--------------------------------------------------------------------
+
+D014-K01  SUNK_HIGH_BRACE  [TWOS | INFERRED]
+
+
+
+
+
+                                           O
+                                          |
+                                         /+\
+                                      +-- / --+        #}
+                                     /   /     \\   ###
+                                     /   /       +##     <<<<<<<<
+                                    +    /    ###|
+                                    /   |  ###   o
+                                   |    @##
+                                   o ### \\
+                                  ###//    \\
+                                {#  +        +
+                                   /          \
+                                   /           \\
+  ________________________________=______________=________________
+                                  R              f
+
+
+
+support=BOTH_FEET_REAR_BIASED root=GROUNDED contact=INCOMING_RIGHT tool=OWNED readiness=BRACED
+role=anticipation: root drops and shifts behind rear support before the upper-right threat arrives
+arc=down-left brace; hands clamp the shaft while front knee softens debt=0.24
+
+--------------------------------------------------------------------
+
+D014-K02  TOOL_CRUSH_CONTACT  [ONES | INFERRED]
+
+
+
+
+
+
+                                         O
+                                        |
+                                       /+\
+                                    +-- / --+
+                                   /   /     \      X
+                                   /   /      \   #}  <<<<<<<<<<
+                                  +    /      #+##
+                                  /   |   #### |
+                                 |    @###     o
+                                 o #### \\
+                               #### /     -+\
+                             {#    +         \\
+                                  /            -=
+  _______________________________=________________________________
+                                 R
+
+
+
+support=REAR_FOOT root=IMPACTED contact=IMPACT_RIGHT tool=OWNED readiness=INTERRUPTED
+role=contact: tool folds toward torso and front support loses authority
+arc=force drives tool/body down-left; contact is inside the brace, not farthest reach debt=0.50
+
+--------------------------------------------------------------------
+
+D014-K03  CRUSH_SHEAR_HOLD  [FOURS | INFERRED]
+
+
+
+
+
+
+
+                                       O
+                                      |
+                                     /+\
+                                  +-- / --+
+                                 /   /     \
+                                 /   /      \
+                                +    /       +##}
+                                /   |    #####
+                               |    @####    o
+                               o####  --+\
+                            {##    /      --=
+                                  +
+  _______________________________=________________________________
+                                 R
+
+
+
+support=REAR_FOOT root=COMPRESSED contact=POST_IMPACT tool=CARRIED readiness=LOCKED_OUT
+role=consequence hold: torso and pelvis continue left/down while tool remains between threat and body
+arc=rear foot owns root; front leg folds clear and tool torque continues after contact debt=0.72
+
+--------------------------------------------------------------------
+
+D014-K04  TOOL_HEAD_FLOOR_CATCH  [ONES | INFERRED]
+
+
+
+
+
+
+
+                                     O
+                                    |
+                                   /+\
+                                +-- / --+
+                               /   /     \
+                               /   /     \
+                              +    /      |
+                         {##  /   |       +
+                            ####  @\     |
+                             o  ####--+\ o
+                                 +  ####--=
+                                 |      ####
+  _______________________________=____________}___________________
+                                 R            T
+
+
+
+support=TOOL_HEAD_REAR_FOOT root=CATCHING contact=NONE tool=FLOOR_ANCHORED readiness=LOCKED_OUT
+role=external support acquisition: tool head strikes floor before the body can restack
+arc=floor contact converts the diagonal implement into a temporary kickstand while rear foot still carries part of load debt=0.66
+
+--------------------------------------------------------------------
+
+D014-K05  KICKSTAND_HANG  [TWOS | INFERRED]
+
+
+
+
+
+
+                                  O
+                                 |
+                                /+\
+                             +-- / --+
+                            /   /     \
+                            /   /     \
+                           +   |       |
+                        {#<|   @       +
+                          ####/\       |
+                           +- ####     o
+                          /     + ###
+                         =      \    ####
+                                 |       ####
+  _______________________________=____________}___________________
+                                 R            T
+
+
+
+support=TOOL_HEAD_REAR_FOOT root=HANGING contact=NONE tool=FLOOR_ANCHORED readiness=LOCKED_OUT
+role=support consequence: root travels under the tool/foot triangle instead of snapping upright
+arc=tool head and rear foot stay world-locked while pelvis arcs left/up slightly and free leg tucks debt=0.62
+
+--------------------------------------------------------------------
+
+D014-K06  NEW_FOOT_PROBE  [TWOS | INFERRED]
+
+
+
+
+
+
+                                O
+                               |
+                              /+\
+                           +-- / --+
+                          /   /     \
+                          /   /     \
+                         +   |       |
+                       {#|   @       +
+                         ####\       |
+                         o// ####    o
+                         /    +  ####
+                       /+      \     ####
+                     =-         \        ####
+  _______________________________=____________}___________________
+                                 R            T
+
+
+
+support=TOOL_HEAD_REAR_FOOT root=HANGING contact=NONE tool=FLOOR_ANCHORED readiness=LOCKED_OUT
+role=probe: free foot reaches far left while tool and old rear foot still own support
+arc=root continues left through the support triangle; probe precedes ownership debt=0.56
+
+--------------------------------------------------------------------
+
+D014-K07  TRIANGLE_TRANSFER  [ONES | INFERRED]
+
+
+
+
+
+
+                              O
+                             |
+                            /+\
+                         +-- / --+
+                        /   /     \
+                        /   /     \
+                       +   |       |
+                      {#   @       +
+                       |####       |
+                       o / |####   o
+                        +  +\   ####
+                       /     --=    ####
+                      /                 ####
+  ___________________=________________________}___________________
+                     N                        T
+
+
+
+support=TOOL_HEAD_NEW_FOOT root=TRANSFER contact=NONE tool=FLOOR_ANCHORED readiness=REBINDING
+role=new-foot acquisition: far foot becomes trustworthy while old rear foot peels
+arc=support triangle widens from new foot to tool head; root can now begin counter-travel debt=0.48
+
+--------------------------------------------------------------------
+
+D014-K08  TOOL_UNLOAD_PEEL  [TWOS | INFERRED]
+
+
+
+
+
+                               O
+                              |
+                             /+\
+                          +-- / --+
+                         /   /     \
+                         /   /     \
+                        +   |       |
+                       <|   @       +
+                       {## /|       |
+                        o #####     o
+                          / +  #####
+                         +   \\     #####
+                        /      =         ##}
+                      //
+  ___________________=____________________________________________
+                     N
+
+
+
+support=NEW_FOOT root=UNLOADING contact=NONE tool=LIFTING readiness=REBINDING
+role=support handoff complete: tool head leaves floor only after new foot owns root
+arc=pelvis rebounds right/up against pinned new foot; tool lags behind the root debt=0.42
+
+--------------------------------------------------------------------
+
+D014-K09  COUNTER_TRAVEL_TOOL_LAG  [TWOS | INFERRED]
+
+
+
+
+
+                                 O
+                                |
+                               /+\
+                            +-- / --+
+                           /   /     \
+                           /   /     \
+                          +   |       +
+                         <|   @        |
+                          |  /|        o
+                          {##################}
+                            / +
+                           +   \\
+                         //      =
+                       //
+  ___________________=____________________________________________
+                     N
+
+
+
+support=NEW_FOOT root=ARRESTING contact=NONE tool=LIFTING readiness=REBINDING
+role=counter-travel: body comes back right while heavy tool is still climbing out of the catch
+arc=new foot remains fixed; pelvis passes right and shaft trails low debt=0.38
+
+--------------------------------------------------------------------
+
+D014-K10  TRAIL_FOOT_REACQUIRE  [ONES | INFERRED]
+
+
+
+
+
+                               O
+                              |
+                             /+\
+                          +-- / --+
+                         /   /     \
+                         /   /      \
+                        +   |        +      ###}
+                        |   @       ########
+                        |  / #######   o
+                        o{### \
+                         /     \
+                        +       +
+                       /         \
+                      /           \\
+  ___________________=______________=_____________________________
+                     N              t
+
+
+
+support=BOTH_FEET_NEW_BIASED root=RESTACKING contact=NONE tool=LIFTING readiness=REBINDING
+role=second support returns after the new foot has arrested the root
+arc=trusted new foot remains x=21 while old foot reacquires at x=36; height recovery begins only after this dual support exists debt=0.31
+
+--------------------------------------------------------------------
+
+D014-K11  TOOL_REOPEN_OVERSHOOT  [TWOS | INFERRED]
+
+
+
+
+                                O
+                               |
+                              /+\
+                           +-- / --+                #}
+                          /   /     \\          ####
+                          /   /       +\    ####
+                         +   |          #o##
+                         |   @      ####
+                         |  / \ ####
+                         o//####
+                         /{#    \
+                        +        +
+                       /          \
+                      /            \
+                      /            \
+  ___________________=______________=_____________________________
+                     N              t
+
+
+
+support=BOTH_FEET_NEW_BIASED root=RESTACKING contact=NONE tool=OWNED readiness=REBINDING
+role=tool authority reopens late and overshoots threatward after the feet are trustworthy
+arc=new foot stays x=21 and old foot x=36 while hands/tool overshoot threatward on a later clock than pelvis/support debt=0.27
+
+--------------------------------------------------------------------
+
+D014-K12  SECONDARY_SHAFT_SETTLE  [TWOS | INFERRED]
+
+
+
+
+
+                               O
+                              |
+                             /+\
+                          +-- / --+
+                         /   /     \\
+                         /   /       +         ##}
+                        +   |         \   #####
+                        |   @        ##o##
+                        |  / \   ####
+                        o// #####
+                        /{##   \
+                       +        +
+                      /          \
+                      /           \\
+  ___________________=______________=_____________________________
+                     N              t
+
+
+
+support=BOTH_FEET_NEW_BIASED root=SETTLING contact=NONE tool=OWNED readiness=READY_DEBT
+role=secondary lag: shaft, hands, head, and pelvis settle on staggered clocks
+arc=both feet remain planted at the transferred base while shaft/head settle below the overshoot debt=0.22
+
+--------------------------------------------------------------------
+
+D014-K13  DISPLACED_KICKSTAND_READY  [FOURS | INFERRED]
+
+
+
+
+
+
+                              O
+                             |
+                            /+\
+                         +-- / --+
+                        /   /     \\
+                        /   /       +        ##}
+                       +   |         \   ####
+                       |   @        ##o##
+                       |  / \  #####
+                       o / ####
+                        {##    +
+                       +        \\
+                      /           \\
+  ___________________=______________=_____________________________
+                     N              t
+
+
+
+support=BOTH_FEET_NEW_BIASED root=GROUNDED contact=NONE tool=OWNED readiness=READY_DEBT
+role=re-entry: defensive readiness returns at a new lateral address with residual tool-side debt
+arc=new foot remains x=21 and final root x=27 stays lower and left of initial root x=43; tool also finishes lower, preserving visible defensive debt debt=0.22
