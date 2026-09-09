@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-timing-020-support-gate-latency-localization",
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "PERSISTED_NOT_DELIVERED",
   "current_worker_liveness": true,
   "home_center_campaign_read": true,
   "github_persistence_readback": true,
@@ -18,14 +18,24 @@
     "timing_provenance": "INFERRED"
   },
   "primitive": "SUPPORT_GATE_LATENCY_LOCALIZATION",
-  "repo_readback": false,
-  "issue_343_receipt": null,
-  "issue_343_receipt_readback": false,
+  "repo_readback": true,
+  "issue_343_receipt": 5604991002,
+  "issue_343_receipt_readback": true,
   "three_part_chat_delivery": false,
-  "ship_commit": null,
+  "ship_commit": "ba12f8dc86eda7192889941e421eb6dfddd24197",
+  "candidate_receipt_commit": "029e374abc63a9b49069cd177ad4b0beddb81aaa",
+  "manifest_reconcile_commit": "1994a8a0516b25cafd2c2ef876806ee7964124b3",
   "final_commit": null,
+  "repo_blobs": {
+    "build.py": "c97ba052dda8b23ad55f69e49966d4822493c21d",
+    "contact-sheet.txt": "4aea62b1178e9153bdc6dab3efc43bc7d1214e0a",
+    "manifest.json": "8a465c9e4c17132a38a668be9b6c578a24d395e7",
+    "motion.json": "3c0040029bc989b75750ef61d3808e21a705fdf2",
+    "support-gate-latency-localization.motion.html": "ab03e7ee6660493072b81681756bb8126b90555b"
+  },
   "actual_media": {
     "decode": "PASS",
+    "byte_identical_reconstruction": true,
     "container": "mp4",
     "codec": "h264",
     "pixel_format": "yuv420p",
@@ -40,18 +50,19 @@
     "status": "PASS",
     "current_worker": true,
     "actual_render": true,
-    "judgment": "Long first support search spends six ticks across two distinct unresolved-search poses while the root remains at upper height; short second search spends two ticks. Both acquired supports then trigger the same ONES root release and TWOS absorb. Support ownership, root/COM consequence, asymmetric readiness latency, overshoot/catch, and displaced lower restack are visible; no global latency smear, dead search hold, root-before-support, equalized spacing, reverse playback, or prior-clock reset remains."
+    "mutation_earned": false,
+    "judgment": "The long first gate is authored as two distinct unresolved-search poses while root height remains causally locked; the short second gate is one distinct probe. Gate-open and root consequence are separate keys, and both consequences retain the same ONES release plus TWOS absorption. Root/support ownership, counterbalance, low overshoot, and displaced lower restack are visible; no dead latency hold or global retiming survives."
   },
   "noodle_queen": {
     "status": "PASS",
     "current_worker": true,
     "after_tango": true,
     "actual_render": true,
-    "judgment": "TASTE + FUNCTION + CONTEMPT PASS. The precarious long first search, crisp support gate/drop/catch, confident short second search, identical consequence pulse, and displaced lower restack create a specific readable performance whose timing lesson survives without metadata."
+    "judgment": "TASTE + FUNCTION + CONTEMPT PASS. The precarious long test versus confident short test reads as attitude, while identical gate-to-drop-to-catch consequence pulses keep the timing lesson visible without metadata. The ending occupies a new lower/forward address rather than restoring the prior clock."
   },
   "contract": {
     "current_official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-    "candidate_isolated_structural_predicates": "PASS",
+    "candidate_isolated_structural_predicates": "PASS_CURRENT_WORKER_READBACK",
     "repo_global_official_execution": "NOT_CLAIMED_STANDARD_CHAT_BOUNDARY"
   },
   "DREW_ACCEPTED": false
