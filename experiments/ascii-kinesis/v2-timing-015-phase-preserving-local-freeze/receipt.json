@@ -1,0 +1,60 @@
+{
+  "chat_delivery_order": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "contract": {
+    "candidate_isolated": "PASS",
+    "official_validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "repo_global": "UNTESTED_STANDARD_CHAT_BOUNDARY",
+    "validator_result": {
+      "entries_checked": [
+        "v2-timing-015-phase-preserving-local-freeze"
+      ],
+      "ok": true
+    }
+  },
+  "experiment_id": "v2-timing-015-phase-preserving-local-freeze",
+  "issue_343_receipt": null,
+  "media": {
+    "authoritative": "embedded_mp4",
+    "bytes": 5293,
+    "codec": "h264",
+    "filename": "phase-preserving-local-freeze.mp4",
+    "fps": 24,
+    "frames": 44,
+    "height": 200,
+    "pix_fmt": "yuv420p",
+    "sha256": "4da33706b27f535918620ecb456b799e5021f463941831ed0a711adabd3c17c2",
+    "source": "abstract_ascii_rig_only",
+    "width": 340
+  },
+  "media_decode": {
+    "ffprobe": "PASS",
+    "frames": 44,
+    "full_ffmpeg_decode": "PASS"
+  },
+  "preflight": {
+    "github_persistence_readback": true,
+    "home_center_campaign_read": true
+  },
+  "quality": {
+    "drew_accepted": false,
+    "noodle_queen": "PASS",
+    "tango_final": "PASS",
+    "tango_rounds": 2
+  },
+  "repo_file_count": 0,
+  "repo_readback": false,
+  "schema": "ascii-kinesis.receipt.v2",
+  "ship_commit": null,
+  "source": {
+    "asset_id": "154244",
+    "source_timing": "UNAVAILABLE",
+    "whole_source_evidence_freshly_read": true
+  },
+  "status": "REPO_VERIFICATION_CANDIDATE_READY_FOR_PERSISTENCE",
+  "three_part_chat_delivery": false,
+  "verification_commit": null
+}
