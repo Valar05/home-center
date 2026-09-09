@@ -67,8 +67,7 @@ K3 — APEX_CLEARANCE_READ — FOURS — INFERRED | WINDOW x=27..53 y=4..20
                          ##
                          ##
                          ##
-                         ##
-            O    \\h    ##
+            O    \\\h    ##
              o\\\        ##
            //|
          //  |
@@ -134,7 +133,7 @@ K6 — TRAILING_HEEL_CLEAR — TWOS — INFERRED | WINDOW x=50..76 y=8..24
 
 
             O
-             o\\h
+             o\\\\h
             /|
           // |
          h   |
@@ -219,7 +218,7 @@ K10 — SECOND_SUPPORT_LAG_OVER — TWOS — INFERRED | WINDOW x=72..98 y=16..32
        h/
          //O
            /o
-            |\
+            |\\
              | \
              |  \\
              @    h
@@ -239,7 +238,7 @@ K11 — DISPLACED_SETTLE — FOURS — INFERRED | WINDOW x=70..96 y=15..31
 
              O
              o
-            /|\
+            /|\\
           // |  \h
          h   |
              @
