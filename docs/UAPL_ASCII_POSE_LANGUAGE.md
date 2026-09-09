@@ -1,26 +1,58 @@
 # UAPL — Universal ASCII Pose Language v1
 
-UAPL is the lowest machine-readable animation representation in Pose Lab. It is intentionally plain ASCII, directly parseable by code, and readable by a human without an agent.
+Status: OPTIONAL REPRESENTATION CONTRACT
 
-## Governing law
+UAPL is a deterministic ASCII pose representation for animation work that benefits from a compact machine-readable rig/pose source.
 
-The ASCII text is authoritative source code.
+It is **not** a universal animation intake requirement.
 
-No downstream vector noodle, rig, contact sheet, timing profile, GIF, video, or 3D reconstruction may add hidden semantic pose information. If information is missing, the compiler rejects or the source must be amended.
+General animation judgment, source roles, timing authority, representation selection, visual canon, quarantine, body completeness, props, and game-style retargeting are governed by:
 
-An agent may help author UAPL. An agent is not required to interpret UAPL after it exists.
+`skills/motion-direction/SKILL.md`
 
-## Tiered escalation
+When the current commission selects UAPL/ASCII as an authoritative representation, this document defines that representation.
 
-0. **Paper / embodied observation** — cheapest human thought surface. No machine contract yet.
-1. **UAPL ASCII pose source** — named rig graph + integer XYZ joint coordinates + ordered semantic poses. This is the first authoritative machine contract.
-2. **ASCII contact sheet** — deterministic human-facing rendering of the UAPL source. It shows all load-bearing states at once. It does not change the source.
-3. **Vector Noodle** — deterministic projection of the same joint graph and coordinates into vector/structured geometry. Source SHA-256 travels with it.
-4. **Rig / metarig** — deterministic skeletal realization from the Vector Noodle/UAPL graph. Bone direction comes from parent-child coordinates; roll/orientation uses a fixed compiler convention unless UAPL is later versioned to carry explicit orientation data.
-5. **Timing profile (UAT)** — a separate ASCII opinion pinned to the exact UAPL SHA-256. It assigns exposure ticks to named poses without mutating pose geometry.
-6. **GIF / video / runtime animation** — compiled presentation. It is not source truth.
+## Governing law inside a selected UAPL lane
 
-The escalation rule is the same Drew uses for thought capture: do not pay for a higher-cost representation until the lower-cost representation has earned escalation.
+Once valid UAPL has been deliberately authored/selected for a specimen, the ASCII text is authoritative for the pose geometry and pose order it explicitly contains.
+
+No downstream Vector Noodle, rig, contact sheet, timing profile, GIF, video, or 3D reconstruction may silently add missing semantic pose information to **that UAPL specimen**. Missing required UAPL state must be amended upstream or explicitly represented in a different authoritative layer.
+
+This law does not mean:
+
+- every animation must begin in UAPL;
+- every performance reference should be reduced to ASCII;
+- Vector Noodle must always be downstream of UAPL;
+- source-video timing belongs in UAPL;
+- UAPL may erase occlusion, anatomy, canonical visual identity, or another load-bearing fact merely to stay ASCII.
+
+A vector-first or rig-first pose master may be the correct authoritative source when the commission requires information that UAPL v1 does not carry well. UAPL may then be an optional abstract projection/teaching surface rather than the origin.
+
+## Source vs direction
+
+UAPL owns only its explicit pose graph and pose order.
+
+Timing/direction is separate.
+
+A UAT profile may be pinned to a UAPL hash, but timing provenance still follows Motion Direction source-role law:
+
+- `POSE_REFERENCE` timestamps may locate observed poses without authorizing source timing;
+- `TIMING_REFERENCE` or `FULL_PERFORMANCE_REFERENCE` may establish observed timing when the commission assigns that role;
+- otherwise UAT is a derived animation-direction opinion.
+
+`POSES BEFORE TIMING` remains valid **inside a UAPL workflow**. It is not permission to force UAPL into every workflow.
+
+## Tiered escalation when UAPL is selected
+
+0. **Evidence / embodied observation** — video, live body, sprite sheet, drawing, verbal commission, or another bounded source.
+1. **UAPL ASCII pose source** — named rig graph + integer XYZ joint coordinates + ordered semantic poses.
+2. **ASCII contact sheet** — deterministic human-facing rendering of that UAPL.
+3. **Vector Noodle** — deterministic projection when vector geometry purchases useful capability.
+4. **Rig / metarig** — hierarchical realization when constraints/deformation/3D relationships are required.
+5. **UAT timing profile** — separate direction/timing opinion pinned to the exact UAPL hash.
+6. **GIF / video / runtime** — compiled presentation.
+
+Escalation is optional and capability-driven. If a higher representation is already the commissioned/canonical source, do not demote it merely to satisfy this ladder.
 
 ## UAPL v1 grammar
 
@@ -45,18 +77,18 @@ ENDUAPL
 
 Rules:
 
-- exactly one root joint
-- joint graph must be acyclic
-- every pose defines every joint exactly once
-- coordinates are signed integers
-- every pose appears exactly once in `ORDER`
-- fixed axes: +X right, +Y up, +Z forward
-- comments/whitespace do not change canonical identity
-- canonical text is hashed with SHA-256
+- exactly one root joint;
+- joint graph is acyclic;
+- every pose defines every joint exactly once;
+- coordinates are signed integers;
+- every pose appears exactly once in `ORDER`;
+- fixed axes: +X right, +Y up, +Z forward;
+- comments/whitespace do not change canonical identity;
+- canonical text is hashed with SHA-256.
 
-## Timing is separate
+## UAT v1 — timing opinion
 
-UAT v1 is deliberately not embedded in UAPL. A timing choice is an opinion about an exact pose source.
+UAT is separate from UAPL.
 
 ```text
 UAT 1
@@ -70,20 +102,20 @@ STEP settle 3
 ENDUAT
 ```
 
-A UAT profile whose `SOURCE` hash does not equal the current canonical UAPL hash must reject with `UAT_SOURCE_MISMATCH`.
+A UAT profile whose `SOURCE` does not equal the current canonical UAPL hash rejects with `UAT_SOURCE_MISMATCH`.
 
-This makes the contact sheet primordial and the GIF derivative.
+Hash binding proves which pose source the timing opinion targets. It does **not** prove that the timing was observed from a video. Timing provenance must be recorded separately according to Motion Direction.
 
 ## Human legibility
 
-The source names joints and poses directly. A deterministic renderer converts the integer joint graph into an ASCII contact sheet using only:
+The deterministic ASCII renderer may use:
 
-- `+` root joint
-- `o` internal joint
-- `*` leaf/end-effector
-- `- | / \\` bones
+- `+` root joint;
+- `o` internal joint;
+- `*` leaf/end-effector;
+- `- | / \\` bones.
 
-The rendered contact sheet is inspectable by a person and reproducible byte-for-byte from canonical source.
+The contact sheet is an inspectable view, not a replacement for facts the representation cannot express.
 
 ## Machine contract
 
@@ -100,39 +132,40 @@ It exposes:
 - `parseUat`
 - `expandTiming`
 
-No model call is part of these operations.
+No model call is part of those deterministic operations.
 
 ## Determinism requirements
 
 For the same canonical UAPL input:
 
-- canonical text is identical
-- SHA-256 identity is identical
-- ASCII contact sheet is identical
-- Vector Noodle structure is identical
-- malformed/incomplete state rejects with typed errors
+- canonical text is identical;
+- SHA-256 is identical;
+- ASCII contact sheet is identical;
+- Vector Noodle projection is identical;
+- malformed/incomplete UAPL rejects with typed errors.
 
 For the same UAPL + UAT:
 
-- expanded tick sequence is identical
-- stale timing cannot silently target changed poses
+- expanded tick sequence is identical;
+- stale timing rejects rather than silently targeting changed poses.
 
 ## Potholes
 
-- Do not confuse the ASCII renderer with the authoritative geometry. UAPL coordinates and rig graph are source; the contact sheet is a deterministic view.
-- Do not infer missing depth from a 2D drawing. Z is explicit.
-- Do not let GIF timing mutate pose geometry.
-- Do not add agent-only annotations downstream.
-- Do not assume fewer poses are always better; delete only when semantic/motion information survives.
-- Do not assume more dimensions are automatically better; escalate only when the next representation purchases necessary capability.
+- Do not infer missing Z depth from a 2D drawing.
+- Do not let timing mutate pose geometry.
+- Do not add agent-only semantics downstream.
+- Do not assume fewer poses are always better; delete only redundant states.
+- Do not assume more dimensions are automatically better.
+- Do not use UAPL as an excuse to delete a load-bearing arm, occlusion, grip, or other information the commission requires.
+- Do not promote source-video timestamps into timing authority unless their source role says so.
 
 ## Pocket doctrine
 
 ```text
-PAPER -> UAPL -> ASCII CONTACT SHEET -> VECTOR NOODLE -> RIG -> UAT -> GIF/VIDEO
-
-SOURCE BEFORE OPINION.
-POSES BEFORE TIMING.
-NO HIDDEN AGENT INTERPRETATION.
+SELECT REPRESENTATION BY THE COMMISSION.
+WHEN UAPL IS SELECTED: UAPL IS DETERMINISTIC POSE SOURCE.
+POSE SOURCE != TIMING AUTHORITY.
+POSES BEFORE TIMING INSIDE THE UAPL LANE.
 EVERY ESCALATION MUST PURCHASE CAPABILITY.
+NO HIDDEN SEMANTIC INVENTION.
 ```

@@ -1,77 +1,93 @@
 # UAPL Motion SPA v1
 
-## Canonical role
+Status: UAPL / ASCII DELIVERY SPECIALIZATION
 
-The UAPL Motion SPA is the canonical **user-facing delivery envelope** for an animation-understanding worker.
+## Scope
 
-It does not replace UAPL, UAT, or the GIF. It packages them into one self-contained HTML file that preserves literal ASCII and displays correctly across modern desktop and mobile browsers without relying on ChatGPT code-block layout.
+The UAPL Motion SPA is the canonical **human-facing delivery envelope for a selected UAPL/ASCII animation lane**.
 
-The representation stack remains:
+It is not the universal delivery surface for all animation work and it does not decide whether a commission should use ASCII, Vector Noodle, a rig, or another representation.
+
+General animation authority lives in:
+
+`skills/motion-direction/SKILL.md`
+
+ASCII/UAPL specialization lives in:
+
+`skills/ascii-kinesis/SKILL.md`
+
+When UAPL is selected, this SPA packages its source, timing opinion, and playback into one self-contained inspectable HTML file.
+
+## Representation relationship
+
+For a UAPL-selected specimen:
 
 ```text
-EVIDENCE
--> UAPL ASCII SOURCE
+BOUNDED EVIDENCE
+-> UAPL ASCII POSE SOURCE
 -> DETERMINISTIC ASCII CONTACT SHEET
--> VECTOR NOODLE, only if useful
--> RIG / METARIG, only if useful
--> UAT TIMING PROFILE
--> GIF / VIDEO / RUNTIME PLAYBACK
+-> optional VECTOR NOODLE / RIG if useful
+-> UAT DIRECTION/TIMING OPINION
+-> GIF / VIDEO PLAYBACK
 -> UAPL MOTION SPA DELIVERY ENVELOPE
 ```
 
-The SPA is a delivery compilation. Motion truth still lives upstream in UAPL.
+The SPA is presentation/inspection. It does not promote itself above the selected pose source or Motion Direction source-role law.
 
-## Shovel-derived shell
+A video timestamp may be pose provenance without becoming UAT timing authority.
 
-The mobile/display treatment is intentionally inherited from the accepted shovel SPA pattern:
+## Generic offline/mobile shell
+
+The SPA shell is lineage-neutral. It must not inherit visual identity, prop design, motifs, palette, or other imagery from a previous artifact merely because that artifact once used a useful browser layout.
+
+Required interaction properties:
 
 - one self-contained `<!doctype html>` file;
 - `<meta charset="utf-8">`;
 - `width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no`;
-- `100dvh` shell;
-- safe-area insets;
-- no page-level accidental scrolling;
-- horizontally scrollable control rows;
+- `100dvh` shell with safe-area handling;
+- no accidental page-level scrolling;
+- horizontally scrollable control rows when needed;
 - 44px-or-larger touch controls;
-- `aria-pressed`, focus-visible, and `aria-live` state;
+- `aria-pressed`, focus-visible, and `aria-live` where applicable;
 - no external scripts, stylesheets, fonts, or network fetches;
-- deterministic non-visible runtime markers for QA.
+- deterministic runtime markers for QA.
 
-The animation version changes the workspace semantics: ASCII must remain selectable literal text, never a raster approximation.
+These are interface requirements only. They authorize **zero visual-art inheritance** from any shovel, character, previous SPA, or quarantined artifact.
 
-## Required views
+## Required views for v1 UAPL Motion SPA
 
-A canonical `.motion.html` file contains four views.
+A canonical v1 `.motion.html` contains four inspection views.
 
 ### Poses
 
-Default view. Shows every load-bearing pose as literal ASCII characters in responsive pose cards.
+Shows every load-bearing UAPL pose as literal ASCII in responsive pose cards.
 
-On narrow screens, cards may reflow vertically. Characters inside a pose may never wrap, reorder, substitute, or rasterize.
+On narrow screens, cards may reflow vertically. Characters inside one pose may never wrap, reorder, substitute, or rasterize.
 
-The exact canonical horizontal contact-sheet text is also embedded for deterministic readback.
+The canonical horizontal contact-sheet text remains embedded for deterministic readback.
 
 ### Timing
 
-Shows the UAT timing profile as a human-readable table and preserves its exact canonical text.
+Shows UAT as human-readable data and preserves canonical text.
 
-Timing remains an opinion pinned to the UAPL source SHA-256.
+Timing is an opinion pinned to the UAPL SHA-256. Its provenance must distinguish observed timing from derived direction according to Motion Direction.
 
 ### GIF
 
-Contains an **actual GIF** compiled from the same motion source and timing opinion.
+Contains an actual GIF compiled from the same selected pose source + timing/direction state used for this UAPL specimen.
 
-The GIF is embedded as a `data:image/gif;base64,...` URI so the HTML remains a single offline file.
+The GIF is embedded as `data:image/gif;base64,...` so the file remains offline/self-contained.
 
-A PNG, screenshot, video poster, or image containing ASCII does not satisfy this slot.
+PNG, screenshot, poster, or an image merely containing ASCII does not satisfy this slot.
 
 ### Source
 
-Shows canonical UAPL and canonical UAT as literal selectable text.
+Shows canonical UAPL and canonical UAT as literal selectable text plus source-role/timing-provenance facts sufficient to prevent `VIDEO_TIMING_LEAK`.
 
-## ASCII legibility contract
+## ASCII legibility
 
-The SPA renderer must use:
+Use:
 
 ```css
 font-family: ui-monospace, SFMono-Regular, Menlo, Consolas,
@@ -82,26 +98,24 @@ word-break: normal;
 overflow: auto;
 ```
 
-The default responsive view uses per-pose cards instead of forcing the entire horizontal contact sheet to shrink to phone width. The user may inspect the canonical horizontal strip separately.
-
-Presentation reflow is allowed. Character reflow is not.
+Presentation may reflow around pose cards. Characters inside a pose may not reflow.
 
 ## Machine identity
 
-The root element carries:
+The root carries:
 
 - `data-uapl-motion-spa="1"`;
 - `data-uapl-sha256`;
 - `data-gif-sha256`.
 
-The page also exposes:
+The page exposes:
 
 ```js
 window.__UAPL_MOTION_SPA__
 window.__UAPL_MOTION_SPA_READY__ === true
 ```
 
-This is a QA/readback surface, not motion authority.
+These are QA/readback surfaces, not aesthetic acceptance or motion authority.
 
 ## Canonical implementation
 
@@ -120,31 +134,33 @@ buildMotionSpa({
 
 The builder:
 
-1. parses and canonicalizes UAPL;
-2. verifies UAT against the exact UAPL SHA-256;
-3. renders deterministic literal-ASCII poses and contact sheet;
-4. verifies that the embedded binary is genuinely GIF87a/GIF89a;
-5. hashes the GIF bytes;
-6. emits one byte-deterministic offline HTML file.
+1. parses/canonicalizes UAPL;
+2. verifies UAT source hash;
+3. renders deterministic literal-ASCII poses/contact sheet;
+4. verifies genuine GIF87a/GIF89a bytes;
+5. hashes GIF bytes;
+6. emits byte-deterministic offline HTML for identical inputs.
 
-Same UAPL + same UAT + same GIF + same title must produce byte-identical HTML.
+The builder cannot prove that the selected representation, timing direction, body completeness, prop shape, visual canon, or artistic result is good. Those remain Motion Direction + human visual-review responsibilities.
 
-## Worker completion rule
+## Completion for this specialization
 
-A motion worker is not complete after emitting raw ASCII alone.
+A complete UAPL Motion SPA package contains:
 
-The complete teaching package is:
+1. literal UAPL pose source;
+2. deterministic literal-ASCII contact sheet;
+3. UAT timing/direction opinion with provenance;
+4. actual explanatory GIF;
+5. one self-contained UAPL Motion SPA containing them.
 
-```text
-1. UAPL pose source
-2. deterministic ASCII contact sheet
-3. UAT timing sheet
-4. actual explanatory GIF
-5. one self-contained UAPL Motion SPA containing all of the above
-```
+This completion contract applies only when the commission selected the UAPL/ASCII lane. A vector-first animation is not incomplete merely because it does not emit this SPA.
 
-The SPA is the object a human opens. The UAPL is the object code reads.
+## Quarantine guard
+
+Do not use old SPA art, prop silhouettes, backgrounds, palettes, or decorative elements as a design source unless the current commission explicitly names that clean lineage as canonical.
+
+Rejected/quarantined SPA imagery may remain historical evidence only.
 
 ## Boundary
 
-This contract does not define worker scheduling, cadence, queue ownership, leasing, retries, or swarm dispatch. Those remain outside this artifact layer.
+This file does not own representation selection, general animation timing, game-style direction, scheduling, worker cadence, queue ownership, or artistic acceptance.

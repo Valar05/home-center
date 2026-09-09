@@ -1,225 +1,226 @@
 # ASCII Kinesis Skill
 
-## Purpose
+Status: SPECIALIZED ANIMATION LANE
+Authority: Drew Clarke
 
-Use this skill for commissions that ask for ASCII art or ASCII animation as a durable motion artifact, especially when Drew references ASCII Kinesis, Vector Noodle, Embodied Kinesis, Pose Lab, contact sheets, Motion Dungeon, or the experiment anthology.
+## Scope lock
 
-This skill is cumulative with `skills/fortress-core/SKILL.md` and the UAPL contracts in `docs/UAPL_ASCII_POSE_LANGUAGE.md` and `docs/UAPL_MOTION_SPA.md`.
+This skill is **not** the general animation doctrine. It inherits:
 
-## Authority and commission meaning
+- `skills/fortress-core/SKILL.md`
+- `skills/motion-direction/SKILL.md`
 
-The user's explicit commission is the mission boundary. Repository/runtime evidence describes capability; it does not override requested outcome, owner, source/evidence family, authorized execution lane, exclusions, evidence standard, or delivery surface.
+Use this skill when the current commission explicitly selects ASCII/UAPL as the durable motion artifact or when the ASCII Kinesis swarm is the authorized execution lane.
 
-In this context, "make ASCII art" does NOT mean paste a code block into chat and does NOT mean produce a research memo in Drive. The commissioned product is a repository-backed, user-openable ASCII Kinesis example whose animation is also surfaced in the visible reporting chat.
+The following old universal claims are retired outside this specialization:
 
-Technical success is not taste acceptance. User visual judgment outranks hashes, schema compliance, tests, prior assistant wording, and prior machine verification.
+- every animation must begin in ASCII/UAPL;
+- a video reference automatically owns animation timing;
+- source timestamps automatically become UAT timing;
+- Vector Noodle is always downstream from ASCII.
 
-## Global taste reset — binding negative fixtures
+General source-role, timing-authority, representation-choice, canonical-style, quarantine, body-completeness, prop-identity, and game-retargeting law comes from `skills/motion-direction/SKILL.md`.
 
-All V2 animations that existed before the user taste correction recorded on issue `Valar05/home-center#343` comment `5576901079` are `REVISE_REQUIRED_LOW_EFFORT` negative fixtures. They remain durable evidence but are not accepted baselines, exemplars, training taste, finished work, or permission to advance a lane.
+Within a selected ASCII/UAPL lane, UAPL and this skill remain authoritative for the ASCII representation and delivery contract.
 
-Do not describe a rejected predecessor as good, finished, healthy, verified-delivered, or suitable merely because it renders, decodes, or satisfies structure.
+## Commission boundary
 
-## Repair-oldest-first law
+The user's explicit commission owns outcome, source/evidence family, execution lane, exclusions, evidence standard, and delivery surface. Repository/runtime evidence describes capability; it does not rewrite the commission.
 
-For every specimen lane:
+Technical success is not taste acceptance. Drew's visible judgment outranks hashes, schema compliance, CI, and prior agent approval.
 
-1. Repair the oldest unrepaired `REVISE_REQUIRED_LOW_EFFORT` predecessor before fresh source mining or a new concept.
-2. Preserve the predecessor unchanged.
-3. Create exactly one new successor for that repair, with explicit `revises` and `negative_fixture` metadata pointing to the predecessor.
-4. Keep the same source/evidence family unless the correction itself is explicitly `CHANGE SOURCE`.
-5. Once a successor exists, it is binding. Mutate that same successor in place until the CURRENT acceptance contract is complete. Do not mint another successor to escape a failed quality or delivery leg.
-6. A successor's storage number is identity only; it does not erase or skip repair debt.
-7. Only after the active successor is HEALTHY may the lane move to the next-oldest rejected predecessor. Fresh source/concept work is forbidden while older rejection debt remains.
+## Current taste reset
 
-Successor churn is a failure, not progress.
+All ASCII Kinesis V2 animations predating the user taste correction recorded on `Valar05/home-center#343` comment `5576901079` are `REVISE_REQUIRED_LOW_EFFORT` negative fixtures.
 
-## Current-chat liveness / connector preflight
+They remain evidence, never positive taste baselines. Rejected or quarantined imagery may not donate silhouette, proportions, palette, motifs, prop shape, or presentation language to a successor.
 
-Before source selection, artifact judgment, blocker analysis, or mutation, the CURRENT worker chat must prove it exposes every execution surface required by its commission.
+## Repair-oldest-first
 
-For the ASCII Kinesis swarm this includes:
+For each ASCII Kinesis lane:
 
-- the exact authoritative Home Center/Drive campaign read lane for campaign `1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s` when that campaign is required; and
-- GitHub persistence/readback when repository work is required.
+1. Repair the oldest unrepaired negative fixture before fresh mining.
+2. Preserve the rejected predecessor unchanged.
+3. Create exactly one successor with `revises` and `negative_fixture` metadata.
+4. Keep the same source/evidence family unless the correction explicitly says `CHANGE SOURCE`.
+5. Mutate that same successor until HEALTHY; successor churn is failure.
+6. Advance the lane only after that successor is HEALTHY.
 
-If either required connector is absent, the worker is `CHAT_EXHAUSTED_NO_REQUIRED_CONNECTOR` and must stop immediately after that liveness finding. This is a worker-liveness failure, not a campaign/source/artifact blocker.
+## Current-worker liveness
 
-An exhausted worker may not select a source, mutate an artifact, write blocker theater, infer project blockage, or substitute Google Drive, Library, web search, cached snippets, chat memory, another connector, or a prior worker's successful read. Rotate/replace the exhausted chat through the same existing scheduled lane. Never ask Drew to carry commands or context between workers.
+Before source selection, artifact judgment, or mutation, the current worker must expose every connector required by the commissioned lane, including the authoritative Home Center/Drive campaign read when required and GitHub persistence/readback when required.
 
-A prior run having the connector never satisfies current-run preflight.
+Missing required surfaces => `CHAT_EXHAUSTED_NO_REQUIRED_CONNECTOR`.
 
-## Swarm deliverable contract v2 — hard lock
+That is a worker-liveness failure, not permission to substitute Library, web, cached chat memory, another connector, or a different lane. Rotate the existing worker lane; do not ask Drew to transport context or commands.
 
-Every new or repaired ASCII Kinesis swarm example under this contract MUST be a self-contained SPA with exactly three primary tabs, in this order:
+## V2 output — exact three-tab SPA
 
-1. **ASCII** — complete contact sheet as literal selectable/copyable aligned text. Use a real `<pre>`/text surface, disable ligatures, preserve whitespace, and keep character alignment on desktop/mobile. Horizontal scrolling is allowed. Raster, screenshot, canvas-only, SVG-outline, or bitmap substitutes fail.
-2. **JSON** — structured reconstruction/audit payload: schema/version, rig/joints, decisive keys, timing classes, timing provenance, source identity, rights boundary, whole-source evidence boundary, OBSERVED/INFERRED/UNKNOWN split, compatibility, Motion Dungeon compile facts, media identity, revision lineage, manifest/receipt facts, and correction hooks.
-3. **VIDEO** — real compiled MP4 generated solely from the abstract ASCII rig + structured timing by Motion Dungeon. It must work offline in the SPA. Static studies, omitted media, source footage, or source-pixel renders fail.
+Every active V2 candidate uses exactly these primary tabs:
 
-No fourth primary tab is allowed. UAPL/UAT/source/manifest details live in JSON and repository files.
+1. `ASCII`
+2. `JSON`
+3. `VIDEO`
 
-### Backward compatibility
+### ASCII
 
-V2 is additive. Existing v1 artifacts and previously delivered UAPL Motion SPA artifacts remain readable. Later mutations may add internal fields, adapters, helpers, codecs, renderers, or metadata but may not invalidate the three-tab v2 read path or silently reinterpret old timing/source fields.
+Literal selectable/copyable aligned text. Real `<pre>`/text. No raster, canvas-only, SVG-outline, screenshot, or bitmap substitute.
 
-Negative-fixture status is a taste/acceptance label, not permission to destructively rewrite historical artifacts.
+### JSON
 
-## Motion Dungeon method
+Structured reconstruction/audit payload containing at minimum:
 
-`AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SELF-CONTAINED SPA`
+- schema/version and specimen identity;
+- repair lineage;
+- source identity and rights boundary;
+- source roles inherited from Motion Direction;
+- OBSERVED / INFERRED / UNKNOWN facts;
+- abstract rig/relationships;
+- decisive keys and causal roles;
+- support/contact/root/arc notes;
+- timing opinion and provenance;
+- Motion Dungeon compile facts;
+- media identity;
+- manifest/receipt/correction hooks.
+
+### VIDEO
+
+Real compiled MP4 by default, generated from the abstract ASCII rig plus the authored direction/timing state. No source pixels, copied sprite art, source audio, or placeholder video. Package for offline playback.
+
+## Source-role / timing law
+
+Apply `skills/motion-direction/SKILL.md` **before** assigning ASCII timing provenance.
+
+For Drew-performed video, default source role is `POSE_REFERENCE + CONTACT_REFERENCE`, not `TIMING_REFERENCE`.
+
+A timestamp may identify where a pose was observed without owning how long the compiled animation holds that pose.
+
+`OBSERVED` timing is allowed only when the commission/source role actually assigns timing authority, such as `TIMING_REFERENCE` or `FULL_PERFORMANCE_REFERENCE`.
+
+Otherwise timing is a worker-authored opinion and must be labeled accordingly (`INFERRED`, `DERIVED_UAT_OPINION`, `DERIVED_GAMEPLAY_RETIMER`, or another explicit derived label).
+
+ASCII timing vocabulary may include:
+
+- `ONES` — new sample every display frame;
+- `TWOS` — held two frames;
+- `FOURS` — held four frames;
+- `STREET_FIGHTER/CAPCOM` — nonuniform authored gameplay timing.
+
+User shorthand `1s/2s/4s` means ONES/TWOS/FOURS in this lane, never seconds.
+
+Minimum decisive-key record:
+
+`{key_id, pose_rig, support_contact, motion_arc_root_note, causal_role, timing_class, timing_provenance}`
+
+## ASCII Motion Dungeon compile law
+
+For this specialization:
+
+`AUTHORED ASCII KEYS + DIRECTION PROFILE -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA`
 
 Hard rules:
 
-1. Authored decisive ASCII keys are semantic authority.
-2. Explicit holds/timing belong to every decisive key.
-3. Deterministic connective motion only travels between authored states. It may not invent contact, support, root, weapon/tool custody, relationship ownership, or another causal event.
-4. Unsupported semantic states fail closed.
-5. Render frames solely from the abstract ASCII rig/text representation and its structured motion data. Never render or embed source sprites.
-6. MP4 is the default required motion artifact. GIF may additionally exist but does not replace MP4 unless Drew explicitly changes the contract.
-7. Embed/package the video so the SPA is self-contained.
-8. Preserve hashes/receipts sufficient to bind committed structured source to media.
-9. If both embedded and tracked MP4 exist, their declared identity must agree or the tracked copy must be explicitly non-authoritative.
-10. When callable, verify actual media decode with browser/ffprobe/ffmpeg. Placeholder/truncated media is `MEDIA_IDENTITY_MISMATCH` or `VIDEO_DECODE_FAILED`.
+- decisive keys carry semantic pose authority for this ASCII specimen;
+- connective motion travels between states and may not invent support, contact, root decisions, custody, or causal events;
+- direction/timing remains separable from pose geometry;
+- generic endpoint interpolation is not animation direction;
+- if a transition lacks necessary information, author a real bridge key rather than smoothing harder;
+- media identity and structured source remain bound by receipts/hashes.
 
-Strong authored keys carry performance. Deterministic transitions are subordinate to authored acting.
+Strong keys carry acting. Tweens carry connective labor.
 
-## Recursive Tango quality law
+## Tango recursive quality gate
 
-After every candidate render, Tango antagonistically inspects the ACTUAL visible animation. Tango judges silhouette clarity, authored asymmetry, anticipation, coil, center-of-mass preparation, root/brace logic, directional commitment, limb sequencing, tool/weapon ownership, contact instant, force transfer, hit-stop implication, recoil, follow-through, recovery debt, spacing, negative space, support/contact truth, arc specificity, cadence, pose appeal, and whether the motion has intention rather than joint interpolation.
+Inspect the actual visible render. Judge silhouette progression, asymmetry, anticipation, center-of-mass preparation, root/brace logic, directional commitment, limb sequencing, custody/contact, force transfer, recoil, recovery debt, spacing, negative space, arc specificity, cadence, and pose appeal.
 
-Tango explicitly rejects low-effort failure classes including:
+Reject:
 
 - mannequin posing;
-- straight-line tweening or endpoint interpolation;
-- equalized spacing;
-- generic stick-figure symmetry;
-- feet merely remaining planted;
-- pelvis/root not earning upper-body or tool action;
-- tool motion without body consequence;
-- contact merely being the farthest-reach frame;
+- equal spacing;
+- straight-line endpoint tweening;
+- generic symmetry;
+- upper-body/tool action not earned by the root/support;
+- contact as merely farthest reach;
 - recoil as reverse interpolation;
 - recovery as return-to-idle;
-- missing overshoot, settle, secondary lag, asymmetry, distinct silhouette phases, or authored bridge keys.
+- missing lag/overshoot/settle where the action needs them.
 
-Tango returns `PASS` or `REVISE_REQUIRED` with the single highest-value visible defect and one concrete correction. A revision must mutate actual decisive ASCII keys, timing/holds, support/contact, arcs, body-tool/body-body relationship, or authored bridge keys; then rerender and Tango again. Repeat recursively until PASS. There is no fixed loop limit chosen merely to save effort.
+Return `PASS` or `REVISE_REQUIRED` with the single highest-value visible defect. Revise the owning layer and rerender until PASS.
 
-If a transition looks generic, add/change a real authored bridge key rather than smoothing harder.
+## Noodle Queen final gate
 
-## Noodle Queen gate — final taste authority
+After Tango PASS, judge the actual final animation for TASTE + FUNCTION + CONTEMPT: specific attitude, readable force, memorable silhouette sequence, coherent causality, and economy without placeholder cheapness.
 
-Only after Tango PASS, apply Noodle Queen to the ACTUAL rendered animation and complete three-part specimen.
+Technically valid output may still fail. Never inherit or fabricate a PASS.
 
-Noodle Queen judges **TASTE + FUNCTION + CONTEMPT**: specific authored attitude, readable force, memorable silhouette progression, coherent causality, economy without cheapness, and enough conviction that a human animator would not dismiss it as placeholder motion.
+## Source-mining firewall
 
-Noodle Queen may reject technically correct output. `REVISE_REQUIRED` sends the active successor back to Tango with the Queen's single highest-value objection. Repeat recursively until Noodle Queen PASS. Never fabricate or inherit a PASS without inspecting the actual final render.
+When mining copyrighted sprite sheets:
 
-No specimen may advance, train future taste, or be called HEALTHY until both Tango PASS and Noodle Queen PASS exist for its actual final animation.
+- inspect the whole bounded sheet;
+- preserve only abstract animation principles and provenance facts;
+- do not trace, reproduce, redistribute, or closely imitate source art;
+- author an independent ASCII rig;
+- source pixels never enter the final specimen.
 
-## Sprite-sheet mining law
+When repairing a rejected specimen, retain its source/evidence family unless the correction explicitly changes it.
 
-When the commission is a Spriters Resource mining pass:
+## Repository anthology
 
-- select ONE ENTIRE The Spriters Resource sheet appropriate to the lane;
-- inspect the whole source as evidence rather than cherry-picking one attractive frame;
-- do not use Drew's own animation work;
-- do not reproduce, trace, redistribute, or closely imitate copyrighted sprite art;
-- preserve only general animation principles and provenance facts;
-- author an independent copyright-safe ASCII rig;
-- a Drive research document or issue comment without the required repository specimen is supporting evidence only.
-
-During a repair pass, reuse the rejected predecessor's source/evidence family unless the correction is explicitly `CHANGE SOURCE`; do not churn sources for novelty.
-
-## Timing contract
-
-Every decisive key records both `timing_class` and `timing_provenance`.
-
-- **OBSERVED** — timing/exposure actually established from source evidence.
-- **INFERRED** — source timing unavailable; compile with PoseLab V1 Street Fighter timing vocabulary.
-- **ONES** — new drawing/key sample every display frame.
-- **TWOS** — one drawing/key held two display frames.
-- **FOURS** — one drawing/key held four display frames.
-- At nominal 24 fps: ONES≈24 samples/s, TWOS≈12, FOURS≈6.
-- User shorthand `1s/2s/4s` means ONES/TWOS/FOURS, never seconds.
-- **STREET_FIGHTER/CAPCOM** — nonuniform authored gameplay timing using anticipation holds, fast transitions, contact/impact emphasis, recoil/recovery holds, and selective exaggeration. Never claim inferred durations are source-authentic.
-
-Minimum decisive-key data:
-
-`{key_id, pose_rig, support_contact, motion_arc_root_note, timing_class, timing_provenance, causal_role}`
-
-## Repository anthology rule
-
-Each experiment gets its own durable directory under:
+Each experiment lives under:
 
 `experiments/ascii-kinesis/<entry>/`
 
-Do not overwrite a negative fixture or another lane's entry. A repair successor is a new durable entry, then remains the single mutable active successor until HEALTHY.
-
-A v2 entry should durably contain, directly or through deterministic reconstruction:
+A V2 entry contains or deterministically reconstructs:
 
 - literal ASCII contact sheet;
-- structured JSON motion/timing/provenance/revision data;
-- source UAPL/UAT where applicable;
-- compiled MP4 from the ASCII rig;
-- deterministic builder/reconstruction source;
+- structured motion/direction/provenance JSON;
+- UAPL/UAT when this specimen uses them;
+- compiled MP4;
+- builder/reconstruction source;
 - manifest/receipt;
-- one self-contained three-tab `*.motion.html` delivery artifact.
+- self-contained `*.motion.html` SPA.
 
-Generalized learnings belong in `docs/ASCII_KINESIS_GENERALIZED_LEARNINGS.md` and must cite supporting experiment IDs. A single attractive specimen is only candidate evidence, and a rejected fixture must never train taste.
+Generalized learnings belong in `docs/ASCII_KINESIS_GENERALIZED_LEARNINGS.md` and cite specimen evidence. Negative fixtures never train positive taste.
 
-## Three-part chat delivery law — exact user-facing format
+## Chat delivery
 
-Every accepted specimen must be surfaced in the reporting chat as exactly these three primary parts, in order:
+Accepted ASCII specimens are surfaced in the reporting chat as:
 
-**PART 1 — ASCII**  
-Complete copyable aligned literal ASCII contact sheet as text, not image/canvas/raster.
+**PART 1 — ASCII** — complete literal aligned contact sheet.  
+**PART 2 — JSON** — actual structured reconstruction/direction/provenance payload.  
+**PART 3 — VIDEO** — actual visible animation media.
 
-**PART 2 — JSON**  
-The actual structured timing/rig/provenance/manifest/revision payload. It may be visually secondary or collapsible but must be present.
+A hash, link, screenshot, thumbnail, repo path, or claim that video exists is not PART 3. If the media is persisted but not visibly delivered, state is `PERSISTED_NOT_DELIVERED`.
 
-**PART 3 — VIDEO**  
-The actual animation media visibly surfaced in chat. Prefer the exact persisted MP4/GIF bytes. A deterministic chat render from exact persisted `motion.json`/rig/timing is acceptable only when direct byte extraction is unavailable and must be explicitly labeled non-byte-identical when applicable.
+## HEALTHY gate
 
-A commit hash, media hash, repo path, Drive/GitHub/SPA link, screenshot, thumbnail, or prose statement that video exists is NOT VIDEO delivery.
+HEALTHY requires all applicable items:
 
-If all three parts are not present together in the reporting chat, state is `PERSISTED_NOT_DELIVERED`. Correct that SAME active successor immediately; do not mine another source or create another successor.
-
-The UX rule is literal: if Drew cannot see the animation in the conversation, do not report it delivered.
-
-## HEALTHY completion gate
-
-A repaired/new v2 specimen is HEALTHY only when ALL are true:
-
-- current-worker required-connector liveness preflight passed;
-- correct repair queue predecessor is identified and preserved;
-- exactly one active successor exists for that repair and contains `revises` + `negative_fixture` lineage;
-- same source/evidence family is preserved unless explicitly `CHANGE SOURCE`;
-- repo example exists;
-- SPA has exactly `ASCII | JSON | VIDEO` in order;
-- ASCII is literal/selectable/aligned;
-- JSON contains reconstruction, timing, provenance, rights, compatibility, revision and manifest facts;
-- MP4 is real, decodable, and generated solely from abstract ASCII rig + timing;
-- every decisive key has timing class + OBSERVED/INFERRED provenance;
-- actual final animation has been visibly rendered and inspected;
-- Tango PASS exists on that actual final render;
-- Noodle Queen PASS exists on that actual final render;
+- required-connector liveness passed;
+- correct repair queue ownership;
+- predecessor preserved and one successor active;
+- repo specimen exists;
+- exact `ASCII | JSON | VIDEO` SPA exists;
+- literal ASCII is readable;
+- JSON can reconstruct/audit the specimen;
+- MP4 is real and decodable;
+- source roles and timing provenance are explicit;
+- actual final animation was inspected;
+- Tango PASS and Noodle Queen PASS exist on that render;
 - builder/manifest/receipt are durable;
-- exact GitHub repository readback confirms the entry;
-- issue #343 receipt identifies exact successor path/commit and quality/delivery state;
-- PART 1 ASCII -> PART 2 JSON -> PART 3 visible VIDEO were surfaced together in the reporting chat;
-- old anthology artifacts remain readable.
+- GitHub readback confirms persisted source;
+- chat shows ASCII, JSON, and VIDEO together;
+- historical artifacts remain readable.
 
-Human `DREW_ACCEPTED` remains distinct from machine HEALTHY. Do not infer it.
+Human `DREW_ACCEPTED` remains separate and cannot be inferred.
 
-A Drive document, timing study, issue comment, static image, generated-but-unpersisted file, metadata-only report, repo link without visible media, or machine-only green test cannot satisfy HEALTHY.
+## Canonical failures
 
-## Canonical failure classes
-
-At minimum preserve:
+Preserve at minimum:
 
 - `CHAT_EXHAUSTED_NO_REQUIRED_CONNECTOR`
 - `REVISE_REQUIRED_LOW_EFFORT`
-- `RESEARCH_WITHOUT_EXAMPLE`
 - `SUCCESSOR_CHURN`
 - `ASCII_RASTERIZED`
 - `JSON_MISSING`
@@ -227,34 +228,34 @@ At minimum preserve:
 - `VIDEO_NOT_FROM_ASCII_RIG`
 - `MEDIA_IDENTITY_MISMATCH`
 - `VIDEO_DECODE_FAILED`
-- `FOURTH_TAB_REGRESSION`
 - `SOURCE_ART_LEAK`
 - `TIMING_PROVENANCE_MISSING`
+- `SOURCE_ROLE_CONFUSION`
 - `REPO_NOT_PERSISTED`
 - `READBACK_UNVERIFIED`
-- `BACKWARD_COMPATIBILITY_REGRESSION`
 - `PERSISTED_NOT_DELIVERED`
 - `CHAT_SURFACE_MEDIA_MISSING`
+- `BACKWARD_COMPATIBILITY_REGRESSION`
 
-## Swarm-manager correction law
+General motion failures such as `VIDEO_TIMING_LEAK`, `LOAD_CHAIN_ERASED`, `STALE_PROP_CARRYOVER`, `QUARANTINED_VISUAL_LEAK`, and `PLACEHOLDER_STYLE_SUBSTITUTION` come from Motion Direction and remain failures inside this lane too.
 
-The animation swarm manager owns output shape, uniqueness, repair sequencing, compatibility, quality-gate propagation, chat-surface delivery, and correction propagation. Workers own their assigned motion lane but cannot redefine completion.
+## Manager propagation
 
-A material correction must be propagated before another stale mining cycle to:
+A material ASCII Kinesis correction must propagate before another stale cycle to:
 
 1. this skill;
 2. `docs/ASCII_KINESIS_SWARM_CONTRACT_V2.md`;
-3. the authoritative Home Center campaign state;
-4. GitHub issue #343;
-5. every affected scheduled worker prompt;
-6. the swarm manager/gate.
+3. campaign state;
+4. issue #343;
+5. affected scheduled worker prompts;
+6. swarm manager/gate.
 
-Do not create a new worker/control plane to repair a stale prompt; mutate the existing scheduled lane. An exhausted chat rotates through that same lane.
+Do not create a parallel control plane to avoid fixing stale law.
 
-## Parked future endpoint — do not steal focus
+## Parked endpoint
 
 `NEXT_SYSTEM_HANDLE: terminal-native ASCII animation/game engine`
 
-A durable high-quality corpus may eventually justify extracting a terminal-native interactive engine from the same literal scene/rig/timing substrate. It is deliberately PARKED until repeated HEALTHY repaired specimens prove reusable engine primitives. Do not build it merely because the handle exists.
+Parked until repeated HEALTHY specimens prove reusable engine primitives.
 
-Local scratch is construction only and is never completion proof.
+Local scratch is construction only and never completion proof.
