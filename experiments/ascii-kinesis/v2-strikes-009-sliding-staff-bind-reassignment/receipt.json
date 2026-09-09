@@ -1,0 +1,91 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "id": "v2-strikes-009-sliding-staff-bind-reassignment",
+  "status": "CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "current_worker_liveness": {
+    "home_center_campaign_read": true,
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "github_persistence_readback": true,
+    "mandatory_issue_comments_read": [
+      5576901079,
+      5592566123,
+      5593289237,
+      5594453954,
+      5595237307,
+      5595542730,
+      5595547531,
+      5596276724,
+      5596285374
+    ],
+    "latest_manager_reconciliation": 5596400386,
+    "skill_blob": "b2aaea5ee6babfdb788a028beb05e10159720776",
+    "swarm_contract_blob": "d02f015f526ca56c3f13072fc0e9d03157630fbd",
+    "validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c"
+  },
+  "inventory": {
+    "pre_creation_v2_strikes_009_count": 0,
+    "successor_collision": "NONE",
+    "binding_body": "v2-strikes-009-sliding-staff-bind-reassignment",
+    "no_strikes010_until_healthy": true
+  },
+  "source": {
+    "asset_id": 23976,
+    "campaign_pass": "STRIKES PASS 005 — VERIFIED",
+    "source_timing": "UNKNOWN",
+    "authored_timing": "INFERRED_STREET_FIGHTER_CAPCOM",
+    "source_art_embedded": false
+  },
+  "media": {
+    "sha256": "990081da647299b82927e4dedbd852c57b5629da8830b245386ecff657ade07c",
+    "bytes": 14705,
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "width": 920,
+    "height": 432,
+    "fps": 24,
+    "frames": 55,
+    "seconds": 2.2916666666666665,
+    "ffprobe": "PASS_CURRENT_WORKER",
+    "ffmpeg_full_decode": "PASS_CURRENT_WORKER",
+    "deterministic_rebuild": "BYTE_IDENTICAL_PASS",
+    "render_source": "abstract_ascii_rig_only"
+  },
+  "quality": {
+    "tango": "PASS_CURRENT_WORKER_ACTUAL_55_FRAME_RENDER_AFTER_ONE_SAME_BODY_REVISION",
+    "noodle_queen": "PASS_AFTER_TANGO_CURRENT_WORKER_ACTUAL_FINAL_RENDER",
+    "drew_accepted": false
+  },
+  "contract": {
+    "official_validator_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "official_validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "official_repo_path_callable": false,
+    "candidate_isolated_exact_validator": "PASS",
+    "exact_boundary": "NO_AUTHORIZED_FULL_REPOSITORY_CHECKOUT; NO FULL_REMOTE_MAIN_SCRIPT_EXECUTION CLAIMED"
+  },
+  "repo": {
+    "persisted": false,
+    "readback": false,
+    "commit": null,
+    "tracked_files": [
+      "build.py",
+      "manifest.json",
+      "motion.json",
+      "sliding-staff-bind-reassignment.motion.html",
+      "receipt.json"
+    ],
+    "blob_readback": {}
+  },
+  "issue_343_receipt": null,
+  "three_part_chat_delivery": {
+    "ascii": false,
+    "json": false,
+    "video": false,
+    "order": "ASCII -> JSON -> VIDEO"
+  },
+  "chat_media_identity": "PENDING",
+  "notes": [
+    "Tango's first inspection rejected the one-frame K7 pinned-contact to K8 end-role flip as too abrupt; the SAME 009 body was revised to add a three-frame geometry-only release carve, rebuilt byte-deterministically, then Tango passed.",
+    "Noodle Queen ran only after Tango PASS on the corrected actual render and passed.",
+    "Local construction/validator evidence is not repository completion proof; GitHub persistence/readback and issue receipt remain pending."
+  ]
+}
