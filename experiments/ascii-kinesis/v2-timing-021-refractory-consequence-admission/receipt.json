@@ -1,0 +1,62 @@
+{
+  "DREW_ACCEPTED": false,
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false
+  },
+  "contract": {
+    "candidate_isolated": "PASS",
+    "repo_global": "UNCLAIMED_STANDARD_CHAT_NO_CHECKOUT",
+    "validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78"
+  },
+  "current_worker_liveness": {
+    "github_persistence_readback": true,
+    "home_center_campaign_read": true
+  },
+  "experiment_id": "v2-timing-021-refractory-consequence-admission",
+  "issue_343_receipt": null,
+  "issue_343_receipt_readback": false,
+  "media": {
+    "bytes": 16975,
+    "codec": "h264",
+    "decode_pass": true,
+    "fps": 24,
+    "frames": 31,
+    "height": 360,
+    "pix_fmt": "yuv420p",
+    "sha256": "53c939163e3b429100dd29a9483e14ee8a745c88939155e6a37043e29104726b",
+    "width": 780
+  },
+  "one_body_binding": {
+    "inventory_tree_sha": "dfad1723b70731cc97a7cf8e75eb2d2ee376df88",
+    "successor_collision": false,
+    "timing021_count_before_create": 0
+  },
+  "quality": {
+    "queen": "PASS",
+    "same_actual_render": true,
+    "tango": "PASS"
+  },
+  "repo": {
+    "final_receipt_commit": null,
+    "path": "experiments/ascii-kinesis/v2-timing-021-refractory-consequence-admission/",
+    "persisted": false,
+    "repo_readback": false,
+    "ship_commit": null
+  },
+  "schema": "ascii-kinesis.receipt-v2",
+  "source": {
+    "asset_id": "5569",
+    "campaign_issue_comment": 5569195652,
+    "source_roles": [
+      "POSE_REFERENCE",
+      "CONTACT_REFERENCE"
+    ],
+    "timing_authority": false,
+    "timing_provenance": "INFERRED",
+    "whole_source_campaign_evidence_read": true
+  },
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "three_part_chat_delivery": false
+}
