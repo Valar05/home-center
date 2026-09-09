@@ -23,6 +23,7 @@ for f in \
   "$ROOT/tools/adam_venice_reviewed.py" \
   "$ROOT/tools/adam_codex_phone.py" \
   "$ROOT/tools/judgment_jar_runtime.py" \
+  "$ROOT/tools/judgment_jar_task_router.py" \
   "$ROOT/tools/judgment_jars.py" \
   "$ROOT/tools/judgment_jar_receipts.py" \
   "$ROOT/tools/judgment_jar_atom_import.py" \
@@ -39,6 +40,7 @@ PYTHON_BIN="$(command -v python3 || true)"
 
 cd "$ROOT"
 python3 tools/judgment_jar_receipt_contract_check.py
+python3 tools/test_judgment_jar_task_router.py
 python3 tools/test_adam_overlay_contract.py
 python3 tools/test_adam_overlay_delivery_state.py
 python3 tools/test_adam_cli_contract.py
@@ -57,6 +59,7 @@ python3 -m py_compile \
   tools/adam_venice_reviewed.py \
   tools/adam_planned_venice.py \
   tools/judgment_jar_runtime.py \
+  tools/judgment_jar_task_router.py \
   tools/judgment_jars.py \
   tools/judgment_jar_receipts.py \
   tools/judgment_jar_atom_import.py \
@@ -66,7 +69,8 @@ python3 -m py_compile \
   tools/venice_review.py \
   tools/venice_review_memory.py \
   tools/accept_adam_executive_phone.py \
-  tools/vlad_swarm_daemon.py
+  tools/vlad_swarm_daemon.py \
+  tools/test_judgment_jar_task_router.py
 
 TMP_TARGET="$TARGET.tmp.$$"
 cat > "$TMP_TARGET" <<EOF
@@ -115,7 +119,7 @@ path,source_commit,worker_sha,target,worker,canary,accept_path,brain_path=sys.ar
 accept=json.load(open(accept_path,encoding='utf-8'))
 brain=json.load(open(brain_path,encoding='utf-8'))
 obj={
-  'schema':'adam-cli-install-v12-receipted-jars-plan-venice-stop-memory-daemon',
+  'schema':'adam-cli-install-v13-canonical-task-jars',
   'ok':True,
   'sourceCommit':source_commit,
   'workerSha256':worker_sha,
@@ -124,7 +128,9 @@ obj={
   'launcher':'termux-native-codex-worker-planned-venice-reviewed-receipted-jars',
   'interactiveMode':'research-plan-jars-antagonize-venice-execute',
   'judgmentJarFastAccessSurfaces':['judgment_jars','home_center','vlad'],
-  'commandCenterExists':False,
+  'canonicalTaskJarRouting':True,
+  'canonicalRegistryFileId':'1UixBuLJRw-x5BoMGx81YXRpuN66iZhGGJoz40Iqx48Q',
+  'jarUnresolvedFailsClosed':True,
   'judgmentJarContextReceipts':True,
   'judgmentJarOutputReceiptCommand':'python3 tools/jar_receipt.py record',
   'judgmentJarReceiptDelivery':'existing vlad-jars sync heartbeat to Home Center with readback',
@@ -148,4 +154,4 @@ open(path,'w',encoding='utf-8').write(json.dumps(obj,indent=2,sort_keys=True)+'\
 print(json.dumps(obj,indent=2,sort_keys=True))
 PY
 
-echo "ADAM RECEIPTED-JAR RESEARCH/PLAN/VENICE/CODEX PHONE WORKER INSTALLED receipt=$RECEIPT"
+echo "ADAM CANONICAL-TASK-JAR RESEARCH/PLAN/VENICE/CODEX PHONE WORKER INSTALLED receipt=$RECEIPT"
