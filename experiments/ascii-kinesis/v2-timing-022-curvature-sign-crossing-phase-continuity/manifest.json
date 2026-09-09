@@ -1,0 +1,87 @@
+{
+  "ascii_literal_text": true,
+  "backward_compatible": true,
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false
+  },
+  "experiment_id": "v2-timing-022-curvature-sign-crossing-phase-continuity",
+  "files": [
+    "build.py",
+    "contact-sheet.txt",
+    "manifest.json",
+    "motion.json",
+    "curvature-sign-crossing-phase-continuity.motion.html",
+    "receipt.json"
+  ],
+  "format_version": 2,
+  "lane": "timing",
+  "lineage": {
+    "negative_fixture": null,
+    "revises": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT"
+  },
+  "media": {
+    "bytes": 20905,
+    "codec": "h264",
+    "fps": 24,
+    "frames": 31,
+    "height": 360,
+    "pix_fmt": "yuv420p",
+    "sha256": "fafeed6a3e53985ccc5c77108930c3dcbf05b5da678ab930ca41acfa639e8973",
+    "width": 780
+  },
+  "pocket_rule": "ZERO CURVATURE IS NOT ZERO MOTION. KEEP THE GAIT CLOCK WALKING; REVERSE THE LOAD ONLY WHEN SUPPORT EARNS IT.",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "primitive": "CURVATURE_SIGN_CROSSING_WITH_PHASE_CONTINUITY",
+  "quality": {
+    "actual_render_sha256": "fafeed6a3e53985ccc5c77108930c3dcbf05b5da678ab930ca41acfa639e8973",
+    "current_worker_queen": "PASS",
+    "current_worker_tango": "PASS",
+    "queen": "PASS",
+    "queen_basis": "visible S-curve root trajectory + continuous L/R gait + bank sign unwind/cross/rebuild; no idle reset or reverse playback",
+    "tango": "PASS",
+    "tango_highest_value_defect": "NONE"
+  },
+  "repo": {
+    "exact_six_file_readback": false,
+    "persisted": false,
+    "repo_readback": false,
+    "ship_commit": null,
+    "spa_blob": null
+  },
+  "schema": "ascii-kinesis.manifest-v2",
+  "source": {
+    "archive_bytes": 36359,
+    "archive_entries_inspected": 61,
+    "archive_sha256": "d4947e1821e24a9096417a596f974a2178790b49285c5335abb4f99a53959ce3",
+    "asset_id": "566077",
+    "campaign_evidence_file_id": "1m1AEz8Wi66rICM7_aQvqwJRTqKQ29g5VzIQPmfFOxTY",
+    "game": "Mina the Hollower",
+    "name": "The Duke",
+    "platform": "PC / Computer",
+    "provider": "The Spriters Resource",
+    "rights": "evidence_only_no_source_pixels",
+    "source_page": "https://www.spriters-resource.com/pc_computer/minathehollower/asset/566077/",
+    "source_roles": [
+      "POSE_REFERENCE",
+      "CONTACT_REFERENCE"
+    ],
+    "source_timing": "UNAVAILABLE_STATIC_ARCHIVE",
+    "timing_authority": false,
+    "timing_provenance": "INFERRED",
+    "whole_source_observation": "61 PNG entries inventoried across 15 animation families; Run/Run Down/Run Up each expose four numbered phase slots; Turn is a separate two-frame family; source playback timing was not measured."
+  },
+  "source_art_embedded": false,
+  "specimen_number": 22,
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "three_part_chat_delivery": false,
+  "title": "Curvature Sign Crossing / Phase Continuity",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only"
+}
