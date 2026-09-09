@@ -2,15 +2,108 @@
   "schema": "ascii-kinesis.contact-repair-receipt.v2",
   "experiment_id": "v2-contact-013-custody-load-release-causal-repair",
   "lane": "contact",
-  "status": "QUALITY_GATES_PASS_MEDIA_DECODE_PASS_CONTRACT_PASS_REPO_PERSIST_PENDING",
-  "current_worker_liveness": {"home_center_campaign":"PASS","campaign_id":"1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s","github_persistence_readback":"PASS"},
-  "lineage": {"revises":"experiments/ascii-kinesis/v2-contact-006-custody-latch-load-release/","negative_fixture":"experiments/ascii-kinesis/v2-contact-006-custody-latch-load-release/","source_change":false},
-  "source": {"asset_id":"566037","archive_sha256":"339c0d3308fe51ce303ae4673798d3015e0022b9291fbfcd1fcba1209d7a2443","family":"Buffo — Mina the Hollower — PC / Computer"},
-  "media": {"sha256":"a5df34a358262daac76812b3bcd1992d1e73352012e5972cf5b7b4fa6c6198c2","bytes":16053,"codec":"H.264/libx264","width":760,"height":440,"fps":24,"frames":46,"decode":"PASS","render_source":"abstract ASCII rig + structured timing only"},
-  "quality": {"tango":{"status":"PASS","actual_render_inspected":true,"render_sha256":"a5df34a358262daac76812b3bcd1992d1e73352012e5972cf5b7b4fa6c6198c2","history":[{"status":"REVISE_REQUIRED","visible_defect":"First actual render made acquisition read too close to a farthest-reach snatch and the approach body arrived too late relative to the hand, weakening the causal body-before-grip setup.","correction":"Mutate the SAME C013 body: move A materially closer during C013-K1, keep payload fully stationary through no-contact approach, close C013-K2 with a bent body-supported reach, and add deterministic pre-key approach/carry/load connective frames that retain prior semantic ownership until the authored join."},{"status":"PASS","visible_result":"Fresh inspection of all 46 final decoded frames shows body-first asymmetric approach, payload static before latch, acquisition inside committed reach, pinned rear-root carry/load, cross-body LOAD_MAX, a held release threshold with custody intact, explicit release fork, payload lead only after release, opposing recoil, secondary-lag overshoot and displaced recovery debt. No mannequin carry, equal-spacing tween, premature payload float, reverse interpolation or idle reset remains."}]},"noodle_queen":{"status":"PASS","actual_render_inspected":true,"render_sha256":"a5df34a358262daac76812b3bcd1992d1e73352012e5972cf5b7b4fa6c6198c2","taste":"PASS: the cross-body windup turns the generic payload into a visibly expensive weight; the held rear pin and long thrown arc give the motion a specific crooked attitude.","function":"PASS: FREE -> approach -> latch -> carry -> LOAD_MAX -> armed threshold -> release fork -> independent payload lead -> recoil/overshoot -> displaced recovery reads as one causal ownership chain.","contempt":"PASS: release is not cheap, the payload never floats before custody breaks, and recovery keeps rear-dominant twist debt instead of returning to a polite idle."}},
-  "contract": {"script":"tools/test_ascii_kinesis_swarm_contract_v2.py","script_blob":"09f0bcf233dbb770ce6b6df047fe18d94be8aa7c","candidate_isolated":"PASS","result":{"schema":"ascii-kinesis.swarm-contract-v2-test","entries_checked":["v2-contact-013-custody-load-release-causal-repair"],"ok":true},"boundary":"Exact current validator blob 09f0bcf233dbb770ce6b6df047fe18d94be8aa7c was reproduced candidate-isolated; no full-repo execution claimed."},
-  "repo": {"persistence":"PENDING","readback":"PENDING","commit":null,"files_expected":["build.py","contact-sheet.txt","custody-load-release-causal-repair.motion.html","manifest.json","motion.json","receipt.json"]},
-  "chat_delivery": {"part_1_ascii":false,"part_2_json":false,"part_3_video":false,"status":"PENDING_THIS_REPORTING_CHAT"},
+  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
+  "current_worker_liveness": {
+    "home_center_campaign": "PASS",
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "github_persistence_readback": "PASS",
+    "reset_comment": 5576901079,
+    "contact005_closure": 5593966413,
+    "manager_collision_correction": 5595683159,
+    "skill_blob": "b2aaea5ee6babfdb788a028beb05e10159720776",
+    "contract_blob": "d02f015f526ca56c3f13072fc0e9d03157630fbd"
+  },
+  "successor_collision": {
+    "classification": "SUCCESSOR_COLLISION",
+    "canonical": "experiments/ascii-kinesis/v2-contact-013-custody-load-release-causal-repair/",
+    "canonical_first_ascii_commit": "fa053cdcb17a6a04a7224ff83b62d5b61357e07f",
+    "canonical_first_ascii_commit_time": "2026-09-09T02:43:39Z",
+    "non_authoritative_churn": "experiments/ascii-kinesis/v2-contact-013-custody-load-release-fork-repair/",
+    "churn_policy": "PRESERVE_UNMUTATED_DO_NOT_DELIVER_PROMOTE_OR_TRAIN"
+  },
+  "lineage": {
+    "revises": "experiments/ascii-kinesis/v2-contact-006-custody-latch-load-release/",
+    "negative_fixture": "experiments/ascii-kinesis/v2-contact-006-custody-latch-load-release/",
+    "source_change": false
+  },
+  "source": {
+    "asset_id": "566037",
+    "archive_sha256": "339c0d3308fe51ce303ae4673798d3015e0022b9291fbfcd1fcba1209d7a2443",
+    "family": "Buffo — Mina the Hollower — PC / Computer",
+    "source_authentic_timing": "UNAVAILABLE",
+    "rights_boundary": "evidence_only_no_source_pixels_palette_contours_tracing_layout_choreography_redistribution_or_close_imitation"
+  },
+  "media": {
+    "sha256": "a5df34a358262daac76812b3bcd1992d1e73352012e5972cf5b7b4fa6c6198c2",
+    "bytes": 16053,
+    "codec": "H.264/libx264",
+    "pixel_format": "yuv420p",
+    "width": 760,
+    "height": 440,
+    "fps": 24,
+    "frames": 46,
+    "duration_seconds": 1.916667,
+    "decode": "PASS_CURRENT_WORKER_FFPROBE_AND_FULL_FFMPEG",
+    "render_source": "abstract ASCII rig + structured timing only"
+  },
+  "quality": {
+    "tango": {
+      "status": "PASS",
+      "fresh_current_worker": true,
+      "actual_render_inspected": true,
+      "render_sha256": "a5df34a358262daac76812b3bcd1992d1e73352012e5972cf5b7b4fa6c6198c2",
+      "highest_value_visible_defect": "NONE_AT_ACCEPTANCE_SCALE",
+      "visible_result": "Fresh inspection of the actual 46-frame final render confirms body-first asymmetric approach, payload stationary before latch, acquisition inside committed reach, explicit A_PRIMARY custody, rear-root load support, cross-body LOAD_MAX leverage, held release threshold, separately authored release fork, payload lead only after release, opposing recoil, overshoot, secondary lag, settle and displaced recovery debt. No mannequin carry, farthest-reach snatch, premature payload float, ambiguous ownership, equal-spacing endpoint tween, reverse interpolation or idle reset warrants another mutation."
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "fresh_current_worker": true,
+      "actual_render_inspected": true,
+      "render_sha256": "a5df34a358262daac76812b3bcd1992d1e73352012e5972cf5b7b4fa6c6198c2",
+      "taste": "PASS — crooked cross-body windup, held rear pin and long throw arc make the payload read as an expensive weight rather than placeholder object motion.",
+      "function": "PASS — FREE to approach to latch to carry to LOAD_MAX to armed threshold to release fork to independent payload lead to recoil/overshoot to displaced recovery is visually causal.",
+      "contempt": "PASS — release has cost, payload never floats before custody breaks, and recovery remains rear-dominant and twisted rather than politely resetting."
+    }
+  },
+  "contract": {
+    "script": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "script_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "current_worker_candidate_isolated": "PASS",
+    "result": {
+      "schema": "ascii-kinesis.swarm-contract-v2-test",
+      "entries_checked": ["v2-contact-013-custody-load-release-causal-repair"],
+      "ok": true
+    },
+    "boundary": "Exact current validator logic was run candidate-isolated against the canonical persisted-shape Contact013 files. This Standard Chat has no authorized full-repository checkout shell, so no repo-global validator execution is claimed. GitHub readback independently verifies the tracked canonical body and SPA."
+  },
+  "repo": {
+    "persistence": "PASS",
+    "readback": "PASS",
+    "spa_create_commit": "752481f5e6da0ee492464bcc5820af1727c5a005",
+    "files_exact": [
+      "build.py",
+      "contact-sheet.txt",
+      "custody-load-release-causal-repair.motion.html",
+      "manifest.json",
+      "motion.json",
+      "receipt.json"
+    ],
+    "blobs_before_this_receipt_update": {
+      "build.py": "cec448f0743482d89c7d2a909377218391b035af",
+      "contact-sheet.txt": "935f50ca04b3bfb24f195909202da37deb48b06c",
+      "custody-load-release-causal-repair.motion.html": "c601a3fe74a8467c287f900caf82c618f4681e1d",
+      "manifest.json": "89ea2517cbb54b3f7b1384db9e21341cac6b8f4e",
+      "motion.json": "7dbe2fc95afdee3fc27ea7bc372e8a457e4588aa"
+    },
+    "spa_primary_tabs": ["ASCII", "JSON", "VIDEO"],
+    "spa_offline_embedded_video": true
+  },
+  "chat_delivery": {
+    "part_1_ascii": false,
+    "part_2_json": false,
+    "part_3_video": false,
+    "status": "PENDING_THIS_REPORTING_CHAT"
+  },
   "issue_343_receipt": null,
   "drew_accepted": "NOT_INFERRED"
 }
