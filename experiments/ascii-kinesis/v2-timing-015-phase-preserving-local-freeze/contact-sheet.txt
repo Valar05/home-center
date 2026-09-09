@@ -1,0 +1,158 @@
+TIMING015 - PHASE PRESERVING LOCAL FREEZE
+PAUSE THE LOCAL CLOCK, NOT THE WHOLE BODY. RESUME THE HELD PHASE; DO NOT CATCH UP.
+
+SOURCE EVIDENCE
+TSR asset 154244 - Tails - Sonic Advance 2 - GBA - evidence only
+Entire-sheet custody: 1544x1226 RGBA PNG | 349,461 bytes | sha256 e9a1219b5d267a790bb0431a0e61019f3849c9b92aafe564efcc7d26438765db
+Source-authentic timing: UNAVAILABLE. All decisive timing below is INFERRED / STREET_FIGHTER-CAPCOM.
+
+KEY LEDGER
+T015-K0  DISPLACED_READY_A           class=FOURS hold=4  prov=INFERRED support=BOTH           BASE=B0_READY    TASK=R0_LOW_SWING         policy=RUN
+T015-K1  LOAD_AND_COIL               class=FOURS hold=4  prov=INFERRED support=REAR_DOMINANT  BASE=B1_LOAD     TASK=R1_REAR_COIL         policy=RUN
+T015-K2  DRIVE_STEP                  class=TWOS  hold=2  prov=INFERRED support=LEFT           BASE=B2_DRIVE    TASK=R2_HIGH_REAR         policy=RUN
+T015-K3  TASK_FREEZE_JOIN            class=ONES  hold=1  prov=INFERRED support=LEFT           BASE=B3_PASS     TASK=R3_FROZEN_HIGH_REAR  policy=FREEZE
+T015-K4  BASE_PASSES_UNDER_FREEZE_A  class=TWOS  hold=2  prov=INFERRED support=LEFT           BASE=B4_CROSS    TASK=R3_FROZEN_HIGH_REAR  policy=FROZEN
+T015-K5  BASE_PASSES_UNDER_FREEZE_B  class=FOURS hold=4  prov=INFERRED support=RIGHT          BASE=B5_CATCH    TASK=R3_FROZEN_HIGH_REAR  policy=FROZEN
+T015-K6  TASK_RELEASE_JOIN           class=ONES  hold=1  prov=INFERRED support=RIGHT          BASE=B6_REACH    TASK=R3_FROZEN_HIGH_REAR  policy=RELEASE
+T015-K7  RESUME_NEXT_LOCAL_PHASE     class=ONES  hold=1  prov=INFERRED support=LEFT           BASE=B7_LEFT_CATCH TASK=R4_FORWARD_DROP      policy=RUN
+T015-K8  TASK_OVERSHOOT              class=TWOS  hold=2  prov=INFERRED support=LEFT           BASE=B8_REBOUND  TASK=R5_FORWARD_OVERSHOOT policy=RUN
+T015-K9  COUNTER_CATCH               class=TWOS  hold=2  prov=INFERRED support=BOTH           BASE=B9_BRAKE    TASK=R6_HIGH_FORWARD_LAG  policy=RUN
+T015-K10  DISPLACED_READY_B           class=FOURS hold=4  prov=INFERRED support=RIGHT_DOMINANT BASE=B10_READY   TASK=R7_SETTLED_FORWARD_LOW policy=RUN
+
+CONTACT SHEET
+
+T015-K0 DISPLACED_READY_A           T015-K1 LOAD_AND_COIL             
+                                                                      
+                                                                      
+                                                                      
+                                                                      
+                                                                      
+          O                                                           
+                                             O                        
+                                                  -*                  
+         +++                                    -+                    
+        / | \                               +++-                      
+       +  |  +                             | |                        
+      |  |    |                            + |                        
+      *  @    *                           |   |                       
+        | \                               *   @                       
+        +  +                                 | \                      
+        |  |                                 +  +                     
+       |    |                               /    |                    
+=======_====_=====================  =======_=====_====================
+                                                                      
+                                                                      
+
+T015-K2 DRIVE_STEP                  T015-K3 TASK_FREEZE_JOIN          
+                                                                      
+                                                                      
+                                                                      
+                                                                      
+                                                                      
+           O                                     O                    
+                -*                                    -*              
+              -+                                    -+                
+          +++-                                  +++-                  
+         / |                                   / |                    
+        +  |                                  +  |                    
+       |    |                                |    |                   
+       *    @-                               *    @                   
+           |  -+                                 | \                  
+           +    \\                               +  +-                
+           |      _                              |    -_              
+          |                                     |                     
+==========_=======================  ============_=====================
+                                                                      
+                                                                      
+
+T015-K4 BASE_PASSES_UNDER_FREEZE_A  T015-K5 BASE_PASSES_UNDER_FREEZE_B
+                                                                      
+                                                                      
+                                                                      
+                                                                      
+                                                                      
+               O                                                      
+                    -*                              O                 
+                  -+                                      -*          
+              +++-                                      -+            
+            +- |                                    +++-              
+           |   |                                   / |                
+           *    |                                 +  |                
+                @                                |    |               
+               | -+                              *    @               
+               +   --                               +- -+             
+               |     -_                            _     \            
+              |                                          \            
+==============_===================  ======================_===========
+                                                                      
+                                                                      
+
+T015-K6 TASK_RELEASE_JOIN           T015-K7 RESUME_NEXT_LOCAL_PHASE   
+                                                                      
+                                                                      
+                                                                      
+                                                                      
+                                                                      
+                   O                                    O             
+                        -*                                            
+                      -+                                              
+                  +++-                                 +++            
+                 / |                                  / | \           
+                +  |                                 +  |  +          
+               |    |                               |    | |          
+               *    @                               *    @  |         
+                   + \                                  | -+*         
+                  /   +                                 +   \\        
+                 _     \                                |     _       
+                       \                               |              
+========================_=========  ===================_==============
+                                                                      
+                                                                      
+
+T015-K8 TASK_OVERSHOOT              T015-K9 COUNTER_CATCH             
+                                                                      
+                                                                      
+                                                                      
+                                                                      
+                     O                                                
+                                                          O           
+                                                                -*    
+                    +++-                                     -+-      
+                   / |  -+                               +++-         
+                  +  |    \\                            / |           
+                 |    |     *                           / |           
+                 *    @                                +   |          
+                     | \                              |    @          
+                     + \                              *   | \         
+                     |  +                                 +  +        
+                    |    \\                               |   \       
+                    |      _                             |    \       
+====================_=============  =====================_=====_======
+                                                                      
+                                                                      
+
+T015-K10 DISPLACED_READY_B                                            
+                                                                      
+                                                                      
+                                                                      
+                                                                      
+                                                                      
+                       O                                              
+                                                                      
+                                                                      
+                      +++-                                            
+                     / |  -+                                          
+                    +  |    \                                         
+                   |    |    *                                        
+                   *    @                                             
+                       | \                                            
+                       +  +                                           
+                      /   |                                           
+                     _     |                                          
+===========================_======                                    
+                                                                      
+                                                                      
+
+FREEZE INVARIANT
+T015-K3 .. T015-K6 keep TASK state R3_FROZEN_HIGH_REAR and identical TASK local offsets while BASE/support changes.
+T015-K7 resumes R4_FORWARD_DROP: the next authored local phase. It does not catch up to wall time, restart at R0, quantize to a safe phase, or rebind BASE.
