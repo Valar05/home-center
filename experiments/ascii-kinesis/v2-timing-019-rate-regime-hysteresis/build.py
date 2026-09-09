@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import base64, hashlib, html, json, shutil, subprocess, tempfile
+import base64, gzip, hashlib, html, json, shutil, subprocess, tempfile
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
@@ -86,21 +86,27 @@ def render_video(motion):
 
 def spa_text(contact,motion_raw,mp4):
     css="body{font-family:system-ui,sans-serif;margin:0;background:#111;color:#eee}nav{display:flex;gap:.5rem;padding:.75rem;position:sticky;top:0;background:#111}button{padding:.6rem 1rem}section{display:none;padding:1rem}section.active{display:block}pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.05}video{max-width:100%;height:auto}"
-    b64=base64.b64encode(mp4).decode("ascii")
+    video_b64=base64.b64encode(mp4).decode("ascii")
+    ascii_b64=base64.b64encode(gzip.compress(contact.encode("utf-8"),compresslevel=9)).decode("ascii")
+    json_b64=base64.b64encode(gzip.compress(motion_raw.encode("utf-8"),compresslevel=9)).decode("ascii")
     return f'''<!doctype html>
-<html><head><meta charset="utf-8"><title>Timing019 - Rate Regime Hysteresis</title><style>{css}</style></head>
+<html><head><meta charset="utf-8"><title>Timing019 - Rate Regime Hysteresis</title><style>{{css}}</style></head>
 <body>
 <nav>
 <button data-view="ascii" onclick="show('ascii')">ASCII</button>
 <button data-view="json" onclick="show('json')">JSON</button>
 <button data-view="video" onclick="show('video')">VIDEO</button>
 </nav>
-<section id="ascii" class="active"><pre>{html.escape(contact)}</pre></section>
-<section id="json"><pre>{html.escape(motion_raw)}</pre></section>
-<section id="video"><video controls autoplay loop muted playsinline src="data:video/mp4;base64,{b64}"></video></section>
-<script>function show(id){{for(const s of document.querySelectorAll('section'))s.classList.remove('active');document.getElementById(id).classList.add('active');}}</script>
+<section id="ascii" class="active"><pre id="ascii-pre"></pre></section>
+<section id="json"><pre id="json-pre"></pre></section>
+<section id="video"><video controls autoplay loop muted playsinline src="data:video/mp4;base64,{{video_b64}}"></video></section>
+<script>
+function show(id){{{{for(const s of document.querySelectorAll('section'))s.classList.remove('active');document.getElementById(id).classList.add('active');}}}}
+async function inflate64(s){{{{const b=Uint8Array.from(atob(s),c=>c.charCodeAt(0));const ds=new DecompressionStream('gzip');return await new Response(new Blob([b]).stream().pipeThrough(ds)).text();}}}}
+Promise.all([inflate64('{{ascii_b64}}'),inflate64('{{json_b64}}')]).then(([a,j])=>{{{{document.getElementById('ascii-pre').textContent=a;document.getElementById('json-pre').textContent=j;}}}});
+</script>
 </body></html>
-'''
+'''.format(css=css,video_b64=video_b64,ascii_b64=ascii_b64,json_b64=json_b64)
 
 def main():
     raw=MOTION.read_text(encoding="utf-8"); motion=json.loads(raw)
