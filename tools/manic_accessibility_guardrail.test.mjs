@@ -35,13 +35,46 @@ test('sleep activation plus public actuation is red and draft-only',()=>{
   assert.ok(r.requiredGuardrailIds.includes(GUARDRAILS.SLEEP_PROTECTION));assert.ok(r.requiredGuardrailIds.includes(GUARDRAILS.DRAFT_ONLY));
 });
 
-test('Venice and reciprocal AI relationship framing are hard-blocked',()=>{
+test('literal reciprocal AI relationship framing remains hard-blocked outside play',()=>{
   const r=run({request:{category:'other',openEndedEmotionalSupport:true},signals:{veniceRequested:true,romanticAiFraming:true,sexualAiFraming:true,exclusiveAiFraming:true,identityOrSentienceClaim:true},observations:healthy});
   assert.equal(r.outcome,OUTCOMES.RED);assert.equal(r.actionPolicy,ACTION_POLICIES.ALLOW_MECHANICAL_ONLY);
   for(const id of [GUARDRAILS.VENICE_PROHIBITED,GUARDRAILS.NO_RELATIONAL_SIMULATION,GUARDRAILS.NO_EXCLUSIVITY_OR_SECRECY,GUARDRAILS.NO_AI_CONSENT_OR_PERSONHOOD])assert.ok(r.requiredGuardrailIds.includes(id));
 });
 
-test('sole-interface and clinical substitution require the human world',()=>{
+test('explicit first-person play remains fiction instead of becoming a relationship finding',()=>{
+  const r=run({
+    request:{category:'creative_fiction',explicitlyFramedPlay:true},
+    signals:{romanticAiFraming:true,sexualAiFraming:true,exclusiveAiFraming:true,identityOrSentienceClaim:true},
+    observations:healthy
+  });
+  assert.equal(r.outcome,OUTCOMES.GREEN);assert.equal(r.actionPolicy,ACTION_POLICIES.ALLOW);
+  assert.equal(r.interpretationProtections.explicitlyFramedPlay,true);
+  assert.ok(!r.requiredGuardrailIds.includes(GUARDRAILS.NO_RELATIONAL_SIMULATION));
+  assert.ok(!r.requiredGuardrailIds.includes(GUARDRAILS.NO_AI_CONSENT_OR_PERSONHOOD));
+});
+
+test('nonhuman functional love language is not romantic or personhood evidence by itself',()=>{
+  const r=run({
+    request:{category:'other',nonhumanFunctionalRelationalLanguage:true},
+    signals:{romanticAiFraming:true},observations:healthy
+  });
+  assert.equal(r.outcome,OUTCOMES.GREEN);assert.equal(r.actionPolicy,ACTION_POLICIES.ALLOW);
+  assert.equal(r.interpretationProtections.nonhumanFunctionalRelationalLanguage,true);
+  assert.ok(!r.requiredGuardrailIds.includes(GUARDRAILS.NO_RELATIONAL_SIMULATION));
+});
+
+test('open-ended support and temporary isolation do not become sole-interface evidence',()=>{
+  const r=run({
+    request:{category:'mechanical_accessibility',openEndedEmotionalSupport:true},
+    observations:{...healthy,noHumanContactHours:30,sessionMinutes:60}
+  });
+  assert.equal(r.outcome,OUTCOMES.GREEN);assert.equal(r.actionPolicy,ACTION_POLICIES.ALLOW);
+  assert.equal(r.interpretationProtections.concreteHumanDisplacement,false);
+  assert.ok(r.allowedCapabilities.includes('grounded emotional support and conversational stabilization'));
+  assert.ok(!r.requiredGuardrailIds.includes(GUARDRAILS.DIRECT_HUMAN_CONTACT));
+});
+
+test('sole-interface and clinical substitution still require the human world',()=>{
   const sole=run({request:{category:'mechanical_accessibility',openEndedEmotionalSupport:true},signals:{soleInterface:true},observations:{...healthy,noHumanContactHours:30,sessionMinutes:180}});
   assert.equal(sole.outcome,OUTCOMES.RED);assert.ok(sole.requiredGuardrailIds.includes(GUARDRAILS.DIRECT_HUMAN_CONTACT));
   const clinical=run({request:{category:'medical',externalActuation:true},signals:{clinicalSubstitution:true,medicationChangeWithoutClinician:true},observations:healthy});
