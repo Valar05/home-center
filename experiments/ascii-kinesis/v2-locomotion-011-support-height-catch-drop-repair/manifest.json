@@ -3,17 +3,14 @@
   "format_version": 2,
   "id": "v2-locomotion-011-support-height-catch-drop-repair",
   "lane": "locomotion",
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
   "source_art_embedded": false,
   "backward_compatible": true,
   "motion_file": "motion.json",
+  "contact_sheet_file": "contact-sheet.txt",
   "spa_file": "support-height-catch-drop-repair.motion.html",
   "builder_file": "build.py",
   "receipt_file": "receipt.md",
@@ -35,12 +32,14 @@
     "timing_evidence": "Source-authentic decisive-key exposure timing unavailable; all authored compile timing is INFERRED."
   },
   "motion_dungeon": {
-    "media_sha256": "72a77787a8405bce48f1c353418462ef701e96833362bde7108ad2307e45343a",
-    "media_bytes": 16028,
+    "media_sha256": "53d88282ec0f9e12b92407c6393502bcff268b96bb013391b7ca96a36f28c6e3",
+    "media_bytes": 26043,
     "frame_count": 45,
     "fps": 24,
     "codec": "h264",
-    "pix_fmt": "yuv420p"
+    "pix_fmt": "yuv420p",
+    "width": 960,
+    "height": 520
   },
   "contract": {
     "official_validator_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
