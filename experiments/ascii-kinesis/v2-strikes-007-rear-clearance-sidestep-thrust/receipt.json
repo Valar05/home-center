@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "id": "v2-strikes-007-rear-clearance-sidestep-thrust",
-  "status": "REPO_READBACK_QUALITY_CONTRACT_PASS_READY_FOR_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "current_worker": {
     "home_center_campaign_preflight": true,
     "github_persistence_readback": true,
@@ -20,19 +20,21 @@
     "inventory_before_creation": {
       "v2_strikes_007_count": 0,
       "successor_collision": "NONE"
-    }
+    },
+    "strikes008_created_in_this_run": false
   },
   "source": {
     "asset_id": 255871,
     "campaign_issue_receipt": 5572842500,
     "source_sha256": "e850b6944ee00b9087d67d3aebf96d7a8676a495c80bfcaf091df9949d41f611",
-    "timing_observed": "NONE"
+    "timing_observed": "NONE",
+    "choreography_timing": "INFERRED"
   },
   "repo": {
     "path": "experiments/ascii-kinesis/v2-strikes-007-rear-clearance-sidestep-thrust/",
     "persisted": true,
     "readback": true,
-    "blobs": {
+    "blobs_before_final_receipt_write": {
       "build.py": "8cad9beb64d8359b2ce653fe79aea92e5c78d806",
       "motion.json": "b81b04f780135096e339f951f74529d479417857",
       "rear-clearance-sidestep-thrust.motion.html": "2abac33f34cae6665d4e7fc6bf0ab664e47dbce8",
@@ -44,26 +46,43 @@
     "bytes": 12040,
     "frames": 44,
     "fps": 24,
+    "width": 960,
+    "height": 480,
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
     "decode": "PASS_CURRENT_WORKER_FINAL_RENDER",
-    "spa_embedded": "PASS_EXACT_READBACK"
+    "spa_embedded": "PASS_EXACT_READBACK",
+    "chat_media": "BYTE_IDENTICAL_AUTHORITATIVE_MEDIA"
   },
   "quality": {
-    "tango": "PASS_CURRENT_WORKER_ACTUAL_RENDER",
-    "noodle_queen": "PASS_AFTER_TANGO_CURRENT_WORKER_ACTUAL_RENDER"
+    "tango": "PASS_CURRENT_WORKER_ACTUAL_44_FRAME_RENDER",
+    "noodle_queen": "PASS_AFTER_TANGO_CURRENT_WORKER_ACTUAL_FINAL_RENDER",
+    "drew_accepted": false
   },
   "contract": {
+    "primary_tabs": ["ASCII", "JSON", "VIDEO"],
     "candidate_isolated_official_validator_logic": "PASS",
+    "official_validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
     "full_repo_global_shell": "NOT_CLAIMED_NO_AUTHORIZED_CHECKOUT"
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_visible_video": false,
-    "status": "PENDING"
+    "part1_ascii": true,
+    "part1_ascii_chunks": 4,
+    "part2_json": true,
+    "part2_json_chunks": 10,
+    "part2_serialization": "ACTUAL_PERSISTED_VALUES_PRETTY_NON_BYTE_IDENTICAL",
+    "part3_visible_video": true,
+    "part3_media_sha256": "114f5089fd890efa8ef1656c523d17294fb6caccc61bee9c3e42919b1962b13a",
+    "status": "PASS_ORDERED_SAME_RESPONSE"
   },
   "issue_343": {
-    "prechat_receipt": "POST_AFTER_THIS_REPO_READBACK",
-    "closure_receipt": "POST_AFTER_CHAT_DELIVERY"
+    "prechat_receipt": 5595516276,
+    "closure_receipt": 5595542730
   },
-  "healthy": false
+  "healthy": true,
+  "next_lane_state": {
+    "strikes007_closed": true,
+    "strikes008_authorized_only_after_fresh_preflight_and_inventory": true,
+    "strikes009_forbidden_until_strikes008_healthy": true
+  }
 }
