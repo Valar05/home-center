@@ -1,0 +1,153 @@
+{
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "format_version": 2,
+  "experiment_id": "v2-defense-016-shield-knee-post-torque-recovery",
+  "lane": "defense",
+  "principle": "Guard-column fold into knee-post torque recovery: a fixed high-line guard absorbs lateral force, the body spills that force into a temporary knee+rear-foot low tripod, then corkscrews through an around-step catch and late guard reopen without returning to idle.",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "ascii_surface": "real preformatted DOM text",
+  "ligatures_disabled": true,
+  "whitespace_preserved": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "compatibility": {
+    "v2_three_tab_read_path": true,
+    "historical_v1_v2_readability_preserved": true,
+    "source_fields_not_reinterpreted": true
+  },
+  "revision": {
+    "kind": "NEW_CONCEPT",
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "predecessor_health": "Defense015 HEALTHY issue #343 comment 5596161856",
+    "novelty_exclusions": [
+      "not any pre-reset Defense001..006 negative fixture or their canonical repair grammars 007..012",
+      "not Defense013 rear-anchor pivot/cross-body exit",
+      "not Defense014 external tool-floor kickstand/support-transfer",
+      "not Defense015 traveling guard BASE/TASK phase-slip with cross-foot catch",
+      "new support primitive is BODY_KNEE_POST plus rear foot; guard never becomes floor support",
+      "new force path is high-line fixed guard -> downward body fold -> low two-point body support -> corkscrew around-step recovery"
+    ]
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "title": "Cress Albane",
+    "game": "Tales of Phantasia",
+    "platform": "Game Boy Advance",
+    "asset_id": "11953",
+    "page_url": "https://www.spriters-resource.com/game_boy_advance/top/asset/11953/",
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "campaign_evidence_receipt": 5570783460,
+    "whole_source_evidence": {
+      "type": "static_png_whole_sheet",
+      "dimensions": [
+        696,
+        834
+      ],
+      "reported_size": "68.25 KB",
+      "uploader": "Gors",
+      "animations_count": "UNKNOWN",
+      "observed": [
+        "whole sheet contains labeled Idle, Guard, Damaged, Dead, Knocked Out & Getting Up, Walk, Run & Stop, and multiple attack families",
+        "swordless variants and separate sword/shield graphics coexist with body-state families",
+        "guard, consequence, recovery, and equipment channels can be separated as state families",
+        "static sheet layout does not establish chronology or source-authentic playback timing"
+      ],
+      "unknown": [
+        "source-authentic frame chronology",
+        "source exposure duration",
+        "source hit-stop",
+        "source support/contact mechanics",
+        "exact source byte identity and SHA-256"
+      ]
+    }
+  },
+  "rights": {
+    "source_art_status": "commercial_copyright_restricted_evidence_only",
+    "source_pixels_used": false,
+    "source_palette_used": false,
+    "source_costume_used": false,
+    "source_contours_used": false,
+    "source_layout_used": false,
+    "source_frames_traced": false,
+    "source_choreography_copied": false,
+    "redistribution": false,
+    "close_imitation": false,
+    "output_rig": "independent generic ASCII humanoid with abstract guard-channel glyph"
+  },
+  "files": [
+    "build.py",
+    "contact-sheet.txt",
+    "manifest.json",
+    "motion.json",
+    "receipt.json",
+    "shield-knee-post-torque-recovery.motion.html"
+  ],
+  "reconstruction": "python3 build.py",
+  "ascii_persistence": "tracked contact-sheet.txt is the exact deterministic builder output from persisted motion.json",
+  "ascii_sha256": "428f85789653fdc95bb32719cd0474f5a5e9be19e1503aef083c171a92d533dd",
+  "motion_sha256": "12a565a5d90964354c903a46c592a6be8a33d4adb04e253f256b1d9c830159d1",
+  "build_sha256": "03401d88b88d0d1d282c965e9e0a3d3307297e55be14c7dc1fb05bf968b2ae1c",
+  "spa_sha256": "455a3c82f4104f8c993fdd60b58c96ee569daed3b4f0b3dbb8ded386e9dad0cd",
+  "video_packaging": "authoritative embedded MP4 data URI in self-contained SPA; no tracked binary sidecar",
+  "tracked_media_sidecar": false,
+  "media_sha256": "99fdab0a5bc595c410dd9634cca46d9b08955234426f65800b73daeb4a812bcf",
+  "media_bytes": 22892,
+  "media_frames": 60,
+  "media_decode_preflight": "PASS_FFPROBE_AND_FULL_FFMPEG_DECODE",
+  "motion_dungeon": {
+    "authored_ascii_keys": 19,
+    "explicit_holds": true,
+    "deterministic_connective_motion": true,
+    "connector_semantics_fail_closed": true,
+    "ascii_only_frame_render": true,
+    "fps": 24,
+    "frames": 60
+  },
+  "timing_provenance_required": true,
+  "quality_gates": {
+    "tango_current_worker": "PASS_AFTER_TWO_SAME_BODY_REVISIONS",
+    "tango_final_basis": "actual 60-frame H.264 render inspected frame-by-frame as a complete timing sheet after revisions; fixed-endpoint guard shear, explicit rear support break, low knee+rear-foot tripod, authored knee-post push before release, around-step preplant/catch, overshoot, second-foot reacquisition, late guard reopen, secondary lag, and displaced ready debt remain visible",
+    "noodle_queen_current_worker": "PASS_AFTER_TANGO",
+    "noodle_queen_basis": {
+      "TASTE": "the long fixed guard column collapses into a crooked low tripod, then unwinds through a distinct around-step arc; silhouettes change in kind rather than by polite interpolation",
+      "FUNCTION": "brace -> contact constraint -> pinned body shear -> rear-only support break -> contact-release fold -> knee-post acquisition -> low torque spill -> supported push -> knee release -> around-step preplant -> new-foot catch -> overtravel -> second-foot reacquire -> late guard reopen is causally legible",
+      "CONTEMPT": "the sequence refuses a neutral reset and avoids the accepted Defense013 pivot exit, Defense014 tool-floor kickstand, Defense015 traveling phase-slip, planted-feet theater, reverse interpolation, and generic connectors"
+    },
+    "drew_accepted": false
+  },
+  "contract_test": {
+    "validator_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "candidate_isolated": "PASS_EXACT_OFFICIAL_V2",
+    "result": {
+      "entries_checked": [
+        "v2-defense-016-shield-knee-post-torque-recovery"
+      ],
+      "ok": true,
+      "schema": "ascii-kinesis.swarm-contract-v2-test"
+    },
+    "execution_boundary": "candidate-isolated exact current validator blob; full-repository global checkout execution not claimed"
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "SPAWN VARIANT",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "receipt_status": "QUALITY_GATES_PASS / CONTRACT_PASS / REPO_READBACK_REQUIRED / CHAT_DELIVERY_REQUIRED"
+}
