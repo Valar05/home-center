@@ -6,6 +6,10 @@ STATE="$HOME/.local/state/home-center"
 mkdir -p "$HOME/bin" "$CFG" "$STATE"
 chmod 700 "$CFG"
 [ -f "$CFG/codex-hub.json" ] || { echo 'BLOCKED: Home Center Termux pairing config missing.' >&2; exit 2; }
+
+# Refuse to replace a working relay with code that makes Shizuku load-bearing.
+python "$ROOT/tools/test_phone_relay_shizuku_independence.py"
+
 cat > "$HOME/bin/home-center-phone-relay" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
 exec python '$ROOT/tools/android_phone_home_center_relay.py' "\$@"
@@ -21,4 +25,4 @@ nohup "$HOME/bin/home-center-phone-relay" >>"$LOG" 2>&1 &
 echo $! > "$PID"
 sleep 2
 kill -0 "$(cat "$PID")" 2>/dev/null || { echo "BLOCKED: relay exited; inspect $LOG" >&2; tail -80 "$LOG" >&2; exit 3; }
-echo "PHONE RELAY RUNNING pid=$(cat "$PID") log=$LOG"
+echo "PHONE RELAY RUNNING pid=$(cat "$PID") log=$LOG baseline=termux-no-shizuku"
