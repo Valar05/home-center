@@ -4,7 +4,7 @@
   "experiment_id": "v2-timing-020-support-gate-latency-localization",
   "lane": "timing",
   "title": "Timing020 — Support-Gate Latency Localization",
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "PERSISTED_NOT_DELIVERED",
   "primary_tabs": [
     "ASCII",
     "JSON",
