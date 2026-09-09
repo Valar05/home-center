@@ -1,0 +1,62 @@
+{
+  "ascii_literal_text": true,
+  "backward_compatible": true,
+  "concept_type": "fresh-concept",
+  "experiment_id": "v2-airborne-021-whiff-commit-wrong-foot-recovery",
+  "format_version": 2,
+  "lane": "airborne",
+  "media": {
+    "bytes": 11960,
+    "codec": "H.264",
+    "decode": "PASS",
+    "dimensions": "480x270",
+    "duration_seconds": 2.875,
+    "embedded_in_spa": true,
+    "filename": "whiff-commit-wrong-foot-recovery.mp4",
+    "frames": 69,
+    "pixel_format": "yuv420p",
+    "sha256": "f6e9ad303ad63aaa65e0a6c3e39359438ef7fa36d43363fdcf7fd45a85b86a23"
+  },
+  "novelty": {
+    "causal_problem": "missed airborne task preserves ballistic root and forces wrong-foot landing debt",
+    "not_reskin_of": [
+      "Airborne017",
+      "Airborne018",
+      "Airborne019",
+      "Airborne020"
+    ]
+  },
+  "payloads": {
+    "builder_sha256": "03cb646900a3edafab860b4f1297d9bd48ebffbf0832fadac0da9afb9daa474d",
+    "contact_sheet_sha256": "020796ce7f310956c1cdedbe3119b71f7650eaa2f5231b2a5a0ecedbc6be1f3d",
+    "motion_json_sha256": "afb12d8b3a44f7e174ad67cc45f3b46434dc5db851aa2557bb9ff82c3707caaf"
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "quality": {
+    "actual_render_inspected": true,
+    "noodle_queen": "PASS",
+    "tango": "PASS"
+  },
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "source": {
+    "asset_id": "36303",
+    "game": "Street Fighter III (Bootleg)",
+    "platform": "NES",
+    "provider": "The Spriters Resource",
+    "source_authentic_timing": "UNKNOWN",
+    "title": "Ryu & Ken",
+    "url": "https://www.spriters-resource.com/nes/streetfighter3maristreetfighter3turbobootleg/asset/36303/"
+  },
+  "source_art_embedded": false,
+  "timing": {
+    "decisive_key_provenance": "INFERRED",
+    "fps": 24,
+    "policy": "STREET_FIGHTER/CAPCOM"
+  },
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only"
+}
