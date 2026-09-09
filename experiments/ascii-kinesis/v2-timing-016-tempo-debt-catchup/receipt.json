@@ -11,14 +11,14 @@
   "drew_accepted": false,
   "issue_343_receipt": null,
   "media": {
-    "bytes": 34134,
+    "bytes": 10964,
     "decode": true,
     "fps": 24,
     "frames": 50,
-    "sha256": "4f063c5a28461661edccb97692b7423edb2f57290a1ab53f7aa66ddf677fbd1b"
+    "sha256": "59fef0929101403477f855fa63989e096379d46f73461816e9b0ea30ad7599c7"
   },
   "noodle_queen": {
-    "actual_render_sha256": "4f063c5a28461661edccb97692b7423edb2f57290a1ab53f7aa66ddf677fbd1b",
+    "actual_render_sha256": "59fef0929101403477f855fa63989e096379d46f73461816e9b0ea30ad7599c7",
     "contempt": "PASS",
     "function": "PASS",
     "judgment": "The timing insight reads without metadata: a gait visibly bogs without halting, then pays the accumulated tempo debt in a sharp support-alternating burst before an asymmetric stop. The creep, catch-up, brake, overshoot, displaced recovery, and late arm settle are authored silhouettes rather than placeholder tween cadence.",
@@ -40,7 +40,7 @@
         "status": "REVISE_REQUIRED"
       },
       {
-        "actual_render_sha256": "4f063c5a28461661edccb97692b7423edb2f57290a1ab53f7aa66ddf677fbd1b",
+        "actual_render_sha256": "59fef0929101403477f855fa63989e096379d46f73461816e9b0ea30ad7599c7",
         "judgment": "Slow-zone phase now visibly creeps rather than freezes; debt grows under unequal exposures, then a compressed 2/2/1/2 repayment burst restores phase before a separately authored stop anticipation, plant, overshoot, displaced settle, and secondary lag.",
         "round": 1,
         "status": "PASS"
