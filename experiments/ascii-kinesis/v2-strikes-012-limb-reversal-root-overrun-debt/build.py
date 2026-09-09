@@ -137,25 +137,21 @@ def render_mp4(path):
     return {"sha256":hashlib.sha256(path.read_bytes()).hexdigest(),"bytes":path.stat().st_size,"frames":len(frames)}
 
 def make_spa(contact, motion_text, mp4_bytes):
-    payload=base64.b64encode(mp4_bytes).decode('ascii')
+    import gzip
+    video_b64=base64.b64encode(mp4_bytes).decode('ascii')
+    ascii_gz=base64.b64encode(gzip.compress(contact.encode('utf-8'),9)).decode('ascii')
+    json_gz=base64.b64encode(gzip.compress(motion_text.encode('utf-8'),9)).decode('ascii')
     return f'''<!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ASCII Kinesis V2 Strikes012 — Limb Reversal / Root Overrun Debt</title>
-<style>
+<title>ASCII Kinesis V2 Strikes012 — Limb Reversal / Root Overrun Debt</title><style>
 :root{{color-scheme:dark;background:#0b0b0c;color:#f2f2f2;font-family:system-ui,sans-serif}}body{{margin:0;padding:16px;max-width:1200px}}
 nav{{display:flex;gap:8px;position:sticky;top:0;background:#0b0b0c;padding:8px 0}}button{{font:inherit;padding:8px 12px}}section{{display:none}}section.active{{display:block}}
-pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.08;font-size:12px}}
-video{{max-width:100%;height:auto;border:1px solid #444;background:#000}}
-</style></head><body>
-<h1>ASCII Kinesis V2 Strikes012 — Limb Reversal / Root Overrun Debt</h1>
+pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.08;font-size:12px}}video{{max-width:100%;height:auto;background:#000}}
+</style></head><body><h1>ASCII Kinesis V2 Strikes012 — Limb Reversal / Root Overrun Debt</h1>
 <nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
-<section id="ascii" class="active"><pre>{html.escape(contact)}</pre></section>
-<section id="json"><pre>{html.escape(motion_text)}</pre></section>
-<section id="video"><video controls loop playsinline preload="metadata" src="data:video/mp4;base64,{payload}"></video></section>
-<script>
-const btns=[...document.querySelectorAll('button[data-view]')];const sections=[...document.querySelectorAll('section')];
-for(const b of btns)b.onclick=()=>{{for(const s of sections)s.classList.toggle('active',s.id===b.dataset.view)}};
-</script></body></html>'''
+<section id="ascii" class="active"><pre id="ascii-pre"></pre></section><section id="json"><pre id="json-pre"></pre></section>
+<section id="video"><video controls loop playsinline preload="metadata" src="data:video/mp4;base64,{video_b64}"></video></section>
+<script>const A='{ascii_gz}',J='{json_gz}';async function gz64(s){{const b=Uint8Array.from(atob(s),c=>c.charCodeAt(0));const ds=new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'));return new TextDecoder().decode(await new Response(ds).arrayBuffer())}};(async()=>{{document.getElementById('ascii-pre').textContent=await gz64(A);document.getElementById('json-pre').textContent=await gz64(J)}})();const B=[...document.querySelectorAll('button[data-view]')],S=[...document.querySelectorAll('section')];for(const b of B)b.onclick=()=>{{for(const s of S)s.classList.toggle('active',s.id===b.dataset.view)}};</script></body></html>'''
 
 def main():
     contact=contact_sheet_text(); (ROOT/"contact_sheet.txt").write_text(contact,encoding="utf-8")
