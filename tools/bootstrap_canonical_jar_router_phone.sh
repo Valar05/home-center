@@ -47,34 +47,61 @@ cd "$SOURCE"
 python3 tools/test_judgment_jar_task_router.py
 HC_REPO_ROOT="$SOURCE" bash tools/install_adam_cli.sh
 
-# Live canary: this is not the mocked contract. It fresh-reads the canonical Drive
-# registry, resolves the voice transcription, fresh-reads the exact Pasta'Fahr Sheet,
-# and captures the existing typed context-use receipt before returning the packet.
+# Live production canary. This imports the installed production launcher wiring.
+# Planning must embed the freshly fetched canonical source. Execution is probed
+# before model transport by replacing only its downstream executor with a witness
+# that reads active_jars() while the real execution wrapper carries task context.
 python3 - "$CANARY_JSON" "$REGISTRY_ID" "$PASTA_ID" <<'PY'
 import hashlib,json,sys
 from pathlib import Path
-from judgment_jar_task_router import task_source_packet
+import adam_receipted_worker as production
 
 out,registry_id,pasta_id=sys.argv[1:]
-packet=task_source_packet("Pasta apostrophe far. What does he actually judge?")
+task="Pasta apostrophe far. What does he actually judge?"
 required=[
     f"REGISTRY_FILE_ID: {registry_id}",
     f"SOURCE_FILE_ID: {pasta_id}",
     "Which strands are living lineage",
     "Trace the noodle",
 ]
-missing=[value for value in required if value not in packet]
-if missing:
-    raise SystemExit("LIVE_CANARY_FAILED missing="+json.dumps(missing))
-if "Pastafarian" in packet or "apostasy doctrine" in packet.lower():
-    raise SystemExit("LIVE_CANARY_FAILED hallucinated doctrine leaked into canonical packet")
+
+def verify(label,text):
+    missing=[value for value in required if value not in text]
+    if missing:
+        raise SystemExit(label+"_FAILED missing="+json.dumps(missing))
+    if "Pastafarian" in text or "apostasy doctrine" in text.lower():
+        raise SystemExit(label+"_FAILED hallucinated doctrine leaked into canonical packet")
+
+planning=production.planning_system(task,Path.cwd())
+verify("PLANNING_CANARY",planning)
+
+observed={}
+original=production._original_execution_run_task
+def witness(received_task,*args,**kwargs):
+    if received_task != task:
+        raise SystemExit("EXECUTION_CANARY_FAILED task changed before execution")
+    observed["packet"]=production.active_jars()
+    return 0
+production._original_execution_run_task=witness
+try:
+    rc=production.execution_run_task(task,Path.cwd())
+finally:
+    production._original_execution_run_task=original
+if rc != 0:
+    raise SystemExit("EXECUTION_CANARY_FAILED wrapper returned nonzero")
+execution=observed.get("packet","")
+verify("EXECUTION_CANARY",execution)
+
 obj={
-    "schema":"canonical-jar-router-live-canary.v1",
+    "schema":"canonical-jar-router-live-canary.v2",
     "ok":True,
-    "input":"Pasta apostrophe far. What does he actually judge?",
+    "input":task,
     "canonicalRegistryFileId":registry_id,
     "canonicalJarFileId":pasta_id,
-    "packetSha256":hashlib.sha256(packet.encode()).hexdigest(),
+    "planningPacketSha256":hashlib.sha256(planning.encode()).hexdigest(),
+    "executionPacketSha256":hashlib.sha256(execution.encode()).hexdigest(),
+    "productionPlanningWiring":True,
+    "productionExecutionWiring":True,
     "actualJudgmentRecovered":True,
     "actualCompactLawRecovered":True,
     "pastafarianRejected":True,
@@ -150,8 +177,10 @@ install=json.loads(Path(install_path).read_text(encoding='utf-8'))
 canary=json.loads(Path(canary_path).read_text(encoding='utf-8'))
 if install.get('ok') is not True or install.get('canonicalTaskJarRouting') is not True:
     raise SystemExit('BLOCKED: installed Adam receipt does not prove canonical task Jar routing')
+if canary.get('productionPlanningWiring') is not True or canary.get('productionExecutionWiring') is not True:
+    raise SystemExit('BLOCKED: production planning/execution Jar canary did not pass')
 obj={
-    'schema':'canonical-jar-router-phone-deployment.v1',
+    'schema':'canonical-jar-router-phone-deployment.v2',
     'ok':True,
     'sourceCommit':commit,
     'canonicalRegistryFileId':registry_id,
