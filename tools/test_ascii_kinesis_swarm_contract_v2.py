@@ -4,6 +4,10 @@
 Historical v1 specimens are intentionally ignored. New directories matching
 `v2-*` must expose the commissioned three-tab SPA and the source-first media
 contract. This test is structural; it does not claim artistic acceptance.
+
+General source-role and timing-authority law lives in skills/motion-direction.
+Legacy OBSERVED/INFERRED provenance remains readable; explicit derived direction
+labels are also valid and do not claim source-authentic timing.
 """
 from __future__ import annotations
 
@@ -13,6 +17,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ENTRIES = ROOT / "experiments" / "ascii-kinesis"
+
+ALLOWED_TIMING_PROVENANCE = {
+    "OBSERVED",
+    "INFERRED",
+    "DERIVED_UAT_OPINION",
+    "DERIVED_ONES_TWOS_FOURS",
+    "DERIVED_GAMEPLAY_RETIMER",
+    "DERIVED_GAME_STYLE_PROFILE",
+}
 
 
 def fail(message: str) -> None:
@@ -72,8 +85,11 @@ def check_entry(entry: Path) -> None:
         if not (key.get("timing_class") or key.get("timing")):
             fail(f"{entry.name}:{kid}: timing class missing")
         provenance = key.get("timing_provenance") or key.get("provenance")
-        if provenance not in {"OBSERVED", "INFERRED"}:
-            fail(f"{entry.name}:{kid}: timing provenance must be OBSERVED or INFERRED")
+        if provenance not in ALLOWED_TIMING_PROVENANCE:
+            fail(
+                f"{entry.name}:{kid}: timing provenance {provenance!r} not in "
+                f"{sorted(ALLOWED_TIMING_PROVENANCE)!r}"
+            )
 
 
 entries = sorted(p for p in ENTRIES.glob("v2-*") if p.is_dir())
