@@ -2,10 +2,10 @@
 set -euo pipefail
 
 TARGET_SHA="${HOME_CENTER_SOURCE_REF:-${1:-}}"
-case "$TARGET_SHA" in
-  [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]*) ;;
-  *) echo 'BLOCKED: HOME_CENTER_SOURCE_REF must be a commit SHA' >&2; exit 64 ;;
-esac
+if ! printf '%s' "$TARGET_SHA" | grep -Eq '^[0-9a-f]{40}$'; then
+  echo 'BLOCKED: HOME_CENTER_SOURCE_REF must be a full 40-character commit SHA' >&2
+  exit 64
+fi
 
 export GIT_LFS_SKIP_SMUDGE=1
 export GIT_CONFIG_COUNT=2
@@ -47,8 +47,11 @@ print(hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest())
 PY
 )"
 
+# The baseline relay remains pure Termux. Increase only the background shell
+# execution ceiling so an image render may legitimately take several minutes.
 cat > "$BIN/home-center-phone-relay" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
+export HC_PHONE_SHELL_MAX_TIMEOUT_SECONDS=900
 exec python '$NEW_RELAY' "\$@"
 EOF
 chmod 700 "$BIN/home-center-phone-relay"
@@ -83,7 +86,7 @@ nohup '$BIN/home-center-phone-relay' >>"\$LOG" 2>&1 < /dev/null &
 NEW_PID=\$!
 printf '%s\n' "\$NEW_PID" > "\$PID_FILE"
 OK=0
-for _ in \$(seq 1 30); do
+for _ in \$(seq 1 45); do
   if ! kill -0 "\$NEW_PID" 2>/dev/null; then break; fi
   if [ -s "\$HEARTBEAT" ] && python3 - "\$HEARTBEAT" "\$NEW_SHA" <<'PY' >/dev/null 2>&1
 import json,sys
@@ -107,6 +110,7 @@ obj={
   'oldPid':int(old_pid) if old_pid.isdigit() else None,
   'newPid':int(new_pid),
   'baselineTransport':'termux-no-shizuku',
+  'phoneShellMaxTimeoutSeconds':900,
   'shizukuRequired':False,
   'observedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),
 }
@@ -128,6 +132,7 @@ print(json.dumps({
   'relaySourceSha256':source_hash,
   'oldPid':int(old_pid) if old_pid.isdigit() else None,
   'baselineTransport':'termux-no-shizuku',
+  'phoneShellMaxTimeoutSeconds':900,
   'shizukuRequired':False,
   'restartHelper':restart,
 },sort_keys=True))
