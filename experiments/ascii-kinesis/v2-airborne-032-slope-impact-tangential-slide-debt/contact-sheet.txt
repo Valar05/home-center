@@ -1,0 +1,360 @@
+A032-K0 OFFSET_SLOPE_LAUNCH_LOAD | timing=FOURS | provenance=INFERRED | support=GROUND_BOTH_RIGHT_DOMINANT | role=asymmetric downhill-edge load stores launch impulse before support break
+
+
+
+
+
+
+
+
+
+
+           O    -x
+           |  -o-
+          -+---
+       -o- ||
+      x-    |
+            @
+          //\\
+         /o   o
+\\\\\\ //    ||
+.     .\*\\\\\\*\\\
+            .     .\\\\\\\\\\\\\
+                        .     . \\\\\\\\\\\\\\\
+                                    .     . \\\\\\\\\\\\\\\
+                                                .     .  \\\\\\\\\\\\\\\
+                                                            .     .  \\\\\\\\\\\\\n                                                                        .
+
+
+A032-K1 SUPPORT_BREAK_CANT | timing=ONES | provenance=INFERRED | support=RIGHT_LAST_CONTACT_TO_NONE | role=last support releases into one ballistic arc with a slight downhill cant
+
+
+
+
+
+
+
+
+          x     O
+           -o-  |
+              --+--
+                | -o
+                |   \x
+              --@
+            -o-  -o-
+           =       -=
+
+
+\\\\\\\
+.     .\\\\\\\\\\\\\
+            .     .\\\\\\\\\\\\\
+                        .     . \\\\\\\\\\\\\\\
+                                    .     . \\\\\\\\\\\\\\\
+                                                .     .  \\\\\\\\\\\\\\\
+                                                            .     .  \\\\\\\\\\\\\n                                                                        .
+
+
+A032-K2 LONG_RISE | timing=ONES | provenance=INFERRED | support=NONE | role=flight opens into a long asymmetric rise before any slope relationship exists
+
+
+
+
+
+                      O  /x
+                      |-o/
+                o-----+
+              x-     ||
+                     |
+                =----@
+                  o   \\
+                       \o-
+                         -=
+
+
+
+
+\\\\\\\
+.     .\\\\\\\\\\\\\
+            .     .\\\\\\\\\\\\\
+                        .     . \\\\\\\\\\\\\\\
+                                    .     . \\\\\\\\\\\\\\\
+                                                .     .  \\\\\\\\\\\\\\\
+                                                            .     .  \\\\\\\\\\\\\n                                                                        .
+
+
+A032-K3 APEX_SCISSOR | timing=TWOS | provenance=INFERRED | support=NONE | role=apex reshapes the legs for a downhill-leading landing without hovering
+
+
+
+
+                          O
+                     x-   |
+                       o---|
+                           +---o
+                      =\   |    -x
+                       \o--@
+                            --
+                              o
+                               \=
+
+
+
+
+
+
+\\\\\\\
+.     .\\\\\\\\\\\\\
+            .     .\\\\\\\\\\\\\
+                        .     . \\\\\\\\\\\\\\\
+                                    .     . \\\\\\\\\\\\\\\
+                                                .     .  \\\\\\\\\\\\\\\
+                                                            .     .  \\\\\\\\\\\\\n                                                                        .
+
+
+A032-K4 SLOPE_PRECONTACT_RAKE | timing=TWOS | provenance=INFERRED | support=NONE_PRECONTACT | role=descending body rakes the lead toe toward the incline while preserving a visible gap
+
+
+
+
+
+
+                                O      x
+                                ||   o--
+                                 +---
+                              ----
+                            --o   |
+                            x     @
+                                --\\
+                               /o  \\
+                              =     o
+                                    ||
+                                     =
+
+
+\\\\\\\
+.     .\\\\\\\\\\\\\
+            .     .\\\\\\\\\\\\\
+                        .     . \\\\\\\\\\\\\\\
+                                    .     . \\\\\\\\\\\\\\\
+                                                .     .  \\\\\\\\\\\\\\\
+                                                            .     .  \\\\\\\\\\\\\n                                                                        .
+
+
+A032-K5 LEAD_TOE_NORMAL_CATCH | timing=ONES | provenance=INFERRED | support=RIGHT_SLOPE_NEW_NORMAL_SUPPORT_TANGENTIAL_SLIP | role=lead toe acquires normal support on the incline; vertical impact is checked while downhill tangential velocity survives
+
+
+
+
+
+
+
+
+
+
+
+
+                                        O     o-x
+                                        \\-----
+                                        /+\
+                                       o/ \
+                                      /   -@
+                                     x--o- ||
+\\\\\\\                              =     |
+.     .\\\\\\\\\\\\\                         o|
+            .     .\\\\\\\\\\\\\             |
+                        .     . \\\\\\\\\\\\\\ |*
+                                    .     . \\\\\\\\\\\\\\\
+                                                .     .  \\\\\\\\\\\\\\\
+                                                            .     .  \\\\\\\\\\\\\n                                                                        .
+
+
+A032-K6 NORMAL_CRUSH_TANGENT_SURVIVES | timing=FOURS | provenance=INFERRED | support=RIGHT_SLOPE_SLIDING_SUPPORT | role=right knee and spine pay the slope-normal impact while the supported foot slides tangentially downhill
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                          O\   -o-x
+                                           \+---
+                                           /\\
+                                         /o  -@
+\\\\\\\                                 //-o- |
+.     .\\\\\\\\\\\\\                     x=-   |o
+            .     .\\\\\\\\\\\\\               |
+                        .     . \\\\\\\\\\\\\\   |
+                                    .     . \\\*\\\\\\\\\\\n                                                .     .  \\\\\\\\\\\\\\\
+                                                            .     .  \\\\\\\\\\\\\n                                                                        .
+
+
+A032-K7 DOWNHILL_SLIDE_OVERRUN | timing=TWOS | provenance=INFERRED | support=RIGHT_SLOPE_SLIDING_SUPPORT | role=normal debt is mostly paid but preserved tangential momentum drags the body downhill beyond the first catch
+
+
+
+
+
+
+
+
+
+
+
+
+                                                O
+                                                |     /x
+                                                -+---o
+                                              ---|
+                                            -o   |
+                                          x-     @|
+\\\\\\\                                         o |
+.     .\\\\\\\\\\\\\                            /  |
+            .     .\\\\\\\\\\\\\              =   o
+                        .     . \\\\\\\\\\\\\\      ||
+                                    .     . \\\\\*\\\\\
+                                                .     .  \\\\\\\\\\\\\\\
+                                                            .     .  \\\\\\\\\\\\\n                                                                        .
+
+
+A032-K8 TRAIL_FOOT_DOWNHILL_CATCH | timing=ONES | provenance=INFERRED | support=BOTH_SLOPE_RIGHT_SLIDING_LEFT_NEW_BRAKE | role=trailing foot lands farther downhill and turns the slide into a two-point braking problem
+
+
+
+
+
+
+
+
+
+
+
+
+                                                      O
+                                               x-     |
+                                                -o----+
+                                                      --
+                                                     |  -o
+                                                     @    \
+\\\\\\\                                             /\\    x
+.     .\\\\\\\\\\\\\                                 / \\
+            .     .\\\\\\\\\\\\\                   o   o
+                        .     . \\\\\\\\\\\\\\       |    |
+                                    .     . \\\*\\\\\*
+                                                .     .  \\\\\\\\\\\\\\\
+                                                            .     .  \\\\\\\\\\\\\n                                                                        .
+
+
+A032-K9 TWO_FOOT_HEEL_BRAKE_CRUSH | timing=FOURS | provenance=INFERRED | support=BOTH_SLOPE_BRAKING | role=two feet finally provide enough tangential braking to pay the remaining downhill velocity in a deep diagonal crush
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                            x
+                                                          o--
+                                                        -+/
+                                                     ---/
+\\\\\\\                                            /o  @\
+.     .\\\\\\\\\\\\\                               x/  / \
+            .     .\\\\\\\\\\\\\                     o   o
+                        .     . \\\\\\\\\\\\\\        ||   ||
+                                    .     . \\\\\\*\\\\ *
+                                                .     .  \\\\\\\\\\\\\\\
+                                                            .     .  \\\\\\\\\\\\\n                                                                        .
+
+
+A032-K10 TORSO_TANGENT_OVERSHOOT | timing=TWOS | provenance=INFERRED | support=BOTH_SLOPE_STATIC | role=root nearly stops while upper-body momentum keeps traveling downhill, making the brake consequence visible
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                   x-       O
+                                                     o-----+
+                                                          /|
+                                                         / |
+                                                        @  o\
+\\\\\\\                                                /\\   x
+.     .\\\\\\\\\\\\\                                   o   o
+            .     .\\\\\\\\\\\\\                      |   |
+                        .     . \\\\\\\\\\\\\\         |     |
+                                    .     . \\\\\\\*\\\  *
+                                                .     .  \\\\\\\\\\\\\\\
+                                                            .     .  \\\\\\\\\\\\\n                                                                        .
+
+
+A032-K11 UPHILL_REBOUND_RESTACK | timing=TWOS | provenance=INFERRED | support=BOTH_SLOPE_STATIC | role=grounded rebound opposes the crush and begins restacking over the inclined support polygon
+
+
+
+
+
+
+
+
+
+
+                                                          O
+                                                          | -x
+                                                        -+-o-
+                                                   -o--- |
+                                                  x-     |
+                                                         |
+                                                        @\
+\\\\\\\                                               o/  o
+.     .\\\\\\\\\\\\\                                   |    |
+            .     .\\\\\\\\\\\\\                      |    |
+                        .     . \\\\\\\\\\\\\\         |      *
+                                    .     . \\\\\\\*\\\
+                                                .     .  \\\\\\\\\\\\\\\
+                                                            .     .  \\\\\\\\\\\\\n                                                                        .
+
+
+A032-K12 DISPLACED_SLOPE_SETTLE | timing=FOURS | provenance=INFERRED | support=BOTH_SLOPE_NEW_ADDRESS | role=readiness returns at the downhill address with a residual uphill counterlean instead of an idle reset
+
+
+
+
+
+
+
+
+
+
+                                                         O
+                                                         |
+                                                         |   -x
+                                                    -o---+--o
+                                                   x-    |
+                                                         |
+                                                        /@
+\\\\\\\                                                 / \
+.     .\\\\\\\\\\\\\                                    o   o
+            .     .\\\\\\\\\\\\\                      ||    |
+                        .     . \\\\\\\\\\\\\\          |     |
+                                    .     . \\\\\\\\*\\   *
+                                                .     .  \\\\\\\\\\\\\\\
+                                                            .     .  \\\\\\\\\\\\\n                                                                        .
