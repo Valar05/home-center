@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt-v2",
   "experiment_id": "v2-airborne-030-opposed-flight-glance-split-landing-debt",
-  "status": "PERSISTED_QUALITY_PASS_PENDING_ISSUE_AND_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "preflight": {
     "home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
     "home_center_campaign_read": "PASS",
@@ -64,21 +64,21 @@
   },
   "repo": {
     "persisted": true,
-    "final_readback": false,
+    "final_readback": true,
     "exact_one_spa": true,
     "build_blob": "ad420269fb698e863e9d53573b2cdb6b72eeb846",
     "contact_blob": "34c28c47942704b53032927c3d3cfa5ffb3345c4",
-    "manifest_blob": "66e5760ef282f8429c3ddfa2203b1a8cc8cd93ee",
+    "manifest_blob": "d943fba53e6a6e38c2e698dd15dbd8ad9eeb2aa2",
     "motion_blob": "13a8d182ae24099ff74a975d1b412457f01d23c9",
     "spa_blob": "987f4603c7070b70396c822d4095f521bd8e2cb0"
   },
-  "issue_343_receipt": null,
-  "issue_receipt_readback": false,
+  "issue_343_receipt": 5609215587,
+  "issue_receipt_readback": true,
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_video": true
   },
   "drew_accepted": false,
-  "next_authorized": null
+  "next_authorized": "v2-airborne-031"
 }
