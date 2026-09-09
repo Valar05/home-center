@@ -1,0 +1,299 @@
+K0 APPROACH_ESTABLISH FOURS/4t PROVENANCE=INFERRED ROOT=UPPER OWNER=LEFT SUPPORT=LEFT@UPPER_TRUSTED
+ GATE=CLOSED_NO_PROBE LATENCY=NONE
+
+
+
+                      O
+                      |
+                    o-o-o
+                   /  |  \
+                   /  |  \
+                  o   |   o
+                 /    |    \
+                 o    @    o
+                     / \
+                     / \
+                    o   o
+   UPPER           /     \
+  _________________*_____+__
+                             MIDDLE
+                            ________________________
+                                                     LOWER
+                                                    _________________________
+----------------------------------------------------------------------------------
+K1 EDGE_LOAD_ANTICIPATION FOURS/4t PROVENANCE=INFERRED ROOT=UPPER OWNER=LEFT SUPPORT=LEFT@UPPER_TRUSTED
+ GATE=CLOSED_PREPARE_PROBE LATENCY=NONE
+
+
+
+                         O
+                        |
+                      o-o-o
+                     /  |  \\
+                    o   |    o
+                  o/    |     \o
+                        |
+                        @
+                       / \
+                       /  \\
+                      o     o
+   UPPER             /       \
+  ___________________*______ +
+                             MIDDLE
+                            ________________________
+                                                     LOWER
+                                                    _________________________
+----------------------------------------------------------------------------------
+K2A UNCERTAIN_PROBE_EXTEND TWOS/2t PROVENANCE=INFERRED ROOT=UPPER OWNER=LEFT SUPPORT=LEFT@UPPER_TRUSTED;RIGHT@LOWER_TOUCH_UNTRUSTED
+ GATE=CLOSED_SEARCHING LATENCY=LONG_A
+
+
+
+                           O
+                          |
+                        o-o-o
+                      //  |  \
+                     o    |   \
+                   o/     |    o
+                          |     \
+                          @      o
+                         / \
+                        /   \
+                       o     \
+   UPPER              /       o
+  ____________________*_____   \
+                             MIDDLE
+                            _____+__________________
+                                                     LOWER
+                                                    _________________________
+----------------------------------------------------------------------------------
+K2B UNCERTAIN_PROBE_VERIFY FOURS/4t PROVENANCE=INFERRED ROOT=UPPER OWNER=LEFT SUPPORT=LEFT@UPPER_TRUSTED;RIGHT@LOWER_TOUCH_UNTRUSTED
+ GATE=CLOSED_VERIFYING LATENCY=LONG_A
+
+
+
+                            O
+                           |
+                         o-o-o
+                       //  |  \\
+                    o/o    |    o
+                           |     \
+                           |      o
+                           @
+                          / \
+                         /   \
+                        o     \
+   UPPER               /       o
+  _____________________*____    \
+                             MIDDLE
+                            _______+________________
+                                                     LOWER
+                                                    _________________________
+----------------------------------------------------------------------------------
+K3 SUPPORT_ACQUIRE_A_GATE_OPEN ONES/1t PROVENANCE=INFERRED ROOT=UPPER OWNER=BOTH SUPPORT=LEFT@UPPER_TRUSTED+RIGHT@MIDDLE_TRUSTED
+ GATE=OPEN_SUPPORT_ACQUIRED LATENCY=GATE_EVENT
+
+
+
+                             O
+                            |
+                          o-o-o
+                        //  |  \\
+                       o    |    o
+                     o/     |     \
+                            |      o
+                            @
+                           / \
+                          /   \
+                         o     \
+   UPPER                /       o
+  ______________________*___     \
+                             MIDDLE\
+                            ________*_______________
+                                                     LOWER
+                                                    _________________________
+----------------------------------------------------------------------------------
+K4 ROOT_DROP_A_RELEASE ONES/1t PROVENANCE=INFERRED ROOT=DESCENDING_A OWNER=RIGHT SUPPORT=RIGHT@MIDDLE_DOMINANT+LEFT@UPPER_LIGHT
+ GATE=CONSEQUENCE_CLOCK LATENCY=FIXED_RESPONSE
+
+
+
+
+
+                               O
+                              |
+                            o-o-o
+                           /  |  \\
+                          o   |    o
+                        o/     |    \o
+                               |
+                               @
+                             // \
+   UPPER                   o/    \
+  _______________________+__      o
+                             MIDDLE\\
+                            _________*______________
+                                                     LOWER
+                                                    _________________________
+----------------------------------------------------------------------------------
+K5 ABSORB_A_SUPPORT_CATCH TWOS/2t PROVENANCE=INFERRED ROOT=MIDDLE_COMPRESSED OWNER=RIGHT SUPPORT=RIGHT@MIDDLE_TRUSTED
+ GATE=CONSEQUENCE_CLOCK LATENCY=FIXED_RESPONSE
+
+
+
+
+
+
+                                  O
+                                 |
+                               o-o-o
+                             //  |  \\
+                            o    |    o
+                          o/      |    \o
+                                  |
+                                  @
+   UPPER                        // \
+  __________________________ +o/    o
+                             MIDDLE  \
+                            __________*_____________
+                                                     LOWER
+                                                    _________________________
+----------------------------------------------------------------------------------
+K6 TRANSFER_MIDDLE TWOS/2t PROVENANCE=INFERRED ROOT=MIDDLE OWNER=RIGHT SUPPORT=RIGHT@MIDDLE_TRUSTED
+ GATE=RESET_FOR_NEXT_GATE LATENCY=NONE
+
+
+
+
+
+                                       O
+                                      |
+                                    o-o-o
+                                   /  |  \\
+                                  o   |    o
+                                 /     |    \o
+                                 o     |
+                                       @
+                                      / \
+   UPPER                             /   \
+  __________________________        o     o
+                             MIDDLE/       \
+                            _______+_______*________
+                                                     LOWER
+                                                    _________________________
+----------------------------------------------------------------------------------
+K7 CERTAIN_PROBE_B TWOS/2t PROVENANCE=INFERRED ROOT=MIDDLE OWNER=RIGHT SUPPORT=RIGHT@MIDDLE_TRUSTED;LEFT@LOWER_TOUCH_UNTRUSTED
+ GATE=CLOSED_SHORT_SEARCH LATENCY=SHORT_B
+
+
+
+
+
+                                            O
+                                           |
+                                         o-o-o
+                                        /  |  \\
+                                       o   |    o
+                                     o/     |    \o
+                                            |
+                                            @
+                                           / \
+   UPPER                                  /   \
+  __________________________             o/    o
+                             MIDDLE        ///\
+                            ________________*_______
+                                                ///  LOWER
+                                                   /+________________________
+----------------------------------------------------------------------------------
+K8 SUPPORT_ACQUIRE_B_GATE_OPEN ONES/1t PROVENANCE=INFERRED ROOT=MIDDLE OWNER=BOTH SUPPORT=RIGHT@MIDDLE_TRUSTED+LEFT@LOWER_TRUSTED
+ GATE=OPEN_SUPPORT_ACQUIRED LATENCY=GATE_EVENT
+
+
+
+
+
+                                              O
+                                             |
+                                           o-o-o
+                                          /  |  \\
+                                         o   |    o
+                                       o/     |    \o
+                                              |
+                                              @
+                                             / \
+   UPPER                                    /   \
+  __________________________               o/   \
+                             MIDDLE          ///\o
+                            _________________*______
+                                                  ///LOWER
+                                                    __*______________________
+----------------------------------------------------------------------------------
+K9 ROOT_DROP_B_RELEASE ONES/1t PROVENANCE=INFERRED ROOT=DESCENDING_B OWNER=LEFT SUPPORT=LEFT@LOWER_DOMINANT+RIGHT@MIDDLE_LIGHT
+ GATE=CONSEQUENCE_CLOCK LATENCY=FIXED_RESPONSE
+
+
+
+
+
+
+
+                                                 O
+                                                |
+                                              o-o-o
+                                             /  |  \\
+                                            o   |    o
+                                          o/     |    \o
+                                                 |
+   UPPER                                         @
+  __________________________                    / \
+                             MIDDLE            /   \
+                            __________________o+____o
+                                                 ////LOWER
+                                                    ___*_____________________
+----------------------------------------------------------------------------------
+K10 ABSORB_B_SUPPORT_CATCH TWOS/2t PROVENANCE=INFERRED ROOT=LOWER_COMPRESSED OWNER=LEFT SUPPORT=LEFT@LOWER_TRUSTED
+ GATE=CONSEQUENCE_CLOCK LATENCY=FIXED_RESPONSE
+
+
+
+
+
+
+
+
+                                                     O
+                                                    |
+                                                  o-o-o
+                                                //  |  \\
+                                               o    |    o
+                                             o/      |    \o
+   UPPER                                             |
+  __________________________                         @
+                             MIDDLE                // \\
+                            _____________________+o_\\\\o
+                                                    /LOWER
+                                                    ____*____________________
+----------------------------------------------------------------------------------
+K11 LOWER_RESTACK_DISPLACED FOURS/4t PROVENANCE=INFERRED ROOT=LOWER OWNER=BOTH SUPPORT=BOTH@LOWER_TRUSTED
+ GATE=COMPLETE LATENCY=NONE
+
+
+
+
+
+
+
+                                                           O
+                                                           |
+                                                         o-o-o
+                                                        /  |  \
+                                                       o   |   o
+                                                      /    |    \
+                                                      o    |    o
+   UPPER                                                   @
+  __________________________                              / \
+                             MIDDLE                      /   \
+                            ________________________    o     o
+                                                     LOWER     \
+                                                    ___*_______*_____________
+----------------------------------------------------------------------------------
