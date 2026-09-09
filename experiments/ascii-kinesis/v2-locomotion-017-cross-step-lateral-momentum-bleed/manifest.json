@@ -3,7 +3,7 @@
   "format_version": 2,
   "id": "v2-locomotion-017-cross-step-lateral-momentum-bleed",
   "lane": "locomotion",
-  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "title": "ASCII Kinesis V2 Locomotion 017 — Cross-Step Lateral Momentum Bleed",
   "slug": "cross-step-lateral-momentum-bleed",
   "primary_tabs": ["ASCII", "JSON", "VIDEO"],
@@ -21,11 +21,13 @@
   "quality": {"tango": "PASS", "noodle_queen": "PASS", "actual_final_render_inspected": true, "current_worker": true, "tango_rounds": 2, "current_worker_byte_identical_reconstruction": true},
   "contract_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
   "validator": {"candidate_isolated_exact_predicates": "PASS", "repository_global_checkout_execution": "UNCLAIMED_STANDARD_CHAT_BOUNDARY"},
-  "repo": {"post_write_readback": false, "exact_six_file_body": true, "stable_file_blobs": {"build.py": "7af8a0755692f24be721016a1b2c303de83ab5f7", "contact-sheet.txt": "2b0197431e1a3455c945de5d0749ee30baeb218b", "motion.json": "0c410dd4ee4467c994b18380cba4613c64f9b9ca", "cross-step-lateral-momentum-bleed.motion.html": "cdf2639bdac1e4223ee448e7c85667419825989e"}},
+  "repo": {"post_write_readback": true, "exact_six_file_body": true, "stable_file_blobs": {"build.py": "7af8a0755692f24be721016a1b2c303de83ab5f7", "contact-sheet.txt": "2b0197431e1a3455c945de5d0749ee30baeb218b", "motion.json": "0c410dd4ee4467c994b18380cba4613c64f9b9ca", "cross-step-lateral-momentum-bleed.motion.html": "cdf2639bdac1e4223ee448e7c85667419825989e"}},
   "issue_343_pre_chat_receipt": 5608076893,
   "issue_343_pre_chat_readback": true,
-  "issue_343_closure_receipt": null,
-  "chat_delivery": {"ascii": false, "json": false, "video": false, "order": "ASCII->JSON->VIDEO", "byte_identical_video": false},
+  "issue_343_closure_receipt": 5608113486,
+  "issue_343_closure_readback": true,
+  "chat_delivery": {"ascii": true, "json": true, "video": true, "order": "ASCII->JSON->VIDEO", "byte_identical_video": true},
   "manager_reconciliation_read": 5607046028,
-  "drew_accepted": false
+  "drew_accepted": false,
+  "next_authorized": "v2-locomotion-018"
 }
