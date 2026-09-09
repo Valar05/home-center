@@ -1,9 +1,10 @@
-requested=2026-09-09T22:42:00Z
+requested=2026-09-09T23:15:00Z
 commission=deliver-real-local-image-to-primary-phone
 owner=Home Center
 control_plane=THECAULDRON self-hosted GitHub runner
+runner_selector=self-hosted-with-computername-gate
 execution_lane=primary-phone Home Center background Termux relay
 renderer=THECAULDRON localhost ComfyUI
 shizuku=forbidden-from-baseline
 operator_terminal_work=forbidden
-workflow_revision=088ef96c63878acc9e0bf9c949b8bea97eaa38c2
+workflow_revision=d258f6b2016d93b97aa7d146b934530cfb333417
