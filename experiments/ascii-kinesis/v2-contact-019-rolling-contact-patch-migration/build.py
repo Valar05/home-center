@@ -30,7 +30,7 @@ def bres(p0, p1):
         if x0==x1 and y0==y1: break
         e2=2*err
         if e2>=dy: err+=dy; x0+=sx
-        if e2<=dx: err+=dx; x0+=0; y0+=sy
+        if e2<=dx: err+=dx; y0+=sy
     return pts
 
 def linechar(a,b):
