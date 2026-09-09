@@ -2,7 +2,7 @@
   "schema": "ascii-kinesis.contact-repair-receipt.v2",
   "experiment_id": "v2-contact-013-custody-load-release-causal-repair",
   "lane": "contact",
-  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "current_worker_liveness": {
     "home_center_campaign": "PASS",
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
@@ -53,16 +53,16 @@
       "actual_render_inspected": true,
       "render_sha256": "a5df34a358262daac76812b3bcd1992d1e73352012e5972cf5b7b4fa6c6198c2",
       "highest_value_visible_defect": "NONE_AT_ACCEPTANCE_SCALE",
-      "visible_result": "Fresh inspection of the actual 46-frame final render confirms body-first asymmetric approach, payload stationary before latch, acquisition inside committed reach, explicit A_PRIMARY custody, rear-root load support, cross-body LOAD_MAX leverage, held release threshold, separately authored release fork, payload lead only after release, opposing recoil, overshoot, secondary lag, settle and displaced recovery debt. No mannequin carry, farthest-reach snatch, premature payload float, ambiguous ownership, equal-spacing endpoint tween, reverse interpolation or idle reset warrants another mutation."
+      "visible_result": "Body-first asymmetric approach; payload stationary before latch; acquisition inside committed reach; A_PRIMARY custody; rear-root support; cross-body LOAD_MAX; held threshold; distinct release fork; payload lead only after release; opposing recoil, overshoot, secondary lag, settle and displaced recovery debt. No acceptance-scale low-effort defect warranted further mutation."
     },
     "noodle_queen": {
       "status": "PASS",
       "fresh_current_worker": true,
       "actual_render_inspected": true,
       "render_sha256": "a5df34a358262daac76812b3bcd1992d1e73352012e5972cf5b7b4fa6c6198c2",
-      "taste": "PASS — crooked cross-body windup, held rear pin and long throw arc make the payload read as an expensive weight rather than placeholder object motion.",
-      "function": "PASS — FREE to approach to latch to carry to LOAD_MAX to armed threshold to release fork to independent payload lead to recoil/overshoot to displaced recovery is visually causal.",
-      "contempt": "PASS — release has cost, payload never floats before custody breaks, and recovery remains rear-dominant and twisted rather than politely resetting."
+      "taste": "PASS",
+      "function": "PASS",
+      "contempt": "PASS"
     }
   },
   "contract": {
@@ -74,12 +74,13 @@
       "entries_checked": ["v2-contact-013-custody-load-release-causal-repair"],
       "ok": true
     },
-    "boundary": "Exact current validator logic was run candidate-isolated against the canonical persisted-shape Contact013 files. This Standard Chat has no authorized full-repository checkout shell, so no repo-global validator execution is claimed. GitHub readback independently verifies the tracked canonical body and SPA."
+    "boundary": "Exact current validator logic ran candidate-isolated. No repo-global checkout-shell execution is claimed; GitHub readback independently verifies the canonical tracked body and SPA."
   },
   "repo": {
     "persistence": "PASS",
     "readback": "PASS",
     "spa_create_commit": "752481f5e6da0ee492464bcc5820af1727c5a005",
+    "pre_delivery_receipt_commit": "afca4fe1c23561e577722b10343783a3aa183ed0",
     "files_exact": [
       "build.py",
       "contact-sheet.txt",
@@ -88,7 +89,7 @@
       "motion.json",
       "receipt.json"
     ],
-    "blobs_before_this_receipt_update": {
+    "blobs_before_final_receipt_write": {
       "build.py": "cec448f0743482d89c7d2a909377218391b035af",
       "contact-sheet.txt": "935f50ca04b3bfb24f195909202da37deb48b06c",
       "custody-load-release-causal-repair.motion.html": "c601a3fe74a8467c287f900caf82c618f4681e1d",
@@ -99,11 +100,14 @@
     "spa_offline_embedded_video": true
   },
   "chat_delivery": {
-    "part_1_ascii": false,
-    "part_2_json": false,
-    "part_3_video": false,
-    "status": "PENDING_THIS_REPORTING_CHAT"
+    "part_1_ascii": true,
+    "part_2_json": true,
+    "part_2_display_serialization": "PRETTY_NON_BYTE_IDENTICAL_VALUES_EXACT",
+    "part_3_video": true,
+    "part_3_media_identity": "BYTE_IDENTICAL_CANONICAL_MP4",
+    "status": "PASS_ORDERED_ASCII_JSON_VIDEO"
   },
-  "issue_343_receipt": null,
+  "issue_343_receipt": 5595969943,
+  "issue_343_receipt_readback": "PASS",
   "drew_accepted": "NOT_INFERRED"
 }
