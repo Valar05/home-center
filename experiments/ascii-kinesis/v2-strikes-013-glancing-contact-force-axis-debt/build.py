@@ -3,7 +3,7 @@
 # Authority: motion.json decisive abstract ASCII rig keys + inferred timing.
 # No source pixels, palette, contours, layout, audio, or character art are read.
 from __future__ import annotations
-import base64, hashlib, html, json, math, subprocess, tempfile
+import base64, gzip, hashlib, json, math, subprocess, tempfile
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
@@ -102,6 +102,8 @@ def render_mp4(path):
 
 def spa(contact,motion_text,mp4_bytes):
     vb=base64.b64encode(mp4_bytes).decode("ascii")
+    ag=base64.b64encode(gzip.compress(contact.encode("utf-8"),9,mtime=0)).decode("ascii")
+    jg=base64.b64encode(gzip.compress(motion_text.encode("utf-8"),9,mtime=0)).decode("ascii")
     return f'''<!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ASCII Kinesis V2 Strikes013 — Glancing Contact / Force-Axis Debt</title><style>
@@ -110,10 +112,9 @@ nav{{display:flex;gap:8px;position:sticky;top:0;background:#0b0b0c;padding:8px 0
 pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.08;font-size:12px}}video{{max-width:100%;height:auto;background:#000}}
 </style></head><body><h1>ASCII Kinesis V2 Strikes013 — Glancing Contact / Force-Axis Debt</h1>
 <nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
-<section id="ascii" class="active"><pre>{html.escape(contact)}</pre></section>
-<section id="json"><pre>{html.escape(motion_text)}</pre></section>
+<section id="ascii" class="active"><pre id="ascii-pre"></pre></section><section id="json"><pre id="json-pre"></pre></section>
 <section id="video"><video controls loop playsinline preload="metadata" src="data:video/mp4;base64,{vb}"></video></section>
-<script>const B=[...document.querySelectorAll('button[data-view]')],S=[...document.querySelectorAll('section')];for(const b of B)b.onclick=()=>{{for(const s of S)s.classList.toggle('active',s.id===b.dataset.view)}};</script></body></html>'''
+<script>const A='{ag}',J='{jg}';async function gz64(s){{const b=Uint8Array.from(atob(s),c=>c.charCodeAt(0));const ds=new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'));return new TextDecoder().decode(await new Response(ds).arrayBuffer())}};(async()=>{{document.getElementById('ascii-pre').textContent=await gz64(A);document.getElementById('json-pre').textContent=await gz64(J)}})();const B=[...document.querySelectorAll('button[data-view]')],S=[...document.querySelectorAll('section')];for(const b of B)b.onclick=()=>{{for(const s of S)s.classList.toggle('active',s.id===b.dataset.view)}};</script></body></html>'''
 
 def main():
     contact=contact_sheet();(ROOT/"contact_sheet.txt").write_text(contact,encoding="utf-8")
