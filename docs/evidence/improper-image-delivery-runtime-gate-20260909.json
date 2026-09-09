@@ -1,19 +1,22 @@
 {
   "schema": "fortress.improper-image-delivery.runtime-gate.v1",
-  "observedAt": "2026-09-09T21:05:38.000Z",
+  "observedAt": "2026-09-09T21:07:09.575Z",
   "commission": "Recover and harden the existing local image generator, then deliver verified legal-use images to Drew's public phone Pictures collection with minimal operator effort.",
   "repository": "Valar05/home-center",
   "pullRequest": 354,
+  "mergeCommit": "dd6d89c6bc6e4326dad6a348b868578df1b3e4fe",
   "implementationBranch": "campaign/improper-image-delivery",
   "phoneIngress": {
     "deviceId": "primary-phone",
     "lastObservedDeviceStatus": "online",
     "lastSeenAt": "2026-09-09T20:56:51.025Z",
-    "dispatchCommandId": "phc_tetsuya_image_archaeology_20260909_v1",
-    "dispatchStatus": "queued",
-    "leaseOwner": "",
-    "leaseExpiresAtMs": 0,
-    "finding": "The Home Center command was accepted but the primary-phone relay had not leased it by 2026-09-09T21:05:38Z. Repository implementation is therefore not phone deployment proof."
+    "archaeologyCommandId": "phc_tetsuya_image_archaeology_20260909_v1",
+    "archaeologyStatusAtLastRead": "queued_unleased",
+    "canonicalCanaryCommandId": "phc_improper_image_dd6d89c6_canary_v1",
+    "canonicalCanaryPinnedCommit": "dd6d89c6bc6e4326dad6a348b868578df1b3e4fe",
+    "canonicalCanaryStatusAtDispatch": "queued",
+    "canonicalCanaryExpiresAtMs": 1788991614472,
+    "finding": "Home Center accepted both commands, but the phone relay had not recently checked in and no phone execution receipt existed at this observation. Repository implementation is therefore not phone deployment proof."
   },
   "computerHands": {
     "workerId": "windows-hands-01",
@@ -27,11 +30,13 @@
     "publicDeliveryRoot": "/storage/emulated/0/Pictures/Fortress",
     "acceptanceGate": "tools/accept_fortress_image_phone.sh",
     "oneShotCampaign": "tools/improper_image_delivery_campaign.sh",
-    "archaeology": "docs/IMPROPER_IMAGE_DELIVERY_CAMPAIGN.md"
+    "archaeology": "docs/IMPROPER_IMAGE_DELIVERY_CAMPAIGN.md",
+    "contractTest": "tools/test_improper_image_delivery_contract.py"
   },
   "capabilityState": {
     "requested": true,
     "implemented": true,
+    "mergedToMain": true,
     "repositoryReviewed": true,
     "runtimeTested": false,
     "phoneDeployed": false,
@@ -40,5 +45,5 @@
     "drewPerceptualAccepted": false
   },
   "directive": "CONTINUE_REQUIRED",
-  "nextBoundedTransition": "Restore or re-enter the existing Home Center primary-phone relay, execute tools/improper_image_delivery_campaign.sh once, and require a live ComfyUI promptId plus identical remote, phone-state, and public-Pictures SHA-256 receipts. Do not create another renderer and do not use desktop output as substitute evidence."
+  "nextBoundedTransition": "Consume phc_improper_image_dd6d89c6_canary_v1. A successful result must contain IMPROPER_IMAGE_DELIVERY_CONTRACT_OK and IMPROPER_IMAGE_CAMPAIGN ACCEPTED, then a live ComfyUI promptId plus identical remote, phone-state, and public-Pictures SHA-256 receipts. If the command remains unleased after the relay is stale, restore only Home Center primary-phone relay ingress; do not create another renderer and do not substitute desktop output."
 }
