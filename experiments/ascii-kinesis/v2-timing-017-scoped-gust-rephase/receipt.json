@@ -57,11 +57,15 @@
   "repo": {
     "spa_commit": "6a69607cc0839883eb32d534afd63cb328e09213",
     "spa_blob": "2fdc8e35dfbc81571b2c357fa14c8605c2622e63",
+    "healthy_receipt_commit": "5b9f216a52bbc19151545df6899f54a2d6c9b91a",
+    "healthy_receipt_blob": "87a1096de8f1a3ddefecbea3f7fbc52caece5bca",
     "exact_six_file_readback": true
   },
-  "issue_343_receipt": 5599056530,
+  "issue_343_receipt": 5599100296,
+  "issue_343_pre_delivery_receipt": 5599056530,
+  "issue_343_post_delivery_verification": 5599100296,
   "ship_commit": "6a69607cc0839883eb32d534afd63cb328e09213",
-  "verification_commit": "6a69607cc0839883eb32d534afd63cb328e09213",
+  "verification_commit": "5b9f216a52bbc19151545df6899f54a2d6c9b91a",
   "drew_accepted": false,
   "media": {
     "sha256": "d56aa561368ef5b7f114553292dcd699fdc0079965d89da7ec336a3ed7668274",
@@ -79,6 +83,7 @@
     "current_worker_round_4": "PASS on byte-identical actual 35-frame render: root and hand continue through canopy-only reef reset; reopen, overshoot, brake, countersway and displaced settle remain visible.",
     "current_worker_noodle_queen": "PASS after Tango on the same final actual render",
     "fresh_source_evidence_readback": "PASS: issue comment 5571378604 whole-sheet custody re-read; source timing remains UNKNOWN/UNAVAILABLE",
-    "reporting_chat": "COMPLETE PART 1 ASCII -> PART 2 byte-identical persisted JSON -> PART 3 visible deterministic media"
+    "reporting_chat": "COMPLETE PART 1 ASCII -> PART 2 byte-identical persisted JSON -> PART 3 visible deterministic media",
+    "post_delivery_verification": "BOUND_TO_ISSUE_343_COMMENT_5599100296"
   }
 }
