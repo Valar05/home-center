@@ -1,0 +1,103 @@
+{
+  "schema": "ascii-kinesis.manifest.v2",
+  "format_version": 2,
+  "id": "v2-strikes-009-sliding-staff-bind-reassignment",
+  "lane": "strikes",
+  "path": "experiments/ascii-kinesis/v2-strikes-009-sliding-staff-bind-reassignment/",
+  "revision": {
+    "kind": "fresh_post_debt_concept",
+    "pre_reset_debt_closed": true,
+    "closure_receipts": [
+      5592566123,
+      5593289237,
+      5594453954,
+      5595237307,
+      5595542730,
+      5595547531,
+      5596276724,
+      5596285374
+    ],
+    "created_after_issue_receipt": 5596276724,
+    "latest_manager_reconciliation": 5596400386,
+    "source_change": "N/A_FRESH_CONCEPT",
+    "successor_collision": "NONE_AT_CREATION",
+    "one_successor_law": "BIND_009_UNTIL_HEALTHY",
+    "strikes010_forbidden_until_healthy": true
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": 23976,
+    "name": "Donatello",
+    "game": "Teenage Mutant Ninja Turtles: Tournament Fighters",
+    "platform": "SNES",
+    "authoritative_campaign_pass": "STRIKES PASS 005 — VERIFIED",
+    "whole_sheet_dimensions": "568x2297",
+    "source_timing": "UNKNOWN_STATIC_SHEET"
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "artifacts": {
+    "build.py": {
+      "sha256": "5c9f647391aa01deba5b1229850ff2eb0c2af8bb6420ad98037a16384a4bced2",
+      "bytes": 10274
+    },
+    "motion.json": {
+      "sha256": "a2791eed6672668819615682238e97497cb54807c7bdd784c673bb42954689ef",
+      "bytes": 19789
+    },
+    "sliding-staff-bind-reassignment.motion.html": {
+      "sha256": "a97eb47882b3591110607d778d1341d15de24ca51411f8d6db4dd4a46e01c1e9",
+      "bytes": 34662
+    },
+    "generated_contact_sheet": {
+      "sha256": "0ece9831541a7904f7f5de992c2dbae6b8299777e8f9e79f80ae821a1588a985",
+      "bytes": 26975,
+      "tracked": false
+    },
+    "embedded_media": {
+      "sha256": "990081da647299b82927e4dedbd852c57b5629da8830b245386ecff657ade07c",
+      "bytes": 14705,
+      "frame_count": 55,
+      "fps": 24,
+      "seconds": 2.2916666666666665,
+      "codec": "h264",
+      "pixel_format": "yuv420p",
+      "width": 920,
+      "height": 432
+    }
+  },
+  "quality": {
+    "tango": "PASS_CURRENT_WORKER_ACTUAL_55_FRAME_RENDER_AFTER_ONE_SAME_BODY_REVISION",
+    "noodle_queen": "PASS_AFTER_TANGO_CURRENT_WORKER_ACTUAL_FINAL_RENDER",
+    "drew_accepted": false
+  },
+  "contract": {
+    "official_validator_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "official_validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "official_repo_path_callable_from_this_chat": false,
+    "candidate_isolated_exact_validator": "PASS",
+    "full_repo_global_shell_boundary": "NOT_CLAIMED_NO_AUTHORIZED_CHECKOUT",
+    "boundary_note": "Standard Chat exposes GitHub read/write but no authorized repository checkout. Exact official validator source is run against a candidate-isolated repository tree; full remote-main checkout execution is not claimed."
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "FIX ARC",
+    "FIX SUPPORT",
+    "FIX CONTACT",
+    "FIX SECONDARY LAG",
+    "RERUN"
+  ]
+}
