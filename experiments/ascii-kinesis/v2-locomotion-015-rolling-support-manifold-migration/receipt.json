@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis-v2-receipt",
   "id": "v2-locomotion-015-rolling-support-manifold-migration",
-  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "lineage": {
     "revises": null,
     "negative_fixture": null,
@@ -86,32 +86,35 @@
       "rolling-support-manifold-migration.motion.html",
       "receipt.json"
     ],
-    "body_blobs_before_final_receipt_update": {
+    "final_known_body_blobs_before_receipt_self_update": {
       "build.py": "047454a42b323d84aa821dc516c1a43fc44d2477",
       "contact-sheet.txt": "32fe43746841dd438bcc5d6e7c4974b755a71b60",
-      "manifest.json": "b9dd13be9958d81350e64f0e2db84ef82733ef2f",
+      "manifest.json": "fe4f859c0586c66e0072cec9634207ae88e80f86",
       "motion.json": "65ed38af4b875fa383f3ea7b3f35713e8996e5cc",
       "rolling-support-manifold-migration.motion.html": "3b4fa7e13acbec3cd2653978c51c43b1f9727285",
-      "staged_receipt.json": "8b7d95298312dd32ba71f13c5d5b535798fa7fb2"
+      "pre_final_receipt.json": "b3090c5037a32550ba25b9ef79eecd8d3feaa44d"
     },
     "receipt_stage_commit": "5fc6a0f48bedd18ed57a5e075808e9e41d8023ec",
+    "pre_chat_receipt_commit": "ad311bd4eb45e91e56ec1c60064ffc04f9a2311d",
+    "final_manifest_commit": "585b98bd4f8215befeb04a3704011d082d24c0a8",
     "post_write_readback": true,
     "exact_six_file_inventory": true
   },
   "issue_343": {
     "pre_chat_receipt_comment_id": 5605127097,
-    "pre_chat_receipt_readback": false,
-    "final_closure_comment_id": null,
-    "final_closure_readback": false
+    "pre_chat_receipt_readback": true,
+    "final_closure_comment_id": 5605165298,
+    "final_closure_readback": true
   },
   "chat_delivery": {
     "order": "ASCII->JSON->VIDEO",
-    "ascii": false,
-    "json": false,
-    "video": false,
-    "video_byte_identical_to_authoritative": true
+    "ascii": true,
+    "json": true,
+    "video": true,
+    "video_byte_identical_to_authoritative": true,
+    "authoritative_video_sha256": "d7feed09cb91e75ee7a120c736abcb44787636bb9c3e1970f7e451696f338f1f"
   },
   "drew_accepted": false,
-  "next_authorized": null,
-  "notes": "No art/timing mutation was manufactured in this run because the freshly reconstructed actual render passed Tango and Noodle Queen. Locomotion016 remains forbidden until this same body completes issue readback, ordered chat delivery and final durable bind."
+  "next_authorized": "v2-locomotion-016",
+  "notes": "No art/timing mutation was manufactured in this run because the freshly reconstructed actual render passed Tango and Noodle Queen. Ordered reporting-chat delivery completed before this final durable bind. DREW_ACCEPTED remains separate."
 }
