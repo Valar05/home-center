@@ -4,7 +4,7 @@
   "status": "HEALTHY_USER_SURFACED",
   "repo_path": "experiments/ascii-kinesis/v2-timing-013-staggered-readiness-rebind/",
   "ship_commit": "b2bb9e8ee0e2b1e4fda51018ca17f8019e8d8274",
-  "verification_commit": null,
+  "verification_commit": "e063e0aab9b3f4c4587778b5ccc14478a318a05e",
   "issue_343_receipt": 5595448392,
   "drew_accepted": false,
   "source": {
