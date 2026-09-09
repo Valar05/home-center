@@ -1,0 +1,669 @@
+ASCII KINESIS V2 LOCOMOTION 014 — FIGURE-EIGHT CURVATURE SIGN REVERSAL
+Legend: ! trusted support   ? precontact probe   ~ free foot   @ pelvis/root   + chest   O head   x crossover
+Timing: ONES/TWOS/FOURS are display-frame exposure classes; every decisive timing here is INFERRED / STREET_FIGHTER-CAPCOM.
+
+ROOT TRAVEL MAP — fixed world address; dots audit authored root travel and do not reproduce source choreography:
+|------------------------------------------------------------------------------------------|
+|                                                                                          |
+|                                                                                          |
+|                                                                                          |
+|                                                                                          |
+|                                                                                          |
+|                                                                                          |
+|                                                                                          |
+|                                                                                          |
+|                                                                                          |
+|                                                                                          |
+|                                                                                          |
+|                              .o..                       ..o.                             |
+|                             o    ..o                 o..    o                            |
+|                             .       .o             o.       .                            |
+|                            .          .           .          .                           |
+|                            .           .         . S         .                           |
+|                           .             ..     ....           .                          |
+|                           o               .   . o             o                          |
+|                           .                . ...              .                          |
+|                           o                 o.                o                          |
+|                           .               .. ..               .                          |
+|                           .              o.    o              .                          |
+|                           .            .o       .             .                          |
+|                            .         E..         .           .                           |
+|                            .         ..           ..         .                           |
+|                            o        .               .        o                           |
+|                             o..    o                 o    ..o                            |
+|                                ..o.                   .o..                               |
+|                                                                                          |
+|                                                                                          |
+|                                                                                          |
+|                                                                                          |
+|                                                                                          |
+|                                                                                          |
+|                                                                                          |
+|                                                                                          |
+|------------------------------------------------------------------------------------------|
+
+K00 ENTRY_RIGHT_CATCH  [FOURS / INFERRED]  SUPPORT=R  CONTACT=TRUSTED_CATCH
+ROOT=[53, 16]  HEADING=+146.3deg  CURVATURE=+0.25  BANK=+1.00  SPACING=0
+ROLE: new alternating support catches the large root step and carries gait phase forward without a reset
+
+
+
+      O
+      /
+     *
+     +\
+   o/ \o
+    *
+     \
+     o
+     |\
+     | ~
+     !
+
+
+
+
+K01 ENTRY_DRIVE_PROBE_TO_L  [TWOS / INFERRED]  SUPPORT=R  CONTACT=PRECONTACT
+ROOT=[50, 18]  HEADING=+150.3deg  CURVATURE=+0.25  BANK=+1.00  SPACING=3.61
+ROLE: spend the current support through the deliberately short stride phase while the opposite foot probes the next authored catch
+
+
+
+       O
+       |
+       *
+       +\
+     o//\o
+      /
+      *
+     / \\
+    o    o
+    /     !
+   /
+   ?
+
+
+
+
+K02 LEFT_CATCH_ENTER_LOBE  [TWOS / INFERRED]  SUPPORT=L  CONTACT=TRUSTED_CATCH
+ROOT=[46, 20]  HEADING=+147.0deg  CURVATURE=+0.25  BANK=+1.50  SPACING=4.47
+ROLE: new alternating support catches the large root step and carries gait phase forward without a reset
+
+
+
+        O
+        |
+   *    |
+    \  /+
+     o// o
+      @   \*
+      |\
+      o o
+      \  \
+       \ ~
+       !
+
+
+
+
+K03 FIRST_LOBE_DRIVE_PROBE_TO_R  [ONES / INFERRED]  SUPPORT=L  CONTACT=PRECONTACT
+ROOT=[43.42, 22.27]  HEADING=+142.4deg  CURVATURE=+0.65  BANK=+2.20  SPACING=3.44
+ROLE: spend the current support through the deliberately short stride phase while the opposite foot probes the next authored catch
+
+
+
+         O
+         /
+        /
+   *\   +
+     \o/ \o
+       /   \
+      @    *
+      |\
+      |o\
+      o  \!
+     /
+    ?
+
+
+
+
+K04 FIRST_LOBE_RIGHT_CATCH  [TWOS / INFERRED]  SUPPORT=R  CONTACT=TRUSTED_CATCH
+ROOT=[37.0, 26.93]  HEADING=+147.2deg  CURVATURE=+0.77  BANK=+2.71  SPACING=7.93
+ROLE: new alternating support catches the large root step and carries gait phase forward without a reset
+
+
+
+       O
+       /
+     */
+     /+
+   o// o
+   @*
+    \
+    o
+    |\
+    | ~
+    !
+
+
+
+
+K05 FIRST_LOBE_DRIVE_PROBE_TO_L  [TWOS / INFERRED]  SUPPORT=R  CONTACT=PRECONTACT
+ROOT=[34.86, 27.78]  HEADING=+180.0deg  CURVATURE=+0.87  BANK=+3.16  SPACING=2.31
+ROLE: spend the current support through the deliberately short stride phase while the opposite foot probes the next authored catch
+
+
+
+          O
+          /
+       * /
+        /+
+      o// o
+      */
+      @
+     / \
+    o   o
+    /    \
+   /     !
+   ?
+
+
+
+
+K06 FIRST_LOBE_LEFT_CATCH  [ONES / INFERRED]  SUPPORT=L  CONTACT=TRUSTED_CATCH
+ROOT=[30.41, 26.93]  HEADING=-157.8deg  CURVATURE=+0.95  BANK=+3.50  SPACING=4.53
+ROLE: new alternating support catches the large root step and carries gait phase forward without a reset
+
+
+
+          O
+          /
+   *     /
+    \\  /+
+      o// o
+     @/    *
+     |\\
+     o  o
+     \   \
+      \  ~
+      !
+
+
+
+
+K07 FIRST_LOBE_DRIVE_PROBE_TO_R  [TWOS / INFERRED]  SUPPORT=L  CONTACT=PRECONTACT
+ROOT=[29.28, 25.51]  HEADING=-109.2deg  CURVATURE=+0.99  BANK=+3.68  SPACING=1.82
+ROLE: spend the current support through the deliberately short stride phase while the opposite foot probes the next authored catch
+
+
+
+           O
+          /
+   *      /
+    \\  /+
+      o// \o
+       /   *
+      @
+      |
+      o
+     /o
+     / \
+    ?  \
+        !
+
+
+
+
+K08 FIRST_LOBE_RIGHT_CATCH  [TWOS / INFERRED]  SUPPORT=R  CONTACT=TRUSTED_CATCH
+ROOT=[28.0, 20.0]  HEADING=-98.0deg  CURVATURE=+0.99  BANK=+3.68  SPACING=5.65
+ROLE: new alternating support catches the large root step and carries gait phase forward without a reset
+
+
+
+        O
+        /
+     * /
+      /+
+    o// o
+   @*
+    \
+    o
+    |\\
+    |  ~
+    !
+
+
+
+
+K09 FIRST_LOBE_DRIVE_PROBE_TO_L  [ONES / INFERRED]  SUPPORT=R  CONTACT=PRECONTACT
+ROOT=[28.19, 17.73]  HEADING=-70.8deg  CURVATURE=+0.95  BANK=+3.50  SPACING=2.28
+ROLE: spend the current support through the deliberately short stride phase while the opposite foot probes the next authored catch
+
+
+
+           O
+          /
+          /*
+        /+ /
+     /o// o
+   */  /
+      @
+      \\
+       \o
+       o \
+       |  \
+       |   ?
+       |
+       !
+
+
+
+
+K10 FIRST_LOBE_LEFT_CATCH  [TWOS / INFERRED]  SUPPORT=L  CONTACT=TRUSTED_CATCH
+ROOT=[30.41, 13.07]  HEADING=-56.3deg  CURVATURE=+0.87  BANK=+3.16  SPACING=5.16
+ROLE: new alternating support catches the large root step and carries gait phase forward without a reset
+
+
+
+         O
+         /
+      * /
+      //+
+     o// o
+     @ //
+     /*
+    /o
+    o
+   /~
+   !
+
+
+
+
+K11 FIRST_LOBE_DRIVE_PROBE_TO_R  [TWOS / INFERRED]  SUPPORT=L  CONTACT=PRECONTACT
+ROOT=[31.86, 12.22]  HEADING=+0.0deg  CURVATURE=+0.77  BANK=+2.71  SPACING=1.68
+ROLE: spend the current support through the deliberately short stride phase while the opposite foot probes the next authored catch
+
+
+
+          O
+          /
+         /
+       */+
+      o// \o
+        ///
+       @*
+      / \
+     /   \
+    o     o
+    /      \
+   /       ?
+   !
+
+
+
+
+K12 FIRST_LOBE_RIGHT_CATCH  [ONES / INFERRED]  SUPPORT=R  CONTACT=TRUSTED_CATCH
+ROOT=[37.0, 13.07]  HEADING=+16.9deg  CURVATURE=+0.65  BANK=+2.20  SPACING=5.21
+ROLE: new alternating support catches the large root step and carries gait phase forward without a reset
+
+
+
+         O
+         /
+        /  *
+        +  /
+      o/ \o
+    // @
+   *  /|
+     o |
+     | o
+     ~/
+     !
+
+
+
+
+K13 FIRST_LOBE_EXIT_PROBE_TO_L  [ONES / INFERRED]  SUPPORT=R  CONTACT=PRECONTACT
+ROOT=[39.33, 14.49]  HEADING=+37.6deg  CURVATURE=+0.24  BANK=+1.50  SPACING=2.73
+ROLE: spend the current support through the deliberately short stride phase while the opposite foot probes the next authored catch
+
+
+
+          O
+          /
+         /
+        /+ /*
+      o// o
+     *  /
+       @
+      / \
+      o \
+    //   o
+   !      \
+           ?
+
+
+
+
+K14 CROSSOVER_LEFT_CATCH  [TWOS / INFERRED]  SUPPORT=L  CONTACT=TRUSTED_CATCH
+ROOT=[46.0, 20.0]  HEADING=+40.1deg  CURVATURE=+0.06  BANK=+0.70  SPACING=8.65
+ROLE: left support catches exactly at the crossover while old-lobe bank is still present; curvature is near zero but gait phase does not reset
+
+
+
+      O
+      /
+    */
+    /+
+   o/|\o
+     */
+    /|
+   o o
+   \/
+   ~\
+    !
+
+
+
+
+K15 CROSSOVER_DRIVE_PROBE_TO_R  [TWOS / INFERRED]  SUPPORT=L  CONTACT=PRECONTACT
+ROOT=[48.58, 22.27]  HEADING=+37.6deg  CURVATURE=+0.00  BANK=+0.20  SPACING=3.44
+ROLE: left support drives through the crossover and right foot probes while bank decays almost to zero; no Turn/pivot state exists
+
+
+
+       O
+       |
+       |
+       +*
+     o/|\o
+       |/
+       *
+     // \
+    o   \
+   !     o
+          \
+          ?
+
+
+
+
+K16 OPPOSITE_CURVATURE_RIGHT_CATCH  [ONES / INFERRED]  SUPPORT=R  CONTACT=TRUSTED_CATCH
+ROOT=[55.0, 26.93]  HEADING=+32.8deg  CURVATURE=-0.22  BANK=-1.20  SPACING=7.93
+ROLE: right support catches the next large step and earns the opposite curvature sign; bank changes side only after this support catch
+
+
+
+     O
+     \      *
+      \   //
+      +  /
+    o/ \o
+   *   @
+      /|
+     o o
+    /  /
+    ~ /
+      !
+
+
+
+
+K17 SECOND_LOBE_DRIVE_PROBE_TO_L  [TWOS / INFERRED]  SUPPORT=R  CONTACT=PRECONTACT
+ROOT=[57.14, 27.78]  HEADING=-0.0deg  CURVATURE=-0.65  BANK=-2.20  SPACING=2.31
+ROLE: spend the current support through the deliberately short stride phase while the opposite foot probes the next authored catch
+
+
+
+    O
+    \
+     \    *
+     +\  /
+    o \\o
+   *  \
+       @
+      / \
+      o o
+     /   \
+    !    \
+          ?
+
+
+
+
+K18 SECOND_LOBE_LEFT_CATCH  [TWOS / INFERRED]  SUPPORT=L  CONTACT=TRUSTED_CATCH
+ROOT=[61.59, 26.93]  HEADING=-22.2deg  CURVATURE=-0.78  BANK=-2.77  SPACING=4.53
+ROLE: new alternating support catches the large root step and carries gait phase forward without a reset
+
+
+
+   O
+   \
+    \*
+    +
+   o \o
+      *@
+      /
+     oo
+    /\
+   ~  \
+      !
+
+
+
+
+K19 SECOND_LOBE_DRIVE_PROBE_TO_R  [ONES / INFERRED]  SUPPORT=L  CONTACT=PRECONTACT
+ROOT=[62.72, 25.51]  HEADING=-70.8deg  CURVATURE=-0.90  BANK=-3.26  SPACING=1.82
+ROLE: spend the current support through the deliberately short stride phase while the opposite foot probes the next authored catch
+
+
+
+   O
+   \
+    \ *
+    +/
+   o \\o
+      *
+       @
+      / \
+      /  o
+     o   |
+     |   |
+     |   ?
+     !
+
+
+
+
+K20 SECOND_LOBE_RIGHT_CATCH  [TWOS / INFERRED]  SUPPORT=R  CONTACT=TRUSTED_CATCH
+ROOT=[64.0, 20.0]  HEADING=-82.0deg  CURVATURE=-0.97  BANK=-3.59  SPACING=5.65
+ROLE: new alternating support catches the large root step and carries gait phase forward without a reset
+
+
+
+   O
+    \
+    \     *
+     +  //
+   o/ \o
+   *    @
+      // \
+     o   o
+    /   /
+    ~   /
+       !
+
+
+
+
+K21 SECOND_LOBE_DRIVE_PROBE_TO_L  [TWOS / INFERRED]  SUPPORT=R  CONTACT=PRECONTACT
+ROOT=[63.81, 17.73]  HEADING=-109.2deg  CURVATURE=-1.00  BANK=-3.70  SPACING=2.28
+ROLE: spend the current support through the deliberately short stride phase while the opposite foot probes the next authored catch
+
+
+
+   O
+    \
+    \  *
+     + |
+    o\\o
+      \*
+        @
+      //|
+     o  |
+    /   o
+    /   /
+   ?   /
+       /
+       !
+
+
+
+
+K22 SECOND_LOBE_LEFT_CATCH  [ONES / INFERRED]  SUPPORT=L  CONTACT=TRUSTED_CATCH
+ROOT=[61.59, 13.07]  HEADING=-123.7deg  CURVATURE=-0.97  BANK=-3.59  SPACING=5.16
+ROLE: new alternating support catches the large root step and carries gait phase forward without a reset
+
+
+
+    O
+    \
+   * \
+   \ +\
+    o \\o
+        @\
+        |\*
+        |o
+        o|
+         ~
+          !
+
+
+
+
+K23 SECOND_LOBE_DRIVE_PROBE_TO_R  [TWOS / INFERRED]  SUPPORT=L  CONTACT=PRECONTACT
+ROOT=[60.14, 12.22]  HEADING=+180.0deg  CURVATURE=-0.90  BANK=-3.26  SPACING=1.68
+ROLE: spend the current support through the deliberately short stride phase while the opposite foot probes the next authored catch
+
+
+
+    O
+    \
+     \
+    *+\
+    o \\o
+       \ \\
+        @  *
+        \
+       / \
+       o o
+     //   \
+   ?/      \
+            !
+
+
+
+
+K24 SECOND_LOBE_RIGHT_CATCH  [TWOS / INFERRED]  SUPPORT=R  CONTACT=TRUSTED_CATCH
+ROOT=[55.0, 13.07]  HEADING=+163.1deg  CURVATURE=-0.78  BANK=-2.77  SPACING=5.21
+ROLE: new alternating support catches the large root step and carries gait phase forward without a reset
+
+
+
+   O
+   \
+    \ *
+    +\\
+   o \\o
+    \ @
+     *|\
+      o\
+       \o
+        ~
+        !
+
+
+
+
+K25 SECOND_LOBE_EXIT_PROBE_TO_L  [FOURS / INFERRED]  SUPPORT=R  CONTACT=PRECONTACT
+ROOT=[52.67, 14.49]  HEADING=+142.4deg  CURVATURE=-0.65  BANK=-2.20  SPACING=2.73
+ROLE: spend the current support through the deliberately short stride phase while the opposite foot probes the next authored catch
+
+
+
+     O
+     \
+      \
+      +*
+    o/ \o
+     \\\
+       *@
+       / \\
+      /    o
+     o      \
+    /       !
+   ?
+
+
+
+
+K26 LEFT_CATCH_EXIT_DEBT  [FOURS / INFERRED]  SUPPORT=L  CONTACT=TRUSTED_CATCH
+ROOT=[46.0, 20.0]  HEADING=+141.4deg  CURVATURE=-0.45  BANK=-2.00  SPACING=8.65
+ROLE: new alternating support catches the large root step and carries gait phase forward without a reset
+
+
+
+    O
+   *\
+   \ \
+    o+--o
+      \@ \*
+       |\
+       o o
+        \|
+        \~
+         !
+
+
+
+
+K27 EXIT_OVERSHOOT_PROBE_TO_R  [ONES / INFERRED]  SUPPORT=L  CONTACT=PRECONTACT
+ROOT=[42, 23]  HEADING=+150.3deg  CURVATURE=-0.22  BANK=-1.30  SPACING=5.0
+ROLE: left support remains owner through exit overshoot while right foot probes; torso and arm lag spend residual opposite-lobe debt
+
+
+
+   O
+   \
+   *\
+   \+\
+    o\\\o\
+      \   \\
+       @    \*
+       /\o\
+      /    \\!
+      o
+    //
+   ?
+
+
+
+
+K28 DISPLACED_SETTLE_RIGHT_CATCH  [TWOS / INFERRED]  SUPPORT=R  CONTACT=TRUSTED_CATCH
+ROOT=[39, 24]  HEADING=+161.6deg  CURVATURE=-0.08  BANK=-0.60  SPACING=3.16
+ROLE: right support catches the displaced recovery; settle remains offset and counterleaned rather than resetting to idle
+
+
+
+    O
+    |*
+    +\\
+   o \\o
+   | @
+   * |\
+     o o
+      \/
+      /~
+      !
