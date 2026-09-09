@@ -1,11 +1,12 @@
 {
   "schema": "ascii-kinesis.v2-receipt",
   "experiment_id": "v2-timing-013-staggered-readiness-rebind",
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "HEALTHY_USER_SURFACED",
   "repo_path": "experiments/ascii-kinesis/v2-timing-013-staggered-readiness-rebind/",
-  "ship_commit": null,
+  "ship_commit": "b2bb9e8ee0e2b1e4fda51018ca17f8019e8d8274",
   "verification_commit": null,
-  "issue_343_receipt": null,
+  "issue_343_receipt": 5595448392,
+  "drew_accepted": false,
   "source": {
     "provider": "The Spriters Resource",
     "asset_id": "5555",
@@ -48,10 +49,12 @@
     "notes": "TASTE: the compression, hooked pivot, overshoot/catch, and late guard reopen have a specific authored rhythm. FUNCTION: contact, orientation, bilateral support, and task readiness return at visibly distinct moments and overall readiness waits for all four. CONTEMPT: the phrase does not collapse into metronome recovery, mannequin symmetry, placeholder interpolation, or return-to-idle cleanup."
   },
   "verification": {
-    "repo_readback": false,
+    "repo_readback": true,
+    "repo_file_count": 6,
     "contract_test": "PASS_CANDIDATE_ISOLATED_OFFICIAL_V2; exact current validator predicates freshly read; no fresh repo-global checkout execution claimed in Standard Chat",
     "media_decode": "PASS_H264_480x270_24FPS_35FRAMES_SHA_MATCH",
-    "three_part_chat_delivery": false
+    "three_part_chat_delivery": true,
+    "chat_delivery_order": ["ASCII", "JSON", "VIDEO"]
   },
   "correction_hooks": [
     "KEEP",
