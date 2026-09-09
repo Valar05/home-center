@@ -1,224 +1,170 @@
-#!/bin/sh
-# Home Center free cloud forge bootstrap.
-# Real Git forge on a free-tier Linux VM; GCS is backup only.
-# POSIX sh by design for Termux handoff safety.
-set -eu
-
-STATE_DIR="$HOME/.home-center/cloud-forge"
-STATE_FILE="$STATE_DIR/state.env"
-PROVISIONED_FILE="$STATE_DIR/gcp-provisioned.env"
-LOG_FILE="$STATE_DIR/bootstrap.log"
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+STATE_DIR="${HC_FORGE_STATE_DIR:-$HOME/.home-center/cloud-forge}"
 mkdir -p "$STATE_DIR"
-: > "$LOG_FILE" 2>/dev/null || true
-
-say(){ printf '\n[forge] %s\n' "$*"; }
-ok(){ printf '[ok] %s\n' "$*"; }
-warn(){ printf '[warn] %s\n' "$*" >&2; }
-fail(){ printf '[blocked] %s\n' "$*" >&2; exit 1; }
+chmod 700 "$STATE_DIR" 2>/dev/null || true
 have(){ command -v "$1" >/dev/null 2>&1; }
-
-load_state(){
-  if [ -f "$STATE_FILE" ]; then . "$STATE_FILE"; fi
-  if [ -f "$PROVISIONED_FILE" ]; then . "$PROVISIONED_FILE"; fi
-  : "${FORGE_HOST:=}"
-  : "${FORGE_USER:=forge}"
-  : "${FORGE_PORT:=22}"
-  : "${GCS_TARGET:=}"
+die(){ printf '[blocked] %s\n' "$*" >&2; exit 1; }
+decode(){ base64 -d <<'HC_FORGE_PAYLOAD' | gzip -d
+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
+HC_FORGE_PAYLOAD
 }
-
-save_state(){
-  umask 077
-  {
-    printf 'FORGE_HOST=%s\n' "$FORGE_HOST"
-    printf 'FORGE_USER=%s\n' "$FORGE_USER"
-    printf 'FORGE_PORT=%s\n' "$FORGE_PORT"
-    printf 'GCS_TARGET=%s\n' "$GCS_TARGET"
-  } > "$STATE_FILE"
-}
-
-ask(){
-  var=$1; prompt=$2; def=${3-}
-  eval cur='${'"$var"'-}'
-  [ -n "$cur" ] && return 0
-  if [ -n "$def" ]; then printf '%s [%s]: ' "$prompt" "$def"; else printf '%s: ' "$prompt"; fi
-  IFS= read -r ans || true
-  [ -n "${ans:-}" ] || ans=$def
-  eval "$var=\$ans"
-}
-
-ensure_termux_tools(){
-  say "Checking Termux prerequisites"
-  if ! have ssh || ! have scp || ! have curl; then
-    have pkg || fail "Run this from Termux; pkg was not found."
-    pkg update -y
-    pkg install -y openssh curl
-  fi
-  have ssh && have scp && have curl || fail "OpenSSH/curl installation did not complete."
-  ok "Termux transport tools available"
-}
-
-ensure_key(){
-  mkdir -p "$HOME/.ssh"; chmod 700 "$HOME/.ssh"
-  if [ ! -f "$HOME/.ssh/id_ed25519" ]; then ssh-keygen -q -t ed25519 -f "$HOME/.ssh/id_ed25519" -N '' -C home-center-phone; fi
-  ok "Phone SSH identity ready"
-}
-
-collect_target(){
-  load_state
-  say "Cloud forge target"
-  [ -n "$FORGE_HOST" ] || fail "No provisioned forge VM found. Run tools/provision_gcp_free_forge_vm.sh first."
-  case "$FORGE_PORT" in *[!0-9]*|'') fail "SSH port must be numeric.";; esac
-  if [ -z "$GCS_TARGET" ]; then
-    printf 'Optional GCS backup target (gs://bucket/prefix, Enter to defer): '
-    IFS= read -r GCS_TARGET || true
-  fi
-  save_state
-  ok "Using $FORGE_USER@$FORGE_HOST:$FORGE_PORT"
-}
-
-ssh_base(){ ssh -p "$FORGE_PORT" -o ConnectTimeout=12 -o ServerAliveInterval=20 -o ServerAliveCountMax=3 -o StrictHostKeyChecking=accept-new "$FORGE_USER@$FORGE_HOST" "$@"; }
-
-prove_ssh(){
-  say "Proving SSH lane"
-  tries=0
-  while [ "$tries" -lt 12 ]; do
-    if ssh_base 'printf "SSH_OK\\n"; uname -srm; command -v sudo >/dev/null'; then ok "SSH lane proven"; return 0; fi
-    tries=$((tries + 1)); sleep 5
-  done
-  fail "VM exists but its startup key/bootstrap is not accepting SSH yet. Rerun this same command; do not recreate the VM."
-}
-
-make_remote(){
-  REMOTE="$STATE_DIR/remote-install.sh"
-  cat > "$REMOTE" <<'REMOTE_EOF'
-#!/bin/sh
-set -eu
-GCS_TARGET=${GCS_TARGET-}
-GITEA_USER=git
-GITEA_HOME=/home/git
-GITEA_WORK=/var/lib/gitea
-GITEA_CFG=/etc/gitea/app.ini
-GITEA_BIN=/usr/local/bin/gitea
-HTTP_PORT=3000
-SSH_PORT=2222
-REPORT=/var/tmp/home-center-forge-report.txt
-say(){ printf '\n[remote] %s\n' "$*"; }
-ok(){ printf '[ok] %s\n' "$*"; }
-warn(){ printf '[warn] %s\n' "$*" >&2; }
-fail(){ printf '[blocked] %s\n' "$*" >&2; exit 1; }
-have(){ command -v "$1" >/dev/null 2>&1; }
-sudo true || fail "sudo authorization is required on the VM."
-arch=$(uname -m)
-case "$arch" in x86_64|amd64) garch=amd64 ;; aarch64|arm64) garch=arm64 ;; *) fail "Unsupported CPU architecture: $arch" ;; esac
-if have apt-get; then
-  say "Installing minimal forge dependencies"
-  sudo env DEBIAN_FRONTEND=noninteractive apt-get update -y
-  sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y git curl ca-certificates sqlite3 openssl unzip
-else fail "This bootstrap currently requires an Ubuntu/Debian VM."; fi
-if ! id "$GITEA_USER" >/dev/null 2>&1; then sudo adduser --system --shell /bin/sh --group --disabled-password --home "$GITEA_HOME" "$GITEA_USER"; fi
-sudo mkdir -p "$GITEA_WORK"/custom "$GITEA_WORK"/data "$GITEA_WORK"/log /etc/gitea /var/backups/gitea
-sudo chown -R "$GITEA_USER:$GITEA_USER" "$GITEA_WORK" "$GITEA_HOME"
-sudo chown root:"$GITEA_USER" /etc/gitea
-if [ ! -x "$GITEA_BIN" ]; then
-  say "Discovering current Gitea release"
-  ver=$(curl -fsSL https://dl.gitea.com/gitea/ | sed -n 's/.*href="\([0-9][0-9.]*\)\/.*/\1/p' | sort -V | tail -n 1)
-  [ -n "$ver" ] || fail "Could not discover a Gitea release from dl.gitea.com."
-  url="https://dl.gitea.com/gitea/$ver/gitea-$ver-linux-$garch"; tmp=/tmp/gitea.$$
-  curl -fL --retry 4 --retry-delay 2 "$url" -o "$tmp"; chmod 755 "$tmp"; "$tmp" --version >/dev/null || fail "Downloaded Gitea binary would not execute."
-  sudo install -m 0755 "$tmp" "$GITEA_BIN"; rm -f "$tmp"
-else ok "Existing Gitea binary preserved"; fi
-if [ ! -s "$GITEA_CFG" ]; then
-  secret=$(openssl rand -hex 32); token=$(openssl rand -hex 32); lfs=$(openssl rand -hex 32)
-  host=$(hostname -I 2>/dev/null | awk '{print $1}'); [ -n "$host" ] || host=127.0.0.1
-  sudo tee "$GITEA_CFG" >/dev/null <<CFG
-APP_NAME = Home Center Forge
-RUN_USER = git
-RUN_MODE = prod
-WORK_PATH = $GITEA_WORK
-[repository]
-ROOT = $GITEA_WORK/data/gitea-repositories
-DEFAULT_BRANCH = main
-[database]
-DB_TYPE = sqlite3
-PATH = $GITEA_WORK/data/gitea.db
-[server]
-HTTP_ADDR = 0.0.0.0
-HTTP_PORT = $HTTP_PORT
-ROOT_URL = http://$host:$HTTP_PORT/
-START_SSH_SERVER = true
-SSH_PORT = $SSH_PORT
-SSH_LISTEN_PORT = $SSH_PORT
-LFS_START_SERVER = true
-LFS_JWT_SECRET = $lfs
-[security]
-INSTALL_LOCK = true
-SECRET_KEY = $secret
-INTERNAL_TOKEN = $token
-[service]
-DISABLE_REGISTRATION = true
-REQUIRE_SIGNIN_VIEW = true
-[log]
-MODE = console
-LEVEL = Info
-CFG
-  sudo chown root:"$GITEA_USER" "$GITEA_CFG"; sudo chmod 0640 "$GITEA_CFG"
-else ok "Existing Gitea config preserved"; fi
-sudo tee /etc/systemd/system/gitea.service >/dev/null <<SERVICE
-[Unit]
-Description=Home Center Gitea Forge
-After=network-online.target
-Wants=network-online.target
-[Service]
-User=$GITEA_USER
-Group=$GITEA_USER
-WorkingDirectory=$GITEA_WORK
-Environment=HOME=$GITEA_HOME
-Environment=GITEA_WORK_DIR=$GITEA_WORK
-ExecStart=$GITEA_BIN web --config $GITEA_CFG
-Restart=always
-RestartSec=3
-[Install]
-WantedBy=multi-user.target
-SERVICE
-sudo systemctl daemon-reload; sudo systemctl enable --now gitea; sleep 2
-sudo systemctl is-active --quiet gitea || { sudo systemctl status gitea --no-pager || true; fail "Gitea service is not active."; }
-curl -fsS --max-time 10 "http://127.0.0.1:$HTTP_PORT/" >/dev/null || fail "Gitea HTTP did not answer locally."
-ok "Real Gitea forge is running"
-users=$(sudo -u "$GITEA_USER" GITEA_WORK_DIR="$GITEA_WORK" "$GITEA_BIN" admin user list --config "$GITEA_CFG" 2>/dev/null || true)
-count=$(printf '%s\n' "$users" | sed '1d;/^[[:space:]]*$/d' | wc -l | tr -d ' ')
-if [ "$count" = 0 ]; then
-  pass=$(openssl rand -hex 16)
-  sudo -u "$GITEA_USER" GITEA_WORK_DIR="$GITEA_WORK" "$GITEA_BIN" admin user create --config "$GITEA_CFG" --username drew --password "$pass" --email drew@local.invalid --admin --must-change-password=true >/dev/null
-  sudo sh -c "umask 077; printf '%s\\n' 'username=drew' 'password=$pass' > /root/gitea-initial-admin.txt"
-  warn "Initial admin credential stored on VM at /root/gitea-initial-admin.txt"
-fi
-BACKUP_STATE=deferred
-public6=$(ip -6 addr show scope global 2>/dev/null | sed -n 's/.*inet6 \([^/]*\).*/\1/p' | head -n 1 || true)
-[ -n "$public6" ] || public6=UNKNOWN
-sudo tee "$REPORT" >/dev/null <<REPORT_EOF
-HOME_CENTER_CLOUD_FORGE_V2
-result=forge_verified
-public_ipv6=$public6
-web=http://[$public6]:$HTTP_PORT/
-git_ssh=ssh://git@[$public6]:$SSH_PORT/drew/REPO.git
-gitea_version=$($GITEA_BIN --version | head -n 1)
-gcs_backup=$BACKUP_STATE
-manual_next=Open the web URL, retrieve /root/gitea-initial-admin.txt once, change password, then create/import repositories. GCS backup remains the next seam if deferred.
-REPORT_EOF
-sudo cat "$REPORT"
-REMOTE_EOF
-  chmod 700 "$REMOTE"
-}
-
-deliver(){
-  make_remote
-  say "Delivering durable installer to VM"
-  scp -P "$FORGE_PORT" -o StrictHostKeyChecking=accept-new "$REMOTE" "$FORGE_USER@[$FORGE_HOST]:/tmp/home-center-forge-install.sh"
-  ok "Remote installer delivered"
-  say "Executing remote forge install"
-  gcs_q=$(printf "%s" "$GCS_TARGET" | sed "s/'/'\\''/g")
-  ssh_base "chmod 700 /tmp/home-center-forge-install.sh && GCS_TARGET='$gcs_q' /tmp/home-center-forge-install.sh"
-}
-
-main(){ ensure_termux_tools; ensure_key; collect_target; prove_ssh; deliver; printf '\n[done] Canonical state: %s\n' "$STATE_FILE"; printf '[done] Log: %s\n' "$LOG_FILE"; }
-main "$@"
+case "${1:-}" in
+  --emit-impl) decode; exit 0 ;;
+  --self-test)
+    have base64 || die "base64 is required for bootstrap self-test"
+    have gzip || die "gzip is required for bootstrap self-test"
+    tmp="$STATE_DIR/.bootstrap-impl.test.sh"
+    trap 'rm -f "$tmp"' EXIT
+    decode > "$tmp"
+    bash -n "$tmp"
+    printf 'Home Center private forge bootstrap self-test: PASS\n'
+    exit 0
+    ;;
+esac
+if ! have pkg; then die "Run this canonical bootstrap from Termux; pkg was not found."; fi
+need=()
+have base64 || need+=(coreutils)
+have gzip || need+=(gzip)
+have bash || need+=(bash)
+if ((${#need[@]})); then pkg update -y; pkg install -y "${need[@]}"; fi
+impl="$STATE_DIR/bootstrap-impl.sh"
+umask 077
+decode > "$impl"
+chmod 700 "$impl"
+exec bash "$impl" "$@"
