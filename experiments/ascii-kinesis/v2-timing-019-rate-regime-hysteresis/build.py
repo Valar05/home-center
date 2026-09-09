@@ -71,17 +71,17 @@ def render_video(motion):
     FRAMES.mkdir(exist_ok=True)
     fp=Path("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf")
     if not fp.exists(): raise SystemExit("DejaVuSansMono.ttf required")
-    font=ImageFont.truetype(str(fp),9); footer=ImageFont.truetype(str(fp),7)
+    font=ImageFont.truetype(str(fp),13); footer=ImageFont.truetype(str(fp),10)
     n=0
     for k in motion["keys"]:
         pose=make_pose(k["pace_request"],k["joints"],k["support_contact"])
         for _ in range(int(k["exposure_ticks"])):
-            im=Image.new("RGB",(480,220),"white"); d=ImageDraw.Draw(im)
-            d.multiline_text((9,5),pose,fill="black",font=font,spacing=0)
-            d.text((8,208),f"Timing019 | {k['key_id']} | {k['causal_role']} | request={k['pace_request']} | regime={k['rate_regime']} | {k['timing_class']}",fill="black",font=footer)
+            im=Image.new("RGB",(720,300),"white"); d=ImageDraw.Draw(im)
+            d.multiline_text((14,8),pose,fill="black",font=font,spacing=0)
+            d.text((12,278),f"Timing019 | {k['key_id']} | {k['causal_role']} | request={k['pace_request']} | regime={k['rate_regime']} | {k['timing_class']}",fill="black",font=footer)
             im.save(FRAMES/f"frame_{n:04d}.png"); n+=1
     subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate","24","-i",str(FRAMES/"frame_%04d.png"),
-                    "-c:v","libx264","-pix_fmt","yuv420p","-movflags","+faststart","-crf","31","-map_metadata","-1",str(MP4)],check=True)
+                    "-c:v","libx264","-pix_fmt","yuv420p","-movflags","+faststart","-crf","30","-map_metadata","-1",str(MP4)],check=True)
     return MP4.read_bytes()
 
 def spa_text(contact,motion_raw,mp4):
