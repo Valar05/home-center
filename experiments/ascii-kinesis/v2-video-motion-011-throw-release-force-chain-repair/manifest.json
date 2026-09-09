@@ -45,7 +45,8 @@
     "fps": 24,
     "frames": 50,
     "duration_s": 2.083333,
-    "decode_verified_current_worker": true
+    "decode_verified_current_worker": true,
+    "embedded_identity_verified": true
   },
   "quality": {
     "tango": "PASS",
@@ -59,14 +60,18 @@
   },
   "repository": {
     "path": "experiments/ascii-kinesis/v2-video-motion-011-throw-release-force-chain-repair/",
-    "readback": "PENDING",
-    "main_commit": null
+    "readback": "PASS_CURRENT_MAIN",
+    "body_complete_commit": "6f68d46ddd0a2f6b97cc2e35769769f6e36cec38",
+    "spa_blob_sha": "40fa40c021c853859f01cb56080ab9856654acd1",
+    "exactly_one_spa": true
   },
-  "issue_receipt": null,
+  "issue_receipt": 5595097576,
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_video": true,
+    "ordered_together": true,
+    "reporting_turn": "CURRENT_AUTOMATION_RUN"
   },
-  "status": "QUALITY_GATES_PASS_MEDIA_DECODE_PASS_CONTRACT_PASS_PERSIST_PENDING"
+  "status": "HEALTHY"
 }
