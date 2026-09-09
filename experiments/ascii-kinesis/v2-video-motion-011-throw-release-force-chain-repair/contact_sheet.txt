@@ -6,8 +6,8 @@ Source timestamps below are OBSERVED slow-motion presentation anchors only. All 
 K0 CROOKED_READY | FOURS / INFERRED
 source_anchor 6.000s OBSERVED — selected coherent action segment begins; timestamp is slow-motion presentation evidence only
 support REAR_DOMINANT | custody HAND
-root/arc Root sits rearward and low over the rear support channel; no neutral symmetry.
-acting Crooked stance; ball/custody channel tucked low behind; off arm counterbalances forward.
+root/arc Root sits rearward and low over the rear support channel
+acting Crooked stance
 
 
 
@@ -38,7 +38,7 @@ ________________________A_______________B_______________________
 K1 DEEP_REAR_LOAD | FOURS / INFERRED
 source_anchor —
 support REAR_DOMINANT | custody HAND
-root/arc COM proxy drops/back; rear foot owns load while front foot stays long and light.
+root/arc COM proxy drops/back
 acting Maximum rear load: torso folds away from target while throwing hand climbs behind the head plane.
 
 
@@ -69,7 +69,7 @@ _______________________A________________-B______________________
 K2 PELVIS_DRIVE_HAND_LAG | TWOS / INFERRED
 source_anchor —
 support REAR_DOMINANT | custody HAND
-root/arc Root moves forward before distal throw channel; rear support still owns the push.
+root/arc Root moves forward before distal throw channel
 acting Pelvis commits toward target while throwing arm deliberately lags farther behind.
 
 
@@ -100,8 +100,9 @@ ________________________A________________B______________________
 K3 TORSO_UNWIND | TWOS / INFERRED
 source_anchor 8.000s OBSERVED — release/forward-arc inspection window begins; exact release remains UNKNOWN
 support TRANSFER_REAR_TO_FRONT | custody HAND
-root/arc COM climbs slightly and shifts between support channels; front leg begins to accept force.
-acting Torso catches pelvis; throwing elbow rises while hand remains behind the shoulder clock.
+root/arc COM climbs slightly and shifts between support channels
+acting Torso catches pelvis
+
 
 
 
@@ -131,7 +132,7 @@ _________________________A_______________B______________________
 K4 SHOULDER_SLING_BRIDGE | ONES / INFERRED
 source_anchor —
 support FRONT_DOMINANT_REAR_TOE | custody HAND
-root/arc Front brace is established; rear heel is spent, leaving toe support only.
+root/arc Front brace is established
 acting Memorable bow shape: pelvis/torso are already forward while ball hand is still overhead-behind.
 
 
@@ -163,8 +164,8 @@ ___________________________A______________B_____________________
 K5 ARM_ACCELERATION | ONES / INFERRED
 source_anchor —
 support FRONT_BRACE_REAR_PEEL | custody HAND
-root/arc Front foot is the hard brace; rear foot has peeled from full support.
-acting Arm snaps past the now-open torso; off arm retracts across the body to pay rotational debt.
+root/arc Front foot is the hard brace
+acting Arm snaps past the now-open torso
 
 
 
@@ -194,8 +195,8 @@ ___________________________________________B____________________
 K6 RELEASE_GATE | ONES / INFERRED
 source_anchor 9.000s OBSERVED — inside historically inspected forward-arc window; source object separation is not resolved
 support FRONT_BRACE_REAR_PEEL | custody RELEASE_GATE
-root/arc Root is braced rather than chasing the hand; object clock may fork only after this key.
-acting Authored release gate occurs before the arm's farthest reach; ball is still adjacent to the hand here.
+root/arc Root is braced rather than chasing the hand
+acting Authored release gate occurs before the arm's farthest reach
 
 
 
@@ -225,7 +226,7 @@ ___________________________________________B____________________
 K7 OBJECT_FORK_BODY_FOLLOW | ONES / INFERRED
 source_anchor —
 support FRONT_ONLY_REAR_AIR | custody FREE
-root/arc Rear foot is fully airborne; front brace alone catches the thrower's rotational translation.
+root/arc Rear foot is fully airborne
 acting Ball clock separates immediately after authored release while body continues forward and down.
 
 
@@ -256,8 +257,8 @@ ___________________________________________B____________________
 K8 FULL_FOLLOW_THROUGH | TWOS / INFERRED
 source_anchor 10.000s OBSERVED — release/forward-arc inspection window ends; timestamp does not establish authored cadence
 support FRONT_ONLY_REAR_AIR | custody FREE
-root/arc Front knee compresses under body consequence; ball continues an independent forward arc.
-acting Throwing arm is now farther than at release; trunk spills forward while off arm lags behind.
+root/arc Front knee compresses under body consequence
+acting Throwing arm is now farther than at release
 
 
 
@@ -287,7 +288,7 @@ ___________________________________________B____________________
 K9 COUNTER_ROTATION | TWOS / INFERRED
 source_anchor —
 support FRONT_ONLY_REAR_AIR | custody FREE
-root/arc Support remains front-only; recovery cannot begin by simply reversing the throw.
+root/arc Support remains front-only
 acting Body begins counter-rotation while arm and off arm overshoot in opposite directions.
 
 
@@ -319,7 +320,7 @@ K10 FRONT_CATCH_COMPRESSION | FOURS / INFERRED
 source_anchor —
 support BOTH_FRONT_DOMINANT | custody FREE
 root/arc Root reaches its deepest post-release compression with both contacts restored but front still dominant.
-acting Rear foot returns only after the front-leg catch; the actor sinks instead of popping back to idle.
+acting Rear foot returns only after the front-leg catch
 
 
 
@@ -350,7 +351,7 @@ K11 THROW_ARM_OVERSHOOT | TWOS / INFERRED
 source_anchor —
 support BOTH_FRONT_DOMINANT | custody FREE
 root/arc Root rebounds modestly while distal arm continues forward/down—secondary debt instead of recoil reversal.
-acting Throw arm drops past the body's recovery line; object has left the frame but remains semantically free.
+acting Throw arm drops past the body's recovery line
 
 
 
@@ -380,7 +381,7 @@ ________________________________A___________-B__________________
 K12 CROSS_BODY_REBOUND | TWOS / INFERRED
 source_anchor —
 support BOTH_FRONT_DOMINANT | custody FREE
-root/arc Both feet support a crooked cross-body rebound; root does not retrace its launch path.
+root/arc Both feet support a crooked cross-body rebound
 acting Torso rebounds against the throw while throwing arm remains late and low.
 
 
@@ -412,7 +413,7 @@ K13 SECONDARY_LAG_SETTLE | FOURS / INFERRED
 source_anchor —
 support BOTH_RECOVERING | custody FREE
 root/arc Recovery base is wider and farther forward than the opening stance.
-acting Head/off arm are still counter-turned while root has mostly settled; secondary lag is explicit.
+acting Head/off arm are still counter-turned while root has mostly settled
 
 
 
