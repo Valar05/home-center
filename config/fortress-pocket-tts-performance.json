@@ -1,0 +1,50 @@
+{
+  "schema": "fortress.pocket-tts-performance.v1",
+  "engineLock": "pocket-tts-phone",
+  "playbackLock": "com.dclar.homecenter/.PocketTtsPlaybackActivity",
+  "providerLock": "pocket-home-center",
+  "systemFallbackAllowed": false,
+  "cloudFallbackAllowed": false,
+  "mutationPolicy": {
+    "maxDimensionsPerCandidate": 1,
+    "explicitDrewFeedbackWins": true,
+    "candidateRequiresEvidence": true,
+    "retainLastKnownGood": true,
+    "urgentStatusFallsBackImmediately": true
+  },
+  "personas": {
+    "orandroid67": {
+      "status": "LAST_KNOWN_GOOD_BASELINE",
+      "role": "calm compressed operational narration",
+      "voice": "michael",
+      "tempo": 1.22,
+      "pitchSemitones": 4.0,
+      "pauseDensity": 0.72,
+      "breathinessProxy": 0.22,
+      "utteranceMaxChars": 240,
+      "roastDensity": 0.0,
+      "informationDensity": 0.88,
+      "postProcessing": {
+        "kind": "ffmpeg-nightcore",
+        "reversible": true
+      }
+    },
+    "she-ra": {
+      "status": "LAST_KNOWN_GOOD_BASELINE",
+      "role": "awkward squeaky diagnostic roast/status interjection",
+      "voice": "michael",
+      "tempo": 1.34,
+      "pitchSemitones": 8.0,
+      "pauseDensity": 0.58,
+      "breathinessProxy": 0.12,
+      "utteranceMaxChars": 140,
+      "roastDensity": 0.78,
+      "informationDensity": 0.72,
+      "postProcessing": {
+        "kind": "ffmpeg-nightcore",
+        "reversible": true
+      }
+    }
+  },
+  "lineage": []
+}

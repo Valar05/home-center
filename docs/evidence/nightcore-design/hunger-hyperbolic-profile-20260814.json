@@ -1,0 +1,265 @@
+{
+  "schema": "fortress.nightcore-design.hunger-hyperbolic.v1",
+  "scope": "creative-evaluation-only",
+  "runtimePromotionClaimed": false,
+  "sourcePerformanceConfig": "config/fortress-pocket-tts-performance.json",
+  "canonicalFactSet": {
+    "statusLine": "Worker A complete. Worker B is blocked on playback. No operator action required.",
+    "requiredFacts": [
+      "Worker A is complete",
+      "Worker B is blocked on playback",
+      "No operator action is required"
+    ]
+  },
+  "constraints": {
+    "engine": "pocket-tts-phone",
+    "provider": "pocket-home-center",
+    "voice": "michael",
+    "postProcessing": "ffmpeg-nightcore",
+    "cloudSpend": false,
+    "genericChipmunkRejected": true,
+    "genericAnimeSqueakRejected": true,
+    "plainPitchShiftOnlyRejected": true,
+    "factsMustRemainVerbatimRecoverable": true
+  },
+  "scoreScale": {
+    "min": 1,
+    "max": 5,
+    "dimensions": [
+      "intelligibility",
+      "soothingUsefulness",
+      "weirdDelight",
+      "recognizability",
+      "lowAttentionListenability",
+      "truthPreservation",
+      "repetitionTolerance",
+      "nonGenericCharacter"
+    ]
+  },
+  "candidates": [
+    {
+      "id": "soft-rail",
+      "intent": "Conservative bedtime control; maximize comprehension and repetition tolerance.",
+      "orandroid67": {
+        "rate": 1.16,
+        "pitchSemitones": 3.0,
+        "pauseDensity": 0.82,
+        "utteranceMaxChars": 190,
+        "roleSplitFraction": 0.90,
+        "roastDensity": 0.0,
+        "transitionCue": "sentence-boundary-ellipsis",
+        "postProcessing": {
+          "kind": "ffmpeg-nightcore",
+          "tempo": 1.16,
+          "pitchSemitones": 3.0,
+          "extraEffects": []
+        }
+      },
+      "sheRa": {
+        "rate": 1.26,
+        "pitchSemitones": 6.0,
+        "pauseDensity": 0.70,
+        "utteranceMaxChars": 80,
+        "roleSplitFraction": 0.10,
+        "roastDensity": 0.32,
+        "transitionCue": "sentence-boundary-ellipsis",
+        "postProcessing": {
+          "kind": "ffmpeg-nightcore",
+          "tempo": 1.26,
+          "pitchSemitones": 6.0,
+          "extraEffects": []
+        }
+      },
+      "scores": {
+        "intelligibility": 5,
+        "soothingUsefulness": 5,
+        "weirdDelight": 2,
+        "recognizability": 3,
+        "lowAttentionListenability": 5,
+        "truthPreservation": 5,
+        "repetitionTolerance": 5,
+        "nonGenericCharacter": 2
+      },
+      "hungerVerdict": "Useful but under-seasoned; too close to pleasant sped-up utility speech. Keep as fallback reference, not the signature voice."
+    },
+    {
+      "id": "velvet-goblin-relay",
+      "intent": "Balanced signature: calm compressed Orandroid facts, one tiny over-polite She-Ra sting, then silence.",
+      "orandroid67": {
+        "rate": 1.20,
+        "pitchSemitones": 3.5,
+        "pauseDensity": 0.78,
+        "utteranceMaxChars": 180,
+        "roleSplitFraction": 0.84,
+        "roastDensity": 0.0,
+        "transitionCue": "sentence-boundary-ellipsis",
+        "postProcessing": {
+          "kind": "ffmpeg-nightcore",
+          "tempo": 1.20,
+          "pitchSemitones": 3.5,
+          "extraEffects": []
+        }
+      },
+      "sheRa": {
+        "rate": 1.31,
+        "pitchSemitones": 7.0,
+        "pauseDensity": 0.66,
+        "utteranceMaxChars": 88,
+        "roleSplitFraction": 0.16,
+        "roastDensity": 0.48,
+        "transitionCue": "sentence-boundary-ellipsis",
+        "postProcessing": {
+          "kind": "ffmpeg-nightcore",
+          "tempo": 1.31,
+          "pitchSemitones": 7.0,
+          "extraEffects": []
+        }
+      },
+      "scores": {
+        "intelligibility": 5,
+        "soothingUsefulness": 4,
+        "weirdDelight": 4,
+        "recognizability": 5,
+        "lowAttentionListenability": 5,
+        "truthPreservation": 5,
+        "repetitionTolerance": 4,
+        "nonGenericCharacter": 5
+      },
+      "hungerVerdict": "Best design-side safe candidate. The identity comes from contrast and restraint, not maximum squeak: long calm rail, tiny precise goblin cut, immediate return to silence.",
+      "exampleRoleTreatment": {
+        "orandroid67": "Worker A complete. Worker B is blocked on playback. No operator action required.",
+        "sheRa": "... Playback, you very small administrative tragedy."
+      }
+    },
+    {
+      "id": "needle-whisper",
+      "intent": "Exploit pause contrast: shorter Orandroid packets, high but brief She-Ra with unusually spacious punctuation.",
+      "orandroid67": {
+        "rate": 1.18,
+        "pitchSemitones": 4.0,
+        "pauseDensity": 0.88,
+        "utteranceMaxChars": 150,
+        "roleSplitFraction": 0.88,
+        "roastDensity": 0.0,
+        "transitionCue": "double-sentence-boundary",
+        "postProcessing": {
+          "kind": "ffmpeg-nightcore",
+          "tempo": 1.18,
+          "pitchSemitones": 4.0,
+          "extraEffects": []
+        }
+      },
+      "sheRa": {
+        "rate": 1.36,
+        "pitchSemitones": 8.5,
+        "pauseDensity": 0.78,
+        "utteranceMaxChars": 60,
+        "roleSplitFraction": 0.12,
+        "roastDensity": 0.28,
+        "transitionCue": "double-sentence-boundary",
+        "postProcessing": {
+          "kind": "ffmpeg-nightcore",
+          "tempo": 1.36,
+          "pitchSemitones": 8.5,
+          "extraEffects": []
+        }
+      },
+      "scores": {
+        "intelligibility": 4,
+        "soothingUsefulness": 5,
+        "weirdDelight": 4,
+        "recognizability": 4,
+        "lowAttentionListenability": 4,
+        "truthPreservation": 5,
+        "repetitionTolerance": 5,
+        "nonGenericCharacter": 4
+      },
+      "hungerVerdict": "Strong bedtime challenger if punctuation actually yields useful space in Pocket TTS. Risk: pauseDensity may not map cleanly to audio without explicit text shaping."
+    },
+    {
+      "id": "hypercore-canary",
+      "intent": "Hyperbolic edge probe; intentionally excessive to find the point where charm turns into chipmunk alarm.",
+      "orandroid67": {
+        "rate": 1.28,
+        "pitchSemitones": 5.0,
+        "pauseDensity": 0.62,
+        "utteranceMaxChars": 160,
+        "roleSplitFraction": 0.76,
+        "roastDensity": 0.0,
+        "transitionCue": "hard-sentence-boundary",
+        "postProcessing": {
+          "kind": "ffmpeg-nightcore",
+          "tempo": 1.28,
+          "pitchSemitones": 5.0,
+          "extraEffects": []
+        }
+      },
+      "sheRa": {
+        "rate": 1.42,
+        "pitchSemitones": 10.0,
+        "pauseDensity": 0.45,
+        "utteranceMaxChars": 72,
+        "roleSplitFraction": 0.24,
+        "roastDensity": 0.72,
+        "transitionCue": "hard-sentence-boundary",
+        "postProcessing": {
+          "kind": "ffmpeg-nightcore",
+          "tempo": 1.42,
+          "pitchSemitones": 10.0,
+          "extraEffects": []
+        }
+      },
+      "scores": {
+        "intelligibility": 3,
+        "soothingUsefulness": 2,
+        "weirdDelight": 5,
+        "recognizability": 5,
+        "lowAttentionListenability": 2,
+        "truthPreservation": 4,
+        "repetitionTolerance": 1,
+        "nonGenericCharacter": 4
+      },
+      "hungerVerdict": "Reject as a default. It discovers the useful boundary: She-Ra above roughly +8 semitones / 1.35x should be treated as an occasional diagnostic accent, not a standing bedtime voice."
+    }
+  ],
+  "rankedOutput": {
+    "designLastKnownGoodCandidate": {
+      "id": "velvet-goblin-relay",
+      "runtimeStatus": "CANDIDATE_NOT_PROMOTED",
+      "reason": "Highest combined truth, low-attention usefulness, recognizability, and non-generic delight without crossing into alarm-fatigue."
+    },
+    "challenger": {
+      "id": "needle-whisper",
+      "runtimeStatus": "CANDIDATE_NOT_PROMOTED",
+      "reason": "Tests whether deliberate extra space can make a higher She-Ra pitch feel stranger and calmer rather than merely shriller."
+    }
+  },
+  "implementationReadyProfile": {
+    "firstCanary": "velvet-goblin-relay",
+    "secondCanaryOnlyIfFirstIsIntelligible": "needle-whisper",
+    "promotionRule": "Do not replace config LAST_KNOWN_GOOD_BASELINE until physical-phone playback evidence exists.",
+    "abTest": {
+      "sameFactSetRequired": true,
+      "listenOrder": ["velvet-goblin-relay", "needle-whisper"],
+      "acceptIf": [
+        "all three facts are immediately recoverable",
+        "She-Ra is recognizably distinct after one sentence",
+        "no urge to turn it off after two repetitions",
+        "Orandroid remains soothing enough for low-attention bedtime use"
+      ],
+      "rejectIf": [
+        "She-Ra sounds like generic anime/chipmunk TTS",
+        "pitch obscures consonants",
+        "roast competes with the factual status",
+        "the transition makes the update feel longer than the information warrants"
+      ]
+    }
+  },
+  "designRationale": [
+    "Hyperbolic testing shows maximum pitch/rate is not the signature. Contrast is the signature.",
+    "Orandroid should carry nearly all truth content; She-Ra should behave like punctuation with personality.",
+    "The weirdness budget is spent on one short role transition, not on continuous distortion.",
+    "No new DSP beyond the existing deterministic ffmpeg Nightcore transform is required for the first canary.",
+    "Punctuation-based transition cues are intentionally used so implementation can stay inside the current text + ffmpeg pipeline."
+  ]
+}
