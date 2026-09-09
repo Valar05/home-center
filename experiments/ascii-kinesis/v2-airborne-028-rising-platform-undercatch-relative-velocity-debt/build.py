@@ -112,7 +112,7 @@ try:
         im.save(tmp/f"{i:04d}.png")
     subprocess.run([
         "ffmpeg","-y","-loglevel","error","-framerate",str(FPS),"-i",str(tmp/"%04d.png"),
-        "-c:v","libx264","-pix_fmt","yuv420p","-movflags","+faststart",str(OUT)
+        "-c:v","libx264","-crf","34","-preset","veryslow","-pix_fmt","yuv420p","-movflags","+faststart",str(OUT)
     ],check=True)
 finally:
     shutil.rmtree(tmp)
