@@ -1,0 +1,423 @@
+v2-contact-014-sliding-seam-normal-constraint
+CONTACT MAY OWN THE NORMAL AXIS WITHOUT OWNING THE TANGENT.
+REVISION: kind=NEW_CONCEPT | revises=None | negative_fixture=None | source_change=NOT_APPLICABLE_NEW_CONCEPT.
+SOURCE EVIDENCE: TSR asset 602122, Meatman — Chasm — PC / Computer; archive 111688 bytes; SHA-256 7a47f6ef97b44b65b43f15a8d2a9281b1fc1cb95f543f631b0a21d76beba565f; 61 entries / 52 PNGs; whole corpus campaign-audited.
+RIGHTS: evidence only; independent ASCII rig; no source pixels/palette/costume/contours/exact silhouettes/layout/tracing/choreography/redistribution/close imitation; Drew work not used.
+OBSERVED: Wall Hit evidence changes local shape with minimal image-space centroid translation; source-authentic playback timing/order remains UNKNOWN.
+TIMING: ONES/TWOS/FOURS are display classes, never seconds; every decisive key is INFERRED / STREET_FIGHTER-CAPCOM.
+VISIBLE LAW: @ is the wall seam. During NORMAL_CONTACT/SLIDING_CONTACT the seam owns the NORMAL axis only; tangent motion may migrate the @ before separately authored release.
+============================================================================================
+C014-K0  FREE_READY  [FOURS/INFERRED]
+contact=FREE | owner=NONE | normal=OPEN | tangent=OPEN
+support=BOTH_REAR_BIAS | root=A_REAR_DOMINANT | seam=[64, 10] | force=[0, 0]
+role=Establish a displaced asymmetrical free state with the wall present but irrelevant.
+arc=Root starts left of the wall with rear-biased support; front hand is deliberately low and inside reach.
+
+
+
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                 A                              |
+                                  \                             |
+                                  \                             |
+                                  -O--                          |
+                               --- |  ---*                      |
+                             *-   |                             |
+                                  |                             |
+                                 |                              |
+                                 X                              |
+                                / \                             |
+                               /   \                            |
+                              /     \                           |
+                              /      \                          |
+                             /        \                         |
+____________________________^__________^________________________|___________
+
+
+
+
+============================================================================================
+C014-K1  ASYM_APPROACH  [TWOS/INFERRED]
+contact=FREE | owner=NONE | normal=OPEN | tangent=OPEN
+support=REAR_DRIVE_LEAD_PROBE | root=A_REAR_DRIVE | seam=[64, 10] | force=[3, -1]
+role=Body-first approach: rear support drives while the lead side opens a crooked path toward the surface.
+arc=Pelvis travels right on a shallow rise; front hand arcs ahead and high without reaching the seam.
+
+
+
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                      A                         |
+                                       \                        |
+                                        \     ----*             |
+                                        -O----                  |
+                                     ---/                       |
+                                 ----  /                        |
+                               *-      /                        |
+                                      /=>                       |
+                                     ==                         |
+                                    / \                         |
+                                   /   \\                       |
+                                  /      \                      |
+                                 /        \                     |
+                                /          \\                   |
+_______________________________^_____________^__________________|___________
+
+
+
+
+============================================================================================
+C014-K2  ELIGIBLE_COIL  [FOURS/INFERRED]
+contact=ELIGIBLE_NO_CONTACT | owner=NONE | normal=OPEN | tangent=OPEN
+support=REAR_PIN_LEAD_LIGHT | root=A_REAR_PIN | seam=[64, 10] | force=[4, 0]
+role=Eligibility before acquisition: hand is near the seam while rear foot and lowered COM store the normal load.
+arc=Root is still left of the seam; front hand stops short; rear foot is the world-readable anchor.
+
+
+
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                           A                    |
+                                            \                   |
+                                             \       ------*    |
+                                             -O------           |
+                                         ----/                  |
+                                     ----   /                   |
+                                  *--     //                    |
+                                         /                      |
+                                        ====>                   |
+                                       / \\                     |
+                                      /    \                    |
+                                    //      \\                  |
+                                   /          \\                |
+__________________________________#_____________^_______________|___________
+
+
+
+
+============================================================================================
+C014-K3  NORMAL_ACQUIRE  [ONES/INFERRED]
+contact=NORMAL_CONTACT | owner=WALL_NORMAL_CONSTRAINT | normal=LOCKED | tangent=AVAILABLE
+support=REAR_PIN_LEAD_PROBE | root=A_REAR_PIN | seam=[64, 10] | force=[-5, 0]
+role=Acquire the wall in the normal axis only; contact is a unilateral constraint, not body custody.
+arc=Front hand meets the seam inside committed reach while the rear pin prevents a floaty farthest-reach snatch.
+
+
+
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                  A             |
+                                                   \          --@
+                                                    \\   -----  |
+                                                    --O--       |
+                                                ------          |
+                                            ----  --            |
+                                         *--    --              |
+                                         <=====-                |
+                                            // \\               |
+                                           /     \              |
+                                         //       \             |
+                                       //          \\           |
+______________________________________#______________^__________|___________
+
+
+
+
+============================================================================================
+C014-K4  COMPRESSION_BANK  [FOURS/INFERRED]
+contact=NORMAL_CONTACT | owner=WALL_NORMAL_CONSTRAINT | normal=LOCKED | tangent=AVAILABLE
+support=REAR_PIN_LEAD_UNWEIGHT | root=A_REAR_PIN | seam=[64, 10] | force=[-6, 1]
+role=Denied normal displacement becomes torso/pelvis compression rather than dead wall-sticking.
+arc=Hand stays on the same seam cell while head and pelvis fold down-left around the fixed rear foot.
+
+
+
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                               -@
+                                                   A        --- |
+                                                    --   ---    |
+                                                      -O-       |
+                                                   ----         |
+                                               ------           |
+                                            ---  --             |
+                                          *- ===-               |
+                                         <===-  \\              |
+                                          --      \             |
+                                        --         \\           |
+______________________________________#______________^__________|___________
+
+
+
+
+============================================================================================
+C014-K5  TANGENT_UNLOCK  [TWOS/INFERRED]
+contact=SLIDING_CONTACT | owner=WALL_NORMAL_CONSTRAINT | normal=LOCKED | tangent=SLIDING
+support=REAR_PIN_FRONT_FLOAT | root=A_REAR_PIN | seam=[64, 12] | force=[-5, 2]
+role=The relationship changes class: normal stays owned by the wall while tangent becomes explicitly free.
+arc=Contact seam migrates downward two rows; root does not advance through the wall.
+
+
+
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                    A         --@
+                                                     --   ----  |
+                                                       -O-      |
+                                                   ----         |
+                                               ------           |
+                                           ----  --             |
+                                         *-   ==-               |
+                                           -==  \\              |
+                                        --<=      \\            |
+______________________________________#_____________^___________|___________
+
+
+
+
+============================================================================================
+C014-K6  DEEP_TANGENT_SLIDE  [TWOS/INFERRED]
+contact=SLIDING_CONTACT | owner=WALL_NORMAL_CONSTRAINT | normal=LOCKED | tangent=SLIDING
+support=REAR_COMPRESSING | root=A_REAR_PIN | seam=[64, 15] | force=[-4, 4]
+role=Persistent contact carries a visible vertical slide; the body pays with knee/torso compression and secondary-arm lag.
+arc=Hand/seam drop three rows while x stays locked; pelvis drops and retreats slightly, proving tangent motion under normal constraint.
+
+
+
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                   A            |
+                                                    --      ----@
+                                                     --O----    |
+                                                ------          |
+                                           --------             |
+                                        *--  -=-                |
+                                         ----=  ---             |
+______________________________________#_____=_______^___________|___________
+                                           =
+                                          <
+
+
+============================================================================================
+C014-K7  LEAD_FOOT_CATCH  [ONES/INFERRED]
+contact=SLIDING_CONTACT | owner=WALL_NORMAL_CONSTRAINT | normal=LOCKED | tangent=SLIDING
+support=LEAD_CATCH_REAR_LIGHT | root=A_LEAD_CATCH | seam=[64, 16] | force=[-3, 3]
+role=A new ground support catches the vertical debt while wall contact persists; support ownership changes without contact release.
+arc=Lead foot lands farther right as pelvis overshoots down; wall seam remains acquired at a lower address.
+
+
+
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                   A            |
+                                                    --      ----@
+                                                     --O----    |
+                                                ------          |
+                                           ----=--              |
+                                        *-----=  ----           |
+________________________________________^____=________#_________|___________
+                                            <
+
+
+
+============================================================================================
+C014-K8  PEEL_LOAD_THRESHOLD  [FOURS/INFERRED]
+contact=NORMAL_CONTACT | owner=WALL_NORMAL_CONSTRAINT | normal=LOCKED | tangent=AVAILABLE
+support=LEAD_PRIMARY_REAR_REBUILD | root=A_LEAD_PRIMARY | seam=[64, 16] | force=[-2, -1]
+role=Lead support turns the body away while the hand still owns normal contact; this is a held release threshold, not release yet.
+arc=Pelvis rises and shifts left while the hand remains at the seam; force normal magnitude visibly falls.
+
+
+
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                 A-             |
+                                                   --           |
+                                                    --O---------@
+                                              -<=----           |
+                                          *---  -=-             |
+                                              --  \\            |
+                                            --      \\          |
+__________________________________________^___________#_________|___________
+
+
+
+
+============================================================================================
+C014-K9  NORMAL_RELEASE  [ONES/INFERRED]
+contact=FREE | owner=NONE | normal=OPEN | tangent=OPEN
+support=LEAD_PRIMARY | root=A_LEAD_PRIMARY | seam=[64, 16] | force=[-4, -2]
+role=Separately authored release: the hand breaks normal contact after the foot has earned a peel vector.
+arc=Hand leaves the seam first while pelvis is already driving away; release is not reverse interpolation.
+
+
+
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                              A                 |
+                                               \                |
+                                                \\              |
+                                             -----O----         |
+                                       *---<=    /     -----*   |
+                                             == /               |
+                                               =                |
+                                             // --              |
+                                           //     --            |
+__________________________________________^__________^__________|___________
+
+
+
+
+============================================================================================
+C014-K10  RECOIL_OVERSHOOT  [TWOS/INFERRED]
+contact=FREE | owner=NONE | normal=OPEN | tangent=OPEN
+support=LEAD_PRIMARY_REAR_TRAIL | root=A_LEAD_PRIMARY | seam=[64, 16] | force=[-5, -2]
+role=Body recoil overshoots away from the wall while the former contact arm remains late and high.
+arc=Pelvis crosses left slower than head/chest; front hand trails near the old relationship line.
+
+
+
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                          A                     |
+                                           \                    |
+                                            \\                  |
+                                            --O--------*        |
+                                      ------  |                 |
+                                   *--  <=   |                  |
+                                          == |                  |
+                                            ==                  |
+                                            / \\                |
+                                          //    \               |
+                                         /       \\             |
+________________________________________^__________^____________|___________
+
+
+
+
+============================================================================================
+C014-K11  SECONDARY_LAG_CATCH  [TWOS/INFERRED]
+contact=FREE | owner=NONE | normal=OPEN | tangent=OPEN
+support=SPLIT_CATCH | root=A_SPLIT_CATCH | seam=[64, 16] | force=[1, 1]
+role=Secondary limbs arrive late; split support catches recoil without erasing the previous downward slide.
+arc=Rear hand/foot trail behind the chest while the root arrests at a new address.
+
+
+
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                        A                       |
+                                         \                      |
+                                          \\   ---*             |
+                                           -O--                 |
+                                        --- |                   |
+                                      --     |                  |
+                                   ---       |                  |
+                                 *-          =                  |
+                                            / >                 |
+                                          //   \\               |
+                                         /       \              |
+________________________________________^_________^_____________|___________
+
+
+
+
+============================================================================================
+C014-K12  DISPLACED_RECOVERY  [FOURS/INFERRED]
+contact=FREE | owner=NONE | normal=OPEN | tangent=OPEN
+support=BOTH_LEAD_BIAS | root=A_DISPLACED_READY | seam=[64, 16] | force=[0, 0]
+role=Recover asymmetrically near—but not against—the wall, preserving spatial and support debt instead of resetting.
+arc=Final stance remains closer to the wall and more lead-biased than K0.
+
+
+
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                                                |
+                                          A                     |
+                                           \                    |
+                                            \   --*             |
+                                            -O--                |
+                                        ---- |                  |
+                                     *--     |                  |
+                                             |                  |
+                                             |                  |
+                                             X                  |
+                                            / \                 |
+                                           /   \                |
+                                         //     \\              |
+                                        /         \             |
+_______________________________________^___________^____________|___________
+
+
+
