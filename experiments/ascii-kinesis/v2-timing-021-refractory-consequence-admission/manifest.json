@@ -36,8 +36,15 @@
   "primitive": "REFRACTORY_CONSEQUENCE_ADMISSION",
   "quality": {
     "actual_render_sha256": "53c939163e3b429100dd29a9483e14ee8a745c88939155e6a37043e29104726b",
+    "current_worker_queen": "PASS",
+    "current_worker_tango": "PASS",
     "queen": "PASS",
     "tango": "PASS"
+  },
+  "repo": {
+    "exact_six_file_readback": true,
+    "spa_blob": "214857d77559a66527448bac4a1609b7e5f04eb6",
+    "spa_persistence_commit": "343d5212d06ef3c4b9e5941928548520d14047ee"
   },
   "schema": "ascii-kinesis.manifest-v2",
   "source": {
@@ -58,7 +65,7 @@
   },
   "source_art_embedded": false,
   "specimen_number": 21,
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
   "title": "Refractory Consequence Admission",
   "video_required": true,
   "video_source": "abstract_ascii_rig_only"
