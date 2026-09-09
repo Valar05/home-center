@@ -1,0 +1,393 @@
+ASCII KINESIS V2 LOCOMOTION 017 — CROSS-STEP LATERAL MOMENTUM BLEED
+Legend: ! trusted support   ? next support probe   @ pelvis/root   + chest   O head   ~ authored lateral velocity tail   _ ground
+Timing: every decisive key is INFERRED / STREET_FIGHTER-CAPCOM. ONES/TWOS/FOURS are display-frame exposure classes.
+Causality: fast lateral entry -> wide outside probe -> outside catch -> pelvis passes support -> cross-step catch -> brake hold -> smaller rebound -> overshoot -> support-caused countercatch -> displaced ready.
+Novel law: BRAKING LATERAL MOMENTUM REQUIRES A SUPPORT MOMENT ARM, NOT A FOOT TELEPORT.
+
+ROOT-SPACING MAP — vertical displacement encodes signed authored root spacing; X = support-caused countertravel:
+|--------------------------------------------------------------------------|
+|                                                                          |
+|            o                                                             |
+|       o         o    o                                                   |
+|                           o    o    o    o                               |
+|  S                                            o    X    o    o           |
+|                                                                          |
+|                                                                          |
+|                                                                          |
+|                                                                          |
+|--------------------------------------------------------------------------|
+
+K00 RIGHTWARD_ENTRY_LEFT_OWNS  [FOURS / INFERRED]  SUPPORT=L_FOOT  CONTACT=TRUSTED_CATCH
+ROOT=[14, 22]  SPACING=+0  LATERAL_SPEED=+8  LEAN=+18deg
+ROLE: left support owns a fast lateral entry; torso leans into travel while free side remains open
+
+
+
+              O
+              |
+              |
+              |
+              |
+             /+\
+           o/ / \o
+          /  /    \\
+         /   /      *
+        *   /
+   ~~~~~~~~ @
+           / \
+           /  \
+          /   \
+          o    o
+         /      \
+         /      \
+        /        \
+        /        \
+_______!__________*_____________
+
+
+
+
+K01 RIGHT_OUTSIDE_PROBE  [TWOS / INFERRED]  SUPPORT=L_FOOT  CONTACT=PRECONTACT
+ROOT=[20, 21]  SPACING=+6  LATERAL_SPEED=+8  LEAN=+24deg
+ROLE: left support keeps driving while right foot reaches far outside the COM without yet owning it
+
+
+
+                  O
+                  /
+                  /
+                 /
+                 /
+                /+\
+              o/ / \o
+             /  /    \\
+           //   /      \*
+          *    /
+      ~~~~~~~~ @
+              / \
+             /   \
+             /   \
+            o     o
+           /       \
+          /         \
+         /           \
+         /            \
+        /              \
+_______!________________?_______
+
+
+
+
+K02 RIGHT_OUTSIDE_CATCH  [FOURS / INFERRED]  SUPPORT=R_FOOT  CONTACT=TRUSTED_CATCH
+ROOT=[28, 23]  SPACING=+8  LATERAL_SPEED=+7  LEAN=+12deg
+ROLE: right outside foot becomes trustworthy while pelvis is still three columns behind it; support begins braking before root arrival
+
+
+
+                   O
+                   /
+                   /
+                  /
+                  /
+                 /+\
+               o/ / \o
+             //  /    \
+           //    /     \
+          *     /       *
+        ~~~~~~~ @
+               / \
+               / \
+              /   \
+             /o   o
+           //     \
+         //        \
+       */          \
+___________________!____________
+
+
+
+
+K03 PELVIS_PASSES_RIGHT_SUPPORT  [TWOS / INFERRED]  SUPPORT=R_FOOT  CONTACT=PRECONTACT
+ROOT=[34, 22]  SPACING=+6  LATERAL_SPEED=+6  LEAN=-16deg
+ROLE: pelvis passes three columns beyond the world-locked right foot; torso counterleans while left leg crosses through as the next probe
+
+
+
+             O
+             |
+             |
+             |
+             |
+            /+
+          o/ /\o
+         /   /  \
+        /   /    \\
+       *    /      *
+     ~~~~~~ @
+           / \
+           /  \
+          /    o
+          o     \
+          /      \
+         /        \
+         /         \
+        /           ?
+________!_______________________
+
+
+
+
+K04 LEFT_CROSS_PROBE  [ONES / INFERRED]  SUPPORT=R_FOOT  CONTACT=PRECONTACT
+ROOT=[38, 21]  SPACING=+4  LATERAL_SPEED=+5  LEAN=-20deg
+ROLE: right support continues braking as the left foot crosses beyond the root to prepare a second catch
+
+
+
+             O
+             |
+             |
+             |
+             |
+             +\
+           //\ \\o\
+          o  \     \\
+         /    \      \*
+        /     \
+        /~~~~ @
+       *      /\
+             /  \
+             /  \
+            /    o
+            o     \
+           /       \
+          /         \
+         /           \
+        /             \
+_______!_______________?________
+
+
+
+
+K05 LEFT_CROSS_CATCH_COMPRESSION  [FOURS / INFERRED]  SUPPORT=L_FOOT  CONTACT=TRUSTED_CATCH
+ROOT=[41, 24]  SPACING=+3  LATERAL_SPEED=+4  LEAN=-28deg
+ROLE: left cross-step accepts ownership; pelvis drops and torso counterleans against remaining lateral momentum
+
+
+
+             O
+             \
+             \
+              \
+              \
+              +\
+            //\ \\o\
+           o   \    \\
+          /    \      \*
+        //      \
+       *   ~~~~ @
+               /\
+               / \
+              o  o
+             /    \
+           //      \\
+          *          \
+______________________!_________
+
+
+
+
+K06 LEFT_BRAKE_HOLD  [TWOS / INFERRED]  SUPPORT=L_FOOT  CONTACT=PRECONTACT
+ROOT=[43, 25]  SPACING=+2  LATERAL_SPEED=+2  LEAN=-22deg
+ROLE: left support holds while the right foot untangles and probes under the slowing COM
+
+
+
+              O
+              |
+              |
+              |
+              |
+              +\
+            //\ \\o
+           o   \   \\
+         //    \     \*
+       */       \
+             ~~ @
+               /\
+               o \
+              /  o
+              /   \
+             /     \
+_____________?______!___________
+
+
+
+
+K07 RIGHT_RECOVERY_PROBE  [ONES / INFERRED]  SUPPORT=L_FOOT  CONTACT=PRECONTACT
+ROOT=[45, 23]  SPACING=+2  LATERAL_SPEED=+2  LEAN=-6deg
+ROLE: left support releases some stored compression into a short right-foot recovery probe
+
+
+
+             O
+             /
+             /
+            /
+            /
+            +\
+          o/\ \o
+         /  \   \
+        /    \   \
+       *     \    *
+          ~~ @
+             \
+             |\
+             oo
+              \
+               \
+               \
+                \
+________________!?______________
+
+
+
+
+K08 RIGHT_CATCH_LATERAL_OVERSHOOT  [FOURS / INFERRED]  SUPPORT=R_FOOT  CONTACT=TRUSTED_CATCH
+ROOT=[47, 24]  SPACING=+2  LATERAL_SPEED=+1  LEAN=+10deg
+ROLE: right catch owns the small rebound but upper body overshoots past the new base
+
+
+
+               O
+               /
+               /
+              /
+              /
+             /+\
+           o/ / \o
+         //   /   \
+       */    /     \
+             /      *
+           ~ @
+             /\
+            / \
+            o  o
+           /    \
+          /      \
+         *       \
+__________________!_____________
+
+
+
+
+K09 RIGHT_SUPPORT_LEFT_COUNTERPROBE  [TWOS / INFERRED]  SUPPORT=R_FOOT  CONTACT=PRECONTACT
+ROOT=[48, 23]  SPACING=+1  LATERAL_SPEED=+1  LEAN=+18deg
+ROLE: right support stabilizes the displaced address while left foot probes back across the COM
+
+
+
+                O
+                /
+                /
+               /
+               /
+              /+\
+           o// / \o
+         //   /    \
+       */     /     \
+             /       *
+           ~ @
+             /\
+            / \
+            /  o
+            o   \
+             \   \
+             \   \
+              \   \
+______________!____?____________
+
+
+
+
+K10 LEFT_COUNTERCATCH  [ONES / INFERRED]  SUPPORT=L_FOOT  CONTACT=TRUSTED_CATCH
+ROOT=[47, 24]  SPACING=-1  LATERAL_SPEED=-1  LEAN=+6deg
+ROLE: left countercatch creates the only authored root-direction reversal and prevents the overshoot from becoming a drift loop
+
+
+
+              O
+              |
+              |
+              |
+              |
+              +\
+            o// \o
+          // /    \
+        */   /     \
+            /       *
+            @ ~
+           /\
+           / \
+          o  o
+         /    \
+        /     \
+       *       \
+_______________!________________
+
+
+
+
+K11 LEFT_SETTLE_RIGHT_PROBE  [TWOS / INFERRED]  SUPPORT=L_FOOT  CONTACT=PRECONTACT
+ROOT=[47, 23]  SPACING=+0  LATERAL_SPEED=+0  LEAN=-2deg
+ROLE: left support settles while the right foot reopens a forward-ready stance
+
+
+
+            O
+            |
+            |
+            |
+            |
+            +
+          o//o
+         /  / \\
+        /  /    *
+       *   /
+           @
+           /\
+          / \
+          o  o
+          /  \
+         /    \
+         /    \
+        /      \
+________!______?________________
+
+
+
+
+K12 RIGHT_DISPLACED_READY  [FOURS / INFERRED]  SUPPORT=R_FOOT  CONTACT=TRUSTED_CATCH
+ROOT=[48, 23]  SPACING=+1  LATERAL_SPEED=+0  LEAN=+2deg
+ROLE: right foot becomes the final trusted support with unequal feet and a residual lateral bias
+
+
+
+            O
+            |
+            |
+            |
+            |
+            +
+          o//\o
+         /  /  \
+        /  /    \
+       *   /     *
+           @
+          / \
+          / \
+         o   o
+        /    \
+        /     \
+       /      \
+       *       \
+_______________!________________
