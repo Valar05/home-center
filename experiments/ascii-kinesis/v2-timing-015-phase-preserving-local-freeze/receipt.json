@@ -5,8 +5,10 @@
     "VIDEO"
   ],
   "contract": {
-    "candidate_isolated": "PASS",
+    "candidate_isolated_persisted_result": "PASS",
+    "current_worker_rerun": "NOT_CALLABLE_STANDARD_CHAT_NO_CONNECTOR_TO_CONTAINER_FILE_BRIDGE",
     "official_validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "official_validator_freshly_read": true,
     "repo_global": "UNTESTED_STANDARD_CHAT_BOUNDARY",
     "validator_result": {
       "entries_checked": [
@@ -31,30 +33,55 @@
     "width": 340
   },
   "media_decode": {
+    "byte_identical_reconstruction_sha256": "PASS",
     "ffprobe": "PASS",
-    "frames": 44,
     "full_ffmpeg_decode": "PASS"
   },
   "preflight": {
+    "current_worker_liveness": "PASS",
     "github_persistence_readback": true,
     "home_center_campaign_read": true
   },
   "quality": {
+    "current_worker_noodle_queen": {
+      "contempt": "PASS",
+      "function": "PASS",
+      "inspection": "The high-rear local freeze reads as a deliberate held task against a body that keeps traveling; the release sweep is specific and visible without metadata, and the end address carries recovery debt instead of collapsing to a translated ready.",
+      "taste": "PASS"
+    },
+    "current_worker_tango": {
+      "actual_render_sha256": "4da33706b27f535918620ecb456b799e5021f463941831ed0a711adabd3c17c2",
+      "inspection": "Scoped TASK high-rear phase remains locally frozen across changing BASE/support silhouettes; release advances to the next authored TASK phase with a sharp forward drop, overshoot and lag while BASE brakes; displaced right-dominant recovery preserves a non-start TASK phase and does not idle-reset.",
+      "verdict": "PASS"
+    },
     "drew_accepted": false,
     "noodle_queen": "PASS",
     "tango_final": "PASS",
     "tango_rounds": 2
   },
-  "repo_file_count": 0,
-  "repo_readback": false,
+  "readback_blobs": {
+    "build.py": "f2bf8758bca923002d2fb7a65462bf1eb9f07af4",
+    "contact-sheet.txt": "582bb85e88c830b9fa006436792513db9197b312",
+    "manifest.json": "054335452b897fc440d596165cc342377caa8c35",
+    "motion.json": "738e3600784596637156057557b9b88235f460aa",
+    "phase-preserving-local-freeze.motion.html": "1b48b8789713d1d83466479e12302e38e4b3650e"
+  },
+  "repo_file_count": 6,
+  "repo_readback": true,
   "schema": "ascii-kinesis.receipt.v2",
-  "ship_commit": null,
+  "ship_commit": "e8365ec5bb91674e5142b4f3380f3bc8256b77a8",
   "source": {
     "asset_id": "154244",
+    "custody_comment": 5574056144,
+    "game": "Sonic Advance 2",
+    "platform": "Game Boy Advance",
+    "provider": "The Spriters Resource",
     "source_timing": "UNAVAILABLE",
+    "timing_provenance": "INFERRED",
+    "title": "Tails",
     "whole_source_evidence_freshly_read": true
   },
-  "status": "REPO_VERIFICATION_CANDIDATE_READY_FOR_PERSISTENCE",
+  "status": "PERSISTED_READY_FOR_REPORTING_CHAT",
   "three_part_chat_delivery": false,
   "verification_commit": null
 }
