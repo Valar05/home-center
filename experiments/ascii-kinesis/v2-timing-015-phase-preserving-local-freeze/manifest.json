@@ -1,0 +1,62 @@
+{
+  "ascii_literal_text": true,
+  "ascii_sha256": "baa97213d4533bc6a39ee352692a906dd88f221b974e49c8f0ab0796ba618b26",
+  "backward_compatible": true,
+  "contract": {
+    "candidate_isolated": "PASS",
+    "official_validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "validator_result": {
+      "entries_checked": [
+        "v2-timing-015-phase-preserving-local-freeze"
+      ],
+      "ok": true
+    }
+  },
+  "experiment_id": "v2-timing-015-phase-preserving-local-freeze",
+  "format_version": 2,
+  "json_file": "motion.json",
+  "lane": "timing",
+  "media": {
+    "authoritative": "embedded_mp4",
+    "bytes": 5293,
+    "codec": "h264",
+    "filename": "phase-preserving-local-freeze.mp4",
+    "fps": 24,
+    "frames": 44,
+    "height": 200,
+    "pix_fmt": "yuv420p",
+    "sha256": "4da33706b27f535918620ecb456b799e5021f463941831ed0a711adabd3c17c2",
+    "source": "abstract_ascii_rig_only",
+    "width": 340
+  },
+  "offline_spa": true,
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "quality": {
+    "drew_accepted": false,
+    "noodle_queen": "PASS_AFTER_TANGO",
+    "tango": "PASS_AFTER_ROUND_1"
+  },
+  "revision": {
+    "drew_accepted": false,
+    "kind": "NEW_CONCEPT",
+    "negative_fixture": null,
+    "predecessor": "v2-timing-014-constraint-dwell-redistribution",
+    "revises": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT"
+  },
+  "schema": "ascii-kinesis.manifest.v2",
+  "source": {
+    "asset_id": "154244",
+    "provider": "The Spriters Resource",
+    "source_authentic_timing": "UNAVAILABLE",
+    "url": "https://www.spriters-resource.com/game_boy_advance/sonicadv2/asset/154244/"
+  },
+  "source_art_embedded": false,
+  "spa": "phase-preserving-local-freeze.motion.html",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only"
+}
