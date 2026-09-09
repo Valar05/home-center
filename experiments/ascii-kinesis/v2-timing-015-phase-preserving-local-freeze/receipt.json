@@ -68,6 +68,18 @@
   },
   "repo_file_count": 6,
   "repo_readback": true,
+  "reporting_chat_delivery": {
+    "ascii_git_blob": "582bb85e88c830b9fa006436792513db9197b312",
+    "completed_in_current_worker": true,
+    "motion_json_git_blob": "738e3600784596637156057557b9b88235f460aa",
+    "order": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
+    "video_byte_identical": true,
+    "video_sha256": "4da33706b27f535918620ecb456b799e5021f463941831ed0a711adabd3c17c2"
+  },
   "schema": "ascii-kinesis.receipt.v2",
   "ship_commit": "e8365ec5bb91674e5142b4f3380f3bc8256b77a8",
   "source": {
@@ -81,7 +93,7 @@
     "title": "Tails",
     "whole_source_evidence_freshly_read": true
   },
-  "status": "USER_SURFACE_PENDING",
-  "three_part_chat_delivery": false,
+  "status": "HEALTHY_USER_SURFACED",
+  "three_part_chat_delivery": true,
   "verification_commit": "f2995a2645f47bdf4d4c80451c0d42d557b6e6d7"
 }
