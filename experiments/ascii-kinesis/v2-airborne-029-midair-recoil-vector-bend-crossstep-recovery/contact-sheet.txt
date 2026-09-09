@@ -72,6 +72,7 @@ motion_arc_root_note=root travels right/up; feet clear support
 
 
 
+
                          O
                          |
                        o-X-o-
@@ -101,7 +102,7 @@ motion_arc_root_note=root still right/up but vertical gain decays; task has not 
                                O
                                |
                              o-X-o
-                              || ==== #
+                              || ====#
                              [===
                                @
                              -- \
@@ -145,6 +146,7 @@ motion_arc_root_note=root nearly flat at apex; task line compresses toward left 
 
 
 
+
 ________________________________________________________________________
 
 [K5_REACTION_PULSE] REACTION PULSE
@@ -165,6 +167,7 @@ motion_arc_root_note=root reaches last rightward sample; impulse changes subsequ
                                     /          ^
                                     /
                                    ^
+
 
 
 
@@ -213,6 +216,7 @@ motion_arc_root_note=root reverses horizontal drift without wall/platform/ground
 
 
 
+
                                    O
                                    |                           #
                                  o-X-o
@@ -229,6 +233,7 @@ motion_arc_root_note=root reverses horizontal drift without wall/platform/ground
 
 
 
+
 ________________________________________________________________________
 
 [K8_DESCENT_CROSSPREP] DESCENT CROSS-PREP
@@ -236,6 +241,7 @@ support_contact=AIR | custody=REACTION_BAR_TWO_HANDS_PUCK_OFFSTAGE
 root=[34, 13] | timing_class=TWOS | timing_provenance=INFERRED
 causal_role=legs reorganize for an asymmetric crossed catch before any ground support
 motion_arc_root_note=root continues left/down; right foot crosses body midline toward landing lane
+
 
 
 
