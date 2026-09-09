@@ -1,11 +1,12 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-airborne-027-midair-payload-acquisition-side-skid",
-  "status": "QUALITY_GATES_PASS_PENDING_REPO_READBACK_AND_CHAT_DELIVERY",
+  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
   "preflight": {
     "home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
     "home_center_campaign_read": true,
-    "github_persistence_readback_surface": true
+    "github_persistence_readback_surface": true,
+    "current_worker": true
   },
   "lineage": {
     "fresh_post_debt_concept": true,
@@ -23,30 +24,39 @@
     "rights_firewall": true
   },
   "quality": {
-    "tango_rounds": [
+    "prior_same_body_tango": [
       {
         "round": 0,
         "result": "REVISE_REQUIRED",
         "actual_render": true,
-        "defect": "the payload/catch causal event under-reads: the one-character payload visually merges with the reaching hand and K4 already overlaps the task line, so the central mass-acquisition idea can look like an ordinary pose change",
-        "correction": "on the SAME 027 body, separate the incoming payload from both hands at K4, render it as a three-character abstract mass marker, author K5 with the two hands visibly bracketing that mass and hold K5 on TWOS, then make K6 pay the acquisition immediately with a three-cell downward root drop and only one cell of horizontal travel while support stays NONE"
+        "defect": "payload acquisition under-read",
+        "correction": "separate precontact mass, bracket it with both hands, hold acquisition, then steepen combined-mass descent"
       },
       {
         "round": 1,
         "result": "PASS",
-        "actual_render": true,
-        "finding": "the incoming <#> mass now remains visually separate through K4, K5 clearly brackets it with both hands on a held acquisition beat, K6 immediately steepens the root drop with almost no horizontal gain, K7 carries that debt into a near-vertical descent, and the K9→K10 forearm-knee skid preserves right-arm payload custody instead of reading as an ordinary landing"
+        "actual_render": true
       }
     ],
-    "tango_final": "PASS",
-    "noodle_queen": {
+    "current_worker_actual_media_reconstruction": {
+      "byte_identical_to_authoritative": true,
+      "sha256": "604a8d5f6b6db5e7d3e9fe6f1de4377b2e75b08530bb76fa72279d3a4e24bf8a",
+      "bytes": 14061,
+      "frames": 97,
+      "decode": "PASS"
+    },
+    "current_worker_tango": {
       "result": "PASS",
       "actual_render": true,
-      "taste": "opposed-flight intercept → abrupt payload fold → crooked one-arm carry → forearm-knee side skid is a specific silhouette sequence, not a generic jump with a prop",
-      "function": "load → support break → diagonal rise → separated precontact → two-hand midair acquisition → combined-mass descent steepening → one-arm prelanding transfer → diagonal forearm+knee catch → skid compression → authored hand-foot restack → loaded rise → displaced settle remains causally legible",
-      "contempt": "the payload changes the body instead of decorating it; contact does not grant magical air support; the free arm is sacrificed to landing support; custody survives compression; recovery keeps lateral/task debt and never reverse-interpolates to idle"
+      "finding": "Separated K4 precontact, held two-hand K5 acquisition, immediate K6 combined-mass drop, near-vertical K7 descent, K8 one-arm custody transfer, K9/K10 forearm-knee skid compression, K11 restack, K12 rise and K13 displaced loaded settle all remain visibly causal; no new highest-value defect warrants mutation."
     },
-    "actual_render_inspected": true
+    "current_worker_noodle_queen": {
+      "result": "PASS",
+      "actual_render": true,
+      "taste": "opposed-flight intercept → abrupt mass fold → crooked carry → diagonal side skid remains a memorable authored silhouette progression",
+      "function": "payload custody visibly changes trajectory and landing support; air contact never grants support",
+      "contempt": "landing spends the free arm and knee, recovery carries payload and lateral debt, and no reverse-interpolated idle reset appears"
+    }
   },
   "media": {
     "filename": "midair-payload-acquisition-side-skid.mp4",
@@ -65,20 +75,21 @@
   "contract": {
     "validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
     "candidate_isolated_pass": true,
-    "boundary": "exact current validator logic run against candidate-isolated entry; no fresh full-repository checkout or repo-global shell run claimed"
-  },
-  "local_construction_sha256": {
-    "build.py": "dcf33f2631aa0ee591ecd71ff992d879f8383f3d37b26592e06540d8742cb379",
-    "contact-sheet.txt": "ceb34c491aefb6fcee41ce515dca13e82f0b7e7c9b861c55e81b6b078b94a57b",
-    "motion.json": "63f37dda7e8fe9f191852297924cb2656397f4a2b7c38c4bad6faff847453f89",
-    "manifest.json": "a2545a2e867799a75e8a0381c370a3d44446d5535d2bf5d06e0cf02c6a22f09b",
-    "midair-payload-acquisition-side-skid.motion.html": "06b0db5343bb13085c64f984b01b6fe2965abe989a9cc01843ba5be7f6f22ff8"
+    "current_worker_candidate_isolated_execution": "PASS",
+    "current_main_structural_readback": "PASS",
+    "boundary": "exact current validator logic executed in candidate-isolated scope reconstructed from connector-read current-main values; no fresh full-repository checkout or repo-global shell run claimed; GitHub persistence/readback is proved separately by authenticated connector readback"
   },
   "repo": {
-    "persisted": false,
+    "persisted": true,
     "final_readback": false,
-    "commit": null,
-    "blobs": {}
+    "spa_commit": "aa70c2141d204e54dc59e1900becf3de05315408",
+    "blobs": {
+      "build.py": "2b53bf7580304ca9ff88f55a8eb794078dc173b6",
+      "contact-sheet.txt": "8eb9a8a7f7eb18402aaeec4f871ce1f7509fe201",
+      "manifest.json": "d4d1d83defae9f15b284d3e67122fe46dc0dac7e",
+      "motion.json": "81538def23372fba15afc32f1dd811f995fc42a8",
+      "midair-payload-acquisition-side-skid.motion.html": "187f3186fe8a78493ac7a00a78c0702cdcc4e422"
+    }
   },
   "issue_343_receipt": null,
   "chat_delivery": {
