@@ -9,6 +9,7 @@ mkdir -p "$BIN" "$STATE"
 
 required=(
   tools/venice_fleshpunk_phone.sh
+  tools/fortress_image_entry.sh
   tools/accept_fortress_image_phone.sh
   tools/accept_venice_fleshpunk_phone.sh
   tools/ssh_axis.py
@@ -31,7 +32,7 @@ mv "$DEST.new" "$DEST"
 cat > "$BIN/fortress-image" <<'EOF'
 #!/data/data/com.termux/files/usr/bin/sh
 export FORTRESS_IMAGE_PROFILE="${FORTRESS_IMAGE_PROFILE:-plain}"
-exec bash "$HOME/.local/share/fortress-image/tools/venice_fleshpunk_phone.sh" "$@"
+exec bash "$HOME/.local/share/fortress-image/tools/fortress_image_entry.sh" "$@"
 EOF
 chmod 700 "$BIN/fortress-image"
 
@@ -44,7 +45,7 @@ chmod 700 "$BIN/fortress-image-accept"
 cat > "$BIN/venice-image" <<'EOF'
 #!/data/data/com.termux/files/usr/bin/sh
 export FORTRESS_IMAGE_PROFILE=fleshpunk
-exec bash "$HOME/.local/share/fortress-image/tools/venice_fleshpunk_phone.sh" "$@"
+exec bash "$HOME/.local/share/fortress-image/tools/fortress_image_entry.sh" "$@"
 EOF
 chmod 700 "$BIN/venice-image"
 
@@ -105,5 +106,6 @@ print(json.dumps({
   'shizukuRequired':False,
   'atomRequired':False,
   'vladRequired':False,
+  'endpointPolicy':'verified-ssh-axis-dynamic',
 },sort_keys=True))
 PY
