@@ -6,7 +6,9 @@ Mission: recover and harden the already-existing local image generator so a lega
 
 ## Canonical contract
 
-`prompt -> primary-phone -> Home Center Phone Hands/Termux -> SSH Axis -> THECAULDRON localhost ComfyUI -> returned PNG -> SHA-256 verification -> /storage/emulated/0/Pictures/Fortress -> notification/open action -> receipt`
+`prompt -> primary-phone Home Center Termux relay -> SSH Axis -> THECAULDRON localhost ComfyUI -> returned PNG -> SHA-256 verification -> /storage/emulated/0/Pictures/Fortress -> receipt`
+
+Shizuku is not load-bearing. Home Center relay startup, cloud polling, `phone_shell`, SSH Axis, ComfyUI generation, returned-file hashing, and publication into `Pictures/Fortress` must all work while Shizuku/rish is absent or broken. Shizuku may be used only for explicitly interactive Android/UI actions. The notification/open action is best-effort and is not part of transport acceptance.
 
 The renderer is not a cloud image provider. ComfyUI stays bound to THECAULDRON loopback. Model/LoRA credentials are not copied to the phone. `venice-image` remains the backwards-compatible Fleshpunk entrypoint; `fortress-image` is the neutral entrypoint and defaults to the same SD 1.5 checkpoint without the Fleshpunk LoRA.
 
@@ -21,6 +23,7 @@ Legal-only use is the mission boundary. This transport does not claim that a mod
 | Venice Mobile artifact delivery | MediaStore/Downloads design and notification/open behavior | Designed but not compiled/live accepted in the historical slice | Public phone storage plus actual byte readback is required |
 | Home Center, 2026-08-13 | `tools/venice_fleshpunk_phone.sh`, Atom button, receipt/hash gate | Implementation passed review but STOP was blocked because no fresh primary-phone execution proved installation, SSH, render, and returned PNG | Source implementation is not deployment proof; acceptance must run on primary-phone |
 | Phone Hands ingress | Cloud relay and `phone_shell` | A deployment script once omitted the relay, leaving source ahead of deployed ingress | Phone execution must be observed through Home Center receipts, never inferred from repository state |
+| Phone relay / Shizuku coupling, 2026-09-09 | Background Termux relay plus operator-overlay heartbeat | Relay polling touched Shizuku every ten seconds and top-level imports made rish part of relay startup even though `phone_shell` was intended to be independent | Baseline relay imports and polling may not touch Shizuku; Shizuku modules are lazy interactive-only dependencies |
 | Organ, 2026-09-05 | Working `fleshpunk-image` provider and image receipts | Separate provider hard-coded a Tailscale target and depended on `C:\Users\dclar\workspace\codex-lite-runtime\fleshpunk-image.ps1`, which is referenced but not versioned in the repositories | No new image provider may depend on an unversioned remote runtime file or fixed host when SSH Axis discovery exists |
 | Organ output | PNGs written under `.organ-runtime/images/delivered` | Technically delivered but not a durable human-facing phone collection | Accepted output must also land in public `Pictures/Fortress` |
 | Mobile conversation continuity | New thread/project could be created on launch/pairing | Working capability became hard to recover because state and history fragmented | Runtime capability discovery must depend on commands/receipts, not chat-thread memory |
@@ -36,33 +39,38 @@ Installed commands:
 - `venice-image generate ...` — compatibility command that always selects Fleshpunk.
 - `fortress-image doctor` — verifies the phone-side contract, public storage, dimensions/profile, and SSH Axis before spending a render.
 - `fortress-image-accept [PROMPT] [SEED] [plain|fleshpunk]` — live end-to-end canary.
-- `fortress-image-ui` — phone dialog; successful results open from public Pictures storage.
+- `fortress-image-ui` — optional phone dialog; successful results may open from public Pictures storage when the interactive Android lane is available.
 
 ## Acceptance invariant
 
 A run is accepted only when all of these are true:
 
-1. Home Center observes `primary-phone` and executes the campaign through `phone_shell`.
-2. SSH Axis reaches THECAULDRON without requiring Drew to discover/copy an address.
-3. THECAULDRON's loopback ComfyUI returns a real `promptId`.
-4. The requested checkpoint is recorded; Fleshpunk additionally records the live LoRA SHA-256.
-5. The remote PNG SHA-256 matches the returned phone-state PNG bytes.
-6. Those same bytes are atomically copied to `/storage/emulated/0/Pictures/Fortress/<promptId>.png`.
-7. The public Pictures PNG readback SHA-256 matches the remote and phone-state hashes.
-8. The acceptance receipt says `ok: true` and preserves the prompt, profile, seed, promptId, paths, hashes, and request-derived accessible summary.
-9. Human perceptual/taste acceptance stays separate; a transport pass does not claim the picture is artistically or medically correct.
+1. Home Center observes `primary-phone` and executes the campaign through the Shizuku-independent `phone_shell` lane.
+2. The relay baseline starts and polls without importing or executing Shizuku/rish.
+3. SSH Axis reaches THECAULDRON without requiring Drew to discover/copy an address.
+4. THECAULDRON's loopback ComfyUI returns a real `promptId`.
+5. The requested checkpoint is recorded; Fleshpunk additionally records the live LoRA SHA-256.
+6. The remote PNG SHA-256 matches the returned phone-state PNG bytes.
+7. Those same bytes are atomically copied to `/storage/emulated/0/Pictures/Fortress/<promptId>.png`.
+8. The public Pictures PNG readback SHA-256 matches the remote and phone-state hashes.
+9. The acceptance receipt says `ok: true` and preserves the prompt, profile, seed, promptId, paths, hashes, and request-derived accessible summary.
+10. Human perceptual/taste acceptance stays separate; a transport pass does not claim the picture is artistically or medically correct.
+
+A notification or automatic image-open action may be attempted after acceptance, but its failure cannot invalidate a correctly delivered PNG and cannot prevent the background relay from polling or executing `phone_shell`.
 
 ## One-shot recovery
 
 `tools/improper_image_delivery_campaign.sh` installs the current Atom/image package and immediately runs the acceptance gate. It exists so recovery is one bounded machine action, not a sequence Drew must remember.
 
-The campaign must be dispatched by Home Center Phone Hands when that lane is available. Manual Termux copy/paste is fallback-only after Home Center ingress is proven unavailable.
+The campaign must be dispatched by the Home Center background Termux relay when that lane is available. Manual Termux copy/paste is fallback-only after Home Center ingress is proven unavailable. Interactive Phone Hands/Shizuku is not a prerequisite for this campaign.
 
 ## Anti-regression rules
 
 - Do not create another renderer for Organ, Chromium Throne, Venice, or a new agent. Adapt them to `fortress-image`.
 - Do not hard-code THECAULDRON's current WLAN/Tailscale address in a new consumer. Use SSH Axis discovery/cache.
 - Do not make `127.0.0.1:8188` externally reachable merely to simplify transport.
+- Do not make Shizuku/rish a startup, polling, `phone_shell`, SSH, hashing, delivery, or acceptance dependency.
+- Do not run periodic Shizuku/overlay heartbeats from the background relay loop.
 - Do not call a queued prompt “delivered.”
 - Do not call repository code “deployed.”
 - Do not call a hidden project-state PNG a user delivery when the public Pictures copy is missing.
