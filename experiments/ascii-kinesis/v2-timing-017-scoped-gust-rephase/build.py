@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import base64, hashlib, html, json, shutil, subprocess
+import base64, gzip, hashlib, html, json, shutil, subprocess
 from PIL import Image, ImageDraw, ImageFont
 
 HERE=Path(__file__).resolve().parent
@@ -47,17 +47,21 @@ if actual!=declared: raise SystemExit(f"MEDIA_IDENTITY_MISMATCH declared={declar
 if count!=int(motion["compile"]["media"]["frames"]): raise SystemExit("FRAME_COUNT_MISMATCH")
 sheet=contact_sheet()
 (HERE/"contact-sheet.txt").write_text(sheet,encoding="utf-8")
-motion_js=json.dumps(motion,separators=(",",":"),ensure_ascii=True)
+motion_raw=json.dumps(motion,separators=(",",":"),ensure_ascii=True).encode("utf-8")
+motion_gz=base64.b64encode(gzip.compress(motion_raw,mtime=0)).decode("ascii")
 b64=base64.b64encode(video.read_bytes()).decode("ascii")
 page=f"""<!doctype html><meta charset="utf-8"><title>Timing017 scoped gust rephase</title>
 <style>body{{font-family:system-ui;margin:0}}nav{{display:flex;gap:.5rem;padding:.75rem;position:sticky;top:0;background:white}}button{{padding:.5rem .8rem}}section{{display:none;padding:1rem}}section.active{{display:block}}pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.05}}video{{max-width:100%;height:auto}}</style>
 <nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
 <section id="ascii" class="active"><pre id="ascii-pre"></pre></section><section id="json"><pre id="json-pre"></pre></section><section id="video"><video controls autoplay loop muted playsinline src="data:video/mp4;base64,{b64}"></video></section>
 <script>
-const motion={motion_js};
-const line="-".repeat(72)+"\\n";
+(async()=>{{
+const raw=Uint8Array.from(atob("{motion_gz}"),c=>c.charCodeAt(0));
+const text=await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+const motion=JSON.parse(text),line="-".repeat(72)+"\\n";
 document.getElementById("ascii-pre").textContent=motion.keys.map(k=>{{const s=k.channel_state,r=k.root_transform;return `${{k.key_id}} ${{k.causal_role}} ${{k.timing_class}}/${{k.exposure_ticks}}t ROOT=(${{String(r.x).padStart(2,"0")}},${{String(r.y).padStart(2,"0")}}) CANOPY=${{s.CANOPY_CLOCK.state}} HAND=${{s.HAND_SWAY.state}}\\n${{k.pose_rig}}${{line}}`;}}).join("");
 document.getElementById("json-pre").textContent=JSON.stringify(motion,null,2);
+}})();
 const ids=["ascii","json","video"];for(const b of document.querySelectorAll("button[data-view]"))b.onclick=()=>{{for(const id of ids)document.getElementById(id).classList.toggle("active",id===b.dataset.view);}};
 </script>"""
 (HERE/manifest["spa_file"]).write_text(page,encoding="utf-8")
