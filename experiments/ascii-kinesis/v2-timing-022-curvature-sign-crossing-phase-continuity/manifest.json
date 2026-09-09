@@ -44,16 +44,16 @@
     "current_worker_queen": "PASS",
     "current_worker_tango": "PASS",
     "queen": "PASS",
-    "queen_basis": "visible S-curve root trajectory + continuous L/R gait + bank sign unwind/cross/rebuild; no idle reset or reverse playback",
+    "queen_basis": "visible positive-bank unwind -> one-tick zero-curvature right catch -> negative-bank rebuild while gait support phase continues; exit remains displaced and running",
     "tango": "PASS",
     "tango_highest_value_defect": "NONE"
   },
   "repo": {
-    "exact_six_file_readback": false,
-    "persisted": false,
-    "repo_readback": false,
-    "ship_commit": null,
-    "spa_blob": null
+    "exact_six_file_readback": true,
+    "persisted": true,
+    "repo_readback": true,
+    "ship_commit": "b55b1ea7cfc50a5d1e76c8a0ef3bcd4a9b378059",
+    "spa_blob": "25f54cfef46d472540a4a520c43581aaff345c91"
   },
   "schema": "ascii-kinesis.manifest-v2",
   "source": {
@@ -79,7 +79,7 @@
   },
   "source_art_embedded": false,
   "specimen_number": 22,
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "PERSISTED_NOT_DELIVERED",
   "three_part_chat_delivery": false,
   "title": "Curvature Sign Crossing / Phase Continuity",
   "video_required": true,
