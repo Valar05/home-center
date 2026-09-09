@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import base64, hashlib, html, json, math, subprocess, tempfile
+import base64, gzip, hashlib, html, json, math, subprocess, tempfile
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
@@ -158,51 +158,35 @@ def contact_sheet(motion):
     return "\n".join(parts).rstrip()+"\n"
 
 def build_spa(motion, contact, mp4_bytes):
-    motion_text=json.dumps(motion,ensure_ascii=False,indent=2)
+    motion_text=json.dumps(motion,ensure_ascii=False,separators=(",",":"))+"\\n"
+    asc=base64.b64encode(gzip.compress(contact.encode("utf-8"),compresslevel=9,mtime=0)).decode("ascii")
+    jsn=base64.b64encode(gzip.compress(motion_text.encode("utf-8"),compresslevel=9,mtime=0)).decode("ascii")
     video_b64=base64.b64encode(mp4_bytes).decode("ascii")
-    esc=html.escape
-    return f'''<!doctype html>
+    return f"""<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{esc(motion["title"])}</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ASCII Kinesis · VideoMotion011</title>
 <style>
 :root{{color-scheme:dark;background:#0a0a0c;color:#eee;font-family:system-ui,sans-serif}}
-body{{margin:0;padding:16px}}
-nav{{display:flex;gap:8px;position:sticky;top:0;background:#0a0a0c;padding:8px 0;z-index:2}}
-button{{font:inherit;padding:8px 14px}}
-section[hidden]{{display:none}}
-pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.05;border:1px solid #555;padding:12px}}
+body{{margin:0;padding:16px}} nav{{display:flex;gap:8px;position:sticky;top:0;background:#0a0a0c;padding:8px 0}}
+section[hidden]{{display:none}} button{{font:inherit;padding:8px 14px}}
+pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.05;border:1px solid #555;padding:12px}}
 video{{max-width:100%;height:auto;background:#000;border:1px solid #555}}
-.small{{opacity:.82}}
 </style>
-</head>
-<body>
-<h1>{esc(motion["title"])}</h1>
-<p class="small">Independent abstract ASCII rig. Source imagery/audio are not embedded.</p>
-<nav>
-<button data-view="ascii" aria-controls="ascii">ASCII</button>
-<button data-view="json" aria-controls="json">JSON</button>
-<button data-view="video" aria-controls="video">VIDEO</button>
-</nav>
-<section id="ascii"><pre>{esc(contact)}</pre></section>
-<section id="json" hidden><pre>{esc(motion_text)}</pre></section>
-<section id="video" hidden>
-<video controls loop muted playsinline src="data:video/mp4;base64,{video_b64}"></video>
-</section>
+</head><body>
+<h1>Throw repair · rear-load → pelvis lead → release fork → displaced recovery debt</h1>
+<nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
+<section id="ascii"><pre id="ascii-pre"></pre></section>
+<section id="json" hidden><pre id="json-pre"></pre></section>
+<section id="video" hidden><video controls loop muted playsinline src="data:video/mp4;base64,{video_b64}"></video></section>
 <script>
-const views=[...document.querySelectorAll("button[data-view]")];
-function show(id){{
- for(const b of views) b.setAttribute("aria-pressed",String(b.dataset.view===id));
- for(const s of document.querySelectorAll("section[id]")) s.hidden=s.id!==id;
-}}
-for(const b of views)b.addEventListener("click",()=>show(b.dataset.view));
-show("ascii");
-</script>
-</body>
-</html>
-'''
+const A="{asc}",J="{jsn}";
+async function gunzip(b){{const u=Uint8Array.from(atob(b),c=>c.charCodeAt(0));const ds=new DecompressionStream("gzip");return await new Response(new Blob([u]).stream().pipeThrough(ds)).text()}}
+(async()=>{{document.querySelector("#ascii-pre").textContent=await gunzip(A);document.querySelector("#json-pre").textContent=await gunzip(J)}})();
+const B=[...document.querySelectorAll("button[data-view]")];function show(id){{for(const b of B)b.setAttribute("aria-pressed",String(b.dataset.view===id));for(const s of document.querySelectorAll("section[id]"))s.hidden=s.id!==id}}for(const b of B)b.onclick=()=>show(b.dataset.view);show("ascii");
+</script></body></html>
+"""
 
 def main():
     motion=json.loads(MOTION_PATH.read_text(encoding="utf-8"))
