@@ -5,6 +5,8 @@ import ast
 ROOT=Path(__file__).resolve().parents[1]
 forge=(ROOT/'tools/home_center_forge_campaign.py').read_text(encoding='utf-8')
 bootstrap=(ROOT/'tools/bootstrap_free_cloud_forge.sh').read_text(encoding='utf-8')
+remote=(ROOT/'tools/private_forge_remote_install.sh').read_text(encoding='utf-8')
+body=bootstrap+'\n'+remote
 skill=(ROOT/'skills/home-center-forge-campaign/SKILL.md').read_text(encoding='utf-8')
 portable=(ROOT/'.gitea/workflows/home-center-ci.yml').read_text(encoding='utf-8')
 android=(ROOT/'.gitea/workflows/build-android.yml').read_text(encoding='utf-8')
@@ -40,12 +42,12 @@ for token in [
     'workflow_run_id',
     'Gitea Actions canary succeeded',
 ]:
-    assert token in bootstrap, token
+    assert token in body, token
 
 assert "Tailscale\' not in forge" not in (ROOT/'tools/test_home_center_forge_campaign.py').read_text(encoding='utf-8')
-assert 'public_ipv6=$public6' not in bootstrap
-assert 'tcp:3000' not in bootstrap
-assert 'tcp:2222' not in bootstrap
+assert 'public_ipv6=$public6' not in body
+assert 'tcp:3000' not in body
+assert 'tcp:2222' not in body
 
 for token in ['runs-on: forge-linux-free','sh tools/home_center_ci_validate.sh']:
     assert token in portable, token
