@@ -1,0 +1,44 @@
+{
+  "schema": "fortress.improper-image-delivery.runtime-gate.v1",
+  "observedAt": "2026-09-09T21:05:38.000Z",
+  "commission": "Recover and harden the existing local image generator, then deliver verified legal-use images to Drew's public phone Pictures collection with minimal operator effort.",
+  "repository": "Valar05/home-center",
+  "pullRequest": 354,
+  "implementationBranch": "campaign/improper-image-delivery",
+  "phoneIngress": {
+    "deviceId": "primary-phone",
+    "lastObservedDeviceStatus": "online",
+    "lastSeenAt": "2026-09-09T20:56:51.025Z",
+    "dispatchCommandId": "phc_tetsuya_image_archaeology_20260909_v1",
+    "dispatchStatus": "queued",
+    "leaseOwner": "",
+    "leaseExpiresAtMs": 0,
+    "finding": "The Home Center command was accepted but the primary-phone relay had not leased it by 2026-09-09T21:05:38Z. Repository implementation is therefore not phone deployment proof."
+  },
+  "computerHands": {
+    "workerId": "windows-hands-01",
+    "online": false,
+    "finding": "Desktop execution is not an authorized substitute for the required primary-phone delivery receipt and was offline during this gate anyway."
+  },
+  "implementation": {
+    "canonicalRenderer": "tools/venice_fleshpunk_phone.sh",
+    "neutralEntrypoint": "fortress-image",
+    "compatibilityEntrypoint": "venice-image",
+    "publicDeliveryRoot": "/storage/emulated/0/Pictures/Fortress",
+    "acceptanceGate": "tools/accept_fortress_image_phone.sh",
+    "oneShotCampaign": "tools/improper_image_delivery_campaign.sh",
+    "archaeology": "docs/IMPROPER_IMAGE_DELIVERY_CAMPAIGN.md"
+  },
+  "capabilityState": {
+    "requested": true,
+    "implemented": true,
+    "repositoryReviewed": true,
+    "runtimeTested": false,
+    "phoneDeployed": false,
+    "imageRenderedInThisCampaign": false,
+    "publicPicturesDelivered": false,
+    "drewPerceptualAccepted": false
+  },
+  "directive": "CONTINUE_REQUIRED",
+  "nextBoundedTransition": "Restore or re-enter the existing Home Center primary-phone relay, execute tools/improper_image_delivery_campaign.sh once, and require a live ComfyUI promptId plus identical remote, phone-state, and public-Pictures SHA-256 receipts. Do not create another renderer and do not use desktop output as substitute evidence."
+}
