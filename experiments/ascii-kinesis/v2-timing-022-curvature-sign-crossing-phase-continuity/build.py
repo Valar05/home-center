@@ -75,11 +75,26 @@ def contact_text(motion):
         r=k["root_transform"]
         out.append(
             f"{k['key_id']} {k['causal_role']} {k['timing_class']}/{k['exposure_ticks']}t "
-            f"PROVENANCE={k['timing_provenance']} GAIT={k['gait_phase']} OWNER={k['support_owner']} "
-            f"CURVATURE={k['curvature_state']} BANK={k['bank_deg']:+d}deg SPEED={k['speed_norm']:.1f} "
-            f"ROOT=({r['x']:.1f},{r['y']:.1f}) HEADING={r['heading_deg']:+d}deg\n"
+            f"PROV={k['timing_provenance']} GAIT={k['gait_phase']} OWNER={k['support_owner']} "
+            f"CURV={k['curvature_state']} BANK={k['bank_deg']:+d} SPEED={k['speed_norm']:.1f} "
+            f"ROOT=({r['x']:.1f},{r['y']:.1f}) HDG={r['heading_deg']:+d}\n"
         )
-        out.append(make_pose(k,motion)); out.append("-"*104+"\n")
+        bank=int(k["bank_deg"])
+        shift=max(-2,min(2,round(bank/5)))
+        head_pad=7+shift
+        owner=k["support_owner"]
+        left="*" if owner=="LEFT" else "+"
+        right="*" if owner=="RIGHT" else "+"
+        arrow=">" if -8<=r["heading_deg"]<=8 else ("^/" if r["heading_deg"]>8 else "\\v")
+        out.extend([
+            " "*head_pad+"O\n",
+            " "*(head_pad-1)+"/|\\\n",
+            "       @"+arrow+"\n",
+            "      / \\\n",
+            f"     {left}   {right}\n",
+            f"  S: {k['curvature_state']:<14} bank {bank:+3d}\n",
+            "  "+("-"*46)+"\n",
+        ])
     return "".join(out)
 
 def render_video(motion):
@@ -121,7 +136,7 @@ def main():
     media=motion["compile"]["media"]
     media["sha256"]=got
     media["bytes"]=len(mp4)
-    raw=json.dumps(motion,indent=2,ensure_ascii=False,sort_keys=True)+"\n"
+    raw=json.dumps(motion,ensure_ascii=False,sort_keys=True,separators=(",",":"))+"\n"
     MOTION.write_text(raw,encoding="utf-8")
     SPA.write_text(spa_text(contact,raw,mp4),encoding="utf-8")
     print(json.dumps({"experiment_id":motion["experiment_id"],"frames":media["frames"],"media_sha256":got,"bytes":len(mp4),"ok":True},sort_keys=True))
