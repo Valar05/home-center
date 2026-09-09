@@ -1,0 +1,82 @@
+{
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "format_version": 2,
+  "experiment_id": "v2-airborne-029-midair-recoil-vector-bend-crossstep-recovery",
+  "lane": "airborne",
+  "status": "QUALITY_GATES_PASS_PENDING_REPO_READBACK_AND_CHAT_DELIVERY",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "successor_collision": false,
+    "predecessor_closed": "v2-airborne-028",
+    "predecessor_final_addendum": "5605551109"
+  },
+  "source": {
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "campaign_evidence_file_id": "1H3ceHukijHxTRnsCuxsG1-ylAd-MQ5kmNM5z4Kon77U",
+    "provider": "The Spriters Resource",
+    "asset_id": "106418",
+    "title": "Samus Aran (Power Suit)",
+    "game": "Metroid: Zero Mission",
+    "platform": "Game Boy Advance",
+    "category": "Playable Characters",
+    "source_authentic_timing": "UNKNOWN",
+    "decisive_compile_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "rights_firewall": true
+  },
+  "concept": {
+    "slug": "midair-recoil-vector-bend-crossstep-recovery",
+    "primitive": "unsupported midair reaction impulse changes root velocity before crossed ground catch",
+    "causal_chain": "preload -> clean ballistic rise -> unsupported task pulse -> opposite root-vector bend -> gravity descent -> separated crossed-foot contact -> one-foot crush -> late second support -> task overshoot -> displaced settle"
+  },
+  "media": {
+    "sha256": "56c36840894bdc4524b9afe9751c478e163c6d32fe889e63a1afd41938dc3d82",
+    "bytes": 51182,
+    "fps": 24,
+    "frames": 57,
+    "width": 800,
+    "height": 382,
+    "codec": "H.264",
+    "pixel_format": "yuv420p"
+  },
+  "quality_gates": {
+    "actual_render_decode": "PASS",
+    "tango": {
+      "verdict": "PASS",
+      "rounds": 1,
+      "render_sha256": "56c36840894bdc4524b9afe9751c478e163c6d32fe889e63a1afd41938dc3d82"
+    },
+    "noodle_queen": {
+      "verdict": "PASS",
+      "render_sha256": "56c36840894bdc4524b9afe9751c478e163c6d32fe889e63a1afd41938dc3d82",
+      "dimensions": [
+        "TASTE",
+        "FUNCTION",
+        "CONTEMPT"
+      ]
+    }
+  },
+  "contract": {
+    "validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS_CURRENT_VALIDATOR_RULES",
+    "full_repo_boundary": "Exact current validator blob was read through GitHub; Standard Chat has no full repository checkout in this worker, so no repo-global invocation is claimed. Candidate-isolated exact structural clauses were executed against this body and passed."
+  },
+  "files": {
+    "build": "build.py",
+    "ascii": "contact-sheet.txt",
+    "json": "motion.json",
+    "spa": "midair-recoil-vector-bend-crossstep-recovery.motion.html",
+    "receipt": "receipt.json"
+  }
+}
