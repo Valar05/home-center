@@ -1,0 +1,100 @@
+ASCII KINESIS V2 DEFENSE017 — OVERHEAD ROOF SHEAR / SCISSOR RECOVERY
+SOURCE EVIDENCE: TSR asset 97821 Robot — Nuclear Throne — PC / Computer | whole static sheet | source timing UNKNOWN
+TIMING: every decisive compile timing class INFERRED / STREET_FIGHTER-CAPCOM | # support | x unsupported | @ pelvis
+RIGHTS: independent abstract ASCII rig only; no source pixels/palette/costume/contours/layout/tracing/choreography.
+
+D017-K0 OFFSET_READY                 D017-K1 ROOF_PRELOAD                 D017-K2 PRECONTACT_STILL_POINT
+FOURS/INFERRED SUP=L#+R#             FOURS/INFERRED SUP=L#+R#             ONES/INFERRED SUP=L#+R#
+                                                                  \                                    \
+                                                                 \                                    \
+                                                                \                                    \
+               O                                   O           \                                    \
+               |                                   |          \                         O          \
+              -o-                                  o-        \                          |         \
+            o- | --o                             //| --o-  -+                           o-      -+
+          //   |    \\                          o  |     -o                           //| --o--o
+         o     |      o                        /   ----+                             o  |----+
+        /      |       -+                     o----|                                o----
+       +       |                                   |                                    |
+               |                                   |                                    |
+               @                                   |                                    |
+              / \                                  @                                    |
+            //   \\                               / --                                  @
+           /       \                            //    --                               / --
+          o         o                          o        -o                           //    --
+         /           \                        /           \                         o        -o
+        /             \                      /             \                       /           \
+        /              \                     /              \                     /             \\
+_______#________________#_________   _______#________________#_________   _______#________________#_________
+
+
+D017-K3 OVERHEAD_CONTACT_LOCK        D017-K4 ROOF_SHEAR_CRUSH             D017-K5 SCISSOR_OPEN_UNDER_LOAD
+ONES/INFERRED SUP=L#+R#              FOURS/INFERRED SUP=R#                TWOS/INFERRED SUP=R#
+                             \                                    \                                    \
+                            \                                    \                                    \
+                           \                                    \                                    \
+                          \                                    \                                    \
+                         \                                    \                                    \
+             O          \                                    \                                    \
+             |         +                       O            +                                    +
+             o-      //                         |         //                      O             /
+           //| --o--o                           o--      /                         \          //
+          o  | ----+                          //|  --o--o                           o--      /
+          o----                              o  |----+                            //|  --o--o
+             |                               o---                                o  |
+             |                                  |                                o------+
+             |                                  |                                   |
+             |                                  |                                   |
+             @-                                 |                             x     |
+            /  ----                             @---                           \\  -@----
+          //       -o                         //    ----o                        o-      ----o
+         o           \                       o           \\                                   \\
+        /             \\                      x            \\                                   \\
+_______#________________#_________   ________________________#_________   ________________________#_________
+
+
+D017-K6 ROOF_PEEL_AFTER_SUPPORT_BR   D017-K7 SCISSOR_PREPLANT             D017-K8 NEW_FOOT_SCISSOR_CATCH
+TWOS/INFERRED SUP=R#                 ONES/INFERRED SUP=R#                 FOURS/INFERRED SUP=L#
+
+
+
+
+
+                                                O
+         O                                       |                                    O
+          \           +                          o--                                  |
+           o--       /                         //|  --o-   +                          o--
+         //|  --o---o                         o  |      --o                         //|  --o-   -+
+        o  |                                  | |                                  o  |      --o
+        o-----+                               o--                                 |  |
+           |                                    |--+                              o----+
+           |                                    @--                                  |
+          -@----                              --   ----                              @---
+   x---o--      ----o                       o-         --o                         --    ----o-
+                     \                     /              \                      o-            -x
+                      \\                  x                \\                   /
+________________________#_________   ________________________#_________   _____#____________________________
+
+
+D017-K9 COUNTER_TORQUE_OVERTRAVEL    D017-K10 SECOND_FOOT_REACQUIRE_LAT   D017-K11 DISPLACED_READY_DEBT
+TWOS/INFERRED SUP=L#                 TWOS/INFERRED SUP=L#+R#              FOURS/INFERRED SUP=L#+R#
+
+
+
+
+                                                                                        O
+                                                     O                                  |
+                O                                   |                                   o-
+               |                                    o--                               //| --o
+               o--       -+                       //|  --o-                          o  |    \\
+             //|  --o---o                        o  |      --o-+                    /  |       o
+            o  |                                |  |                               o   |        -+
+           |   |                                o- |                             +-    |
+           o-- |                                  --+                                  @
+              --+                                  @                                  / \
+               @--                               // \\                              //   \\
+             --   ---o--x                      //     \\                           /       \
+           --                                 o         o                         o         o
+         o-                                  /          |                        /           \
+       --                                  //            |                     //            \
+_____#____________________________   _____#______________#_____________   ____#_______________#_____________
