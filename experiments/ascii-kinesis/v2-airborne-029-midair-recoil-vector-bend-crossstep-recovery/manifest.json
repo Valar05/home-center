@@ -3,7 +3,7 @@
   "format_version": 2,
   "experiment_id": "v2-airborne-029-midair-recoil-vector-bend-crossstep-recovery",
   "lane": "airborne",
-  "status": "REPO_PERSISTED_READBACK_PASS_PENDING_ISSUE_AND_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "primary_tabs": [
     "ASCII",
     "JSON",
@@ -123,15 +123,16 @@
     }
   },
   "issue_343": {
-    "closure_receipt": null,
-    "closure_receipt_readback": false
+    "closure_receipt": 5607099327,
+    "closure_receipt_readback": true
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_visible_video": false,
-    "video_byte_identical_to_authoritative": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_visible_video": true,
+    "video_byte_identical_to_authoritative": true,
+    "part3_media_sha256": "ee0b4974907286b21c6a833282f911e6f34ef02023d42659aa9b7bebadb0a88b"
   },
   "DREW_ACCEPTED": false,
-  "next_authorized": null
+  "next_authorized": "v2-airborne-030"
 }
