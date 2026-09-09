@@ -1,0 +1,33 @@
+{
+  "ascii_literal_text": true,
+  "backward_compatible": true,
+  "entry_path": "experiments/ascii-kinesis/v2-timing-018-nonreciprocal-return-cadence",
+  "experiment_id": "v2-timing-018-nonreciprocal-return-cadence",
+  "files": [
+    "build.py",
+    "contact-sheet.txt",
+    "manifest.json",
+    "motion.json",
+    "receipt.json",
+    "nonreciprocal-return-cadence.motion.html"
+  ],
+  "format_version": 2,
+  "lane": "timing",
+  "media": {
+    "bytes": 10592,
+    "embedded": true,
+    "fps": 24,
+    "frame_count": 30,
+    "sha256": "6d6bdefaaa209e2b7f25d4ffd82f423255e178779e09fedb66c08fc45ede6440"
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "schema": "ascii-kinesis.manifest.v2",
+  "source_art_embedded": false,
+  "spa_file": "nonreciprocal-return-cadence.motion.html",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only"
+}
