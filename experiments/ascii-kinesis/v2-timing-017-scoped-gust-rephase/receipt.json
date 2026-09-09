@@ -1,0 +1,67 @@
+{
+  "schema": "ascii-kinesis.receipt-v2",
+  "experiment_id": "v2-timing-017-scoped-gust-rephase",
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "current_worker_liveness": {
+    "home_center_campaign_read": true,
+    "github_readback": true
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "500827",
+    "name": "Green Army Man",
+    "game": "Toy Story",
+    "platform": "Sega Genesis",
+    "campaign_evidence_comment": 5571378604,
+    "source_change": true,
+    "fresh_concept": true,
+    "whole_source_inspected": true,
+    "source_timing": "UNAVAILABLE; ALL AUTHORED TIMING INFERRED"
+  },
+  "repo_readback": false,
+  "three_part_chat_delivery": false,
+  "tango": {
+    "status": "PASS",
+    "rounds": 3,
+    "final_round": 2
+  },
+  "noodle_queen": {
+    "status": "PASS",
+    "after_tango": true
+  },
+  "contract": {
+    "candidate_isolated": "PASS",
+    "validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "result": {
+      "schema": "ascii-kinesis.swarm-contract-v2-test",
+      "entries_checked": [
+        "v2-timing-017-scoped-gust-rephase"
+      ],
+      "ok": true
+    },
+    "repo_global": "NOT_CLAIMED_AT_STANDARD_CHAT_CONNECTOR_BOUNDARY"
+  },
+  "issue_343_receipt": null,
+  "ship_commit": null,
+  "verification_commit": null,
+  "drew_accepted": false,
+  "media": {
+    "sha256": "a28c1f85225c6012ff620ed4714ef56630e5d25d1f1e259e30f636e13e6a1bbc",
+    "bytes": 40235,
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "dimensions": [
+      640,
+      560
+    ],
+    "fps": 24,
+    "frames": 35,
+    "decode": true
+  },
+  "quality_notes": {
+    "tango_round_0": "REVISE_REQUIRED: gust phase teleport; corrected SAME 017 canopy sync key to symmetric reef phase-zero state.",
+    "tango_round_1": "REVISE_REQUIRED: root clamped in actual render after K6; corrected SAME 017 stage/root spacing and real brake hold.",
+    "tango_round_2": "PASS",
+    "noodle_queen": "PASS after Tango on same final actual render"
+  }
+}
