@@ -18,8 +18,8 @@ WALL_X = int(MOTION["rig"]["constraint_wall_x"])
 JOINT_KEYS = list(MOTION["rig"]["joints"])
 OUT_W, OUT_H = map(int, MOTION["motion_dungeon"]["render_size"])
 FPS = int(MOTION["motion_dungeon"]["fps"])
-CELL_W, CELL_H = 12, 16
-SCALE = 2
+CELL_W, CELL_H = 8, 8
+SCALE = 1
 
 GLYPHS = {
     " ": ["00000"] * 7,
@@ -195,14 +195,14 @@ def render_mp4(frames):
     subprocess.run([
         "ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS),
         "-i", str(frame_dir / "%04d.pgm"), "-c:v", "libx264", "-pix_fmt", "yuv420p",
-        "-movflags", "+faststart", "-crf", "18", str(out)
+        "-movflags", "+faststart", "-crf", "42", str(out)
     ], check=True)
     shutil.rmtree(frame_dir)
     return out
 
 def build_spa(ascii_text, mp4_path):
     data = base64.b64encode(mp4_path.read_bytes()).decode("ascii")
-    motion_text = json.dumps(MOTION, indent=2, sort_keys=True, ensure_ascii=True)
+    motion_text = json.dumps(MOTION, sort_keys=True, ensure_ascii=True, separators=(",", ":"))
     css = """
     :root{color-scheme:dark;background:#080808;color:#f3f3f3;font-family:system-ui,sans-serif}
     body{margin:0;padding:1rem;max-width:100vw;overflow-x:hidden}
