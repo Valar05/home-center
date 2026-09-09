@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt-v2",
   "experiment_id": "v2-timing-017-scoped-gust-rephase",
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "HEALTHY_USER_SURFACED",
   "current_worker_liveness": {
     "home_center_campaign_read": true,
     "github_readback": true
@@ -18,51 +18,67 @@
     "whole_source_inspected": true,
     "source_timing": "UNAVAILABLE; ALL AUTHORED TIMING INFERRED"
   },
-  "repo_readback": false,
-  "three_part_chat_delivery": false,
+  "repo_readback": true,
+  "three_part_chat_delivery": true,
+  "chat_delivery": {
+    "part_1_ascii": true,
+    "part_2_persisted_json": true,
+    "part_3_visible_video": true,
+    "order": ["ASCII", "JSON", "VIDEO"],
+    "video_policy": "DETERMINISTIC_FROM_EXACT_PERSISTED_TIMING; BYTE_IDENTITY_TRUTHFULLY_LABELED_AT_REPORTING_RUNTIME"
+  },
   "tango": {
     "status": "PASS",
+    "current_worker": true,
     "rounds": 5,
     "final_round": 4,
     "actual_render_sha256": "d56aa561368ef5b7f114553292dcd699fdc0079965d89da7ec336a3ed7668274"
   },
   "noodle_queen": {
     "status": "PASS",
+    "current_worker": true,
     "after_tango": true,
-    "actual_render_sha256": "d56aa561368ef5b7f114553292dcd699fdc0079965d89da7ec336a3ed7668274"
+    "actual_render_sha256": "d56aa561368ef5b7f114553292dcd699fdc0079965d89da7ec336a3ed7668274",
+    "taste": "diagonal glide, one-frame gust, canopy reef/reopen/overshoot and independent hand cadence read as authored",
+    "function": "CANOPY_CLOCK alone rephases while BODY_ROOT and HAND_SWAY visibly continue; drag consequence changes later root cadence",
+    "contempt": "no master reset, nonparticipant phase erasure, local-freeze or phase-debt reskin, endpoint tween, source imitation, or idle return"
   },
   "contract": {
     "candidate_isolated": "PASS",
+    "current_worker_candidate_isolated": "PASS",
     "validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
     "repo_global": "NOT_CLAIMED_AT_STANDARD_CHAT_CONNECTOR_BOUNDARY",
     "result": {
-      "entries_checked": [
-        "v2-timing-017-scoped-gust-rephase"
-      ],
+      "entries_checked": ["v2-timing-017-scoped-gust-rephase"],
       "ok": true,
       "schema": "ascii-kinesis.swarm-contract-v2-test"
     }
   },
-  "issue_343_receipt": null,
-  "ship_commit": null,
-  "verification_commit": null,
+  "repo": {
+    "spa_commit": "6a69607cc0839883eb32d534afd63cb328e09213",
+    "spa_blob": "2fdc8e35dfbc81571b2c357fa14c8605c2622e63",
+    "exact_six_file_readback": true
+  },
+  "issue_343_receipt": 5599056530,
+  "ship_commit": "6a69607cc0839883eb32d534afd63cb328e09213",
+  "verification_commit": "6a69607cc0839883eb32d534afd63cb328e09213",
   "drew_accepted": false,
   "media": {
     "sha256": "d56aa561368ef5b7f114553292dcd699fdc0079965d89da7ec336a3ed7668274",
     "bytes": 7812,
     "codec": "h264",
     "pix_fmt": "yuv420p",
-    "dimensions": [
-      360,
-      280
-    ],
+    "dimensions": [360, 280],
     "fps": 24,
     "frames": 35,
-    "decode": true
+    "decode": true,
+    "authoritative": "embedded_spa_mp4"
   },
   "quality_notes": {
-    "fresh_worker_round_3": "REVISE_REQUIRED: HAND_SWAY continuity visually entangled with suspension lines; corrected SAME 017 local ASCII silhouettes.",
-    "fresh_worker_round_4": "PASS on actual 35-frame render: root and hand continue through canopy-only reef reset; overshoot/brake/countersway/displaced settle visible.",
-    "noodle_queen": "PASS after Tango on same final actual render"
+    "persisted_prior_round_3": "REVISE_REQUIRED: HAND_SWAY continuity visually entangled with suspension lines; corrected SAME 017 local ASCII silhouettes.",
+    "current_worker_round_4": "PASS on byte-identical actual 35-frame render: root and hand continue through canopy-only reef reset; reopen, overshoot, brake, countersway and displaced settle remain visible.",
+    "current_worker_noodle_queen": "PASS after Tango on the same final actual render",
+    "fresh_source_evidence_readback": "PASS: issue comment 5571378604 whole-sheet custody re-read; source timing remains UNKNOWN/UNAVAILABLE",
+    "reporting_chat": "COMPLETE PART 1 ASCII -> PART 2 byte-identical persisted JSON -> PART 3 visible deterministic media"
   }
 }
