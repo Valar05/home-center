@@ -18,7 +18,7 @@
     }
   },
   "experiment_id": "v2-timing-015-phase-preserving-local-freeze",
-  "issue_343_receipt": null,
+  "issue_343_receipt": 5596734105,
   "media": {
     "authoritative": "embedded_mp4",
     "bytes": 5293,
@@ -81,7 +81,7 @@
     "title": "Tails",
     "whole_source_evidence_freshly_read": true
   },
-  "status": "PERSISTED_READY_FOR_REPORTING_CHAT",
+  "status": "USER_SURFACE_PENDING",
   "three_part_chat_delivery": false,
-  "verification_commit": null
+  "verification_commit": "f2995a2645f47bdf4d4c80451c0d42d557b6e6d7"
 }
