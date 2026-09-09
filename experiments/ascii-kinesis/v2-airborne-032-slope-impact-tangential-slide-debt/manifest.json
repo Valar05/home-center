@@ -1,0 +1,82 @@
+{
+  "schema": "ascii-kinesis.manifest.v2",
+  "format_version": 2,
+  "experiment_id": "v2-airborne-032-slope-impact-tangential-slide-debt",
+  "lane": "airborne",
+  "concept_type": "fresh-concept",
+  "revises": null,
+  "negative_fixture": null,
+  "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+  "successor_collision": false,
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "repo_path": "experiments/ascii-kinesis/v2-airborne-032-slope-impact-tangential-slide-debt/",
+  "source": {
+    "provider": "The Spriters Resource",
+    "title": "Sonic",
+    "game": "Sonic Advance 2",
+    "platform": "Game Boy Advance",
+    "asset_id": "154243",
+    "campaign_evidence_artifact": "1L7Q1cyEZyrEw5OBiPLjEZM3P2iE78DcaYoCYdNC8fVI",
+    "whole_source_inspected": true,
+    "source_authentic_timing": "UNKNOWN",
+    "decisive_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "rights_firewall": true
+  },
+  "primitive": "SLOPE_NORMAL_TANGENTIAL_SPLIT_DEBT",
+  "quality": {
+    "tango": "PASS_CURRENT_WORKER_ACTUAL_RENDER",
+    "noodle_queen": "PASS_CURRENT_WORKER_SAME_ACTUAL_RENDER_TASTE_FUNCTION_CONTEMPT",
+    "post_pass_mutation": false
+  },
+  "media": {
+    "authoritative": "embedded_mp4_in_spa",
+    "source": "abstract_ascii_rig_and_structured_timing_only",
+    "mime": "video/mp4",
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "sha256": "1237b890c0826e658534199015832ddcda6e18a9eb83ca3493e234f42fac61d6",
+    "bytes": 20389,
+    "width": 726,
+    "height": 460,
+    "fps": 24,
+    "frames": 71,
+    "decode": "PASS_FFMPEG_CURRENT_WORKER"
+  },
+  "contract": {
+    "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS_EXACT_CURRENT_OFFICIAL_VALIDATOR",
+    "repo_global_execution_claimed": false
+  },
+  "artifacts": {
+    "build_py_sha256": "76e097a0924cd7d022ae472042845a3f41926db970a1089c6d0c6db60220b5cb",
+    "contact_sheet_sha256": "892c4fcfab87e0d310594dcf755fd03a599139a2abe834917efaa75fe42e7a2a",
+    "motion_json_sha256": "99524a51023e1a6cb89e35a5723448820b72d65db1cb05d8ede2f670f465986b",
+    "spa_sha256": "867067b40ba63bd084c8f2f2515b3977fb077540b70126c528a25b6caa9404c4"
+  },
+  "repo_readback": {
+    "persisted": false,
+    "final_readback": false,
+    "exact_one_spa": false,
+    "six_file_readback": false
+  },
+  "issue_343": {
+    "closure_receipt": null,
+    "readback": false
+  },
+  "reporting_chat": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_visible_video": false
+  },
+  "DREW_ACCEPTED": false,
+  "next_authorized": null
+}
