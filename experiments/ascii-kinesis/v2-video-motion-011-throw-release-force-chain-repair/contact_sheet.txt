@@ -1,0 +1,499 @@
+Throw repair · rear-load → pelvis lead → release fork → displaced recovery debt
+v2-video-motion-011-throw-release-force-chain-repair | abstract ASCII rig + object channel only | source pixels/audio absent
+Legend: O head | @ COM/root | T throwing hand | * off hand | A rear-foot channel | B front-foot channel | o object
+Source timestamps below are OBSERVED slow-motion presentation anchors only. All acting/support/custody/release/compile timing is INFERRED.
+
+K0 CROOKED_READY | FOURS / INFERRED
+source_anchor 6.000s OBSERVED — selected coherent action segment begins; timestamp is slow-motion presentation evidence only
+support REAR_DOMINANT | custody HAND
+root/arc Root sits rearward and low over the rear support channel; no neutral symmetry.
+acting Crooked stance; ball/custody channel tucked low behind; off arm counterbalances forward.
+
+
+
+
+
+
+
+
+                               O
+                               |
+                               +-
+                              --+-+
+                           +-- |   \\
+                         --     |    +
+                      oT-       |     \
+                                |      *
+                                @
+                               / \
+                             //   \
+                            +      +
+                           /        \\
+                         //           \\
+________________________A_______________B_______________________
+
+
+
+
+K1 DEEP_REAR_LOAD | FOURS / INFERRED
+source_anchor —
+support REAR_DOMINANT | custody HAND
+root/arc COM proxy drops/back; rear foot owns load while front foot stays long and light.
+acting Maximum rear load: torso folds away from target while throwing hand climbs behind the head plane.
+
+
+
+
+
+
+
+
+                  oT--      O
+                      --+-   |
+                          -- +-
+                            -+ -+
+                             |   --
+                              |    -+-
+                              |       -*
+                              |
+                              @
+                            // \\
+                           +     \\
+                          /        +-
+                        //           ---
+_______________________A________________-B______________________
+
+
+
+
+K2 PELVIS_DRIVE_HAND_LAG | TWOS / INFERRED
+source_anchor —
+support REAR_DOMINANT | custody HAND
+root/arc Root moves forward before distal throw channel; rear support still owns the push.
+acting Pelvis commits toward target while throwing arm deliberately lags farther behind.
+
+
+
+
+
+
+                  oT-
+                     --      O
+                       -+-    |
+                          --- +-
+                             -+|-+
+                               |  --
+                                |   -+-
+                                |      -*
+                                 |
+                                 @
+                                / \
+                              //   \
+                             +      +
+                           //        \\
+                         //            \\
+________________________A________________B______________________
+
+
+
+
+K3 TORSO_UNWIND | TWOS / INFERRED
+source_anchor 8.000s OBSERVED — release/forward-arc inspection window begins; exact release remains UNKNOWN
+support TRANSFER_REAR_TO_FRONT | custody HAND
+root/arc COM climbs slightly and shifts between support channels; front leg begins to accept force.
+acting Torso catches pelvis; throwing elbow rises while hand remains behind the shoulder clock.
+
+
+
+
+                        oT-
+                           --
+                             +
+                              \ O
+                               \\
+                                +-
+                                |-+-+-
+                                 |    -+-
+                                 |       -*
+                                  |
+                                  @
+                                 / \
+                                /   \
+                               /     +
+                              +       \
+                            //         \
+                          //            \
+_________________________A_______________B______________________
+
+
+
+
+K4 SHOULDER_SLING_BRIDGE | ONES / INFERRED
+source_anchor —
+support FRONT_DOMINANT_REAR_TOE | custody HAND
+root/arc Front brace is established; rear heel is spent, leaving toe support only.
+acting Memorable bow shape: pelvis/torso are already forward while ball hand is still overhead-behind.
+
+
+
+
+                             oT--
+                                 -+
+                                  |
+                                   |
+                                  O|
+                                  | |
+                                  +-+
+                                  | -+
+                                  |   \\
+                                   |    +-
+                                   |      -*
+                                   @
+                                  / \
+                                 /   \
+                                /     +
+                               +       \
+                              /         \
+                            //           \
+___________________________A______________B_____________________
+
+
+
+
+K5 ARM_ACCELERATION | ONES / INFERRED
+source_anchor —
+support FRONT_BRACE_REAR_PEEL | custody HAND
+root/arc Front foot is the hard brace; rear foot has peeled from full support.
+acting Arm snaps past the now-open torso; off arm retracts across the body to pay rotational debt.
+
+
+
+
+
+                                         +-  o
+                                        /  -T
+                                   O    /
+                                   |   /
+                                   +--+
+                                   |-+
+                                   --
+                                -+- |
+                              *-    |
+                                    @
+                                   / \
+                                  /   \
+                                 /     +
+                                +       \
+                              //         \
+                             A            \
+___________________________________________B____________________
+
+
+
+
+K6 RELEASE_GATE | ONES / INFERRED
+source_anchor 9.000s OBSERVED — inside historically inspected forward-arc window; source object separation is not resolved
+support FRONT_BRACE_REAR_PEEL | custody RELEASE_GATE
+root/arc Root is braced rather than chasing the hand; object clock may fork only after this key.
+acting Authored release gate occurs before the arm's farthest reach; ball is still adjacent to the hand here.
+
+
+
+
+
+
+                                           +
+                                    O    // \\ o
+                                    |   /     T
+                                    +--+
+                                    -+
+                              *--+--|
+                                    |
+                                    |
+                                    @
+                                   / \
+                                  /   \
+                                  /    +
+                                 +      \
+                               //        \
+                              A           \
+___________________________________________B____________________
+
+
+
+
+K7 OBJECT_FORK_BODY_FOLLOW | ONES / INFERRED
+source_anchor —
+support FRONT_ONLY_REAR_AIR | custody FREE
+root/arc Rear foot is fully airborne; front brace alone catches the thrower's rotational translation.
+acting Ball clock separates immediately after authored release while body continues forward and down.
+
+
+
+
+
+
+                                                    o
+
+                                     O     -+-
+                             *--     |   --   --T
+                                -+-- +--+
+                                    --+
+                                     |
+                                     |
+                                     |
+                                     @
+                                    / \
+                                   /   \
+                                 -+     +
+                               A-        \
+                                          \
+___________________________________________B____________________
+
+
+
+
+K8 FULL_FOLLOW_THROUGH | TWOS / INFERRED
+source_anchor 10.000s OBSERVED — release/forward-arc inspection window ends; timestamp does not establish authored cadence
+support FRONT_ONLY_REAR_AIR | custody FREE
+root/arc Front knee compresses under body consequence; ball continues an independent forward arc.
+acting Throwing arm is now farther than at release; trunk spills forward while off arm lags behind.
+
+
+
+
+
+                                                         o
+
+
+                            *--
+                               --+     O
+                                  \\  |     --+-
+                                    \\+--+--    --
+                                      +           -T
+                                      |
+                                      |
+                                      |
+                                      @
+                                    // \
+                               A---+    \
+                                         +
+                                          \
+___________________________________________B____________________
+
+
+
+
+K9 COUNTER_ROTATION | TWOS / INFERRED
+source_anchor —
+support FRONT_ONLY_REAR_AIR | custody FREE
+root/arc Support remains front-only; recovery cannot begin by simply reversing the throw.
+acting Body begins counter-rotation while arm and off arm overshoot in opposite directions.
+
+
+
+
+
+
+                                                             o
+                           *-
+                             --
+                               -+       O
+                                 \\    |
+                                   \\  +
+                                     +-|-+----+
+                                       |       \\
+                                      |          T
+                                      |
+                                      @
+                                    // \
+                                  -+    \
+                                A-       +
+                                          \
+___________________________________________B____________________
+
+
+
+
+K10 FRONT_CATCH_COMPRESSION | FOURS / INFERRED
+source_anchor —
+support BOTH_FRONT_DOMINANT | custody FREE
+root/arc Root reaches its deepest post-release compression with both contacts restored but front still dominant.
+acting Rear foot returns only after the front-leg catch; the actor sinks instead of popping back to idle.
+
+
+
+
+
+
+
+
+                           *-
+                             --
+                               +       O
+                                \\    |
+                                  \\  +
+                                    +-|-+----+--
+                                     |          --T
+                                     |
+                                    |
+                                    @
+                                   / --
+                                  +    -+
+                                 /       --
+________________________________A__________-B___________________
+
+
+
+
+K11 THROW_ARM_OVERSHOOT | TWOS / INFERRED
+source_anchor —
+support BOTH_FRONT_DOMINANT | custody FREE
+root/arc Root rebounds modestly while distal arm continues forward/down—secondary debt instead of recoil reversal.
+acting Throw arm drops past the body's recovery line; object has left the frame but remains semantically free.
+
+
+
+
+
+
+
+
+
+                            *-         O
+                              -+-     |
+                                 --   +
+                                   -+-|-+--
+                                      |    ---+-
+                                     |          ---
+                                     |             -T
+                                     @
+                                   // \
+                                  +    \\
+                                 /       +
+                                 /        --
+________________________________A___________-B__________________
+
+
+
+
+K12 CROSS_BODY_REBOUND | TWOS / INFERRED
+source_anchor —
+support BOTH_FRONT_DOMINANT | custody FREE
+root/arc Both feet support a crooked cross-body rebound; root does not retrace its launch path.
+acting Torso rebounds against the throw while throwing arm remains late and low.
+
+
+
+
+
+
+
+
+                             *-       O
+                               +-    |
+                                 --  +
+                                   +-|-+-
+                                     |   --
+                                    |      -+
+                                    |        --
+                                    @          -T
+                                   / \
+                                   /  \\
+                                  +     +
+                                 /       \\
+                                 /         \\
+________________________________A____________B__________________
+
+
+
+
+K13 SECONDARY_LAG_SETTLE | FOURS / INFERRED
+source_anchor —
+support BOTH_RECOVERING | custody FREE
+root/arc Recovery base is wider and farther forward than the opening stance.
+acting Head/off arm are still counter-turned while root has mostly settled; secondary lag is explicit.
+
+
+
+
+
+
+
+
+                              *-     O
+                                +    |
+                                 \\  +
+                                   +-|-+
+                                     |  --
+                                    |     -+-
+                                    |        -T
+                                    @
+                                   / \\
+                                   /   \\
+                                  +      +
+                                 /        \\
+                                 /          \\
+________________________________A_____________B_________________
+
+
+
+
+K14 DISPLACED_RECOVERY_DEBT | FOURS / INFERRED
+source_anchor 12.000s OBSERVED — selected action segment ends; only broad re-centering is observed, exact mechanics remain inferred
+support BOTH_RECOVERING | custody FREE
+root/arc No neutral reset: both support contacts are shifted right and stance orientation changed.
+acting Actor has paid down the throw but remains translated forward with the throwing shoulder low.
+
+
+
+
+
+
+
+
+                                       O
+                                      |
+                                      +
+                                    +-|-+
+                                  +-  |  \\
+                                 |    |    +
+                                 *    |     -T
+                                      @
+                                     / \\
+                                     /   \\
+                                    +      +
+                                   /        \\
+                                   /          \\
+__________________________________A_____________B_______________
+
+
+
+
+K15 READY_DIFFERENT | FOURS / INFERRED
+source_anchor —
+support BOTH_FRONT_BIASED | custody FREE
+root/arc Displaced forward-biased support completes recovery debt without reverse interpolation.
+acting Final silhouette is a new ready state, not the opening pose: weight and shoulders remain target-side.
+
+
+
+
+
+
+
+                                        O
+                                       |
+                                       +
+                                     +-|-+
+                                    /  |  \\
+                                   +   |    +
+                                  |    |     -T
+                                  *    @
+                                      | \
+                                      |  \\
+                                     |     \
+                                     +      +
+                                    /        \\
+                                    /          \\
+___________________________________A_____________B______________
