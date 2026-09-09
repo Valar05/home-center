@@ -3,11 +3,24 @@ name: Private Forge Canary
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   prove-portable-runner:
     runs-on: forge-linux-free
+    env:
+      GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out from this private Gitea instance
+        run: |
+          set -eu
+          work="$GITHUB_WORKSPACE/repo"
+          rm -rf "$work"
+          git -c http.extraHeader="Authorization: token ${GITEA_TOKEN}" \
+            clone --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$work"
+          git -C "$work" fetch --no-tags origin "$GITHUB_SHA"
+          git -C "$work" checkout --detach "$GITHUB_SHA"
       - name: Prove free runner identity
         run: |
           printf 'runner=forge-linux-free\n'
@@ -17,5 +30,6 @@ jobs:
           java -version
       - name: Prove private-forge source contract
         run: |
+          cd "$GITHUB_WORKSPACE/repo"
           bash tools/bootstrap_free_cloud_forge.sh --self-test
           python3 tools/test_home_center_forge_campaign.py
