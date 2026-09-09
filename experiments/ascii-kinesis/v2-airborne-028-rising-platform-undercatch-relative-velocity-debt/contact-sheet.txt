@@ -17,6 +17,7 @@ K0 FIXED_LEDGE_READ | FOURS INFERRED | support=BOTH_FIXED_LEDGE
 
 
 
+
          O
           |
           o\
@@ -28,8 +29,10 @@ K0 FIXED_LEDGE_READ | FOURS INFERRED | support=BOTH_FIXED_LEDGE
          / \\
         o    o
         /     \
-L      =       =                               [===========]
-_______!_______!__                                   ^>
+L      =       =
+_______!_______!__
+                                               [===========]
+                                                     ^>
 
 
 K1 REAR_HEEL_LOAD | FOURS INFERRED | support=LEFT_DOMINANT_FIXED
@@ -60,10 +63,11 @@ K1 REAR_HEEL_LOAD | FOURS INFERRED | support=LEFT_DOMINANT_FIXED
             |
             |
            /@
-         o/  \                                [===========]
-        /     o                                     ^>
+         o/  \
+        /     o
 L       =      \=
-________!_______!_
+________!_______!_                            [===========]
+                                                    ^>
 
 
 K2 SUPPORT_BREAK | ONES INFERRED | support=NONE
@@ -92,17 +96,15 @@ K2 SUPPORT_BREAK | ONES INFERRED | support=NONE
                  @
                 / \\
                 /   o\
-               o      \=                     [===========]
-              /                                    ^>
+               o      \=
+              /
              =
 
-L
-__________________
+L                                            [===========]
+__________________                                 ^>
 
 
 K3 LONG_DIAGONAL_FLIGHT | TWOS INFERRED | support=NONE
-
-
 
 
 
@@ -124,19 +126,16 @@ K3 LONG_DIAGONAL_FLIGHT | TWOS INFERRED | support=NONE
                      //         =
                     =
 
+
+
+
+
                                             [===========]
-                                                  ^>
-
-
-
-
-L
+L                                                 ^>
 __________________
 
 
 K4 APEX_OPEN | FOURS INFERRED | support=NONE
-
-
 
 
 
@@ -157,19 +156,17 @@ K4 APEX_OPEN | FOURS INFERRED | support=NONE
 
 
 
+
+
+
+
                                            [===========]
                                                  ^>
-
-
-
-
-
 L
 __________________
 
 
 K5 DESCENT_AIM | TWOS INFERRED | support=NONE
-
 
 
 
@@ -190,19 +187,20 @@ K5 DESCENT_AIM | TWOS INFERRED | support=NONE
                                       / \\
                                     //    o
                                    o       \\
-                                  /        [===========]
-                                 =               ^>
+                                  /          =
+                                 =
 
 
 
-
-
+                                           [===========]
+                                                 ^>
 
 L
 __________________
 
 
 K6 UNDERCATCH_PRECONTACT | TWOS INFERRED | support=NONE
+
 
 
 
@@ -230,14 +228,11 @@ K6 UNDERCATCH_PRECONTACT | TWOS INFERRED | support=NONE
                                       =          ^>
 
 
-
-
 L
 __________________
 
 
 K7 LEAD_TOE_UNDERCATCH | ONES INFERRED | support=RIGHT_TOE_MOVING_PLATFORM
-
 
 
 
@@ -287,7 +282,6 @@ K8 RELATIVE_VELOCITY_CRUSH | FOURS INFERRED | support=RIGHT_FOOT_MOVING_PLATFORM
 
 
 
-
                                              O      \x
                                               |  \o\
                                           =  /o\\
@@ -305,8 +299,6 @@ __________________
 
 
 K9 PLATFORM_CARRY_OVERSHOOT | TWOS INFERRED | support=RIGHT_FOOT_MOVING_PLATFORM
-
-
 
 
 
@@ -348,8 +340,6 @@ K10 TRAIL_HEEL_SHEAR_CATCH | ONES INFERRED | support=DUAL_MOVING_SHEAR
 
 
 
-
-
                                                        O
                                                        |
                                                        o\\
@@ -373,8 +363,6 @@ __________________
 
 
 K11 LOADED_RISE | TWOS INFERRED | support=LEFT_DOMINANT_MOVING
-
-
 
 
 
@@ -414,8 +402,6 @@ K12 PLATFORM_BRAKE_BODY_LAG | FOURS INFERRED | support=DUAL_MOVING_BRAKING
 
 
 
-
-
                                                                 O
                                                                 |
                                                               /o\
@@ -427,9 +413,9 @@ K12 PLATFORM_BRAKE_BODY_LAG | FOURS INFERRED | support=DUAL_MOVING_BRAKING
                                                             // \\
                                                            o     o
                                                           /       \
-                                                          /       \
                                                         [===========]
                                                          !    ^>   !
+
 
 
 
@@ -449,22 +435,20 @@ K13 DISPLACED_SETTLE | FOURS INFERRED | support=RIGHT_DOMINANT_MOVING_STOPPED
 
 
 
-
-
-
                                                                 O
                                                                 |
                                                                 o\
-                                                              //| \o
-                                                             o  |   \x
+                                                              //| \o\
+                                                             o  |    x
                                                             /   |
                                                            x    |
                                                                 @
                                                               // \\
-                                                             o     o
-                                                            /       \
+                                                            /o     o\
                                                          [============
                                                            !   ^>    !
+
+
 
 
 
