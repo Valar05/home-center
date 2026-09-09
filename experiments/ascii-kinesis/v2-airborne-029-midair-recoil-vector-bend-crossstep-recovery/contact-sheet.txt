@@ -1,0 +1,463 @@
+ASCII KINESIS V2 · AIRBORNE029
+MID-AIR REACTION PULSE / ROOT-VECTOR BEND / CROSSED SUPPORT RECOVERY
+Independent abstract ASCII rig. Source art pixels never enter this artifact.
+Legend: O head | X chest | @ pelvis/root | o joint | ^ free foot | * authored support | = abstract reaction bar | # released calibration puck
+All decisive timing is INFERRED / STREET_FIGHTER-CAPCOM. Source-authentic timing is UNKNOWN.
+
+[K0_LOAD_CROUCH] LOAD CROUCH
+support_contact=BOTH_FEET | custody=REACTION_BAR_TWO_HANDS_PUCK_SEATED
+root=[12, 17] | timing_class=FOURS | timing_provenance=INFERRED
+causal_role=grounded asymmetrical preload stores vertical and task-axis energy
+motion_arc_root_note=root low and rear-biased; no air support
+
+
+
+
+
+
+
+
+
+
+
+
+            O
+             |
+           o-X-o-
+             -[======#
+            |
+            @
+          // \\
+         o     o
+        |       \
+        *        *
+________________________________________________________________________
+
+[K1_TOE_RELEASE] TOE RELEASE
+support_contact=LEFT_TOE_LAST_SUPPORT | custody=REACTION_BAR_TWO_HANDS_PUCK_SEATED
+root=[17, 15] | timing_class=TWOS | timing_provenance=INFERRED
+causal_role=last grounded support drives root upward/right before release
+motion_arc_root_note=left toe is last support; root accelerates away from ground
+
+
+
+
+
+
+
+
+
+
+                  O
+                  |
+                o-X-o-
+                  -[======#
+                 |
+                 @
+                / --
+                /   -o
+               o      \
+               |       ^
+              |
+              *
+________________________________________________________________________
+
+[K2_RISE_EXTEND] RISE EXTEND
+support_contact=AIR | custody=REACTION_BAR_TWO_HANDS_PUCK_SEATED
+root=[24, 11] | timing_class=TWOS | timing_provenance=INFERRED
+causal_role=unsupported ballistic rise establishes clean pre-task flight
+motion_arc_root_note=root travels right/up; feet clear support
+
+
+
+
+
+                         O
+                         |
+                       o-X-o-
+                         |-[======#
+                        |
+                        @
+                       / \
+                      /   \
+                     o     o
+                    /       \
+                    /        \
+                   ^          ^
+
+
+
+
+________________________________________________________________________
+
+[K3_AIR_TASK_COIL] AIR TASK COIL
+support_contact=AIR | custody=REACTION_BAR_TWO_HANDS_PUCK_SEATED
+root=[31, 8] | timing_class=TWOS | timing_provenance=INFERRED
+causal_role=task folds across torso while root remains ballistic
+motion_arc_root_note=root still right/up but vertical gain decays; task has not changed root yet
+
+
+
+                               O
+                               |
+                             o-X-o
+                              || ==== #
+                             [===
+                               @
+                             -- \
+                           o-    \\
+                          /        o
+                          /         \
+                         ^           \
+                                      ^
+
+
+
+
+
+
+
+________________________________________________________________________
+
+[K4_APEX_PREPULSE] APEX PRE-PULSE
+support_contact=AIR | custody=REACTION_BAR_TWO_HANDS_PUCK_SEATED
+root=[37, 7] | timing_class=FOURS | timing_provenance=INFERRED
+causal_role=apex read freezes task intention before the free-flight impulse
+motion_arc_root_note=root nearly flat at apex; task line compresses toward left shoulder
+
+
+                                     O
+                                     |
+                                   o-X-o
+                                   | |====#
+                                  [===
+                                     @
+                                   -- --
+                                 o-     -o
+                                /         \
+                                /          \
+                               ^            ^
+
+
+
+
+
+
+
+
+________________________________________________________________________
+
+[K5_REACTION_PULSE] REACTION PULSE
+support_contact=AIR | custody=REACTION_BAR_TWO_HANDS_PUCK_RELEASED
+root=[40, 7] | timing_class=ONES | timing_provenance=INFERRED
+causal_role=puck ejection creates an authored opposite task impulse while body remains unsupported
+motion_arc_root_note=root reaches last rightward sample; impulse changes subsequent horizontal velocity, not support
+
+
+                                       O
+                                       |
+                                     o-X-o
+                                 [======]        #
+                                        |
+                                        @-
+                                      //  --o
+                                     o       \\
+                                    /          ^
+                                    /
+                                   ^
+
+
+
+
+
+
+
+
+________________________________________________________________________
+
+[K6_RECOIL_FOLD] RECOIL FOLD
+support_contact=AIR | custody=REACTION_BAR_TWO_HANDS_PUCK_SEPARATED
+root=[40, 8] | timing_class=TWOS | timing_provenance=INFERRED
+causal_role=task impulse folds shoulders left while legs scissor to absorb angular debt
+motion_arc_root_note=horizontal root gain collapses; gravity owns vertical descent
+
+
+
+                                      O
+                                      |
+                                   -o-X-o               #
+                               [======]\
+                                       \
+                                       -@
+                                   -o--  \
+                                 ^-       \\
+                                            o
+                                             \
+                                              \
+                                               ^
+
+
+
+
+
+
+
+________________________________________________________________________
+
+[K7_VECTOR_BEND] VECTOR BEND
+support_contact=AIR | custody=REACTION_BAR_TWO_HANDS_PUCK_SEPARATED
+root=[37, 10] | timing_class=TWOS | timing_provenance=INFERRED
+causal_role=free-flight root visibly bends left/down after the task impulse
+motion_arc_root_note=root reverses horizontal drift without wall/platform/ground support
+
+
+
+
+                                   O
+                                   |                           #
+                                 o-X-o
+                             [======]
+                                    \
+                                    -@
+                                  --  \
+                                o-     \\
+                               /         o
+                              /           \
+                             ^             \
+                                            ^
+
+
+
+
+________________________________________________________________________
+
+[K8_DESCENT_CROSSPREP] DESCENT CROSS-PREP
+support_contact=AIR | custody=REACTION_BAR_TWO_HANDS_PUCK_OFFSTAGE
+root=[34, 13] | timing_class=TWOS | timing_provenance=INFERRED
+causal_role=legs reorganize for an asymmetric crossed catch before any ground support
+motion_arc_root_note=root continues left/down; right foot crosses body midline toward landing lane
+
+
+
+
+
+
+
+                                 O
+                                 |
+                               o-X-o
+                           [======]
+                                  |
+                                  @
+                                 / \\
+                                /    o
+                               o      \
+                              /        \
+                              /         ^
+                             ^
+
+
+________________________________________________________________________
+
+[K9_SEPARATED_PRECONTACT] SEPARATED PRECONTACT
+support_contact=AIR | custody=REACTION_BAR_TWO_HANDS_PUCK_OFFSTAGE
+root=[32, 15] | timing_class=ONES | timing_provenance=INFERRED
+causal_role=one-frame air gap makes support acquisition legible before crossed foot catch
+motion_arc_root_note=right foot hovers one row above floor; root still descending
+
+
+
+
+
+
+
+
+
+
+                               O
+                               |
+                             o-X-o
+                         [======]
+                                |
+                                @
+                               / \\
+                              /    o
+                             o      \
+                            /        \\
+                           ^           ^
+
+________________________________________________________________________
+
+[K10_CROSSFOOT_CONTACT] CROSS-FOOT CONTACT
+support_contact=RIGHT_FOOT_NEW_CONTACT | custody=REACTION_BAR_TWO_HANDS_PUCK_OFFSTAGE
+root=[31, 16] | timing_class=ONES | timing_provenance=INFERRED
+causal_role=crossed right foot acquires ground support while pelvis is still above and left of it
+motion_arc_root_note=contact occurs under the opposite side of the body; root continues down after contact
+
+
+
+
+
+
+
+
+
+
+
+                              O
+                              |
+                            o-X-o
+                        [======]
+                               |
+                               @
+                              / --
+                             /    -o
+                            o       --
+                           /          -^
+                          *
+________________________________________________________________________
+
+[K11_ONE_FOOT_CRUSH] ONE-FOOT CRUSH
+support_contact=RIGHT_FOOT | custody=REACTION_BAR_TWO_HANDS_PUCK_OFFSTAGE
+root=[29, 18] | timing_class=FOURS | timing_provenance=INFERRED
+causal_role=new crossed support pays remaining vertical and leftward debt through deep one-sided compression
+motion_arc_root_note=root drops and slides left of support; free foot remains late
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            O
+                             |
+                           o-X-o
+                         [========]
+                             |
+                             @--
+                            /   ---o----^
+                           o
+                          *
+________________________________________________________________________
+
+[K12_REAR_FOOT_HUNT] REAR FOOT HUNT
+support_contact=RIGHT_FOOT | custody=REACTION_BAR_TWO_HANDS_PUCK_OFFSTAGE
+root=[28, 18] | timing_class=TWOS | timing_provenance=INFERRED
+causal_role=free foot hunts around the crossed stance instead of teleporting to bilateral support
+motion_arc_root_note=root stays loaded on right foot; shoulders and bar overrun rightward
+
+
+
+
+
+
+
+
+
+
+
+
+
+                             O
+                              |
+                            o-X-o-
+                             /-[=======]
+                             /
+                            @--
+                           /   ---o-
+                          o         -^
+                         *
+________________________________________________________________________
+
+[K13_SECOND_CONTACT] SECOND CONTACT
+support_contact=BOTH_FEET_NEW_SECOND_CONTACT | custody=REACTION_BAR_TWO_HANDS_PUCK_OFFSTAGE
+root=[28, 17] | timing_class=ONES | timing_provenance=INFERRED
+causal_role=late left foot earns bilateral support after one-foot crush
+motion_arc_root_note=root lifts slightly but remains displaced; support topology changes only now
+
+
+
+
+
+
+
+
+
+
+
+
+                             O
+                             |
+                           o-X-o-
+                             -[=======]
+                            |
+                            @-
+                           /  --
+                          o     -o
+                         /        \\
+                        *           *
+________________________________________________________________________
+
+[K14_SHOULDER_OVERRUN] SHOULDER OVERRUN
+support_contact=BOTH_FEET | custody=REACTION_BAR_TWO_HANDS_PUCK_OFFSTAGE
+root=[27, 17] | timing_class=TWOS | timing_provenance=INFERRED
+causal_role=upper-body/task lag passes beyond the now-stabilizing pelvis
+motion_arc_root_note=pelvis decelerates while shoulders and bar overshoot left
+
+
+
+
+
+
+
+
+
+
+
+
+                         O
+                         |
+                       o-X-o
+                   [=======]
+                          \
+                           @-
+                          /  --
+                         o     -o
+                        /        \\
+                       *           *
+________________________________________________________________________
+
+[K15_DISPLACED_SETTLE] DISPLACED SETTLE
+support_contact=BOTH_FEET | custody=REACTION_BAR_TWO_HANDS_PUCK_OFFSTAGE
+root=[26, 16] | timing_class=FOURS | timing_provenance=INFERRED
+causal_role=stance restacks without returning to launch pose or original world position
+motion_arc_root_note=root settles left of launch trajectory with wide asymmetric stance and residual task angle
+
+
+
+
+
+
+
+
+
+
+
+                          O
+                          |
+                        o-X-o
+                        [=======]
+                          |
+                          @-
+                        //  --
+                       o      -o
+                      /         \
+                      /          \
+                     *            *
+________________________________________________________________________
