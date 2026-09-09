@@ -1,11 +1,11 @@
 {
   "schema": "ascii-kinesis.v2-receipt",
   "experiment_id": "v2-timing-014-constraint-dwell-redistribution",
-  "status": "QUALITY_GATES_PASS_MEDIA_DECODE_PASS_CONTRACT_PASS_REPO_READBACK_PENDING",
+  "status": "HEALTHY_USER_SURFACED",
   "repo_path": "experiments/ascii-kinesis/v2-timing-014-constraint-dwell-redistribution/",
-  "ship_commit": null,
+  "ship_commit": "87dd48f50f125be832cfc1e2ee47e73d2f67144a",
   "verification_commit": null,
-  "issue_343_receipt": null,
+  "issue_343_receipt": 5596277094,
   "drew_accepted": false,
   "source": {
     "provider": "The Spriters Resource",
@@ -66,16 +66,19 @@
     "notes": "TASTE: rear load, fast wall acquisition, staged crush, shear, peel, back-lean overshoot and crooked catch produce a specific silhouette/rhythm. FUNCTION: the closed-axis timing insight is visible without metadata. CONTEMPT: the corrected specimen does not hide behind a static crush hold, generic metronome, or polite return to start."
   },
   "verification": {
-    "repo_readback": false,
-    "repo_file_count": null,
+    "repo_readback": true,
+    "repo_file_count": 6,
     "contract_test": "PASS_CANDIDATE_ISOLATED_OFFICIAL_V2_EXACT_SCRIPT_BLOB_09f0bcf233dbb770ce6b6df047fe18d94be8aa7c; repo-global checkout execution not claimed in Standard Chat",
     "media_decode": "PASS_H264_288x162_24FPS_77FRAMES_SHA_MATCH",
-    "three_part_chat_delivery": false,
+    "three_part_chat_delivery": true,
     "chat_delivery_order": [
       "ASCII",
       "JSON",
       "VIDEO"
-    ]
+    ],
+    "reporting_chat_ascii": "DELIVERED_COMPLETE_DETERMINISTIC_FROM_EXACT_PERSISTED_DATA_TRAILING_WHITESPACE_NORMALIZED",
+    "reporting_chat_json": "DELIVERED_BYTE_IDENTICAL_GIT_BLOB_6c9d6aafc2ef7f46c54122326942f809dd509209",
+    "reporting_chat_video": "DELIVERED_BYTE_IDENTICAL_AUTHORITATIVE_MP4_SHA_2d8723c1917a0a59b75fd93fd737cd34014d455eb093e2e61819b155b5835877"
   },
   "correction_hooks": [
     "KEEP",
@@ -99,5 +102,6 @@
     "contact_sheet": "9225d3cad2f4893e5b7d17eb288d8ee63ac9e97e",
     "spa": "2f6cd4892f560257c0242f9c36b5a9c82db0d94b",
     "manifest": "47b7cd56ef53d501f7e59a210a7db2da8f5dbabc"
-  }
+  },
+  "pre_chat_issue_receipt": 5596269941
 }
