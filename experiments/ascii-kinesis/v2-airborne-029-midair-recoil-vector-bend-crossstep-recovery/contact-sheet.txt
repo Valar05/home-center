@@ -20,17 +20,17 @@ motion_arc_root_note=root low and rear-biased; no air support
 
 
 
-
             O
-             |
-           o-X-o-
-             -[======#
+            |
+          o-X-o[=====]#
+            |
+            |
             |
             @
-          // \\
-         o     o
-        |       \
-        *        *
+           / --
+          o    -o
+         /       --
+        *          -*
 ________________________________________________________________________
 
 [K1_TOE_RELEASE] TOE RELEASE
@@ -45,21 +45,19 @@ motion_arc_root_note=left toe is last support; root accelerates away from ground
 
 
 
-
-
-
-                  O
-                  |
-                o-X-o-
-                  -[======#
+                 O
                  |
-                 @
-                / --
-                /   -o
-               o      \
-               |       ^
-              |
-              *
+               o-X-o[=====]#
+                 |
+                 |
+                 |
+                 @--
+                /   --o
+                /      \
+               o        \
+               |         ^
+               |
+               *
 ________________________________________________________________________
 
 [K2_RISE_EXTEND] RISE EXTEND
@@ -71,22 +69,21 @@ motion_arc_root_note=root travels right/up; feet clear support
 
 
 
-
-
-                         O
-                         |
-                       o-X-o-
-                         |-[======#
+                        O
+                        |
+                      o-X-o[=====]#
+                        |
+                        |
                         |
                         @
                        / \
                       /   \
-                     o     o
-                    /       \
-                    /        \
-                   ^          ^
-
-
+                      /    \
+                     o      o
+                    |        \
+                    |         \
+                   |          \
+                   ^           ^
 
 
 ________________________________________________________________________
@@ -98,22 +95,21 @@ causal_role=task folds across torso while root remains ballistic
 motion_arc_root_note=root still right/up but vertical gain decays; task has not changed root yet
 
 
-
                                O
                                |
                              o-X-o
-                              || ====#
-                             [===
+                           [=====]#
+                               |
+                               |
                                @
-                             -- \
-                           o-    \\
-                          /        o
-                          /         \
-                         ^           \
-                                      ^
-
-
-
+                              / \\
+                            //    \\
+                           o        \\
+                          /           o
+                         /             \
+                         /              \\
+                        ^                 \
+                                           ^
 
 
 
@@ -126,21 +122,20 @@ root=[37, 7] | timing_class=FOURS | timing_provenance=INFERRED
 causal_role=apex read freezes task intention before the free-flight impulse
 motion_arc_root_note=root nearly flat at apex; task line compresses toward left shoulder
 
-
                                      O
                                      |
                                    o-X-o
-                                   | |====#
-                                  [===
+                                 [=====]#
+                                     |
+                                     |
                                      @
-                                   -- --
-                                 o-     -o
-                                /         \
-                                /          \
-                               ^            ^
-
-
-
+                                    / \
+                                  //   \\
+                                 o       \
+                                /         o
+                               /           \
+                               /            \\
+                              ^               ^
 
 
 
@@ -155,21 +150,21 @@ root=[40, 7] | timing_class=ONES | timing_provenance=INFERRED
 causal_role=puck ejection creates an authored opposite task impulse while body remains unsupported
 motion_arc_root_note=root reaches last rightward sample; impulse changes subsequent horizontal velocity, not support
 
-
                                        O
                                        |
-                                     o-X-o
-                                 [======]        #
+                                    -o-X-o
+                                 [======]o           #
                                         |
-                                        @-
-                                      //  --o
-                                     o       \\
-                                    /          ^
-                                    /
-                                   ^
-
-
-
+                                        |
+                                        @
+                                       / \\
+                                     //    \\
+                                    /        o
+                                   o          \
+                                  |            \\
+                                  |              ^
+                                 |
+                                 ^
 
 
 
@@ -185,22 +180,22 @@ causal_role=task impulse folds shoulders left while legs scissor to absorb angul
 motion_arc_root_note=horizontal root gain collapses; gravity owns vertical descent
 
 
-
                                       O
                                       |
-                                   -o-X-o               #
-                               [======]\
-                                       \
+                                 -o---X-o                 #
+                              [======]o-
+                                       |
+                                        |
                                        -@
-                                   -o--  \
-                                 ^-       \\
-                                            o
-                                             \
-                                              \
-                                               ^
-
-
-
+                                     --  \\
+                                   o-      \\
+                                  /          \\
+                                 /             o
+                                 /              \
+                                ^                \
+                                                 \
+                                                  \
+                                                   ^
 
 
 
@@ -216,22 +211,22 @@ motion_arc_root_note=root reverses horizontal drift without wall/platform/ground
 
 
 
-
                                    O
-                                   |                           #
-                                 o-X-o
-                             [======]
-                                    \
-                                    -@
-                                  --  \
-                                o-     \\
-                               /         o
-                              /           \
-                             ^             \
-                                            ^
-
-
-
+                                   |                            #
+                                -o-X-o
+                            [======]o
+                                    |
+                                     |
+                                     @
+                                   -- \\
+                                 --     \
+                               o-        \\
+                              /            o
+                             /              \
+                             /               \
+                            /                 \
+                           ^                   \
+                                                ^
 
 
 ________________________________________________________________________
@@ -248,20 +243,20 @@ motion_arc_root_note=root continues left/down; right foot crosses body midline t
 
 
 
-
                                  O
                                  |
-                               o-X-o
-                           [======]
+                              -o-X-o
+                          [======]o
+                                  |
                                   |
                                   @
-                                 / \\
+                                 / \
+                                /   \
                                 /    o
-                               o      \
-                              /        \
-                              /         ^
+                               o      --
+                              /         --
+                              /           -^
                              ^
-
 
 ________________________________________________________________________
 
@@ -278,19 +273,18 @@ motion_arc_root_note=right foot hovers one row above floor; root still descendin
 
 
 
-
-
                                O
                                |
-                             o-X-o
-                         [======]
+                            -o-X-o
+                        [======]o
+                                |
                                 |
                                 @
-                               / \\
-                              /    o
-                             o      \
-                            /        \\
-                           ^           ^
+                               / --
+                              /    -o-
+                             o        --
+                            |           --
+                            ^             -^
 
 ________________________________________________________________________
 
@@ -308,18 +302,17 @@ motion_arc_root_note=contact occurs under the opposite side of the body; root co
 
 
 
-
-
                               O
                               |
-                            o-X-o
-                        [======]
+                           -o-X-o
+                       [======]o
                                |
-                               @
-                              / --
-                             /    -o
-                            o       --
-                           /          -^
+                               |
+                               @--
+                              /   ---o
+                             /        --
+                            o           --
+                           /              -^
                           *
 ________________________________________________________________________
 
@@ -339,17 +332,16 @@ motion_arc_root_note=root drops and slides left of support; free foot remains la
 
 
 
-
-
                             O
                              |
-                           o-X-o
-                         [========]
+                         -o--X--o
+                      [========] -o
                              |
-                             @--
-                            /   ---o----^
-                           o
-                          *
+                             |
+                            -@-------o
+                          o----------------^
+                            ----
+                         *--
 ________________________________________________________________________
 
 [K12_REAR_FOOT_HUNT] REAR FOOT HUNT
@@ -368,17 +360,16 @@ motion_arc_root_note=root stays loaded on right foot; shoulders and bar overrun 
 
 
 
-
-
                              O
-                              |
-                            o-X-o-
-                             /-[=======]
-                             /
-                            @--
-                           /   ---o-
-                          o         -^
-                         *
+                             |
+                          o--X--o-
+                        o[=========]o
+                            |
+                            |
+                           -@------o
+                         o--------
+                          ----   -------^
+                        *-
 ________________________________________________________________________
 
 [K13_SECOND_CONTACT] SECOND CONTACT
@@ -396,18 +387,17 @@ motion_arc_root_note=root lifts slightly but remains displaced; support topology
 
 
 
-
-
-                             O
-                             |
-                           o-X-o-
-                             -[=======]
+                            O
                             |
-                            @-
-                           /  --
-                          o     -o
-                         /        \\
-                        *           *
+                          o-X-o-
+                        [=========]
+                            |
+                            |
+                            @--
+                          //   ---o
+                         o-------
+                         ------------
+                       *-            ---*
 ________________________________________________________________________
 
 [K14_SHOULDER_OVERRUN] SHOULDER OVERRUN
@@ -425,18 +415,17 @@ motion_arc_root_note=pelvis decelerates while shoulders and bar overshoot left
 
 
 
-
-
                          O
                          |
-                       o-X-o
-                   [=======]
-                          \
-                           @-
-                          /  --
-                         o     -o
-                        /        \\
-                       *           *
+                     -o--X-o
+                 [=========]-o
+                          |
+                           |
+                           @--
+                         //   ---o
+                        o-------
+                        ------------
+                      *-            ---*
 ________________________________________________________________________
 
 [K15_DISPLACED_SETTLE] DISPLACED SETTLE
@@ -453,17 +442,16 @@ motion_arc_root_note=root settles left of launch trajectory with wide asymmetric
 
 
 
-
-
                           O
                           |
-                        o-X-o
-                        [=======]
+                        o-X-o-
+                      o[=========]
+                          |
                           |
                           @-
-                        //  --
-                       o      -o
-                      /         \
-                      /          \
-                     *            *
+                        //  ----
+                       o---    --o
+                           ------
+                       ----      ------
+                    *--                ---*
 ________________________________________________________________________
