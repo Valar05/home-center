@@ -32,6 +32,18 @@ Therefore all of these enter the Arsenal:
 
 The intake side optimizes recall. Classification happens after admission.
 
+## Signature object law: SHOVEL
+
+`shovel` is a project-loaded token. When Drew says or writes **shovel**, it is never treated as a semantically neutral ordinary-object mention.
+
+A literal shovel mention is sufficient for upstream Chekhov admission (`chekhov: true`) even when the local excerpt contains no explicit violent verb. This preserves accumulated project pressure around trench work, grave/burial, terrain change, labor, leverage, fortification, digging, striking, evidence, refusal, and related role migration.
+
+This is an admission rule, not a mechanics shortcut. The current occurrence may still have every kinetic channel `unknown`. Never infer `STRIKE`, `DIG`, `LEVER`, `PRY`, body grip, load path, burial, or any other concrete mechanic solely from the noun `shovel`. Source evidence must earn the verb.
+
+Do not flatten every shovel occurrence into one canonical meaning. Preserve continuity, provenance, scene state, ownership, and whether the accumulated semantic pressure is active, inverted, refused, joked about, or merely latent.
+
+Failure to route a Drew-authored shovel mention into the Chekhov layer is `CHEKHOV_SIGNATURE_OBJECT_LOSS`.
+
 ## Deterministic transform
 
 Every candidate passed to the engine is normalized into:
@@ -79,6 +91,8 @@ This is important. Aggressive Chekhov admission never licenses invented biomecha
 
 A murderous coffee pot may therefore be a perfectly valid Arsenal item whose complete kinetic signature is still unknown.
 
+A shovel may likewise be automatically admitted because it is a loaded signature object while every concrete mechanic remains unknown in the current occurrence.
+
 ## Grounded Motion seam
 
 Grounded Motion remains the measuring instrument for witnessed body motion. Its evidence may supply or validate body-interface/contact/load mechanics, but this engine must not hallucinate missing joints, contacts, chronology, or weapon handling.
@@ -117,11 +131,14 @@ Live intake and automated conversation-mining/backfill jobs must apply the same 
 
 When a miner already admitted an item, pass `chekhov: true`; never discard it merely because the deterministic lexical pass cannot rediscover the original violent signal from a shortened excerpt.
 
+Drew-authored `shovel` mentions are signature-object admissions even when no ordinary violent trigger survives in the shortened excerpt. Pass `chekhov: true`, preserve the exact shovel evidence, and leave unsupported mechanics unknown.
+
 Every downstream consumer must prefer engine output keyed by `engineVersion + inputSha256` over re-interpreting the same candidate ad hoc.
 
 ## Failure labels
 
 - `CHEKHOV_FALSE_NEGATIVE`: violent potential/opinion/imagination was present but candidate was dropped.
+- `CHEKHOV_SIGNATURE_OBJECT_LOSS`: a loaded signature token such as Drew-authored `shovel` was treated as a neutral noun and dropped.
 - `CHEKHOV_CANON_LAUNDERING`: candidate admission changed canon/status.
 - `KINETIC_HALLUCINATION`: a mechanic was emitted without structured or lexical evidence.
 - `KINETIC_NONDETERMINISM`: same input/version produced a different graph.
@@ -137,5 +154,6 @@ Required canary set:
 2. `Coffee the pot thought about violently murdering the toaster.` -> admitted; `IMAGINED`; mechanics remain `UNKNOWN` unless other evidence exists.
 3. `Coffee pot had violent enough opinions.` -> admitted; `OPINIONATED`; mechanics remain `UNKNOWN` unless other evidence exists.
 4. `A cup sat on the table.` -> not automatically admitted.
-5. Halligan prose containing `became a door`, `wedged`, and `holding the route open` -> `WEDGE`, `BECOME_ARCHITECTURE`, and Fourth Door role/system change.
-6. Reversing input record order -> identical `inputSha256` and `graphSha256`.
+5. Drew-authored `shovel` with no additional mechanical evidence -> admitted upstream as signature object; concrete kinetic channels remain `UNKNOWN`.
+6. Halligan prose containing `became a door`, `wedged`, and `holding the route open` -> `WEDGE`, `BECOME_ARCHITECTURE`, and Fourth Door role/system change; `holding the route open` alone must not invent a hand-level `HOLD` mechanic.
+7. Reversing input record order -> identical `inputSha256` and `graphSha256`.
