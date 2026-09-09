@@ -11,7 +11,7 @@ CONTACT_PATH = ROOT / "contact-sheet.txt"
 MP4_PATH = ROOT / "midair-recoil-vector-bend-crossstep-recovery.mp4"
 SPA_PATH = ROOT / "midair-recoil-vector-bend-crossstep-recovery.motion.html"
 FPS = 24
-CANVAS_W, CANVAS_H = 800, 382
+CANVAS_W, CANVAS_H = 640, 320
 FONT_PATHS = [
     "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
     "/usr/share/fonts/truetype/liberation2/LiberationMono-Regular.ttf",
@@ -109,7 +109,7 @@ def make_contact_sheet(motion):
     header=(
         "ASCII KINESIS V2 · AIRBORNE029\n"
         "MID-AIR REACTION PULSE / ROOT-VECTOR BEND / CROSSED SUPPORT RECOVERY\n"
-        "Independent abstract ASCII rig. Source art pixels never enter this artifact.\n"
+        "Indepent abstract ASCII rig. Source art pixels never enter this artifact.\n"
         "Legend: O head | X chest | @ pelvis/root | o joint | ^ free foot | * authored support | = abstract reaction bar | # released calibration puck\n"
         "All decisive timing is INFERRED / STREET_FIGHTER-CAPCOM. Source-authentic timing is UNKNOWN.\n\n"
     )
@@ -123,7 +123,7 @@ def find_font():
 def render_pngs(motion, out_dir):
     out_dir.mkdir(parents=True,exist_ok=True)
     frames,meta=compile_states(motion)
-    font=ImageFont.truetype(find_font(),13); hud=ImageFont.truetype(find_font(),12)
+    font=ImageFont.truetype(find_font(),11); hud=ImageFont.truetype(find_font(),10)
     for idx,state in enumerate(frames):
         img=Image.new("RGB",(CANVAS_W,CANVAS_H),(8,8,10)); d=ImageDraw.Draw(img)
         ascii_frame=render_ascii_pose(state,motion["rig"]["stage_cols"],motion["rig"]["stage_rows"],motion["rig"]["ground_row"])
@@ -135,7 +135,7 @@ def render_pngs(motion, out_dir):
 
 def encode_mp4(frame_dir, output):
     cmd=["ffmpeg","-y","-loglevel","error","-framerate",str(FPS),"-i",str(frame_dir/"%04d.png"),
-         "-an","-c:v","libx264","-preset","veryfast","-crf","21","-pix_fmt","yuv420p","-threads","1",
+         "-an","-c:v","libx264","-preset","medium","-crf","27","-pix_fmt","yuv420p","-threads","1",
          "-map_metadata","-1","-metadata","encoder=","-fflags","+bitexact","-flags:v","+bitexact",str(output)]
     subprocess.run(cmd,check=True)
 
@@ -146,7 +146,7 @@ def sha256(path):
     return h.hexdigest()
 
 def make_spa(motion,contact_text,mp4_bytes):
-    motion_text=json.dumps(motion,indent=2,ensure_ascii=False)
+    motion_text=json.dumps(motion,separators=(",",":"),ensure_ascii=False)
     media_b64=base64.b64encode(mp4_bytes).decode("ascii")
     a=escape(contact_text); j=escape(motion_text)
     return f'''<!doctype html>
@@ -187,7 +187,7 @@ def main():
     media={"sha256":sha256(MP4_PATH),"bytes":len(mp4),"fps":FPS,"frames":len(frames),
            "width":CANVAS_W,"height":CANVAS_H,"codec":"H.264","pixel_format":"yuv420p"}
     motion["media"]=media
-    MOTION_PATH.write_text(json.dumps(motion,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+    MOTION_PATH.write_text(json.dumps(motion,separators=(",",":"),ensure_ascii=False)+"\n",encoding="utf-8")
     contact=make_contact_sheet(motion)
     CONTACT_PATH.write_text(contact,encoding="utf-8")
     SPA_PATH.write_text(make_spa(motion,contact,mp4),encoding="utf-8")
