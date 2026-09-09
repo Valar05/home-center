@@ -1,0 +1,41 @@
+name: Chekhov Kinesis Contract
+
+on:
+  push:
+    paths:
+      - 'tools/chekhov_kinesis_engine.py'
+      - 'tools/test_chekhov_kinesis_engine.py'
+      - 'tools/test_chekhov_kinesis_runtime_contract.py'
+      - 'tools/run_chekhov_kinesis_contract_tests.py'
+      - '.continue/rules/07-judgement-jar-chekhov-kinesis-engine.md'
+      - 'skills/chekhov-kinesis-engine/**'
+      - 'skills/fortress-intake/SKILL.md'
+      - 'config/judgment-jars.v1.json'
+      - '.github/workflows/chekhov-kinesis-contract.yml'
+  pull_request:
+    paths:
+      - 'tools/chekhov_kinesis_engine.py'
+      - 'tools/test_chekhov_kinesis_engine.py'
+      - 'tools/test_chekhov_kinesis_runtime_contract.py'
+      - 'tools/run_chekhov_kinesis_contract_tests.py'
+      - '.continue/rules/07-judgement-jar-chekhov-kinesis-engine.md'
+      - 'skills/chekhov-kinesis-engine/**'
+      - 'skills/fortress-intake/SKILL.md'
+      - 'config/judgment-jars.v1.json'
+      - '.github/workflows/chekhov-kinesis-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run deterministic contract
+        run: python3 tools/run_chekhov_kinesis_contract_tests.py
