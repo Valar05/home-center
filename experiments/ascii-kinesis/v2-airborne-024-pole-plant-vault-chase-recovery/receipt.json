@@ -48,7 +48,8 @@
     "primary_tabs": ["ASCII", "JSON", "VIDEO"],
     "contact_sheet_sha256": "1933fee964004b9093ffe7eb102fe7f0e00462777648f72fd78ec1c32611841f",
     "motion_json_sha256": "4c150255250364f299bb95a37c45e82d316fc60c518ee05311d02fd348cec0b2",
-    "final_receipt_readback": "PENDING_THIS_WRITE"
+    "healthy_receipt_write_commit_read_back": "8ec7e8995f1c4b8e28a9247ed7bfe4d62dc7cbd9",
+    "final_receipt_readback": "PASS"
   },
   "issue_343_receipt": 5598590487,
   "chat_delivery": {
@@ -60,5 +61,5 @@
     "video_note": "visible byte-identical authoritative MP4"
   },
   "drew_accepted": false,
-  "next_authorized": "v2-airborne-025 only after final receipt readback"
+  "next_authorized": "v2-airborne-025"
 }
