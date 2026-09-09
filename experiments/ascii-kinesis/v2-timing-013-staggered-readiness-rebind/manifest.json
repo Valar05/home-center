@@ -17,8 +17,8 @@
   "format_version": 2,
   "lane": "timing",
   "ligatures_disabled": true,
-  "media_bytes": 14459,
-  "media_sha256": "d6ecf7d75d781ef0aad46c6a19394ec02d76dd660127f247fa9607ff74b4bf16",
+  "media_bytes": 8072,
+  "media_sha256": "8e438f3a75bef43b6bd3614aeadb9c731c90e277928df4f8b2e9518ba8176d7f",
   "motion_dungeon": {
     "ascii_only_frame_render": true,
     "authored_ascii_keys": 13,
@@ -37,20 +37,18 @@
     "noodle_queen": {
       "contempt": "PASS",
       "function": "PASS",
-      "notes": "TASTE: the crushed guard, rear-anchor bank, one-foot overshoot, late guard reopening, and crooked displaced ready make a specific recovery phrase. FUNCTION: contact, orientation, bilateral support, and task rebind in visibly different states/times, so readiness reads as staged causality rather than a metadata bitfield. CONTEMPT: first landing is refused as instant READY; there is no mannequin symmetry, polite reverse interpolation, global reset, or return to the opening stance.",
+      "notes": "Staggered contact/orientation/support/task recovery is visible; displaced guard/stance preserve debt; no reverse interpolation or idle reset.",
       "status": "PASS",
       "taste": "PASS"
     },
     "tango": {
       "recursion": [
         {
-          "correction": "Retimed K5 EXIT_CONTACT_REBIND and K8 ORIENTATION_REBIND from ONES/1t to TWOS/2t without adding drawings or changing causal order; rerendered the same candidate.",
-          "highest_value_defect": "The first-contact and orientation-rebind states were each only one display tick, making the core staggered-readiness cascade too easy to miss at playback speed.",
+          "correction": "Retimed K5 and K8 to TWOS in the same Timing013 body and rerendered.",
+          "highest_value_defect": "K5/K8 one-tick rebind states were unreadable at speed",
           "verdict": "REVISE_REQUIRED"
         },
         {
-          "highest_value_defect": null,
-          "notes": "Final 33-frame render visibly separates crush -> peel -> rear-anchor pivot -> one-tick preplant -> readable exit-contact hold -> rotational overshoot -> authored counter-catch -> readable orientation rebind -> later bilateral support -> guard lag -> task rebind -> displaced debt. Root spacing accelerates +4/+5, brakes through +3/-2 without reverse interpolation. The old rear foot is airborne at exit contact, and task authority remains visibly withheld after body reacquisition.",
           "verdict": "PASS"
         }
       ],
