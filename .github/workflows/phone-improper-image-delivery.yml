@@ -21,7 +21,7 @@ concurrency:
 jobs:
   deliver:
     name: Home Center -> phone -> THECAULDRON -> Pictures
-    runs-on: [self-hosted, Windows, X64]
+    runs-on: self-hosted
     timeout-minutes: 25
     steps:
       - name: Refuse the wrong execution body
