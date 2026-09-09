@@ -41,7 +41,7 @@
   "repo": {
     "exact_six_file_readback": true,
     "final_manifest_commit": "c8649b9b30b9522c9e69dd1ffd453e62ebc08fcb",
-    "final_receipt_commit": null,
+    "final_receipt_commit": "7a5158bae3011ff92586e0636549daa76814f20c",
     "manifest_blob": "a4c8e6f5ab3e487497a05a1d8a14c0db979101f9",
     "path": "experiments/ascii-kinesis/v2-timing-021-refractory-consequence-admission/",
     "persisted": true,
