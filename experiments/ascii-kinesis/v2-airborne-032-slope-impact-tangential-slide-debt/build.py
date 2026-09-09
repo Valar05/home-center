@@ -151,7 +151,7 @@ def build_video(data):
     return len(seq)
 
 def make_spa(data, ascii_text, mp4_bytes):
-    pretty=json.dumps(data,indent=2,ensure_ascii=False)
+    pretty=json.dumps(data,separators=(",",":"),ensure_ascii=False)
     b64=base64.b64encode(mp4_bytes).decode("ascii")
     page=f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
@@ -185,7 +185,7 @@ def main():
     data["media"]["bytes"]=len(mp4)
     data["media"]["sha256"]=hashlib.sha256(mp4).hexdigest()
     data["media"]["decode"]="PASS_FFMPEG_CURRENT_WORKER"
-    MOTION.write_text(json.dumps(data,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+    MOTION.write_text(json.dumps(data,separators=(",",":"),ensure_ascii=False)+"\n",encoding="utf-8")
     make_spa(data,ascii_text,mp4)
     print(json.dumps({"frames":frames,"bytes":len(mp4),"sha256":data["media"]["sha256"]},sort_keys=True))
 
