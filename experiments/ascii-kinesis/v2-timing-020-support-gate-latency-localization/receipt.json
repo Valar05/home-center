@@ -1,0 +1,58 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "experiment_id": "v2-timing-020-support-gate-latency-localization",
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "current_worker_liveness": true,
+  "home_center_campaign_read": true,
+  "github_persistence_readback": true,
+  "one_body_source_ownership": true,
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "81106",
+    "campaign_evidence_id": "1zQGdJx7uIqTnvJlHp2NfydUu_EDDNvt01tCAlQvlYQ8",
+    "roles": [
+      "POSE_REFERENCE",
+      "CONTACT_REFERENCE"
+    ],
+    "timing_authority": false,
+    "timing_provenance": "INFERRED"
+  },
+  "primitive": "SUPPORT_GATE_LATENCY_LOCALIZATION",
+  "repo_readback": false,
+  "issue_343_receipt": null,
+  "issue_343_receipt_readback": false,
+  "three_part_chat_delivery": false,
+  "ship_commit": null,
+  "final_commit": null,
+  "actual_media": {
+    "decode": "PASS",
+    "container": "mp4",
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "width": 780,
+    "height": 360,
+    "fps": 24,
+    "frames": 30,
+    "bytes": 25850,
+    "sha256": "be610de836435367aaf4b7169c315b55d184646283cba0e54d44921caf282ea1"
+  },
+  "tango": {
+    "status": "PASS",
+    "current_worker": true,
+    "actual_render": true,
+    "judgment": "Long first support search spends six ticks across two distinct unresolved-search poses while the root remains at upper height; short second search spends two ticks. Both acquired supports then trigger the same ONES root release and TWOS absorb. Support ownership, root/COM consequence, asymmetric readiness latency, overshoot/catch, and displaced lower restack are visible; no global latency smear, dead search hold, root-before-support, equalized spacing, reverse playback, or prior-clock reset remains."
+  },
+  "noodle_queen": {
+    "status": "PASS",
+    "current_worker": true,
+    "after_tango": true,
+    "actual_render": true,
+    "judgment": "TASTE + FUNCTION + CONTEMPT PASS. The precarious long first search, crisp support gate/drop/catch, confident short second search, identical consequence pulse, and displaced lower restack create a specific readable performance whose timing lesson survives without metadata."
+  },
+  "contract": {
+    "current_official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated_structural_predicates": "PASS",
+    "repo_global_official_execution": "NOT_CLAIMED_STANDARD_CHAT_BOUNDARY"
+  },
+  "DREW_ACCEPTED": false
+}
