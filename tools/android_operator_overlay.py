@@ -1,6 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/python
 from __future__ import annotations
 
+import base64
+import hashlib
 import re
 import shlex
 import time
@@ -16,7 +18,10 @@ STATE_URI = 'content://com.homecenter.operatoroverlay.state/state'
 ACTION_UPDATE = 'com.homecenter.operatoroverlay.UPDATE'
 ACTION_HEARTBEAT = 'com.homecenter.operatoroverlay.HEARTBEAT'
 ACTION_SCREEN_ACTIVITY = 'com.homecenter.operatoroverlay.SCREEN_ACTIVITY'
+METHOD_POCKET_SPEECH_REQUEST = 'pocket_speech_request'
+METHOD_POCKET_SPEECH_STATE = 'pocket_speech_state'
 MAX_TEXT_CHARS = 8000
+MAX_POCKET_TEXT_BYTES = 8000
 STATE_READ_ATTEMPTS = 3
 STATE_READ_DELAY_SECONDS = 0.12
 SCREEN_ACTIVITY_SETTLE_SECONDS = 0.24
@@ -65,6 +70,13 @@ def _parse_state(raw: str) -> dict[str, Any]:
         'screenYieldUntilMs': integer('screen_yield_until_ms', 0),
         'panelCollapsed': integer('panel_collapsed', 0) != 0,
         'overlayHidden': integer('overlay_hidden', 0) != 0,
+        'pocketSpeechRequestId': text('pocket_speech_request_id', ''),
+        'pocketSpeechTextB64': text('pocket_speech_text_b64', ''),
+        'pocketSpeechTextSha256': text('pocket_speech_text_sha256', ''),
+        'pocketSpeechStatus': text('pocket_speech_status', 'IDLE'),
+        'pocketSpeechReceiptB64': text('pocket_speech_receipt_b64', ''),
+        'pocketSpeechUpdatedMs': integer('pocket_speech_updated_ms', 0),
+        'pocketSpeechFault': text('pocket_speech_fault', ''),
     }
 
 
@@ -92,7 +104,7 @@ def status() -> dict[str, Any]:
             'installed': True,
             'stateReadable': True,
             'package': PACKAGE,
-            'raw': raw[-2000:],
+            'raw': raw[-5000:],
             **state,
         }
     except Exception as exc:
@@ -107,6 +119,13 @@ def status() -> dict[str, Any]:
             'screenYieldUntilMs': 0,
             'panelCollapsed': False,
             'overlayHidden': True,
+            'pocketSpeechRequestId': '',
+            'pocketSpeechTextB64': '',
+            'pocketSpeechTextSha256': '',
+            'pocketSpeechStatus': 'IDLE',
+            'pocketSpeechReceiptB64': '',
+            'pocketSpeechUpdatedMs': 0,
+            'pocketSpeechFault': '',
             'package': PACKAGE,
             'error': str(exc)[:2000],
         }
@@ -173,6 +192,71 @@ def update(text: str, source: str = 'ChatGPT') -> dict[str, Any]:
     }
 
 
+def _content_extra(key: str, kind: str, value: str | int) -> str:
+    return '--extra ' + shlex.quote(f'{key}:{kind}:{value}')
+
+
+def request_pocket_speech(text: str, request_id: str = '') -> dict[str, Any]:
+    if not installed():
+        raise RuntimeError('Home Center operator overlay APK is not installed')
+    exact = str(text or '').strip()
+    payload = exact.encode('utf-8')
+    if not payload or len(payload) > MAX_POCKET_TEXT_BYTES:
+        raise ValueError('Pocket speech text must be 1..8000 UTF-8 bytes')
+    digest = hashlib.sha256(payload).hexdigest()
+    rid = (str(request_id or '').strip() or f'{int(time.time()*1000)}-{digest[:12]}')[:120]
+    encoded = base64.b64encode(payload).decode('ascii')
+    _start_service()
+    command = ' '.join([
+        'content call',
+        '--uri', shlex.quote(STATE_URI),
+        '--method', shlex.quote(METHOD_POCKET_SPEECH_REQUEST),
+        _content_extra('request_id', 's', rid),
+        _content_extra('text_b64', 's', encoded),
+        _content_extra('text_sha256', 's', digest),
+    ])
+    output = _shell(command, timeout=20)
+    current = status()
+    if current.get('pocketSpeechRequestId') != rid or current.get('pocketSpeechTextSha256') != digest:
+        raise RuntimeError('Pocket speech request was not committed to overlay state')
+    return {
+        'ok': True,
+        'requestId': rid,
+        'sha256': digest,
+        'status': current.get('pocketSpeechStatus', ''),
+        'providerOutput': output[-1200:],
+    }
+
+
+def set_pocket_speech_state(request_id: str, text_sha256: str, state_value: str, receipt_json: str = '', fault: str = '') -> dict[str, Any]:
+    rid = str(request_id or '').strip()
+    digest = str(text_sha256 or '').strip().lower()
+    state_name = str(state_value or '').strip().upper()
+    receipt_b64 = base64.b64encode(str(receipt_json or '').encode('utf-8')).decode('ascii') if receipt_json else ''
+    clean_fault = str(fault or '').replace('\r', ' ').replace('\n', ' ').replace(':', ';')[:1000]
+    now_ms = int(time.time() * 1000)
+    command = ' '.join([
+        'content call',
+        '--uri', shlex.quote(STATE_URI),
+        '--method', shlex.quote(METHOD_POCKET_SPEECH_STATE),
+        _content_extra('request_id', 's', rid),
+        _content_extra('text_sha256', 's', digest),
+        _content_extra('status', 's', state_name),
+        _content_extra('receipt_b64', 's', receipt_b64),
+        _content_extra('fault', 's', clean_fault),
+        _content_extra('updated_ms', 'l', now_ms),
+    ])
+    output = _shell(command, timeout=20)
+    current = status()
+    return {
+        'ok': current.get('pocketSpeechRequestId') == rid and current.get('pocketSpeechStatus') == state_name,
+        'requestId': rid,
+        'sha256': digest,
+        'status': current.get('pocketSpeechStatus', ''),
+        'providerOutput': output[-1200:],
+    }
+
+
 def control_gate() -> dict[str, Any]:
     state = status()
     if not state.get('installed'):
@@ -191,7 +275,12 @@ def execute(action: dict[str, Any]) -> dict[str, Any]:
     if kind == 'operator_overlay_start':
         return start()
     if kind == 'operator_overlay_update':
-        return update(str(action.get('latestText') or action.get('text') or ''), str(action.get('source') or 'ChatGPT'))
+        visible_text = str(action.get('latestText') or action.get('text') or '')
+        result = update(visible_text, str(action.get('source') or 'ChatGPT'))
+        if action.get('speak') is True:
+            speech_text = str(action.get('speechText') or visible_text)
+            result['pocketSpeech'] = request_pocket_speech(speech_text, str(action.get('speechRequestId') or ''))
+        return result
     raise ValueError(f'unsupported operator overlay action: {kind}')
 
 

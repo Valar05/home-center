@@ -1,0 +1,81 @@
+{
+  "schema": "venice-plan-review-v3-single-service-addendum",
+  "createdAt": "2026-09-08T16:24:00Z",
+  "commission": "VANGUARD // OVERLAY RESURRECTION",
+  "directive": "PLAN_ALLOWED",
+  "supersedes": [
+    "The separate AmbientListeningService proposed in the earlier plan receipt.",
+    "Any worker-commission language that would create a second foreground service or second heartbeat notification for ambient listening."
+  ],
+  "preserves": [
+    "Existing Home Center Android operator overlay lineage and application id com.homecenter.operatoroverlay.",
+    "FULL / BUBBLE / HIDDEN presentation independent from listening state.",
+    "Rolling bounded raw audio, rolling text transform, explicit KEEP-only durable promotion.",
+    "Visible user-initiated ARM LISTENING action and no microphone start from BOOT_COMPLETED.",
+    "Ritsu as default opinionated intelligence voice; optional approved voices share one structured seam.",
+    "Adam excluded from runtime labels, prompts, routes, aliases, fallbacks and recovery paths.",
+    "One heartbeat notification as authoritative recall/control surface.",
+    "Repository/build/deployed/callable/delivered/accepted evidence states remain distinct."
+  ],
+  "research": [
+    {
+      "source": "Android Developers — Launch a foreground service",
+      "url": "https://developer.android.com/develop/background-work/services/fgs/launch",
+      "lastUpdated": "2026-09-01",
+      "finding": "An already-running foreground service may call ServiceCompat.startForeground() again to add more declared foreground-service types using the bitwise combination of types."
+    },
+    {
+      "source": "Android Developers — Declare foreground services and request permissions",
+      "url": "https://developer.android.com/develop/background-work/services/fgs/declare",
+      "lastUpdated": "2026-09-01",
+      "finding": "A service may declare multiple foreground-service types separated by | in android:foregroundServiceType."
+    },
+    {
+      "source": "Android Developers — Foreground service types",
+      "url": "https://developer.android.com/develop/background-work/services/fgs/service-types",
+      "finding": "Microphone foreground work requires FOREGROUND_SERVICE_MICROPHONE plus RECORD_AUDIO and is subject to while-in-use restrictions; a microphone FGS cannot normally be created from BOOT_COMPLETED. specialUse has no runtime prerequisite."
+    },
+    {
+      "source": "Android Developers — ServiceCompat API",
+      "url": "https://developer.android.com/reference/androidx/core/app/ServiceCompat",
+      "finding": "The public API documents startForeground(type set) and stopForeground(service), but does not document a symmetric operation that subtracts one active foreground-service type while keeping the same foreground instance alive."
+    }
+  ],
+  "selectedArchitecture": {
+    "foregroundServiceCount": 1,
+    "foregroundService": "OperatorOverlayService",
+    "manifestType": "specialUse|microphone",
+    "notificationCount": 1,
+    "startupMode": "specialUse only, listening OFF",
+    "armMode": "From a visible user interaction with RECORD_AUDIO granted, call ServiceCompat.startForeground again with SPECIAL_USE|MICROPHONE, then create one AudioRecord capture and fan it to ring + transcription.",
+    "stopMode": "Release AudioRecord immediately, stop VAD/ASR work, clear all unkept rolling raw audio and rolling transcript state, update heartbeat to OFF. Do not claim a foreground-service type bit proves microphone activity; mic_active is derived from the actual capture resource. The service may retain the previously-added microphone type classification until its next natural restart because Android does not document in-place subtraction of one active type.",
+    "bootMode": "BootReceiver may restore the specialUse control shell only if platform policy allows; it must explicitly mark listening OFF, purge stale unkept transient cache, and never call the ARM path or add MICROPHONE type.",
+    "rawRetention": "10 minute fixed-capacity app-private PCM ring while listening; overwritten in place. STOP, new transient session, or reboot purges unkept rolling material. Explicit KEEP is the only durable promotion.",
+    "transcription": "Bounded rolling speech segments map text to monotonic raw sample positions. ASR failure must never stop raw capture.",
+    "intelligence": "One structured OpinionChannel above deterministic control. Ritsu is default speaker. Capture, STOP, retention and KEEP remain fully functional when the intelligence provider is absent."
+  },
+  "antagonism": [
+    "A second ambient foreground service duplicates liveness, notifications, lifecycle and failure states and violates the minimum-maximal commission without gaining Android capability.",
+    "The existing OperatorOverlayService currently starts foreground with the legacy untyped call; targetSdk 35 plus a microphone path requires explicit typed foreground promotion for Android 14+.",
+    "The existing BootReceiver starts OperatorOverlayService at boot. The rewritten service must make the boot path specialUse-only and listening OFF; no code shared with ARM may accidentally acquire AudioRecord during onCreate/onStartCommand.",
+    "STOP must be a real privacy operation: release the microphone and purge unkept transient raw/text state. It must not merely hide the UI or toggle a boolean.",
+    "Foreground-service type classification and actual microphone liveness are separate truths. Runtime/acceptance instrumentation must report mic_active from AudioRecord ownership, not from the service type mask.",
+    "The old 200ms UI polling loop, Spotify controls, Adam terminal/mode wall, RMS telemetry and screen-control clutter are archaeology, not mandatory recovery features."
+  ],
+  "venice": {
+    "directive": "PLAN_ALLOWED",
+    "reason": "The single-service design is a strict simplification inside the existing commission boundary: it recovers the old native service, provides the required microphone capability, and eliminates duplicate lifecycle/notification machinery.",
+    "stopBoundary": "This is architecture approval only. STOP_ALLOWED for the campaign still requires Regnet QA, campaign-machine canaries on the authorized phone body, implementation, build, deployment and the commissioned physical acceptance evidence."
+  },
+  "capabilityState": {
+    "requested": true,
+    "architectureSelected": true,
+    "campaignImplemented": true,
+    "androidRuntimeImplemented": false,
+    "tested": false,
+    "deployed": false,
+    "callable": false,
+    "delivered": false,
+    "accepted": false
+  }
+}

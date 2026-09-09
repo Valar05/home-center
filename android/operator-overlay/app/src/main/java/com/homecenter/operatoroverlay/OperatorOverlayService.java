@@ -62,6 +62,7 @@ public class OperatorOverlayService extends Service {
     private TextView screenBadge;
     private TextView meta;
     private TextView latest;
+    private TextView pocketStatus;
     private TextView spotifyStatus;
     private SpotifyShizukuClient spotifyClient;
     private Button collapseButton;
@@ -69,8 +70,7 @@ public class OperatorOverlayService extends Service {
     private Button compactControlButton;
     private Button muteButton;
     private Button controlButton;
-    private EditText adamInput;
-    private String adamMode = "terminal";
+    private EditText pocketInput;
     private boolean expandedText;
     private boolean confirmDisable;
     private float downRawX;
@@ -97,7 +97,6 @@ public class OperatorOverlayService extends Service {
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, buildNotification());
         spotifyClient = new SpotifyShizukuClient();
-        submitSpotifyCommand(0L, "status", "");
         if (!Settings.canDrawOverlays(this)) {
             stopSelf();
             return;
@@ -191,10 +190,6 @@ public class OperatorOverlayService extends Service {
             OperatorState.updateSpotifySummary(this, summary, now);
         }
         if (spotifyStatus != null) spotifyStatus.setText(summary);
-        if (requestId > 0L && spotifyStatus != null) {
-            String announcement = summary.length() > 160 ? summary.substring(0, 160) : summary;
-            spotifyStatus.announceForAccessibility(announcement);
-        }
     }
 
     private void removeView(View view) {
@@ -211,7 +206,7 @@ public class OperatorOverlayService extends Service {
                 CHANNEL_ID,
                 "Home Center operator control",
                 NotificationManager.IMPORTANCE_LOW);
-        channel.setDescription("Local restore and safety controls for Home Center Phone Hands.");
+        channel.setDescription("Local restore, Pocket speech, and safety controls for Home Center.");
         manager.createNotificationChannel(channel);
     }
 
@@ -225,7 +220,7 @@ public class OperatorOverlayService extends Service {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         String content = OperatorState.overlayHidden(this)
                 ? "Overlay hidden and control off — tap to restore"
-                : "Tap to restore or bring the local controls forward";
+                : "Tap to restore or bring Pocket controls forward";
         return new Notification.Builder(this, CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.stat_notify_sync_noanim)
                 .setContentTitle("Home Center operator control")
@@ -246,8 +241,6 @@ public class OperatorOverlayService extends Service {
                 ViewConfiguration.get(this).getScaledTouchSlop());
         recomputeExpandedWidth();
 
-        // This separate guard is inert by default and becomes touchable only for
-        // a bounded, explicit visible-screen operation lease.
         touchGuard = new View(this);
         touchGuard.setContentDescription("Remote input active");
         touchGuard.setOnTouchListener((view, event) -> true);
@@ -299,45 +292,6 @@ public class OperatorOverlayService extends Service {
         hideButton.setOnClickListener(v -> hideOverlay());
         titleRow.addView(hideButton);
 
-        LinearLayout spotifyRow = new LinearLayout(this);
-        spotifyRow.setOrientation(LinearLayout.HORIZONTAL);
-        spotifyRow.setGravity(Gravity.CENTER_VERTICAL);
-
-        spotifyStatus = textView(12f, false);
-        spotifyStatus.setText(OperatorState.spotifySummary(this));
-        spotifyStatus.setContentDescription("Current Spotify playback status");
-        spotifyStatus.setSingleLine(true);
-        spotifyStatus.setEllipsize(TextUtils.TruncateAt.END);
-        spotifyStatus.setPadding(dp(4), 0, dp(4), 0);
-        spotifyRow.addView(spotifyStatus, new LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1f));
-
-        Button spotifyPreviousButton = button("Previous");
-        spotifyPreviousButton.setContentDescription("Play the previous Spotify track");
-        spotifyPreviousButton.setOnClickListener(v -> submitSpotifyCommand(
-                System.currentTimeMillis(), "previous", ""));
-        spotifyRow.addView(spotifyPreviousButton);
-
-        Button spotifyPlayPauseButton = button("Play or pause");
-        spotifyPlayPauseButton.setContentDescription("Play or pause Spotify playback");
-        spotifyPlayPauseButton.setOnClickListener(v -> submitSpotifyCommand(
-                System.currentTimeMillis(), "play_pause", ""));
-        spotifyRow.addView(spotifyPlayPauseButton);
-
-        Button spotifyNextButton = button("Next");
-        spotifyNextButton.setContentDescription("Play the next Spotify track");
-        spotifyNextButton.setOnClickListener(v -> submitSpotifyCommand(
-                System.currentTimeMillis(), "next", ""));
-        spotifyRow.addView(spotifyNextButton);
-
-        Button spotifyStatusButton = button("Status");
-        spotifyStatusButton.setContentDescription("Refresh the current Spotify playback status");
-        spotifyStatusButton.setOnClickListener(v -> submitSpotifyCommand(
-                System.currentTimeMillis(), "status", ""));
-        spotifyRow.addView(spotifyStatusButton);
-
         details = new LinearLayout(this);
         details.setOrientation(LinearLayout.VERTICAL);
 
@@ -375,45 +329,40 @@ public class OperatorOverlayService extends Service {
         latest.setBackground(background(Color.rgb(39, 42, 49), Color.rgb(67, 73, 86)));
         latest.setVerticalScrollBarEnabled(true);
         latest.setMovementMethod(ScrollingMovementMethod.getInstance());
-        latest.setContentDescription("Latest Home Center or Adam message. Tap to expand or collapse text.");
+        latest.setContentDescription("Latest Home Center message. Tap to expand or collapse text.");
         latest.setOnClickListener(v -> {
             expandedText = !expandedText;
             applyExpandedTextState();
         });
 
-        LinearLayout adamModeRow = new LinearLayout(this);
-        adamModeRow.setOrientation(LinearLayout.HORIZONTAL);
-        adamModeRow.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-        adamModeRow.setPadding(0, dp(6), 0, dp(2));
-        adamModeRow.addView(adamModeButton("TERM", "terminal", "Adam terminal executor mode"));
-        adamModeRow.addView(adamModeButton("CHAT", "chat", "Adam local chatbot mode"));
-        adamModeRow.addView(adamModeButton("CONT", "continue", "Adam Continue consumer mode"));
-        adamModeRow.addView(adamModeButton("VLAD", "vlad", "Ask Vlad for a bounded consultation"));
-        adamModeRow.addView(adamModeButton(
-                "RADIO", "radio", "Adam mode for bounded background Spotify prompts"));
+        pocketStatus = textView(12f, true);
+        pocketStatus.setPadding(dp(8), dp(6), dp(8), dp(4));
+        pocketStatus.setContentDescription("Pocket TTS request and playback state");
 
-        LinearLayout adamInputRow = new LinearLayout(this);
-        adamInputRow.setOrientation(LinearLayout.HORIZONTAL);
-        adamInputRow.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout pocketInputRow = new LinearLayout(this);
+        pocketInputRow.setOrientation(LinearLayout.HORIZONTAL);
+        pocketInputRow.setGravity(Gravity.CENTER_VERTICAL);
+        pocketInputRow.setPadding(0, dp(4), 0, dp(2));
 
-        adamInput = new EditText(this);
-        adamInput.setTextColor(Color.WHITE);
-        adamInput.setHintTextColor(Color.rgb(155, 165, 182));
-        adamInput.setHint("Adam — terminal");
-        adamInput.setTextSize(14f);
-        adamInput.setSingleLine(false);
-        adamInput.setMaxLines(4);
-        adamInput.setMinHeight(dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP));
-        adamInput.setPadding(dp(8), dp(4), dp(8), dp(4));
-        adamInput.setBackground(background(Color.rgb(32, 35, 42), Color.rgb(78, 88, 105)));
-        adamInput.setContentDescription("Adam input. Current mode terminal.");
-        adamInputRow.addView(adamInput, new LinearLayout.LayoutParams(
+        pocketInput = new EditText(this);
+        pocketInput.setTextColor(Color.WHITE);
+        pocketInput.setHintTextColor(Color.rgb(155, 165, 182));
+        pocketInput.setHint("Pocket TTS — say this");
+        pocketInput.setTextSize(14f);
+        pocketInput.setSingleLine(false);
+        pocketInput.setMaxLines(4);
+        pocketInput.setMinHeight(dp(OverlayUiPolicy.MIN_TOUCH_TARGET_DP));
+        pocketInput.setPadding(dp(8), dp(4), dp(8), dp(4));
+        pocketInput.setBackground(background(Color.rgb(32, 35, 42), Color.rgb(78, 88, 105)));
+        pocketInput.setContentDescription("Text for Pocket TTS speech");
+        pocketInputRow.addView(pocketInput, new LinearLayout.LayoutParams(
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
-        Button adamSendButton = button("Send");
-        adamSendButton.setContentDescription("Send request to Adam using the selected explicit mode");
-        adamSendButton.setOnClickListener(v -> submitAdamRequest());
-        adamInputRow.addView(adamSendButton);
+        Button speakButton = button("SPEAK");
+        speakButton.setTextSize(15f);
+        speakButton.setContentDescription("Speak this text with Pocket TTS");
+        speakButton.setOnClickListener(v -> submitPocketSpeech());
+        pocketInputRow.addView(speakButton);
 
         LinearLayout actionRow = new LinearLayout(this);
         actionRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -421,7 +370,7 @@ public class OperatorOverlayService extends Service {
         actionRow.setPadding(0, dp(4), 0, 0);
 
         muteButton = button("Mute speech");
-        muteButton.setContentDescription("Mute or unmute Home Center status speech");
+        muteButton.setContentDescription("Mute or unmute Pocket TTS speech");
         muteButton.setOnClickListener(v -> {
             OperatorState.setMuted(this, !OperatorState.muted(this));
             refreshUi();
@@ -437,11 +386,10 @@ public class OperatorOverlayService extends Service {
         details.addView(screenBadge);
         details.addView(meta);
         details.addView(latest);
-        details.addView(adamModeRow);
-        details.addView(adamInputRow);
+        details.addView(pocketStatus);
+        details.addView(pocketInputRow);
         details.addView(actionRow);
         root.addView(titleRow);
-        root.addView(spotifyRow);
         root.addView(details);
 
         windowParams = new WindowManager.LayoutParams(
@@ -568,7 +516,7 @@ public class OperatorOverlayService extends Service {
         int focusFlags = WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
         if (collapsed) focusFlags |= WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         windowParams.flags = focusFlags;
-        if (collapsed && adamInput != null) adamInput.clearFocus();
+        if (collapsed && pocketInput != null) pocketInput.clearFocus();
         windowManager.updateViewLayout(root, windowParams);
         root.requestLayout();
         root.post(this::clampAndPersistPosition);
@@ -578,7 +526,6 @@ public class OperatorOverlayService extends Service {
     private void hideOverlay() {
         if (root == null) return;
         confirmDisable = false;
-        // Commit the fail-closed state before removing the user's visible escape.
         OperatorState.setControlEnabled(this, false);
         OperatorState.setOverlayHidden(this, OverlayUiPolicy.nextHidden(
                 false,
@@ -694,8 +641,11 @@ public class OperatorOverlayService extends Service {
         if (muted) state += " • MUTED";
         status.setText(state);
         status.setTextColor(stateColor);
+
+        String voiceState = OperatorState.pocketSpeechStatus(this);
+        String compactVoice = pocketCompactSuffix(voiceState);
         dragHandle.setText(OperatorState.panelCollapsed(this)
-                ? "☰  " + compactState
+                ? "☰  " + compactState + compactVoice
                 : "☰  HOME CENTER");
         dragHandle.setTextColor(stateColor);
 
@@ -732,34 +682,59 @@ public class OperatorOverlayService extends Service {
         meta.setText(source + " • " + age(now, lastUpdate) + lease +
                 (expandedText ? " • tap message to collapse" : " • tap message to expand"));
         latest.setText(OperatorState.latestText(this));
-        String spotifySummary = OperatorState.spotifySummary(this);
-        if (spotifyStatus != null && !TextUtils.equals(spotifyStatus.getText(), spotifySummary)) {
-            spotifyStatus.setText(spotifySummary);
+        refreshPocketStatus(voiceState);
+    }
+
+    private void refreshPocketStatus(String voiceState) {
+        if (pocketStatus == null) return;
+        String state = voiceState == null ? OperatorState.POCKET_IDLE : voiceState;
+        String fault = OperatorState.pocketSpeechFault(this);
+        String label;
+        int color;
+        if (OperatorState.POCKET_PENDING.equals(state)) {
+            label = "POCKET • pending";
+            color = Color.rgb(255, 211, 132);
+        } else if (OperatorState.POCKET_RUNNING.equals(state)) {
+            label = "POCKET • speaking";
+            color = Color.rgb(132, 211, 255);
+        } else if (OperatorState.POCKET_COMPLETED.equals(state)) {
+            label = "POCKET • completed";
+            color = Color.rgb(151, 255, 178);
+        } else if (OperatorState.POCKET_FAILED.equals(state)) {
+            label = "POCKET • failed" + (fault.isEmpty() ? "" : " • " + compact(fault, 150));
+            color = Color.rgb(255, 145, 145);
+        } else if (OperatorState.POCKET_MUTED.equals(state)) {
+            label = "POCKET • muted — fresh request required after unmute";
+            color = Color.rgb(255, 211, 132);
+        } else {
+            label = "POCKET • ready";
+            color = Color.rgb(190, 198, 212);
         }
+        pocketStatus.setText(label);
+        pocketStatus.setTextColor(color);
     }
 
-    private Button adamModeButton(String label, String mode, String description) {
-        Button value = button(label);
-        value.setContentDescription(description);
-        value.setOnClickListener(v -> {
-            adamMode = mode;
-            if (adamInput != null) {
-                adamInput.setHint("Adam — " + mode);
-                adamInput.setContentDescription("Adam input. Current mode " + mode + ".");
-                adamInput.requestFocus();
-            }
-        });
-        return value;
+    private String pocketCompactSuffix(String state) {
+        if (OperatorState.POCKET_PENDING.equals(state)) return " • VOICE…";
+        if (OperatorState.POCKET_RUNNING.equals(state)) return " • SPEAKING";
+        if (OperatorState.POCKET_FAILED.equals(state)) return " • VOICE!";
+        if (OperatorState.POCKET_MUTED.equals(state)) return " • MUTED";
+        return "";
     }
 
-    private void submitAdamRequest() {
-        if (adamInput == null) return;
-        String text = adamInput.getText().toString().trim();
+    private void submitPocketSpeech() {
+        if (pocketInput == null) return;
+        String text = pocketInput.getText().toString().trim();
         if (text.isEmpty()) return;
-        OperatorState.submitAdamRequest(this, adamMode, text, System.currentTimeMillis());
-        adamInput.setText("");
-        adamInput.setHint("Adam — " + adamMode + " • sent");
-        adamInput.announceForAccessibility("Sent to Adam " + adamMode);
+        try {
+            OperatorState.submitPocketSpeech(this, text, System.currentTimeMillis());
+            pocketInput.setText("");
+            pocketInput.setHint("Pocket TTS — queued");
+            pocketInput.announceForAccessibility("Pocket speech queued");
+        } catch (RuntimeException error) {
+            pocketInput.announceForAccessibility("Pocket speech request failed");
+        }
+        refreshUi();
     }
 
     private void recomputeExpandedWidth() {
@@ -779,6 +754,11 @@ public class OperatorOverlayService extends Service {
         long minutes = seconds / 60L;
         if (minutes < 60) return minutes + "m ago";
         return (minutes / 60L) + "h ago";
+    }
+
+    private String compact(String value, int max) {
+        String clean = value == null ? "" : value.replace('\r', ' ').replace('\n', ' ').trim();
+        return clean.length() > max ? clean.substring(0, max) + "…" : clean;
     }
 
     private TextView textView(float sp, boolean bold) {

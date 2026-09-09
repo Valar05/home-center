@@ -30,6 +30,21 @@ final class OperatorState {
     static final String KEY_SPOTIFY_RECEIPT_B64 = "spotify_receipt_b64";
     static final String KEY_SPOTIFY_SUMMARY = "spotify_summary";
     static final String KEY_SPOTIFY_UPDATED_MS = "spotify_updated_ms";
+    static final String KEY_POCKET_SPEECH_REQUEST_ID = "pocket_speech_request_id";
+    static final String KEY_POCKET_SPEECH_TEXT_B64 = "pocket_speech_text_b64";
+    static final String KEY_POCKET_SPEECH_TEXT_SHA256 = "pocket_speech_text_sha256";
+    static final String KEY_POCKET_SPEECH_STATUS = "pocket_speech_status";
+    static final String KEY_POCKET_SPEECH_RECEIPT_B64 = "pocket_speech_receipt_b64";
+    static final String KEY_POCKET_SPEECH_UPDATED_MS = "pocket_speech_updated_ms";
+    static final String KEY_POCKET_SPEECH_FAULT = "pocket_speech_fault";
+    static final String POCKET_IDLE = "IDLE";
+    static final String POCKET_PENDING = "PENDING";
+    static final String POCKET_RUNNING = "RUNNING";
+    static final String POCKET_COMPLETED = "COMPLETED";
+    static final String POCKET_FAILED = "FAILED";
+    static final String POCKET_MUTED = "MUTED";
+    private static final int MAX_POCKET_TEXT_BYTES = 8000;
+    private static final int MAX_POCKET_RECEIPT_CHARS = 32000;
 
     private OperatorState() {}
 
@@ -55,6 +70,13 @@ final class OperatorState {
     static String spotifyReceiptB64(Context context) { return prefs(context).getString(KEY_SPOTIFY_RECEIPT_B64, ""); }
     static String spotifySummary(Context context) { return prefs(context).getString(KEY_SPOTIFY_SUMMARY, "Spotify • waiting"); }
     static long spotifyUpdatedMs(Context context) { return prefs(context).getLong(KEY_SPOTIFY_UPDATED_MS, 0L); }
+    static String pocketSpeechRequestId(Context context) { return prefs(context).getString(KEY_POCKET_SPEECH_REQUEST_ID, ""); }
+    static String pocketSpeechTextB64(Context context) { return prefs(context).getString(KEY_POCKET_SPEECH_TEXT_B64, ""); }
+    static String pocketSpeechTextSha256(Context context) { return prefs(context).getString(KEY_POCKET_SPEECH_TEXT_SHA256, ""); }
+    static String pocketSpeechStatus(Context context) { return prefs(context).getString(KEY_POCKET_SPEECH_STATUS, POCKET_IDLE); }
+    static String pocketSpeechReceiptB64(Context context) { return prefs(context).getString(KEY_POCKET_SPEECH_RECEIPT_B64, ""); }
+    static long pocketSpeechUpdatedMs(Context context) { return prefs(context).getLong(KEY_POCKET_SPEECH_UPDATED_MS, 0L); }
+    static String pocketSpeechFault(Context context) { return prefs(context).getString(KEY_POCKET_SPEECH_FAULT, ""); }
 
     static void setControlEnabled(Context context, boolean enabled) {
         SharedPreferences.Editor editor = prefs(context).edit().putBoolean(KEY_CONTROL_ENABLED, enabled);
@@ -85,6 +107,72 @@ final class OperatorState {
     static void setPanelCollapsed(Context context, boolean collapsed) { prefs(context).edit().putBoolean(KEY_PANEL_COLLAPSED, collapsed).apply(); }
     static void setOverlayHidden(Context context, boolean hidden) { prefs(context).edit().putBoolean(KEY_OVERLAY_HIDDEN, hidden).commit(); }
     static void setOverlayPosition(Context context, int x, int y) { prefs(context).edit().putInt(KEY_OVERLAY_X, x).putInt(KEY_OVERLAY_Y, y).apply(); }
+
+    static String submitPocketSpeech(Context context, String text, long nowMs) {
+        String exact = text == null ? "" : text.trim();
+        if (exact.isEmpty()) throw new IllegalArgumentException("Pocket speech text is empty");
+        byte[] bytes = exact.getBytes(StandardCharsets.UTF_8);
+        if (bytes.length > MAX_POCKET_TEXT_BYTES) throw new IllegalArgumentException("Pocket speech text exceeds 8000 UTF-8 bytes");
+        String digest = sha256(bytes);
+        String requestId = Math.max(1L, nowMs) + "-" + digest.substring(0, 12);
+        queuePocketSpeechExact(context, requestId, Base64.encodeToString(bytes, Base64.NO_WRAP), digest, nowMs);
+        return requestId;
+    }
+
+    static boolean queuePocketSpeechExact(Context context, String requestId, String textB64, String textSha256, long nowMs) {
+        String cleanId = requestId == null ? "" : requestId.trim();
+        String cleanB64 = textB64 == null ? "" : textB64.trim();
+        String cleanSha = textSha256 == null ? "" : textSha256.trim().toLowerCase(Locale.ROOT);
+        if (cleanId.isEmpty() || cleanId.length() > 120) throw new IllegalArgumentException("Pocket speech request id invalid");
+        if (!cleanSha.matches("[0-9a-f]{64}")) throw new IllegalArgumentException("Pocket speech SHA-256 invalid");
+        byte[] decoded;
+        try { decoded = Base64.decode(cleanB64, Base64.DEFAULT); }
+        catch (IllegalArgumentException error) { throw new IllegalArgumentException("Pocket speech Base64 invalid"); }
+        if (decoded.length == 0 || decoded.length > MAX_POCKET_TEXT_BYTES) throw new IllegalArgumentException("Pocket speech payload size invalid");
+        if (!sha256(decoded).equals(cleanSha)) throw new IllegalArgumentException("Pocket speech SHA-256 mismatch");
+        try { new String(decoded, StandardCharsets.UTF_8).getBytes(StandardCharsets.UTF_8); }
+        catch (RuntimeException error) { throw new IllegalArgumentException("Pocket speech UTF-8 invalid"); }
+
+        String existingId = pocketSpeechRequestId(context);
+        String existingSha = pocketSpeechTextSha256(context);
+        if (cleanId.equals(existingId)) {
+            if (!cleanSha.equals(existingSha)) throw new IllegalStateException("Pocket speech request id rebound to different bytes");
+            return false;
+        }
+        prefs(context).edit()
+                .putString(KEY_POCKET_SPEECH_REQUEST_ID, cleanId)
+                .putString(KEY_POCKET_SPEECH_TEXT_B64, cleanB64)
+                .putString(KEY_POCKET_SPEECH_TEXT_SHA256, cleanSha)
+                .putString(KEY_POCKET_SPEECH_STATUS, POCKET_PENDING)
+                .putString(KEY_POCKET_SPEECH_RECEIPT_B64, "")
+                .putString(KEY_POCKET_SPEECH_FAULT, "")
+                .putLong(KEY_POCKET_SPEECH_UPDATED_MS, Math.max(1L, nowMs))
+                .commit();
+        return true;
+    }
+
+    static boolean updatePocketSpeechState(Context context, String requestId, String textSha256, String status, String receiptB64, String fault, long nowMs) {
+        String cleanId = requestId == null ? "" : requestId.trim();
+        String cleanSha = textSha256 == null ? "" : textSha256.trim().toLowerCase(Locale.ROOT);
+        String cleanStatus = status == null ? "" : status.trim().toUpperCase(Locale.ROOT);
+        if (!cleanId.equals(pocketSpeechRequestId(context)) || !cleanSha.equals(pocketSpeechTextSha256(context))) return false;
+        if (!(POCKET_RUNNING.equals(cleanStatus) || POCKET_COMPLETED.equals(cleanStatus) || POCKET_FAILED.equals(cleanStatus) || POCKET_MUTED.equals(cleanStatus))) {
+            throw new IllegalArgumentException("unsupported Pocket speech status");
+        }
+        String previous = pocketSpeechStatus(context);
+        boolean previousTerminal = POCKET_COMPLETED.equals(previous) || POCKET_FAILED.equals(previous) || POCKET_MUTED.equals(previous);
+        if (previousTerminal && !previous.equals(cleanStatus)) return false;
+        String receipt = receiptB64 == null ? "" : receiptB64.trim();
+        if (receipt.length() > MAX_POCKET_RECEIPT_CHARS) receipt = receipt.substring(0, MAX_POCKET_RECEIPT_CHARS);
+        String cleanFault = fault == null ? "" : fault.trim().replace('\r', ' ').replace('\n', ' ').replace(',', ';');
+        if (cleanFault.length() > 1000) cleanFault = cleanFault.substring(0, 1000);
+        return prefs(context).edit()
+                .putString(KEY_POCKET_SPEECH_STATUS, cleanStatus)
+                .putString(KEY_POCKET_SPEECH_RECEIPT_B64, receipt)
+                .putString(KEY_POCKET_SPEECH_FAULT, cleanFault)
+                .putLong(KEY_POCKET_SPEECH_UPDATED_MS, Math.max(1L, nowMs))
+                .commit();
+    }
 
     private static String sha256(byte[] bytes) {
         try {
