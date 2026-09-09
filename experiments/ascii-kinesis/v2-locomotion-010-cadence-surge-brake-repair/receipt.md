@@ -56,20 +56,20 @@ All decisive-key timings are INFERRED / STREET_FIGHTER-CAPCOM. `1s/2s/4s` means 
 ## Motion Dungeon / media
 Authored ASCII keys are semantic authority. Generated connectors: none. Every transition geometry state is authored; holds are explicit.
 MP4 derives solely from the abstract ASCII rig + structured timing.
-H.264/yuv420p, 960x480, 24 fps, 52 frames, 2.166667 s.
-SHA-256 `3f955ee9f34ab77bbe149d0bb0b2dd436fb4809bbb091483d99d4941683ed2bb`; 39,111 bytes.
+H.264/yuv420p, 960x480, 24 fps, 52 frames, 2.166667 s; CRF 38.
+SHA-256 `3f0ec4ed12b73b376f4817787f656d328f33a1a02f2a7c0f579db7fee6300ecc`; 14,173 bytes.
 Decode: PASS.
 
 ## Current-worker Tango recursive gate
-`PASS` after fresh inspection of all 52 decoded rendered frames. No inherited PASS was assumed.
+`PASS` after fresh inspection of the final 52-frame render. No inherited PASS was assumed.
 Highest-value checks passed: crooked pre-surge compression, widening root spacing through authored flights, exact L/R support continuity, visibly shorter braking travel, heel probe before acquire, deep arrest, secondary torso overshoot, backward recovery displacement, and non-idle exit debt. No generated connector exists to invent state.
 
 ## Current-worker Noodle Queen
-`PASS` after Tango PASS — TASTE + FUNCTION + CONTEMPT on the actual final render.
+`PASS` after Tango PASS — TASTE + FUNCTION + CONTEMPT on the same actual final render.
 Specific silhouette progression and force/support causality read authored rather than symmetric gait-cycle placeholder motion.
 
 ## Contract boundary
-Exact repository test source blob `09f0bcf233dbb770ce6b6df047fe18d94be8aa7c` was used candidate-isolated against this exact six-file body and exited 0.
+Exact repository test source blob `09f0bcf233dbb770ce6b6df047fe18d94be8aa7c` was executed candidate-isolated against this exact six-file body and exited 0.
 No full-repository runtime TESTED claim is made in this lane.
 
 ## Repository body
