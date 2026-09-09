@@ -128,13 +128,13 @@ def contact_sheet(motion):
     ]
     for k in motion["keys"]:
         src=k.get("source_anchor")
-        src_text=f"{src['time_s']:.3f}s OBSERVED — {src['meaning']}" if src else "—"
+        src_text=f"{src['time_s']:.3f}s OBSERVED" if src else "—"
         parts += [
             f"{k['key_id']} {k['causal_role']} | {k['timing_class']} / {k['timing_provenance']}",
             f"source_anchor {src_text}",
             f"support {k['support_contact']} | load {k['load_custody']}",
-            f"root/arc {k['motion_arc_root_note']}",
-            f"acting {k['acting_note']}",
+            f"root/arc {k['arc']}",
+            f"acting {k['acting']}",
             "",
             render_pose(k["pose_rig"]["joints"]),
             "",""
