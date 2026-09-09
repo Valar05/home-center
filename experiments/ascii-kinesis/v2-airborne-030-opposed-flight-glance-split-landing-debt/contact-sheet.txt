@@ -1,0 +1,373 @@
+K0 — SEPARATE_LOAD — FOURS — INFERRED
+
+
+
+
+
+
+
+
+
+
+                A                                                             B
+                 O                                                             O
+                  o\                                                         /o
+                //| \\h                                                   h// |\\
+               h  |                                                           |  h
+                  |                                                           |
+                  @                                                           @
+                 / \                                                         / \
+                /   \                                                       /   \
+                /   \                                                       /   \
+               ^     ^                                                     ^     ^
+________________________________________________________________________________________________
+SUPPORT A=BOTH_FEET_GROUND | B=BOTH_FEET_GROUND | CONTACT=NONE
+ROOT: A coils left-of-center; B coils right-of-center; roots own independent ground support
+
+K1 — OPPOSED_LAUNCH — ONES — INFERRED
+
+
+
+
+
+
+
+
+
+
+
+
+                      A    \h                                       h/  B
+                       O \\                                           // O
+                        o                                               o
+                       /|                                               |\
+                     // |                                               | \\
+                    h   |                                               |   h
+                        @                                               @
+                       / \                                             / \
+                      /   \                                           /   \
+                      /    ^                                         ^    \
+                     /                                                     \
+                    ^                                                       ^
+
+
+
+________________________________________________________________________________________________
+SUPPORT A=NONE | B=NONE | CONTACT=NONE
+ROOT: both roots leave ground from their own support impulse; A travels up-right, B up-left
+
+K2 — CONVERGING_RISE — TWOS — INFERRED
+
+
+
+
+
+
+                                                               B
+                               A                                O
+                                O   \\\h                     //o
+                                 o\\                      h//  |\
+                                /|                             | \\
+                              // |                             |   h
+                             h   |                             @
+                                 @                            / \
+                                / \                          /   \
+                               /  \                          /    ^
+                              /    \                        ^
+                             ^     \
+                                    ^
+
+
+
+
+
+
+
+
+________________________________________________________________________________________________
+SUPPORT A=NONE | B=NONE | CONTACT=NONE
+ROOT: roots continue ballistic convergence; no midair correction yet
+
+K3 — APEX_PRECONTACT — FOURS — INFERRED
+
+
+
+
+                                                       B
+                                       A                O
+                                        O            //o
+                                         o\\      h//  |\
+                                        /|  \\\h       | \
+                                      // |             | \
+                                     h   |             @  h
+                                         @            / \
+                                        / \          /   \
+                                       /  \          /   \
+                                       /   \        ^     \
+                                      ^    \               ^
+                                            ^
+
+
+
+
+
+
+
+
+
+________________________________________________________________________________________________
+SUPPORT A=NONE | B=NONE | CONTACT=NONE
+ROOT: A and B approach apex with visible negative space between near shoulders
+
+K4 — CONTACT_PREP — TWOS — INFERRED
+
+
+
+
+                                                    B
+                                           A         O
+                                            O      /o
+                                             o\ h// |\
+                                            /| \\h  | \
+                                          // |      |  \
+                                         h   |      @   h
+                                             @     / \
+                                            /\    /  \
+                                           /  \   /   \
+                                          /   \  ^     \
+                                         ^    \        \
+                                               \        ^
+                                               ^
+
+
+
+
+
+
+
+
+
+________________________________________________________________________________________________
+SUPPORT A=NONE | B=NONE | CONTACT=NONE
+ROOT: A near shoulder/forearm aligns to incoming line; B presents near upper arm; roots still free
+
+K5 — GLANCING_BODY_IMPULSE — TWOS — INFERRED
+
+
+
+                                                   B
+                                                    O
+                                                   |
+                                             A     o\\\\\h
+                                              O   /|
+                                               o\\*
+                                              /|  |
+                                            //  | @
+                                           h    |/ \
+                                                @/  \
+                                               //\   \
+                                              / ^\    \
+                                             /    \    ^
+                                            ^     \
+                                                   ^
+
+
+
+
+
+
+
+
+
+________________________________________________________________________________________________
+SUPPORT A=NONE | B=NONE | CONTACT=A_RIGHT_FOREARM_TO_B_LEFT_UPPER_ARM_TRANSIENT
+ROOT: external body-body impulse is held for a brief inferred readability beat at a shared forearm/upper-arm contact point; neither body owns/supports the other
+
+K6 — SPLIT_VELOCITY — TWOS — INFERRED
+
+
+                                           B   \h
+                                            O\\
+                                           o\
+                                          /|
+                                         / |
+                                        h  |
+                                           @
+                                          / \
+                                         /   \\ h\  A
+                                        /      ^  \\\O
+                                       ^             \o
+                                                    //|
+                                                   h   |
+                                                       |
+                                                       @
+                                                      / \
+                                                     /   \
+                                                     /    \
+                                                    /      ^
+                                                   ^
+
+
+
+
+
+________________________________________________________________________________________________
+SUPPORT A=NONE | B=NONE | CONTACT=NONE
+ROOT: A deflects down-right with stronger descent; B deflects up-left briefly before gravity wins
+
+K7 — DIVERGENT_DESCENT — TWOS — INFERRED
+
+
+
+
+
+
+                                        h
+                                   B  \\
+                                    \\
+                                   o
+                                  /|
+                                // |
+                               h   |
+                                   @                   h\   A
+                                  / \                    \\\\O
+                                  /  \                       \o
+                                 /    \                      /|
+                                /      ^                    /  |
+                                /                          h   |
+                               ^                               @
+                                                              / \
+                                                             /  \
+                                                             /   \
+                                                            /     \
+                                                           ^      \
+                                                                   ^
+
+________________________________________________________________________________________________
+SUPPORT A=NONE | B=NONE | CONTACT=NONE
+ROOT: A descends steeper and farther right; B now descends left after higher pop; landing preparation begins before ground
+
+K8 — A_FIRST_CATCH_B_STILL_FREE — ONES — INFERRED
+
+
+
+
+
+
+
+
+
+
+                                  h
+                             B  \\
+                              \\
+                             o
+                            /|
+                          // |                              h\  A
+                         h   |                                \\\O
+                             @                                   \o
+                            / \                                  / |
+                           /   \                               //  |
+                          /     \                             h     |
+                          /      ^                                  @
+                         /                                        // \
+                        ^                                        /   \
+                                                               //     \
+                                                              ^       \
+                                                                       ^
+________________________________________________________________________________________________
+SUPPORT A=RIGHT_FOOT_FIRST | B=NONE | CONTACT=GROUND_A_RIGHT_FOOT_ONLY
+ROOT: A right foot earns ground reaction and root keeps traveling laterally into one-sided crush; B still has no support
+
+K9 — A_CRUSH_B_LATE_CATCH — TWOS — INFERRED
+
+
+
+
+
+
+
+
+
+
+
+
+                                  h
+                                \\
+                           B  \\
+                            \\
+                           o                               h\\\\ A
+                         //                                     \\\\o
+                       h/ |                                        / |
+                         |                                        /  |
+                         @\                                       /   |
+                        /  \\\                                   h    @
+                        /     \^                                    // \
+                       /                                           /   \
+                       /                                         //     \
+                      ^                                         ^       ^
+________________________________________________________________________________________________
+SUPPORT A=RIGHT_FOOT_DOMINANT_LEFT_FOOT_PROBE | B=LEFT_FOOT_FIRST | CONTACT=GROUND_SPLIT_A_AND_B
+ROOT: A root overruns its first catch then left foot probes; B left foot catches later with torso still offset
+
+K10 — SPLIT_RECOVERY_OVERrun — TWOS — INFERRED
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            B                                     A
+                             O                                     O
+                       h////o\                                  h///o
+                            | \\\\                                \\|
+                           |      \h                            \\  |
+                           |                                  \\    |
+                           @                                 h      @
+                          / \                                      / \
+                         /   \                                    /   \
+                         /   \                                    /   \
+                        /     \                                  /     \
+                       ^       ^                                ^       ^
+________________________________________________________________________________________________
+SUPPORT A=BOTH_FEET_STAGGERED | B=BOTH_FEET_STAGGERED | CONTACT=GROUND_ONLY
+ROOT: A hand/shoulder lag swings through after feet restack; B late second foot catches while upper body overruns opposite direction
+
+K11 — DISPLACED_SETTLE — FOURS — INFERRED
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            B                                   A
+                             O                                   O
+                             o                                   o
+                           //|\                                 /|\\
+                         h/  | \\                             // |  \h
+                             |   h                           h   |
+                             @                                   @
+                            / \                                 / \
+                           /   \                               /   \
+                           /   \                               /   \
+                          /     \                             /     \
+                         ^       ^                           ^       ^
+________________________________________________________________________________________________
+SUPPORT A=BOTH_FEET_STABLE | B=BOTH_FEET_STABLE | CONTACT=GROUND_ONLY
+ROOT: both bodies settle farther apart than their original convergence line; collision history remains visible in stance asymmetry
