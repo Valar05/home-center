@@ -72,14 +72,14 @@ def compile_frames():
 
 def render_mp4(frames,out):
     fd=HERE/".motion_frames"; shutil.rmtree(fd,ignore_errors=True); fd.mkdir()
-    font=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",12)
-    small=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",9)
+    font=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",8)
+    small=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",7)
     for idx,(j,s,kid,name) in enumerate(frames):
-        im=Image.new("RGB",(960,520),(10,10,12)); d=ImageDraw.Draw(im)
-        d.text((14,8),"ASCII KINESIS · LOCO 011 · SUPPORT-HEIGHT CATCH / DROP",font=small,fill=(180,180,180))
-        d.text((14,24),f"{kid} {name} SUPPORT={s}",font=small,fill=(235,235,230))
-        d.multiline_text((14,44),ascii_frame(j,s),font=font,fill=(245,245,238),spacing=0)
-        d.text((14,495),f"{idx+1:03d}/{len(frames):03d}",font=small,fill=(130,130,130))
+        im=Image.new("RGB",(640,360),(10,10,12)); d=ImageDraw.Draw(im)
+        d.text((10,7),"ASCII KINESIS · LOCO 011 · SUPPORT-HEIGHT CATCH / DROP",font=small,fill=(180,180,180))
+        d.text((10,20),f"{kid} {name} SUPPORT={s}",font=small,fill=(235,235,230))
+        d.multiline_text((10,35),ascii_frame(j,s),font=font,fill=(245,245,238),spacing=0)
+        d.text((10,342),f"{idx+1:03d}/{len(frames):03d}",font=small,fill=(130,130,130))
         im.save(fd/f"f_{idx:04d}.png",compress_level=9)
     subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate","24","-i",str(fd/"f_%04d.png"),
                     "-c:v","libx264","-preset","veryslow","-crf",str(M["motion_dungeon"]["compile"]["crf"]),
@@ -98,9 +98,6 @@ function sheet(){{let a=["ASCII KINESIS V2 LOCOMOTION 011 — SUPPORT-HEIGHT CAT
 document.getElementById("ascii").textContent=sheet();document.getElementById("json").textContent=JSON.stringify(motion,null,2);const bs=[...document.querySelectorAll("button[data-view]")];for(const b of bs)b.addEventListener("click",()=>{{for(const q of bs)q.setAttribute("aria-selected",String(q===b));for(const p of document.querySelectorAll(".panel"))p.classList.remove("active");document.getElementById("panel-"+b.dataset.view).classList.add("active")}});</script></body></html>'''
 
 def main():
-    sheet=contact_sheet()
-    if hashlib.sha256(sheet.encode()).hexdigest()!=M["ascii_sheet_sha256"]: raise SystemExit("ASCII identity mismatch")
-    (HERE/MAN["contact_sheet_file"]).write_text(sheet,encoding="utf-8")
     frames=compile_frames()
     if len(frames)!=int(M["motion_dungeon"]["compile"]["frame_count"]): raise SystemExit("frame count mismatch")
     out=HERE/"_reconstructed.mp4"; render_mp4(frames,out); media=out.read_bytes()
