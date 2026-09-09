@@ -1,0 +1,478 @@
+v2-contact-018-moving-base-contact-frame
+WORLD TRANSLATION OF A MOVING SUPPORT DOES NOT CHANGE THE CONTACT RELATIONSHIP WHILE THE SUPPORTED POINT REMAINS FIXED IN BASE-LOCAL COORDINATES; ONLY LOAD, UNLOAD, AND BASE-RELATIVE SEPARATION EARN CONTACT JOINS.
+REVISION: NEW_CONCEPT | revises=null | negative_fixture=null | source_change=NOT_APPLICABLE_NEW_CONCEPT
+SOURCE: TSR asset 205456 — Rider / 3D Stunt Rider / Amstrad CPC
+SOURCE ROLE: POSE_REFERENCE + CONTACT_REFERENCE; NOT_TIMING_REFERENCE; source-authentic timing UNKNOWN.
+WHOLE SOURCE: authoritative campaign receipt 5572872470 records exact 136x172 PNG inspection; 1,985 bytes; SHA-256 a9d3f07c8a72278c80a15e85e335f5669d108d4d2d002eb40b2311279191a633.
+RIGHTS: commercial source is evidence only; output contains no source pixels/palette/costume/contours/layout/tracing/choreography/redistribution/close imitation.
+TIMING: every decisive key INFERRED / STREET_FIGHTER-CAPCOM. ONES/TWOS/FOURS are display classes, not seconds.
+VISIBLE LEGEND: A=head O=shoulder X=pelvis *=hands o=knees ^=feet  [===]=moving base  +=acquire  #=loaded anchor  o(base)=touch-unloaded  >>>=base world motion.
+RELATIONSHIP LAW: K3-K5 supported foot stays at base-local x=+5 while base translates in world. World motion alone does NOT buy a contact-state change.
+============================================================================================
+K0 SEPARATE_READY [FOURS/INFERRED]
+contact=NONE | support=GROUND_BOTH | custody=NONE
+base_x=46 | base_local_anchor=+5 | force_owner=GROUND | normal_force=0
+role=Actor and moving base are clearly separate; rearward stance leaves approach room.
+arc=actor compact left; base translated right; no relationship anchor
+
+
+
+
+
+
+
+                            A
+                            |
+                             |
+                             O-
+                            /| ---
+                           / |    -*
+                          *   |
+                              |
+                              |
+                              X
+                             / \
+                            /   \
+                            /    \
+                           o      o
+                           |      |
+                          |        |
+                          |        |
+                         |          |         [====================]
+                         |          |                           >>>
+                        |            |
+........................^............^..................................................................
+
+
+============================================================================================
+K1 MOUNT_ELIGIBILITY [TWOS/INFERRED]
+contact=NONE_ELIGIBLE | support=GROUND_REAR | custody=NONE
+base_x=48 | base_local_anchor=+5 | force_owner=GROUND_REAR_FOOT | normal_force=0
+role=Lead foot probes above the moving base while rear ground support still owns COM.
+arc=body-first forward reach; base-local contact zone is visible but unowned
+
+
+
+
+
+
+
+
+                                 A
+                                 |
+                                  |
+                                  O-
+                                //| ---
+                               *  |    -*
+                                  |
+                                  |
+                                  X
+                                 / \\
+                                /    \
+                               /      \\
+                              o         o
+                              |          \
+                             |            \
+                             |             ^
+                            |                   [====================]
+                            |                                     >>>
+                           |
+...........................^............................................................................
+
+
+============================================================================================
+K2 BASE_CONTACT_ACQUIRE_OVERLAP [ONES/INFERRED]
+contact=BASE_POINT_ACQUIRE | support=GROUND_REAR_PLUS_BASE | custody=NONE
+base_x=48 | base_local_anchor=+5 | force_owner=GROUND_REAR_AND_BASE_ONSET | normal_force=2
+role=Lead foot acquires the base at local anchor +5 while rear ground support remains briefly active.
+arc=one-beat overlap makes acquisition causal instead of teleporting support
+
+
+
+
+
+
+
+
+                                       A
+                                       |
+                                        |
+                                        O-
+                                      //| --
+                                     *  |   -*
+                                        |
+                                        |
+                                        X
+                                      // \\
+                                     /     \
+                                   //       \\
+                                  o           o
+                                  |            --
+                                 |               --
+                                 |                 --
+                                |               [====+===============]
+                                |                                 >>>
+                               |
+...............................^........................................................................
+
+
+============================================================================================
+K3 BASE_LOCAL_LOCK [TWOS/INFERRED]
+contact=BASE_LOCAL_LOCK | support=BASE_FRONT_PRIMARY | custody=NONE
+base_x=49 | base_local_anchor=+5 | force_owner=BASE_NORMAL_REACTION | normal_force=4
+role=Rear ground foot releases; support now belongs to the moving base while custody remains NONE.
+arc=local anchor = +5; body stacks over base and opens negative space behind
+
+
+
+
+
+
+
+
+                                             A
+                                             |
+                                              |
+                                              O-
+                                            //| --
+                                           *  |   -*
+                                              |
+                                              |
+                                              X
+                                             / \
+                                            /   \\
+                                           /      \
+                                          o        o  ^
+                                         /          \ !
+                                        /            \!
+                                        /            \!
+                                       ^         [====#===============]
+                                                                   >>>
+
+........................................................................................................
+
+
+============================================================================================
+K4 WORLD_TRANSLATION_LOCAL_ANCHOR_FIXED [TWOS/INFERRED]
+contact=BASE_LOCAL_LOCK | support=BASE_FRONT_PRIMARY | custody=NONE
+base_x=55 | base_local_anchor=+5 | force_owner=BASE_NORMAL_REACTION | normal_force=5
+role=Base and actor translate in world space together while the supported foot remains at the same base-local +5 anchor.
+arc=world x advances six cells; relationship topology does not change
+
+
+
+
+
+
+
+
+                                                   A
+                                                   |
+                                                    |
+                                                    O-
+                                                  --| --
+                                                *-  |   -*
+                                                    |
+                                                    |
+                                                    X
+                                                   / \
+                                                  /   \\
+                                                 /      \   ^
+                                                o        o  !
+                                               /          \ !
+                                              /            \!
+                                              /            \!
+                                             ^         [====#===============]
+                                                                         >>>
+
+........................................................................................................
+
+
+============================================================================================
+K5 ACCELERATION_COUNTERLEAN_LOAD_MAX [FOURS/INFERRED]
+contact=BASE_LOCAL_LOCK | support=BASE_FRONT_PRIMARY | custody=NONE
+base_x=62 | base_local_anchor=+5 | force_owner=BASE_NORMAL_PLUS_TANGENTIAL_DRIVE | normal_force=7
+role=Moving base re-spends momentum; COM trails the fixed local anchor and torso counterleans under maximum carried load.
+arc=base leads right; pelvis lags; support axis runs from local anchor through pelvis against the acceleration
+
+
+
+
+
+
+
+
+
+                                                       A
+                                                        \
+                                                        \
+                                                         O-
+                                                       --| ---
+                                                     *-   |   -*
+                                                          |
+                                                           |
+                                                           X       ^
+                                                         // \      !
+                                                       //    \\    !
+                                                      o        \   !
+                                                     |          o  !
+                                                     |           \ !
+                                                    |             \!
+                                                    ^         [====#===============]
+                                                                                >>>
+
+........................................................................................................
+
+
+============================================================================================
+K6 BASE_UNLOAD_THRESHOLD_TOUCHING [TWOS/INFERRED]
+contact=BASE_TOUCH_UNLOADED | support=INERTIAL_TOUCH_ZERO_LOAD | custody=NONE
+base_x=68 | base_local_anchor=+5 | force_owner=INERTIA_ONLY | normal_force=0
+role=The same local point is still geometrically touching, but normal load is authored to zero before release.
+arc=body rises and withdraws while base continues right; force plume disappears before gap
+
+
+
+
+
+
+
+
+                                                              A
+                                                              |
+                                                               |
+                                                               O-
+                                                             //| --
+                                                            *  |   -*
+                                                                |
+                                                                |
+                                                                X
+                                                               / \
+                                                             //   \\
+                                                            /       \
+                                                           o         o
+                                                          /           \
+                                                          /            \
+                                                         ^              \
+                                                                    [====o===============]
+                                                                                      >>>
+
+........................................................................................................
+
+
+============================================================================================
+K7 BASE_RELEASE_FORK [ONES/INFERRED]
+contact=NONE_RELEASED | support=NONE_AIRBORNE | custody=NONE
+base_x=74 | base_local_anchor=+5 | force_owner=INERTIA | normal_force=0
+role=A real gap opens after unload; base keeps translating while body begins to lag left in world space.
+arc=release fork separates clocks: base rightward, body trailing
+
+
+
+
+
+
+
+                                                                A
+                                                                |
+                                                                 |
+                                                                 O
+                                                               --|--
+                                                             *-  |  -*
+                                                                |
+                                                                |
+                                                                X
+                                                               / \
+                                                             //   \\
+                                                            /       \
+                                                           o         o
+                                                          /           \\
+                                                         /              ^
+                                                        ^
+
+                                                                          [====================]
+                                                                                            >>>
+
+........................................................................................................
+
+
+============================================================================================
+K8 BASE_OUTRUN_BODY_SECONDARY_LAG [TWOS/INFERRED]
+contact=NONE | support=NONE_AIRBORNE | custody=NONE
+base_x=82 | base_local_anchor=+5 | force_owner=INERTIA | normal_force=0
+role=The base visibly outruns the actor; free limbs and torso lag in opposing arcs rather than following the platform rigidly.
+arc=platform accelerates away right; actor drifts left/down relative to it
+
+
+
+
+
+
+
+                                                             A
+                                                             |
+                                                              |
+                                                              O--
+                                                            //|  ---*
+                                                          //  |
+                                                         *   |
+                                                             |
+                                                             X
+                                                           // \\
+                                                          /     \
+                                                        //       \\
+                                                       o           o
+                                                      /             \
+                                                     /              \
+                                                     /               ^
+                                                    ^
+                                                                                  [====================]
+                                                                                                    >>>
+
+........................................................................................................
+
+
+============================================================================================
+K9 GROUND_PRECONTACT_ELIGIBILITY [TWOS/INFERRED]
+contact=NONE_GROUND_ELIGIBLE | support=NONE_PRECONTACT | custody=NONE
+base_x=88 | base_local_anchor=+5 | force_owner=GRAVITY | normal_force=0
+role=Ground catch is prepared with a visible gap; no support is granted before foot geometry earns it.
+arc=lead foot reaches down while torso continues previous drift
+
+
+
+
+
+
+
+
+                                                         A
+                                                         |
+                                                          |
+                                                          O--
+                                                         /|  --*
+                                                       // |
+                                                      *  |
+                                                         |
+                                                         X
+                                                        / --
+                                                       /    --
+                                                     //       --
+                                                    /           o
+                                                   o            |
+                                                  /             |
+                                                  /              |
+                                                 /               |                      [===============
+                                                 /               ^
+                                                ^
+........................................................................................................
+
+
+============================================================================================
+K10 GROUND_CATCH_COMPRESSION [ONES/INFERRED]
+contact=GROUND_POINT_ACQUIRE | support=GROUND_FRONT_CATCH | custody=NONE
+base_x=94 | base_local_anchor=+5 | force_owner=GROUND_FRONT_FOOT | normal_force=6
+role=Ground contact arrests the actor after base release; pelvis compresses into the catch instead of resetting.
+arc=hard catch under forward foot with broad diagonal compression
+
+
+
+
+
+
+
+
+
+
+                                                      A
+                                                      |
+                                                       |
+                                                       O--
+                                                     //|  --*
+                                                   //  |
+                                                  *   |
+                                                      |
+                                                      X
+                                                    // --
+                                                   /     --
+                                                 //        --
+                                                o            o
+                                                |            |
+                                               |              |                               [=========
+                                               |              |
+                                              |                |
+..............................................^................#........................................
+
+
+============================================================================================
+K11 TORSO_COUNTER_OVERSHOOT [TWOS/INFERRED]
+contact=GROUND_STABLE | support=GROUND_BOTH_BRAKE | custody=NONE
+base_x=100 | base_local_anchor=+5 | force_owner=GROUND_BRAKE | normal_force=3
+role=Feet brake while torso passes behind the pelvis and arms retain secondary lag.
+arc=root travel shortens; upper body counter-overshoots left
+
+
+
+
+
+
+
+
+
+                                                 A
+                                                 |
+                                                  |
+                                                  O---
+                                                 /|   ---*
+                                                /  |
+                                               *   |
+                                                    |
+                                                    X
+                                                  // \\
+                                                 /     \
+                                               //       \\
+                                              o           o
+                                              |           |
+                                             |             |
+                                             |             |                                        [===
+                                             |             |
+                                            |               |
+............................................^...............#...........................................
+
+
+============================================================================================
+K12 SETTLE_DISPLACED_DEBT [FOURS/INFERRED]
+contact=GROUND_STABLE | support=GROUND_BOTH_STABLE | custody=NONE
+base_x=106 | base_local_anchor=+5 | force_owner=GROUND | normal_force=2
+role=Actor settles displaced far right of the start while the base exits; no reverse interpolation to K0.
+arc=compact stable re-entry with residual asymmetric arm and stance debt
+
+
+
+
+
+
+
+
+                                                   A
+                                                   |
+                                                    |
+                                                    O-
+                                                   /| --
+                                                  / |   -*
+                                                 *   |
+                                                     |
+                                                     X
+                                                   // \
+                                                  /    \\
+                                                //       \
+                                               o          o
+                                               |          |
+                                              |            |
+                                              |            |
+                                             |             |
+                                             |             |
+                                            |               |
+............................................^...............#...........................................
+
+
