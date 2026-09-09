@@ -1,0 +1,51 @@
+{
+  "schema": "home-center.venice-plan-review.v1",
+  "date": "2026-09-08",
+  "commission": "Create a deterministic function that turns verified attention-worthy states into alarming, impossible-to-skim notification text whose notification alone contains the complete action; resolved conditions must stop notifying.",
+  "owner": "Drew Clarke",
+  "repository": "Valar05/home-center",
+  "branch": "codex/attention-notice-compiler",
+  "boundedSlice": {
+    "inScope": [
+      "Pure deterministic notification-line compiler",
+      "Deterministic variation keyed by event id/state/pulse",
+      "Resolved-state suppression",
+      "Contract tests for Gmail, Home Center CI, phone-disconnect, and resolved-state behavior",
+      "Root regression-harness registration"
+    ],
+    "outOfScope": [
+      "Scheduling or reminder creation",
+      "Gmail polling or webhook installation",
+      "GitHub Actions monitoring installation",
+      "Android notification transport changes",
+      "Phone deployment or runtime acceptance"
+    ]
+  },
+  "research": [
+    "AGENTS.md and AGENTS.base.md require mission preservation, repository truth, Regnet QA, and Venice stop review.",
+    "The repository explicitly treats the Android persistent notification as a delivery/control surface.",
+    "tools/run_regression_tests.sh is the project-native deterministic regression harness.",
+    "Fresh Gmail evidence showed the repeated return-to-work check reminder had become stale after a reply arrived.",
+    "Fresh GitHub evidence showed Build Android and Home Center CI both failing on main, demonstrating another legitimate attention target."
+  ],
+  "selectedJudgmentJars": [
+    {"id": "mission-boundary", "reason": "Keep the slice to a compiler rather than silently installing monitoring or transport."},
+    {"id": "repository-truth", "reason": "Notification text must report caller-supplied verified state; implementation claims require repository evidence."},
+    {"id": "change-discipline", "reason": "Use a small new module/test plus one regression-harness line group."},
+    {"id": "failure-recovery", "reason": "Prevent stale alarms from persisting after the underlying condition changes."}
+  ],
+  "antagonism": [
+    "Alarm fatigue: repeated unresolved events must vary deterministically via an explicit pulse, never randomness.",
+    "False urgency: the compiler must not infer facts; it only formats caller-supplied fact/action/state.",
+    "Notification truncation: action must precede fact and theatrical sting, and overlong action/fact inputs must fail validation rather than silently lose the command.",
+    "Stale reminder: resolved state must return null so a caller cannot legitimately keep emitting the old alert from the same state record.",
+    "Body dependence: no required information may exist only in message body text."
+  ],
+  "directive": "PLAN_ALLOWED",
+  "reviewerProvenance": "ChatGPT GPT-5.6 Sol, separate adversarial Judgment-Jar pass",
+  "evidenceIdentity": {
+    "baseBranch": "main",
+    "notificationSearchHead": "96c260bc7b355172fe7ee2ee4aac274111efcdd2",
+    "observedMainWorkflowHead": "604ee8a585d05cee51ec85edc824404e9a32b3ba"
+  }
+}
