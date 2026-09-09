@@ -1,0 +1,103 @@
+{
+  "schema": "ascii-kinesis.v2-receipt",
+  "experiment_id": "v2-timing-014-constraint-dwell-redistribution",
+  "status": "QUALITY_GATES_PASS_MEDIA_DECODE_PASS_CONTRACT_PASS_REPO_READBACK_PENDING",
+  "repo_path": "experiments/ascii-kinesis/v2-timing-014-constraint-dwell-redistribution/",
+  "ship_commit": null,
+  "verification_commit": null,
+  "issue_343_receipt": null,
+  "drew_accepted": false,
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "602122",
+    "title": "Meatman — Chasm — PC / Computer — Enemies",
+    "url": "https://www.spriters-resource.com/pc_computer/chasm/asset/602122/",
+    "source_archive": "ZIP, 61 entries / 52 PNGs",
+    "source_bytes": 111688,
+    "source_sha256": "7a47f6ef97b44b65b43f15a8d2a9281b1fc1cb95f543f631b0a21d76beba565f",
+    "campaign_evidence": "authoritative Home Center campaign — whole archive/frame-family audit; family inventory Death 8, Idle 12, Ram 6, Ram Brake 3, Ram Tell 2, Ram Tell Loop 2, Tired 6, Walk 10, Wall Hit 2",
+    "whole_source_inspected": true,
+    "timing_observed": false,
+    "timing_policy": "ALL DECISIVE TIMING INFERRED / STREET_FIGHTER-CAPCOM",
+    "source_art_embedded": false,
+    "rights": "Commercial copyrighted source used only for critical motion analysis. No source pixels, palette, costume, contours, layout, tracing, source choreography, redistribution, or close imitation enter output."
+  },
+  "revision": {
+    "kind": "FRESH_CONCEPT",
+    "negative_fixture": null,
+    "predecessor_closed_by": 5595448392,
+    "revises": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "storage_identity": "Timing014",
+    "binding": "SOLE EXISTING POST-5595448392 TIMING014 BODY; MUTATED IN PLACE",
+    "same_body_revision_rounds": 1
+  },
+  "principle": {
+    "name": "CONSTRAINT_DWELL_REDISTRIBUTION",
+    "pocket_rule": "WHEN A DEGREE OF FREEDOM CLOSES, MOVE TEMPORAL WEIGHT INTO DEFORMATION."
+  },
+  "media_sha256": "2d8723c1917a0a59b75fd93fd737cd34014d455eb093e2e61819b155b5835877",
+  "media_bytes": 8220,
+  "tango": {
+    "status": "PASS",
+    "worker_scope": "current_reporting_worker",
+    "actual_render_sha256": "2d8723c1917a0a59b75fd93fd737cd34014d455eb093e2e61819b155b5835877",
+    "recursion": [
+      {
+        "round": 0,
+        "status": "REVISE_REQUIRED",
+        "defect": "The persisted candidate's 12-tick K6 compression bank froze after a two-frame crush bridge, so too much of the claimed redistribution read as a dead hold.",
+        "correction": "Same-body authored-key repair: split blocked-root dwell into T014-K6A COMPRESSION_ENTRY and T014-K6B DEEP_COMPRESSION_SETTLE; keep wall custody and root x=20 while pelvis/chest/support load continue changing."
+      },
+      {
+        "round": 1,
+        "status": "PASS",
+        "notes": "Fresh exact 77-frame render shows rear/down load -> accelerating drive -> one-tick precontact/contact -> staged blocked-root compression -> support shear -> peel -> rebound overshoot -> counter-catch -> displaced ready. Root x stops at contact while K6A/K6B visibly continue deformation and support redistribution. No equalized cadence, dead compression hold, straight endpoint-only performance, reverse interpolation, phase teleport, or idle reset survives."
+      }
+    ]
+  },
+  "noodle_queen": {
+    "status": "PASS",
+    "worker_scope": "current_reporting_worker_after_tango",
+    "actual_render_sha256": "2d8723c1917a0a59b75fd93fd737cd34014d455eb093e2e61819b155b5835877",
+    "taste": "PASS",
+    "function": "PASS",
+    "contempt": "PASS",
+    "notes": "TASTE: rear load, fast wall acquisition, staged crush, shear, peel, back-lean overshoot and crooked catch produce a specific silhouette/rhythm. FUNCTION: the closed-axis timing insight is visible without metadata. CONTEMPT: the corrected specimen does not hide behind a static crush hold, generic metronome, or polite return to start."
+  },
+  "verification": {
+    "repo_readback": false,
+    "repo_file_count": null,
+    "contract_test": "PASS_CANDIDATE_ISOLATED_OFFICIAL_V2_EXACT_SCRIPT_BLOB_09f0bcf233dbb770ce6b6df047fe18d94be8aa7c; repo-global checkout execution not claimed in Standard Chat",
+    "media_decode": "PASS_H264_288x162_24FPS_77FRAMES_SHA_MATCH",
+    "three_part_chat_delivery": false,
+    "chat_delivery_order": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ]
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "PROMOTE",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "artifact_blobs": {
+    "motion.json": "6c9d6aafc2ef7f46c54122326942f809dd509209",
+    "contact-sheet.txt": "ec9c2adc166de55603924fb7d8ca4b021b420c39",
+    "constraint-dwell-redistribution.motion.html": "897ae83824cf7e7b457917a86961ed2a612b5497",
+    "manifest.json": "0b89f8b1ca76f62b0aa2c24580f82fa1cd59178f"
+  },
+  "persistence_commits": {
+    "motion_correction": "948de176b191b0f429ea46f036157ce83671c285",
+    "contact_sheet": "9225d3cad2f4893e5b7d17eb288d8ee63ac9e97e",
+    "spa": "2f6cd4892f560257c0242f9c36b5a9c82db0d94b",
+    "manifest": "47b7cd56ef53d501f7e59a210a7db2da8f5dbabc"
+  }
+}
