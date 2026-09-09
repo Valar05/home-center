@@ -37,12 +37,13 @@
     "pix_fmt": "yuv420p",
     "width": 960,
     "height": 520,
-    "media_bytes": 39346,
-    "media_sha256": "8a31370c9b7ee60c49c55ba838318ab8beacdc70d7993db5563f71b6103b02ff",
+    "media_bytes": 43796,
+    "media_sha256": "d84a0130ea2cb784a2eec8618a93aa7857f6be2df4baf33f9d49e61cd677bdf3",
     "decode": "PASS",
     "ascii_only_frame_render": true,
     "source_sprite_pixels_used": false,
     "source_audio_used": false
   },
-  "drew_accepted": false
+  "drew_accepted": false,
+  "body_status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_CHAT_DELIVERY"
 }
