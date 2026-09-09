@@ -1,0 +1,64 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "experiment_id": "v2-airborne-020-asymmetric-stall-flare-runout",
+  "lane": "airborne",
+  "status": "HEALTHY_USER_SURFACED",
+  "issue_343_receipt": 5595082834,
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "15199",
+    "title": "Alucard (Bat)",
+    "game": "Castlevania: Symphony of the Night",
+    "platform": "PlayStation",
+    "source_authentic_timing": "UNKNOWN",
+    "decisive_timing": "INFERRED_STREET_FIGHTER_CAPCOM"
+  },
+  "media": {
+    "sha256": "a5d5957d78a7c397c0d0eda909b1526f6ac9855614bc6aa0ce2a5f8d4f7b9577",
+    "bytes": 11366,
+    "frames": 68,
+    "fps": 24,
+    "width": 480,
+    "height": 270,
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "decode": true
+  },
+  "quality": {
+    "tango": "PASS",
+    "tango_rounds": 3,
+    "noodle_queen": {
+      "taste": "PASS",
+      "function": "PASS",
+      "contempt": "PASS"
+    }
+  },
+  "contract": {
+    "validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "execution_scope": "candidate-isolated exact official validator",
+    "pass": true
+  },
+  "repo": {
+    "path": "experiments/ascii-kinesis/v2-airborne-020-asymmetric-stall-flare-runout/",
+    "delivery_commit": "f1868a37c44cc835e10c07355c14f93f71ee4f00",
+    "blobs": {
+      "asymmetric-stall-flare-runout.motion.html": "1dd19ed734fff1518a476cc30888e93c5d5a8bfa",
+      "build.py": "6b8d1d622fd3caa4d6790d766a349d3f0f25ebec",
+      "contact-sheet.txt": "63eca2513ada894a8263ca6f1581819330742925",
+      "manifest.json": "0d1ef867de7f38f7c737618c528c4313a5609c92",
+      "motion.json": "81eee8f7e947374c94295ef511fd6457d0ad8f62"
+    }
+  },
+  "verification": {
+    "home_center_campaign_read": true,
+    "github_persistence": true,
+    "repo_readback": true,
+    "media_decode": true,
+    "tango_current_worker": true,
+    "noodle_queen_current_worker": true,
+    "issue_receipt": true,
+    "three_part_chat_delivery": true
+  },
+  "drew_accepted": false,
+  "next_authorized": "v2-airborne-021 only after this receipt readback"
+}
