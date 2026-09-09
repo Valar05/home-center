@@ -5,10 +5,11 @@
       "JSON",
       "VIDEO"
     ],
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false,
-    "three_part_chat_delivery": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_video": true,
+    "three_part_chat_delivery": true,
+    "surface": "REPORTING_CHAT_ORDERED_ASCII_JSON_VISIBLE_VIDEO"
   },
   "contract": {
     "candidate_isolated": "PASS_CURRENT_WORKER",
@@ -22,7 +23,7 @@
   },
   "drew_accepted": false,
   "experiment_id": "v2-timing-018-priority-preempt-checkpoint-resume",
-  "issue_343_receipt": null,
+  "issue_343_receipt": 5600272348,
   "lineage": {
     "kind": "fresh_post_debt_concept",
     "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
@@ -41,7 +42,7 @@
     "sha256": "b54e254e78eee76cba97dbe94f3e48e9e2880cd02dcee4cbfd7f57110888251c",
     "width": 320
   },
-  "next_authorized": "BLOCKED_UNTIL_TIMING018_HEALTHY",
+  "next_authorized": "TIMING019_AFTER_THIS_HEALTHY_CLOSURE",
   "quality": {
     "noodle_queen": {
       "actual_render_sha256": "b54e254e78eee76cba97dbe94f3e48e9e2880cd02dcee4cbfd7f57110888251c",
@@ -63,9 +64,9 @@
   },
   "repo": {
     "file_count": 6,
-    "final_readback": "PENDING_POSTWRITE",
+    "final_readback": "PASS_EXACT_SIX_FILE_MAIN_READBACK_BEFORE_AND_AFTER_CHAT_DELIVERY_BINDING",
     "path": "experiments/ascii-kinesis/v2-timing-018-priority-preempt-checkpoint-resume/",
-    "ship_commit": null
+    "ship_commit": "2568138b3474fd966239bf8416ec02243db15e49"
   },
   "schema": "ascii-kinesis.receipt.v2",
   "source": {
@@ -74,5 +75,5 @@
     "source_timing": "UNAVAILABLE",
     "whole_source_inspected_current_worker": true
   },
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE"
+  "status": "HEALTHY_USER_SURFACED"
 }
