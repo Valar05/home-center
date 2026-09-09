@@ -1,0 +1,382 @@
+ASCII KINESIS V2 STRIKES016 — RECOIL-LOADED SECOND STRIKE DEBT
+SOURCE ART: NOT EMBEDDED | RIG: ABSTRACT ASCII ONLY | SOURCE TIMING: UNKNOWN | AUTHORED TIMING: INFERRED / STREET_FIGHTER-CAPCOM
+POCKET: THE FIRST HIT'S RECOIL IS THE SECOND HIT'S ANTICIPATION.
+LEGEND: * left hand | # right hand | | abstract target plane | X explicit contact
+
+K00 CANTED_READY | FOURS | INFERRED | SUPPORT=BOTH_FEET_STAGGERED | CONTACT=NONE
+ROOT/ARC: Root sits rear-left of the target; right shoulder is slightly back, left hand floats forward as a loose measure.
+ROLE: Asymmetric baseline with visible open negative space between striking hand and target.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                          o                            |
+                          |                            |
+                          |                            |
+                        +o+-o-----*                    |
+                     #--  |                            |
+                          |                            |
+                         |                             |
+                         |                             |
+                         @                             |
+                       -- --                           |
+                      /     \
+                     o        o
+                     |        |
+                     |         |
+  ___________________/_________\__________________________________
+
+K01 REAR_COIL_FIRST | FOURS | INFERRED | SUPPORT=REAR_FOOT_DOMINANT | CONTACT=NONE
+ROOT/ARC: Pelvis drops back/right into rear support while the right hand retracts farther than the shoulder.
+ROLE: Specific first-strike anticipation: pelvis and rear foot own the stored rotation before the hand accelerates.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                                                       |
+                         o                             |
+                         |    ---*                     |
+                         |-o--                         |
+                       +-+-+                           |
+                     --o-|                             |
+                  #--   |                              |
+                        |                              |
+                       |                               |
+                       @                               |
+                     -- --
+                    /     --
+                   o        -o
+                    |         \
+  __________________/__________\__________________________________
+
+K02 FIRST_DRIVE | TWOS | INFERRED | SUPPORT=REAR_TO_LEAD_TRANSFER | CONTACT=NONE
+ROOT/ARC: Pelvis drives forward and rises; right shoulder begins to outrun the chest while lead foot accepts weight.
+ROLE: Root/support earns the first strike; the hand crosses a large distance only after pelvis commitment.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                               o                       |
+                               |                       |
+                             o* |    ---o----#         |
+                              + + +--                  |
+                               /                       |
+                               /                       |
+                              /                        |
+                              /                        |
+                             @                         |
+                           -- --                       |
+                         //     \
+                        o        o
+                        |        |
+                        |         |
+  ______________________/_________\_______________________________
+
+K03 FIRST_PRECONTACT | ONES | INFERRED | SUPPORT=LEAD_FOOT_ACQUIRING | CONTACT=NONE
+ROOT/ARC: Root is still moving forward; right fist stops one cell short of the upper contact while left hand folds toward the ribs.
+ROLE: Distinct precontact gap before the first hit; opposite hand is already positioned to receive recoil.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                                  o                    |
+                                  |               ----#|
+                                   |      ----o---     |
+                                -+ + +----             |
+                              o-  /                    |
+                              *   /                    |
+                                 /                     |
+                                 /                     |
+                                @                      |
+                              -- --                    |
+                            //     \
+                           o        o
+                           |        |
+                           |        |
+  _________________________/________\_____________________________
+
+K04 FIRST_CONTACT | ONES | INFERRED | SUPPORT=LEAD_FOOT_BRACED | CONTACT=FIRST_TARGET_CONTACT
+ROOT/ARC: Right fist meets the upper target contact while pelvis has one more authored forward beat available.
+ROLE: Explicit first impact. It is a causal event, not merely the spatial endpoint of root motion.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                                   o                   |
+                                   |               ----X
+                                    |      ----o---    |
+                                 -+ + +----            |
+                              o--  /                   |
+                             *     /                   |
+                                  /                    |
+                                  /                    |
+                                 @                     |
+                               -- --                   |
+                             //     \
+                            o        o
+                            |        |
+                            |        |
+  __________________________/________\____________________________
+
+K05 FIRST_HIT_ROOT_OVERRUN | TWOS | INFERRED | SUPPORT=LEAD_FOOT_DEEP_BRACE | CONTACT=RELEASED_AFTER_FIRST
+ROOT/ARC: Pelvis advances and drops after the fist leaves contact; striking hand recoils down/in while the opposite hand folds low toward the ribs, avoiding a symmetric spread.
+ROLE: The first impact creates visible recoil debt while the root still owns forward momentum; the asymmetrical fold is the handoff into the opposite-side load.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                                                       |
+                                     o                 |
+                                     |                 |
+                                      |                |
+                                  --+ + +---o-         |
+                               o--   /        -#       |
+                             //      /                 |
+                            *       /                  |
+                                    /                  |
+                                   @                   |
+                                 -- --
+                               //     |
+                              o       o
+                             |        |
+  ___________________________/________\___________________________
+
+K06 RECOIL_LOADS_OPPOSITE | FOURS | INFERRED | SUPPORT=LEAD_FOOT_DEEP_BRACE | CONTACT=NONE
+ROOT/ARC: Lead support compresses; chest yaws past pelvis, right hand folds across center, and left hand is dragged deep behind the opposite shoulder.
+ROLE: First-hit recoil becomes second-strike anticipation. The opposite hand is loaded by body counter-rotation rather than independently posed.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                                                       |
+                                  o                    |
+                                  |                    |
+                                  |                    |
+                             ---+ + +                  |
+                        -o---     |  |                 |
+                     *--          |  o                 |
+                                  | |                  |
+                                   |#                  |
+                                   |                   |
+                                   @
+                                --- --
+                              o-      -o
+                             |         |
+  ___________________________/_________\__________________________
+
+K07 SECOND_DRIVE_FROM_DEBT | ONES | INFERRED | SUPPORT=LEAD_TO_DUAL_TRANSFER | CONTACT=NONE
+ROOT/ARC: Pelvis rebounds left/up while chest snaps forward/right; left hand cuts across from the recoil pocket.
+ROLE: Second strike spends the stored first-impact recoil before the body can restack.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                                     o                 |
+                                     |                 |
+                                      |                |
+                                    +-+-o---           |
+                                     / /    ---*       |
+                                    / o                |
+                                    //                 |
+                                   #                   |
+                                  @                    |
+                                -- --                  |
+                              //     \
+                             o         o
+                             |         |
+                            |           |
+  __________________________/___________\_________________________
+
+K08 SECOND_PRECONTACT | ONES | INFERRED | SUPPORT=DUAL_SUPPORT_TORQUE | CONTACT=NONE
+ROOT/ARC: Wide support catches rotation while left fist arrives one cell short of the lower contact; right arm trails behind the torso.
+ROLE: Distinct second precontact; the first limb now acts as secondary lag rather than a reset guard.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                                      o                |
+                                      |                |
+                                       |               |
+                                     +-+-+             |
+                                      ///---o----      |
+                                     /o          -----*|
+                                   --/                 |
+                                 #- /                  |
+                                   @                   |
+                                 -- --                 |
+                               --     \
+                             o-         o
+                            /           |
+                            /            |
+  _________________________/_____________\________________________
+
+K09 SECOND_CONTACT | TWOS | INFERRED | SUPPORT=WIDE_DUAL_BRACE | CONTACT=SECOND_TARGET_CONTACT
+ROOT/ARC: Left fist meets the lower target contact while pelvis is braced between widened feet and torso rotation peaks.
+ROLE: Second explicit impact proves the first recoil was converted into offense, not merely absorbed.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                                                       |
+                                       o               |
+                                       |               |
+                                        |              |
+                                      +-+-+--o----     |
+                                       /--        -----X
+                                     -o-               |
+                                  ---/                 |
+                                #-  /                  |
+                                   @                   |
+                                 -- --
+                               --     \
+                             o-         o
+                            /            \
+  _________________________/______________\_______________________
+
+K10 SECOND_OVERSHOOT | TWOS | INFERRED | SUPPORT=WIDE_DUAL_BRACE | CONTACT=RELEASED_AFTER_SECOND
+ROOT/ARC: Pelvis stays caught while chest and left shoulder continue past the contact line of force; right hand remains late.
+ROLE: Authored torso overshoot after the second hit prevents the phrase from ending on contact.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                                                       |
+                                                       |
+                                        o              |
+                                        |              |
+                                         |             |
+                                       +-+-+           |
+                                       //---o-         |
+                                     -o-      ----     |
+                                 ----/            -*   |
+                               #-  //                  |
+                                  @
+                               --- ---
+                            o--       --o
+                           |             \
+  _________________________/______________\_______________________
+
+K11 FIRST_LIMB_SECONDARY_LAG | TWOS | INFERRED | SUPPORT=BOTH_FEET_CATCHING | CONTACT=NONE
+ROOT/ARC: Root begins to recover left while the right hand still trails low and the left elbow folds only partway.
+ROLE: Secondary lag preserves the two-impact history after the root has begun recovery.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                                                       |
+                                   o                   |
+                                   |                   |
+                                   |                   |
+                                 +-+ +                 |
+                                  / --o-               |
+                                  //    ----           |
+                                 /o         -*         |
+                                 /                     |
+                               /@                      |
+                              #- --
+                            //     --
+                           o         -o
+                          |            \
+  ________________________/______________\________________________
+
+K12 SUPPORT_CATCH_RESIDUAL_TORQUE | FOURS | INFERRED | SUPPORT=BOTH_FEET_STABLE_WIDE | CONTACT=NONE
+ROOT/ARC: Pelvis counterleans into the rear foot; shoulders restack unevenly while both hands remain offset from ready.
+ROLE: Support, not an arm snap, catches remaining rotational debt from the two contacts.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                               o                       |
+                               |                       |
+                               |                       |
+                             +-+ +                     |
+                               |-o--                   |
+                               o    ---*               |
+                              |                        |
+                             /|                        |
+                            # @                        |
+                            -- ---                     |
+                          //      --
+                         o          -o
+                         |            \
+                         |             \
+  _______________________/______________\_________________________
+
+K13 DISPLACED_REENTRY | FOURS | INFERRED | SUPPORT=BOTH_FEET_STAGGERED | CONTACT=NONE
+ROOT/ARC: Ready re-entry remains five cells forward of K00 with wider feet and hands at unequal heights.
+ROLE: Recovery closes at a new address. Two impacts have changed the stance; there is no idle reset.
+
+
+
+
+
+
+                                                       |
+                                                       |
+                               o                       |
+                               |                       |
+                               |                       |
+                             +-+o+----*                |
+                               o-                      |
+                             --|                       |
+                           #- |                        |
+                              |                        |
+                              @                        |
+                            -- --                      |
+                          //     --
+                         o         -o
+                         |           \
+                         |            \
+  _______________________/_____________\__________________________
