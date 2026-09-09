@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Deterministic SSH Axis health gate for Fortress Online.
 
-This tool never claims an endpoint is callable from configuration alone.  Each
+This tool never claims an endpoint is callable from configuration alone. Each
 endpoint is promoted only after an end-to-end command receipt succeeds.
 
 Typical use:
@@ -9,14 +9,13 @@ Typical use:
   python tools/ssh_axis.py check --target phone
   python tools/ssh_axis.py check --target all --json
 
-Configuration is intentionally boring and overridable:
-  FORTRESS_CAULDRON_SSH   default: dclar@192.168.40.213
-  FORTRESS_PHONE_SSH      optional OpenSSH endpoint for Termux, e.g. user@host:8022
-  FORTRESS_SSH_CONFIG     optional ssh_config path
+THECAULDRON selection order is intentionally boring:
+  1. FORTRESS_CAULDRON_SSH when explicitly supplied.
+  2. The last endpoint actually verified by resolve_cauldron_ssh.py.
+  3. dclar@THECAULDRON (or configured user/hostname), allowing normal DNS,
+     mDNS, or Tailscale MagicDNS to resolve it.
 
-The existing Home Center/Phone Hands `phone_shell` lane remains authoritative
-for ChatGPT -> phone execution.  A missing FORTRESS_PHONE_SSH is therefore
-reported as `not_configured`, not silently treated as success.
+No Shizuku/rish capability is required by this module.
 """
 
 from __future__ import annotations
@@ -24,17 +23,14 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import shlex
 import socket
 import subprocess
-import sys
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-
-DEFAULT_CAULDRON = "dclar@192.168.40.213"
 PROBE = "printf FORTRESS_SSH_AXIS_OK"
+CAULDRON_STATE = Path.home() / '.local/state/fortress-online/cauldron-ssh-endpoint.json'
 
 
 @dataclass
@@ -93,7 +89,6 @@ def ssh_probe(name: str, endpoint: str | None, timeout: float) -> Receipt:
     config = os.environ.get("FORTRESS_SSH_CONFIG")
     if config:
         command.extend(["-F", str(Path(config).expanduser())])
-    # Strip :port because -p owns it.
     user, host, _ = parse_endpoint(endpoint)
     destination = f"{user}@{host}" if user else host
     command.extend([destination, PROBE])
@@ -122,9 +117,32 @@ def ssh_probe(name: str, endpoint: str | None, timeout: float) -> Receipt:
                    observed, int((time.monotonic() - started) * 1000))
 
 
+def cached_cauldron_endpoint() -> str | None:
+    try:
+        data = json.loads(CAULDRON_STATE.read_text(encoding='utf-8'))
+        endpoint = str(data.get('endpoint') or '').strip()
+        return endpoint or None
+    except Exception:
+        return None
+
+
+def cauldron_endpoint() -> str:
+    explicit = str(os.environ.get('FORTRESS_CAULDRON_SSH') or '').strip()
+    if explicit:
+        return explicit
+    cached = cached_cauldron_endpoint()
+    if cached:
+        return cached
+    user = str(os.environ.get('FORTRESS_CAULDRON_USER') or 'dclar').strip() or 'dclar'
+    hostname = str(os.environ.get('FORTRESS_CAULDRON_HOSTNAME') or 'THECAULDRON').strip() or 'THECAULDRON'
+    port = int(os.environ.get('FORTRESS_CAULDRON_SSH_PORT') or '22')
+    base = f'{user}@{hostname}'
+    return base if port == 22 else f'{base}:{port}'
+
+
 def configured_targets() -> dict[str, str | None]:
     return {
-        "cauldron": os.environ.get("FORTRESS_CAULDRON_SSH", DEFAULT_CAULDRON),
+        "cauldron": cauldron_endpoint(),
         "phone": os.environ.get("FORTRESS_PHONE_SSH"),
     }
 
@@ -145,12 +163,12 @@ def main() -> int:
     if args.json:
         print(json.dumps({"ssh_axis": [asdict(r) for r in receipts]}, indent=2, sort_keys=True))
     else:
-        for r in receipts:
-            mark = "OK" if r.callable else "FAIL"
-            print(f"[{mark}] {r.target}: {r.state} endpoint={r.endpoint or '-'}")
-            print(f"      {r.observed}")
+        for receipt in receipts:
+            mark = "OK" if receipt.callable else "FAIL"
+            print(f"[{mark}] {receipt.target}: {receipt.state} endpoint={receipt.endpoint or '-'}")
+            print(f"      {receipt.observed}")
 
-    return 0 if all(r.callable for r in receipts) else 2
+    return 0 if all(receipt.callable for receipt in receipts) else 2
 
 
 if __name__ == "__main__":
