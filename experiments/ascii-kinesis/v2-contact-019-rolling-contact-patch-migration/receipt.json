@@ -1,0 +1,129 @@
+{
+  "schema": "ascii-kinesis.contact-receipt.v2",
+  "experiment_id": "v2-contact-019-rolling-contact-patch-migration",
+  "status": "CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "preflight": {
+    "home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "home_center_campaign_read": true,
+    "github_persistence_readback": true,
+    "inventory_before_creation": "NO_V2_CONTACT_019_FOUND"
+  },
+  "source": {
+    "asset_id": 155651,
+    "evidence_id": "1IyEadga2zJOCNr9vr0MJsnZvRr0x8YxBFjrk-MSsGEc",
+    "whole_sheet_inspected": true,
+    "roles": [
+      "POSE_REFERENCE",
+      "CONTACT_REFERENCE"
+    ],
+    "timing_authenticity": "UNKNOWN",
+    "all_compiled_timing": "INFERRED"
+  },
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "successor_collision": false
+  },
+  "primitive": "ROLLING_CONTACT_PATCH_MIGRATION",
+  "quality": {
+    "actual_render": {
+      "inspected_by_current_worker": true,
+      "decode": "PASS",
+      "frame_sheet_inspected": true,
+      "identity": {
+        "sha256": "eab94ca37da80709b5393d988c43d2bda1c2fed920a2a3d42fdf5d991177331e",
+        "bytes": 47553,
+        "codec": "h264",
+        "pixel_format": "yuv420p",
+        "width": 800,
+        "height": 450,
+        "fps": 24,
+        "frames": 32
+      }
+    },
+    "tango": {
+      "status": "PASS",
+      "rounds": [
+        {
+          "round": "R0",
+          "verdict": "REVISE_REQUIRED",
+          "defect": "LOAD_MAX/hip rolling contact floated below the visible body and the bookend pose read too neutral.",
+          "correction": "Move authored shoulder/back/hip patch geometry onto the ground contact line and reauthor asymmetric READY/READY_DISPLACED keys in the same Contact019 body."
+        },
+        {
+          "round": "R1",
+          "verdict": "PASS",
+          "reason": "Actual decoded render now reads eligibility before acquisition, continuous ground-owned rolling support with migrating body-side patch, inverted load max, low planted catch, counter-overshoot, secondary lag and displaced non-idle recovery."
+        }
+      ]
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "after_tango": true,
+      "taste": "compact forward roll has a specific inversion and asymmetrical exit rather than mannequin translation",
+      "function": "patch migration is visible at hand/shoulder/back/hip/foot while custody remains NONE",
+      "contempt": "no generic tween bridges, no reverse interpolation, no idle reset, no metadata-only contact truth"
+    }
+  },
+  "media": {
+    "fps": 24,
+    "timing_policy": "STREET_FIGHTER/CAPCOM",
+    "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> ASCII-ONLY FRAME RENDER -> H.264 MP4 -> SPA",
+    "connective_motion": "NONE BETWEEN SEMANTIC PATCH CHANGES; holds only. Decisive keys own all contact/support changes.",
+    "source_sprite_pixels_used": false,
+    "width": 800,
+    "height": 450,
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "frames": 32,
+    "media_bytes": 47553,
+    "media_sha256": "eab94ca37da80709b5393d988c43d2bda1c2fed920a2a3d42fdf5d991177331e",
+    "deterministic_ffmpeg": [
+      "-map_metadata",
+      "-1",
+      "-c:v",
+      "libx264",
+      "-threads",
+      "1",
+      "-pix_fmt",
+      "yuv420p",
+      "-movflags",
+      "+faststart",
+      "-fflags",
+      "+bitexact",
+      "-flags:v",
+      "+bitexact"
+    ]
+  },
+  "contract": {
+    "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated_pass": true,
+    "repository_global_claimed": false,
+    "candidate_isolated_output": {
+      "entries_checked": [
+        "v2-contact-019-rolling-contact-patch-migration"
+      ],
+      "ok": true
+    }
+  },
+  "repository": {
+    "persisted": false,
+    "readback": false,
+    "exact_six_files": false,
+    "exact_one_spa": false,
+    "blobs": {}
+  },
+  "issue": {
+    "prechat_receipt": null,
+    "closure": null,
+    "final_addendum": null
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_visible_video": false,
+    "ordered": false
+  },
+  "drew_accepted": false
+}
