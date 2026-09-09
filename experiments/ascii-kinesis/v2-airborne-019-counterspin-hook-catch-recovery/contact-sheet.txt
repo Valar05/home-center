@@ -1,0 +1,287 @@
+A019-K0 DIAGONAL_COIL [FOURS/INFERRED]
+root=(13.0,16.8) support=REAR_DOMINANT_GROUND crop_x=0:27
++----------------------------+
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|              O  -x         |
+|               \o           |
+|             /+             |
+|          o// |             |
+|        x-   |              |
+|             @              |
+|           // \             |
+|          o    o            |
+|         =      !           |
+| ___________________________|
++----------------------------+
+role: asymmetrical grounded coil stores translation and angular debt
+
+A019-K1 SNAP_RELEASE [ONES/INFERRED]
+root=(17.0,14.8) support=REAR_SUPPORT_BREAK crop_x=3:30
++----------------------------+
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|          x-     O          |
+|            o//             |
+|               /+           |
+|               | \o         |
+|               |   -        |
+|              @\   x        |
+|            o/  \o          |
+|          =/      =         |
+|                            |
+|                            |
+|                            |
+|____________________________|
++----------------------------+
+role: earned support break converts coil into flight and rotation
+
+A019-K2 OPEN_RISE_TWIST [ONES/INFERRED]
+root=(22.0,11.8) support=NONE crop_x=8:35
++----------------------------+
+|                            |
+|                            |
+|                            |
+|                            |
+|          o///   O          |
+|        x-    //+           |
+|               | \o         |
+|         =/    |   -        |
+|           /o/@     x       |
+|               \            |
+|                o           |
+|                 \=         |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|____________________________|
++----------------------------+
+role: flight owns translation; body opens to establish angular commitment
+
+A019-K3 TUCK_ROTATE [TWOS/INFERRED]
+root=(27.0,9.9) support=NONE crop_x=13:40
++----------------------------+
+|                            |
+|              O             |
+|                            |
+|              +             |
+|            o=|=o           |
+|             -|-            |
+|            ox@xo           |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|____________________________|
++----------------------------+
+role: compact rotation accelerates body orientation without changing root authority
+
+A019-K4 CROSSBRAKE_APEX [ONES/INFERRED]
+root=(31.5,9.3) support=NONE crop_x=18:45
++----------------------------+
+|                 -x         |
+|           O   \o           |
+|             \\             |
+|           /+               |
+|         o/  |    \=        |
+|        -     @\o\          |
+|       x    //              |
+|          /o                |
+|        =/                  |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|____________________________|
++----------------------------+
+role: counter-rotation pays angular debt before contact; apex does not hover
+
+A019-K5 UNWIND_DESCENT [TWOS/INFERRED]
+root=(36.0,10.4) support=NONE crop_x=22:49
++----------------------------+
+|                            |
+|             O              |
+|                            |
+|                            |
+|          o//+\\\\o         |
+|         -   |     x        |
+|        x     @             |
+|             / \\           |
+|            o    o          |
+|           /      \=        |
+|           =                |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|____________________________|
++----------------------------+
+role: gravity-owned descent begins while orientation debt continues shrinking
+
+A019-K6 HOOK_PRECONTACT [TWOS/INFERRED]
+root=(40.5,12.8) support=NONE_PRECONTACT crop_x=26:53
++----------------------------+
+|                            |
+|                            |
+|                            |
+|                            |
+|                O           |
+|         x-                 |
+|           o///+            |
+|               |\\          |
+|              |   o         |
+|              @    -x       |
+|              /\\           |
+|              o  o          |
+|               /  \         |
+|               /   =        |
+|                =           |
+|                            |
+|                            |
+|____________________________|
++----------------------------+
+role: precontact geometry prepares a side-loaded single-foot catch instead of reaching at maximum extension
+
+A019-K7 LEAD_EDGE_CATCH_FOLD [ONES/INFERRED]
+root=(44.0,15.4) support=LEAD_CONTACT_ONLY crop_x=30:57
++----------------------------+
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                  O-x       |
+|              ///+o         |
+|          o/// ||           |
+|        x-    @\            |
+|              / \o          |
+|              /   \=        |
+|              o             |
+|               /            |
+|                !           |
+|____________________________|
++----------------------------+
+role: first support immediately absorbs angular debt through a side-loaded fold; consequence is visible on contact, not one key later
+
+A019-K8 CROSSLOAD_CRUSH [FOURS/INFERRED]
+root=(46.0,16.7) support=BOTH_CONTACT_COMPRESSION crop_x=32:59
++----------------------------+
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                 -x         |
+|           O  \\o           |
+|            +\              |
+|           / |              |
+|           o |              |
+|         x-   @\            |
+|            o/  \o          |
+|           /      \         |
+|           !      !         |
+|____________________________|
++----------------------------+
+role: deep asymmetric compression pays remaining vertical debt and stores rebound
+
+A019-K9 UNCROSS_REBOUND [TWOS/INFERRED]
+root=(48.2,15.8) support=BOTH_GROUNDED_REBOUND crop_x=34:61
++----------------------------+
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|         x-      O          |
+|           o//              |
+|              //+           |
+|               | \          |
+|               |  o         |
+|              @    -x       |
+|             / \            |
+|            o   o           |
+|           /     \          |
+|           !     !          |
+|____________________________|
++----------------------------+
+role: grounded rebound opposes compression instead of reverse-playing flight
+
+A019-K10 ROTATION_DEBT_STEP [TWOS/INFERRED]
+root=(51.5,15.9) support=LEAD_TO_REAR_TRANSFER crop_x=36:63
++----------------------------+
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|              O             |
+|                            |
+|            o/+\\\\o        |
+|          x-   |    x       |
+|               |            |
+|                @           |
+|               / \o         |
+|              o    \        |
+|              /    \        |
+|              =     !       |
+|___________________________ |
++----------------------------+
+role: a recovery step pays residual angular debt rather than snapping to readiness
+
+A019-K11 DISPLACED_REBIND [FOURS/INFERRED]
+root=(55.0,16.2) support=BOTH_GROUND_NEW_ADDRESS crop_x=36:63
++----------------------------+
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                            |
+|                    O       |
+|                       -x   |
+|                o///+\o     |
+|              x-    |       |
+|                   |        |
+|                   @        |
+|                  / \       |
+|                 o   o      |
+|                /     \     |
+|                !     !     |
+|___________________________ |
++----------------------------+
+role: readiness rebinds at a displaced address after translation and rotation debts are paid
