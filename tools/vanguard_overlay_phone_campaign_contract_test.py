@@ -44,7 +44,7 @@ add("child_reenters_wrapper", "core.SCRIPT = Path(__file__).resolve()" in phone,
 add("mailbox_markers_match", "VANGUARD_THRONE_REQUEST" in phone and "VANGUARD_THRONE_RECEIPT" in phone and "VANGUARD_THRONE_REQUEST" in desktop and "VANGUARD_THRONE_RECEIPT" in desktop, "Phone and desktop runners share one durable mailbox protocol.")
 add("mailbox_is_remote", "repos/{REPO}/issues/{PR_NUMBER}/comments" in phone and "gh api" in desktop, "Cross-body transport is persisted to GitHub PR comments rather than local-only state.")
 add("phone_localhost_not_desktop", "and os.name != \"nt\"" in phone and "127.0.0.1" in phone, "Phone wrapper refuses to infer THECAULDRON from non-Windows localhost.")
-add("no_adjacent_worker", "No substitute worker lane was selected" in phone, "Missing mailbox/auth does not authorize another worker lane.")
+add("no_adjacent_worker", "No adjacent worker lane was substituted" in phone, "Missing mailbox/auth does not authorize another worker lane.")
 add("request_truth_boundary", "not evidence that the desktop relay or a free tab accepted" in phone, "Mailbox request is not rounded up to execution proof.")
 add("desktop_exact_relay", "http://127.0.0.1:9234/v1/throne" in desktop and "relay-capability.txt" in desktop, "THECAULDRON runner targets the canonical Chromium Throne localhost relay/capability.")
 add("desktop_swarm_only", "swarm.enqueue" in desktop and "Browser Nerve" not in desktop and "Computer Hands" not in desktop, "Desktop runner does not silently substitute adjacent browser bodies.")
