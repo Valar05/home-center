@@ -1,0 +1,368 @@
+ASCII KINESIS V2 STRIKES013 — GLANCING CONTACT / FORCE-AXIS DEBT
+SOURCE ART: NOT EMBEDDED | RIG: ABSTRACT ASCII ONLY | SOURCE TIMING: UNKNOWN | AUTHORED TIMING: INFERRED / STREET_FIGHTER-CAPCOM
+POCKET: A GLANCING HIT DOES NOT STOP THE STRIKE; IT ROTATES THE DEBT.
+LEGEND: # sword hand | > sword tip | / abstract deflector | X contact
+
+K0 OFFSET_READY | FOURS | INFERRED | SUPPORT=BOTH_REAR_BIASED | CONTACT=NONE
+ROLE: Unequal ready keeps the weapon visible without making it the body's master.
+
+
+
+
+
+
+                                                         /
+                                                          /
+                     o                                    /
+                     |                                     /
+                      |                                    /
+                    + + +-o                                 /
+                  o-  |    #=                               /
+                  |   |      ====                            /
+                  *   |          =>                          /
+                      |                                       /
+                      |
+                      @
+                    -- --
+                  //     \\
+                 o         o
+                |           \
+  ______________/____________\________________________________________
+
+K1 LOW_REAR_COIL | FOURS | INFERRED | SUPPORT=REAR_DOMINANT | CONTACT=NONE
+ROLE: Asymmetric coil stores pelvis torque and moves the sword out of the future tangent lane.
+
+
+
+
+
+
+                                                         /
+                                                          /
+                                                          /
+              o                                            /
+              |                                            /
+               |                                            /
+             + + +-                                         /
+            /   \  -o                                        /
+           o    \    \                                       /
+           |     \    #                                       /
+           *     \     ==
+                  \      ==
+                  \        ==
+                   @         =>
+                --- ----
+             o--        --o-
+  __________/_________________\_______________________________________
+
+K2 PELVIS_DRIVE_BRIDGE | TWOS | INFERRED | SUPPORT=REAR_TO_FRONT_TRANSFER | CONTACT=NONE
+ROLE: Authored body-first bridge makes the strike emerge from root travel rather than arm extension.
+
+
+
+
+
+
+                                                         /
+                                                          /
+                   o                                      /
+                   |                                       /
+                    |                                      /
+                  + + +-                                    /
+                 /  |   -o                                  /
+                o    |    \                                  /
+                |    |     #==                               /
+                *     |       =====                           /
+                      |            ==>
+                       |
+                       @
+                    --- ---
+                 o--       --o
+                /             \\
+  _____________/________________\_____________________________________
+
+K3 DIAGONAL_ENTRY | ONES | INFERRED | SUPPORT=FRONT_ACQUIRING | CONTACT=NONE
+ROLE: Directional entry establishes a nonhorizontal tool path and growing negative-space claim.
+
+
+
+
+
+
+                                                         /
+                            o                             /
+                            |                             /
+                             |                             /
+                           + + +                           /
+                         --  |  -o                          /
+                       o-    |    #=====                    /
+                       |     |          ======>              /
+                      |     |                                /
+                      *     |                                 /
+                            |
+                            @
+                         --- --
+                       --      \\
+                     o-          o
+                   //             \
+  ________________/________________\__________________________________
+
+K4 PRECONTACT_GAP | TWOS | INFERRED | SUPPORT=FRONT_DOMINANT | CONTACT=PRECONTACT_GAP
+ROLE: Distinct precontact preserves the instant at which the force axis changes.
+
+
+
+
+
+
+                                                         /
+                                 o                        /
+                                 |                        /
+                                  |                        /
+                               -+ + +-#========            /
+                             --   |            ========>    /
+                           o-    |                          /
+                          /      |                           /
+                          /     |                            /
+                         *      |                             /
+                               |
+                               @
+                            --- --
+                         ---      \\
+                       o-           o
+                     //              \
+  __________________/_________________\_______________________________
+
+K5 OBLIQUE_CONTACT | FOURS | INFERRED | SUPPORT=FRONT_DOMINANT_BRACED | CONTACT=TOOL_DEFLECTOR_CONTACT
+ROLE: Explicit glancing impact/hit-stop candidate; contact creates a new tangent without pinning the tool.
+
+
+
+
+
+
+                                                         /
+                                    o                     /
+                                    |                     /
+                                     |                     /
+                                  -+ + +-#=================X
+                                --   |                      /
+                              o-    |                       /
+                             /      |                        /
+                            /      |                         /
+                           *       |                          /
+                                  |
+                                  |
+                                 @
+                             ---- ---
+                         o---        -o
+                       --              \
+  ___________________/__________________\_____________________________
+
+K6 TANGENT_SLIP | ONES | INFERRED | SUPPORT=FRONT_DOMINANT_SHEAR | CONTACT=RELEASED_AFTER_GLANCE
+ROLE: Core fork: tool direction rotates immediately after contact while body momentum has not yet rotated.
+
+
+
+
+
+
+                                                         /  ===>
+                                         o            ====/=
+                                         |      ======    /
+                                         |  #===           /
+                                          |  o             /
+                                       -+ + +               /
+                                    ---  /                  /
+                                  o-     /                   /
+                                 /      /                    /
+                                /      /                      /
+                               *      /
+                                      /
+                                     @
+                                ----- ---
+                           -o---         -o
+                         --                |
+  _____________________/___________________\__________________________
+
+K7 TORSO_YAW_OVERDRIVE | TWOS | INFERRED | SUPPORT=FRONT_PIVOT_REAR_LIGHT | CONTACT=NONE
+ROLE: Body consequence arrives after the redirected tool, showing angular debt entering the torso.
+
+
+
+
+
+                                                                ==>
+                                                         /  ====
+                                             o         ===/=
+                                             |     ====   /
+                                             |  #==        /
+                                              |  o         /
+                                           -+ + +           /
+                                        ---  /              /
+                                      o-     /               /
+                                     /      /                /
+                                    /      /                  /
+                                   *      /
+                                          /
+                                         @
+                                    ----- --
+                              --o---        -o
+                           /--                |
+  ____________________________________________\_______________________
+
+K8 REAR_FOOT_PIVOT_CATCH | TWOS | INFERRED | SUPPORT=FRONT_PIVOT_REAR_REPLANT | CONTACT=NONE
+ROLE: Support finally catches the rotated force axis instead of reversing the incoming path.
+
+
+
+
+
+
+                                                         /
+                                                          /  ==>
+                                                         =/==
+                                          o         =====  /
+                                          |     ====       /
+                                          |  #==            /
+                                           |  o             /
+                                         + + +               /
+                                       --  |                 /
+                                     o-    |                  /
+                                    |      |
+                                    *     |
+                                          |
+                                          @
+                                       --- ---o
+                                    o--        \
+  ________________________________/___________________________________
+
+K9 TOOL_TIP_OVERSHOOT | ONES | INFERRED | SUPPORT=WIDE_ROTATED_CATCH | CONTACT=NONE
+ROLE: Secondary tool lag proves the sword carries angular momentum after the body begins arresting it.
+
+
+
+
+                                                        >
+                                                      ==
+                                                    ==   /
+                                                  ==      /
+                                    o            =        /
+                                    |          ==          /
+                                    |        ==            /
+                                     |     ==               /
+                                   + + +-o#                 /
+                                  /  |                       /
+                                 o    |                      /
+                                  |   |                       /
+                                  *    |
+                                       |
+                                        @
+                                     --- ---
+                                  o--       -o
+                                 /            -\
+  ______________________________/_____________________________________
+
+K10 SHOULDER_REINDEX | TWOS | INFERRED | SUPPORT=REAR_REACQUIRING | CONTACT=NONE
+ROLE: Grip and shoulder reorganize after the catch rather than rewinding the strike.
+
+
+
+
+
+
+                                                         /
+                                                  =>      /
+                                  o             ==        /
+                                  |           ==           /
+                                  |         ==             /
+                                   |      ==                /
+                                 + + +o ==                  /
+                               o-  |  #=                     /
+                                |   |                        /
+                                *   |                         /
+                                     |
+                                     @
+                                  --- --
+                                --      --
+                              o-          -o
+                             /              \
+  __________________________/________________\________________________
+
+K11 TIP_LAG_SETTLE | TWOS | INFERRED | SUPPORT=REAR_DOMINANT_ROTATED | CONTACT=NONE
+ROLE: Tool-tip lag survives one authored beat after body recovery begins.
+
+
+
+
+
+
+                                                         /
+                                                          /
+                                 o                        /
+                                 |                         /
+                                  |           =>           /
+                                + + +     ====              /
+                              o-  |  o ===                  /
+                               |  |  #=                      /
+                               *  |                          /
+                                   |                          /
+                                   |
+                                   @
+                                 -- --
+                               --     --
+                             o-         -o
+                            /             \\
+  _________________________/________________\_________________________
+
+K12 DISPLACED_ROTATED_SETTLE | FOURS | INFERRED | SUPPORT=BOTH_ROTATED_DISPLACED | CONTACT=NONE
+ROLE: Recovery debt remains visible in rotated stance and blade placement.
+
+
+
+
+
+
+                                                         /
+                                                          /
+                                 o                        /
+                                 |                         /
+                                  |                        /
+                                + + +                       /
+                              o-  |  -o                     /
+                              |   |   #=                     /
+                              *   |     ====                 /
+                                  |         =>                /
+                                  |
+                                  @
+                                -- --
+                              --     --
+                            o-         -o
+                           /             \\
+  ________________________/________________\__________________________
+
+K13 REENTRY_WITH_ANGULAR_DEBT | FOURS | INFERRED | SUPPORT=BOTH_READY_DISPLACED | CONTACT=NONE
+ROLE: Re-entry is ready but the glancing-contact history remains legible.
+
+
+
+
+
+
+                                                         /
+                                                          /
+                                  o                       /
+                                  |                        /
+                                   |                       /
+                                 + + +-o                    /
+                               o-  |   #==                  /
+                               |   |      ====               /
+                               *   |          ==>            /
+                                   |                          /
+                                   |
+                                   @
+                                 -- --
+                               --     --
+                             o-         -o
+                            /             \\
+  _________________________/________________\_________________________
