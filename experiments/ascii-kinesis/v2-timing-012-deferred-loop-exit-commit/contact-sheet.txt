@@ -1,0 +1,332 @@
+ASCII KINESIS V2 TIMING 012 — DEFERRED LOOP EXIT COMMIT
+FRESH CONCEPT AFTER PRE-RESET TIMING DEBT EXHAUSTION
+SOURCE ART: NOT EMBEDDED. ABSTRACT GENERIC ASCII RIG ONLY.
+SOURCE TIMING: NONE OBSERVED. ALL PERFORMANCE TIMING BELOW IS INFERRED.
+PRINCIPLE: LATCH THE INTENT. KEEP THE PHASE. EXIT ONLY WHERE THE LOOP EARNS IT.
+
+BODY LOOP / COMMIT DECISIVE KEYS
+[K0] TELL_READY | FOURS / INFERRED | exposure=4t | phase=LOOP_A
+support/contact=BILATERAL / REAR_BIASED
+root/arc=root x20; wide grounded readiness; shoulders offset against pelvis
+causal_role=repeatable anticipation anchor; no commit authority
+exit_window=false
+
+
+
+
+
+                     O
+                     |
+                    |
+                   -+-
+                l-- | --
+                    |   -r
+                    |
+                    @
+                  // \\
+                 o     o
+                /       \
+                /       \
+      [==========================================]
+
+
+
+[K1] TELL_RISE | TWOS / INFERRED | exposure=2t | phase=LOOP_B
+support/contact=BILATERAL / LOAD_RISING
+root/arc=pelvis rises one row while chest advances; right hand climbs faster than root
+causal_role=increase threat without spending the exit; event may latch here
+exit_window=false
+
+
+
+                          !
+                      O
+                      |
+                      |  --r
+                  l---+--
+                      /
+                     /
+                     /
+                    @
+                   / \\
+                  /    o
+                 o      \
+                /       \
+                /        \
+      [==========================================]
+
+
+
+[K2] TELL_TWIST | ONES / INFERRED | exposure=1t | phase=LOOP_C
+support/contact=BILATERAL / TORSION_SPIKE
+root/arc=root only +1 while shoulder/arm opens hard right; one-tick information spike
+causal_role=sharp local twist; deliberately bad arbitrary commit phase
+exit_window=false
+
+
+
+
+                          !
+                      O
+                      |
+                       |  ---r
+                      -+--
+                    -- /
+                  l-  /
+                      /
+                     @
+                   // \\
+                  o     o
+                 /       \
+                 /       \
+      [==========================================]
+
+
+
+[K3] EXIT_WINDOW_SINK | FOURS / INFERRED | exposure=4t | phase=LOOP_D
+support/contact=BILATERAL / DEEP_REAR_LOAD
+root/arc=root sinks left/back; stance widens; chest closes; last two ticks are the declared safe exit
+causal_role=phase-safe exit window: latched intent may transfer authority only here
+exit_window=true
+
+
+
+
+
+                       !
+                   O
+                   |
+                  |
+                  +--
+                //|  --r
+              l/  |
+                   |
+                   @
+                 // \\
+                o     o
+               /       \
+      [==========================================]
+
+
+
+[K4] EXIT_BREAK | ONES / INFERRED | exposure=1t | phase=COMMIT_0
+support/contact=BILATERAL / SUPPORT_BREAK_START
+root/arc=first committed root advance is small but torso snaps open; no tween from arbitrary loop phase
+causal_role=authored bridge that consumes the latch at the exit window
+exit_window=false
+
+
+
+
+
+                       O
+                       |
+                      |
+                     -+------r
+                   -- |
+                 l-   |
+                     |
+                     @
+                   // \\
+                  o     o
+                 /       \
+                 /       \
+      [==========================================]
+
+
+
+[K5] SURGE_A | ONES / INFERRED | exposure=1t | phase=COMMIT_1
+support/contact=REAR_TO_FRONT_TRANSFER
+root/arc=root +4; front foot begins to acquire while rear still pays force
+causal_role=first acceleration step after authority transfer
+exit_window=false
+
+
+
+
+                            O
+                            |
+                           |
+                          -+------r
+                       --- /
+                     l-   /
+                          /
+                         @
+                        / \\
+                       /    o
+                      o      \
+                     /       \
+                     /        R
+      [==========================================]
+
+
+
+[K6] SURGE_B | ONES / INFERRED | exposure=1t | phase=COMMIT_2
+support/contact=FRONT_DOMINANT / REAR_UNLOADING
+root/arc=root +6; long asymmetric reach; front support takes the surge
+causal_role=larger second displacement proves acceleration instead of equal spacing
+exit_window=false
+
+
+
+
+                                   O
+                                   |
+                                  |
+                                 -+-------r
+                             ----/
+                           l-   /
+                               @
+                              / \\
+                             /    o
+                            o      \
+                           /        \
+                           /         R
+                          /
+      [==========================================]
+
+
+
+[K7] BRAKE_PLANT | TWOS / INFERRED | exposure=2t | phase=BRAKE
+support/contact=BILATERAL / FRONT_BRAKE
+root/arc=root +4 then holds; front knee folds while chest lags behind brake
+causal_role=braking support event; converts surge into body consequence
+exit_window=false
+
+
+
+
+
+                                   O
+                                   |
+                                    |
+                                   -+---
+                                 -- |   ---r
+                               l-   |
+                                   |
+                                   @
+                                 // \\
+                                o     o
+                               /       \
+                               /        \
+      [==========================================]
+
+
+
+[K8] OVERSHOOT | ONES / INFERRED | exposure=1t | phase=OVERSHOOT
+support/contact=FRONT_DOMINANT / HEEL_LIGHT
+root/arc=root +2 after brake; chest and hands travel farther than pelvis
+causal_role=single-frame overtravel proves inertia after plant
+exit_window=false
+
+
+
+
+
+
+                                       O
+                                       |
+                                       |
+                                      -+--
+                                    --/   ---r
+                                  l-  /
+                                     @
+                                   // \\
+                                  o     o
+                                 /       \
+                                 /        \
+      [==========================================]
+
+
+
+[K9] CROSS_RECOIL | TWOS / INFERRED | exposure=2t | phase=RECOIL
+support/contact=BILATERAL / LEFT_RECOVERY
+root/arc=root recedes only 3 while torso crosses left and right hand drags low
+causal_role=recoil is a new cross-body shape, not reverse interpolation
+exit_window=false
+
+
+
+
+
+
+                               O
+                               |
+                                |
+                               -+
+                            l-- \\
+                                 \ \\
+                                 \   r
+                                  @
+                                 / \\
+                                o    o
+                               /      \\
+      [==========================================]
+
+
+
+[K10] RECOVERY_DEBT | FOURS / INFERRED | exposure=4t | phase=DEBT
+support/contact=BILATERAL / FRONT_STILL_HEAVY
+root/arc=root returns +1 but remains +15 from original; right arm and front support still carry debt
+causal_role=settle without restoring original address or symmetry
+exit_window=false
+
+
+
+
+
+                                   O
+                                   |
+                                  |
+                                 -+-
+                              l-- | --
+                                  |   -r
+                                   |
+                                   @
+                                  / \\
+                                 o    o
+                                /      \
+                                /       \
+      [==========================================]
+
+
+
+[K11] READY_OFFSET | FOURS / INFERRED | exposure=4t | phase=READY_NEW
+support/contact=BILATERAL / FORWARD_READY
+root/arc=new ready address x36; stance and arm spacing remain asymmetric
+causal_role=completed recovery at displaced address; no idle reset
+exit_window=false
+
+
+
+
+
+                                     O
+                                     |
+                                    |
+                                   -+-
+                                l-- | --r
+                                    |
+                                    |
+                                    @
+                                   / \\
+                                  o    o
+                                 /      \
+                                 /       \
+      [==========================================]
+
+
+
+CLOCK / EVENT RELATION
+  BODY_LOOP = K0(4) -> K1(2) -> K2(1) -> K3(4) = 11 ticks.
+  Two full loops establish repetition.
+  Third loop: E_COMMIT arrives at K1 and becomes visibly latched (!).
+  The request DOES NOT jump from K1 or K2 into the action.
+  BODY_LOOP completes K1 -> K2 -> K3; K3 owns the EXIT_WINDOW.
+  After K3 hold completes: K4 -> K5 -> K6 -> K7 -> K8 -> K9 -> K10 -> K11.
+  K5/K6 unequal root deltas prove acceleration; K7 brake, K8 overshoot, K9 cross-recoil, K10/K11 displaced debt.
+
+TIMING VOCABULARY
+  ONES=new key sample each display frame; TWOS=hold 2 frames; FOURS=hold 4 frames.
+  STREET_FIGHTER/CAPCOM=nonuniform authored gameplay timing.
+  Every decisive key and E_COMMIT schedule here are INFERRED, never source-authentic.
