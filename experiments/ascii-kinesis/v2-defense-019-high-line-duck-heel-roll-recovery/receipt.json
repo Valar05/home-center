@@ -2,7 +2,7 @@
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-defense-019-high-line-duck-heel-roll-recovery",
   "lane": "defense",
-  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_CHAT_DELIVERY",
+  "status": "REPO_VERIFIED_CHAT_DELIVERY_PENDING",
   "current_worker_liveness": {
     "home_center_campaign_read": true,
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
@@ -16,7 +16,7 @@
     "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
     "prior_closure_comment": 5604698537,
     "successor_collision": false,
-    "defense020_eligible_only_after_fresh_preflight": true
+    "defense020_forbidden_until_healthy": true
   },
   "source": {
     "provider": "The Spriters Resource",
@@ -29,6 +29,7 @@
     "whole_source_bytes": null,
     "whole_source_sha256": null,
     "whole_source_inspected_in_campaign": true,
+    "source_roles": ["STYLE_REFERENCE"],
     "source_authentic_timing": "UNKNOWN",
     "compile_timing": "INFERRED / STREET_FIGHTER-CAPCOM"
   },
@@ -50,7 +51,7 @@
       "verdict": "PASS",
       "actual_render_inspected": true,
       "current_worker_reconfirmed": true,
-      "basis": "Fresh byte-identical 48-frame render inspection: the high threat is read before compression; the head traces a low left-to-right crescent beneath the passing line without guard contact; support pressure visibly rolls through full/edge/toe foot geometry while ankle locations remain fixed; pelvis lags the head side-swap; right-sole drive earns the rise; torsion overshoot and light-left-toe displaced ready debt prevent idle reset. No defect earned mutation."
+      "basis": "Fresh byte-identical 48-frame inspection: threat read precedes compression; the head clears through a low crescent with zero contact; fixed feet visibly change floor authority from full/edge/toe to the opposite full support; right-side drive earns the rise; torsion overshoot and displaced light-left-toe low-ready debt remain visible. No mutation earned."
     },
     "noodle_queen": {
       "verdict": "PASS",
@@ -58,7 +59,7 @@
       "actual_render_inspected": true,
       "current_worker_reconfirmed": true,
       "taste_function_contempt": "PASS",
-      "basis": "TASTE + FUNCTION + CONTEMPT PASS: the fixed-location heel-roll evasion is a specific no-contact defensive sentence, visually distinct from prior exit/catch/custody bodies; asymmetric compression, crescent clearance, support-pressure transfer, delayed upper recovery and displaced finish read without metadata."
+      "basis": "Specific fixed-foot heel-roll evasion, materially distinct from Defense013-018; support pressure, threat clearance, asymmetric torsion and paid recovery remain readable without metadata."
     },
     "drew_accepted": false
   },
@@ -80,22 +81,25 @@
   "contract": {
     "official_validator_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-    "candidate_isolated_run": true,
     "candidate_isolated_result": "PASS",
     "full_repository_checkout_run_claimed": false,
-    "boundary": "Standard Chat has authenticated repository read/write/readback but no authorized full remote checkout shell; only candidate-isolated official-validator execution is claimed."
+    "boundary": "Standard Chat has authenticated repository read/write/readback but no authorized full remote checkout shell; only candidate-isolated official-validator evidence is claimed."
   },
   "repo": {
     "body_files_expected": 6,
-    "body_files_readback": 3,
+    "body_files_readback": 6,
     "one_spa_expected": true,
-    "one_spa_readback": false,
-    "repo_readback": false,
-    "pre_write_main_commit": "1723853499d833a1a21dff0f0244d1a1449f1e8c",
+    "one_spa_readback": true,
+    "repo_readback": true,
+    "spa_write_commit": "811dfd9ce4e7d353a70c08743c9361558d3ddf45",
+    "manifest_reconcile_commit": "9770323f2b98ddb426d81314b1c28c0c8df47cd8",
+    "observed_main_commit_after_spa_write": "f01c6bde8de677d267e90d94dd9189ce63385fa5",
     "blobs": {
       "build.py": "6aa979d28334548005ead8c000bdb3ca962dd3a8",
       "contact-sheet.txt": "ce8d8abd416e17208f195f48341e8cc4706462bb",
-      "motion.json": "62cbb9f79077a041b7a1a160cf34cfb907c1f1b2"
+      "manifest.json": "9d09cb8c564f3e903b0ce026ecdfdb64c5a8edf4",
+      "motion.json": "62cbb9f79077a041b7a1a160cf34cfb907c1f1b2",
+      "high-line-duck-heel-roll-recovery.motion.html": "93d20a9d6112f1de6b5e55d8277c991f182cb935"
     },
     "issue_343_receipt": null,
     "issue_343_receipt_readback": false,
