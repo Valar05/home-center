@@ -10,7 +10,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT=Path(__file__).resolve().parent
 MOTION=json.loads((ROOT/"motion.json").read_text(encoding="utf-8"))
 FPS=int(MOTION["timing_policy"]["display_fps"])
-WIDTH,HEIGHT=880,440
+WIDTH,HEIGHT=480,240
 GRID_W,GRID_H=MOTION["rig"]["grid"]
 DEF_A=tuple(MOTION["rig"]["deflector"]["a"])
 DEF_B=tuple(MOTION["rig"]["deflector"]["b"])
@@ -97,7 +97,7 @@ def render_mp4(path):
             d.text((18,10),f"ASCII KINESIS V2 STRIKES013  {kid}  frame {idx+1:02d}/{len(frames):02d}",font=fnt,fill="white")
             d.multiline_text((18,32),txt,font=fnt,fill="white",spacing=1)
             im.save(td/f"f{idx:04d}.png")
-        subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate",str(FPS),"-i",str(td/"f%04d.png"),"-c:v","libx264","-crf","30","-preset","veryslow","-pix_fmt","yuv420p","-movflags","+faststart",str(path)],check=True)
+        subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate",str(FPS),"-i",str(td/"f%04d.png"),"-c:v","libx264","-crf","42","-preset","veryslow","-pix_fmt","yuv420p","-movflags","+faststart",str(path)],check=True)
     return {"sha256":hashlib.sha256(path.read_bytes()).hexdigest(),"bytes":path.stat().st_size,"frames":len(frames)}
 
 def spa(contact,motion_text,mp4_bytes):
@@ -118,7 +118,7 @@ def main():
     contact=contact_sheet();(ROOT/"contact_sheet.txt").write_text(contact,encoding="utf-8")
     media=render_mp4(ROOT/f"{SLUG}.mp4")
     m=json.loads((ROOT/"motion.json").read_text(encoding="utf-8"));m["media"].update(media)
-    (ROOT/"motion.json").write_text(json.dumps(m,separators=(',',':'),ensure_ascii=False),encoding="utf-8")
+    (ROOT/"motion.json").write_text(json.dumps(m,separators=(",",":"),ensure_ascii=False),encoding="utf-8")
     mt=(ROOT/"motion.json").read_text(encoding="utf-8")
     (ROOT/f"{SLUG}.motion.html").write_text(spa(contact,mt,(ROOT/f"{SLUG}.mp4").read_bytes()),encoding="utf-8")
     print(json.dumps(media,sort_keys=True))
