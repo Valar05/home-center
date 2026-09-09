@@ -101,6 +101,7 @@ def render_mp4(path):
     return {"sha256":hashlib.sha256(path.read_bytes()).hexdigest(),"bytes":path.stat().st_size,"frames":len(frames)}
 
 def spa(contact,motion_text,mp4_bytes):
+    def chunks(s,n=6000): return json.dumps([s[i:i+n] for i in range(0,len(s),n)],separators=(",",":"))
     vb=base64.b64encode(mp4_bytes).decode("ascii")
     ag=base64.b64encode(gzip.compress(contact.encode("utf-8"),9,mtime=0)).decode("ascii")
     jg=base64.b64encode(gzip.compress(motion_text.encode("utf-8"),9,mtime=0)).decode("ascii")
@@ -113,8 +114,8 @@ pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",mo
 </style></head><body><h1>ASCII Kinesis V2 Strikes013 — Glancing Contact / Force-Axis Debt</h1>
 <nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
 <section id="ascii" class="active"><pre id="ascii-pre"></pre></section><section id="json"><pre id="json-pre"></pre></section>
-<section id="video"><video controls loop playsinline preload="metadata" src="data:video/mp4;base64,{vb}"></video></section>
-<script>const A='{ag}',J='{jg}';async function gz64(s){{const b=Uint8Array.from(atob(s),c=>c.charCodeAt(0));const ds=new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'));return new TextDecoder().decode(await new Response(ds).arrayBuffer())}};(async()=>{{document.getElementById('ascii-pre').textContent=await gz64(A);document.getElementById('json-pre').textContent=await gz64(J)}})();const B=[...document.querySelectorAll('button[data-view]')],S=[...document.querySelectorAll('section')];for(const b of B)b.onclick=()=>{{for(const s of S)s.classList.toggle('active',s.id===b.dataset.view)}};</script></body></html>'''
+<section id="video"><video id="v" controls loop playsinline preload="metadata"></video></section>
+<script>const V={chunks(vb)},A={chunks(ag)},J={chunks(jg)};document.getElementById('v').src='data:video/mp4;base64,'+V.join('');async function gz64(s){{const b=Uint8Array.from(atob(s.join('')),c=>c.charCodeAt(0));const ds=new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'));return new TextDecoder().decode(await new Response(ds).arrayBuffer())}};(async()=>{{document.getElementById('ascii-pre').textContent=await gz64(A);document.getElementById('json-pre').textContent=await gz64(J)}})();const B=[...document.querySelectorAll('button[data-view]')],S=[...document.querySelectorAll('section')];for(const b of B)b.onclick=()=>{{for(const s of S)s.classList.toggle('active',s.id===b.dataset.view)}};</script></body></html>'''
 
 def main():
     contact=contact_sheet();(ROOT/"contact_sheet.txt").write_text(contact,encoding="utf-8")
