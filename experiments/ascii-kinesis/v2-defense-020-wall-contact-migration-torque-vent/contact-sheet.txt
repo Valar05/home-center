@@ -1,0 +1,192 @@
+ASCII KINESIS V2 DEFENSE020 — WALL CONTACT MIGRATION / TORQUE VENT
+SOURCE EVIDENCE: TSR asset 602122 Meatman — Chasm — PC / Computer | exact campaign ZIP 111,688 B | SHA-256 7a47f6ef97b44b65b43f15a8d2a9281b1fc1cb95f543f631b0a21d76beba565f
+SOURCE ROLE: STYLE_REFERENCE only. Whole-package campaign evidence; source-authentic timing/contact/support choreography UNKNOWN.
+PRINCIPLE: DENIED RETREAT -> SHOULDER WALL -> ELBOW WALL -> PALM WALL -> EXIT PLANT -> WALL RELEASE -> PAID TORSION RECOVERY.
+TIMING: every decisive compile timing class INFERRED / STREET_FIGHTER-CAPCOM. ONES/TWOS/FOURS are hold classes, never seconds.
+SUPPORT: # full | ^ forefoot | : light toe | x unsupported | @ pelvis | wall # = authored environmental contact owner.
+RIGHTS: independent abstract ASCII rig only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio.
+
+K00 OFFSET_READY                                     K01 PRECONTACT_BRACE
+FOURS/INFERRED SUP=L#+R#                             TWOS/INFERRED SUP=L^+R#
+WALL=NONE THREAT=INCOMING_DIAGONAL_PRESSURE          WALL=NONE THREAT=PRESSURE_CLOSING
+
+                                             |                                                    |
+                                             |                                                    |
+                                             |                                                    |
+               O                             |                                                    |
+               |                             |                             O                      |
+              -o-                            |                             |                      |
+           o-- | --o                         |                            -o-   +                 |
+          /    |    \                       |                         +-- | --o \                |
+---->    /     |      o                      |       ----------------->     |   \                |
+        o       |    /                       |                      o       |     o               |
+         \      |   +                        |                              |                     |
+          +     |                            |                              |                     |
+                |                            |                               |                    |
+                @                            |                               |                    |
+               / \                           |                               @                    |
+               /  \                          |                              / \                   |
+              /   \                          |                             /   \                  |
+              /    \                         |                             /   \                  |
+             o      o                        |                            /     o                 |
+             |       \                       |                           o       \                |
+            |        \                       |                          /        \                |
+            |         \                      |                         /          \               |
+           |          \                      |                         /          \               |
+           o           o                     |                        o            o              |
+_________==#==_______==#==___________________+___    _______________^^^__________==#==____________+___
+
+
+K02 SHOULDER_CONSTRAINT_ACQUIRE                      K03 TORSION_BANK
+ONES/INFERRED SUP=L^+R#                              FOURS/INFERRED SUP=L:+R#
+WALL=SHOULDER_WALL THREAT=PRESSURE_ARRIVES           WALL=SHOULDER_WALL THREAT=PRESSURE_SPENT
+
+                                             |                                                    |
+                                             |                                                    |
+                                             |                                                    |
+                                             |                                                    |
+                                             |                                                    |
+                                 O           |                                                    |
+                                 |           |                                                    |
+                                -o----       |                                                    |
+---------------------------->o-- | +  -----o.#                                    O       ------o.#
+                            /    |  \  --   |                                    --o-----    //  |
+                           /-+   |    o-     |                                o---  |       //    |
+                          o-      |          |                               /      |   +--o      |
+                                  |          |                               /      |             |
+                                  |          |                              o-      |             |
+                                  |          |                                -+    |             |
+                                  @          |                                      |             |
+                                 / \         |                                      |             |
+                                /   \        |                                      @             |
+                               /    \        |                                     / \           |
+                              o      o       |                                    /    \         |
+                             /        |      |                                   o       o        |
+                            /         |      |                                   |        \       |
+                            /          |     |                                  |          \      |
+                           o           o     |                                  o           o     |
+_________________________^^^_________==#==___+___    _________________________:___________==#==___+___
+
+
+K04 ELBOW_CONTACT_MIGRATION                          K05 PALM_CONTACT_MIGRATION
+TWOS/INFERRED SUP=L:+R#                              ONES/INFERRED SUP=Lx+R#
+WALL=ELBOW_WALL THREAT=PRESSURE_SPENT                WALL=PALM_WALL THREAT=PRESSURE_SPENT
+
+                                             |                                                    |
+                                             |                                                    |
+                                             |                                                    |
+                                             |                                                    |
+                                             |                                                    |
+                                             |                                                    |
+                                             |                                O                   |
+                           O                 |                                 \                  |
+                            \                |                                --o---              |
+                           --o------o-       |                             o--  |   ---o          |
+                        o--  |        --     |                            /      |      \         |
+                       /     |          --   |                            /      |       \       |
+                       /     |           --o.#                           o       |         o      |
+                      o-      |       +--    |                            \      |          \    |
+                        -+    |              |                             +      |           \  |
+                              |              |                                    |             +.#
+                              |              |                                    @               |
+                              @              |                                   / \             |
+                             / \            |                                 //    \           |
+                            /    \          |                                o        o          |
+                           o       o         |                               |          \         |
+                           |        \        |                               o           \       |
+                           |         \      |                                             \      |
+                           o           o     |                               x              o     |
+_________________________:___________==#==___+___    _____________________________________==#==___+___
+
+
+K06 PALM_POST_EXIT_PREPLANT                          K07 EXIT_PLANT_WALL_RELEASE
+TWOS/INFERRED SUP=Lx+R#                              ONES/INFERRED SUP=L#+R#
+WALL=PALM_WALL THREAT=PRESSURE_SPENT                 WALL=NONE THREAT=PRESSURE_SPENT
+
+                                             |                                                    |
+                                             |                                                    |
+                                             |                                                    |
+                                             |                                                    |
+                                             |                                                    |
+                      O                      |                                                    |
+                       \                     |                          O                         |
+                      --o-                   |                           \                        |
+                   o--  | ----               |                          --o---                    |
+                  /      |    -o             |                       o--  |   ----o               |
+                  /      |      --           |                      /      |       --             |
+                 o       |        --         |                      /      |         --           |
+                  \      |          -o       |                     o       |           -o         |
+                   +      |           --     |                      \      |             \        |
+                          |             --   |                       +      |             \      |
+                          @               -+.#                              |               +     |
+                        // \                |                              @-                    |
+                      //     \              |                             /  --                  |
+                     o         \            |                            /     --                |
+                    /            o           |                           /        --              |
+                   /              \         |                          o           -o-           |
+                  o                 \        |                         /               --         |
+                                     \      |                       //                  --       |
+                  x                    o     |                      o                      -o     |
+_____________________________________==#==___+___    _____________==#==___________________==#==___+___
+
+
+K08 EXIT_TORSION_OVERTRAVEL                          K09 TRAILING_FOOT_REACQUIRE
+TWOS/INFERRED SUP=L#+Rx                              TWOS/INFERRED SUP=L#+R#
+WALL=NONE THREAT=PRESSURE_SPENT                      WALL=NONE THREAT=PRESSURE_SPENT
+
+                                             |                                                    |
+                                             |                                                    |
+                                             |                                                    |
+                                             |                                                    |
+              O                              |                      O                             |
+               \                             |                       \                            |
+              --o-                           |                      --o--                         |
+           o--  | ----                       |                   o--  |  ---o                     |
+          /     |     --o                    |                  /     |      \                    |
+          /     |        --                  |                  /     |       \                  |
+         o       |         --                |                 o       |        o                 |
+          \      |           -o-             |                  \      |         \               |
+           +     |              --           |                   +     |           +              |
+                 |                -+         |                         |                          |
+                 @                           |                         @                          |
+                 |\                         |                        / \                         |
+                |   \                       |                        /  \                        |
+                |     \                     |                       /    \                      |
+               |        o                    |                       /      \                     |
+               o         \                  |                      o        o                    |
+               |           \                |                      |         \                   |
+               |             o               |                      |          \                  |
+               |                             |                      |          \                  |
+               o             x               |                      o           o                 |
+_____________==#==___________________________+___    _____________==#==_______==#==_______________+___
+
+
+K10 COUNTER_TORQUE_GUARD_REOPEN                      K11 DISPLACED_LOW_READY_DEBT
+FOURS/INFERRED SUP=L#+R#                             FOURS/INFERRED SUP=L#+R#
+WALL=NONE THREAT=PRESSURE_SPENT                      WALL=NONE THREAT=PRESSURE_SPENT
+
+                                             |                                                    |
+                                             |                                                    |
+                                             |                                                    |
+                                             |                                                    |
+                                             |                                                    |
+                 O                           |                         O                          |
+                  |                          |                          |                         |
+                --o--                        |                        --o-                        |
+             o--  |  ---o                    |                     o--  | ---                     |
+            / -+  |      \                   |                    /     |    -o                   |
+            /-    |      \ -+                |                    /--+  |      \                  |
+           o       |      o                  |                   o-      |     \                  |
+                   |                         |                           |      o                 |
+                   |                         |                           |       -+               |
+                   @                         |                           |                        |
+                  / \                        |                           @                        |
+                  /  \                       |                          / \                       |
+                 /    \                      |                         /   \                      |
+                 /     \                     |                        /     \                     |
+                o       o                    |                       o       \                    |
+                |        \                   |                       |        o                   |
+               |          \                  |                      |          \                  |
+               |          \                  |                      |          \                  |
+               o           o                 |                      o           o                 |
+_____________==#==_______==#==_______________+___    _____________==#==_______==#==_______________+___
