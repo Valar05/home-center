@@ -4,10 +4,7 @@
   "lane": "locomotion",
   "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
   "preflight": {
-    "current_worker": {
-      "home_center_campaign_read": true,
-      "github_persistence_readback": true
-    },
+    "current_worker": {"home_center_campaign_read": true, "github_persistence_readback": true},
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
     "campaign_name": "22 ASCII KINESIS — Spriters Resource Sheet Mining — 2026-09-07",
     "reset_issue_receipt": 5576901079,
@@ -37,38 +34,17 @@
   },
   "quality": {
     "current_worker_actual_final_render_inspected": true,
-    "tango": {
-      "status": "PASS",
-      "current_worker": true,
-      "single_highest_value_check": "No visible defect remains after exact SPA-media reconstruction: resisted hand/load contact is embodied through K00-K03; K04 breaks contact before the spacing spike; K05 long free probe and K06 catch/compression visibly spend the release surge; K07+ keep the load absent while support/root consequences decay into the displaced finish."
-    },
-    "noodle_queen": {
-      "status": "PASS",
-      "current_worker": true,
-      "after_tango_pass": true,
-      "taste": "PASS",
-      "function": "PASS",
-      "contempt": "PASS",
-      "basis": "Jammed brace -> abrupt empty-space lunge -> long first free probe -> ugly catch compression -> shortening corrective catches -> persistent arm/torso lag -> displaced ready reads as one specific load-release locomotion sentence, not a push/run icon swap."
-    }
+    "tango": {"status": "PASS", "current_worker": true, "single_highest_value_check": "No visible defect remains after exact SPA-media reconstruction: resisted hand/load contact is embodied through K00-K03; K04 breaks contact before the spacing spike; K05 long free probe and K06 catch/compression visibly spend the release surge; K07+ keep the load absent while support/root consequences decay into the displaced finish."},
+    "noodle_queen": {"status": "PASS", "current_worker": true, "after_tango_pass": true, "taste": "PASS", "function": "PASS", "contempt": "PASS", "basis": "Jammed brace -> abrupt empty-space lunge -> long first free probe -> ugly catch compression -> shortening corrective catches -> persistent arm/torso lag -> displaced ready reads as one specific load-release locomotion sentence, not a push/run icon swap."}
   },
   "media": {
-    "codec": "h264",
-    "pix_fmt": "yuv420p",
-    "width": 640,
-    "height": 360,
-    "fps": 24,
-    "frames": 36,
-    "duration_seconds": 1.5,
+    "codec": "h264", "pix_fmt": "yuv420p", "width": 640, "height": 360, "fps": 24, "frames": 36, "duration_seconds": 1.5,
     "bytes": 13311,
     "sha256": "7a617e4fbb68fe723d31711ca9b30f43912020541660014f650cbcfb88b1e330",
     "decode": "PASS",
     "current_worker_byte_identical_reconstruction": true,
     "embedded_spa_media_identity_reconciled": true,
-    "supersedes_incorrect_candidate_declaration": {
-      "bytes": 13419,
-      "sha256": "3d90e77e1676c896de7d9bdb55c7f5121fc84f972b67ed81bedcb32811d8be37"
-    },
+    "supersedes_incorrect_candidate_declaration": {"bytes": 13419, "sha256": "3d90e77e1676c896de7d9bdb55c7f5121fc84f972b67ed81bedcb32811d8be37"},
     "authored_keys_changed_in_reconciliation": false
   },
   "repo": {
@@ -80,8 +56,8 @@
       "motion.json": "88b14923ca59a0af61c04114d0a2fff258dfa4d7",
       "load-release-stride-overrun.motion.html": "443d7a62e37a7295aab3bd84ab692c29d8c571d2"
     },
-    "issue_receipt": null,
-    "issue_readback": false
+    "issue_receipt": 5606597322,
+    "issue_readback": true
   },
   "contract": {
     "tabs": ["ASCII", "JSON", "VIDEO"],
@@ -93,13 +69,7 @@
     "decisive_keys_timing_class_and_provenance": true,
     "official_validator_boundary": "current official validator source/contract predicates freshly read; exact target predicates rechecked against current-main body; no repository-global checkout execution claimed in Standard Chat"
   },
-  "chat_delivery": {
-    "ascii": false,
-    "json": false,
-    "video": false,
-    "order": "ASCII->JSON->VIDEO",
-    "byte_identical_video": false
-  },
+  "chat_delivery": {"ascii": false, "json": false, "video": false, "order": "ASCII->JSON->VIDEO", "byte_identical_video": false},
   "drew_accepted": false,
   "next_authorized": null
 }
