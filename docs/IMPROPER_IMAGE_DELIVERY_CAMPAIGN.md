@@ -1,0 +1,74 @@
+# Improper Image Delivery Campaign
+
+Status: implementation branch; runtime acceptance remains mandatory.
+Owner: Home Center.
+Mission: recover and harden the already-existing local image generator so a legal prompt can become a verified PNG in Drew's public phone Pictures collection with no Drew-as-transport step.
+
+## Canonical contract
+
+`prompt -> primary-phone -> Home Center Phone Hands/Termux -> SSH Axis -> THECAULDRON localhost ComfyUI -> returned PNG -> SHA-256 verification -> /storage/emulated/0/Pictures/Fortress -> notification/open action -> receipt`
+
+The renderer is not a cloud image provider. ComfyUI stays bound to THECAULDRON loopback. Model/LoRA credentials are not copied to the phone. `venice-image` remains the backwards-compatible Fleshpunk entrypoint; `fortress-image` is the neutral entrypoint and defaults to the same SD 1.5 checkpoint without the Fleshpunk LoRA.
+
+Legal-only use is the mission boundary. This transport does not claim that a model can accurately render every requested subject, only that accepted renders are locally generated and durably delivered.
+
+## Archaeology: where the capability went missing
+
+| Era / lane | What existed | How it was lost or made unreliable | Scar retained |
+| --- | --- | --- | --- |
+| Venice workstation / Regnese tree | Local ComfyUI image-artifact functions and model handoff | Capability lived in a workstation-local tree and competed with local Ollama for a 4 GB GPU | Renderer state must be versioned; expensive local models must not be assumed simultaneously resident |
+| Browser image handoff | `Save-GeneratedImage` download automation | Syntax checked but not live proven; prompt success could be mistaken for delivered artifact | Prompt authored, image rendered, image delivered, and user kept are separate states |
+| Venice Mobile artifact delivery | MediaStore/Downloads design and notification/open behavior | Designed but not compiled/live accepted in the historical slice | Public phone storage plus actual byte readback is required |
+| Home Center, 2026-08-13 | `tools/venice_fleshpunk_phone.sh`, Atom button, receipt/hash gate | Implementation passed review but STOP was blocked because no fresh primary-phone execution proved installation, SSH, render, and returned PNG | Source implementation is not deployment proof; acceptance must run on primary-phone |
+| Phone Hands ingress | Cloud relay and `phone_shell` | A deployment script once omitted the relay, leaving source ahead of deployed ingress | Phone execution must be observed through Home Center receipts, never inferred from repository state |
+| Organ, 2026-09-05 | Working `fleshpunk-image` provider and image receipts | Separate provider hard-coded a Tailscale target and depended on `C:\Users\dclar\workspace\codex-lite-runtime\fleshpunk-image.ps1`, which is referenced but not versioned in the repositories | No new image provider may depend on an unversioned remote runtime file or fixed host when SSH Axis discovery exists |
+| Organ output | PNGs written under `.organ-runtime/images/delivered` | Technically delivered but not a durable human-facing phone collection | Accepted output must also land in public `Pictures/Fortress` |
+| Mobile conversation continuity | New thread/project could be created on launch/pairing | Working capability became hard to recover because state and history fragmented | Runtime capability discovery must depend on commands/receipts, not chat-thread memory |
+
+## Single source of truth
+
+The canonical renderer remains `tools/venice_fleshpunk_phone.sh` for compatibility. This campaign generalizes that implementation instead of copying the ComfyUI workflow into another provider.
+
+Installed commands:
+
+- `fortress-image generate "PROMPT" [SEED]` — neutral `plain` profile by default.
+- `FORTRESS_IMAGE_PROFILE=fleshpunk fortress-image generate ...` — same proven LoRA path.
+- `venice-image generate ...` — compatibility command that always selects Fleshpunk.
+- `fortress-image doctor` — verifies the phone-side contract, public storage, dimensions/profile, and SSH Axis before spending a render.
+- `fortress-image-accept [PROMPT] [SEED] [plain|fleshpunk]` — live end-to-end canary.
+- `fortress-image-ui` — phone dialog; successful results open from public Pictures storage.
+
+## Acceptance invariant
+
+A run is accepted only when all of these are true:
+
+1. Home Center observes `primary-phone` and executes the campaign through `phone_shell`.
+2. SSH Axis reaches THECAULDRON without requiring Drew to discover/copy an address.
+3. THECAULDRON's loopback ComfyUI returns a real `promptId`.
+4. The requested checkpoint is recorded; Fleshpunk additionally records the live LoRA SHA-256.
+5. The remote PNG SHA-256 matches the returned phone-state PNG bytes.
+6. Those same bytes are atomically copied to `/storage/emulated/0/Pictures/Fortress/<promptId>.png`.
+7. The public Pictures PNG readback SHA-256 matches the remote and phone-state hashes.
+8. The acceptance receipt says `ok: true` and preserves the prompt, profile, seed, promptId, paths, hashes, and request-derived accessible summary.
+9. Human perceptual/taste acceptance stays separate; a transport pass does not claim the picture is artistically or medically correct.
+
+## One-shot recovery
+
+`tools/improper_image_delivery_campaign.sh` installs the current Atom/image package and immediately runs the acceptance gate. It exists so recovery is one bounded machine action, not a sequence Drew must remember.
+
+The campaign must be dispatched by Home Center Phone Hands when that lane is available. Manual Termux copy/paste is fallback-only after Home Center ingress is proven unavailable.
+
+## Anti-regression rules
+
+- Do not create another renderer for Organ, Chromium Throne, Venice, or a new agent. Adapt them to `fortress-image`.
+- Do not hard-code THECAULDRON's current WLAN/Tailscale address in a new consumer. Use SSH Axis discovery/cache.
+- Do not make `127.0.0.1:8188` externally reachable merely to simplify transport.
+- Do not call a queued prompt “delivered.”
+- Do not call repository code “deployed.”
+- Do not call a hidden project-state PNG a user delivery when the public Pictures copy is missing.
+- Do not weaken SHA-256 checks to make a flaky transport look green.
+- Do not make Drew manually run a repair script while Home Center `phone_shell` is callable.
+
+## Next consolidation after this campaign passes
+
+Organ's `fleshpunk-image` provider should become a thin adapter to the canonical Home Center command after its profile/reference contract is reconciled. The existing Organ provider remains evidence that the renderer worked; it is not the long-term source of truth because its remote PowerShell dependency is unversioned.
