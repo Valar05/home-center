@@ -1,9 +1,9 @@
 {
   "schema": "ascii-kinesis.receipt-v2",
-  "status": "USER_SURFACED_FINAL_READBACK_PENDING",
+  "status": "HEALTHY_USER_SURFACED",
   "experiment_id": "v2-strikes-013-glancing-contact-force-axis-debt",
-  "one_body_rule": "BIND_THIS_013_UNTIL_HEALTHY",
-  "strikes014_forbidden": true,
+  "one_body_rule": "CLOSED_CANONICAL_013",
+  "strikes014_forbidden": false,
   "preflight": {
     "home_center_campaign": "PASS_CURRENT_AUTOMATION_WORKER_EXACT_COMMISSIONED_READ",
     "github_persistence_readback": "PASS_CURRENT_AUTOMATION_WORKER",
@@ -47,9 +47,10 @@
   "repo": {
     "persistence": "PASS_CURRENT_MAIN_SIX_FILES_ONE_SPA",
     "readback": "PASS_CURRENT_MAIN_EXACT",
-    "final_readback": "PENDING_FINAL_ADDENDUM",
+    "final_readback": "PASS_CURRENT_MAIN_EXACT_AFTER_USER_SURFACE",
     "spa_commit": "65f3de63f9a1bb1fd1dc9578151ffd9f0f1a09e0",
     "manifest_reconciliation_commit": "a4ffa4cc611ab3644129a60a7b89c61ce27dc37c",
+    "user_surface_receipt_commit": "a7d6ec2fc3751751abec9a1365bf4d25f7feb786",
     "blobs": {
       "build.py": "e8d3f03c55c3131e7ce3cacab9df89ff36cc4c19",
       "contact_sheet.txt": "0b5d9037b8d9bec09f3e7dbf7aa62cf5339346e1",
@@ -67,7 +68,8 @@
     "pre_chat_receipt": 5607490439,
     "pre_chat_receipt_readback": true,
     "user_surface_closure": 5607515738,
-    "final_readback_addendum": null
+    "user_surface_closure_readback": true,
+    "final_readback_addendum": 5607543558
   },
   "chat_delivery": {
     "ascii": true,
@@ -81,5 +83,5 @@
     "ordered": true
   },
   "DREW_ACCEPTED": false,
-  "next_authorized": null
+  "next_authorized": "v2-strikes-014"
 }
