@@ -2,7 +2,7 @@
   "schema": "ascii-kinesis.contact-repair-receipt.v2",
   "experiment_id": "v2-contact-012-locked-pivot-custody-repair",
   "canonical_path": "experiments/ascii-kinesis/v2-contact-012-locked-pivot-custody-repair/",
-  "status": "PERSISTED_READBACK_PENDING",
+  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
   "current_worker_liveness": {
     "home_center_campaign_read": "PASS",
     "campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
@@ -85,12 +85,20 @@
     "result_json": {"schema":"ascii-kinesis.swarm-contract-v2-test","entries_checked":["v2-contact-012-locked-pivot-custody-repair"],"ok":true}
   },
   "repo": {
-    "spa_blob_sha": "f0c0c2642b74d570e034656b807371e63250d481",
+    "final_directory_readback": "PASS",
+    "file_count": 5,
+    "exactly_one_motion_html": true,
+    "files": {
+      "build.py": "9fc921fc1c34c09057e9bb7dbcba027a483ac54c",
+      "locked-pivot-custody-repair.motion.html": "f0c0c2642b74d570e034656b807371e63250d481",
+      "manifest.json": "46f53c24a2bd3c13156bcc1f6c978b71f0df8703",
+      "motion.json": "f6d4c82d2115191f08b6ca94a5296b8d4232a9f6",
+      "receipt.json_before_this_verification_update": "11e66fc0135d0f5d1dc5d30311cad3916f86cb6f"
+    },
     "spa_tabs": ["ASCII", "JSON", "VIDEO"],
     "spa_embedded_video": true,
     "spa_structural_readback": "PASS",
-    "literal_truncation_marker_present": false,
-    "final_directory_readback": "PENDING_AFTER_THIS_PERSIST"
+    "literal_truncation_marker_present": false
   },
   "chat_delivery": "PENDING_THIS_REPORTING_CHAT",
   "issue_343_closure": "PENDING_POST_DELIVERY"
