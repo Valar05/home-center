@@ -1,0 +1,100 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "experiment_id": "v2-airborne-028-rising-platform-undercatch-relative-velocity-debt",
+  "status": "PERSISTED_NOT_DELIVERED",
+  "preflight": {
+    "home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "home_center_campaign_read": true,
+    "github_persistence_readback_surface": true,
+    "current_worker": true
+  },
+  "lineage": {
+    "fresh_post_debt_concept": true,
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "successor_collision": false,
+    "airborne028_only": true,
+    "airborne029_forbidden_until_healthy": true
+  },
+  "source": {
+    "family": "The Spriters Resource / Dr Robuttnik (Elevator) / Sunky's Schoolhouse / PC / Playable Characters",
+    "asset_id": 191044,
+    "whole_source_sha256": "1304b1cacd772e783e9d000691ba22b39f254d7964b53a1e552e3c881facefca",
+    "timing": "UNKNOWN",
+    "decisive_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "rights_firewall": true
+  },
+  "quality": {
+    "current_worker_builder_reconciliation": {
+      "defect": "current-main build.py had acquired a post-render packing step that deterministically produced 640x306 / 8904-byte media instead of the SPA/manifest authoritative 800x382 / 16565-byte media",
+      "correction": "SAME Airborne028 body only: removed the stray packing step and restored the authored Motion Dungeon builder to the persisted authoritative media identity",
+      "commit": "477f6b8591bdab836b25ee9a8f2ddac7db4f6eef",
+      "restored_build_blob": "835db63c37d52e13b2811fcd4a2b6b42d93ae8e7"
+    },
+    "current_worker_actual_media_reconstruction": {
+      "byte_identical_to_authoritative": true,
+      "sha256": "e690616494b5a881d8e9c94c44efe4d6fb3514caeca87fddeb905efb0eff7ff0",
+      "bytes": 16565,
+      "frames": 76,
+      "codec": "h264",
+      "pixel_format": "yuv420p",
+      "width": 800,
+      "height": 382,
+      "fps": 24,
+      "decode": "PASS"
+    },
+    "current_worker_tango": {
+      "result": "PASS",
+      "actual_render": true,
+      "finding": "The corrected 76-frame render preserves separated K6 precontact; K7 rising-deck toe undercatch; K8 relative-velocity one-foot crush; K9 platform-frame carry with free-side lag; K10 delayed heel support; K11 loaded rise; K12 same-topology platform brake with body overrun; and K13 displaced settle. No new visible defect warrants authored-key mutation."
+    },
+    "current_worker_noodle_queen": {
+      "result": "PASS",
+      "actual_render": true,
+      "taste": "long diagonal flight resolves into an upward-attacking support and asymmetric one-foot fold rather than a generic landing",
+      "function": "support acquisition changes root trajectory and load; the second foot arrives late; braking changes load without magical topology change",
+      "contempt": "the body overruns the support frame, restacks under load, and settles displaced rather than reversing to ledge idle"
+    }
+  },
+  "media": {
+    "filename": "rising-platform-undercatch-relative-velocity-debt.mp4",
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "width": 800,
+    "height": 382,
+    "fps": 24,
+    "frames": 76,
+    "bytes": 16565,
+    "sha256": "e690616494b5a881d8e9c94c44efe4d6fb3514caeca87fddeb905efb0eff7ff0",
+    "decode": true,
+    "embedded_in_spa": true
+  },
+  "contract": {
+    "validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated_pass": true,
+    "current_main_structural_readback": "PASS",
+    "boundary": "Exact current validator source was freshly read. Standard Chat has no authorized full-repository checkout body, so repo-global execution is not claimed; current-main candidate structure was rechecked through authenticated GitHub readback and matches the validator predicates."
+  },
+  "repo": {
+    "persisted": true,
+    "final_readback": false,
+    "builder_reconciliation_commit": "477f6b8591bdab836b25ee9a8f2ddac7db4f6eef",
+    "blobs": {
+      "build.py": "835db63c37d52e13b2811fcd4a2b6b42d93ae8e7",
+      "contact-sheet.txt": "8354c4380032ed385451cb69f74fceae114dac3e",
+      "manifest.json": "7f7cc1f05e120c77bb5b35402156135d39b62dff",
+      "motion.json": "5bc82852ca6cf0b8a7605490965b72dff8eaf5a9",
+      "rising-platform-undercatch-relative-velocity-debt.motion.html": "5f8fc382c574a48cb558a04792dded6f17236018"
+    }
+  },
+  "issue_343_receipt": null,
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_visible_video": false,
+    "video_byte_identical": false
+  },
+  "DREW_ACCEPTED": false,
+  "next_authorized": null
+}
