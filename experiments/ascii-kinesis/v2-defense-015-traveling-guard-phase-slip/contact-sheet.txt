@@ -1,0 +1,453 @@
+ASCII KINESIS V2 DEFENSE 015 — TRAVELING GUARD PHASE-SLIP
+abstract generic ASCII rig only — TSR Samus Aran (Power Suit) asset 106418 is whole-sheet campaign evidence only; no source pixels or choreography enter output
+performance law: moving ready -> brace while advancing -> rear-foot peel -> high-right glance/contact -> held shear -> contact release while guard lags -> crossstep under lagging task -> authored preplant -> new-foot catch/compression -> counterrotation overshoot -> second-foot reacquire -> late guard rebind -> secondary settle -> moving ready debt
+novelty: BASE/root travel never becomes a backdash, wall share, floor ladder, rear-anchor pivot, or tool-floor support; the defense is temporary BASE/TASK phase separation resolved only after a new support constraint
+legend: G=threat-side guard hand; X=contact; <=incoming threat; L/R=initial supports; N=new cross-foot support; floor=_
+
+D015-K0  MOVING_READY  [FOURS | INFERRED]
+
+
+
+
+                              O
+                              |
+                             /+\   --+---G
+                           +- | -+/
+                          |   |
+                          +   |
+                           |  |
+                           o  |
+                              @
+                             / \\
+                            /    \\
+                           +       +
+                          /         \
+                         /           \
+                         /            \
+  ______________________=______________=______________________________
+                        L              R
+
+
+support=BOTH_FEET contact=CLEAR base=BASE_ADVANCE guard=GUARD_BOUND
+role=carry forward momentum with asymmetry
+arc=offset traveling ready; guard already biased to threat debt=0.15
+
+------------------------------------------------------------------------
+
+D015-K1  ADVANCE_BRACE  [TWOS | INFERRED]
+
+
+
+
+                               O
+                               |
+                               +\   --+----G
+                             //| -+/
+                            +  |
+                            |  |
+                            +  |
+                             -o|
+                               @
+                              / \\
+                             /    \\
+                            +       +
+                           /         \
+                          /           \
+                         /            \
+  ______________________=______________=______________________________
+                        L              R
+
+
+support=BOTH_FEET contact=CLEAR base=BASE_ADVANCE guard=GUARD_BOUND
+role=upper task preloads without stopping base
+arc=brace grows while feet remain honest debt=0.20
+
+------------------------------------------------------------------------
+
+D015-K2  PRECONTACT_LEAD_ONLY  [ONES | INFERRED]
+
+
+
+
+                               O
+                               |
+                               +\    --+----G        < < < < < < <
+                             //\ --+/
+                            +   \
+                             |  \
+                             +  \
+                              -o |
+                                 @
+                                / \
+                                /  \\
+                               +     +
+                              |       \
+                              =        \
+                                       \
+  ______________________________________=_____________________________
+                                        R
+
+
+support=LEAD_FOOT contact=PRECONTACT_RIGHT base=BASE_ADVANCE guard=GUARD_BOUND
+role=make single-support exposure precede contact
+arc=rear foot peels before impact; base commits debt=0.35
+
+------------------------------------------------------------------------
+
+D015-K3  GLANCE_CONTACT  [ONES | INFERRED]
+
+
+
+
+
+                             O
+                              \           --GX<<<<<<<<<<<<<<<<<<<<<
+                              /+\    --+//
+                            +-  \--+/
+                            \   \
+                             |   \
+                             +   \
+                              -o  |
+                                  @
+                                 / \
+                                /   \\
+                               +      +
+                              =        \
+                                       \
+  ______________________________________=_____________________________
+                                        R
+
+
+support=LEAD_FOOT contact=IMPACT_RIGHT base=BASE_ADVANCE guard=GUARD_PINNED
+role=contact is not farthest reach; hand contact point fixed
+arc=high-right guard contact; pelvis keeps advancing debt=0.55
+
+------------------------------------------------------------------------
+
+D015-K4  SHEAR_BANK  [FOURS | INFERRED]
+
+
+
+
+
+                            O
+                             \            --GX<<<<<<<<<<<<<<<<<<<<<
+                              +\\    --+//
+                            // \ --+/
+                           +    \
+                            |    \
+                            +\   \
+                              -o  \
+                                   @
+                                  / \
+                                 /   \
+                                +     +
+                               =       \
+                                       \
+  ______________________________________=_____________________________
+                                        R
+
+
+support=LEAD_FOOT contact=IMPACT_RIGHT base=BASE_ADVANCE guard=GUARD_PINNED
+role=visible compression and phase separation
+arc=contact point held while torso/pelvis shear underneath debt=0.70
+
+------------------------------------------------------------------------
+
+D015-K5  RELEASE_TASK_LAG  [TWOS | INFERRED]
+
+
+
+
+
+                             O
+                              \
+                               +\\      -G
+                             // \ --+--+
+                            +    \
+                            |     \
+                            +      \
+                             o      \
+                                     @
+                                    / \
+                                   /  \
+                                  +    +
+                                 =     \
+                                        |
+  ______________________________________=_____________________________
+                                        R
+
+
+support=LEAD_FOOT contact=CLEAR base=BASE_ADVANCE guard=GUARD_LAG
+role=do not snap guard back to pelvis
+arc=contact releases but task clock stays behind base debt=0.65
+
+------------------------------------------------------------------------
+
+D015-K6  CROSSSTEP_UNDER  [TWOS | INFERRED]
+
+
+
+
+                               O
+                                \
+                                \
+                                 +\\   G
+                               // \ --+|
+                              +    \   -+
+                             |      \\
+                             +        \
+                              \        \
+                               o        @
+                                       /|
+                                     // |
+                                    +   +
+                                  =-    |
+                                        |
+  ______________________________________=_____________________________
+                                        R
+
+
+support=LEAD_FOOT contact=CLEAR base=BASE_ADVANCE guard=GUARD_LAG
+role=lower body keeps travel ownership
+arc=free foot crosses under lagging shoulder line debt=0.60
+
+------------------------------------------------------------------------
+
+D015-K6B  PREPLANT_THREAD  [ONES | INFERRED]
+
+
+
+
+                                 O
+                                  \
+                                  \
+                                   +\\ G
+                                 // \ --+
+                                +    \   +
+                               |      \\
+                               +        \
+                                \        \
+                                 o        @
+                                         /
+                                         /
+                                        +\
+                                        | --=
+                                        |
+  ______________________________________=_____________________________
+                                        R
+
+
+support=LEAD_FOOT contact=CLEAR base=BASE_ADVANCE guard=GUARD_LAG
+role=authored preplant before new support
+arc=crossing foot reaches open landing slot debt=0.58
+
+------------------------------------------------------------------------
+
+D015-K7  CROSS_FOOT_ACQUIRE  [ONES | INFERRED]
+
+
+
+
+                                  O
+                                   \
+                                   \
+                                    +\\G
+                                  // \ --+
+                                 +    \   +
+                                |      \\
+                                +        \
+                                 \        \
+                                  o        @
+                                          /\
+                                         /  |
+                                        +   +
+                                      =-    \
+                                             |
+  ___________________________________________=________________________
+                                             N
+
+
+support=NEW_CROSS_FOOT contact=CLEAR base=BASE_ADVANCE guard=GUARD_LAG
+role=support switches without arresting root
+arc=new cross foot catches while old lead unweights debt=0.62
+
+------------------------------------------------------------------------
+
+D015-K8  PLANT_COMPRESSION  [FOURS | INFERRED]
+
+
+
+
+
+
+                                   O
+                                    \
+                                    \
+                                     +G\
+                                   // \\--+
+                                  +    \ \|
+                                 |      \\+
+                                 +        \
+                                  -o       \
+                                            @
+                                          //|
+                                       =-+  +
+                                             |
+  ___________________________________________=________________________
+                                             N
+
+
+support=NEW_CROSS_FOOT contact=CLEAR base=BASE_ADVANCE guard=GUARD_LAG
+role=COM visibly pays for the catch
+arc=new plant compresses under continued travel debt=0.72
+
+------------------------------------------------------------------------
+
+D015-K9  COUNTERROTATE_OVERSHOOT  [TWOS | INFERRED]
+
+
+
+
+                                        O
+                                         |
+                                         +\      -G
+                                       //\ -+--+/
+                                      +   \
+                                     |    \
+                                     +     \
+                                    o      \
+                                            |
+                                            @
+                                            |
+                                            |
+                                            +
+                                            =
+                                             |
+  ___________________________________________=________________________
+                                             N
+
+
+support=NEW_CROSS_FOOT contact=CLEAR base=BASE_ADVANCE guard=GUARD_OVERSHOOT
+role=specific counterrotation, not reverse interpolation
+arc=torso/guard whip past pelvis after lag debt=0.68
+
+------------------------------------------------------------------------
+
+D015-K10  SECOND_FOOT_REACQUIRE  [ONES | INFERRED]
+
+
+
+
+                                          O
+                                           |
+                                           +\
+                                         // \-+--+-G
+                                        +   \
+                                       |     \
+                                       +     \
+                                       |      |
+                                       o      @
+                                              /\
+                                             | \
+                                             +  +
+                                             |   \
+                                             |   \
+                                             |    |
+  ___________________________________________=____=___________________
+                                             N    r
+
+
+support=BOTH_NEW_BIASED contact=CLEAR base=BASE_ADVANCE guard=GUARD_OVERSHOOT
+role=dual support arrives after the body has spent force
+arc=second foot reacquires after counterrotation debt=0.52
+
+------------------------------------------------------------------------
+
+D015-K11  LATE_GUARD_REOPEN  [TWOS | INFERRED]
+
+
+
+
+                                           O
+                                            |
+                                            +\       -G
+                                          // \-+---+/
+                                         +   \
+                                        |     \
+                                        +     \
+                                         |     |
+                                         o     @
+                                              / \
+                                              / \
+                                             +   +
+                                             |   \
+                                             |    |
+                                             |    |
+  ___________________________________________=____=___________________
+                                             N    r
+
+
+support=BOTH_NEW_BIASED contact=CLEAR base=BASE_ADVANCE guard=GUARD_REOPEN
+role=task clock finally rebinds after base constraint change
+arc=guard reopens late and slightly too far debt=0.42
+
+------------------------------------------------------------------------
+
+D015-K12  SECONDARY_SETTLE  [FOURS | INFERRED]
+
+
+
+
+                                            O
+                                             |
+                                             +\
+                                           //\ -+\  G
+                                          +   \   -+
+                                          |   \
+                                          +   \
+                                           |   |
+                                           o   @
+                                              / \
+                                              / \
+                                             +   +
+                                             |   \
+                                             |    |
+                                             |    |
+  ___________________________________________=____=___________________
+                                             N    r
+
+
+support=BOTH_NEW_BIASED contact=CLEAR base=BASE_ADVANCE guard=GUARD_SETTLE
+role=keep secondary lag and no origin reset
+arc=head/arms settle around still-displaced pelvis debt=0.28
+
+------------------------------------------------------------------------
+
+D015-K13  MOVING_READY_DEBT  [FOURS | INFERRED]
+
+
+
+
+                                              O
+                                              |
+                                              +\
+                                            // \-+\  G
+                                           +   \   -+
+                                           |    \
+                                           +    \
+                                            |    |
+                                            o    @
+                                                /\
+                                                / |
+                                               +  +
+                                                | |
+                                                = |
+                                                  |
+  ________________________________________________=___________________
+                                                  R
+
+
+support=LEAD_FOOT contact=CLEAR base=BASE_ADVANCE guard=GUARD_BOUND_OFFSET
+role=finish in motion with residual readiness debt
+arc=new step already beginning; guard remains off-center debt=0.22
