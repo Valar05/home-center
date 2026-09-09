@@ -2,7 +2,7 @@
 set -euo pipefail
 
 STATE="${HC_STATE_DIR:-$HOME/.local/state/home-center}/venice-fleshpunk-image"
-ATOM="$HOME/.local/share/atom"
+RUNTIME="$HOME/.local/share/fortress-image"
 BIN="$HOME/bin"
 PROMPT="${1:-educational anatomical study of a human hand, dorsal view, tendons and bones, neutral medical atlas composition, no labels}"
 SEED="${2:-9092026}"
@@ -23,10 +23,10 @@ PY
 }
 
 case "$PROFILE" in plain|fleshpunk) ;; *) fail PROFILE_INVALID "profile must be plain or fleshpunk";; esac
-[ -d "$ATOM" ] || fail ATOM_NOT_INSTALLED "Atom runtime missing at $ATOM"
+[ -d "$RUNTIME" ] || fail IMAGE_RUNTIME_NOT_INSTALLED "standalone image runtime missing at $RUNTIME"
 [ -x "$BIN/fortress-image" ] || fail IMAGE_COMMAND_MISSING "fortress-image command is not installed"
-[ -x "$BIN/fortress-image-ui" ] || fail IMAGE_UI_MISSING "fortress-image-ui command is not installed"
-[ -f "$ATOM/tools/venice_fleshpunk_phone.sh" ] || fail GENERATOR_MISSING "installed canonical generator source is missing"
+[ -f "$RUNTIME/tools/venice_fleshpunk_phone.sh" ] || fail GENERATOR_MISSING "installed canonical generator source is missing"
+[ -f "$RUNTIME/tools/ssh_axis.py" ] || fail SSH_AXIS_MISSING "installed SSH Axis source is missing"
 
 if ! FORTRESS_IMAGE_PROFILE="$PROFILE" "$BIN/fortress-image" doctor >"$STATE/fortress-acceptance-doctor.stdout" 2>"$STATE/fortress-acceptance-doctor.stderr"; then
   detail="$(tail -c 3000 "$STATE/fortress-acceptance-doctor.stderr" 2>/dev/null || true)"
@@ -43,7 +43,7 @@ fi
 [ -s "$STATE/latest.json" ] || fail GENERATION_RECEIPT_MISSING "generator returned no generation receipt"
 
 python - "$STATE/latest.json" "$STATE/latest.png" "$OUT" "$PROFILE" <<'PY'
-import datetime,hashlib,json,os,sys
+import datetime,hashlib,json,sys
 from pathlib import Path
 receipt_path,phone_path,out_path,expected_profile=sys.argv[1:]
 r=json.load(open(receipt_path,encoding='utf-8-sig'))
@@ -80,12 +80,16 @@ obj={
     'generationObserved':bool(r.get('promptId')),
     'phoneStateArtifactDelivered':r.get('phoneSha256')==actual,
     'publicPicturesArtifactDelivered':bool(public_hash and public_hash==actual),
+    'shizukuRequired':False,
+    'atomRequired':False,
+    'uiRequired':False,
     'drewPerceptualAccepted':False
   },
   'prompt':r.get('prompt'),'seed':r.get('seed'),'profile':r.get('profile'),
   'checkpoint':r.get('checkpoint'),'lora':r.get('lora'),'loraSha256':r.get('loraSha256'),
   'promptId':r.get('promptId'),'phonePath':str(phone),'publicPhonePath':str(public),
-  'pngSha256':actual,'accessibleSummary':r.get('requestDerivedAltText'),
+  'pngSha256':actual,'publicPhoneSha256':public_hash,
+  'accessibleSummary':r.get('requestDerivedAltText'),
   'observedAt':datetime.datetime.now(datetime.timezone.utc).isoformat()
 }
 open(out_path,'w',encoding='utf-8').write(json.dumps(obj,indent=2,ensure_ascii=False)+'\n')
@@ -93,6 +97,7 @@ print(json.dumps(obj,ensure_ascii=False))
 if errors: raise SystemExit(3)
 PY
 
+# Convenience only. Transport acceptance is already complete before this block.
 if command -v termux-notification >/dev/null 2>&1; then
   PUBLIC="$(python - "$STATE/latest.json" <<'PY'
 import json,sys
