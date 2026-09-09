@@ -2,7 +2,7 @@
   "schema": "ascii-kinesis.swarm-receipt.v2",
   "experiment_id": "v2-video-motion-011-throw-release-force-chain-repair",
   "lane": "video-motion",
-  "status": "QUALITY_GATES_PASS_MEDIA_DECODE_PASS_CONTRACT_PASS_PERSIST_PENDING",
+  "status": "HEALTHY",
   "current_worker_liveness": {
     "home_center_campaign": "PASS",
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
@@ -21,10 +21,7 @@
     "negative_fixture": "experiments/ascii-kinesis/v2-video-motion-005-throw-release-force-chain/",
     "predecessor_status": "REVISE_REQUIRED_LOW_EFFORT",
     "preserve_predecessor": true,
-    "source_change": false,
-    "global_reset_issue_comment": 5576901079,
-    "prior_lane_closure_issue_comment": 5594139400,
-    "manager_reconciliation_issue_comment": 5594373787
+    "source_change": false
   },
   "source": {
     "title": "Throwing-slowmotion-man2013-stabilized.webm",
@@ -48,33 +45,47 @@
     "fps": 24,
     "frames": 50,
     "duration_s": 2.083333,
-    "decode_verified_current_worker": true
+    "decode_verified_current_worker": true,
+    "byte_identical_reconstruction_current_worker": true
   },
   "quality": {
     "tango": {
       "status": "PASS",
       "current_worker": true,
-      "inspection_scope": "actual authoritative render; all 50 decoded frames plus focused f14-f24 release sheet",
-      "verdict": "PASS",
-      "highest_value_visible_defect": "NONE",
-      "basis": "Crooked rear-load anticipation visibly precedes pelvis/root drive; torso then shoulder/arm sling accelerates. Object remains hand-adjacent through authored RELEASE_GATE and forks only on the next authored FREE key, before the arm reaches its later follow-through extrema. Front-side support absorbs the throw, rear support peels, counter-rotation and catch compression pay the force debt, and recovery remains displaced rather than returning to idle."
+      "inspection_scope": "actual authoritative render; all 50 decoded frames plus focused release frames",
+      "highest_value_visible_defect": "NONE"
     },
     "noodle_queen": {
       "status": "PASS",
       "current_worker": true,
       "after_tango": true,
-      "inspection_scope": "same final 50-frame authoritative render plus complete three-part specimen structure",
-      "verdict": "TASTE + FUNCTION + CONTEMPT PASS",
-      "basis": "The rear-loaded corkscrew, withheld object release, hard object/body clock fork, cross-body spill, front-catch compression and crooked displaced recovery form a specific throw attitude. Force transfer and custody are legible without source choreography, and the ending carries debt instead of politely resetting."
+      "verdict": "TASTE + FUNCTION + CONTEMPT PASS"
     }
   },
   "contract": {
     "official_script_blob_sha": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
-    "candidate_scoped": "PASS",
+    "candidate_scoped_current_worker": "PASS",
     "repo_global": "NOT_CLAIMED"
   },
-  "repo_readback": {"status": "PENDING", "main_commit": null, "files": null},
-  "issue_receipt": null,
-  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_video": false},
+  "repo_readback": {
+    "status": "PASS_CURRENT_MAIN",
+    "body_complete_commit": "6f68d46ddd0a2f6b97cc2e35769769f6e36cec38",
+    "exactly_one_spa": true,
+    "files": {
+      "build_motion.py": "adea4104f5a8757bacb16d1a0d96be12a606a690",
+      "contact_sheet.txt": "0c3e2abc148b32f9743ea38d439e4562dd23a1b5",
+      "manifest.json_pre_reconciliation": "d1a806b1e6684e74a41f2a42a765292dfc3a6570",
+      "motion.json": "170282f4363c9236be0f759b49eaa911f62db515",
+      "throw-release-force-chain-repair.motion.html": "40fa40c021c853859f01cb56080ab9856654acd1"
+    }
+  },
+  "issue_receipt": 5595203237,
+  "chat_delivery": {
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_video": true,
+    "ordered_together": true,
+    "reporting_turn": "CURRENT_AUTOMATION_RUN"
+  },
   "correction_hooks": ["KEEP", "REJECT", "EXAGGERATE", "COMPRESS", "RETIME", "CHANGE SOURCE", "FIX SUPPORT", "FIX CUSTODY", "FIX RELEASE", "FIX BODY_OBJECT_ARC", "FIX RECOVERY", "FIX CHAT DELIVERY", "RERUN"]
 }
