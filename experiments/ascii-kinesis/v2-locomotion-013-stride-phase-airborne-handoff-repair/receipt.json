@@ -1,0 +1,17 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "status": "READY_FOR_REPOSITORY_READBACK_AND_CURRENT_CHAT_DELIVERY",
+  "experiment_id": "v2-locomotion-013-stride-phase-airborne-handoff-repair",
+  "repo_path": "experiments/ascii-kinesis/v2-locomotion-013-stride-phase-airborne-handoff-repair/",
+  "current_worker_liveness": {"home_center_campaign_read": true, "github_persistence_readback": true},
+  "inventory": {"pre_creation_v2_locomotion_013_count": 0, "successor_collision": false, "one_successor_binding": true},
+  "lineage": {"revises": "experiments/ascii-kinesis/v2-locomotion-006-stride-phase-airborne-handoff/", "negative_fixture": "experiments/ascii-kinesis/v2-locomotion-006-stride-phase-airborne-handoff/", "predecessor_preserved": true, "source_change": false},
+  "source": {"asset_id": 4230, "source_change": false, "source_timing": "UNKNOWN", "source_art_embedded": false},
+  "media": {"sha256": "5b55e2edadbcd2a42cc444c64fb8f5811655c952660f69a6648cac70d23016d1", "bytes": 33380, "codec": "h264", "pix_fmt": "yuv420p", "width": 960, "height": 520, "fps": 24, "frames": 53, "decode": "PASS"},
+  "quality": {"tango": "PASS", "tango_iterations": 2, "noodle_queen": "PASS", "taste": "PASS", "function": "PASS", "contempt": "PASS"},
+  "contract": {"validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c", "candidate_isolated": "PASS", "full_repo_runtime": "NOT_EXPOSED", "boundary": "Fresh official validator source ran candidate-isolated; current connector exposes repository contents but no authorized full checkout runtime, so no global-green run is claimed."},
+  "repo_readback": false,
+  "issue_receipt": null,
+  "three_part_chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_video": false},
+  "drew_accepted": false
+}
