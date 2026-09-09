@@ -1,6 +1,6 @@
 {
   "schema": "ascii-kinesis.receipt-v2",
-  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
+  "status": "USER_SURFACED_FINAL_READBACK_PENDING",
   "experiment_id": "v2-strikes-013-glancing-contact-force-axis-debt",
   "one_body_rule": "BIND_THIS_013_UNTIL_HEALTHY",
   "strikes014_forbidden": true,
@@ -47,7 +47,7 @@
   "repo": {
     "persistence": "PASS_CURRENT_MAIN_SIX_FILES_ONE_SPA",
     "readback": "PASS_CURRENT_MAIN_EXACT",
-    "final_readback": "PENDING_USER_SURFACE_AND_FINAL_ADDENDUM",
+    "final_readback": "PENDING_FINAL_ADDENDUM",
     "spa_commit": "65f3de63f9a1bb1fd1dc9578151ffd9f0f1a09e0",
     "manifest_reconciliation_commit": "a4ffa4cc611ab3644129a60a7b89c61ce27dc37c",
     "blobs": {
@@ -66,15 +66,19 @@
   "issue": {
     "pre_chat_receipt": 5607490439,
     "pre_chat_receipt_readback": true,
-    "user_surface_closure": null,
+    "user_surface_closure": 5607515738,
     "final_readback_addendum": null
   },
   "chat_delivery": {
-    "ascii": false,
-    "json": false,
-    "video": false,
-    "ordered": false,
-    "video_identity": null
+    "ascii": true,
+    "ascii_presentation": "COMPLETE_DETERMINISTIC_FROM_EXACT_PERSISTED_BUILD_AND_MOTION_NON_BYTE_IDENTICAL_TO_TRACKED_CONTACT_SERIALIZATION",
+    "json": true,
+    "json_presentation": "ACTUAL_PERSISTED_MOTION_VALUES_PRETTY_SERIALIZATION_NON_BYTE_IDENTICAL",
+    "video": true,
+    "video_identity": "57f3de85600b0d5e00822369df918c3297af2d7819b8a6d40eaf39aef410a4b2",
+    "video_visible": true,
+    "video_sha_and_bytes_match_persisted_authoritative_identity": true,
+    "ordered": true
   },
   "DREW_ACCEPTED": false,
   "next_authorized": null
