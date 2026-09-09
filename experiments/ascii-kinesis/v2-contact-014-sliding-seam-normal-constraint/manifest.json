@@ -1,0 +1,48 @@
+{
+  "schema": "ascii-kinesis.manifest-v2",
+  "format_version": 2,
+  "entry": "v2-contact-014-sliding-seam-normal-constraint",
+  "lane": "contact",
+  "status": "CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "new_concept": true,
+  "revises": null,
+  "negative_fixture": null,
+  "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+  "source_asset_id": "602122",
+  "source_archive_sha256": "7a47f6ef97b44b65b43f15a8d2a9281b1fc1cb95f543f631b0a21d76beba565f",
+  "whole_source_inspected": true,
+  "timing_policy": "STREET_FIGHTER/CAPCOM",
+  "timing_provenance": "INFERRED",
+  "media": {
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "width": 800,
+    "height": 450,
+    "fps": 24,
+    "frames": 50,
+    "bytes": 16519,
+    "sha256": "4de8cc7c8cfad1c9671e1edfeaac9cf22ee2c348fc31e471bca6f5ebac5d7892",
+    "decode": "PASS"
+  },
+  "ascii_sha256": "16e30b7eceeca1f00b0d3daf15525cf73ea40c0de47c3917faa2a98db57805f7",
+  "motion_sha256": "98add0e79e2a89329aa5351d43b6a97f0288c06dd0d81b8caa307b5375ed29a7",
+  "spa_sha256": "576e31effcc821bf7f7880403d06ccf5ff9b142fa5384507dd6056bd83f955c9",
+  "expected_files": [
+    "build.py",
+    "contact-sheet.txt",
+    "manifest.json",
+    "motion.json",
+    "receipt.json",
+    "sliding-seam-normal-constraint.motion.html"
+  ]
+}
