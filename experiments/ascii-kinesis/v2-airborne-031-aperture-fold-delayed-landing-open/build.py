@@ -70,10 +70,17 @@ def font():
     return ImageFont.load_default()
 
 def contact_sheet():
-    blocks=[]
+    blocks=[
+        f"ASCII KINESIS V2 AIRBORNE031 — APERTURE FOLD / DELAYED LANDING OPEN\n"
+        f"ENVIRONMENT: floor y={ENV['floor_y']} | wall x={ENV['aperture_wall_xs']} | opening rows={ENV['opening_rows']}\n"
+        "Each decisive key below is a literal crop of the same global ASCII rig; x/y windows are stated explicitly.\n"
+    ]
     for k in MOTION['keys']:
-        blocks.append(f"{k['key_id']} — {k['label']} — {k['timing_class']} — {k['timing_provenance']}\n"
-                      f"{render_ascii(k)}"
+        full=render_ascii(k).splitlines()
+        rx,ry=k['root']; x0=max(0,rx-13); x1=min(W-1,rx+13); y0=max(0,ry-8); y1=min(H-1,ry+8)
+        crop='\n'.join((full[y] if y < len(full) else '')[x0:x1+1].rstrip() for y in range(y0,y1+1)).rstrip()+'\n'
+        blocks.append(f"{k['key_id']} — {k['label']} — {k['timing_class']} — {k['timing_provenance']} | WINDOW x={x0}..{x1} y={y0}..{y1}\n"
+                      f"{crop}"
                       f"SUPPORT={k['support_contact']} ({k['support_detail']}) | APERTURE_CONTACT={k['obstacle_contact']}\n"
                       f"ROOT: {k['root_note']}\n"
                       f"ROLE: {k['causal_role']}")
