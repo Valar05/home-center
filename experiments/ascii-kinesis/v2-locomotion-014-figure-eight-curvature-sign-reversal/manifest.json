@@ -45,5 +45,5 @@
     "source_audio_used": false
   },
   "drew_accepted": false,
-  "body_status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_CHAT_DELIVERY"
+  "body_status": "READY_FOR_REPOSITORY_READBACK_AND_CURRENT_CHAT_DELIVERY"
 }
