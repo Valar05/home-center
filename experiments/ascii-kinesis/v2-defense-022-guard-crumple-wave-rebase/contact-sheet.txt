@@ -1,1 +1,223 @@
-A
+ASCII KINESIS V2 DEFENSE022 — GUARD CRUMPLE / WAVE REBASE
+SOURCE EVIDENCE: TSR asset 30327 Billy & Jimmy — Double Dragon II: The Revenge — NES | commissioned whole-sheet evidence.
+SOURCE ROLE: STYLE_REFERENCE only. OBSERVED: neutral/travel/hit/fall/recovery plus doing/receiving contact families. Source-authentic timing UNKNOWN.
+PRINCIPLE: EARLY SAME-JOINT CATCH -> DISTAL CRUMPLE -> SHOULDER/RIB WAVE -> PELVIS LOAD -> RELEASE -> LEAD PEEL -> REBASE -> LATE GUARD.
+TIMING: every decisive compile timing class INFERRED / STREET_FIGHTER-CAPCOM. ONES/TWOS/FOURS are hold classes, never seconds.
+SUPPORT: # full | ^ forefoot | : light toe | x unsupported | @ pelvis | X active guard contact.
+RIGHTS: independent abstract ASCII rig only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio.
+
+K00 OFFSET_READY                                                 K01 ANTICIPATION_FRAME
+FOURS/INFERRED SUP=L#+R# CONTACT=OFF                             FOURS/INFERRED SUP=L#+R# CONTACT=OFF
+THREAT=MIDLINE_PRESSURE_FAR                                      THREAT=MIDLINE_PRESSURE_CLOSING
+
+
+
+
+                          O
+                          |                                                               O
+                        --o--                                                             |
+                     o--  |  --o                                                     o----o----o
+                   //     |     \\                                                 --     |     \
+                  o       |       o                              --------->      o+       |      \
+->                 |       |    //                                                        |       o
+                   +       |   +                                                           |    //
+                           |                                                               |   +
+                           |                                                               |
+                           @                                                               |
+                          / \                                                              @
+                         /   \                                                            / \
+                        /    \                                                          //   \
+                       /      \                                                        /     \
+                      o        o                                                      o       \
+                     /          \                                                     |        o
+                     /          \                                                    |          \
+                    /            \                                                   |           \
+                    /            \                                                  |             \
+                   o              o                                                 o              o
+_________________==#==__________==#==________________________    _________________==#==__________==#==________________________
+
+
+K02 EARLY_FOREARM_CATCH                                          K03 DISTAL_CRUMPLE
+TWOS/INFERRED SUP=L#+R# CONTACT=ON:hand_l                        TWOS/INFERRED SUP=L#+R# CONTACT=ON:hand_l
+THREAT=CONTACT_AT_GUARD                                          THREAT=CONTACT_DRIVING_GUARD
+
+
+
+
+
+                          O                                                                 O
+                          |                                                                 |
+                        --o----o                                                           -o--
+                    -o--  |     \                                                        -- |  --o
+----------------X-o-      |      \                               -----------------X    o-   |     \
+                          |       o                                                - //     |      \
+                           |    //                                                  o       |       o
+                           |   +                                                             |    //
+                           |                                                                 |   +
+                           |                                                                 |
+                           @                                                                 |
+                          / \                                                                @
+                         /   \                                                              / \
+                        /    \                                                             /   \
+                       /      \                                                           /    \
+                      o        o                                                         /      \
+                     /          \                                                       o        o
+                    /            \                                                     /          \
+                    /            \                                                   //           \
+                   o              o                                                 o              o
+_________________==#==__________==#==________________________    _________________==#==__________==#==________________________
+
+
+K04 SHOULDER_RIB_WAVE                                            K05 PELVIS_BACKLOAD_LEAD_UNLOAD
+FOURS/INFERRED SUP=L#+R# CONTACT=ON:hand_l                       TWOS/INFERRED SUP=L^+R# CONTACT=ON:hand_l
+THREAT=CONTACT_COMPRESSION_WAVE                                  THREAT=CONTACT_PEAK_LOAD
+
+
+
+
+
+
+
+                             O                                                                  O
+                             |                                                                  |
+                        o----o----o                                                        o----o----o
+------------------X-  //     |     \\                                                    //     |     \
+                    -o       |       o                           -------------------X---o       |      \
+                             |     --                                                           |       o
+                              |  +-                                                             |     --
+                              |                                                                  |  +-
+                              |                                                                  |
+                              |                                                                  |
+                              @                                                                  |
+                             / \                                                                 @
+                           //   \                                                              // \
+                          /     \                                                            //    \
+                         o       o                                                         -o       o
+                       --        |                                                       --         |
+                     --           |                                                   ---          |
+                   o-             o                                                 o-             o
+_________________==#==__________==#==________________________    _________________^^^____________==#==________________________
+
+
+K06 RELEASE_THEN_LEAD_PEEL                                       K07 REAR_LOAD_OVERSHOOT
+ONES/INFERRED SUP=Lx+R# CONTACT=OFF                              FOURS/INFERRED SUP=Lx+R# CONTACT=OFF
+THREAT=PRESSURE_SPENT                                            THREAT=PRESSURE_SPENT
+
+
+
+
+
+
+
+                                O
+                                |                                                                 O
+                              --o---o                                                             |
+                          o---  |    \                                                          --o----o
+                     +-  /      |     \                                                      o--  |     \
+                       -o       |     \                                                    //     |      \
+                                |      o                                                  o       |       o
+                                |    //                                                 +-        |     --
+                                |   +                                                              |  +-
+                                |                                                                  |
+                                |                                                                  |
+                                |                                                                  |
+                                @                                                                 -@
+                              // \\                                                             --  \
+                           -o/     \o                                                    x----o-    \
+                       ----        /                                                                 o
+                     x-            /                                                                /
+                                  o                                                                o
+________________________________==#==________________________    ________________________________==#==________________________
+
+
+K08 LEAD_REBASE_PREPLANT                                         K09 LEAD_TOE_REACQUIRE
+TWOS/INFERRED SUP=Lx+R# CONTACT=OFF                              TWOS/INFERRED SUP=L:+R# CONTACT=OFF
+THREAT=PRESSURE_SPENT                                            THREAT=PRESSURE_SPENT
+
+
+
+
+
+
+
+                                O                                                               O
+                                |                                                               |
+                              --o----o                                                     o----o----o
+                           o--  |     \                                                   /     |     \\
+                          /     |      \                                                 /      |       o
+                         /      |       o                                               o       |      /
+                        o       |      /                                               +         |   //
+                      +/         |   //                                                          |  +
+                                 |  +                                                            |
+                                 |                                                               |
+                                 |                                                               @
+                                 @                                                              / \
+                               // \                                                            /   \
+                             //    \                                                          /    \
+                            o       o                                                        o      o
+                           |       /                                                         |      |
+                           x       /                                                        |      |
+                                  o                                                         o      o
+________________________________==#==________________________    _________________________:______==#==________________________
+
+
+K10 REBASE_PLANT_COUNTERTORQUE                                   K11 GUARD_REOPEN_LAG
+TWOS/INFERRED SUP=L#+R# CONTACT=OFF                              TWOS/INFERRED SUP=L#+R# CONTACT=OFF
+THREAT=PRESSURE_SPENT                                            THREAT=PRESSURE_SPENT
+
+
+
+
+
+                             O                                                                O
+                              |                                                               |
+                             -o--                                                           --o----o
+                           -- |  --o                                                     o--  |     \
+                         o-   |     \\                                                 //     |      \
+                        /     |       o                                               o       |       o
+                       /      |      /                                                +        |    --
+                      o        |   //                                                          |  +-
+                     |         |  +                                                            |
+                     +         |                                                               |
+                               |                                                               @
+                               @                                                              / \
+                              / \                                                             /  \
+                             /   \                                                           /    \
+                             /   \                                                           o     o
+                            o     o                                                          |     |
+                            |     |                                                          |     |
+                           |      |                                                         |      |
+                           |      |                                                         |      |
+                           o      o                                                         o      o
+_________________________==#==__==#==________________________    _________________________==#==__==#==________________________
+
+
+K12 DISPLACED_READY_DEBT
+FOURS/INFERRED SUP=L#+R# CONTACT=OFF
+THREAT=PRESSURE_SPENT
+
+
+
+
+
+                              O
+                              |
+                         o----o----o
+                        /     |     \\
+                       /      |       o
+                      o       |     --
+                       |       |  +-
+                       +       |
+                               |
+                               |
+                               @
+                              / \
+                             /   \
+                             /   \
+                            o     o
+                            |     |
+                            |     |
+                           |       |
+                           |       |
+                           o       o
+_________________________==#==___==#==_______________________
