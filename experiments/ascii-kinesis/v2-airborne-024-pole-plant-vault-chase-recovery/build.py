@@ -73,27 +73,10 @@ def interp(a,b,t):
         out[flag]=bool(a.get(flag,False))
     return out
 
-def compact_sheet(keys,states):
-    out=[
-        "AIRBORNE024 — POLE-PLANT VAULT / CHASE RECOVERY",
-        "independent generic ASCII biped + line-segment tool; commercial source art not reproduced",
-        "all decisive timing INFERRED / STREET_FIGHTER-CAPCOM; ! = active authored support; ^====^ = abstract tool",
-        ""
-    ]
-    cropw=46
-    for k,s in zip(keys,states):
-        cx=int(round(s["root"][0])); x0=max(0,min(W-cropw,cx-cropw//2)); x1=x0+cropw; g=grid(s)
-        out += [
-            f'{k["key_id"]} {k["label"]} [{k["timing_class"]}/{k["timing_provenance"]}]',
-            f'root=({s["root"][0]:.1f},{s["root"][1]:.1f}) support={k["support_contact"]} crop_x={x0}:{x1-1}',
-            "+"+"-"*cropw+"+"
-        ]
-        out += ["|"+"".join(g[y][x0:x1])+"|" for y in range(1,27)]
-        out += ["+"+"-"*cropw+"+","role: "+k["causal_role"],"arc: "+k["motion_arc_root_note"],""]
-    return "\n".join(out).rstrip()+"\n"
-
 states=[dict(k["authoring"]) for k in MOTION["keys"]]
-(ROOT/"contact-sheet.txt").write_text(compact_sheet(MOTION["keys"],states),encoding="utf-8")
+contact_path=ROOT/"contact-sheet.txt"
+if not contact_path.is_file():
+    raise SystemExit("CONTACT_SHEET_MISSING: tracked literal ASCII sidecar is required")
 
 frames=[]; meta=[]
 for i,(key,s) in enumerate(zip(MOTION["keys"],states)):
@@ -127,4 +110,4 @@ if len(media) != int(MOTION["media"]["bytes"]):
 if len(frames) != int(MOTION["media"]["frames"]):
     raise SystemExit(f"MEDIA_IDENTITY_MISMATCH frames expected={MOTION['media']['frames']} got={len(frames)}")
 print(json.dumps({"ok":True,"frames":len(frames),"bytes":len(media),"media_sha256":sha,
-                  "contact_sheet_sha256":hashlib.sha256((ROOT/"contact-sheet.txt").read_bytes()).hexdigest()},sort_keys=True))
+                  "contact_sheet_sha256":hashlib.sha256(contact_path.read_bytes()).hexdigest()},sort_keys=True))
