@@ -1,0 +1,76 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "id": "v2-locomotion-014-figure-eight-curvature-sign-reversal",
+  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_CHAT_DELIVERY",
+  "current_worker_liveness": {
+    "home_center_campaign": true,
+    "github_persistence_readback": true
+  },
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "one_body_binding": true
+  },
+  "source": {
+    "asset_id": 566077,
+    "identity": "The Duke — Mina the Hollower — PC / Computer",
+    "archive_sha256": "d4947e1821e24a9096417a596f974a2178790b49285c5335abb4f99a53959ce3",
+    "whole_source_inspected": true
+  },
+  "media": {
+    "sha256": "d84a0130ea2cb784a2eec8618a93aa7857f6be2df4baf33f9d49e61cd677bdf3",
+    "bytes": 43796,
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 960,
+    "height": 520,
+    "fps": "24/1",
+    "frames": 55,
+    "duration_seconds": 2.291667,
+    "decode": "PASS",
+    "current_worker_byte_identical_reconstruction": true
+  },
+  "quality": {
+    "tango": "PASS",
+    "noodle_queen": {
+      "taste": "PASS",
+      "function": "PASS",
+      "contempt": "PASS"
+    },
+    "current_worker_actual_render_inspected": true
+  },
+  "contract": {
+    "validator_blob": "09f0bcf233dbb770ce6b6df047fe18d94be8aa7c",
+    "candidate_isolated": "PASS",
+    "result": {
+      "entries_checked": [
+        "v2-locomotion-014-figure-eight-curvature-sign-reversal"
+      ],
+      "ok": true,
+      "schema": "ascii-kinesis.swarm-contract-v2-test"
+    },
+    "boundary": "candidate-isolated official validator PASS; full-repo global-green not claimed"
+  },
+  "repo": {
+    "post_write_readback": false,
+    "body_files": [
+      "build.py",
+      "contact-sheet.txt",
+      "manifest.json",
+      "motion.json",
+      "figure-eight-curvature-sign-reversal.motion.html",
+      "receipt.json"
+    ]
+  },
+  "issue": {
+    "number": 343,
+    "receipt": null
+  },
+  "chat_delivery": {
+    "ascii": false,
+    "json": false,
+    "video": false
+  },
+  "drew_accepted": false
+}
