@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "id": "v2-strikes-008-off-axis-hammer-drop-rebound-debt",
-  "status": "CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
   "current_worker_liveness": {
     "home_center_campaign_read": true,
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
@@ -59,16 +59,24 @@
     "exact_boundary": "NO_AUTHORIZED_FULL_REPOSITORY_CHECKOUT; NO OFFICIAL_REPO_PATH_EXECUTION CLAIMED"
   },
   "repo": {
-    "persisted": false,
-    "readback": false,
-    "commit": null,
+    "persisted": true,
+    "readback": true,
+    "commit": "7dd8bf4c492c1e5193fd1d1e993f4c15b2d1095d",
     "tracked_files": [
       "build.py",
       "manifest.json",
       "motion.json",
       "off-axis-hammer-drop-rebound-debt.motion.html",
       "receipt.json"
-    ]
+    ],
+    "initial_tree": "ae46cd14f5e53d9bc512cd2eeca1a188ec3bba44",
+    "blob_readback": {
+      "build.py": "7a86b3637e15efceefe438a3762a2fc312630046",
+      "manifest.json": "696980e1a49864718e9ad38672e4eadc376f80e2",
+      "motion.json": "8e07223680d437a73265fd5f442c88a1ad93681c",
+      "off-axis-hammer-drop-rebound-debt.motion.html": "eec22c9d55df5e423350308fc3e4c25a28e061b4",
+      "receipt.json": "e7a79a45af4b2e4f6d69a761f88162f820ec8a62"
+    }
   },
   "issue_343_receipt": null,
   "three_part_chat_delivery": {
@@ -80,6 +88,7 @@
   "chat_media_identity": "PENDING",
   "notes": [
     "Tango and Queen PASS are from current-worker inspection of the actual locally constructed 49-frame candidate render; local construction is not used as repo completion proof.",
-    "HEALTHY is forbidden until GitHub persistence/readback, issue receipt, and ordered three-part visible chat delivery complete."
+    "HEALTHY is forbidden until GitHub persistence/readback, issue receipt, and ordered three-part visible chat delivery complete.",
+    "GitHub current-main directory readback after initial persistence matched exactly five tracked files and all staged Git blob identities; the persisted SPA blob therefore contains the same byte-identical embedded media that decoded PASS current-worker."
   ]
 }
