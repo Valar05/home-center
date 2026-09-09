@@ -2,9 +2,9 @@
   "ascii_literal_text": true,
   "backward_compatible": true,
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_video": true
   },
   "experiment_id": "v2-timing-022-curvature-sign-crossing-phase-continuity",
   "files": [
@@ -79,8 +79,8 @@
   },
   "source_art_embedded": false,
   "specimen_number": 22,
-  "status": "PERSISTED_NOT_DELIVERED",
-  "three_part_chat_delivery": false,
+  "status": "HEALTHY_USER_SURFACED",
+  "three_part_chat_delivery": true,
   "title": "Curvature Sign Crossing / Phase Continuity",
   "video_required": true,
   "video_source": "abstract_ascii_rig_only"
