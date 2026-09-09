@@ -86,7 +86,7 @@ def interp(a,b,t,arc=0):
 def compile_ascii_frames():
     keys=MOTION["keys"]; bridges=MOTION["bridges"]; out=[]
     for i,k in enumerate(keys):
-        out += [k["ascii"]]*int(k["compile_hold_frames"])
+        out += [ascii_from_pose(k["pose_rig"],k["tool_contact"])]*int(k["compile_hold_frames"])
         if i==len(keys)-1: continue
         n=keys[i+1]; br=bridges[i]
         for q in range(int(br["frames"])):
@@ -115,7 +115,7 @@ def render_mp4(path):
             im.save(td/f"f{idx:04d}.png")
         subprocess.run([
             "ffmpeg","-y","-loglevel","error","-framerate",str(FPS),"-i",str(td/"f%04d.png"),
-            "-c:v","libx264","-pix_fmt","yuv420p","-movflags","+faststart",str(path)
+            "-c:v","libx264","-crf","32","-preset","veryslow","-pix_fmt","yuv420p","-movflags","+faststart",str(path)
         ],check=True)
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
