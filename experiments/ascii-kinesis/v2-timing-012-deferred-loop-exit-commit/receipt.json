@@ -4,7 +4,7 @@
   "status": "HEALTHY_USER_SURFACED",
   "repo_path": "experiments/ascii-kinesis/v2-timing-012-deferred-loop-exit-commit/",
   "ship_commit": "f62f277c9c20f86ab8f9782917bde40a595398ee",
-  "verification_commit": null,
+  "verification_commit": "3bf75ba1785ba544cd850670c1be9b9ccbc2f126",
   "issue_343_receipt": 5594736487,
   "media_sha256": "5e232456075a9d508fce3928bdb8efab86f34d9efe34dff5010b24217b1e5dd2",
   "media_bytes": 5159,
