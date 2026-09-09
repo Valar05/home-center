@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import base64, hashlib, json, shutil, subprocess
+import base64, gzip, hashlib, json, shutil, subprocess
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 from html import escape
@@ -96,8 +96,12 @@ def encode(out,mp4):
     subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate',str(FPS),'-i',str(out/'%04d.png'),'-an','-c:v','libx264','-preset','medium','-crf','27','-pix_fmt','yuv420p','-threads','1','-map_metadata','-1','-metadata','encoder=','-fflags','+bitexact','-flags:v','+bitexact',str(mp4)],check=True)
 def sha_bytes(b): return hashlib.sha256(b).hexdigest()
 def make_spa(motion,contact,mp4):
-    mtxt=json.dumps(motion,separators=(',',':'),ensure_ascii=False); b64=base64.b64encode(mp4).decode('ascii'); a=escape(contact); j=escape(mtxt)
-    return f'''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis · Airborne029</title><style>body{{margin:0;background:#0b0b0d;color:#eee;font-family:system-ui,sans-serif}}nav{{position:sticky;top:0;background:#151519;padding:10px;border-bottom:1px solid #555}}button{{font:inherit;margin-right:8px;padding:8px 14px}}section{{display:none;padding:16px}}section.active{{display:block}}pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;line-height:1.05}}video{{max-width:100%;height:auto;border:1px solid #555;background:#000}}</style></head><body><nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><section id="ascii" class="active"><pre>{a}</pre></section><section id="json"><pre>{j}</pre></section><section id="video"><video controls loop autoplay muted playsinline src="data:video/mp4;base64,{b64}"></video></section><script>for(const b of document.querySelectorAll("[data-view]")) b.onclick=()=>{{document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));document.getElementById(b.dataset.view).classList.add("active")}};</script></body></html>'''
+    motion_text=json.dumps(motion,separators=(',',':'),ensure_ascii=False)+'\n'
+    gz_ascii=base64.b64encode(gzip.compress(contact.encode('utf-8'),compresslevel=9,mtime=0)).decode('ascii')
+    gz_json=base64.b64encode(gzip.compress(motion_text.encode('utf-8'),compresslevel=9,mtime=0)).decode('ascii')
+    media_b64=base64.b64encode(mp4).decode('ascii')
+    return f'''<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis · Airborne029</title><style>body{{margin:0;background:#0b0b0d;color:#eee;font-family:system-ui,sans-serif}}nav{{position:sticky;top:0;background:#151519;padding:10px;border-bottom:1px solid #555}}button{{font:inherit;margin-right:8px;padding:8px 14px}}section{{display:none;padding:16px}}section.active{{display:block}}pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;white-space:pre;overflow:auto;line-height:1.05}}video{{max-width:100%;height:auto;border:1px solid #555;background:#000}}</style></head><body><nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><section id="ascii" class="active"><pre id="asciiText"></pre></section><section id="json"><pre id="jsonText"></pre></section><section id="video"><video controls loop autoplay muted playsinline src="data:video/mp4;base64,{media_b64}"></video></section><script>const A="{gz_ascii}",J="{gz_json}";async function ungzip(b64){{const bin=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));const ds=new DecompressionStream("gzip");return await new Response(new Blob([bin]).stream().pipeThrough(ds)).text()}};(async()=>{{asciiText.textContent=await ungzip(A);jsonText.textContent=await ungzip(J)}})();for(const b of document.querySelectorAll("[data-view]"))b.onclick=()=>{{document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));document.getElementById(b.dataset.view).classList.add("active")}};</script></body></html>'''
+
 def main():
     motion=json.loads(MOTION_PATH.read_text()); motion.pop('media',None); out=ROOT/'_frames';
     if out.exists(): shutil.rmtree(out)
