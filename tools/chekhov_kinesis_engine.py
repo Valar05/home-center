@@ -64,7 +64,10 @@ PRIMITIVE_ORDER = (
 
 PRIMITIVE_PATTERNS = {
     "GRIP": (r"\bgrip(?:ped|s|ping)?\b", r"\bgrasp(?:ed|s|ing)?\b"),
-    "HOLD": (r"\bhold(?:s|ing)?\b", r"\bheld\b"),
+    "HOLD": (
+        r"\b(?:hold(?:s|ing)?|held)\b.{0,48}\b(?:hand|hands|fist|fists)\b",
+        r"\b(?:hand|hands|fist|fists)\b.{0,48}\b(?:hold(?:s|ing)?|held)\b",
+    ),
     "PLANT": (r"\bplant(?:ed|s|ing)?\b",),
     "ANCHOR": (r"\banchor(?:ed|s|ing)?\b", r"\bhardpoint\b"),
     "BRACE": (r"\bbrace(?:d|s|ing)?\b",),
@@ -245,7 +248,7 @@ def derive_graph(payload: Any) -> dict[str, Any]:
     if not isinstance(raw_items, list) or any(not isinstance(item, dict) for item in raw_items):
         raise TypeError("items/records must be an array of objects")
 
-    sortable = [( _stable_id(item, _evidence_text(item), _source_refs(item)), dict(item)) for item in raw_items]
+    sortable = [(_stable_id(item, _evidence_text(item), _source_refs(item)), dict(item)) for item in raw_items]
     sortable.sort(key=lambda pair: pair[0])
     ids = [pair[0] for pair in sortable]
     duplicates = sorted({item_id for item_id in ids if ids.count(item_id) > 1})
