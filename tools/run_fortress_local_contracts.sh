@@ -27,6 +27,7 @@ python3 tools/test_adam_campaign_contract.py
 python3 tools/judgment_jar_receipt_contract_check.py
 python3 tools/test_judgment_jar_registry.py
 python3 tools/test_judgment_jar_runtime_contract.py
+python3 tools/test_judgment_jar_task_router.py
 python3 tools/test_judgment_jar_receipt_quarantine_truth.py
 node --test tools/fortress_online_v2_boot.test.mjs
 node --test browser-porch/single-pro-evolution-contract.test.mjs
@@ -47,11 +48,13 @@ python3 -m py_compile \
   tools/judgment_jar_atom_import.py \
   tools/judgment_jar_review_import.py \
   tools/judgment_jar_runtime.py \
+  tools/judgment_jar_task_router.py \
   tools/jar_receipt.py \
   tools/adam_receipted_worker.py \
   tools/accept_adam_receipted_phone.py \
   tools/test_judgment_jar_registry.py \
   tools/test_judgment_jar_runtime_contract.py \
+  tools/test_judgment_jar_task_router.py \
   tools/test_judgment_jar_receipt_quarantine_truth.py \
   tools/test_framing_fidelity_contract.py \
   tools/test_ritsu_tango_contract.py \
