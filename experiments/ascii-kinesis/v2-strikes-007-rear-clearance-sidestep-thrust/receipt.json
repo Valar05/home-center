@@ -1,0 +1,69 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "id": "v2-strikes-007-rear-clearance-sidestep-thrust",
+  "status": "REPO_READBACK_QUALITY_CONTRACT_PASS_READY_FOR_CHAT_DELIVERY",
+  "current_worker": {
+    "home_center_campaign_preflight": true,
+    "github_persistence_readback": true,
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "global_reset": 5576901079,
+    "latest_manager_reconciliation": 5594808897
+  },
+  "lineage": {
+    "kind": "fresh_post_debt_concept",
+    "prior_healthy": [
+      5592566123,
+      5593289237,
+      5594453954,
+      5595237307
+    ],
+    "inventory_before_creation": {
+      "v2_strikes_007_count": 0,
+      "successor_collision": "NONE"
+    }
+  },
+  "source": {
+    "asset_id": 255871,
+    "campaign_issue_receipt": 5572842500,
+    "source_sha256": "e850b6944ee00b9087d67d3aebf96d7a8676a495c80bfcaf091df9949d41f611",
+    "timing_observed": "NONE"
+  },
+  "repo": {
+    "path": "experiments/ascii-kinesis/v2-strikes-007-rear-clearance-sidestep-thrust/",
+    "persisted": true,
+    "readback": true,
+    "blobs": {
+      "build.py": "8cad9beb64d8359b2ce653fe79aea92e5c78d806",
+      "motion.json": "b81b04f780135096e339f951f74529d479417857",
+      "rear-clearance-sidestep-thrust.motion.html": "2abac33f34cae6665d4e7fc6bf0ab664e47dbce8",
+      "manifest.json": "2185279d5d2ff98e5ce644f3fc881ff2ad5f720c"
+    }
+  },
+  "media": {
+    "sha256": "114f5089fd890efa8ef1656c523d17294fb6caccc61bee9c3e42919b1962b13a",
+    "bytes": 12040,
+    "frames": 44,
+    "fps": 24,
+    "decode": "PASS_CURRENT_WORKER_FINAL_RENDER",
+    "spa_embedded": "PASS_EXACT_READBACK"
+  },
+  "quality": {
+    "tango": "PASS_CURRENT_WORKER_ACTUAL_RENDER",
+    "noodle_queen": "PASS_AFTER_TANGO_CURRENT_WORKER_ACTUAL_RENDER"
+  },
+  "contract": {
+    "candidate_isolated_official_validator_logic": "PASS",
+    "full_repo_global_shell": "NOT_CLAIMED_NO_AUTHORIZED_CHECKOUT"
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_visible_video": false,
+    "status": "PENDING"
+  },
+  "issue_343": {
+    "prechat_receipt": "POST_AFTER_THIS_REPO_READBACK",
+    "closure_receipt": "POST_AFTER_CHAT_DELIVERY"
+  },
+  "healthy": false
+}
