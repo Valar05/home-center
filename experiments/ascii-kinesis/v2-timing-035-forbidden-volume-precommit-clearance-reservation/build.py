@@ -18,7 +18,7 @@ try:
       d.multiline_text((10,8),b,fill="black",font=font,spacing=1)
       d.text((10,294),"Timing035 | future forbidden volume reshapes anticipation before commitment | abstract ASCII only",fill="black",font=small)
       im.save(td/f"f_{n:04d}.png"); n+=1
-  subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate","24","-i",str(td/"f_%04d.png"),"-c:v","libx264","-pix_fmt","yuv420p","-movflags","+faststart","-crf","39","-map_metadata","-1",str(V)],check=True)
+  subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate","24","-i",str(td/"f_%04d.png"),"-c:v","libx264","-pix_fmt","yuv420p","-movflags","+faststart","-crf","42","-map_metadata","-1",str(V)],check=True)
 finally: shutil.rmtree(td,ignore_errors=True)
 raw=V.read_bytes()
 motion["compile"]={"renderer":"Motion Dungeon ASCII-only deterministic precommit-clearance renderer","fps":24,"frame_count":n,"media":{"codec":"h264","pix_fmt":"yuv420p","width":W,"height":H,"fps":24,"frames":n,"bytes":len(raw),"sha256":hashlib.sha256(raw).hexdigest()}}
