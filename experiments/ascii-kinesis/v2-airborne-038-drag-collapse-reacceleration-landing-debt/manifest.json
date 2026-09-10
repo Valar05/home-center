@@ -40,27 +40,15 @@
     "decode": "PASS"
   },
   "quality": {
-    "tango": {
-      "revision": "R0",
-      "status": "PASS_CURRENT_WORKER_REINSPECTED",
-      "actual_render": true,
-      "note": "Exact reconstruction matched authoritative media bytes. Broad drag capture visibly compresses descent spacing; asymmetric collapse removes drag authority while support remains NONE; post-collapse spacing grows before separated right-toe catch, unilateral crush, delayed left-foot support, rebound and displaced settle."
-    },
-    "noodle_queen": {
-      "status": "PASS_CURRENT_WORKER_REINSPECTED",
-      "taste": "PASS",
-      "function": "PASS",
-      "contempt": "PASS",
-      "actual_render": true,
-      "note": "Same exact render makes the force-owner change legible in silhouette and spacing rather than metadata; no choreography churn was manufactured after PASS."
-    }
+    "tango": {"revision": "R0", "status": "PASS_CURRENT_WORKER_REINSPECTED", "actual_render": true},
+    "noodle_queen": {"status": "PASS_CURRENT_WORKER_REINSPECTED", "taste": "PASS", "function": "PASS", "contempt": "PASS", "actual_render": true}
   },
   "repository_correction": {
     "classification": "CONTACT_SERIALIZATION_DRIFT",
     "bad_write_commit": "9ffc48621068108eb0ffb5aebd05b2e355c182f8",
     "bad_contact_blob": "bb4562107d435008b288f7c15d3e4feb67df06ee",
     "correct_contact_blob": "f8015b089a932d3575121ae01d6346726f60c9ca",
-    "correction": "Byte-exact builder output restored; motion/source/lineage/choreography unchanged."
+    "motion_source_lineage_choreography_unchanged": true
   },
   "files": {
     "build.py": "828b192dea98128fe585519a1901a2d81b6e757a",
@@ -74,27 +62,22 @@
     "execution_boundary": "Exact current validator source and exact current candidate were freshly read in Standard Chat; candidate-isolated structural predicates pass. Repository-global checkout/shell-suite execution is not claimed."
   },
   "closure": {
-    "status": "REPO_VERIFIED_READY_FOR_USER_SURFACE",
+    "status": "USER_SURFACED_PENDING_TERMINAL_DURABILITY",
     "repo_persisted": true,
     "final_readback": true,
     "exact_one_spa": true,
     "six_file_readback": true,
     "issue_343": {
-      "pre_delivery_receipt": null,
-      "pre_delivery_readback": false,
-      "reporting_chat_receipt": null,
-      "reporting_chat_readback": false,
+      "pre_delivery_receipt": 5619723653,
+      "pre_delivery_readback": true,
+      "reporting_chat_receipt": 5619763714,
+      "reporting_chat_readback": true,
       "terminal_durability_anchor": null,
       "terminal_anchor_readback": false
     },
-    "campaign_reporting_checkpoint": false,
-    "campaign_reporting_readback": false,
-    "chat_delivery": {
-      "part1_ascii": false,
-      "part2_json": false,
-      "part3_video": false,
-      "ordered": false
-    },
+    "campaign_reporting_checkpoint": true,
+    "campaign_reporting_readback": true,
+    "chat_delivery": {"part1_ascii": true, "part2_json": true, "part3_video": true, "ordered": true},
     "DREW_ACCEPTED": false,
     "next_authorized": null
   }
