@@ -56,7 +56,7 @@ CAUSE: Front step and hand extension align the hook mouth while preserving a vis
                   o---o                           #
                    |                              #
                    +                              #
-                  / \                            #
+                  / \\                            #
                  o    o                           #
                 /      \                          #
                 /       \                         #
@@ -87,7 +87,7 @@ CAUSE: Hook mouth passes beyond peg center with no force; projected overlap does
                      o---o                        #
                      |                            #
                      +                            #
-                    | \                          #
+                    | \\                          #
                     o   o                         #
                    /     \                        #
                    /      \                       #
@@ -118,7 +118,7 @@ CAUSE: Hook throat closes around peg at zero load; closure is topology, not forc
                      o---o                        #
                       |                           #
                       +                           #
-                     | \                         #
+                     | \\                         #
                      o   o                        #
                     /     \                       #
                     /      \                      #
@@ -272,7 +272,7 @@ CAUSE: Hands lift and rotate through a distinct clearance arc while last edge to
                        |                          #
                        |                          #
                        +                          #
-                      | \                        #
+                      | \\                        #
                       o   o                       #
                      |     \                      #
                      |      \                     #
@@ -303,7 +303,7 @@ CAUSE: A real gap opens only after hook clears above and left of peg; tool head 
                         |                         #
                         |                         #
                         +                         #
-                       / \                       #
+                       / \\                       #
                       o    o                      #
                      |      \                     #
                      |       \                    #
@@ -335,7 +335,7 @@ CAUSE: Torso overshoots toward peg while freed hook head lags behind; front supp
                          o-|   o-  -              #
                           |-o    -o               #
                           +                       #
-                         | \                     #
+                         | \\                     #
                          o   o                    #
                         /     \                   #
                         /      \                  #
