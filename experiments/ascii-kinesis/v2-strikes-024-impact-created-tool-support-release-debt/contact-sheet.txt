@@ -1,0 +1,472 @@
+ASCII KINESIS V2 STRIKES024 - IMPACT-CREATED TOOL SUPPORT / RELEASE DEBT
+Legend: O head | @ pelvis/root | + hands | o knees | * active support | . light | ? probe | H abstract heavy-tool head | = handle | X environment contact | _ ground
+Principle: THE TOOL BECOMES A LEG AT IMPACT. THE BODY MUST STOP USING IT AS SUPPORT BEFORE THE TOOL CAN FLY AGAIN.
+Source evidence: STRIKES PASS 004 / TSR asset 2879 / Hammer Kirby — Kirby Super Star — SNES. Source art is evidence only and is not embedded.
+OBSERVED: grouped hammer-swing family + separate ground-collision branch. Source timing: UNKNOWN.
+INFERRED: every pose, support path, contact/release causality, timing class, rebound, lag, and recovery. Direction profile: STREET_FIGHTER/CAPCOM.
+Rights: independent abstract ASCII rig only; no source pixels, palette, costume, contours, layout, tracing, source choreography, audio, redistribution, or close imitation.
+
+K00 ASYMMETRIC_READY_BANK
+
+
+
+
+
+
+                        O
+              H===      |
+                  ========
+                        =====+
+                   +====| \\
+                      //\\
+                        |
+                         |
+                         @
+                       // \\
+                     //     \\
+                    o         o
+                   /           \\
+                 //              \\
+                *                  *
+  __________________________________________________________________________
+
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=bank asymmetric ready; tool free
+support=BOTH_FEET_REAR_BIASED | contact=CLEAR | tool_support=FREE
+root_note=rear-biased root; open diagonal ready
+rear_foot=ACTIVE | front_foot=ACTIVE
+
+K01 DEEP_REAR_COIL
+
+
+
+
+             H=
+               ===
+                  ===
+                     ===
+                        ===
+                         | =+
+                       ====\
+                    ===  |\
+                  +=    | \
+                    /// |\
+                       /\
+                        |
+                       |
+                       @\
+                     //  \\\
+                   o/        \o\
+                 //              \.
+               */
+  __________________________________________________________________________
+
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=rear support coil loads root before tool
+support=REAR_FOOT_OWNS_ROOT_FRONT_LIGHT | contact=CLEAR | tool_support=FREE
+root_note=root drops back/down; hammer rises behind
+rear_foot=ACTIVE | front_foot=LIGHT
+
+K02 PELVIS_DROP_COMMIT
+
+
+
+                        H
+                         =
+                          =
+                           ==
+                             =
+                             |=
+                             | =
+                       +========+
+                        //  | \\
+                          //|\
+                            \
+                            |
+                            |
+                            @
+                          // \\
+                        //     \\
+                      /o         o\
+                   ///              \.
+                 */
+  __________________________________________________________________________
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=pelvis drops/commits before hammer acceleration
+support=REAR_FOOT_DRIVE_FRONT_LIGHT | contact=CLEAR | tool_support=FREE
+root_note=root drives forward/down; head still lags
+rear_foot=ACTIVE | front_foot=LIGHT
+
+K03 DESCENT_ARC_BRIDGE
+
+
+
+
+
+
+                               O
+                               |    H
+                               |    =
+                            += |    =
+                             /==== =
+                               \\\=+
+                               |
+                               |
+                               @
+                              / \
+                            //   \\
+                           /       \
+                         /o         o\
+                     ////              \.
+                   */
+  __________________________________________________________________________
+
+timing_class=ONES | timing_provenance=INFERRED | causal_role=authored curved descent bridge
+support=REAR_FOOT_DRIVE_FRONT_LIGHT | contact=CLEAR | tool_support=FREE
+root_note=root advances while head bends around shoulder
+rear_foot=ACTIVE | front_foot=LIGHT
+
+K04 PRECONTACT_DROP
+
+
+
+
+
+
+                                 O
+                                 |
+                                 |
+                                  |
+                                  |
+                                +=\
+                                  ===
+                                  |  =+
+                                  @    ==
+                                // \     =
+                               /    \\    ==
+                             //       \     =
+                          //o          o\    ==
+                      .///               \\    H
+                                           \*
+  __________________________________________________________________________
+
+timing_class=ONES | timing_provenance=INFERRED | causal_role=distinct precontact; lead support catches
+support=FRONT_FOOT_CATCH_REAR_LIGHT | contact=PRECONTACT | tool_support=FREE
+root_note=pelvis falls into lead catch; head one cell above ground
+rear_foot=LIGHT | front_foot=ACTIVE
+
+K05 GROUND_CONTACT_THIRD_SUPPORT
+
+
+
+
+
+
+
+                                  O
+                                  |
+                                  |
+                                   |
+                                   |
+                                  +=\
+                                   |===
+                                    |  =+
+                                    @    ==
+                                  // \     =
+                                //    \\    ==
+                           ///o/        \     =
+                       .///              o\    ==
+                                           \\*   H
+  _______________________________________________X__________________________
+
+timing_class=ONES | timing_provenance=INFERRED | causal_role=impact acquires tool-ground third support
+support=FRONT_FOOT_PLUS_TOOL_REAR_LIGHT | contact=TOOL_GROUND_HIT | tool_support=ACQUIRED
+root_note=head pins; pelvis still owes forward/down motion
+rear_foot=LIGHT | front_foot=ACTIVE
+
+K06 BODY_OVERRUN_ON_TOOL_SUPPORT
+
+
+
+
+
+
+
+
+                                     O
+                                     |
+                                     |
+                                     |
+                                      |
+                                      +
+                                      \==
+                                       |\==
+                                       |  \+
+                              o/       /@   ==
+                                //  ///  \\   =
+                                  o/       o\  ==
+                                             \*  H
+  _______________________________________________X__________________________
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=root overruns pinned tool; rear foot unweights
+support=FRONT_FOOT_PLUS_TOOL_REAR_AIR | contact=TOOL_GROUND_PIN | tool_support=LOAD_BEARING
+root_note=root falls past contact; rear foot leaves support
+rear_foot=AIR | front_foot=ACTIVE
+
+K07 COMPRESSION_REGRIP_BRIDGE
+
+
+
+
+
+
+
+
+                                    O
+                                    |
+                                     |
+                                     |
+                                     |
+                                      |
+                                    +===\
+                                      | ====+
+                                       |     =
+                                      /@      =
+                                    //  \\     =
+                               ?//o/      o\    =
+                                            \\*  H
+  _______________________________________________X__________________________
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=compression/regrip while tool remains pinned
+support=FRONT_FOOT_PLUS_TOOL_REAR_PROBE | contact=TOOL_GROUND_PIN | tool_support=LOAD_BEARING
+root_note=root starts back; rear foot probes; hands separate on pinned handle
+rear_foot=PROBE | front_foot=ACTIVE
+
+K08 SUPPORT_HANDOFF_BEFORE_RELEASE
+
+
+
+
+
+
+
+                                  O
+                                  |
+                                  |
+                                  |
+                                   |
+                                   |
+                                  +=======+
+                                   |       =
+                                    |       =
+                                    @        =
+                                  // \\       =
+                                o/     \o\     =
+                              //          \\    =
+                             *              \*   H
+  _______________________________________________X__________________________
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=feet reclaim root before tool release
+support=BOTH_FEET_PLUS_TOOL_FRONT_BIASED | contact=TOOL_GROUND_PIN | tool_support=UNLOADING
+root_note=root rises/back over two feet; tool support unloads
+rear_foot=ACTIVE | front_foot=ACTIVE
+
+K09 TOOL_RELEASE_JOIN
+
+
+
+
+
+
+                                 O
+                                 |
+                                 |
+                                 |
+                                  |
+                                  |  ===+
+                                 +===    =
+                                  |       ==
+                                  |         =
+                                  @          =
+                                 / \\         ==
+                                /    \\         H
+                               o       o\
+                             //          \\
+                            *              \*
+  __________________________________________________________________________
+
+timing_class=ONES | timing_provenance=INFERRED | causal_role=explicit environment constraint release
+support=BOTH_FEET_FRONT_BIASED | contact=CLEAR | tool_support=RELEASED
+root_note=root back/up; hands lever head clear
+rear_foot=ACTIVE | front_foot=ACTIVE
+
+K10 REBOUND_ARC_BRIDGE
+
+
+
+
+
+
+                                O
+                                |
+                                |
+                                |    =+==
+                                | ===    ==H
+                                +=
+                                |
+                                |
+                                @
+                               / \\
+                               /   \\
+                              o      o
+                             /        \\
+                            /           \\
+                           *              \*
+  __________________________________________________________________________
+
+timing_class=ONES | timing_provenance=INFERRED | causal_role=authored rebound arc bridge
+support=BOTH_FEET_FRONT_BIASED | contact=CLEAR | tool_support=FREE
+root_note=head rises faster than hands on rebound arc
+rear_foot=ACTIVE | front_foot=ACTIVE
+
+K11 TOOL_REBOUND_OVERSHOOT
+
+
+
+                               H
+                                =
+                               O ==
+                               |   =
+                               |   =+
+                               | ==\
+                               +=\
+                               \
+                               |
+                               |
+                               @
+                              / \\
+                              /   \\
+                             o      o
+                            /        \\
+                           /           \\
+                          *              \*
+  __________________________________________________________________________
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=tool rebound overshoot leads body
+support=BOTH_FEET_FRONT_BIASED | contact=CLEAR | tool_support=FREE
+root_note=tool overshoots back/up while body remains low
+rear_foot=ACTIVE | front_foot=ACTIVE
+
+K12 SHAFT_HAND_LAG_CATCH
+
+
+
+
+
+
+                       H======   O
+                              =====+
+                               === \
+                             +=  |\
+                               //|\
+                                 \
+                                 |
+                                 |
+                                 @
+                                / \\
+                               /    \\
+                              o       o\
+                             /          \\
+                            /             \.
+                           *
+  __________________________________________________________________________
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=hands/shoulders lag tool overshoot
+support=REAR_FOOT_DOMINANT_FRONT_LIGHT | contact=CLEAR | tool_support=FREE
+root_note=root restacks while arms still travel backward
+rear_foot=ACTIVE | front_foot=LIGHT
+
+K13 COUNTERSWING_REGRIP
+
+
+
+
+
+
+                                   O
+                                   |
+                                   |
+                     H================+
+                               +===|\\
+                                  /\
+                                   |
+                                   |
+                                   @
+                                  / \\
+                                //    \\
+                               o        o\
+                              /           \\
+                             /              \?
+                            *
+  __________________________________________________________________________
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=counterswing regrip; front foot probes
+support=REAR_FOOT_OWNS_ROOT_FRONT_PROBE | contact=CLEAR | tool_support=FREE
+root_note=root stacks rear; short forward counter-arc begins
+rear_foot=ACTIVE | front_foot=PROBE
+
+K14 FRONT_SUPPORT_REENTRY
+
+
+
+
+
+                                     O
+                                     |
+                                     |
+                                     |
+                                 +===|
+                                  =======+
+                         H========   |
+                                     |
+                                     @
+                                    / \
+                                   /   \\
+                                  /      \
+                                 o        o
+                                /          \\
+                              //             \\
+                             *                 *
+  __________________________________________________________________________
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=late front support reentry
+support=BOTH_FEET_REAR_BIASED | contact=CLEAR | tool_support=FREE
+root_note=front foot plants; tool settles diagonally
+rear_foot=ACTIVE | front_foot=ACTIVE
+
+K15 DISPLACED_READY_SETTLE
+
+
+
+
+
+
+                                      O
+                                      |
+                                      |
+                                      |
+                                  +===|
+                                   =======+
+                           H=======   |
+                                      |
+                                      @
+                                     / \\
+                                   //    \\
+                                  o        o
+                                 /          \\
+                               //             \\
+                              *                 *
+  __________________________________________________________________________
+
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=displaced ready settle; no idle reset
+support=BOTH_FEET_REAR_BIASED | contact=CLEAR | tool_support=FREE
+root_note=root remains displaced forward of K00; history preserved
+rear_foot=ACTIVE | front_foot=ACTIVE
