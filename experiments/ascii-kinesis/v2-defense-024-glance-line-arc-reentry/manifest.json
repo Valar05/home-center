@@ -4,12 +4,8 @@
   "lane": "defense",
   "specimen": "v2-defense-024-glance-line-arc-reentry",
   "title": "GLANCE LINE / ARC REENTRY",
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
+  "status": "REPO_VERIFIED_PENDING_CHAT_DELIVERY",
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
@@ -81,15 +77,23 @@
     "candidate_isolated": "PASS"
   },
   "repo": {
-    "persisted": false,
-    "repo_readback": false,
-    "body_files_readback": 0,
-    "spa_count": 0
+    "persisted": true,
+    "repo_readback": true,
+    "body_files_readback": 6,
+    "spa_count": 1,
+    "readback_main_head": "a4e3d4901639f6b8e442d9e3b406c394d189b8b4",
+    "exact_immutable_files": {
+      "build.py": "4968f891bc73a3cbe8536e65b5641845800c74b6",
+      "contact-sheet.txt": "c4587181139ae0f25927d6d9a14eb65ba2b19ae2",
+      "motion.json": "8b11c70944d855e8b35c19181876b7e1a88693da",
+      "glance-line-arc-reentry.motion.html": "3bf0e55b41df56dc2f9171ec20adeac765d0de5d"
+    }
   },
   "chat_delivery": {
     "part1_ascii": false,
     "part2_json": false,
-    "part3_video": false
+    "part3_video": false,
+    "ordered": false
   },
   "drew_accepted": false
 }
