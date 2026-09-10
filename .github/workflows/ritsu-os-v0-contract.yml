@@ -19,6 +19,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ritsu-os-v0-contract
+  cancel-in-progress: true
+
 jobs:
   deterministic-contract:
     runs-on: [self-hosted, Windows, X64]
