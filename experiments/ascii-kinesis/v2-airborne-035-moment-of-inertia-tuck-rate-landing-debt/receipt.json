@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-airborne-035-moment-of-inertia-tuck-rate-landing-debt",
-  "status": "USER_SURFACED_PENDING_FINAL_DURABILITY",
+  "status": "HEALTHY_USER_SURFACED",
   "preflight": {
     "home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
     "home_center_campaign_read": "PASS_CURRENT_WORKER",
@@ -81,10 +81,10 @@
   "issue_343": {
     "pre_chat_receipt": 5612908331,
     "pre_chat_receipt_readback": true,
-    "reporting_closure_receipt": null,
-    "reporting_closure_readback": false,
-    "final_addendum": null,
-    "final_addendum_readback": false
+    "reporting_closure_receipt": 5612966159,
+    "reporting_closure_readback": true,
+    "terminal_final_addendum": null,
+    "terminal_final_addendum_readback": false
   },
   "chat_delivery": {
     "part1_ascii": true,
@@ -98,12 +98,12 @@
   "campaign": {
     "pre_chat_checkpoint_appended": true,
     "pre_chat_checkpoint_readback": true,
-    "final_closure_appended": false,
-    "final_closure_readback": false
+    "reporting_chat_closure_appended": true,
+    "reporting_chat_closure_readback": true
   },
   "corrections": [
     "REPOSITORY_BOOKKEEPING_DRIFT_RECONCILED: stale manifest/receipt media identity 766516... was superseded by exact current motion+builder reconstruction 2edad1...; choreography, source, lineage, and body identity were not changed."
   ],
   "DREW_ACCEPTED": false,
-  "next_authorized": null
+  "next_authorized": "v2-airborne-036"
 }
