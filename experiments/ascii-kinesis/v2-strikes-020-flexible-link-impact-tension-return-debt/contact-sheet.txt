@@ -11,22 +11,22 @@ role=readiness
 
                                                            #
                                                            |
-                          O                                |
+                         O                                 |
                                                            |
                                                            |
-                       o--|--o                             |
-                       /  |   \\                           |
-                      /   |     o]                         |
-                      o    |      ~                        |
-                           |       ~                       |
-                           ^       ~      @                |
-                         // \\      ~~   ~                 |
-                        /     \       ~~~                  #
-                       /       \\
-                     //          \\
+                      o/|--o\\                             |
+                        |///  \\\o]                        |
+                         |  //o    ~~                      |
+                         |           ~~                    |
+                          |            ~                   |
+                          ^            ~                   |
+                         / \\           ~                  |
+                        /    \\         ~                  #
+                      //       \\      ~
+                     /           \\   @
                     /              \
         _______________________________________________________
-root_note=Ready begins displaced left with the distal mass hanging inside the body envelope; tether carries no load.
+root_note=Displaced asymmetric ready; distal mass hangs low inside the body envelope with obvious slack.
 
 K01 REAR_COIL_SLACK | FOURS | INFERRED | support=REAR_DOMINANT | tether=SLACK
 role=anticipation
@@ -37,21 +37,21 @@ role=anticipation
                                                            #
                                                            |
                                                            |
-                                                           |
-                      O                                    |
-                                                           |
-                                                           |
-                   o--|--o\                                |
-                   /  |    \o]                             |
-                  /   |      ~                             |
-                  o    |      ~                            |
-                       |      ~                            |
-                      /^\      ~      @                    #
-                    //   \\\   ~~   ~~
-                  //        \\\  ~~~
-                //             \\
+                     O                                     |
+                              ]                            |
+                               ~                           |
+                  o/|--o\\\\o   ~~                         |
+                    |//           ~                        |
+                     | /o         ~                        |
+                     |            ~                        |
+                      |           ~                        |
+                      ^\          ~                        |
+                    //  \\        ~                        #
+                   /      \\    ~~
+                 //         \\ @
+                /             \\
         _______________________________________________________
-root_note=Pelvis compresses rearward/down; handle folds behind the shoulder while distal mass trails low on a visibly slack link.
+root_note=Pelvis compresses rear/down while the handle rises behind the shoulder; distal mass stays low and rearward.
 
 K02 HANDLE_COMMIT_MASS_LAGS | TWOS | INFERRED | support=REAR_TO_FRONT | tether=SLACK_MOVING
 role=proximal commitment
@@ -61,269 +61,269 @@ role=proximal commitment
 
                                                            #
                                                            |
-                                                           |
                          O                                 |
                                                            |
-                                                           |
-                      o--|--o\\\\\o]                       |
-                      /  |         ~                       |
-                     /    |         ~                      |
-                     o    |         ~                      |
-                           |         ~    @                |
-                          /^\        ~~  ~                 |
-                        //   \\        ~~                  #
-                     ///       \\\
-                   //             \\
-                 //                 \\
+                                     ]                     |
+                      o/|/-o\\\\\\\o~                      |
+                        | ////o    ~                       |
+                         |         ~                       |
+                         |        ~                        |
+                          |       ~                        |
+                          ^       ~                        |
+                        // \\     ~                        |
+                       /     \\  ~                         #
+                     //        \\@
+                   //            \\
+                  /                \
         _______________________________________________________
-root_note=Root and handle launch first; distal mass remains behind, proving two clocks instead of a rigid stick.
+root_note=Root and handle launch first; distal mass remains behind, making proximal-before-distal causality legible.
 
 K03 TAKEUP_GATE | TWOS | INFERRED | support=FRONT_BIASED | tether=NEAR_TAUT
-role=slack-to-taut gate
+role=slack takeup
 
 
 
 
                                                            #
                                                            |
-                            O                              |
+                             O                             |
                                                            |
-                                                           |
-                         o--|--o\\\\\\\o]~                 |
-                         /  |             ~~~~             |
-                        /    |                ~~~          |
-                        o    |                   ~@        |
-                              |                            |
-                             /^                            |
-                           //  \\                          |
-                         //      \\                        #
-                       //          \\
-                     //              \\
-                   //                  \\
+                                         ]~                |
+                          o/|/-o\\\\\\\o   ~~              |
+                            | ////o          ~~            |
+                             |                 ~           |
+                             |                  ~          |
+                              |                  @         |
+                              ^                            |
+                            // \\                          |
+                          //     \\                        #
+                        //         \\
+                      //             \\
+                    //                 \
         _______________________________________________________
-root_note=Handle outruns the mass until the bowed link nearly straightens; load path is about to become active.
+root_note=Handle outruns the distal mass; bowed link takes up toward a straight line without claiming contact.
 
 K04 TAUT_PRECONTACT | ONES | INFERRED | support=FRONT_BIASED | tether=TAUT
-role=precontact / active load path
+role=precontact gap
 
 
 
 
                                                            #
+                                                           |
+                                O                          |
+                                                           |
+                                            ]~~~~~~~~~~~@  |
+                             o//|-o\\\\\\\o                |
+                                |////o                     |
+                                |                          |
+                                 |                         |
+                                 |                         |
+                                /^                         |
+                              //  \\                       |
+                            //      \\                     #
+                          //          \\
+                        //              \\
+                      //                  \
+        _______________________________________________________
+root_note=Tether reaches near-straight tension with a clean air gap between distal mass and target plane.
+
+K05 DISTAL_CONTACT | ONES | INFERRED | support=FRONT_BIASED | tether=TAUT_CONTACT
+role=distal impact
+
+
+
+
+                                                           #
+                                                      ^    |
+                                  O                    <   |
+                                                        <  |
+                                              ]~~~~~~~~~~~@X
+                               o//|-o\\\\\\\o              |
+                                  |////o                   |
+                                  |                        |
+                                   |                       |
+                                   |                       |
+                                  /^                       |
+                                //  \\                     |
+                              //      \                    #
+                           ///         \\
+                         //              \\
+                       //                  \
+        _______________________________________________________
+root_note=Distal mass hits the target first while pelvis/root still advances; contact is not maximum body extension.
+
+K06 PINNED_LOAD_PROXIMAL_OVERRUN | FOURS | INFERRED | support=FRONT_LOCKED | tether=PINNED_TENSION_MAX
+role=tension storage / delayed body consequence
+
+
+
+
+                                                           #
+                                                      ^    |
+                                                       <   |
+                                    O                   <  |
+                                                      ~~~~@X
+                                                   ~~~     |
+                                 o//|/-o\\\\\\\o ]~        |
+                                    | ////o                |
+                                     |                     |
+                                     |                     |
+                                      |                    |
+                                     /^                    |
+                                 ////  \\                  #
+                              ///        \\
+                          ////             \\
+                        //                   \
+        _______________________________________________________
+root_note=Distal remains pinned at contact while pelvis and handle overrun forward/down, visibly storing delayed tension through the link.
+
+K07 RETURN_WAVE_HITS_SHOULDER | TWOS | INFERRED | support=FRONT_LOCKED | tether=RETURN_WAVE
+role=delayed proximal return wave
+
+
+
+
+                                                           #
+                                                           |
+                                              ^      ~~~@  |
+                                      O        <   ~~      |
+                                             \\\o]~        |
+                                      -///o/o              |
+                                  o///|                    |
+                                      |                    |
+                                      |                    |
+                                     |                     |
+                                     |                     |
+                                    /^\                    |
+                                ////   \\                  #
+                             ///         \\
+                         ////              \\
+                       //                    \\
+        _______________________________________________________
+root_note=Contact opens as the return wave reaches the proximal chain: shoulders/hands shear visibly forward of the braking pelvis before root recoil begins.
+
+K08 ROOT_RECOIL_SUPPORT_CATCH | FOURS | INFERRED | support=WIDE_FRONT_CATCH | tether=REBOUND_TAUT
+role=root recoil / support catch
+
+
+
+
+                                                           #
+                                                    ~~~~@  |
+                                                  ~~       |
+                                               ~~~         |
+                                  O        \o]~            |
+                                       /o\\                |
+                                   ////\\                  |
+                                ///--o\                    |
+                              o/--|                        |
+                                  |                        |
+                                  |                        |
+                                 |                         |
+                                 |                         #
+                              ///^\\\
+                       ///////       \\\\\\\
+                   ////                     \\\\
+        _______________________________________________________
+root_note=Pelvis recoils back/down only after shoulder yank; support widens to catch returned tension while distal rebounds high.
+
+K09 DISTAL_REBOUND_OVERSHOOT | TWOS | INFERRED | support=BOTH_FRONT_HEAVY | tether=REBOUND_OVERSHOOT
+role=distal overshoot after root reversal
+
+
+
+
+                                   @~~                     #
+                                      ~~                   |
+                                        ~~                 |
+                                          ~                |
+                               O          ~                |
+                                         ~                 |
+                                ////o\\\o]                 |
+                            o//|--o\\                      |
+                               |                           |
+                                |                          |
+                                |                          |
+                                 |                         |
+                               //^\\                       #
+                           ////     \\\\
+                       ////             \\\\
+                    ///                     \\\
+        _______________________________________________________
+root_note=Root stops retreating while distal mass continues high/back past the handle, paying momentum debt after the body changes direction.
+
+K10 COUNTERSWING_SECONDARY_LAG | TWOS | INFERRED | support=BOTH | tether=COUNTERSWING
+role=curvature reversal / secondary lag
+
+
+
+
+                                                           #
+                                                           |
                                                            |
                                O                           |
                                                            |
                                                            |
-                            o--|--o\\\\\\\o]~              |
-                            /  |             ~~~~~~~~~~@   |
-                           /    |                          |
-                           o    |                          |
-                                 |                         |
-                                /^                         |
-                              //  \\                       |
-                           ///      \\                     #
-                        ///           \\
-                      //                \\
-                    //                    \
-        _______________________________________________________
-root_note=Tether is taut and diagonal; distal mass has caught up, but a clean air gap remains before impact.
-
-K05 DISTAL_CONTACT | ONES | INFERRED | support=FRONT_BIASED | tether=TAUT_CONTACT
-role=distal impact event
-
-
-
-
-                                                           #
-                                                           |
-                                 O                         |
-                                                     ^     |
-                                                      <    |
-                              o--|--o\\\\\\\o]~        <   |
-                              /  |             ~~~~~~~~~~@X|
-                             /    |                        |
-                             o    |                        |
-                                   |                       |
-                                  /^                       |
-                               ///  \\                     |
-                             //       \                    #
-                          ///          \\
+                             o//|--o\                      |
+                                |///o\\o]                  |
+                                 |    ~~                   |
+                                 |   ~                     |
+                                  | ~                      |
+                                 /^\                       |
+                              ///   \\                     #
+                          ////        @\\
                        ///               \\
-                     //                    \
+                     //                    \\
         _______________________________________________________
-root_note=Distal mass reaches the target first; root still advances and contact is an authored event, not a generic reach endpoint.
-
-K06 PINNED_LOAD_PROXIMAL_OVERRUN | FOURS | INFERRED | support=FRONT_LOCKED | tether=PINNED_TENSION_MAX
-role=impact load accumulation
-
-
-
-
-                                                           #
-                                                           |
-                                                           |
-                                   O                 ^     |
-                                                      <    |
-                                                       <   |
-                                o---|--o\\\\\\\o]~~~~~~~~@X|
-                               /    |                      |
-                               /     |                     |
-                              o      |                     |
-                                      |                    |
-                                    //^                    |
-                                ////   \\                  #
-                            ////         \\
-                        ////               \\
-                     ///                     \
-        _______________________________________________________
-root_note=Distal endpoint stays pinned while pelvis/handle overrun forward and down, visibly storing tension before recoil.
-
-K07 RETURN_WAVE_HITS_SHOULDER | TWOS | INFERRED | support=FRONT_LOCKED | tether=RETURN_WAVE
-role=proximal recoil begins
-
-
-
-
-                                                           #
-                                                           |
-                                                           |
-                                                           |
-                                  O                    ~@  |
-                                                    ~~~    |
-                                           ^      ~~       |
-                               o----|---o\\ <   ~~         |
-                              /     |      \\o]~           |
-                              /      |                     |
-                             o       |                     |
-                                   //^\                    |
-                               ////    \\                  #
-                           ////          \\
-                       ////                \\
-                    ///                      \\
-        _______________________________________________________
-root_note=Contact opens only as the taut return reaches the hand/shoulder; upper chain yanks forward while pelvis begins braking.
-
-K08 ROOT_RECOIL_SUPPORT_CATCH | FOURS | INFERRED | support=WIDE_FRONT_CATCH | tether=REBOUND_TAUT
-role=body consequence / support catch
-
-
-
-
-                                                           #
-                                                           |
-                                                    ~@     |
-                                                  ~~       |
-                                                ~~         |
-                               O               ~           |
-                                              ~            |
-                                            ~~             |
-                           o---|---o\\     ~               |
-                           /   |      \\\o]                |
-                          /     |                          |
-                          o     |                          |
-                                 |                         #
-                              ///^\\\
-                      ////////       \\\\\\
-                 /////                      \\\\
-        _______________________________________________________
-root_note=Pelvis recoils back/down after shoulder yank; front support widens to catch returned tension while distal mass is already rebounding.
-
-K09 DISTAL_REBOUND_OVERSHOOT | TWOS | INFERRED | support=BOTH_FRONT_HEAVY | tether=REBOUND_OVERSHOOT
-role=distal overshoot
-
-
-
-
-                                                           #
-                                   @~~                     |
-                                      ~~                   |
-                                        ~                  |
-                              O          ~                 |
-                                          ~                |
-                                          ~                |
-                          o---|---o\     ~                 |
-                          /   |     \\   ~                 |
-                         /     |      \o]                  |
-                         o     |                           |
-                                |                          |
-                              //^\\                        #
-                          ////     \\\\
-                     /////             \\\\\\
-                  ///                       \\\\
-        _______________________________________________________
-root_note=Root has stopped retreating but distal mass continues past the proximal clock, arcing high/back and bending the tether.
-
-K10 COUNTERSWING_SECONDARY_LAG | TWOS | INFERRED | support=BOTH | tether=COUNTERSWING
-role=secondary lag
-
-
-
-
-                                                           #
-                                                           |
-                                                           |
-                             O                             |
-                                                           |
-                                                           |
-                         o---|---o                         |
-                         /  @|    \\                       |
-                         /   ~|     \o]                    |
-                         o    |      ~                     |
-                               |~~  ~                      |
-                              /^\ ~~                       |
-                           ///   \\\                       #
-                        ///         \\\\
-                     ///                \\\\
-                   //                      \\
-        _______________________________________________________
-root_note=Torso starts restacking as the distal mass crosses behind the handle; tether curvature reverses without reversing the whole body animation.
+root_note=Torso restacks while distal mass crosses behind/under the handle; tether curvature reverses without reverse-playing the outgoing swing.
 
 K11 LAG_CATCH | TWOS | INFERRED | support=BOTH | tether=LAG_CATCH
-role=secondary catch / settle
+role=late distal catch / settle
 
 
 
 
                                                            #
                                                            |
-                             O                             |
+                                O                          |
                                                            |
                                                            |
-                         o---|---o                         |
-                         /   |    \\                       |
-                         /    |     o]                     |
-                         o    |     ~                      |
-                               |    ~                      |
-                              /^\  ~                       |
-                            //   \\ ~~  ~~@                |
-                          //       \\ ~~                   #
-                        //           \\\
-                      //                \\
-                    //                    \\
+                             o//|--o\                      |
+                                |///o\\o]                  |
+                                 |       ~                 |
+                                 |       ~  ~@             |
+                                  |       ~~               |
+                                 /^                        |
+                               //  \\                      |
+                             //      \\                    #
+                          ///          \\
+                        //               \\
+                      //                   \
         _______________________________________________________
-root_note=Hands arrest the return swing after the root is mostly stacked; mass still hangs off-axis, so recovery debt remains visible.
+root_note=Hands arrest the returning link after root is mostly stacked; distal mass remains off-axis so recovery still carries visible debt.
 
 K12 DISPLACED_READY_DEBT | FOURS | INFERRED | support=BOTH | tether=SLACK_RESIDUAL
-role=re-entry with residual debt
+role=re-entry with residual flexible-link debt
 
 
 
 
                                                            #
                                                            |
-                            O                              |
+                           O                               |
                                                            |
                                                            |
-                        o---|--o                           |
-                        /   |   \\                         |
-                        /   |     \o]                      |
-                        o    |       ~                     |
-                             |        ~                    |
-                             ^\        ~                   |
-                           //  \\       ~~   ~@            |
-                          /      \\\      ~~~              #
-                        //          \\\
-                      //               \\
-                     /                   \\
+                        o/|--o\\                           |
+                          |///  \\\o]                      |
+                           |  //o    ~~                    |
+                           |           ~~                  |
+                            |            ~                 |
+                            ^            ~                 |
+                          // \\           ~                |
+                         /     \\        ~                 #
+                        /        \\      @
+                      //           \\
+                     /               \\
         _______________________________________________________
-root_note=Readiness returns two cells forward with a wider front foot and the mass hanging forward-low; it does not reset to K00.
+root_note=Readiness returns two cells forward with wider support and distal mass still forward-low; no idle reset to K00.
