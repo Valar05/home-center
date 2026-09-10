@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "specimen": "v2-contact-024-dual-anchor-couple-moment-release-gate",
-  "status": "QUALITY_GATES_PASS_PENDING_REPO_PERSISTENCE",
+  "status": "REPO_VERIFIED_PENDING_CHAT_DELIVERY",
   "current_worker_liveness": {
     "home_center_campaign_exact_read": true,
     "github_authenticated_persistence_readback": true,
@@ -19,10 +19,7 @@
     "commissioned_evidence_id": "1icTndAfTH5fge6tCAL35HzU9X7dsKVzRa0ah_n6gwWk",
     "tsr_asset": 30327,
     "whole_source_read": true,
-    "source_roles": [
-      "POSE_REFERENCE",
-      "CONTACT_REFERENCE"
-    ],
+    "source_roles": ["POSE_REFERENCE", "CONTACT_REFERENCE"],
     "source_authentic_timing": "UNKNOWN",
     "compiled_timing": "INFERRED",
     "rights_firewall": "PASS_NO_SOURCE_PIXELS"
@@ -37,7 +34,7 @@
     "frames": 30,
     "bytes": 9689,
     "sha256": "08efc28a47907cfb48d0abf38f3fb842dfea03146c454f14abc2021f650d6402",
-    "decode": "PASS"
+    "decode": "PASS_CURRENT_WORKER_ACTUAL_RENDER"
   },
   "quality": {
     "tango": {
@@ -65,32 +62,26 @@
     "actual_render_identity": "08efc28a47907cfb48d0abf38f3fb842dfea03146c454f14abc2021f650d6402"
   },
   "validator": {
-    "source_blob_expected": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "source_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
     "candidate_isolated": "PASS_EXACT_CURRENT_OFFICIAL_PREDICATES",
     "repository_global_execution": "UNCLAIMED_STANDARD_CHAT_BOUNDARY"
   },
   "repository": {
-    "persisted": false,
-    "readback": false,
-    "exact_six_files": false,
-    "exact_one_spa": false,
-    "final_readback": false
+    "persisted": true,
+    "readback": true,
+    "exact_six_files": true,
+    "exact_one_spa": true,
+    "final_readback": false,
+    "verified_blobs": {
+      "build.py": "46bb44cc9ed21e7c902bf50bfcbfe74fee316e31",
+      "contact-sheet.txt": "83da224dac2b72e0f3fd03dfe70d6a00a86892bc",
+      "motion.json": "25f49081574427ce99df7ba85a0255022125957d",
+      "dual-anchor-couple-moment-release-gate.motion.html": "b5aed0038901a88b50fe4a8b4294cb28c9ec253c"
+    }
   },
-  "issue": {
-    "pre_delivery_receipt": null,
-    "user_surface_receipt": null,
-    "terminal_receipt": null
-  },
-  "campaign": {
-    "propagated": false,
-    "readback": false
-  },
-  "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false,
-    "ordered_together": false
-  },
+  "issue": {"pre_delivery_receipt": null, "user_surface_receipt": null, "terminal_receipt": null},
+  "campaign": {"propagated": false, "readback": false},
+  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_video": false, "ordered_together": false},
   "DREW_ACCEPTED": false,
   "next_authorized": null
 }
