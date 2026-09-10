@@ -7,18 +7,22 @@ C=R/"contact-sheet.txt"; M=R/"motion.json"; V=R/".forbidden-volume-precommit-cle
 contact=C.read_text(encoding="utf-8"); motion=json.loads(M.read_text(encoding="utf-8"))
 blocks=[b.strip("\n") for b in contact.split("\n------------------------------------------------------------------------------\n") if b.strip() and b.lstrip().startswith("K")]
 by={b.split()[0]:b for b in blocks}
-font=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",14)
-small=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",11)
-W,H=720,320; td=Path(tempfile.mkdtemp(prefix="ascii-kinesis-t035-")); n=0
+figure_font=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",13)
+head_font=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",11)
+W,H=600,250; td=Path(tempfile.mkdtemp(prefix="ascii-kinesis-t035-")); n=0
 try:
   for k in motion["keys"]:
-    b=by[k["key_id"]]
+    lines=by[k["key_id"]].splitlines()
+    header=lines[0]
+    figure="\n".join(lines[1:-1])
+    state=lines[-1]
     for _ in range(int(k["exposure_ticks"])):
       im=Image.new("RGB",(W,H),"white"); d=ImageDraw.Draw(im)
-      d.multiline_text((10,8),b,fill="black",font=font,spacing=1)
-      d.text((10,294),"Timing035 | future forbidden volume reshapes anticipation before commitment | abstract ASCII only",fill="black",font=small)
+      d.text((8,7),header,fill="black",font=head_font)
+      d.multiline_text((8,28),figure,fill="black",font=figure_font,spacing=1)
+      d.text((8,230),state,fill="black",font=head_font)
       im.save(td/f"f_{n:04d}.png"); n+=1
-  subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate","24","-i",str(td/"f_%04d.png"),"-c:v","libx264","-pix_fmt","yuv420p","-movflags","+faststart","-crf","42","-map_metadata","-1",str(V)],check=True)
+  subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate","24","-i",str(td/"f_%04d.png"),"-c:v","libx264","-pix_fmt","yuv420p","-movflags","+faststart","-crf","40","-map_metadata","-1",str(V)],check=True)
 finally: shutil.rmtree(td,ignore_errors=True)
 raw=V.read_bytes()
 motion["compile"]={"renderer":"Motion Dungeon ASCII-only deterministic precommit-clearance renderer","fps":24,"frame_count":n,"media":{"codec":"h264","pix_fmt":"yuv420p","width":W,"height":H,"fps":24,"frames":n,"bytes":len(raw),"sha256":hashlib.sha256(raw).hexdigest()}}
