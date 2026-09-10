@@ -9,7 +9,7 @@
   "media": {"mime": "video/mp4", "codec": "h264", "pix_fmt": "yuv420p", "width": 480, "height": 270, "fps": 24, "frames": 30, "bytes": 14261, "sha256": "5d7e7f13e4e5d91926bf5d091c4907616d350fda5d906a01d1fed7735aca1998", "source": "embedded SPA media generated only from abstract authored rig/timing"},
   "validator": {"blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78", "candidate_isolated": "PASS", "repository_global": "UNCLAIMED_STANDARD_CHAT_CONNECTOR_BOUNDARY"},
   "repository": {"path": "experiments/ascii-kinesis/v2-locomotion-023-narrow-support-tandem-thread-runout/", "post_write_readback": true, "exact_six_file_body": true, "stable_body_files": {"build.py": "7cf63378472e544cfab9b982232fc9acc71606d6", "contact-sheet.txt": "f6a329800f9b0b383b8d109a6b37b1faf9e8cbe7", "motion.json": "79805a7e655c00f658027273f4f589a074578adb", "narrow-support-tandem-thread-runout.motion.html": "9386c118ae7312a7b97801bbcc76ef94f9f81346"}},
-  "issue": {"pre_delivery_receipt": null, "pre_delivery_readback": false, "closure_receipt": null, "closure_readback": false},
+  "issue": {"pre_delivery_receipt": 5619165052, "pre_delivery_readback": true, "closure_receipt": null, "closure_readback": false},
   "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_video": false, "ordered": false, "video_byte_identical": false},
   "campaign": {"propagated": false, "readback": true},
   "DREW_ACCEPTED": false,
