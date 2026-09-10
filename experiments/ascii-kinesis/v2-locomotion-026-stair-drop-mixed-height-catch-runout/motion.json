@@ -1,0 +1,81 @@
+{
+  "schema": "ascii-kinesis.motion.v2",
+  "specimen": "v2-locomotion-026-stair-drop-mixed-height-catch-runout",
+  "title": "STAIR DROP / MIXED-HEIGHT CATCH / RUNOUT",
+  "lane": "locomotion",
+  "status": "QUALITY_GATES_PASS_LOCAL_CANDIDATE",
+  "lineage": {
+    "kind": "NEW_CONCEPT",
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "predecessor_terminal_issue_comment": 5625985128
+  },
+  "source": {
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "evidence_id": "1zQGdJx7uIqTnvJlHp2NfydUu_EDDNvt01tCAlQvlYQ8",
+    "tsr_asset": 81106,
+    "identity": "Bullwinkle — The Adventures of Rocky and Bullwinkle and Friends — NES — Playable Characters",
+    "role": "EVIDENCE_ONLY",
+    "whole_source_inspected": true,
+    "observed": [
+      "whole static sheet exposes four labeled animation families: Charge, Idle, Using Stairs, Walking",
+      "Using Stairs is authored as a distinct state family from ordinary level Walking",
+      "source page reports a static PNG and Animated GIFs (0), so no source-authentic playback cadence was measured"
+    ],
+    "inferred": [
+      "single step-down support-height discontinuity",
+      "mixed-height dual-support handoff before root descent",
+      "horizontal momentum surviving the vertical support-height transaction",
+      "all decisive key geometry, spacing, support-confidence states and timing"
+    ],
+    "unknown": [
+      "source-authentic stair direction",
+      "source-authentic frame chronology",
+      "source-authentic exposure counts",
+      "exact source root displacement",
+      "exact tread height",
+      "exact contact frame",
+      "source timing"
+    ],
+    "timing_authority": "NONE",
+    "rights_firewall": {
+      "source_pixels_in_output": false,
+      "source_audio_in_output": false,
+      "tracing": false,
+      "close_imitation": false,
+      "source_palette": false,
+      "source_costume": false,
+      "source_layout": false,
+      "source_choreography": false
+    }
+  },
+  "principle": "ROOT HEIGHT MAY DROP ONLY AFTER LOWER SUPPORT EARNS AUTHORITY, AND FORWARD MOMENTUM MUST SURVIVE THAT HEIGHT TRANSACTION.",
+  "quality_thesis": "The lead foot reaches the lower level while the root is still owned by the upper tread; a mixed-height dual-support key visibly delays the root drop. Once lower support dominates, the root/COM descends through an authored compression arc while forward travel survives, producing a late upper-foot release, an overlong first lower-level catch, then shorter displaced corrections and secondary-lag settle.",
+  "rig": {
+    "viewport": [640, 360],
+    "terrain_model": {"kind": "single_step_down", "edge_x": 122, "upper_y": 258, "lower_y": 286},
+    "root": "@", "com": "c", "head": "O", "left_foot": "L", "right_foot": "R", "secondary": "arms", "abstract_ascii_rig_only": true
+  },
+  "timing": {"fps": 24, "total_frames": 27, "policy": "STREET_FIGHTER-CAPCOM", "provenance": "INFERRED"},
+  "keys": [
+    {"key_id":"K00","name":"UPPER_APPROACH","root":[70,190],"com":[72,212],"left_foot":[61,258],"right_foot":[89,258],"support":{"owner":"LEFT","left":"PLANTED_UPPER","right":"AIR"},"torso_lean_deg":-6,"arm_lag_deg":-10,"root_spacing_px":0,"timing_class":"FOURS","hold_frames":4,"phase":"APPROACH","causal_role":"establish upper-tread ownership and forward intent before the height discontinuity","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K01","name":"EDGE_READ","root":[82,191],"com":[84,213],"left_foot":[61,258],"right_foot":[108,273],"support":{"owner":"LEFT","left":"PLANTED_UPPER","right":"PROBE"},"torso_lean_deg":-10,"arm_lag_deg":-16,"root_spacing_px":12,"timing_class":"TWOS","hold_frames":2,"phase":"READ","causal_role":"upper support keeps the root high while the free foot searches downward","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K02","name":"LOWER_PROBE","root":[94,191],"com":[97,213],"left_foot":[61,258],"right_foot":[132,286],"support":{"owner":"LEFT","left":"PLANTED_UPPER","right":"PROBE"},"torso_lean_deg":8,"arm_lag_deg":-22,"root_spacing_px":12,"timing_class":"ONES","hold_frames":1,"phase":"PROBE","causal_role":"lower contact appears at the new height but does not yet own the root","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K03","name":"MIXED_HEIGHT_ACQUIRE","root":[101,192],"com":[104,214],"left_foot":[61,258],"right_foot":[132,286],"support":{"owner":"BOTH_MIXED","left":"PLANTED_UPPER","right":"PLANTED_LOWER"},"torso_lean_deg":-4,"arm_lag_deg":10,"root_spacing_px":7,"timing_class":"TWOS","hold_frames":2,"phase":"ACQUIRE","causal_role":"both supports are trustworthy at different heights; root remains high to prove acquisition precedes descent","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K04","name":"LOWER_DOMINANCE","root":[108,202],"com":[111,224],"left_foot":[76,258],"right_foot":[132,286],"support":{"owner":"RIGHT","left":"UNLOADING_UPPER","right":"PLANTED_LOWER"},"torso_lean_deg":10,"arm_lag_deg":18,"root_spacing_px":7,"timing_class":"TWOS","hold_frames":2,"phase":"DROP","causal_role":"lower support takes root ownership and the COM begins the quantized descent while upper support still lags","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K05","name":"ROOT_DROP_COMPRESSION","root":[114,221],"com":[118,244],"left_foot":[96,265],"right_foot":[132,286],"support":{"owner":"RIGHT","left":"AIR","right":"PLANTED_LOWER"},"torso_lean_deg":-18,"arm_lag_deg":30,"root_spacing_px":6,"timing_class":"ONES","hold_frames":1,"phase":"DROP","causal_role":"root and COM fall around the fixed lower support only after authority is earned; torso and arms overrun the vertical impulse","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K06","name":"UPPER_RELEASE_LATE","root":[122,229],"com":[125,251],"left_foot":[111,276],"right_foot":[132,286],"support":{"owner":"RIGHT","left":"AIR","right":"PLANTED_LOWER"},"torso_lean_deg":-12,"arm_lag_deg":24,"root_spacing_px":8,"timing_class":"TWOS","hold_frames":2,"phase":"RELEASE","causal_role":"the trailing upper foot releases late; forward travel survives instead of resetting at the step","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K07","name":"LOWER_SUPPORT_OVERRUN","root":[136,231],"com":[139,253],"left_foot":[154,286],"right_foot":[132,286],"support":{"owner":"RIGHT","left":"PROBE","right":"PLANTED_LOWER"},"torso_lean_deg":12,"arm_lag_deg":8,"root_spacing_px":14,"timing_class":"TWOS","hold_frames":2,"phase":"OVERRUN","causal_role":"root passes beyond the fixed right support while the left foot reaches forward for the first free lower-level catch","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K08","name":"LONG_LEFT_BOTTOM_CATCH","root":[153,234],"com":[156,256],"left_foot":[159,286],"right_foot":[139,286],"support":{"owner":"LEFT","left":"PLANTED_LOWER","right":"AIR"},"torso_lean_deg":-14,"arm_lag_deg":28,"root_spacing_px":17,"timing_class":"ONES","hold_frames":1,"phase":"RUNOUT","causal_role":"surviving horizontal debt produces the longest lower-level catch; left support must own before correction","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K09","name":"BOTTOM_ABSORB","root":[162,242],"com":[164,264],"left_foot":[159,286],"right_foot":[176,286],"support":{"owner":"LEFT","left":"PLANTED_LOWER","right":"AIR"},"torso_lean_deg":-19,"arm_lag_deg":34,"root_spacing_px":9,"timing_class":"TWOS","hold_frames":2,"phase":"ABSORB","causal_role":"left support stays world-fixed while root/COM compress and upper-body lag overshoots","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K10","name":"SHORT_RIGHT_CORRECTION","root":[169,238],"com":[171,260],"left_foot":[181,286],"right_foot":[176,286],"support":{"owner":"RIGHT","left":"AIR","right":"PLANTED_LOWER"},"torso_lean_deg":-8,"arm_lag_deg":18,"root_spacing_px":7,"timing_class":"TWOS","hold_frames":2,"phase":"CORRECT","causal_role":"a shorter opposite-foot catch pays remaining travel debt without returning to gait symmetry","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K11","name":"REBOUND_SECONDARY_LAG","root":[176,234],"com":[178,256],"left_foot":[188,286],"right_foot":[176,286],"support":{"owner":"RIGHT","left":"AIR","right":"UNLOADING_LOWER"},"torso_lean_deg":5,"arm_lag_deg":-14,"root_spacing_px":7,"timing_class":"TWOS","hold_frames":2,"phase":"RECOVER","causal_role":"root restacks while arms lag behind the rebound and support prepares to hand off","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K12","name":"DISPLACED_SETTLE","root":[182,233],"com":[184,255],"left_foot":[188,286],"right_foot":[176,286],"support":{"owner":"BOTH_LOWER","left":"PLANTED_LOWER","right":"PLANTED_LOWER"},"torso_lean_deg":0,"arm_lag_deg":-4,"root_spacing_px":6,"timing_class":"FOURS","hold_frames":4,"phase":"SETTLE","causal_role":"settle remains displaced down-course on the lower level; no idle reset or reverse interpolation","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"}
+  ],
+  "quality_history": [
+    {"judge":"Tango","round":0,"disposition":"REVISE_REQUIRED","actual_render_inspected":true,"defect":"The first lower support sat at the vertical riser, so the supposed world-fixed lower-tread ownership read ambiguously as an edge pin rather than a trustworthy landing on the lower tread.","correction":"Move K02 lower probe and K03-K07 right-foot lower support 11 px beyond the step edge to x=132 and keep that x world-fixed through lower acquisition, root drop, upper release and root pass."},
+    {"judge":"Tango","round":1,"disposition":"PASS","actual_render_inspected":true,"render_sha256":"979493ec9607f881e50a3f145dd5d243d4b39352fb7924ccf168bdb421926708","basis":"Lower probe/acquisition is now visibly beyond the riser on the lower tread; K03 holds mixed-height support before K04-K06 root/COM descent; fixed right support survives body passage; K08 is an overlong first lower-level catch; K09-K12 pay compression, shorter correction, rebound lag and displaced settle."},
+    {"judge":"Noodle Queen","round":1,"disposition":"PASS","actual_render_inspected":true,"render_sha256":"979493ec9607f881e50a3f145dd5d243d4b39352fb7924ccf168bdb421926708","taste":"PASS","function":"PASS","contempt":"PASS","basis":"The support-height discontinuity is causal rather than decorative, silhouettes progress asymmetrically through reach, mixed-height suspension, compressed drop and runout, and the recovery does not collapse into a gait loop or idle reset."}
+  ]
+}
