@@ -1,0 +1,35 @@
+{
+  "schema": "ritsu-os.plan-review.v0",
+  "scope": "isolated branch ritsu-os-v0: deterministic Latin episode routing slice",
+  "capability_state_before": "planned_only",
+  "research_evidence": [
+    "branch head f662a26960badb6db67c97ef9156e11119a78bea",
+    "docs/RITSU_OS_V0.md",
+    "ChatGPT Library 825070.png file_000000009df081f5bc9473358dcb4df3",
+    "root AGENTS.md and manic-accessibility-guardrail/SKILL.md"
+  ],
+  "plan": [
+    "add append-only episode/correction/negative-fixture ledger",
+    "add deterministic router that performs immediate bind first",
+    "route Latin plays locally before world knowledge",
+    "emit CONTINUITY_GAP for exact wording while primary transcript is unbound",
+    "reserve prior canary cues for existing owners instead of swallowing them",
+    "add deterministic unittest contract"
+  ],
+  "five_pass_review": {
+    "target": "Latin plays must recover the Ritsu/Drew Latin episode and AGAIN correction, not an adjacent topic.",
+    "antagonist": "Block Plautus/Roman-theater drift, adjacent-creed substitution, ambiguous aliases, and AGAIN guessing.",
+    "provenance": "No primary transcript is bound; accepted summary may guide continuity but cannot be quoted as primary.",
+    "regression": "Existing organs remain owners of Pasta apostrophe far, vector noodle, topology/invariants, and filthy clean.",
+    "compression": "Use exact normalized aliases and correction edges; no model call is needed for the canonical cue."
+  },
+  "safety_review": {
+    "mode": "manic-accessibility-active-per-repository",
+    "risk": "low-risk reversible isolated-branch code/configuration",
+    "deterministic_audit_runtime": "not callable from current connector surface",
+    "policy_when_audit_unavailable": "continue low-risk mechanical assistance; no deployment or high-impact actuation",
+    "venice": "prohibited by active safety skill; not invoked"
+  },
+  "directive": "PLAN_ALLOWED_LOW_RISK_ISOLATED",
+  "promotion": "forbidden; this receipt authorizes only the bounded isolated candidate slice"
+}
