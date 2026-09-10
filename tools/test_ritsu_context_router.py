@@ -107,7 +107,7 @@ class RitsuContextRouterContract(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             active = Path(td) / "active.jsonl"
             active.write_text(json.dumps(false_closure) + "\n", encoding="utf-8")
-            with self.assertRaisesRegex(ValueError, "cannot close without readable primary transcript"):
+            with self.assertRaisesRegex(ValueError, "cannot close without stable primary transcript"):
                 mod.RitsuContextRouter(
                     ROOT / "config" / "ritsu-os.v0.json",
                     ROOT / "fixtures" / "ritsu-continuity" / "episode-ledger.v0.jsonl",
@@ -199,7 +199,7 @@ class RitsuContextRouterContract(unittest.TestCase):
         self.assertEqual(r.episode_id, EPISODE_ID)
         self.assertEqual(r.required_provenance, "primary_transcript")
 
-    def test_primary_transcript_outranks_accepted_summary_when_bound(self) -> None:
+    def test_primary_transcript_outranks_accepted_summary_when_stably_bound(self) -> None:
         policy = ROOT / "config" / "ritsu-os.v0.json"
         records = [{
             "record_type": "episode",
@@ -207,7 +207,10 @@ class RitsuContextRouterContract(unittest.TestCase):
             "aliases": ["primary cue"],
             "summary_tier": "accepted_summary",
             "accepted_summary": "summary only",
-            "primary_sources": [{"source": "test", "text": "PRIMARY WORDING"}],
+            "primary_sources": [{
+                "source_id": "chatgpt:conversation:test:turn-42",
+                "text": "PRIMARY WORDING",
+            }],
         }]
         with tempfile.TemporaryDirectory() as td:
             ledger = Path(td) / "ledger.jsonl"
@@ -219,6 +222,67 @@ class RitsuContextRouterContract(unittest.TestCase):
             self.assertEqual(r.content, "PRIMARY WORDING")
             self.assertFalse(r.seek_primary)
             self.assertIsNone(r.active_retrieval)
+
+    def test_anonymous_text_cannot_impersonate_primary_transcript(self) -> None:
+        policy = ROOT / "config" / "ritsu-os.v0.json"
+        records = [{
+            "record_type": "episode",
+            "id": "anonymous-primary",
+            "aliases": ["anonymous primary cue"],
+            "summary_tier": "accepted_summary",
+            "accepted_summary": "grounded summary",
+            "primary_sources": [{"source": "clipboard", "text": "UNBOUND WORDING"}],
+        }]
+        with tempfile.TemporaryDirectory() as td:
+            ledger = Path(td) / "ledger.jsonl"
+            ledger.write_text("\n".join(json.dumps(x) for x in records) + "\n", encoding="utf-8")
+            router = mod.RitsuContextRouter(policy, ledger)
+            r = router.resolve("anonymous primary cue", exact_wording=True)
+            self.assertEqual(r.status, "CONTINUITY_GAP")
+            self.assertEqual(r.provenance_tier, "accepted_summary")
+            self.assertEqual(r.content, "grounded summary")
+            self.assertEqual(r.required_provenance, "primary_transcript")
+            self.assertTrue(r.seek_primary)
+            self.assertNotEqual(r.content, "UNBOUND WORDING")
+
+    def test_closed_retrieval_requires_primary_correction_binding_too(self) -> None:
+        policy = ROOT / "config" / "ritsu-os.v0.json"
+        records = [
+            {
+                "record_type": "episode",
+                "id": "close-check",
+                "aliases": ["close check"],
+                "accepted_summary": "summary",
+                "summary_tier": "accepted_summary",
+                "primary_sources": [{
+                    "source_id": "chatgpt:conversation:test:episode",
+                    "text": "PRIMARY EPISODE",
+                }],
+            },
+            {
+                "record_type": "correction",
+                "id": "close-check-again",
+                "episode_id": "close-check",
+                "edge": "CORRECTED_BY",
+                "effect": "Changed meaning.",
+                "primary_sources": [],
+            },
+        ]
+        active_record = {
+            "record_type": "active_retrieval",
+            "id": "close-check-retrieval",
+            "episode_id": "close-check",
+            "status": "closed",
+            "required_provenance": "primary_transcript",
+            "review": {name: f"pass {name}" for name in mod.REVIEW_PASSES},
+        }
+        with tempfile.TemporaryDirectory() as td:
+            ledger = Path(td) / "ledger.jsonl"
+            active = Path(td) / "active.jsonl"
+            ledger.write_text("\n".join(json.dumps(x) for x in records) + "\n", encoding="utf-8")
+            active.write_text(json.dumps(active_record) + "\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "stable primary transcript and correction evidence"):
+                mod.RitsuContextRouter(policy, ledger, active)
 
     def test_ambiguous_aliases_fail_closed(self) -> None:
         policy = ROOT / "config" / "ritsu-os.v0.json"
