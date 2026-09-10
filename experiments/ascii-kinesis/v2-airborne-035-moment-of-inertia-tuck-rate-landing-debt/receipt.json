@@ -80,8 +80,8 @@
     "manifest_reconciliation_commit": "a1b29e998db949cac98e258249f299b5f2dd9534"
   },
   "issue_343": {
-    "closure_receipt": null,
-    "readback": false,
+    "closure_receipt": 5612908331,
+    "readback": true,
     "final_addendum": null,
     "final_addendum_readback": false
   },
