@@ -45,14 +45,19 @@
     "height": 432,
     "fps": 24,
     "frames": 55,
-    "bytes": 26802,
-    "sha256": "7665163461c4ab9f22e19a0fd05b3b6f94e1dc3602f9be0761fbb657ec818526",
+    "bytes": 13303,
+    "sha256": "2edad1bc1947c008c6cfd265d0b6f8d943ae8367542b32ec6744afdecc728c7f",
     "decode": "PASS_FULL_FFMPEG_CURRENT_WORKER"
   },
-  "hashes_sha256": {
-    "contact-sheet.txt": "2dee35bf6bb92523abf035cd28f11bfad2cb8769699e01cba0e47df1bb3f0963",
-    "motion.json": "280ec285fabcb21fdaf942b3801d5254491bb5995b97c79196311fcdf147c32e",
-    "embedded_mp4": "7665163461c4ab9f22e19a0fd05b3b6f94e1dc3602f9be0761fbb657ec818526"
+  "repository_reconciliation": {
+    "current_worker": "PASS",
+    "stable_current_main_blobs": {
+      "build.py": "78c6e4734f49b02a80bb555eabc1007056c2b4f1",
+      "contact-sheet.txt": "41e6a21e79523b7bbdd2732c9d7bda268a4b1079",
+      "motion.json": "9226d597817365938466a16a3846a5a4b282a20d",
+      "airborne-tool-radius-rate-landing-debt.motion.html": "1ececb822eb0170bb66121d2055ca571edc84668"
+    },
+    "correction": "Previous manifest media/hash bookkeeping described a superseded render identity. Current persisted motion plus current persisted builder deterministically reconstruct the authoritative 55-frame MP4 at SHA-256 2edad1bc1947c008c6cfd265d0b6f8d943ae8367542b32ec6744afdecc728c7f. No choreography, source, lineage, or successor mutation was performed for this bookkeeping reconciliation."
   },
   "contract": {
     "validator_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
