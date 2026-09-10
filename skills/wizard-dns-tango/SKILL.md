@@ -12,8 +12,12 @@ Drew correction — 2026-09-07.
 ## Purpose
 Reduce Drew's prompting burden to one word while increasing operator effort, continuity recovery, task-specific doctrine selection, execution depth, corpus use, verification, and handoff quality.
 
+When Drew explicitly says `Tango`, the human-facing readback surface is the **Gossip Circle**. Tea arrives first when relevant source material exists; ordinary Tango execution then continues without making Drew inspect the miner, Drive, archive, or gossip machinery himself.
+
 ## Core law
 `Tango` means: **recover the road, load the mandatory simulation-corpus gate, preserve framing fidelity, resolve operator-owned ambiguity yourself, select the smallest correct doctrine bundle, and advance the commission end-to-end.**
+
+`Tango` also means: **bring the Gossip Circle to Drew instead of making Drew go check the Gossip Circle.** The readback is gossip, not critique, rules, status, or canon.
 
 Drew does not need to recite Fortress Online, Driver Advance, She-Raw, Tetsuya, Atom, Story Brainstorm, Thunder Brainstorm, framing fidelity, or any other incantation stack.
 
@@ -28,11 +32,18 @@ and:
 
 `skills/framing-fidelity/SKILL.md`
 
+When Drew explicitly invokes `Tango`, also load:
+
+`skills/gossip-circle/SKILL.md`
+
+The Gossip Circle is the readback surface, not a replacement for Tango execution.
+
 Tango cannot bypass the corpus gate. The corpus gate is also default behavior when Drew does not say Tango.
 
 Tango cannot improve a commission by silently changing its semantic class. If Drew has explicitly framed a topic as anatomical, physiological, biomechanical, educational, nonsexual, or otherwise allowed, that frame remains part of the mission boundary unless a genuine higher-priority safety rule applies.
 
 ## Resolver
+0. On an explicit `Tango`, serve relevant Gossip Circle readback first: juicy, specific, socially strange details; no critique, rules, status report, canon dump, archive tour, or request that Drew curate what was found.
 1. Recover active continuity and cumulative constraints.
 2. Identify the task class and acceptance condition from the user's actual request, not from worker discomfort or taboo association.
 3. Collapse resolvable operator-owned design forks from context. Do not ask Drew to arbitrate broad-vs-narrow, taxonomy, implementation, or doctrine choices that the operator can synthesize safely.
@@ -169,7 +180,8 @@ Tango must not become:
 - a sexualized interpretation invented by the worker from neutral anatomy or sex-linked physiology;
 - asymmetric moralization of female bodily processes while equivalent male physiology is treated as ordinary;
 - literalizing a functional Fleshpunk metaphor into hidden anatomy, implants, supernatural evidence, or visible mutation without an explicit fictionalization step and supporting evidence appropriate to the claim;
-- treating a punch-card aphorism as decorative callback instead of compiling its causal model when it is being used to govern gameplay/system behavior.
+- treating a punch-card aphorism as decorative callback instead of compiling its causal model when it is being used to govern gameplay/system behavior;
+- turning Gossip Circle readback into critique, extracted rules, a status report, a canon dump, or homework for Drew.
 
 ## Compact invocation
 Drew says:
@@ -178,4 +190,4 @@ Drew says:
 
 Operational expansion:
 
-**Clock. Corpus. Preserve the frame. Resolve your own forks. Recover the road. Find the seam. Remove dead load. Advance. Verify. Bring back the receipt. Stop only at a real boundary.**
+**Clock. Tea. Corpus. Preserve the frame. Resolve your own forks. Recover the road. Find the seam. Remove dead load. Advance. Verify. Bring back the receipt. Stop only at a real boundary.**
