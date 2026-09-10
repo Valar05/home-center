@@ -12,6 +12,7 @@ CAUSE: both roots independently stacked; no shared force or custody
 
 
 
+
                         o                       o
                 O     --                         --     O
                 |    /                             \    |
@@ -30,6 +31,7 @@ K01  ELIGIBLE_APPROACH  [TWOS/INFERRED]
 REL=ELIGIBLE  UPPER=OPEN:+0.00  LOWER=OPEN:+0.00
 SUPPORT=A_FRONT_DOM|B_FRONT_DOM  FORCE_OWNER=NONE  CUSTODY=NONE
 CAUSE: COMs commit inward before any anchor is allowed to close
+
 
 
 
@@ -58,6 +60,7 @@ CAUSE: upper hands overlap at zero load; both ground supports still own their ro
 
 
 
+
                                 *-------*
                          O    --         --    O
                         |    /      R      \    |
@@ -76,6 +79,7 @@ K03  DUAL_TOUCH_ZERO  [FOURS/INFERRED]
 REL=DUAL_ANCHOR_ZERO  UPPER=TOUCH_ZERO:+0.00  LOWER=TOUCH_ZERO:+0.00
 SUPPORT=A_REAR_DOM|B_REAR_DOM  FORCE_OWNER=NONE  CUSTODY=NONE
 CAUSE: two separated anchors define a moment arm but still carry no force
+
 
 
 
@@ -152,6 +156,7 @@ CAUSE: both anchors still closed; loss of upper force exposes a real lower-ancho
 
 
 
+
                                 *-------*
                               --         --
                      O       /      R      \       O
@@ -170,6 +175,7 @@ K07  UPPER_RELEASE  [ONES/INFERRED]
 REL=SINGLE_ANCHOR_LOADED  UPPER=OPEN:+0.00  LOWER=LOADED_NEG:-0.62
 SUPPORT=A_REAR_LOCK|B_FRONT_CATCH  FORCE_OWNER=LOWER_ANCHOR  CUSTODY=NONE
 CAUSE: upper topology opens only after zero load; lower resultant shears A left and B right while the surviving anchor remains fixed
+
 
 
 
@@ -198,6 +204,7 @@ CAUSE: last anchor still touches at zero load as roots continue separating on un
 
 
 
+
                              o             o
                             /               \
                      O     /        R        \     O
@@ -216,6 +223,7 @@ K09  LOWER_RELEASE  [ONES/INFERRED]
 REL=SEPARATED_RELEASE  UPPER=OPEN:+0.00  LOWER=OPEN:+0.00
 SUPPORT=A_FRONT_CATCH|B_FRONT_CATCH  FORCE_OWNER=NONE  CUSTODY=NONE
 CAUSE: final topology opens after zero load; arms recoil locally and bodies retain distinct angular/translational debt
+
 
 
 
@@ -244,6 +252,7 @@ CAUSE: A overshoots farther left while B lags right; braking supports and torso 
 
 
 
+
                     -o                            o
         O         --                               --        O
          ||     --                                   --     |
@@ -262,6 +271,7 @@ K11  DISPLACED_SETTLE  [FOURS/INFERRED]
 REL=SEPARATE_DISPLACED  UPPER=OPEN:+0.00  LOWER=OPEN:+0.00
 SUPPORT=A_BOTH_DISPLACED|B_BOTH_DISPLACED  FORCE_OWNER=GROUND_INDEPENDENT  CUSTODY=NONE
 CAUSE: both bodies restack at new displaced positions with residual facing asymmetry and preserved negative space
+
 
 
 
