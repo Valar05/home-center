@@ -91,15 +91,51 @@ def render_ascii(p, meta):
         if 0<=ox<W and 0<=oy<H:g[oy][ox]='<'
     return '\n'.join(''.join(r).rstrip() for r in g).rstrip()
 
+def compact_pose(p):
+    # Deterministic presentation-only scaling of the exact authored rig.
+    def q(pt):
+        x=round(2+(pt[0]-18)*(41/68)); y=round(1+(pt[1]-3)*(13/20))
+        return [max(0,min(45,x)),max(0,min(15,y))]
+    return {k:q(v) for k,v in p.items()}
+
+def render_compact(p, meta):
+    p=compact_pose(p); w,h=46,16; g=[[' ']*w for _ in range(h)]
+    for x in range(1,w-1): g[h-1][x]='_'
+    d=derive(p)
+    def seg(a,b,kind='body'):
+        ch=line_char(a,b,kind)
+        for x,y in bresenham(a,b):
+            if 0<=x<w and 0<=y<h and g[y][x]==' ': g[y][x]=ch
+    seg(p['root'],p['chest']); seg(p['chest'],p['head'])
+    seg(d['ls'],d['le']); seg(d['le'],p['left_hand']); seg(d['rs'],d['re']); seg(d['re'],p['right_hand'])
+    seg(p['root'],d['lhip']); seg(d['lhip'],d['lk']); seg(d['lk'],p['left_foot']); seg(p['root'],d['rhip']); seg(d['rhip'],d['rk']); seg(d['rk'],p['right_foot'])
+    seg(p['left_hand'],p['reserve_tip'],'reserve'); seg(p['opp_tip'],p['opp_anchor'],'opp'); seg(p['right_hand'],p['lead_tip'],'lead')
+    pts={'head':p['head'],'chest':p['chest'],'root':p['root'],'le':d['le'],'re':d['re'],'left_hand':p['left_hand'],'right_hand':p['right_hand'],'lk':d['lk'],'rk':d['rk'],'left_foot':p['left_foot'],'right_foot':p['right_foot']}
+    chars={'head':'o','chest':'+','root':'@','le':'o','re':'o','left_hand':'*','right_hand':'*','lk':'o','rk':'o','left_foot':'/','right_foot':'\\'}
+    for n,pt in pts.items():
+        x,y=map(int,pt)
+        if 0<=x<w and 0<=y<h:g[y][x]=chars[n]
+    ox,oy=map(int,p['opp_tip']); lx,ly=map(int,p['lead_tip'])
+    if meta['contact']=='TOOL_TOOL_BIND':
+        if 0<=lx<w and 0<=ly<h:g[ly][lx]='X'
+        if lx-1>=0:g[ly][lx-1]='['
+        if lx+1<w:g[ly][lx+1]=']'
+    else:
+        if 0<=lx<w and 0<=ly<h:g[ly][lx]='>'
+        if 0<=ox<w and 0<=oy<h:g[oy][ox]='<'
+    rx,ry=map(int,p['reserve_tip']);
+    if 0<=rx<w and 0<=ry<h:g[ry][rx]='<'
+    return '\n'.join(''.join(r).rstrip() for r in g).rstrip()
+
 def make_contact_sheet():
     blocks=[
       'ASCII KINESIS V2 STRIKES017 — RECIPROCAL BIND / RELEASE DEBT',
-      'SOURCE ART: NOT EMBEDDED | RIG: ABSTRACT ASCII ONLY | SOURCE TIMING: UNKNOWN | AUTHORED TIMING: INFERRED / STREET_FIGHTER-CAPCOM',
+      'SOURCE ART: NOT EMBEDDED | ABSTRACT ASCII ONLY | SOURCE TIMING: UNKNOWN | AUTHORED: INFERRED / STREET_FIGHTER-CAPCOM',
       "POCKET: THE BIND BORROWS BOTH TOOLS' FREEDOM. RELEASE REPAYS THE BORROW ON A NEW AXIS.",
-      'LEGEND: body o/+/@/*  lead tool ===>  reserve tool ~~~<  opposing abstract tool ###<  [X] acquired shared tool relationship frame','']
+      'LEGEND body o/+/@/* | lead ===> | reserve ~~~< | opposing ###< | [X] shared bind frame','']
     for k in KEYS:
-        blocks += [f"{k['key_id']} {k['name']} | FRAME={k['frame']} | {k['timing_class']} | {k['timing_provenance']} | SUPPORT={k['support']} | CONTACT={k['contact']} | REL={k['relationship']}",
-                   'ROLE: '+k['causal_role'], render_ascii(k['pose'],k),'']
+        blocks += [f"{k['key_id']} {k['name']} f{k['frame']:02d} {k['timing_class']}/{k['timing_provenance']} SUPPORT={k['support']} CONTACT={k['contact']} REL={k['relationship']}",
+                   'ROLE '+k['causal_role'], render_compact(k['pose'],k),'']
     text='\n'.join(blocks).rstrip()+'\n'
     (OUT/'contact_sheet.txt').write_text(text,encoding='utf-8')
     return text
@@ -108,17 +144,14 @@ def make_video():
     frames=OUT/'frames'
     if frames.exists(): shutil.rmtree(frames)
     frames.mkdir()
-    font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf',15)
-    small=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf',13)
+    font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf',17)
     for f in range(FRAME_COUNT):
         p,meta=pose_at_frame(f); art=render_ascii(p,meta)
-        img=Image.new('RGB',(880,440),(10,10,10)); dr=ImageDraw.Draw(img)
-        dr.text((18,10),f"STRIKES017  {meta['key_id']}  {meta['name']}  f{f:02d}/{FRAME_COUNT-1:02d}",font=small,fill=(235,235,235))
-        dr.text((0,35),art,font=font,fill=(245,245,245),spacing=0)
-        dr.text((18,416),f"SUPPORT {meta['support']}   CONTACT {meta['contact']}   REL {meta['relationship']}",font=small,fill=(210,210,210))
+        img=Image.new('RGB',(880,440),(8,8,8)); dr=ImageDraw.Draw(img)
+        dr.text((0,8),art,font=font,fill=(245,245,245),spacing=0)
         img.save(frames/f'{f:04d}.png')
     mp4=OUT/f'{SLUG}.mp4'
-    subprocess.run(['ffmpeg','-y','-hide_banner','-loglevel','error','-framerate',str(FPS),'-i',str(frames/'%04d.png'),'-c:v','libx264','-pix_fmt','yuv420p','-profile:v','high','-level','4.0','-movflags','+faststart','-r',str(FPS),str(mp4)],check=True)
+    subprocess.run(['ffmpeg','-y','-hide_banner','-loglevel','error','-framerate',str(FPS),'-i',str(frames/'%04d.png'),'-c:v','libx264','-preset','slow','-crf','34','-pix_fmt','yuv420p','-profile:v','high','-level','4.0','-movflags','+faststart','-r',str(FPS),str(mp4)],check=True)
     return mp4.read_bytes()
 
 def make_spa(contact_sheet, media):
