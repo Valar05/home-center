@@ -54,8 +54,8 @@
     "height": 432,
     "fps": 24,
     "frames": 55,
-    "bytes": 26802,
-    "sha256": "7665163461c4ab9f22e19a0fd05b3b6f94e1dc3602f9be0761fbb657ec818526",
+    "bytes": 13303,
+    "sha256": "2edad1bc1947c008c6cfd265d0b6f8d943ae8367542b32ec6744afdecc728c7f",
     "source": "abstract_ascii_rig_only",
     "embedded_in_spa": true
   },
@@ -63,7 +63,10 @@
     {
       "key_id": "A035-K0",
       "name": "GROUND LOAD / WIDE RADIUS",
-      "root": [10,19],
+      "root": [
+        10,
+        19
+      ],
       "body_angle": -8,
       "arm_l": -95,
       "arm_r": -65,
@@ -87,7 +90,10 @@
     {
       "key_id": "A035-K1",
       "name": "SUPPORT BREAK / ANGULAR IMPULSE SET",
-      "root": [14,16],
+      "root": [
+        14,
+        16
+      ],
       "body_angle": 8,
       "arm_l": -80,
       "arm_r": -55,
@@ -111,7 +117,10 @@
     {
       "key_id": "A035-K2",
       "name": "EXTENDED RISE / SLOW ROTATION",
-      "root": [19,12],
+      "root": [
+        19,
+        12
+      ],
       "body_angle": 30,
       "arm_l": -72,
       "arm_r": -45,
@@ -135,7 +144,10 @@
     {
       "key_id": "A035-K3",
       "name": "AUTHORED GATHER BRIDGE",
-      "root": [25,9],
+      "root": [
+        25,
+        9
+      ],
       "body_angle": 72,
       "arm_l": -18,
       "arm_r": 18,
@@ -159,7 +171,10 @@
     {
       "key_id": "A035-K4",
       "name": "COMPACT APEX / RATE UP",
-      "root": [31,8],
+      "root": [
+        31,
+        8
+      ],
       "body_angle": 156,
       "arm_l": 5,
       "arm_r": -8,
@@ -183,7 +198,10 @@
     {
       "key_id": "A035-K5",
       "name": "COMPACT EXIT / ROTATION SPENT",
-      "root": [36,9],
+      "root": [
+        36,
+        9
+      ],
       "body_angle": 238,
       "arm_l": 18,
       "arm_r": -15,
@@ -207,7 +225,10 @@
     {
       "key_id": "A035-K6",
       "name": "RE-EXTEND / ROTATION BRAKE",
-      "root": [41,11],
+      "root": [
+        41,
+        11
+      ],
       "body_angle": 296,
       "arm_l": -52,
       "arm_r": -30,
@@ -231,7 +252,10 @@
     {
       "key_id": "A035-K7",
       "name": "SEPARATED PRECONTACT / ALIGN",
-      "root": [46,14],
+      "root": [
+        46,
+        14
+      ],
       "body_angle": 338,
       "arm_l": -60,
       "arm_r": -35,
@@ -255,7 +279,10 @@
     {
       "key_id": "A035-K8",
       "name": "RIGHT TOE FIRST CONTACT",
-      "root": [50,16.5],
+      "root": [
+        50,
+        16.5
+      ],
       "body_angle": 352,
       "arm_l": -70,
       "arm_r": -40,
@@ -279,7 +306,10 @@
     {
       "key_id": "A035-K9",
       "name": "RIGHT-SIDE CRUSH / TOOL LAG",
-      "root": [53,18.2],
+      "root": [
+        53,
+        18.2
+      ],
       "body_angle": 6,
       "arm_l": -82,
       "arm_r": -48,
@@ -303,7 +333,10 @@
     {
       "key_id": "A035-K10",
       "name": "LEFT FOOT DELAYED CATCH",
-      "root": [56,17.2],
+      "root": [
+        56,
+        17.2
+      ],
       "body_angle": 12,
       "arm_l": -92,
       "arm_r": -55,
@@ -327,7 +360,10 @@
     {
       "key_id": "A035-K11",
       "name": "TOOL / TORSO OVERSHOOT",
-      "root": [59,16.2],
+      "root": [
+        59,
+        16.2
+      ],
       "body_angle": 20,
       "arm_l": -105,
       "arm_r": -65,
@@ -351,7 +387,10 @@
     {
       "key_id": "A035-K12",
       "name": "COUNTERSETTLE / DISPLACED READY",
-      "root": [60.5,16],
+      "root": [
+        60.5,
+        16
+      ],
       "body_angle": 2,
       "arm_l": -72,
       "arm_r": -50,
@@ -381,7 +420,7 @@
         "R1 PASS_CURRENT_WORKER_ACTUAL_RENDER"
       ],
       "final": "PASS_CURRENT_WORKER_ACTUAL_RENDER",
-      "render_sha256": "7665163461c4ab9f22e19a0fd05b3b6f94e1dc3602f9be0761fbb657ec818526",
+      "render_sha256": "2edad1bc1947c008c6cfd265d0b6f8d943ae8367542b32ec6744afdecc728c7f",
       "highest_value_visible_defect": "NONE_AT_ACCEPTANCE_SCALE"
     },
     "noodle_queen": {
@@ -389,7 +428,7 @@
       "taste": "PASS",
       "function": "PASS",
       "contempt": "PASS",
-      "render_sha256": "7665163461c4ab9f22e19a0fd05b3b6f94e1dc3602f9be0761fbb657ec818526",
+      "render_sha256": "2edad1bc1947c008c6cfd265d0b6f8d943ae8367542b32ec6744afdecc728c7f",
       "note": "Wide loaded mass -> authored gather -> visibly faster compact rotation -> re-extension brake -> toe-first crush -> delayed catch -> tool/torso overshoot is specific and causally readable rather than a generic flip."
     },
     "post_pass_motion_churn": false,
@@ -398,12 +437,24 @@
   "compatibility": {
     "format_version": 2,
     "backward_compatible": true,
-    "primary_tabs": ["ASCII","JSON","VIDEO"],
+    "primary_tabs": [
+      "ASCII",
+      "JSON",
+      "VIDEO"
+    ],
     "video_source": "abstract_ascii_rig_only",
     "source_art_embedded": false
   },
   "revision_history": [
-    {"revision":"R0","disposition":"REVISE_REQUIRED","defect":"FLOATING_TOOL_CUSTODY_UNDERREAD"},
-    {"revision":"R1","disposition":"PASS","correction":"RIGID_SHAFT_DERIVED_FROM_BOTH_HAND_ANCHORS_WITH_EXPLICIT_GRIP_LINKS"}
+    {
+      "revision": "R0",
+      "disposition": "REVISE_REQUIRED",
+      "defect": "FLOATING_TOOL_CUSTODY_UNDERREAD"
+    },
+    {
+      "revision": "R1",
+      "disposition": "PASS",
+      "correction": "RIGID_SHAFT_DERIVED_FROM_BOTH_HAND_ANCHORS_WITH_EXPLICIT_GRIP_LINKS"
+    }
   ]
 }
