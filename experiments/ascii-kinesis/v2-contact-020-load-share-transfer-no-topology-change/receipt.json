@@ -1,0 +1,60 @@
+{
+  "schema": "ascii-kinesis.contact-receipt.v2",
+  "experiment_id": "v2-contact-020-load-share-transfer-no-topology-change",
+  "status": "CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "preflight": {
+    "home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "home_center_campaign_read": true,
+    "github_persistence_readback": true,
+    "current_worker_liveness": "PASS"
+  },
+  "source": {
+    "asset_id": 185069,
+    "evidence_id": "1vV3cT1mRbRIT-jZY1kbnbQLX_JzHaZ1zmIHaPhMUaQs",
+    "whole_sheet_inspected": true,
+    "roles": ["POSE_REFERENCE", "CONTACT_REFERENCE"],
+    "timing_authenticity": "UNKNOWN",
+    "all_compiled_timing": "INFERRED"
+  },
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "successor_collision": false
+  },
+  "primitive": "LOAD_SHARE_TRANSFER_WITHOUT_TOPOLOGY_CHANGE",
+  "quality": {
+    "actual_render": {
+      "inspected_by_current_worker": true,
+      "decode": "PASS",
+      "frame_sheet_inspected": true,
+      "identity": {"sha256": "2da644095a1ba17a162dc2365317edab6962f3947cece5bbdc1d681268dd7116", "bytes": 5477, "codec": "h264", "pixel_format": "yuv420p", "width": 560, "height": 300, "fps": 24, "frames": 27}
+    },
+    "tango": {"status": "PASS", "rounds": [{"round": "R0", "verdict": "PASS", "reason": "Actual decisive-frame sheet shows precontact gap, authored dual acquisition, identical two-anchor topology through left-dominant → crossover → right-dominant load transfer, pelvis/COM consequence, force/body clock lag, counter-overshoot, and asymmetric displaced restack. Contact markers remain fixed; no custody, support teleport, reverse interpolation, or endpoint-only contact."}]},
+    "noodle_queen": {"status": "PASS", "after_tango": true, "taste": "The two planted anchors become a vise while the body bends across them; left-max and right-max silhouettes are opposites without being mirrored animation playback.", "function": "load ownership changes visibly through fixed contacts, body/root response, and unequal upward support marks; topology remains dual.", "contempt": "No mannequin carry, generic bridge tween, custody promotion, idle reset, or metadata-only load-share state."}
+  },
+  "media": {
+    "fps": 24,
+    "timing_policy": "STREET_FIGHTER/CAPCOM",
+    "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> ASCII-ONLY FRAME RENDER -> H.264 MP4 -> SPA",
+    "connective_motion": "NONE BETWEEN SEMANTIC LOAD-SHARE KEYS; holds only. Decisive keys own contact/support/load changes.",
+    "source_sprite_pixels_used": false,
+    "width": 560,
+    "height": 300,
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "frames": 27,
+    "media_bytes": 5477,
+    "media_sha256": "2da644095a1ba17a162dc2365317edab6962f3947cece5bbdc1d681268dd7116"
+  },
+  "contract": {
+    "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated_pass": true,
+    "execution_scope": "local construction structural predicates only; remote repo-global execution unclaimed",
+    "repository_global_claimed": false
+  },
+  "repository": {"persisted": false, "readback": false, "exact_six_files": false, "exact_one_spa": false, "final_readback": false, "blobs": {}},
+  "issue": {"closure": null, "closure_readback": false},
+  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_visible_video": false, "ordered": false},
+  "drew_accepted": false
+}
