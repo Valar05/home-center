@@ -105,10 +105,22 @@
     {
       "key_id": "K00",
       "name": "TRUSTED LEFT LOAD",
-      "root": [118,246],
-      "com": [120,238],
-      "left_foot": [106,300],
-      "right_foot": [148,296],
+      "root": [
+        118,
+        246
+      ],
+      "com": [
+        120,
+        238
+      ],
+      "left_foot": [
+        106,
+        300
+      ],
+      "right_foot": [
+        148,
+        296
+      ],
       "torso_lean_deg": -4,
       "secondary_lag_px": 0,
       "timing_class": "FOURS",
@@ -116,16 +128,32 @@
       "timing_provenance": "INFERRED",
       "root_spacing_px": 0,
       "phase": "LOAD",
-      "support": {"owner":"LEFT_FIXED","left":"PLANTED_FIXED","right":"FREE"},
+      "support": {
+        "owner": "LEFT_FIXED",
+        "left": "PLANTED_FIXED",
+        "right": "FREE"
+      },
       "causal_role": "trusted left support establishes world-fixed authority"
     },
     {
       "key_id": "K01",
       "name": "PRESSURE BUILDS",
-      "root": [124,248],
-      "com": [127,240],
-      "left_foot": [106,300],
-      "right_foot": [154,296],
+      "root": [
+        124,
+        248
+      ],
+      "com": [
+        127,
+        240
+      ],
+      "left_foot": [
+        106,
+        300
+      ],
+      "right_foot": [
+        154,
+        296
+      ],
       "torso_lean_deg": 2,
       "secondary_lag_px": -2,
       "timing_class": "TWOS",
@@ -133,16 +161,32 @@
       "timing_provenance": "INFERRED",
       "root_spacing_px": 6,
       "phase": "PRESS",
-      "support": {"owner":"LEFT_FIXED","left":"PLANTED_FIXED","right":"FREE"},
+      "support": {
+        "owner": "LEFT_FIXED",
+        "left": "PLANTED_FIXED",
+        "right": "FREE"
+      },
       "causal_role": "root advances while left contact remains exactly world-fixed"
     },
     {
       "key_id": "K02",
       "name": "ACCELERATE ON FIXED SUPPORT",
-      "root": [134,247],
-      "com": [138,239],
-      "left_foot": [106,300],
-      "right_foot": [164,294],
+      "root": [
+        134,
+        247
+      ],
+      "com": [
+        138,
+        239
+      ],
+      "left_foot": [
+        106,
+        300
+      ],
+      "right_foot": [
+        164,
+        294
+      ],
       "torso_lean_deg": 8,
       "secondary_lag_px": -5,
       "timing_class": "TWOS",
@@ -150,16 +194,32 @@
       "timing_provenance": "INFERRED",
       "root_spacing_px": 10,
       "phase": "ACCEL",
-      "support": {"owner":"LEFT_FIXED","left":"PLANTED_FIXED","right":"FREE"},
+      "support": {
+        "owner": "LEFT_FIXED",
+        "left": "PLANTED_FIXED",
+        "right": "FREE"
+      },
       "causal_role": "widening root spacing loads tangential demand into fixed left support"
     },
     {
       "key_id": "K03",
       "name": "SHEAR LIMIT PROBE",
-      "root": [148,246],
-      "com": [153,238],
-      "left_foot": [106,300],
-      "right_foot": [176,294],
+      "root": [
+        148,
+        246
+      ],
+      "com": [
+        153,
+        238
+      ],
+      "left_foot": [
+        106,
+        300
+      ],
+      "right_foot": [
+        176,
+        294
+      ],
       "torso_lean_deg": 13,
       "secondary_lag_px": -8,
       "timing_class": "ONES",
@@ -167,16 +227,32 @@
       "timing_provenance": "INFERRED",
       "root_spacing_px": 14,
       "phase": "SHEAR_PROBE",
-      "support": {"owner":"LEFT_FIXED_LIMIT","left":"PLANTED_FIXED","right":"FREE"},
+      "support": {
+        "owner": "LEFT_FIXED_LIMIT",
+        "left": "PLANTED_FIXED",
+        "right": "FREE"
+      },
       "causal_role": "last exact fixed-contact key before friction authority breaks"
     },
     {
       "key_id": "K04",
       "name": "FRICTION BREAK",
-      "root": [164,245],
-      "com": [170,238],
-      "left_foot": [112,300],
-      "right_foot": [188,294],
+      "root": [
+        164,
+        245
+      ],
+      "com": [
+        170,
+        238
+      ],
+      "left_foot": [
+        112,
+        300
+      ],
+      "right_foot": [
+        188,
+        294
+      ],
       "torso_lean_deg": 18,
       "secondary_lag_px": -12,
       "timing_class": "ONES",
@@ -184,16 +260,32 @@
       "timing_provenance": "INFERRED",
       "root_spacing_px": 16,
       "phase": "SLIDE_BREAK",
-      "support": {"owner":"LEFT_SLIDING","left":"SLIDING_CONTACT","right":"FREE"},
+      "support": {
+        "owner": "LEFT_SLIDING",
+        "left": "SLIDING_CONTACT",
+        "right": "FREE"
+      },
       "causal_role": "left sole remains touching yet drifts six pixels across fixed ground ruler"
     },
     {
       "key_id": "K05",
       "name": "SLIDE DEBT GROWS",
-      "root": [183,244],
-      "com": [190,237],
-      "left_foot": [121,300],
-      "right_foot": [204,294],
+      "root": [
+        183,
+        244
+      ],
+      "com": [
+        190,
+        237
+      ],
+      "left_foot": [
+        121,
+        300
+      ],
+      "right_foot": [
+        204,
+        294
+      ],
       "torso_lean_deg": 21,
       "secondary_lag_px": -15,
       "timing_class": "ONES",
@@ -201,16 +293,32 @@
       "timing_provenance": "INFERRED",
       "root_spacing_px": 19,
       "phase": "SLIDE",
-      "support": {"owner":"LEFT_SLIDING","left":"SLIDING_CONTACT","right":"FREE"},
+      "support": {
+        "owner": "LEFT_SLIDING",
+        "left": "SLIDING_CONTACT",
+        "right": "FREE"
+      },
       "causal_role": "root keeps accelerating while sliding contact loses positional authority"
     },
     {
       "key_id": "K06",
       "name": "RIGHT TOE PROBE",
-      "root": [205,245],
-      "com": [211,239],
-      "left_foot": [131,300],
-      "right_foot": [226,300],
+      "root": [
+        205,
+        245
+      ],
+      "com": [
+        211,
+        239
+      ],
+      "left_foot": [
+        131,
+        300
+      ],
+      "right_foot": [
+        226,
+        300
+      ],
       "torso_lean_deg": 20,
       "secondary_lag_px": -16,
       "timing_class": "ONES",
@@ -218,16 +326,32 @@
       "timing_provenance": "INFERRED",
       "root_spacing_px": 22,
       "phase": "CATCH_PROBE",
-      "support": {"owner":"LEFT_SLIDING_PLUS_RIGHT_PROBE","left":"SLIDING_CONTACT","right":"PROBE_CONTACT"},
+      "support": {
+        "owner": "LEFT_SLIDING_PLUS_RIGHT_PROBE",
+        "left": "SLIDING_CONTACT",
+        "right": "PROBE_CONTACT"
+      },
       "causal_role": "new foot touches before ownership; old foot still visibly sliding"
     },
     {
       "key_id": "K07",
       "name": "RIGHT CATCH COMPRESSION",
-      "root": [222,253],
-      "com": [225,247],
-      "left_foot": [141,300],
-      "right_foot": [226,300],
+      "root": [
+        222,
+        253
+      ],
+      "com": [
+        225,
+        247
+      ],
+      "left_foot": [
+        141,
+        300
+      ],
+      "right_foot": [
+        226,
+        300
+      ],
       "torso_lean_deg": 13,
       "secondary_lag_px": -14,
       "timing_class": "TWOS",
@@ -235,16 +359,32 @@
       "timing_provenance": "INFERRED",
       "root_spacing_px": 17,
       "phase": "CATCH",
-      "support": {"owner":"RIGHT_FIXED","left":"UNLOADING_SLIDE","right":"PLANTED_FIXED"},
+      "support": {
+        "owner": "RIGHT_FIXED",
+        "left": "UNLOADING_SLIDE",
+        "right": "PLANTED_FIXED"
+      },
       "causal_role": "right foot becomes world-fixed and compresses under residual slide mismatch"
     },
     {
       "key_id": "K08",
       "name": "ROOT OVERRUN",
-      "root": [240,250],
-      "com": [244,245],
-      "left_foot": [158,294],
-      "right_foot": [226,300],
+      "root": [
+        240,
+        250
+      ],
+      "com": [
+        244,
+        245
+      ],
+      "left_foot": [
+        158,
+        294
+      ],
+      "right_foot": [
+        226,
+        300
+      ],
       "torso_lean_deg": 7,
       "secondary_lag_px": -10,
       "timing_class": "ONES",
@@ -252,16 +392,32 @@
       "timing_provenance": "INFERRED",
       "root_spacing_px": 18,
       "phase": "OVERRUN",
-      "support": {"owner":"RIGHT_FIXED","left":"FREE","right":"PLANTED_FIXED"},
+      "support": {
+        "owner": "RIGHT_FIXED",
+        "left": "FREE",
+        "right": "PLANTED_FIXED"
+      },
       "causal_role": "surviving velocity carries root beyond the newly trusted right support"
     },
     {
       "key_id": "K09",
       "name": "SHORT COUNTER-CORRECTION",
-      "root": [250,248],
-      "com": [251,243],
-      "left_foot": [188,293],
-      "right_foot": [226,300],
+      "root": [
+        250,
+        248
+      ],
+      "com": [
+        251,
+        243
+      ],
+      "left_foot": [
+        188,
+        293
+      ],
+      "right_foot": [
+        226,
+        300
+      ],
       "torso_lean_deg": -2,
       "secondary_lag_px": -5,
       "timing_class": "TWOS",
@@ -269,16 +425,32 @@
       "timing_provenance": "INFERRED",
       "root_spacing_px": 10,
       "phase": "CORRECT",
-      "support": {"owner":"RIGHT_FIXED","left":"FREE","right":"PLANTED_FIXED"},
+      "support": {
+        "owner": "RIGHT_FIXED",
+        "left": "FREE",
+        "right": "PLANTED_FIXED"
+      },
       "causal_role": "shorter spacing and torso recoil pay the first correction"
     },
     {
       "key_id": "K10",
       "name": "LEFT RECOVERY SWING",
-      "root": [256,247],
-      "com": [257,242],
-      "left_foot": [227,292],
-      "right_foot": [226,300],
+      "root": [
+        256,
+        247
+      ],
+      "com": [
+        257,
+        242
+      ],
+      "left_foot": [
+        227,
+        292
+      ],
+      "right_foot": [
+        226,
+        300
+      ],
       "torso_lean_deg": -6,
       "secondary_lag_px": 2,
       "timing_class": "TWOS",
@@ -286,16 +458,32 @@
       "timing_provenance": "INFERRED",
       "root_spacing_px": 6,
       "phase": "RECOVER_SWING",
-      "support": {"owner":"RIGHT_FIXED","left":"FREE","right":"PLANTED_FIXED"},
+      "support": {
+        "owner": "RIGHT_FIXED",
+        "left": "FREE",
+        "right": "PLANTED_FIXED"
+      },
       "causal_role": "left foot recovers late while head/torso lag crosses through"
     },
     {
       "key_id": "K11",
       "name": "DISPLACED LEFT CATCH",
-      "root": [261,249],
-      "com": [261,244],
-      "left_foot": [248,300],
-      "right_foot": [226,300],
+      "root": [
+        261,
+        249
+      ],
+      "com": [
+        261,
+        244
+      ],
+      "left_foot": [
+        248,
+        300
+      ],
+      "right_foot": [
+        226,
+        300
+      ],
       "torso_lean_deg": -2,
       "secondary_lag_px": 5,
       "timing_class": "TWOS",
@@ -303,16 +491,32 @@
       "timing_provenance": "INFERRED",
       "root_spacing_px": 5,
       "phase": "RECOVER_CATCH",
-      "support": {"owner":"BOTH_FIXED","left":"PLANTED_FIXED","right":"UNLOADING_FIXED"},
+      "support": {
+        "owner": "BOTH_FIXED",
+        "left": "PLANTED_FIXED",
+        "right": "UNLOADING_FIXED"
+      },
       "causal_role": "left catch lands displaced, never returning to starting footprint"
     },
     {
       "key_id": "K12",
       "name": "DEBT SETTLE",
-      "root": [265,247],
-      "com": [265,242],
-      "left_foot": [248,300],
-      "right_foot": [226,300],
+      "root": [
+        265,
+        247
+      ],
+      "com": [
+        265,
+        242
+      ],
+      "left_foot": [
+        248,
+        300
+      ],
+      "right_foot": [
+        226,
+        300
+      ],
       "torso_lean_deg": 2,
       "secondary_lag_px": 3,
       "timing_class": "FOURS",
@@ -320,16 +524,32 @@
       "timing_provenance": "INFERRED",
       "root_spacing_px": 4,
       "phase": "SETTLE",
-      "support": {"owner":"LEFT_FIXED","left":"PLANTED_FIXED","right":"FREE"},
+      "support": {
+        "owner": "LEFT_FIXED",
+        "left": "PLANTED_FIXED",
+        "right": "FREE"
+      },
       "causal_role": "small forward correction remains after support ownership rolls left"
     },
     {
       "key_id": "K13",
       "name": "DISPLACED RECOVERY DEBT",
-      "root": [267,246],
-      "com": [267,241],
-      "left_foot": [248,300],
-      "right_foot": [269,296],
+      "root": [
+        267,
+        246
+      ],
+      "com": [
+        267,
+        241
+      ],
+      "left_foot": [
+        248,
+        300
+      ],
+      "right_foot": [
+        269,
+        296
+      ],
       "torso_lean_deg": 1,
       "secondary_lag_px": 1,
       "timing_class": "FOURS",
@@ -337,7 +557,11 @@
       "timing_provenance": "INFERRED",
       "root_spacing_px": 2,
       "phase": "EXIT_DEBT",
-      "support": {"owner":"LEFT_FIXED","left":"PLANTED_FIXED","right":"FREE"},
+      "support": {
+        "owner": "LEFT_FIXED",
+        "left": "PLANTED_FIXED",
+        "right": "FREE"
+      },
       "causal_role": "final pose stays displaced with free right foot and unresolved forward debt"
     }
   ]
