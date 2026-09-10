@@ -16,8 +16,20 @@
     "revises": null,
     "negative_fixture": null,
     "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
-    "successor_collision": false,
-    "prior_defense_closure_issue_comment": 5611903666
+    "successor_collision": true,
+    "prior_defense_closure_issue_comment": 5611903666,
+    "collision_resolution": {
+      "classification": "SUCCESSOR_COLLISION",
+      "canonical_path": "experiments/ascii-kinesis/v2-defense-024-glance-line-arc-reentry/",
+      "canonical_first_commit": "4358ee29df2a4704593d547ecff8b9d2f927a301",
+      "canonical_active_at": "2026-09-10T03:49:18Z",
+      "canonical_pre_chat_receipt": 5612750391,
+      "later_path": "experiments/ascii-kinesis/v2-defense-024-deflected-threat-clock-fork/",
+      "later_first_commit": "dac7944f5a55958d3a0793794d5d4126d6130cb2",
+      "later_started_at": "2026-09-10T04:14:57Z",
+      "later_disposition": "NON_AUTHORITATIVE_SUCCESSOR_CHURN_PRESERVED",
+      "authority": "issue_343_swarm_manager_reconciliation_5613059541"
+    }
   },
   "source": {
     "provider": "The Spriters Resource",
@@ -48,7 +60,8 @@
     "fps": 24,
     "frames": 41,
     "duration_seconds": 1.708333,
-    "decode_verified": true
+    "decode_verified": true,
+    "current_worker_byte_identical_reconstruction": true
   },
   "quality": {
     "tango": [
@@ -62,32 +75,44 @@
         "round": "R1",
         "verdict": "PASS",
         "basis": "Actual rebuilt render shows contact release before travel authority changes, visibly lifted free feet, earned catch overlap, three support-driven heading edits, counter-yaw, late guard reopen, and residual asymmetry."
+      },
+      {
+        "round": "R1_CURRENT_WORKER_REVALIDATION",
+        "verdict": "PASS",
+        "basis": "Fresh byte-identical 41-frame reconstruction was fully decoded and visually re-inspected. The glance redirects before contact release; K03/K04/K06 unsupported feet are visibly lifted; K05/K07 catches overlap before release; K08 counter-yaw arrests the arc; guard reopening remains late and the final stance retains displaced asymmetry. No new choreography defect earned mutation."
       }
     ],
     "noodle_queen": {
       "verdict": "PASS",
-      "taste": "specific asymmetrical guard-to-run silhouette progression",
-      "function": "glance contact ends before the three-catch grounded arc; support changes visibly own the root",
-      "contempt": "no mannequin reset, support-label theater, or generic reverse interpolation"
+      "current_worker_revalidated": true,
+      "taste": "specific asymmetrical guard-to-run silhouette progression with a readable curved escape",
+      "function": "glance contact ends before the grounded multi-catch arc; visible support changes own each heading edit",
+      "contempt": "no mannequin reset, support-label theater, decorative threat contact, or generic reverse interpolation"
     }
   },
   "validator": {
     "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-    "candidate_isolated": "PASS"
+    "candidate_isolated": "PASS",
+    "boundary": "Current Standard Chat connector can read the exact validator and canonical candidate but does not expose an authorized repository-global checkout executor; repository-global execution is not claimed."
   },
   "repo": {
     "persisted": true,
     "repo_readback": true,
     "body_files_readback": 6,
     "spa_count": 1,
-    "readback_main_head": "a4e3d4901639f6b8e442d9e3b406c394d189b8b4",
     "exact_immutable_files": {
       "build.py": "4968f891bc73a3cbe8536e65b5641845800c74b6",
       "contact-sheet.txt": "c4587181139ae0f25927d6d9a14eb65ba2b19ae2",
       "motion.json": "8b11c70944d855e8b35c19181876b7e1a88693da",
       "glance-line-arc-reentry.motion.html": "3bf0e55b41df56dc2f9171ec20adeac765d0de5d"
-    }
+    },
+    "collision_churn_preserved": true
+  },
+  "issue": {
+    "pre_chat_receipt": 5612750391,
+    "pre_chat_readback": true,
+    "manager_reconciliation": 5613059541
   },
   "chat_delivery": {
     "part1_ascii": false,
