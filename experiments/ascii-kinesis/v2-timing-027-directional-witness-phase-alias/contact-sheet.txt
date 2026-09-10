@@ -2,17 +2,17 @@ K00 SETTLED_READY FOURS/4t PROV=INFERRED PHASE=0° SUP=BOTH ROOT=(+0.00,+0.00)
 
 
 
-                        O                        UNWRAPPED 000°
+                        O
                         |
-                        o                        ROLE SETTLED_READY
+                        o
                       //|\\
-                    o/  |  \o                    SUP BOTH
+                    o/  |  \o
                    /    |    \
-                   /    |    \                   ROOT (+0.00,+0.00)
+                   /    |    \
                   o     |     o
-                 /      |      \                 0° >  90° v
+                 /      |      \
                 h       |       h.........>
-                        @                        180° < 270° ^
+                        @
                        / \
                       /   \
                       /   \
@@ -27,17 +27,17 @@ K01 TORSION_LOAD STREET_FIGHTER/CAPCOM/3t PROV=INFERRED PHASE=35° SUP=LEFT ROOT
 
 
 
-                                                 UNWRAPPED 035°
 
-                                                 ROLE TORSION_LOAD
+
+
                    O
-                    |  \\o                       SUP LEFT
+                    |  \\o
                     /o\   \\
-                 o// |      o\                   ROOT (-0.50,+0.18)
+                 o// |      o\
                 /    |        \h.
-                /    |           ..              0° >  90° v
+                /    |           ..
                o     |             ...
-              /      |                .>         180° < 270° ^
+              /      |                .>
              h       @
                     / \
                    /   \\
@@ -52,17 +52,17 @@ K02 TURN_RELEASE ONES/1t PROV=INFERRED PHASE=95° SUP=LEFT ROOT=(-0.20,-0.08)
 
 
                        O
-                       |                         UNWRAPPED 095°
                        |
-                       o\                        ROLE TURN_RELEASE
+                       |
+                       o\
                      //| \\o
-                   o/  |    \\                   SUP LEFT
+                   o/  |    \\
                   /    |      o\
-                 o      |       \h               ROOT (-0.20,-0.08)
+                 o      |       \h
                 /       |        .
-               h        |        .               0° >  90° v
+               h        |        .
                         |       .
-                        @       .                180° < 270° ^
+                        @       .
                        / \      .
                       /   \\    v
                      /      o
@@ -77,17 +77,17 @@ K03 DIRECTIONAL_WITNESS ONES/1t PROV=INFERRED PHASE=200° SUP=LEFT ROOT=(+0.34,+
 
 
 
-                                                 UNWRAPPED 200°
 
-                             O                   ROLE DIRECTIONAL_WITNESS
+
+                             O
                             |
-                         //o                     SUP LEFT
+                         //o
                       o//  |\\
-                    //     |  \o                 ROOT (+0.34,+0.04)
+                    //     |  \o
                   /o       |    \\
-                h/         |<..   o              0° >  90° v
+                h/         |<..   o
                            |   ....\\
-                           |       ..h           180° < 270° ^
+                           |       ..h
                            @
                           / \\
                         //    \\
@@ -102,17 +102,17 @@ K04 BACK_QUADRANT_COMMIT ONES/1t PROV=INFERRED PHASE=305° SUP=LEFT_UNLOADING RO
 
 
 
-                               O                 UNWRAPPED 305°
+                               O
                                |
-                              |               ^  ROLE BACK_QUADRANT_COMMIT
+                              |               ^
                              /o\             .
-                           // | \\o        ..    SUP LEFT_UNLOADING
+                           // | \\o        ..
                          o/   |    \\     .
-                       //     |      o\  .       ROOT (+0.68,-0.10)
+                       //     |      o\  .
                       o       |        \h
-                    //        |                  0° >  90° v
+                    //        |
                    h          |
-                              @                  180° < 270° ^
+                              @
                              / \\
                            //    \\
                           /        o
@@ -127,17 +127,17 @@ K05 RIGHT_CATCH TWOS/2t PROV=INFERRED PHASE=355° SUP=RIGHT ROOT=(+0.48,+0.34)
 
 
 
-                                                 UNWRAPPED 355°
 
-                                                 ROLE RIGHT_CATCH
+
+
                              O
-                             |                   SUP RIGHT
+                             |
                            //o\\
-                        o//  |  \\o              ROOT (+0.48,+0.34)
+                        o//  |  \\o
                        /     |     \
-                      /      |      \            0° >  90° v
+                      /      |      \
                      o       |       o
-                   //        |        \\     ....180° < 270° ^
+                   //        |        \\     ..
                   h          |          h....
                              @
                            // \\
@@ -152,17 +152,17 @@ K06 WRAP_CONTINUE ONES/1t PROV=INFERRED PHASE=430° SUP=RIGHT ROOT=(+0.24,+0.10)
 
 
 
-                                                 UNWRAPPED 430°
+
                            O
-                            |                    ROLE WRAP_CONTINUE
+                            |
                           //o\
-                       o//  | \\                 SUP RIGHT
+                       o//  | \\
                       /     |   \o
-                     /      |     \\             ROOT (+0.24,+0.10)
+                     /      |     \\
                     o        |      o
-                   /         |       \\          0° >  90° v
+                   /         |       \\
                   h          |         h
-                             |          .        180° < 270° ^
+                             |          .
                              @          .
                            // \\         .
                          //     \\       .
@@ -177,17 +177,17 @@ K07 BRAKE_WITH_DIRECTION_HELD TWOS/2t PROV=INFERRED PHASE=485° SUP=RIGHT_TO_BOT
 
 
 
-                                                 UNWRAPPED 485°
 
-                         O                       ROLE BRAKE_WITH_DIRECTION_H
+
+                         O
                           |
-                          /o\\                   SUP RIGHT_TO_BOTH
+                          /o\\
                         // |  \\o
-                      o/   |     \               ROOT (+0.02,+0.24)
+                      o/   |     \
                      /     |      \
-                    /       |      o             0° >  90° v
+                    /       |      o
                    o        |       \\
-                  /         |         h          180° < 270° ^
+                  /         |         h
                  h          |        .
                             @       .
                           // \\   ..
@@ -202,17 +202,17 @@ K08 DISPLACED_RESTACK FOURS/4t PROV=INFERRED PHASE=510° SUP=BOTH ROOT=(-0.12,+0
 
 
 
-                                                 UNWRAPPED 510°
+
                          O
-                          |                      ROLE DISPLACED_RESTACK
+                          |
                          /o\
-                      o// | \\                   SUP BOTH
+                      o// | \\
                      /    |   \o
-                    /     |     \\               ROOT (-0.12,+0.10)
+                    /     |     \\
                    o       |      o
-                  /        |       \\            0° >  90° v
+                  /        |       \\
                  h         |        .h
-                           |     ...             180° < 270° ^
+                           |     ...
                            @  ...
                           / <.
                         //   \\
