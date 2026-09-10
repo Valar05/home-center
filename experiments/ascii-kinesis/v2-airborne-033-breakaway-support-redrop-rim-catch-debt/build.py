@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import base64, json, math, subprocess, tempfile, hashlib, html
+import base64, json, math, subprocess, tempfile, hashlib, html, gzip
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
@@ -172,9 +172,11 @@ def build_video(data):
 
 def make_spa(data,ascii_text,mp4_bytes):
     pretty=json.dumps(data,separators=(",",":"),ensure_ascii=False)
-    b64=base64.b64encode(mp4_bytes).decode("ascii")
-    page=f'''<!doctype html>
-<html lang="en"><head><meta charset="utf-8">
+    video_b64=base64.b64encode(mp4_bytes).decode("ascii")
+    ascii_gz=base64.b64encode(gzip.compress(ascii_text.encode("utf-8"),compresslevel=9,mtime=0)).decode("ascii")
+    json_gz=base64.b64encode(gzip.compress(pretty.encode("utf-8"),compresslevel=9,mtime=0)).decode("ascii")
+    page=f"""<!doctype html>
+<html lang=\"en\"><head><meta charset=\"utf-8\">
 <title>ASCII Kinesis — Airborne033</title>
 <style>
 body{{font-family:system-ui,sans-serif;margin:0;background:#111;color:#eee}}
@@ -184,16 +186,25 @@ section{{padding:14px}}
 pre{{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.04}}
 video{{max-width:100%;height:auto;background:#000}}
 </style></head><body>
-<nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
-<section id="ascii"><pre>{html.escape(ascii_text)}</pre></section>
-<section id="json" hidden><pre>{html.escape(pretty)}</pre></section>
-<section id="video" hidden><video controls loop playsinline><source src="data:video/mp4;base64,{b64}" type="video/mp4"></video></section>
+<nav><button data-view=\"ascii\">ASCII</button><button data-view=\"json\">JSON</button><button data-view=\"video\">VIDEO</button></nav>
+<section id=\"ascii\"><pre id=\"ascii-pre\"></pre></section>
+<section id=\"json\" hidden><pre id=\"json-pre\"></pre></section>
+<section id=\"video\" hidden><video controls loop playsinline><source src=\"data:video/mp4;base64,{video_b64}\" type=\"video/mp4\"></video></section>
 <script>
-const ids=["ascii","json","video"];
-document.querySelectorAll("button[data-view]").forEach(b=>b.onclick=()=>{{
+const ids=[\"ascii\",\"json\",\"video\"];
+document.querySelectorAll(\"button[data-view]\").forEach(b=>b.onclick=()=>{{
   ids.forEach(id=>document.getElementById(id).hidden=(id!==b.dataset.view));
 }});
-</script></body></html>'''
+async function ungzip(b64){{
+  const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+  const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream(\"gzip\"));
+  return new TextDecoder().decode(await new Response(stream).arrayBuffer());
+}}
+Promise.all([ungzip(\"{ascii_gz}\"),ungzip(\"{json_gz}\")]).then(([a,j])=>{{
+  document.getElementById(\"ascii-pre\").textContent=a;
+  document.getElementById(\"json-pre\").textContent=j;
+}});
+</script></body></html>"""
     SPA.write_text(page,encoding="utf-8")
 
 def main():
