@@ -3,7 +3,7 @@
   "format_version": 2,
   "experiment_id": "v2-contact-020-load-share-transfer-no-topology-change",
   "lane": "contact",
-  "status": "REPO_VERIFIED_PENDING_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "lineage": {"revises": null, "negative_fixture": null, "source_change": "NOT_APPLICABLE_NEW_CONCEPT", "collision": "NONE"},
   "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
@@ -20,10 +20,10 @@
   "authoritative_media": {"sha256": "2da644095a1ba17a162dc2365317edab6962f3947cece5bbdc1d681268dd7116", "bytes": 5477, "codec": "h264", "pixel_format": "yuv420p", "width": 560, "height": 300, "fps": 24, "frames": 27, "decode": "PASS"},
   "quality": {"actual_render_inspected": true, "current_worker_reinspection": true, "tango": "PASS", "noodle_queen": "PASS_AFTER_TANGO"},
   "contract": {"validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78", "candidate_isolated": "STRUCTURAL_PREDICATES_PASS_LOCAL_CONSTRUCTION_ONLY", "repository_global_claimed": false, "standard_chat_boundary": "Current GitHub/Home Center connectors read/write repository bytes but expose no authorized repo-checkout Python executor; remote repo-global validator execution is not claimed."},
-  "repository": {"persisted": true, "readback": true, "exact_six_files": true, "exact_one_spa": true, "blobs": {"build.py": "669758693b149fc21296b9b186ef57ea8c9c421b", "contact-sheet.txt": "6451fb8c32d8de462ebed12338ed880685820da1", "motion.json": "d4e8be492df4f55a2af04fc2c176a5b3a1fe2344", "receipt.json": "b140d0b8f88e07e90b57f15320f8ddc04e074ed3", "load-share-transfer-no-topology-change.motion.html": "9208146900413f225786ad8f86ae3937836ad0c3"}},
-  "issue_receipt": 5611419409,
+  "repository": {"persisted": true, "readback": true, "exact_six_files": true, "exact_one_spa": true, "final_readback": true},
+  "issue_receipt": 5611443724,
   "issue_receipt_readback": true,
-  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_visible_video": false, "ordered": false},
+  "chat_delivery": {"part1_ascii": true, "part2_json": true, "part3_visible_video": true, "ordered": true},
   "drew_accepted": false,
   "rights": "Source art evidence-only; no pixels/palette/costume/contours/layout/tracing/choreography/redistribution/close imitation embedded."
 }
