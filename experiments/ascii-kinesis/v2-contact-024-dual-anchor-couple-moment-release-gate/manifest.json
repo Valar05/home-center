@@ -3,34 +3,20 @@
   "format_version": 2,
   "specimen": "v2-contact-024-dual-anchor-couple-moment-release-gate",
   "lane": "contact",
-  "status": "QUALITY_GATES_PASS_PENDING_REPO_PERSISTENCE",
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
+  "status": "REPO_VERIFIED_PENDING_CHAT_DELIVERY",
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
   "source_art_embedded": false,
   "backward_compatible": true,
-  "canonical_files": [
-    "build.py",
-    "contact-sheet.txt",
-    "manifest.json",
-    "motion.json",
-    "receipt.json",
-    "dual-anchor-couple-moment-release-gate.motion.html"
-  ],
+  "canonical_files": ["build.py", "contact-sheet.txt", "manifest.json", "motion.json", "receipt.json", "dual-anchor-couple-moment-release-gate.motion.html"],
   "spa": "dual-anchor-couple-moment-release-gate.motion.html",
   "source": {
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
     "commissioned_evidence_id": "1icTndAfTH5fge6tCAL35HzU9X7dsKVzRa0ah_n6gwWk",
     "tsr_asset": 30327,
-    "roles": [
-      "POSE_REFERENCE",
-      "CONTACT_REFERENCE"
-    ],
+    "roles": ["POSE_REFERENCE", "CONTACT_REFERENCE"],
     "timing": "UNKNOWN_SOURCE_AUTHENTIC__INFERRED_COMPILED",
     "rights_firewall": "PASS_NO_SOURCE_PIXELS"
   },
@@ -47,30 +33,25 @@
   },
   "quality": {
     "tango": "PASS_R1_CURRENT_WORKER_ACTUAL_RENDER",
-    "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_SAME_R1_RENDER"
+    "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_SAME_R1_RENDER",
+    "validator": "PASS_EXACT_CURRENT_OFFICIAL_PREDICATES_CANDIDATE_ISOLATED"
   },
   "repository": {
-    "persisted": false,
-    "readback": false,
-    "exact_six_files": false,
-    "exact_one_spa": false,
-    "final_readback": false
+    "persisted": true,
+    "readback": true,
+    "exact_six_files": true,
+    "exact_one_spa": true,
+    "final_readback": false,
+    "verified_blobs": {
+      "build.py": "46bb44cc9ed21e7c902bf50bfcbfe74fee316e31",
+      "contact-sheet.txt": "83da224dac2b72e0f3fd03dfe70d6a00a86892bc",
+      "motion.json": "25f49081574427ce99df7ba85a0255022125957d",
+      "dual-anchor-couple-moment-release-gate.motion.html": "b5aed0038901a88b50fe4a8b4294cb28c9ec253c"
+    }
   },
-  "issue": {
-    "pre_delivery_receipt": null,
-    "user_surface_receipt": null,
-    "terminal_receipt": null
-  },
-  "campaign": {
-    "propagated": false,
-    "readback": false
-  },
-  "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false,
-    "ordered_together": false
-  },
+  "issue": {"pre_delivery_receipt": null, "user_surface_receipt": null, "terminal_receipt": null},
+  "campaign": {"propagated": false, "readback": false},
+  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_video": false, "ordered_together": false},
   "DREW_ACCEPTED": false,
   "next_authorized": null
 }
