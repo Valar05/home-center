@@ -31,6 +31,9 @@ root=[8, 32] | channels={'A': 'LOW', 'B': 'LOW'} | force=GROUND_REACTION_LOAD
 
 
 
+
+
+
         o
       _/|\_
      [A]|[B]
@@ -52,11 +55,15 @@ ________________________________________________________________________________
 
 
 
+
 ========================================================================================================
 K01 :: SUPPORT BREAK / PAIRED LAUNCH
 timing_class=ONES | timing_provenance=INFERRED | causal_role=EARNED_SUPPORT_BREAK
 support_contact=NONE | eligibility=SUPPORT_REVOKED
 root=[13, 25] | channels={'A': 'PULSE', 'B': 'PULSE'} | force=PAIRED_UPWARD_LAUNCH_IMPULSE
+
+
+
 
 
 
@@ -92,8 +99,8 @@ root=[13, 25] | channels={'A': 'PULSE', 'B': 'PULSE'} | force=PAIRED_UPWARD_LAUN
 
 
 
-
 ________________________________________________________________________________________________________
+
 
 
 
@@ -139,7 +146,9 @@ root=[21, 18] | channels={'A': 'PULSE', 'B': 'LOW'} | force=A_UP_RIGHT_RESULTANT
 
 
 
+
 ________________________________________________________________________________________________________
+
 
 
 
@@ -148,6 +157,7 @@ K03 :: B PREP / COAST
 timing_class=FOURS | timing_provenance=INFERRED | causal_role=ASYNC_PHASE_GAP
 support_contact=NONE | eligibility=UNSUPPORTED
 root=[31, 13] | channels={'A': 'LOW', 'B': 'PREP'} | force=BALLISTIC_COAST
+
 
 
 
@@ -186,6 +196,7 @@ root=[31, 13] | channels={'A': 'LOW', 'B': 'PREP'} | force=BALLISTIC_COAST
 
 
 ________________________________________________________________________________________________________
+
 
 
 
@@ -231,7 +242,9 @@ root=[38, 10] | channels={'A': 'LOW', 'B': 'PULSE'} | force=B_UP_LEFT_RESULTANT
 
 
 
+
 ________________________________________________________________________________________________________
+
 
 
 
@@ -277,7 +290,9 @@ root=[42, 9] | channels={'A': 'LOW', 'B': 'LOW'} | force=BALLISTIC_APEX_AFTER_AS
 
 
 
+
 ________________________________________________________________________________________________________
+
 
 
 
@@ -324,7 +339,9 @@ sync_scope=['A', 'B'] | nonparticipants=['BODY_ROOT', 'SUPPORT_CLOCK']
 
 
 
+
 ________________________________________________________________________________________________________
+
 
 
 
@@ -370,7 +387,9 @@ root=[52, 7] | channels={'A': 'PULSE', 'B': 'PULSE'} | force=PAIRED_LIFT_WITH_LA
 
 
 
+
 ________________________________________________________________________________________________________
+
 
 
 
@@ -416,7 +435,9 @@ root=[60, 8] | channels={'A': 'LOW', 'B': 'LOW'} | force=BALLISTIC_COAST_AFTER_L
 
 
 
+
 ________________________________________________________________________________________________________
+
 
 
 
@@ -461,7 +482,10 @@ root=[70, 15] | channels={'A': 'LOW', 'B': 'LOW'} | force=GRAVITY_DESCENT
 
 
 
+
+
 ________________________________________________________________________________________________________
+
 
 
 
@@ -470,6 +494,7 @@ K10 :: RIGHT TOE CATCH / UNILATERAL CRUSH
 timing_class=ONES | timing_provenance=INFERRED | causal_role=FIRST_SUPPORT_CATCH
 support_contact=RIGHT_TOE_ONLY | eligibility=RIGHT_SUPPORT_ACQUIRED
 root=[77, 25] | channels={'A': 'LOW', 'B': 'LOW'} | force=RIGHT_SUPPORT_IMPACT_BRAKE
+
 
 
 
@@ -508,6 +533,7 @@ root=[77, 25] | channels={'A': 'LOW', 'B': 'LOW'} | force=RIGHT_SUPPORT_IMPACT_B
 
                                                                                  *
 ________________________________________________________________________________________________________
+
 
 
 
@@ -558,6 +584,7 @@ ________________________________________________________________________________
 
 
 
+
 ========================================================================================================
 K12 :: LEFT FOOT CATCH / BRAKE WIDENS
 timing_class=TWOS | timing_provenance=INFERRED | causal_role=DELAYED_SECOND_SUPPORT
@@ -599,8 +626,10 @@ root=[82, 29] | channels={'A': 'LOW', 'B': 'LOW'} | force=BILATERAL_BRAKE
 
 
 
+
                                                                               *       *
 ________________________________________________________________________________________________________
+
 
 
 
@@ -609,6 +638,7 @@ K13 :: COMPRESSION / UPPER LAG
 timing_class=FOURS | timing_provenance=INFERRED | causal_role=COMPRESSION_AND_SECONDARY_LAG
 support_contact=BOTH_FEET_GROUND | eligibility=SUPPORTED_UNDER_LOAD
 root=[83, 31] | channels={'A': 'LOW', 'B': 'LOW'} | force=BILATERAL_COMPRESSION
+
 
 
 
@@ -647,6 +677,7 @@ root=[83, 31] | channels={'A': 'LOW', 'B': 'LOW'} | force=BILATERAL_COMPRESSION
 
                                                                                *       *
 ________________________________________________________________________________________________________
+
 
 
 
@@ -691,8 +722,10 @@ root=[85, 28] | channels={'A': 'LOW', 'B': 'LOW'} | force=GROUND_REBOUND
 
 
 
+
                                                                                  *       *
 ________________________________________________________________________________________________________
+
 
 
 
@@ -726,6 +759,7 @@ root=[88, 30] | channels={'A': 'LOW', 'B': 'LOW'} | force=SETTLED
                                                                                      [A]|[B]
                                                                                        / \
                                                                                     __/   \__
+
 
 
 
