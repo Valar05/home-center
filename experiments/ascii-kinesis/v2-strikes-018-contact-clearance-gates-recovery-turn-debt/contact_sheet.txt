@@ -1,0 +1,289 @@
+ASCII KINESIS V2 STRIKES018 — CONTACT CLEARANCE GATES RECOVERY TURN DEBT
+SOURCE ART: NOT EMBEDDED | ABSTRACT ASCII ONLY | SOURCE TIMING: UNKNOWN | AUTHORED: INFERRED / STREET_FIGHTER-CAPCOM
+POCKET: CONTACT EXIT MUST CLEAR THE CORRIDOR BEFORE ROOT REBASE CAN TURN. THE TURN OWES ITS EXISTENCE TO CLEARANCE.
+LEGEND body o/+/@/* | polearm <====> | target # | X contact | ground _
+
+K00 READY_SKEW f00 FOURS/INFERRED SUPPORT=BOTH CONTACT=NONE REL=FREE
+ROLE asymmetric readiness / tool axis inventory
+
+
+               o                         #
+               |                         #
+                |                        #
+              - + --o*    ===>           #
+            o-  | ========               #
+           *====|=                       #
+       <===    |                         #
+               |                         #
+               @                         #
+             -- --                       #
+           o-     -o                     #
+           |       |                     #
+           /       \
+ ____________________________________________
+
+K01 REAR_COIL_OPENS_CLEARANCE_RESERVE f04 FOURS/INFERRED SUPPORT=REAR_HEAVY CONTACT=NONE REL=FREE
+ROLE rear-loaded coil compresses body while preserving a forward tool corridor
+
+
+             o                           #
+             |                           #
+              |                          #
+            - + -       ==>              #
+          o-  |  -* ====                 #
+         *    |=====                     #
+           ===|                          #
+       ====   |                          #
+    <==       @                          #
+            -- --                        #
+          o-     -o                      #
+          |       |                      #
+          /       \
+ ____________________________________________
+
+K02 ROOT_COMMIT_EARNS_ENTRY f08 TWOS/INFERRED SUPPORT=REAR_BRACE CONTACT=NONE REL=FREE
+ROLE pelvis/root advances before distal reach
+
+
+                o                        #
+                |                        #
+                 |                       #
+              -- + ---o*     ===>        #
+            o-   |     ======            #
+           *    =|=====                  #
+          ======|                        #
+      <===      |                        #
+                @                        #
+              -- --                      #
+            o-     -o                    #
+           |        |                    #
+           /        \
+ ____________________________________________
+
+K03 PRECONTACT_GAP f11 TWOS/INFERRED SUPPORT=REAR_TO_DUAL CONTACT=PRECONTACT_GAP REL=APPROACH
+ROLE distinct two-cell gap before contact; no endpoint coincidence masquerading as impact
+
+
+                   o                     #
+                   |                     #
+                    |                    #
+                 -- + ---o*     ====>    #
+               o-   |  =========         #
+              *====|===                  #
+         <====     |                     #
+                  |                      #
+                  @                      #
+               --- --                    #
+             o-      -o                  #
+            |         |                  #
+            /         \
+ ____________________________________________
+
+K04 CONTACT_ACQUIRE f13 ONES/INFERRED SUPPORT=DUAL_BRACED CONTACT=TARGET_CONTACT REL=ACQUIRED
+ROLE explicit tool-tip contact / hit-stop implication
+
+
+                    o                    #
+                    |                    #
+                     |                   #
+                  -- + ---o-*     ====X  #
+                o-   |   =========       #
+               *====|====                #
+           <====    |                    #
+                   |                     #
+                   @                     #
+                --- --                   #
+              o-      o                  #
+             /        |                  #
+            /         \
+ ____________________________________________
+
+K05 ROOT_OVERRUN_BEHIND_PIN f15 ONES/INFERRED SUPPORT=FRONT_CATCH_REAR_DRIVE CONTACT=TARGET_CONTACT REL=LOADED
+ROLE contact arrests distal travel while pelvis/root and torso compress behind fixed tip
+
+
+                                         #
+                      o                  #
+                      |                  #
+                    - + --         ===X  #
+                  o-  |   --o*=====      #
+                  |   |======            #
+                ==*===|                  #
+            <===      |                  #
+                      @                  #
+                   --- --                #
+                o--      -o              #
+              //         |               #
+             /           \
+ ____________________________________________
+
+K06 MAX_COMPRESSION_PIN_FIXED f18 TWOS/INFERRED SUPPORT=FRONT_DOMINANT CONTACT=TARGET_CONTACT REL=MAX_LOAD
+ROLE support catches root overrun; turn remains forbidden while contact corridor is occupied
+
+
+                                         #
+                                         #
+                       o                 #
+                       |            ==X  #
+                      - + --o* =====     #
+                    o-  | =====          #
+                   *  ==|=               #
+                 ===== |                 #
+              <==      |                 #
+                       @                 #
+                   ---- --               #
+                o--       o              #
+              /-         \
+ ____________________________________________
+
+K07 AXIAL_CLEARANCE_RELEASE f21 ONES/INFERRED SUPPORT=FRONT_DOMINANT CONTACT=RELEASE_CLEARANCE REL=CLEARING
+ROLE lead/tool retracts axially first while root stays overrun; clearance must be paid before rebase
+
+
+                                         #
+                                         #
+                      o                  #
+                      |                  #
+                    -- + --o   ==>       #
+                  o-   |  =*===          #
+                  * ===|==               #
+               =====   |                 #
+            <==        |                 #
+                       @                 #
+                   ---- --               #
+                o--       o              #
+              /-         \
+ ____________________________________________
+
+K08 CLEARANCE_CONFIRMED_SUPPORT_UNLOAD f24 TWOS/INFERRED SUPPORT=FRONT_TO_DUAL CONTACT=NONE REL=CLEAR
+ROLE clear corridor is visible; support begins unloading but tool/root turn has not yet fired
+
+
+                                         #
+                                         #
+                      o                  #
+                      |                  #
+                    - + --o              #
+                  o-  |  *  ===>         #
+                 *   =|=====             #
+              ======= |                  #
+          <===        |                  #
+                      @                  #
+                   --- --                #
+               -o--      -o              #
+             /-          \
+ ____________________________________________
+
+K09 ROOT_REBASE_TURN_AFTER_CLEAR f28 TWOS/INFERRED SUPPORT=REAR_RETAKE CONTACT=NONE REL=REBASED
+ROLE only after clearance, pelvis/root rebase and tool axis turns through a new recovery wedge
+
+
+                                         #
+                                         #
+                   o                     #
+          <==      |                     #
+             ===/=+ --o                  #
+               o  |===*                  #
+                *  |  =====              #
+                   |       ==>           #
+                    |                    #
+                    @                    #
+                 --- --                  #
+              o--      -o                #
+            /-         \
+ ____________________________________________
+
+K10 CROSSBODY_TOOL_OVERSHOOT f32 TWOS/INFERRED SUPPORT=REAR_BRACE CONTACT=NONE REL=OVERSHOOT
+ROLE distal tool overshoots the newly legal recovery turn while body recoil has already begun
+
+
+                                         #
+         <=                              #
+           ==    o                       #
+             ==  |                       #
+              /=+ --o                    #
+             o  |===*                    #
+              *  |  ==                   #
+                 |    ==                 #
+                  |     ==               #
+                  @       =>             #
+               --- --                    #
+             o-      -o                  #
+            /         \
+ ____________________________________________
+
+K11 SUPPORT_CATCH_BODY_COMPRESSION f36 TWOS/INFERRED SUPPORT=DUAL_CATCH CONTACT=NONE REL=CATCH
+ROLE feet/support catch the turned root; torso compresses while tool still carries tangential debt
+
+
+                                         #
+                                         #
+          <=                             #
+            ==   o                       #
+              ===|                       #
+              / +=-=                     #
+             o  |  *o=                   #
+              * |     ===                #
+                 |       =>              #
+                 |                       #
+                 @                       #
+              --- ---                    #
+            /-       -\
+ ____________________________________________
+
+K12 SHAFT_LAG_CATCH f40 TWOS/INFERRED SUPPORT=DUAL_RESTACK CONTACT=NONE REL=LAG_CATCH
+ROLE body begins settling before distal shaft/tip finishes secondary lag
+
+
+                                         #
+                                         #
+                 o                       #
+           <==   |                       #
+              =/=+ --o                   #
+              o  |===*=                  #
+               * |     ====              #
+                |          ==>           #
+                |                        #
+                @                        #
+              -- ---                     #
+            o-      -o                   #
+           /          \
+ ____________________________________________
+
+K13 DISPLACED_SETTLE f44 FOURS/INFERRED SUPPORT=BOTH CONTACT=NONE REL=SETTLE
+ROLE settle remains displaced from entry; no idle reset
+
+
+                                         #
+                 o                       #
+                 |                       #
+               - + --                    #
+             o-  |   -*  ======>         #
+             |===|=======                #
+       <=====*  |                        #
+                |                        #
+                @                        #
+              -- ---                     #
+            o-      -o                   #
+           |          |                  #
+           /          \
+ ____________________________________________
+
+K14 READY_WITH_CLEARANCE_DEBT_PAID f48 FOURS/INFERRED SUPPORT=BOTH_RESTACKED_DISPLACED CONTACT=NONE REL=FREE
+ROLE re-entry preserves altered root/tool spacing as proof recovery did not reverse-play attack
+
+
+                  o                      #
+                  |                      #
+                  |                      #
+                - + --*     ====>        #
+              o-  | ========             #
+            =*====|=                     #
+       <====     |                       #
+                 |                       #
+                 @                       #
+              --- ---                    #
+            o-       -o                  #
+            |         |                  #
+            /         \
+ ____________________________________________
