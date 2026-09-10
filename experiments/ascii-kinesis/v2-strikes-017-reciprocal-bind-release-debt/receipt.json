@@ -2,7 +2,7 @@
   "schema": "ascii-kinesis.receipt-v2",
   "specimen": "STRIKES017",
   "slug": "reciprocal-bind-release-debt",
-  "status": "REPO_VERIFIED_READY_FOR_USER_SURFACE",
+  "status": "HEALTHY_USER_SURFACED_PENDING_FINAL_READBACK",
   "one_body_rule": "BIND_THIS_017_UNTIL_HEALTHY",
   "strikes018_forbidden": true,
   "preflight": {
@@ -79,7 +79,7 @@
   "repo": {
     "persistence": "PASS_CURRENT_MAIN",
     "readback": "PASS_EXACT_SIX_FILES_ONE_SPA",
-    "final_readback": "PENDING_USER_SURFACE",
+    "final_readback": "PENDING_FINAL_READBACK_ADDENDUM",
     "build_blob": "c0e1271cf5ac00409ae5c0a1bc060e412ad06b6e",
     "contact_sheet_blob": "9554978407564f1f659d6ab0f18b0982b2d19ca2",
     "motion_blob": "208f356a045d675a11f811d1e6bc0531ca0e7791",
@@ -88,14 +88,14 @@
   "issue": {
     "pre_chat_receipt": 5611466810,
     "pre_chat_readback": true,
-    "user_surface_closure": null,
+    "user_surface_closure": 5611479747,
     "final_readback_addendum": null
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_visible_video": false,
-    "ordered": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_visible_video": true,
+    "ordered": true
   },
   "DREW_ACCEPTED": false,
   "next_authorized": null
