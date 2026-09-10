@@ -1,0 +1,118 @@
+{
+  "schema": "ascii-kinesis.receipt-v2",
+  "specimen": "STRIKES017",
+  "slug": "reciprocal-bind-release-debt",
+  "status": "QUALITY_GATES_AND_CONTRACT_PASS_READY_FOR_REPO_PERSISTENCE",
+  "one_body_rule": "BIND_THIS_017_UNTIL_HEALTHY",
+  "strikes018_forbidden": true,
+  "preflight": {
+    "home_center_campaign_read": "PASS_CURRENT_WORKER",
+    "github_current_main_inventory": "PASS_CURRENT_WORKER",
+    "inventory_commit": "852fdd56f5466bdc456a902428f5bc2eb1cf84c5",
+    "strikes017_candidates_at_bind": 0
+  },
+  "source": {
+    "authority": "HOME_CENTER_COMMISSIONED_CAMPAIGN",
+    "campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "campaign_pass": "STRIKES PASS 009 — VERIFIED",
+    "evidence_artifact_file_id": "1E5bgjbMQx7B-iA2k2gi0Pm4lNkTUs8Iu1mgV4SGtQqU",
+    "tsr_asset": "216526",
+    "identity": "Two-swords Pirate — Cutthroat Island — SNES — Enemies & Bosses",
+    "source_media_sha256": "bffc0deeb17562854414f8b0885204cac25c5fdf97125e5409bf03311b147ec6",
+    "whole_source_inspection": "OBSERVED_BY_AUTHORIZED_CAMPAIGN_EVIDENCE; CURRENT_WORKER_FRESHLY_READ_FULL_VERIFIED_EVIDENCE_ARTIFACT",
+    "source_authentic_timing": "UNKNOWN",
+    "observed_timing": "NONE",
+    "authored_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "claims_boundary": {
+      "OBSERVED": [
+        "source identity/custody",
+        "whole-sheet alpha/component proxy",
+        "broad compact/extended/compressed silhouette variation"
+      ],
+      "INFERRED": [
+        "all authored poses",
+        "all authored timing",
+        "tool relationship frame",
+        "bind load/release causality",
+        "recovery path"
+      ],
+      "UNKNOWN": [
+        "source chronology",
+        "source frame exposure/FPS",
+        "source contact point",
+        "source hit-stop duration",
+        "source-authentic recovery timing"
+      ]
+    }
+  },
+  "rights": {
+    "source_art_embedded": false,
+    "source_pixels_used": false,
+    "source_palette_used": false,
+    "source_contours_used": false,
+    "source_layout_used": false,
+    "tracing_used": false,
+    "source_choreography_used": false,
+    "source_audio_used": false,
+    "redistribution": false,
+    "close_imitation": false,
+    "output": "new generic abstract ASCII rig and authored timing only"
+  },
+  "media": {
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 880,
+    "height": 440,
+    "fps": 24,
+    "frame_count": 50,
+    "bytes": 19918,
+    "sha256": "f22c019c45132cd4f34b2dde9e5dd62aee48a73c635acfdde591f38ccaf17c6d",
+    "decode": "PASS_CURRENT_WORKER_FFPROBE"
+  },
+  "quality": {
+    "tango": {
+      "status": "PASS",
+      "rounds": [
+        {
+          "round": "R0",
+          "actual_render_sha256": "f22c019c45132cd4f34b2dde9e5dd62aee48a73c635acfdde591f38ccaf17c6d",
+          "tango": "PASS",
+          "judgment": "Actual 50-frame render: shared [X] join remains fixed across K05–K07 while pelvis/root compresses and stance changes; K08 breaks on a distinct upper wedge while the opposing proxy exits down-axis; K09–K14 preserve lead overshoot, body recoil, reserve lag/catch, support catch, and displaced settle without reverse interpolation."
+        }
+      ]
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "actual_render_sha256": "f22c019c45132cd4f34b2dde9e5dd62aee48a73c635acfdde591f38ccaf17c6d",
+      "taste": "PASS — the [X] bind creates a sharp central event, then the release tears open a memorable empty wedge rather than dissolving into generic weapon travel.",
+      "function": "PASS — both tool freedoms visibly collapse into one relationship frame while root load continues behind it; break vector, overshoot, reserve catch, and support settle repay the constraint.",
+      "contempt": "PASS — the specimen has authored force ownership and ugly useful debt; it does not look like placeholder dual-stick waving or a metadata-only contact gimmick."
+    }
+  },
+  "contract": {
+    "official_v2_validator": "PASS_CANDIDATE_ISOLATED_CURRENT_MAIN_SCRIPT",
+    "script_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "entries_checked": [
+      "v2-strikes-017-reciprocal-bind-release-debt"
+    ],
+    "boundary": "local validator result is verification only; GitHub connector readback is persistence proof"
+  },
+  "repo": {
+    "persistence": "PENDING",
+    "readback": "PENDING",
+    "final_readback": "PENDING"
+  },
+  "issue": {
+    "pre_chat_receipt": null,
+    "user_surface_closure": null,
+    "final_readback_addendum": null
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_visible_video": false,
+    "ordered": false
+  },
+  "DREW_ACCEPTED": false,
+  "next_authorized": null
+}
