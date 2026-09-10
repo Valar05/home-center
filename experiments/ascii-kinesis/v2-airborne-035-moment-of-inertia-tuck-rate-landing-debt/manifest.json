@@ -1,0 +1,63 @@
+{
+  "schema": "ascii-kinesis.manifest.v2",
+  "format_version": 2,
+  "experiment_id": "v2-airborne-035-moment-of-inertia-tuck-rate-landing-debt",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "successor_collision": false,
+    "one_body_binding": true
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "2879",
+    "identity": "Hammer Kirby — Kirby Super Star — SNES — Playable Characters",
+    "campaign_evidence_artifact": "1L34d3S-4Q_xBZEUE1t20VKszFKFINVZOLn1e8YOKd6k",
+    "whole_source_inspected": true,
+    "source_authentic_timing": "UNKNOWN",
+    "decisive_compile_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "rights_firewall": true
+  },
+  "primitive": "MOMENT_OF_INERTIA_TUCK_RATE_LANDING_DEBT",
+  "files": {
+    "build": "build.py",
+    "ascii": "contact-sheet.txt",
+    "json": "motion.json",
+    "receipt": "receipt.json",
+    "spa": "airborne-tool-radius-rate-landing-debt.motion.html"
+  },
+  "media": {
+    "authoritative": "embedded_mp4_in_spa",
+    "codec": "H.264",
+    "pixel_format": "yuv420p",
+    "width": 768,
+    "height": 432,
+    "fps": 24,
+    "frames": 55,
+    "bytes": 26802,
+    "sha256": "7665163461c4ab9f22e19a0fd05b3b6f94e1dc3602f9be0761fbb657ec818526",
+    "decode": "PASS_FULL_FFMPEG_CURRENT_WORKER"
+  },
+  "hashes_sha256": {
+    "contact-sheet.txt": "2dee35bf6bb92523abf035cd28f11bfad2cb8769699e01cba0e47df1bb3f0963",
+    "motion.json": "280ec285fabcb21fdaf942b3801d5254491bb5995b97c79196311fcdf147c32e",
+    "embedded_mp4": "7665163461c4ab9f22e19a0fd05b3b6f94e1dc3602f9be0761fbb657ec818526"
+  },
+  "contract": {
+    "validator_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS_STRUCTURAL_PREDICATES_CURRENT_WORKER",
+    "repo_global": "UNCLAIMED_STANDARD_CHAT_BOUNDARY"
+  }
+}
