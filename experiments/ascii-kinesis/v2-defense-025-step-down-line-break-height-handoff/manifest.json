@@ -1,0 +1,105 @@
+{
+  "schema": "ascii-kinesis.manifest.v2",
+  "format_version": 2,
+  "specimen_id": "v2-defense-025-step-down-line-break-height-handoff",
+  "title": "Defense025 — Step-Down Line Break / Height Handoff",
+  "lane": "defense",
+  "repo_path": "experiments/ascii-kinesis/v2-defense-025-step-down-line-break-height-handoff/",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "contact_sheet_file": "contact-sheet.txt",
+  "motion_file": "motion.json",
+  "builder": "build.py",
+  "spa_file": "step-down-line-break-height-handoff.motion.html",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "lineage": {
+    "type": "NEW_CONCEPT",
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "prior_durable_closure_issue_comment": 5613382632,
+    "successor_collision": false
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": 81106,
+    "identity": "Bullwinkle — The Adventures of Rocky and Bullwinkle and Friends — NES",
+    "role": "STYLE_REFERENCE",
+    "campaign_evidence_id": "1zQGdJx7uIqTnvJlHp2NfydUu_EDDNvt01tCAlQvlYQ8",
+    "whole_source": "187×432 static PNG; whole sheet inspected in commissioned evidence; four labeled families Idle/Walking/Charge/Using Stairs",
+    "source_timing": "UNKNOWN"
+  },
+  "timing": {
+    "authored_compile": "INFERRED",
+    "policy": "STREET_FIGHTER-CAPCOM",
+    "fps": 24
+  },
+  "rights_firewall": {
+    "source_pixels": false,
+    "source_audio": false,
+    "tracing": false,
+    "close_imitation": false
+  },
+  "quality": {
+    "tango": {
+      "round0": "REVISE_REQUIRED",
+      "round0_defect": "K08 lower-tread catch placed the right foot to the right of the riser where no lower support surface existed; support authority was visually impossible.",
+      "round0_correction": "SAME body: move K08-K11 lower-base root/feet left of the riser so both support glyphs physically sit on the lower tread; preserve K06/K07 lifted trailing-foot sweep.",
+      "round1": "PASS_CURRENT_WORKER_ACTUAL_RENDER"
+    },
+    "noodle_queen": {
+      "taste": "PASS",
+      "function": "PASS",
+      "contempt": "PASS",
+      "after_tango_round": 1
+    },
+    "validator": {
+      "source_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+      "candidate_isolated": "PASS",
+      "result": {
+        "schema": "ascii-kinesis.swarm-contract-v2-test",
+        "entries_checked": [
+          "v2-defense-025-step-down-line-break-height-handoff"
+        ],
+        "ok": true
+      },
+      "boundary": "Exact current official validator source blob executed candidate-isolated; no repository-global checkout execution claimed."
+    }
+  },
+  "media": {
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 800,
+    "height": 450,
+    "fps": 24,
+    "frames": 51,
+    "duration_seconds": 2.125,
+    "bytes": 21372,
+    "sha256": "38f224d8cc3aa98aa68dc69a83b39ce871c0e71ca22b258aaa10fd9305b70039",
+    "decode_verified": true,
+    "embedded_authoritative": true
+  },
+  "repo": {
+    "persisted": false,
+    "repo_readback": false,
+    "body_files_readback": 0,
+    "spa_count": 0
+  },
+  "issue": {
+    "pre_chat_receipt": null,
+    "readback": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false
+  },
+  "drew_accepted": false
+}
