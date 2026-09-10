@@ -1,0 +1,91 @@
+{
+  "schema": "ascii-kinesis.receipt-v2",
+  "specimen": "STRIKES018",
+  "slug": "contact-clearance-gates-recovery-turn-debt",
+  "status": "QUALITY_GATES_PASS_READY_FOR_REPO_PERSISTENCE",
+  "one_body_rule": "BIND_THIS_018_UNTIL_HEALTHY",
+  "strikes019_forbidden": true,
+  "preflight": {
+    "home_center_campaign_read": "PASS_CURRENT_WORKER",
+    "github_current_main_inventory": "PASS_CURRENT_WORKER",
+    "campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "inventory_result": "NO_V2_STRIKES_018_BODY_DIRECT_CURRENT_MAIN_READBACK"
+  },
+  "source": {
+    "authority": "HOME_CENTER_COMMISSIONED_CAMPAIGN",
+    "campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "campaign_pass": "STRIKES PASS 008 — VERIFIED",
+    "campaign_issue_receipt": 5573949928,
+    "tsr_asset": "5791",
+    "identity": "Eric Lecarde — Castlevania: Bloodlines — Sega Genesis",
+    "source_media_sha256": "489e54a403dfd52737a780d68bab8e36f284f9c178eb5a2a8aa5080e26fb90c7",
+    "whole_source_inspection": "OBSERVED_BY_AUTHORIZED_CAMPAIGN_EVIDENCE; CURRENT_WORKER_FRESHLY_READ_EXACT_COMMISSIONED_CAMPAIGN_AND_VERIFIED_PASS_008_RECEIPT",
+    "source_authentic_timing": "UNKNOWN",
+    "observed_timing": "NONE",
+    "authored_timing": "INFERRED / STREET_FIGHTER-CAPCOM"
+  },
+  "rights": {
+    "source_art_embedded": false,
+    "source_pixels_used": false,
+    "source_palette_used": false,
+    "source_contours_used": false,
+    "source_layout_used": false,
+    "tracing_used": false,
+    "source_choreography_used": false,
+    "source_audio_used": false,
+    "redistribution": false,
+    "close_imitation": false,
+    "output": "new generic abstract ASCII biped + line-segment polearm rig and authored timing only"
+  },
+  "media": {
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 880,
+    "height": 440,
+    "fps": 24,
+    "frame_count": 49,
+    "bytes": 15871,
+    "sha256": "4688f82b816ec82acb41996d30020dada9ec32642d90cb33c4fd7b9955ff0f64",
+    "decode": "PASS_CURRENT_WORKER"
+  },
+  "quality": {
+    "tango": {
+      "status": "PASS",
+      "round": "R0_CURRENT_WORKER_ACTUAL_RENDER",
+      "actual_render_sha256": "4688f82b816ec82acb41996d30020dada9ec32642d90cb33c4fd7b9955ff0f64",
+      "judgment": "K04-K06 pin contact while root compresses; K07-K08 pay axial clearance before K09 root rebase; K10-K14 preserve overshoot, support catch, shaft lag and displaced settle."
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "actual_render_sha256": "4688f82b816ec82acb41996d30020dada9ec32642d90cb33c4fd7b9955ff0f64",
+      "taste": "PASS — pinned contact, axial withdrawal, delayed rebase are distinct memorable silhouettes.",
+      "function": "PASS — clearance visibly gates root turn and support/shaft debt is paid afterward.",
+      "contempt": "PASS — not metadata-only clearance or generic polearm waving."
+    }
+  },
+  "contract": {
+    "official_v2": "PASS_CANDIDATE_ISOLATED_CURRENT_MAIN_SCRIPT",
+    "script_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "boundary": "Standard Chat exposes connector read/write but not authenticated full-repository checkout execution; candidate-isolated structural validation is the callable boundary, and GitHub connector readback is persistence authority."
+  },
+  "repo": {
+    "persistence": "PENDING",
+    "readback": "PENDING",
+    "final_readback": "PENDING"
+  },
+  "issue": {
+    "pre_chat_receipt": null,
+    "pre_chat_readback": false,
+    "user_surface_closure": null,
+    "user_surface_readback": false,
+    "final_readback_addendum": null
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_visible_video": false,
+    "ordered": false
+  },
+  "DREW_ACCEPTED": false,
+  "next_authorized": null
+}
