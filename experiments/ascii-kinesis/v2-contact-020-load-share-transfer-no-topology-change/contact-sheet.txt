@@ -1,0 +1,251 @@
+ASCII KINESIS V2 CONTACT020 — LOAD-SHARE TRANSFER WITHOUT TOPOLOGY CHANGE
+Legend: O head | + pelvis/root | o joints | * persistent contact | ^ support-load share | = moving support
+Source art is not present. All geometry and timing below are independent INFERRED ASCII authorship.
+
+C020-K0 APPROACH_SEPARATE  timing=FOURS/INFERRED  contact=SEPARATE  support=GROUND_PRIOR
+
+
+
+
+
+                    O
+                    |
+                    o
+                  o-|-o
+                 /  |  \
+                o   |   o
+               |    |    |
+               o    +    o
+                   / \
+                   / \
+                  o   o
+                  |   |
+                 |     |
+                 o     o
+                            =======================
+
+
+
+
+C020-K1 DUAL_PRECONTACT_ELIGIBLE  timing=TWOS/INFERRED  contact=PRECONTACT_ELIGIBLE  support=GROUND_PRIOR
+
+
+
+
+
+
+                           O
+                           |
+                           o
+                         o-|-o
+                        /  |  \
+                       o   |   o
+                      |    |    |
+                      o    +    o
+                          / \
+                          / \
+                         o   o
+                        |     |
+                        o     o
+                      ========================
+
+
+
+
+C020-K2 DUAL_ACQUIRE_EQUAL  timing=ONES/INFERRED  contact=DUAL_CONTACT_ACQUIRED  support=BASE_LEFT_PLUS_RIGHT_EQUAL
+
+
+
+
+
+
+                             O
+                             |
+                             o
+                           o-|-o
+                          /  |  \
+                         o   |   o
+                        |    |    |
+                        o    +    o
+                            / \
+                           /   \
+                          o     o
+                         /       \
+                         /       \
+                    ====*=========*==============
+                        ^^        ^^
+
+
+
+C020-K3 LEFT_LOAD_ONSET  timing=TWOS/INFERRED  contact=DUAL_CONTACT_PERSISTENT  support=BASE_BOTH_LEFT_DOMINANT
+
+
+
+
+
+                           O
+                            |
+                            o
+                          o-|-o
+                        o-  |  \
+                       |     |  o
+                       o     |   \
+                            x+    o
+                            / \
+                           /   \
+                          o     o
+                         |       |
+                         |       |
+                        |         |
+                    ====*=========*==============
+                       ^^^        ^^
+>>
+
+
+C020-K4 LEFT_LOAD_MAX  timing=FOURS/INFERRED  contact=DUAL_CONTACT_PERSISTENT  support=BASE_BOTH_LEFT_MAX
+
+
+
+
+                        O
+                        |
+                         |
+                         o
+                       o- -o
+                      /   \ -o
+                     o     \  --
+                    /      \    -o
+                   o      x +
+                           / \
+                          /   \
+                         o     o
+                         |      \
+                        |        \
+                        |        \
+                    ====*=========*==============
+                       ^^^^       ^
+>>>>
+
+
+C020-K5 LOAD_CROSSOVER  timing=TWOS/INFERRED  contact=DUAL_CONTACT_PERSISTENT  support=BASE_BOTH_EQUAL_CROSSOVER
+
+
+
+
+
+                           O
+                            |
+                            o
+                          o-|-o
+                        //  |  \
+                       o     |  o
+                      /      |   \\
+                     o       +     o
+                            / \
+                           /   \
+                          o     o
+                         |       |
+                         |       |
+                        |         |
+                    ====*=========*==============
+                        ^^        ^^
+<><>
+
+
+C020-K6 RIGHT_LOAD_MAX  timing=FOURS/INFERRED  contact=DUAL_CONTACT_PERSISTENT  support=BASE_BOTH_RIGHT_MAX
+
+
+
+
+                                   O
+                                   |
+                                  |
+                                  o
+                               -o- -o
+                             o-  /   \
+                           --   /     o
+                         o-     /      \
+                               +x       o
+                              / \
+                            //  \
+                           o     o
+                          /      |
+                         /        |
+                         /        |
+                    ====*=========*==============
+                        ^        ^^^^
+<<<<
+
+
+C020-K7 LOAD_DECAY_BODY_OVERRUN  timing=TWOS/INFERRED  contact=DUAL_CONTACT_PERSISTENT  support=BASE_BOTH_RIGHT_DECAY
+
+
+
+
+
+                                    O
+                                   |
+                                   o
+                                 o- -o
+                               // /   -o-
+                              o  /       -o
+                            //   /
+                           o   x+
+                               /|
+                             //  |
+                            o    o
+                           /     |
+                          /       |
+                         /        |
+                    ====*=========*==============
+                        ^^       ^^^
+<<
+
+
+C020-K8 COUNTER_OVERSHOOT  timing=TWOS/INFERRED  contact=DUAL_CONTACT_PERSISTENT  support=BASE_BOTH_NEAR_EQUAL
+
+
+
+
+
+                          O
+                           |
+                           o
+                        -o-|-o
+                      o-    | \
+                     /      |  o
+                    o        |  \\
+                             +    o
+                            / \
+                           /   \
+                          o     o
+                         |       |
+                         |       |
+                        |         |
+                    ====*=========*==============
+                        ^^        ^^
+.
+
+
+C020-K9 DISPLACED_RESTACK  timing=FOURS/INFERRED  contact=DUAL_CONTACT_PERSISTENT  support=BASE_BOTH_ASYMMETRIC_SETTLE
+
+
+
+
+
+                              O
+                              |
+                              o
+                           -o-|-o
+                         o-   |  \
+                        /     |   o
+                       o      |    \\
+                              +      o
+                             / \
+                            /   \
+                           o     o
+                          /      |
+                         /        |
+                         /        |
+                    ====*=========*==============
+                        ^^        ^^
