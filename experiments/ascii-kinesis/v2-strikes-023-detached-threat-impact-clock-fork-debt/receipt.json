@@ -39,7 +39,7 @@
       "round": "R0_FRESH_REINSPECTION",
       "verdict": "PASS",
       "actual_render_sha256": "a38dd5314b911e9761a28c3d0538a2f827a0b81079f9fdb8c10d59fe30411ae0",
-      "judgment": "K03 forks custody; K04-K06 visibly advance the detached threat while launcher root/support enter recovery; K07-K08 pin the threat at one impact address while root, shoulders and rear leg continue changing; K09-K12 preserve threat break, body overshoot, secondary shoulder lag, late rear-support reacquisition and displaced settle without reverse interpolation. Impact therefore occupies its own clock while body/support causality continues changing rather than merely ending projectile travel."
+      "judgment": "K03 forks custody; K04-K06 visibly advance the detached threat while launcher root/support enter recovery; K07-K08 pin the threat at one impact address while root, shoulders and rear leg continue changing; K09-K12 preserve threat break, body overshoot, secondary shoulder lag, late rear-support reacquisition and displaced settle without reverse interpolation."
     },
     "noodle_queen_current_worker": {
       "verdict": "PASS_TASTE_FUNCTION_CONTEMPT",
@@ -63,13 +63,13 @@
       "contact_sidecar": "2dd51ce444a9668b91524ca734a035241f9cc009",
       "motion": "b916c8f155df748fe59d47eb045798cad88002db",
       "spa": "ff5b6c1e85af8b75c4d16f4a4c5723b7b16ac464",
-      "manifest_pre_surface": "528df299c3dee846f7345832a57df4de7387c727"
+      "manifest_pre_surface": "c30410a01d5dfe2c18ab5aae1e4636e5edaee126"
     },
     "final_readback": "PENDING_AFTER_USER_SURFACE"
   },
   "issue": {
-    "pre_chat_receipt": null,
-    "pre_chat_readback": false,
+    "pre_chat_receipt": 5621366820,
+    "pre_chat_readback": true,
     "user_surface_closure": null,
     "user_surface_readback": false,
     "durable_addendum": null,
