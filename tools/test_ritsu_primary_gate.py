@@ -3,8 +3,6 @@
 
 from __future__ import annotations
 
-import json
-import tempfile
 import unittest
 from pathlib import Path
 
@@ -19,6 +17,9 @@ AGAIN = "ritsu_latin_again_correction"
 
 
 def episode(*, sources=None, edges=None):
+    resolved_edges = (
+        [{"type": "CORRECTED_BY", "target": AGAIN}] if edges is None else list(edges)
+    )
     return {
         "record_type": "episode",
         "id": LATIN,
@@ -27,7 +28,7 @@ def episode(*, sources=None, edges=None):
             "Drew later corrected the repetitive automatic beat with AGAIN."
         ),
         "primary_sources": list(sources or []),
-        "edges": list(edges or [{"type": "CORRECTED_BY", "target": AGAIN}]),
+        "edges": resolved_edges,
     }
 
 
