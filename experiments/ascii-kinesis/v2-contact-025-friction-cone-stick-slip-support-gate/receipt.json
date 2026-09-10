@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "specimen": "v2-contact-025-friction-cone-stick-slip-support-gate",
-  "status": "REPO_VERIFIED_PENDING_CHAT_DELIVERY",
+  "status": "DURABILITY_READY_PENDING_TERMINAL_ISSUE",
   "current_worker_liveness": {"home_center_campaign_exact_read": true, "github_authenticated_readback": true, "home_center_health": true, "preflight": "PASS"},
   "one_body_source_ownership": {"same_body": true, "successor_collision": "NONE", "source_family_count": 1},
   "source": {"campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s", "commissioned_evidence_id": "1EcndzQbqHcHQ99qxELwoXpttbCITiJJ56WhzIgjBGMc", "tsr_asset": 123160, "whole_source_status": "INSPECTED_IN_COMMISSIONED_HOME_CENTER_EVIDENCE", "roles": ["POSE_REFERENCE", "CONTACT_REFERENCE"], "timing": "UNKNOWN_SOURCE_AUTHENTIC", "compiled_timing": "INFERRED", "rights_firewall": "PASS_NO_SOURCE_PIXELS_AUDIO"},
@@ -14,9 +14,9 @@
   },
   "validator": {"official_path": "tools/test_ascii_kinesis_swarm_contract_v2.py", "official_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78", "candidate_isolated": "PASS_CURRENT_VALIDATOR_PREDICATES", "boundary": "Exact current validator source reread; candidate-isolated structural predicates checked in Standard Chat construction. Repository-global checkout execution is not claimed."},
   "repo": {"path": "experiments/ascii-kinesis/v2-contact-025-friction-cone-stick-slip-support-gate/", "exact_six_files": true, "exact_one_spa": true, "persisted": true, "readback": true, "final_readback": false, "build_blob": "0dca19efe1bea8acbee994b8a80ea9d3e37a1f06", "contact_blob": "e6040b0dbf768eb9d58ca035e359b8fffc87281d", "motion_blob": "76cc478476efe87d396646dc2e5410333736b3d3", "spa_blob": "60891fd56d0efb721e93df62ec9b9df3f3c64617", "spa_write_commit": "c95635e753e8006c282f33e6e639c4d1678e85d7"},
-  "issue_343": {"pre_delivery_receipt": null, "user_surface_closure": null, "terminal_readback": null},
-  "campaign": {"propagated": false, "readback": false},
-  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_video": false, "ordered": false},
+  "issue_343": {"pre_delivery_receipt": 5618248070, "user_surface_closure": 5618274618, "terminal_anchor": null, "terminal_readback": false},
+  "campaign": {"propagated": true, "readback": true},
+  "chat_delivery": {"part1_ascii": true, "part2_json": true, "part3_video": true, "ordered": true},
   "drew_accepted": false,
   "next_authorized": null
 }
