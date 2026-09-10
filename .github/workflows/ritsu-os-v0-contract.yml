@@ -9,6 +9,8 @@ on:
       - fixtures/ritsu-continuity/**
       - tools/ritsu_context_router.py
       - tools/test_ritsu_context_router.py
+      - tools/ritsu_primary_gate.py
+      - tools/test_ritsu_primary_gate.py
       - .github/workflows/ritsu-os-v0-contract.yml
   workflow_dispatch:
 
@@ -31,13 +33,18 @@ jobs:
       - name: Compile candidate
         shell: powershell
         run: |
-          python -m py_compile tools/ritsu_context_router.py tools/test_ritsu_context_router.py
+          python -m py_compile tools/ritsu_context_router.py tools/test_ritsu_context_router.py tools/ritsu_primary_gate.py tools/test_ritsu_primary_gate.py
           if ($LASTEXITCODE -ne 0) { throw 'Ritsu candidate compilation failed.' }
       - name: Run Ritsu continuity canaries
         shell: powershell
         run: |
           python tools/test_ritsu_context_router.py
           if ($LASTEXITCODE -ne 0) { throw 'Ritsu continuity canaries failed.' }
+      - name: Run primary evidence closure canaries
+        shell: powershell
+        run: |
+          python tools/test_ritsu_primary_gate.py
+          if ($LASTEXITCODE -ne 0) { throw 'Ritsu primary-evidence closure canaries failed.' }
       - name: Smoke canonical cue
         shell: powershell
         run: |
@@ -50,4 +57,16 @@ jobs:
           if ($data.world_knowledge_allowed -ne $false) { throw 'World-knowledge hijack gate is open.' }
           if ($data.seek_primary -ne $true) { throw 'Missing-primary obligation disappeared.' }
           if (-not (($data.corrections -join ' ') -match 'dropped')) { throw 'AGAIN correction overlay is missing.' }
+          Write-Host $payload
+      - name: Smoke primary evidence closure gate
+        shell: powershell
+        run: |
+          $payload = python tools/ritsu_primary_gate.py ritsu-latin-cassette-intercom-v1
+          if ($LASTEXITCODE -ne 0) { throw 'Ritsu primary gate smoke failed.' }
+          $data = $payload | ConvertFrom-Json
+          if ($data.status -ne 'CONTINUITY_GAP') { throw "Expected CONTINUITY_GAP; got $($data.status)" }
+          if ($data.provenance -ne 'accepted_summary') { throw "Wrong primary-gate provenance: $($data.provenance)" }
+          if ($data.can_close_active_retrieval -ne $false) { throw 'Primary retrieval closed without complete primary evidence.' }
+          if (-not ($data.missing -contains 'episode_primary_transcript')) { throw 'Episode primary gap disappeared.' }
+          if (-not ($data.missing -contains 'correction_primary:latin-again-correction-v1')) { throw 'AGAIN primary gap disappeared.' }
           Write-Host $payload
