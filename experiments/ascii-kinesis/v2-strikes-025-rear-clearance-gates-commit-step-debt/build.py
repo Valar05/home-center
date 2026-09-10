@@ -1,179 +1,134 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import base64, gzip, hashlib, json, subprocess, tempfile
-from copy import deepcopy
+import base64, gzip, hashlib, html, json, shutil, subprocess
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent
-MOTION = json.loads((ROOT / "motion.json").read_text(encoding="utf-8"))
-GRID = MOTION["rig"]["grid"]
-GW, GH = GRID["width"], GRID["height"]
-GROUND_Y, WALL_X, TARGET_X = GRID["ground_y"], GRID["rear_wall_x"], GRID["target_x"]
-W, H, FPS = MOTION["compile"]["width"], MOTION["compile"]["height"], MOTION["compile"]["fps"]
-TIMING = MOTION["compile"]["timing_frames"]
-OVERRIDES = MOTION["compile"].get("hold_overrides", {})
-VIDEO_NAME = "rear-clearance-gates-commit-step-debt.mp4"
-SPA_NAME = "rear-clearance-gates-commit-step-debt.motion.html"
-FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
+MOTION_PATH = ROOT / "motion.json"
+CONTACT_PATH = ROOT / "contact-sheet.txt"
+VIDEO_PATH = ROOT / "rear-clearance-gates-commit-step-debt.mp4"
+SPA_PATH = ROOT / "rear-clearance-gates-commit-step-debt.motion.html"
+POINT_FIELDS = ["root","head","rear_hand","front_hand","rear_knee","front_knee","rear_foot","front_foot","rear_end","front_end"]
 
-POINT_FIELDS = ["root","head","rear_hand","front_hand","rear_knee","front_knee",
-                "rear_foot","front_foot","rear_end","front_end"]
-
-def put(g, x, y, ch):
-    x, y = int(round(x)), int(round(y))
-    if 0 <= x < GW and 0 <= y < GH:
-        g[y][x] = ch
-
-def bres(a, b):
-    x0,y0 = map(lambda v:int(round(v)), a); x1,y1 = map(lambda v:int(round(v)), b)
+def bres(a,b):
+    x0,y0=map(lambda v:int(round(v)),a); x1,y1=map(lambda v:int(round(v)),b)
     pts=[]; dx=abs(x1-x0); sx=1 if x0<x1 else -1; dy=-abs(y1-y0); sy=1 if y0<y1 else -1; err=dx+dy
     while True:
         pts.append((x0,y0))
         if x0==x1 and y0==y1: break
         e2=2*err
-        if e2>=dy: err += dy; x0 += sx
-        if e2<=dx: err += dx; y0 += sy
+        if e2>=dy: err+=dy; x0+=sx
+        if e2<=dx: err+=dx; y0+=sy
     return pts
 
-def line(g, a, b, ch):
-    for x,y in bres(a,b):
-        put(g,x,y,ch)
+def ascii_pose(k,m):
+    grid=m["rig"]["grid"]; gw,gh=grid["width"],grid["height"]; gy=grid["ground_y"]; wx=grid["rear_wall_x"]; tx=grid["target_x"]
+    g=[[" "]*gw for _ in range(gh)]
+    def put(x,y,ch):
+        x=int(round(x)); y=int(round(y))
+        if 0<=x<gw and 0<=y<gh:g[y][x]=ch
+    def line(a,b,ch):
+        for x,y in bres(a,b): put(x,y,ch)
+    for y in range(2,gy+1): put(wx,y,"#")
+    for x in range(wx,gw-2): put(x,gy,"_")
+    for y in range(7,gy+1): put(tx,y,"|")
+    p=k["pose_rig"]; r=p["root"]; h=p["head"]; s=[round((r[0]+h[0])/2),max(h[1]+3,r[1]-3)]
+    line(r,s,"|"); line(s,h,"|"); put(*h,"O")
+    line(s,p["rear_hand"],"/"); line(s,p["front_hand"],"\\")
+    line(r,p["rear_knee"],"/"); line(p["rear_knee"],p["rear_foot"],"/")
+    line(r,p["front_knee"],"\\"); line(p["front_knee"],p["front_foot"],"\\")
+    put(*p["rear_knee"],"o"); put(*p["front_knee"],"o")
+    fm={"ACTIVE":"*","LIGHT":".","AIR":"^"}
+    put(*p["rear_foot"],fm[k["rear_foot_state"]]); put(*p["front_foot"],fm[k["front_foot_state"]]); put(*r,"@")
+    line(p["rear_end"],p["rear_hand"],"="); line(p["rear_hand"],p["front_hand"],"="); line(p["front_hand"],p["front_end"],"=")
+    put(*p["rear_end"],"B"); put(*p["rear_hand"],"+"); put(*p["front_hand"],"+")
+    put(*p["front_end"],"X" if k["contact"] in ("TARGET","TARGET_HOLD") else "T")
+    rows=["".join(row).rstrip() for row in g]
+    return "\n".join(rows[2:gy+1])
 
-def foot_symbol(state):
-    return {"ACTIVE":"*","LIGHT":".","AIR":"^"}.get(state, "?")
-
-def ascii_pose(k, label=False):
-    g = [[" "]*GW for _ in range(GH)]
-    for y in range(2, GROUND_Y+1):
-        put(g, WALL_X, y, "#")
-    for x in range(5, GW-3):
-        put(g, x, GROUND_Y, "_")
-    for y in range(7, GROUND_Y+1):
-        put(g, TARGET_X, y, "|")
-
-    p = k["pose_rig"]
-    root, head = p["root"], p["head"]
-    shoulder = [round((root[0]+head[0])/2), max(head[1]+3, root[1]-3)]
-    line(g, root, shoulder, "|"); line(g, shoulder, head, "|"); put(g,*head,"O")
-    line(g, shoulder, p["rear_hand"], "/"); line(g, shoulder, p["front_hand"], "\\")
-    line(g, root, p["rear_knee"], "/"); line(g, p["rear_knee"], p["rear_foot"], "/")
-    line(g, root, p["front_knee"], "\\"); line(g, p["front_knee"], p["front_foot"], "\\")
-    put(g,*p["rear_knee"],"o"); put(g,*p["front_knee"],"o")
-    put(g,*p["rear_foot"], foot_symbol(k["rear_foot_state"]))
-    put(g,*p["front_foot"], foot_symbol(k["front_foot_state"]))
-    put(g,*root,"@")
-
-    line(g, p["rear_end"], p["rear_hand"], "=")
-    line(g, p["rear_hand"], p["front_hand"], "=")
-    line(g, p["front_hand"], p["front_end"], "=")
-    put(g,*p["rear_end"],"B")
-    put(g,*p["rear_hand"],"+")
-    put(g,*p["front_hand"],"+")
-    if k["contact"] in {"TARGET","TARGET_HOLD"}:
-        put(g,*p["front_end"],"X")
-    else:
-        put(g,*p["front_end"],"T")
-    rows = ["".join(r).rstrip() for r in g]
-    body = "\n".join(rows)
-    if label:
-        return f"{k['key_id']} {k['name']}\n{body}"
-    return body
-
-def make_contact_sheet():
-    header = (
-        "ASCII KINESIS V2 STRIKES025 — REAR CLEARANCE GATES COMMIT STEP DEBT\n"
-        "Pocket rule: THE STRIKE OWES A STEP BEFORE IT OWES A THRUST. IF THE BUTT HAS NO REAR ROOM, ROOT SUPPORT MUST MOVE FIRST.\n"
-        "Legend: # rear obstruction | | target | B staff butt | T staff tip | X target contact | + hands | O head | @ root | o knee | * active support | . light | ^ air | _ ground\n"
-        "Source: STRIKES PASS 005 — VERIFIED | Home Center evidence 1BW6UzsUckanhIqsAIcO6mWhc7FNCHGCX7A5tsdfO1EU | TSR asset 23976 | Donatello — TMNT Tournament Fighters — SNES.\n"
-        "Source roles: POSE_REFERENCE + CONTACT_REFERENCE. Timing authority=false. Source timing=UNKNOWN.\n"
-        "OBSERVED: complete static long-weapon fighter sheet; long staff extension and front/rear tool volume; commissioned lifecycle explicitly proposes a rear-occluded partial-cover follow-up testing root movement before coil.\n"
-        "INFERRED: this entire authored pose order, root/support clearance gate, contact, hit-stop implication, recoil, overshoot, lag, recovery and all timing. Direction=STREET_FIGHTER/CAPCOM.\n"
-        "Rights firewall: independent abstract ASCII biped + line-segment staff only. No source pixels, palette, costume/contours, sheet layout, tracing, source choreography/audio, redistribution or close imitation.\n\n"
+def make_contact(m):
+    header=(
+      "ASCII KINESIS V2 STRIKES025 — REAR CLEARANCE GATES COMMIT STEP DEBT\n"
+      "Pocket rule: THE STRIKE OWES A STEP BEFORE IT OWES A THRUST. IF THE BUTT HAS NO REAR ROOM, ROOT SUPPORT MUST MOVE FIRST.\n"
+      "Legend: # rear obstruction | | target | B staff butt | T staff tip | X target contact | + hands | O head | @ root | o knee | * active support | . light | ^ air | _ ground\n"
+      "Source: STRIKES PASS 005 — VERIFIED | Home Center evidence 1BW6UzsUckanhIqsAIcO6mWhc7FNCHGCX7A5tsdfO1EU | TSR asset 23976 | Donatello — TMNT Tournament Fighters — SNES.\n"
+      "Source roles: POSE_REFERENCE + CONTACT_REFERENCE. Timing authority=false. Source timing=UNKNOWN.\n"
+      "OBSERVED: static long-weapon fighter sheet; front/rear staff volume; commissioned lifecycle proposes rear-occluded partial-cover follow-up testing root movement before coil.\n"
+      "INFERRED: authored pose order, root/support clearance gate, contact/hit-stop implication, recoil, overshoot, secondary lag, recovery, all timing. Direction=STREET_FIGHTER/CAPCOM.\n"
+      "Rights firewall: generic ASCII biped + line-segment staff only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio/redistribution/close imitation.\n\n"
     )
-    chunks=[]
-    for k in MOTION["keys"]:
-        chunks.append(
-            ascii_pose(k, True) + "\n" +
-            f"timing_class={k['timing_class']} | timing_provenance={k['timing_provenance']} | causal_role={k['causal_role']}\n" +
-            f"support={k['support_contact']} | contact={k['contact']} | rear_foot={k['rear_foot_state']} | front_foot={k['front_foot_state']}\n" +
-            f"root_note={k['motion_arc_root_note']}\nclearance_note={k['clearance_note']}"
+    blocks=[]
+    for k in m["keys"]:
+        blocks.append(
+          f"{k['key_id']} {k['name']} — timing={k['timing_class']} — provenance={k['timing_provenance']}\n"
+          f"role={k['causal_role']} | support={k['support_contact']}\n"
+          f"root_arc={k['motion_arc_root_note']} | clearance={k['clearance_note']}\n"
+          + ascii_pose(k,m)
         )
-    return header + "\n\n".join(chunks) + "\n"
+    return header+"\n\n".join(blocks)+"\n"
 
-def smoothstep(t):
-    return t*t*(3-2*t)
-
-def interp_key(a, b, t):
-    u = smoothstep(t)
-    out = deepcopy(a if t < 0.5 else b)
-    out["key_id"] = f"{a['key_id']}→{b['key_id']}"
-    out["name"] = "CONNECTIVE"
-    out["pose_rig"] = {}
-    for field in POINT_FIELDS:
-        av, bv = a["pose_rig"][field], b["pose_rig"][field]
-        out["pose_rig"][field] = [av[0] + (bv[0]-av[0])*u, av[1] + (bv[1]-av[1])*u]
+def interp(a,b,t):
+    e=t*t*(3-2*t); near=a if t<0.5 else b
+    out={"pose_rig":{f:[a["pose_rig"][f][0]*(1-e)+b["pose_rig"][f][0]*e,
+                         a["pose_rig"][f][1]*(1-e)+b["pose_rig"][f][1]*e] for f in POINT_FIELDS}}
+    for f in ["key_id","name","rear_foot_state","front_foot_state","contact","support_contact","motion_arc_root_note","clearance_note","causal_role","timing_class","timing_provenance"]:
+        out[f]=near[f]
     return out
 
-def compile_frames():
-    keys=MOTION["keys"]; frames=[]
-    for i,k in enumerate(keys):
-        n = int(OVERRIDES.get(k["key_id"], TIMING[k["timing_class"]]))
-        frames.extend([deepcopy(k) for _ in range(n)])
-        if i+1 < len(keys):
-            frames.append(interp_key(k, keys[i+1], 0.5))
-    return frames
+def sequence(m):
+    timing=m["compile"]["timing_frames"]; ov=m["compile"].get("hold_overrides",{})
+    out=[]
+    for i,k in enumerate(m["keys"]):
+        out += [k]*ov.get(k["key_id"],timing[k["timing_class"]])
+        if i<len(m["keys"])-1: out.append(interp(k,m["keys"][i+1],0.5))
+    return out
 
-def render_frame(k, path):
-    img=Image.new("RGB",(W,H),"black"); d=ImageDraw.Draw(img)
-    font=ImageFont.truetype(FONT,10); small=ImageFont.truetype(FONT,9)
-    d.text((10,6), f"STRIKES025 | {k['key_id']} | {k['name']}", font=small, fill="white")
-    d.multiline_text((10,20), ascii_pose(k,False), font=font, fill="white", spacing=0)
-    d.text((10,H-62), f"SUPPORT {k['support_contact']} | CONTACT {k['contact']}", font=small, fill="white")
-    d.text((10,H-49), "CLOCK: DENIED COIL → CLEARING STEP → LEGAL COIL → AXIS → PRECONTACT → CONTACT → BODY CHECK → AXIAL WITHDRAW", font=small, fill="white")
-    d.text((10,H-36), "DEBT: support purchases rear volume before commitment; long-tool overshoot/hand lag must settle into a displaced ready", font=small, fill="white")
-    d.text((10,H-23), "SOURCE ART ABSENT | authored geometry/timing/causality INFERRED | source timing UNKNOWN", font=small, fill="white")
-    img.save(path)
+def render(m):
+    w,h,fps=m["compile"]["width"],m["compile"]["height"],m["compile"]["fps"]
+    frames=ROOT/".frames"; shutil.rmtree(frames,ignore_errors=True); frames.mkdir()
+    font=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",10)
+    font_big=ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",14)
+    seq=sequence(m)
+    for idx,k in enumerate(seq):
+        im=Image.new("RGB",(w,h),"#101216"); d=ImageDraw.Draw(im)
+        d.text((14,10),"ASCII KINESIS / STRIKES025",font=font_big,fill="#f2f2f2")
+        d.text((14,32),f"{k['key_id']} {k['name']}  {k['timing_class']}  {k['causal_role']}",font=font,fill="#e8e8e8")
+        d.text((14,50),"DENIED COIL → CLEARING STEP → LEGAL COIL → CONTACT PIN → AXIAL WITHDRAW → DISPLACED READY",font=font,fill="#d0d0d0")
+        d.multiline_text((14,76),ascii_pose(k,m),font=font,fill="#f5f5f5",spacing=0)
+        d.text((14,h-42),f"SUPPORT: {k['support_contact']}",font=font,fill="#dedede")
+        d.text((14,h-25),f"DEBT: {k['clearance_note'][:100]}",font=font,fill="#dedede")
+        im.save(frames/f"{idx:04d}.png")
+    subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate",str(fps),"-i",str(frames/"%04d.png"),
+                    "-c:v","libx264","-preset","veryslow","-crf","45","-pix_fmt","yuv420p",str(VIDEO_PATH)],check=True)
+    shutil.rmtree(frames)
+    return seq
 
-def build_video(out):
-    frames=compile_frames()
-    with tempfile.TemporaryDirectory() as td:
-        td=Path(td)
-        for i,k in enumerate(frames):
-            render_frame(k, td/f"{i:04d}.png")
-        subprocess.run([
-            "ffmpeg","-y","-loglevel","error","-framerate",str(FPS),"-i",str(td/"%04d.png"),
-            "-c:v","libx264","-crf","32","-preset","veryslow","-pix_fmt","yuv420p","-movflags","+faststart",str(out)
-        ], check=True)
-    return len(frames)
-
-def make_spa(ascii_text, motion_text, video_bytes):
-    a64=base64.b64encode(gzip.compress(ascii_text.encode("utf-8"),compresslevel=9,mtime=0)).decode("ascii")
-    j64=base64.b64encode(gzip.compress(motion_text.encode("utf-8"),compresslevel=9,mtime=0)).decode("ascii")
-    v64=base64.b64encode(video_bytes).decode("ascii")
-    return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ASCII Kinesis V2 Strikes025 — Rear Clearance Gates Commit Step Debt</title>
-<style>body{{margin:0;background:#0b0c0f;color:#f3f3f3;font-family:ui-monospace,Menlo,Consolas,monospace}}nav{{position:sticky;top:0;background:#15171d;padding:10px;display:flex;gap:8px}}button{{font:inherit;padding:8px 14px}}main{{padding:12px}}section{{display:none}}section.active{{display:block}}pre{{white-space:pre;overflow:auto;font-variant-ligatures:none;line-height:1}}video{{max-width:100%;height:auto;background:black}}</style></head><body>
-<nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><main>
-<section id="ascii" class="active"><pre id="a"></pre></section><section id="json"><pre id="j"></pre></section><section id="video"><video controls loop playsinline src="data:video/mp4;base64,{v64}"></video></section>
-</main><script>
-const ss=[...document.querySelectorAll("section")];for(const b of document.querySelectorAll("button[data-view]"))b.onclick=()=>{{ss.forEach(s=>s.classList.toggle("active",s.id===b.dataset.view));}};
-async function gunzip(s){{const b=Uint8Array.from(atob(s),c=>c.charCodeAt(0));const r=new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("gzip")));return r.text();}}
-Promise.all([gunzip("{a64}"),gunzip("{j64}")]).then(([a,j])=>{{document.getElementById("a").textContent=a;document.getElementById("j").textContent=j;}});
-</script></body></html>'''
+def make_spa(m, contact, media):
+    js=json.dumps(m,indent=2,ensure_ascii=False)
+    enc_ascii=base64.b64encode(gzip.compress(contact.encode("utf-8"))).decode("ascii")
+    enc_json=base64.b64encode(gzip.compress(js.encode("utf-8"))).decode("ascii")
+    vid=base64.b64encode(media).decode("ascii")
+    return f"""<!doctype html><meta charset="utf-8"><title>ASCII Kinesis Strikes025</title>
+<style>body{{font-family:system-ui;background:#101216;color:#eee;margin:0}}nav{{position:sticky;top:0;background:#181b20;padding:12px}}button{{margin-right:8px;padding:8px 14px}}section{{display:none;padding:14px}}section.on{{display:block}}pre{{white-space:pre;overflow:auto;font:12px/1.15 monospace;font-variant-ligatures:none}}video{{max-width:100%;height:auto}}</style>
+<nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
+<section id="ascii" class="on"><pre></pre></section><section id="json"><pre></pre></section>
+<section id="video"><video controls loop playsinline src="data:video/mp4;base64,{vid}"></video></section>
+<script>
+async function ungz(s){{let b=Uint8Array.from(atob(s),c=>c.charCodeAt(0));let r=new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip')));return await r.text()}}
+(async()=>{{document.querySelector('#ascii pre').textContent=await ungz('{enc_ascii}');document.querySelector('#json pre').textContent=await ungz('{enc_json}')}})();
+for(const b of document.querySelectorAll('button[data-view]'))b.onclick=()=>{{document.querySelectorAll('section').forEach(s=>s.classList.remove('on'));document.getElementById(b.dataset.view).classList.add('on')}};
+</script>"""
 
 def main():
-    contact=make_contact_sheet()
-    (ROOT/"contact-sheet.txt").write_text(contact,encoding="utf-8")
-    video=ROOT/VIDEO_NAME
-    n=build_video(video)
-    motion_text=(ROOT/"motion.json").read_text(encoding="utf-8")
-    spa=ROOT/SPA_NAME
-    spa.write_text(make_spa(contact,motion_text,video.read_bytes()),encoding="utf-8")
-    print(json.dumps({
-        "frames":n,"fps":FPS,"video":str(video),"spa":str(spa),
-        "video_bytes":video.stat().st_size,
-        "video_sha256":hashlib.sha256(video.read_bytes()).hexdigest()
-    },sort_keys=True))
-if __name__=="__main__":
-    main()
+    m=json.loads(MOTION_PATH.read_text(encoding="utf-8"))
+    contact=make_contact(m); CONTACT_PATH.write_text(contact,encoding="utf-8")
+    seq=render(m); media=VIDEO_PATH.read_bytes()
+    sha=hashlib.sha256(media).hexdigest()
+    m["compile"]["actual_frames"]=len(seq); m["compile"]["actual_media_bytes"]=len(media); m["compile"]["actual_media_sha256"]=sha
+    MOTION_PATH.write_text(json.dumps(m,ensure_ascii=False,separators=(",",":"))+"\n",encoding="utf-8")
+    # regenerate contact is unchanged by compile facts; SPA uses final JSON
+    SPA_PATH.write_text(make_spa(m,contact,media),encoding="utf-8")
+    print(json.dumps({"video":VIDEO_PATH.name,"frames":len(seq),"bytes":len(media),"sha256":sha,"spa":SPA_PATH.name},sort_keys=True))
+
+if __name__=="__main__": main()
