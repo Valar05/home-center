@@ -16,7 +16,7 @@ A033-K0 LEFT_LEDGE_COIL | timing=FOURS | provenance=INFERRED | support=GROUND_BO
           -o- ||
          x-    |
                @\
-             // \
+             // \\
             o/   o
            //    ||
 ===========*======*===================|~~~~~~~~~~~~~~~~|================================
@@ -185,7 +185,7 @@ A033-K5 RIGHT_TOE_FRAGILE_UNDERCATCH | timing=ONES | provenance=INFERRED | suppo
                                           O     -x
                                           |+----o
                                          //\
-                                        o/  \
+                                        o/  \\
                                        //   @
                                       x   ---|
                                         --o  |
@@ -294,7 +294,6 @@ A033-K8 SECONDARY_REDROP_ARM_SPREAD | timing=ONES | provenance=INFERRED | suppor
                                             /     \
                                            =/.     =
                                                     .
-
 
 
 
