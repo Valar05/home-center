@@ -5,7 +5,7 @@
   "lane": "defense",
   "number": 22,
   "title": "GUARD CRUMPLE / WAVE REBASE",
-  "status": "REPO_VERIFIED_PENDING_ISSUE_AND_CHAT_DELIVERY",
+  "status": "REPO_AND_ISSUE_VERIFIED_PENDING_CHAT_DELIVERY",
   "lineage": {
     "revises": null,
     "negative_fixture": null,
@@ -82,18 +82,18 @@
     "blobs": {
       "build.py": "985f86c23884412f1b716216869fe53f94860c10",
       "contact-sheet.txt": "63c198361257df01d8eec87f1d79783b48b19c10",
-      "manifest.json": "a1826ad89e9d20964998361e8fe9d4bf88a9c752",
+      "manifest.json": "f5379d18746445b2675073020fad5f8b7bf5390a",
       "motion.json": "e9f5d55ce0bad6904b58dcc4cda859ab02968f1f",
       "guard-crumple-wave-rebase.motion.html": "cbdf3ee02a95e80a966ce673445292f9eb53a4b5",
-      "receipt.json": "92bda1531a8612f872a3cd986e025a2d56ed39a7"
+      "receipt.json": "923b5e89b2e74277294d8c8e2c991e65eb7fb1e9"
     },
-    "readback_commit": "18b8c1c9f9121dd24cbc49f45f43286f4baca7a7",
+    "readback_commit": "bf07513ed051429594fc03a7220d17aee260a1c2",
     "receipt_previous_blob": "92bda1531a8612f872a3cd986e025a2d56ed39a7"
   },
   "issue": {
     "issue": 343,
-    "receipt_comment": null,
-    "readback": false
+    "receipt_comment": 5611242333,
+    "readback": true
   },
   "chat_delivery": {
     "part1_ascii": false,
