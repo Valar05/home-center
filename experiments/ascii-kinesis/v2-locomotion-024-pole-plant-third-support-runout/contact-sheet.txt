@@ -1,0 +1,403 @@
+ASCII KINESIS V2 · LOCOMOTION 024 · POLE PLANT / THIRD SUPPORT / RUNOUT
+legend: @ root · c COM · * trusted foot support · ~ free foot · P planted pole tip · ^ airborne pole tip · / pole/limb · . root route
+source evidence: Donatello / TMNT Tournament Fighters / SNES / TSR asset 23976 / Home Center artifact 1BW6UzsUckanhIqsAIcO6mWhc7FNCHGCX7A5tsdfO1EU
+OBSERVED: commissioned evidence treated the full 568×2297 static sheet as one corpus spanning travel/jump, long-staff extension, action, special-effect, and consequence/recovery families.
+UNKNOWN: source-authentic chronology/exposure/root/support/pole-plant locomotion choreography. The source grants no timing authority.
+authored timing: INFERRED / STREET_FIGHTER-CAPCOM. rights firewall: independent abstract rig only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio/redistribution/close imitation.
+thesis: plant the pole as a true fixed third support, pass root/COM around it, earn a new foot catch before release, preserve velocity into an overlong free catch, then pay shorter correction and tool-lag debt.
+
+K00 APPROACH_LEFT_SUPPORT · FOURS/4f · INFERRED · support=LEFT · pole=AIRBORNE · phase=APPROACH · rootΔ=0px · lean=-7° · lag=-10°
+
+
+
+     O
+
+  //
+    /T-/
+     |----//
+     |      ///
+      |        ////
+      |c           /^
+      @.                      .........            ...
+      //......        ........         ............
+      / /     ........
+      / /
+     /   /
+     /    /
+     /     ~
+_____*______________________________________________________________________________
+
+
+
+
+
+causal: establish asymmetric forward travel and visible pole carriage before any third-support claim
+
+K01 POLE_PROBE_AHEAD · TWOS/2f · INFERRED · support=LEFT · pole=PROBE · phase=PLANT_PROBE · rootΔ=21.2px · lean=-12° · lag=-6°
+
+
+
+
+       O
+     //
+       //
+        T-/
+        | --/
+        |    //
+         |     //
+      .. |c      //           .........            ...
+        .@....     // ........         ............
+        / /   .......//
+        /  /           //
+       /    /            //
+      /      /             //
+      /       ~              //
+_____*_________________________^____________________________________________________
+
+
+
+
+
+causal: pole tip reaches fixed ground ahead while the old left support still owns the body; probe is not yet load bearing
+
+K02 POLE_PLANT_ACQUIRED · ONES/1f · INFERRED · support=LEFT+POLE · pole=PLANTED_FIXED · phase=PLANT_ACQUIRE · rootΔ=17.7px · lean=-17° · lag=-2°
+
+
+
+
+       / O
+        //
+          T-
+          | --
+           |  //
+           |    //
+      ..    |c    //          .........            ...
+        ....@.      / ........         ............
+           / /.......//
+          /   /        //
+        //     /         //
+       /        /          //
+      /          ~           //
+_____*_________________________P____________________________________________________
+
+
+
+
+
+causal: commit the pole tip as a real fixed third-support anchor before COM crosses toward it
+
+K03 TRIPOD_LOAD_COM_FORWARD · TWOS/2f · INFERRED · support=LEFT+POLE · pole=PLANTED_FIXED · phase=TRIPOD_LOAD · rootΔ=25.0px · lean=-24° · lag=+2°
+
+
+
+
+
+          /O
+           //
+             T-
+             | --
+              |  /
+      ..      |  c//          .........            ...
+        ...... |    //........         ............
+              /@......//
+            //  //      /
+          //      /      //
+        //         //      //
+      //             ~       //
+_____*_________________________P____________________________________________________
+
+
+
+
+
+causal: compress and drive COM forward through the left-foot plus fixed-pole support triangle while root travel stays live
+
+K04 ROOT_PASSES_INTO_POLE_ARC · TWOS/2f · INFERRED · support=POLE+LEFT_UNLOADING · pole=PLANTED_FIXED · phase=PIVOT_PASS_A · rootΔ=28.0px · lean=-28° · lag=+5°
+
+
+
+
+
+              /O
+               //
+                 --
+                T-/
+                 |---
+      ..         |   /        .........            ...
+        ......    |  c//......         ............
+              ..../@..  /
+               ///  //   //
+            ///       /    /
+          //           //   /
+       ///               ~   //
+_____*/________________________P____________________________________________________
+
+
+
+
+
+causal: carry root toward the planted pole while unloading the rear foot; pole angle closes around an unchanged world anchor
+
+K05 POLE_DOMINANT_SWING_THROUGH · TWOS/2f · INFERRED · support=POLE_DOMINANT · pole=PLANTED_FIXED · phase=PIVOT_PASS_B · rootΔ=32.2px · lean=-25° · lag=+8°
+
+
+
+
+                     /
+                    O /
+                      /
+                      --
+                     T- /
+                      |---
+                      |  /
+      ..               |  c   .........            ...
+        ......        ..@../..         ............
+              ........ / / /
+                       /  ///
+                      /     //
+                     /       //
+                     /        ~
+____________________~__________P____________________________________________________
+
+
+
+
+
+causal: let the fixed pole temporarily dominate support while both feet migrate forward; the body passes the anchor instead of teleporting it
+
+K06 RIGHT_CATCH_BEFORE_RELEASE · TWOS/2f · INFERRED · support=RIGHT+POLE · pole=PLANTED_FIXED · phase=RIGHT_CATCH · rootΔ=29.6px · lean=-18° · lag=+12°
+
+
+                             /
+                         O   /
+                             /
+                            --
+                          T-  /
+                          | ---
+                           |  /
+                           |  /
+      ..                    | c........            ...
+        ......        ......@./        ............
+              ........     / //
+                          /  //
+                         /    //
+                        /      /
+                       ~       /
+_______________________________P*___________________________________________________
+
+
+
+
+
+causal: earn a trustworthy right-foot catch while the pole tip is still fixed; this catch is the release prerequisite
+
+K07 RIGHT_LOAD_POLE_UNLOAD · TWOS/2f · INFERRED · support=RIGHT+POLE_UNLOADING · pole=UNLOADING_FIXED · phase=POLE_UNLOAD · rootΔ=26.3px · lean=-11° · lag=+16°
+
+
+                                    /
+                                    /
+                              O    /
+                                   /
+                                 ---
+                               T- /
+                               | --
+                               |  /
+                                | c
+      ..                      ..@/.....            ...
+        ......        ........ ///     ............
+              ........        / //
+                              / /
+                             /  /
+                            /   /
+                           ~   //
+_______________________________P*___________________________________________________
+
+
+
+
+
+causal: load the new right support and unload the pole without clamping forward velocity; tool lag grows as the body exits its pivot
+
+K08 POLE_RELEASE_AFTER_FOOT_OWNERSHIP · ONES/1f · INFERRED · support=RIGHT · pole=AIRBORNE_RELEASED · phase=POLE_RELEASE · rootΔ=26.1px · lean=-4° · lag=+22°
+
+
+                                          /
+                                   O     /
+                                         /
+                                        /
+                                   T-----
+                                   |-- /
+                                   |  --
+                                    | /
+                                    |c
+      ..                      ......@..            ...
+        ......        ........     //  ............
+              ........            //
+                                  //
+                                 /^
+                                //
+                               ~ /
+________________________________*___________________________________________________
+
+
+
+
+
+causal: release the pole tip only after right-foot ownership is established; root velocity survives and the freed pole trails
+
+K09 LEFT_FREE_CATCH_OVERRUN · TWOS/2f · INFERRED · support=LEFT · pole=AIRBORNE · phase=FREE_OVERRUN · rootΔ=41.1px · lean=+4° · lag=+28°
+
+
+
+
+                                           O
+                                                   //
+                                                 //
+                                          T------
+                                          | ---
+                                          |//
+                                         //
+      ..                      .........// |c       ...
+        ......        ........       ^/...@........
+              ........                  ///
+                                      //   /
+                                     /     /
+                                   //       /
+                                 //         /
+________________________________~____________*______________________________________
+
+
+
+
+
+causal: first free catch lands deliberately overlong after pole release while the torso and pole remain late
+
+K10 LEFT_BRAKE_COMPRESSION · TWOS/2f · INFERRED · support=LEFT · pole=AIRBORNE · phase=BRAKE_COMPRESSION · rootΔ=26.0px · lean=+9° · lag=+24°
+
+
+
+
+                                               O
+                                                        //
+                                                     ///
+                                              T------
+                                              | ---
+                                             ///
+      ..                      .........    //|     ...
+        ......        ........         ..^/..@c....
+              ........                       //
+                                             / //
+                                             /   /
+                                             /    /
+                                             /     ~
+_____________________________________________*______________________________________
+
+
+
+
+
+causal: hold the overrun catch and compress to brake translation; the pole continues its delayed forward sweep
+
+K11 RIGHT_COUNTERSTEP_CATCH · TWOS/2f · INFERRED · support=RIGHT · pole=AIRBORNE · phase=COUNTERSTEP · rootΔ=18.2px · lean=+7° · lag=+18°
+
+
+
+                                                 O
+
+                                                          //
+                                                 T------//
+                                                 | --//
+                                                 |//
+                                               ///
+      ..                      .........      ^/ |  ...
+        ......        ........         .........@c.
+              ........                          /
+                                               / /
+                                               / /
+                                              /  /
+                                              /   /
+_____________________________________________~____*_________________________________
+
+
+
+
+
+causal: short counterstep changes support ownership to catch remaining translational mismatch without becoming a gait loop
+
+K12 RIGHT_PASS_LEFT_CORRECTION_PROBE · TWOS/2f · INFERRED · support=RIGHT+LEFT_PROBE · pole=AIRBORNE · phase=CORRECTION_PROBE · rootΔ=14.3px · lean=+4° · lag=+13°
+
+
+
+                                                   O
+                                                           //
+                                                         //
+                                                   T-----
+                                                   |/--
+                                                  //
+                                                ^/|
+      ..                      .........           |c..
+        ......        ........         ...........@
+              ........                            /
+                                                  //
+                                                  //
+                                                  / /
+                                                  / ~
+__________________________________________________*_________________________________
+
+
+
+
+
+causal: a shorter left correction probe advances while right support remains fixed; secondary tool lag continues to decay
+
+K13 LEFT_CORRECTION_CATCH · TWOS/2f · INFERRED · support=LEFT · pole=AIRBORNE · phase=CORRECTION_CATCH · rootΔ=11.4px · lean=+1° · lag=+8°
+
+
+
+                                                    O        /
+                                                           //
+                                                    T-----/
+                                                    |-- /
+                                                    | /-
+                                                    //
+                                                   ^|
+      ..                      .........            .c.
+        ......        ........         ............ /
+              ........                             //
+                                                   //
+                                                   / /
+                                                  /  /
+                                                  ~  /
+_____________________________________________________*______________________________
+
+
+
+
+
+causal: final trusted left correction is smaller than the counterstep and arrests root debt without returning to the original stance
+
+K14 DISPLACED_TOOL_LAG_SETTLE · FOURS/4f · INFERRED · support=LEFT_UNLOADING · pole=AIRBORNE · phase=DISPLACED_SETTLE · rootΔ=8.2px · lean=-1° · lag=+4°
+
+
+                                                     O       /
+                                                            /
+                                                           /
+                                                     T-----
+                                                     | --
+                                                     | /
+                                                     |/
+                                                     ^
+      ..                      .........            ..c
+        ......        ........         ............  /
+              ........                               //
+                                                     //
+                                                     / /
+                                                     / /
+                                                     /  ~
+_____________________________________________________*______________________________
+
+
+
+
+
+causal: settle displaced with left support unloading, residual pole/arm lag, and live next-step debt rather than idle reset
