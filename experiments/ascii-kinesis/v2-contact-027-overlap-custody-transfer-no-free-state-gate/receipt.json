@@ -1,26 +1,19 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-contact-027-overlap-custody-transfer-no-free-state-gate",
-  "status": "CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "REPO_PERSISTED_READY_FOR_USER_SURFACE",
   "current_worker_liveness": {"home_center_campaign":"PASS_FRESH_EXACT_COMMISSIONED_READ","github_persistence_readback":"PASS_AUTHENTICATED_CURRENT_MAIN"},
   "lineage": {"kind":"NEW_CONCEPT","revises":null,"negative_fixture":null,"source_change":"NOT_APPLICABLE_NEW_CONCEPT","successor_collision":"NONE","authorized_after":"v2-contact-026-captive-relationship-zero-contact-topology-gate","authorization_issue_comment":5624442925},
   "source": {"commissioned_evidence_id":"1PSEuJ3-KtMaQ8zkFgULnF0KlBa-ytjX6fFiuTamZPCI","tsr_asset":55723,"roles":["POSE_REFERENCE","TOOL_FAMILY_REFERENCE"],"whole_source_read":true,"timing_authority":false,"source_authentic_timing":"UNKNOWN","rights_firewall":"PASS_NO_SOURCE_PIXELS_AUDIO"},
   "primitive": "OVERLAPPING_CUSTODY_TRANSFER_WITHOUT_FREE_STATE",
   "media": {"codec":"h264","pix_fmt":"yuv420p","width":600,"height":340,"fps":24,"frames":30,"bytes":12398,"sha256":"1dcee69972362a6c921e833ff2c58c289545afd33e70248710a03bb924c2d494","decode":"PASS_CURRENT_WORKER_ACTUAL_RENDER"},
   "quality": {
-    "tango": {
-      "status":"PASS_R1_CURRENT_WORKER_ACTUAL_RENDER",
-      "same_media_sha256":"1dcee69972362a6c921e833ff2c58c289545afd33e70248710a03bb924c2d494",
-      "rounds":[
-        {"round":"R0","verdict":"REVISE_REQUIRED","highest_value_visible_defect":"Load crossover read more strongly in arrows/metadata than in the bodies; both actors stayed too vertically mannequin-like while the baton did most of the acting.","correction":"Deepen B's eligibility/acquisition crouch and leftward root commitment; drive B upward/right through takeover; make A counterlean, yield, and trail the released hand; enlarge baton cant/overshoot while preserving the no-FREE custody chain."},
-        {"round":"R1","verdict":"PASS","visible_evidence":"B compresses before acquisition, earns contact after a visible gap, takes load through changing support/root silhouette, crosses custody while both grips remain closed, and only then receives A's release; B overshoots with the baton while A remains displaced and settles independently."}
-      ]
-    },
+    "tango": {"status":"PASS_R1_CURRENT_WORKER_ACTUAL_RENDER","same_media_sha256":"1dcee69972362a6c921e833ff2c58c289545afd33e70248710a03bb924c2d494","rounds":[{"round":"R0","verdict":"REVISE_REQUIRED","highest_value_visible_defect":"Load crossover read more strongly in arrows/metadata than in the bodies; both actors stayed too vertically mannequin-like while the baton did most of the acting.","correction":"Deepen B's eligibility/acquisition crouch and leftward root commitment; drive B upward/right through takeover; make A counterlean, yield, and trail the released hand; enlarge baton cant/overshoot while preserving the no-FREE custody chain."},{"round":"R1","verdict":"PASS","visible_evidence":"B compresses before acquisition, earns contact after a visible gap, takes load through changing support/root silhouette, crosses custody while both grips remain closed, and only then receives A's release; B overshoots with the baton while A remains displaced and settles independently."}]},
     "noodle_queen":{"status":"PASS_TASTE_FUNCTION_CONTEMPT_R1_SAME_ACTUAL_RENDER","same_media_sha256":"1dcee69972362a6c921e833ff2c58c289545afd33e70248710a03bb924c2d494","taste":"Readable crooked tug-of-war silhouette rather than polite mirrored posing.","function":"Eligibility, dual contact, load crossover, release, receiver drive, overshoot, and displaced settle are visibly ordered; the baton never enters a FREE frame.","contempt":"No ownership teleport, endpoint-contact cheat, reverse-to-idle recovery, or metadata-only custody swap."},
     "drew_accepted": false
   },
   "validator": {"path":"tools/test_ascii_kinesis_swarm_contract_v2.py","blob":"7d9fc7608d54bca4a2cfbd36660c2d379e27fd78","candidate_isolated":"PASS_CURRENT_VALIDATOR_STRUCTURAL_PREDICATES","repo_global_execution":"NOT_CALLED_STANDARD_CHAT_BOUNDARY"},
-  "repository": {"persisted":false,"readback":false,"exact_file_count":null,"exact_spa_count":null,"final_readback":false},
+  "repository": {"persisted":true,"readback":true,"exact_file_count":6,"exact_spa_count":1,"final_readback":false},
   "issue": {"pre_delivery":null,"pre_delivery_readback":false,"user_surface":null,"user_surface_readback":false,"terminal":null,"terminal_readback":false},
   "campaign": {"propagated":false,"readback":false},
   "chat_delivery": {"part1_ascii":false,"part2_json":false,"part3_video":false},
