@@ -1,0 +1,58 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "id": "v2-strikes-023-detached-threat-impact-clock-fork-debt",
+  "status": "QUALITY_GATES_PASS_READY_FOR_REPO_PERSISTENCE",
+  "preflight": {
+    "home_center_campaign": "PASS_FRESH_EXACT",
+    "github_authenticated": "PASS_FRESH",
+    "issue_reset": "READ_BACK",
+    "manager_correction": "READ_BACK"
+  },
+  "source_binding": {
+    "campaign_family": "STRIKES PASS 002 — VERIFIED",
+    "evidence": "1UfoqNv9CxNtSJYOyjFIJZeEqp8NjwBsb69FgHmMO75Q",
+    "asset_id": 5551,
+    "timing_authority": false,
+    "source_timing": "UNKNOWN",
+    "authored_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "rights_firewall": "PASS"
+  },
+  "quality": {
+    "actual_media_sha256": "a38dd5314b911e9761a28c3d0538a2f827a0b81079f9fdb8c10d59fe30411ae0",
+    "tango_current_worker": "R0_PASS",
+    "noodle_queen_current_worker": "PASS_TASTE_FUNCTION_CONTEMPT",
+    "decode": "PASS"
+  },
+  "validator": {
+    "official_current_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS",
+    "repo_global": "STANDARD_CHAT_BOUNDARY_UNCLAIMED"
+  },
+  "repo": {
+    "persistence": "PENDING",
+    "readback": "PENDING",
+    "exact_six_files_one_spa": "PENDING",
+    "final_readback": "PENDING"
+  },
+  "issue": {
+    "pre_chat_receipt": null,
+    "pre_chat_readback": false,
+    "user_surface_closure": null,
+    "user_surface_readback": false,
+    "durable_addendum": null,
+    "durable_addendum_readback": false
+  },
+  "campaign": {
+    "terminal_binding": "PENDING",
+    "terminal_binding_readback": false,
+    "terminal_self_binding": "PENDING",
+    "terminal_self_binding_readback": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false
+  },
+  "DREW_ACCEPTED": false,
+  "next_authorized": "FORBIDDEN_UNTIL_023_HEALTHY"
+}
