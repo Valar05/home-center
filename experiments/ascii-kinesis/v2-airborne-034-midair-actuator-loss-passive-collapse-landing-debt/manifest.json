@@ -74,10 +74,14 @@
     "contact_blob": "4df261eef84a51cca3b0650d5c9a6ce9f91e9f1e",
     "motion_blob": "c68f12794f5bf0e16601e0d0cdba376910f9ec05",
     "spa_blob": "95c26a9118a29eeb3e0d3f53d64e5158a247c8ef",
-    "receipt_blob": null,
+    "receipt_blob": "74042d4424c79584685e177548fb8fd91580f003",
     "exact_one_spa": true,
     "expected_file_count": 6,
-    "state": "FIVE_FILES_PERSISTED_PENDING_RECEIPT"
+    "state": "SIX_FILES_ONE_SPA_READBACK_PASS_PRE_CHAT"
+  },
+  "issue_343": {
+    "pre_chat_receipt": 5612066860,
+    "pre_chat_readback": true
   },
   "expected_files": ["build.py", "contact-sheet.txt", "manifest.json", "motion.json", "receipt.json", "midair-actuator-loss-passive-collapse-landing-debt.motion.html"],
   "DREW_ACCEPTED": false,
