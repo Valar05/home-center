@@ -4,7 +4,7 @@
   "title": "ASCII Kinesis V2 Locomotion 022 — Curvature Zero-Cross / Support-Sign Swap",
   "slug": "v2-locomotion-022-curvature-zero-cross-support-sign-swap",
   "lane": "LOCOMOTION",
-  "status": "FINALIZATION_PENDING_CAMPAIGN_READBACK",
+  "status": "HEALTHY_USER_SURFACED",
   "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
@@ -23,7 +23,7 @@
   "repository": {"path": "experiments/ascii-kinesis/v2-locomotion-022-curvature-zero-cross-support-sign-swap/", "expected_file_count": 6, "expected_spa_count": 1, "post_write_readback": true, "exact_six_file_body": true, "stable_body_files": {"build.py": "cb990fdb4e954924059a47a70a3e3b3bcf6a244e", "contact-sheet.txt": "8c0aa88d56597ee6eb50d34cbc6024962627bc81", "motion.json": "f8b95603bd4646c60342a8aee66fae8caf735db4", "curvature-zero-cross-support-sign-swap.motion.html": "5d80230a868ce74e8d1a4ebcd644a14d5d6cbf42"}},
   "issue": {"number": 343, "pre_delivery_receipt": 5617473711, "pre_delivery_readback": true, "closure_receipt": 5617510843, "closure_readback": true},
   "chat_delivery": {"part1_ascii": true, "part2_json": true, "part3_video": true, "ordered": true, "video_byte_identical": true},
-  "campaign": {"propagated": false, "readback": false},
+  "campaign": {"propagated": true, "readback": true},
   "DREW_ACCEPTED": false,
-  "next_authorized": null
+  "next_authorized": "v2-locomotion-023"
 }
