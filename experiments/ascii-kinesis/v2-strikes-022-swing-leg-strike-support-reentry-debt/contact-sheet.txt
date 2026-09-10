@@ -1,0 +1,399 @@
+ASCII KINESIS V2 STRIKES022 - SWING LEG STRIKE / SUPPORT REENTRY DEBT
+Legend: O head | @ pelvis/root | + hands | o knee/air foot | * active support | . light support | ? probe/precontact | X knee contact | | abstract target
+Principle: THE KNEE BORROWS A STEP. AFTER CONTACT, THE STRIKING LEG STILL OWES THE GROUND.
+All decisive timing provenance: INFERRED / STREET_FIGHTER-CAPCOM. Source-authentic timing: UNKNOWN.
+
+K00 OFFSET_STRIDE_READY
+
+
+
+
+
+
+                   O
+                   |
+                   |
+                    |
+                    | \\+
+                +///\\
+                    |
+                    |
+                    @
+                   / \
+                  /   \\
+                 o      o
+                /        \\
+               /           \\
+              *              *
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=establish displaced traveling-ready silhouette with rear-biased support
+support=BOTH_FEET_REAR_BIASED | contact=CLEAR | root_note=root forward intent exists before the strike; no idle symmetry
+rear_foot=ACTIVE | striking/front_foot=ACTIVE
+
+K01 REAR_SUPPORT_LOAD
+
+
+
+
+
+                    O
+                    |    +
+                    |   \
+                    | \\
+               +//  |\
+                  //\
+                    |
+                   |
+                   @\
+                 //  \\\
+                o       \o\\
+              //            \\.
+             *
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=support leg sinks and owns the root while striking leg becomes the next swing phase
+support=REAR_FOOT_OWNS_ROOT_FRONT_LIGHT | contact=CLEAR | root_note=root drops/back one cell as torso counter-rotates
+rear_foot=ACTIVE | striking/front_foot=LIGHT
+
+K02 SWING_PHASE_COIL
+
+
+
+
+
+
+                       O
+                       |
+                  +/   |
+                    //  |
+                      //|
+                        \\\+
+                        |
+                        |
+                        @
+                      \\
+                     o/
+                    o \
+                  //   \
+                */      o
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=substitute attack preparation into the already-free swing leg rather than adding a stop
+support=REAR_FOOT_HARD_FRONT_LEG_FREE | contact=CLEAR | root_note=root advances while front knee folds behind pelvis and arms split for counterbalance
+rear_foot=ACTIVE | striking/front_foot=AIR
+
+K03 PELVIS_DRIVE_BRIDGE
+
+
+
+
+
+
+                              O
+                              |
+                       +/     |
+                         //// |
+                             /\
+                              |\\
+                               | \+
+                               @
+                             \\
+                            o/
+                           / \
+                          o  \
+                        //    \
+                      //      o
+                     *
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=authored body-first bridge: pelvis commits before knee travels into target corridor
+support=REAR_FOOT_DRIVE_FRONT_LEG_FREE | contact=CLEAR | root_note=root surges forward/up; front knee remains folded and withheld
+rear_foot=ACTIVE | striking/front_foot=AIR
+
+K04 KNEE_PRECONTACT
+
+
+
+
+
+                                     O
+                                     |           |
+                                     |           |
+                               +///   |          |
+                                   ///\          |
+                                      |\         |
+                                      |\         |
+                                      @\\\\\\\\? :
+                                    //  +     \  |
+                                   /          \  |
+                                  /          \   |
+                                //           \
+                               o            o
+                             //
+                           //
+                          *
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=ONES | timing_provenance=INFERRED | causal_role=distinct precontact gap while rear support still owns the moving root
+support=REAR_FOOT_DRIVE_FRONT_LEG_FREE | contact=PRECONTACT | root_note=pelvis advances; striking knee rises to within two cells of target while torso stays behind it
+rear_foot=ACTIVE | striking/front_foot=AIR
+
+K05 KNEE_CONTACT_INSTANT
+
+
+
+
+
+                                        O
+                                        |        |
+                                        |        |
+                                        |        |
+                                  +/////\        |
+                                        \        |
+                                        |\       |
+                                        @\\\\\\\\X
+                                      //  \     \|
+                                     /    +     \|
+                                    /          \ |
+                                  //           \
+                                 o            o
+                               //
+                             //
+                            *
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=ONES | timing_provenance=INFERRED | causal_role=explicit knee contact instant; contact is not merely farthest reach
+support=REAR_FOOT_HARD_BRACE_FRONT_LEG_STRIKING | contact=KNEE_HIT | root_note=root advances slightly while knee closes final gap
+rear_foot=ACTIVE | striking/front_foot=AIR
+
+K06 PINNED_KNEE_BODY_OVERRUN
+
+
+
+
+
+
+
+                                                 |
+                                             O   |
+                                             |   |
+                                             |   |
+                                            |    |
+                                            |    |
+                                      +/////\   \X
+                                            \ \\\|
+                                           |\\  \|
+                                           @\  \ |
+                                         // +  \
+                                       //     o
+                                     //
+                                ///o/
+                            *///
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=contact becomes a temporary constraint while pelvis and torso continue spending force through the pinned knee
+support=REAR_FOOT_BRACE_HEEL_PEEL_FRONT_LEG_PINNED | contact=KNEE_HIT | root_note=knee stays fixed; root advances/down and head overshoots, rear foot stretches behind
+rear_foot=ACTIVE | striking/front_foot=AIR
+
+K07 AUTHORED_KNEE_PEEL
+
+
+
+
+
+
+
+                                                 |
+                                               O |
+                                               | |
+                                               | |
+                                              |  |
+                                              |  |
+                                          +///\  :
+                                              \  |
+                                              \  |
+                                             \@o |
+                                            //  \
+                                          // +  \
+                                        //       o
+                                    ///o
+                               *////
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=ONES | timing_provenance=INFERRED | causal_role=break knee contact before recovery; same leg immediately owes its interrupted footfall
+support=REAR_FOOT_LAST_SUPPORT_FRONT_LEG_FREE | contact=CLEAR | root_note=root keeps moving as knee peels down-left from target rather than reverse-interpolating
+rear_foot=ACTIVE | striking/front_foot=AIR
+
+K08 STRIKING_FOOT_SEEK
+
+
+
+
+
+
+
+                                                  O
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  \
+                                                //\
+                                              +/ \
+                                                 @
+                                               //\\
+                                             // \  \
+                                           //   +   \
+                                         /o          o\
+                                     ////              \\o
+                                  .//
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=former striking limb converts from weapon back toward future support
+support=REAR_FOOT_LIGHT_FRONT_FOOT_TRAVEL | contact=CLEAR | root_note=root continues forward; front knee falls and foot extends ahead/down without yet owning root
+rear_foot=LIGHT | striking/front_foot=AIR
+
+K09 FOOTFALL_PRECONTACT
+
+
+
+
+
+
+
+                                                    O
+                                                    |
+                                                    |
+                                                    |
+                                                    |
+                                                    \
+                                                  //\
+                                                 + \
+                                                  /@
+                                                // \\
+                                              //  \  \
+                                           /o/    +  \
+                                         //           o\\
+                                      ///                \\?
+                                    ./
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=ONES | timing_provenance=INFERRED | causal_role=scheduled next support approaches but has not yet arrested the root
+support=REAR_FOOT_LIGHT_FRONT_FOOT_PROBE | contact=CLEAR | root_note=front foot hovers one row above ground; root still carries impact overrun
+rear_foot=LIGHT | striking/front_foot=PROBE
+
+K10 STRIKING_FOOT_CATCH
+
+
+
+
+
+
+
+
+                                                      O
+                                                      |
+                                                      |
+                                                      |
+                                                      |
+                                                      \
+                                                     \|
+                                                    +\
+                                                    /@
+                                                ////\ \
+                                             /o/   \  \
+                                         ////      +   \
+                                       ./              o\
+                                                         \\*
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=ONES | timing_provenance=INFERRED | causal_role=the striking leg pays its borrowed step by becoming the next support owner
+support=FRONT_FOOT_ACQUIRES_REAR_FOOT_LIGHT | contact=FOOT_CATCH | root_note=front foot catches at the scheduled beat; pelvis has not yet stacked above it
+rear_foot=LIGHT | striking/front_foot=ACTIVE
+
+K11 TORSO_OVERSHOOT
+
+
+
+
+
+
+
+
+
+                                                           O
+                                                           |
+                                                           |
+                                                          |
+                                                          |
+                                                          \
+                                                         \/
+                                                        \|+
+                                             o//      //@
+                                                //o///\ \
+                                                     +   \
+                                                         o\
+                                                           \*
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=new support takes load while torso and arms overrun the catch
+support=FRONT_FOOT_OWNS_ROOT_REAR_FOOT_AIRBORNE | contact=CLEAR | root_note=root passes over catch; head travels farther; rear leg releases and arms lag asymmetrically
+rear_foot=AIR | striking/front_foot=ACTIVE
+
+K12 TRAIL_LEG_CATCH
+
+
+
+
+
+
+
+
+                                                           O
+                                                           |
+                                                           |
+                                                          |
+                                                          |
+                                                       +\\\
+                                                          |//
+                                                          |  +
+                                                          @
+                                                         /\
+                                                       //  \
+                                                      o    o
+                                                    //      \
+                                                  */         *
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=trailing leg re-enters after the striking-foot catch, repaying support asymmetry
+support=FRONT_FOOT_DOMINANT_REAR_FOOT_REACQUIRES | contact=CLEAR | root_note=rear foot lands behind while torso counter-swings back from overshoot
+rear_foot=ACTIVE | striking/front_foot=ACTIVE
+
+K13 DISPLACED_GAIT_REENTRY
+
+
+
+
+
+
+                                                            O
+                                                            |
+                                                            |
+                                                            |
+                                                         +\ |
+                                                           \\//+
+                                                            |
+                                                            |
+                                                            @
+                                                           / \
+                                                          /  \
+                                                         o    o
+                                                        /      \
+                                                       /        \
+                                                      *          *
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=recover into a new-address gait-ready state, not the original idle pose
+support=BOTH_FEET_FRONT_BIASED | contact=CLEAR | root_note=root remains displaced forward; opposite limb is already prepared for the next travel phase
+rear_foot=ACTIVE | striking/front_foot=ACTIVE
