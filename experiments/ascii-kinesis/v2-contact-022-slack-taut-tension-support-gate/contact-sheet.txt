@@ -1,0 +1,407 @@
+ASCII KINESIS V2 CONTACT022 — SLACK / TAUT TENSION SUPPORT GATE
+Legend: @ fixed anchor | ~ slack | : taut zero-load | = taut loaded | + harness/root | x COM | ! ground support
+Independent abstract ASCII rig only; no source art.
+
+C022-K0  READY_SLACK  [FOURS/INFERRED]
+ATTACHMENT=ATTACHMENT_ENDPOINTS_PERSIST  REL=ATTACHED_FORCE_INACTIVE  SUPPORT=GROUND_BOTH  CUSTODY=NONE
+TETHER=SLACK  TENSION=0.00  LENGTH=17.720/25.000  FORCE_AXIS=NONE
+CAUSE: settled start; tether visibly slack
+
+          @
+
+          ~
+           ~
+
+           ~
+           ~
+           ~
+
+            ~
+            ~ O
+            ~ |
+             ~o
+            o~|-o
+           / ~~  \
+          o   ~|  o
+          |   ~|  |
+          o    +  o
+              / \
+             o   o
+             |   |
+            |     |
+            |     |
+            |     |
+           |       |
+  _________!_______!______________________
+
+
+
+C022-K1  DEPART  [TWOS/INFERRED]
+ATTACHMENT=ATTACHMENT_ENDPOINTS_PERSIST  REL=ATTACHED_FORCE_INACTIVE  SUPPORT=NONE  CUSTODY=NONE
+TETHER=SLACK  TENSION=0.00  LENGTH=19.723/25.000  FORCE_AXIS=NONE
+CAUSE: body leaves support while relation remains slack
+
+          @
+
+           ~
+           ~
+
+            ~
+            ~
+             ~
+
+              ~
+              ~      O
+               ~     |
+               ~     o
+                ~ -o-|-o
+                o~   |  \
+              o-  ~ |    o
+                  ~~|     -o
+                   ~+
+                  // \
+                -o   \
+              o-      o-
+                        -o
+
+
+
+  ________________________________________
+
+
+
+C022-K2  LENGTH_ELIGIBLE  [TWOS/INFERRED]
+ATTACHMENT=ATTACHMENT_ENDPOINTS_PERSIST  REL=ATTACHED_FORCE_INACTIVE  SUPPORT=NONE  CUSTODY=NONE
+TETHER=NEAR_TAUT  TENSION=0.00  LENGTH=23.601/25.000  FORCE_AXIS=NONE
+CAUSE: near extension limit; eligibility before tension
+
+          @
+           ~
+           ~
+
+            ~
+             ~
+              ~
+              ~
+               ~
+                ~
+                 ~
+                 ~
+                  ~
+                   ~      O
+                    ~    |
+                    ~    o
+                     ~-o-|-o
+                    o-~~|   \
+                  o-   ~|    o
+                        +     -o
+                      // \
+                    -o   \
+                  o-      o-
+                            -o
+
+  ________________________________________
+
+
+
+C022-K3  TAUT_ZERO_LOAD  [ONES/INFERRED]
+ATTACHMENT=ATTACHMENT_ENDPOINTS_PERSIST  REL=ATTACHED_FORCE_INACTIVE  SUPPORT=NONE  CUSTODY=NONE
+TETHER=TAUT  TENSION=0.00  LENGTH=25.000/25.000  FORCE_AXIS=NONE
+CAUSE: length limit reached; zero-load taut beat
+
+          @
+           :
+            :
+            :
+             :
+              :
+               :
+               :
+                :
+                 :
+                  :
+                  :
+                   :
+                    :
+                     :     O
+                     :     |
+                   o- :    o
+                     -o:-o- -o--o-
+                        : |       -o
+                        :|
+                         +
+                       // \
+                     -o   \
+                   o-      o-
+                             -o
+  ________________________________________
+
+
+
+C022-K4  TENSION_LOAD_MAX  [FOURS/INFERRED]
+ATTACHMENT=ATTACHMENT_ENDPOINTS_PERSIST  REL=ATTACHED_FORCE_ACTIVE  SUPPORT=TETHER  CUSTODY=NONE
+TETHER=TAUT  TENSION=1.00  LENGTH=25.000/25.000  FORCE_AXIS=PELVISharness_TO_OVERHEAD_ANCHOR
+CAUSE: tension redirects root around fixed anchor; strong counterlean
+
+          @
+           =
+            ==
+              =
+               =
+                ==
+                  =
+                   =
+                    ==
+                      =     O
+                       =     |     -o
+                        ==   o   -o
+                          =o-|-o-
+                          /=  |
+                         o  ==|
+                        |     +
+                        o   // \ -o
+                           o    o
+                          /
+                         o
+
+
+
+
+
+  ________________________________________
+
+
+
+C022-K5  SWING_OVERSHOOT  [TWOS/INFERRED]
+ATTACHMENT=ATTACHMENT_ENDPOINTS_PERSIST  REL=ATTACHED_FORCE_ACTIVE  SUPPORT=TETHER  CUSTODY=NONE
+TETHER=TAUT  TENSION=0.62  LENGTH=25.000/25.000  FORCE_AXIS=PELVISharness_TO_OVERHEAD_ANCHOR
+CAUSE: root overshoots arc; limbs oppose travel with lag
+
+          @=                   O
+            ====                |     -o
+                ===             o   -o
+                   ===        o-|-o-
+                      ====   /   |
+                          ==o    |
+                           | ==== |
+                           o     =+
+                                // \ -o
+                               o    o
+                              /
+                             o
+
+
+
+
+
+
+
+
+
+
+
+  ________________________________________
+
+
+
+C022-K6  RETURN_UNLOAD  [TWOS/INFERRED]
+ATTACHMENT=ATTACHMENT_ENDPOINTS_PERSIST  REL=ATTACHED_FORCE_INACTIVE  SUPPORT=NONE  CUSTODY=NONE
+TETHER=TAUT  TENSION=0.00  LENGTH=25.000/25.000  FORCE_AXIS=NONE
+CAUSE: tension returns to zero at extension limit while still attached
+
+          @
+           :
+            ::
+              :
+               :
+                ::
+                  :
+                   :
+                    ::          O
+                      :         |
+                       :        o
+                        ::   -o-|-o
+                          :o-  |   \
+                         o-:   |    o
+                            ::|      -o
+                              +
+                            // \
+                          -o   \
+                        o-      o-
+                                  -o
+
+
+
+
+
+  ________________________________________
+
+
+
+C022-K7  SLACK_REENTRY  [TWOS/INFERRED]
+ATTACHMENT=ATTACHMENT_ENDPOINTS_PERSIST  REL=ATTACHED_FORCE_INACTIVE  SUPPORT=NONE  CUSTODY=NONE
+TETHER=SLACK  TENSION=0.00  LENGTH=23.345/25.000  FORCE_AXIS=NONE
+CAUSE: root moves inside length limit; slack visibly reforms
+
+          @
+
+           ~
+            ~
+
+             ~
+              ~
+               ~
+
+                ~
+                 ~          O
+                  ~        |
+                  ~        o
+                   ~    -o-|-o
+                    ~~o-   |  \
+                    o-~   |    o
+                       ~~ |     -o
+                         ~+
+                         / \
+                        o   o
+                       |     \
+                       o      o
+
+
+
+  ________________________________________
+
+
+
+C022-K8  GROUND_PRECONTACT  [ONES/INFERRED]
+ATTACHMENT=ATTACHMENT_ENDPOINTS_PERSIST  REL=ATTACHED_FORCE_INACTIVE  SUPPORT=NONE  CUSTODY=NONE
+TETHER=SLACK  TENSION=0.00  LENGTH=23.601/25.000  FORCE_AXIS=NONE
+CAUSE: feet remain separated from floor
+
+          @
+
+           ~
+           ~
+
+            ~
+             ~
+              ~
+
+              ~
+               ~
+                ~
+                 ~     O
+                 ~     |
+                  ~    o
+                   ~ o-|-o
+                    ~  |  \
+                   o ~  |  o
+                    -o~~|  o
+                       ~+
+                       / \
+                      o   o
+                     |     \
+                     o      o
+
+  ________________________________________
+
+
+
+C022-K9  GROUND_CATCH  [FOURS/INFERRED]
+ATTACHMENT=ATTACHMENT_ENDPOINTS_PERSIST  REL=ATTACHED_FORCE_INACTIVE  SUPPORT=GROUND_LEFT  CUSTODY=NONE
+TETHER=SLACK  TENSION=0.00  LENGTH=24.698/25.000  FORCE_AXIS=NONE
+CAUSE: new ground support earns arrest; tether still slack
+
+          @
+
+           ~
+           ~
+            ~
+
+            ~
+             ~
+              ~
+
+              ~
+               ~
+                ~
+                ~
+                 ~
+                 ~   O
+                  ~   |
+                   ~  o
+                    o-|-o
+                   / ~ | \
+                  o-o ~|  o
+                      ~+
+                      / \
+                     o   o
+                    /     -o
+  _________________!______________________
+
+
+
+C022-K10  COUNTER_OVERSHOOT  [TWOS/INFERRED]
+ATTACHMENT=ATTACHMENT_ENDPOINTS_PERSIST  REL=ATTACHED_FORCE_INACTIVE  SUPPORT=GROUND_BOTH  CUSTODY=NONE
+TETHER=SLACK  TENSION=0.00  LENGTH=22.825/25.000  FORCE_AXIS=NONE
+CAUSE: body counter-overshoots opposite swing direction
+
+          @
+
+           ~
+           ~
+
+            ~
+            ~
+             ~
+
+             ~
+              ~
+              ~
+               ~
+                ~      O
+                ~     |
+              o- ~    o
+                -o--o-|-o--o-
+                  ~   |      -o
+                   ~ |
+                   ~~|
+                    ~+
+                    / \
+                   o   o
+                  /     \
+                  /     \
+  _______________!_______!________________
+
+
+
+C022-K11  DISPLACED_SETTLE  [FOURS/INFERRED]
+ATTACHMENT=ATTACHMENT_ENDPOINTS_PERSIST  REL=ATTACHED_FORCE_INACTIVE  SUPPORT=GROUND_BOTH  CUSTODY=NONE
+TETHER=SLACK  TENSION=0.00  LENGTH=21.471/25.000  FORCE_AXIS=NONE
+CAUSE: settles displaced from K0; attachment remains slack
+
+          @
+
+           ~
+           ~
+
+            ~
+            ~
+             ~
+
+             ~
+              ~
+              ~
+               ~    O
+               ~    |
+                ~   o
+                ~ o-|-o
+                 ~  |  \
+                o ~ |   o
+                | ~~|   |
+                o  ~+   o
+                   / \
+                  o   o
+                 |     |
+                 |     |
+                |       |
+  ______________!_______!_________________
