@@ -53,8 +53,20 @@
   },
   "source_art_embedded": false,
   "spa": "noncommutative-recovery-order.motion.html",
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "PERSISTED_READY_FOR_USER_SURFACE",
   "title": "Noncommutative Recovery Order",
   "video_required": true,
-  "video_source": "abstract_ascii_rig_only"
+  "video_source": "abstract_ascii_rig_only",
+  "repo": {
+    "persistence_commit": "83d1ab11f0d1eac995cf176729c3ca3d89934d34",
+    "readback": true,
+    "files": {
+      "build.py": "23a5d3c9c8396fe7af881c2f54b1cf84e8c097fa",
+      "contact-sheet.txt": "063a2ce754d37e6a73b634789f5e2dba53f0e12c",
+      "manifest.json": "PENDING_SELF_UPDATE",
+      "motion.json": "856e5ba30bb1c9679cc4414ad34309524a36c51b",
+      "receipt.json": "PENDING_SELF_UPDATE",
+      "noncommutative-recovery-order.motion.html": "fced399ed683ad8b0e4705c4d6f116f5e3ed1eda"
+    }
+  }
 }
