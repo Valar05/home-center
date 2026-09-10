@@ -77,7 +77,8 @@ def draw(j,support,threat,guard,label=""):
         if 0<=x<W and 0<=y<H:g[y][x]=marks.get(name,"o")
     render_foot(g,"foot_l",j["foot_l"],support); render_foot(g,"foot_r",j["foot_r"],support)
     if threat.get("active") and threat.get("relation") in ("THREAT_PASSES_ABOVE","HIGH_LINE_CONTINUES_PAST","THREAT_BEYOND_BODY"):
-        hx,hy=map(lambda z:int(round(z)),j["head"]); ty=int(round(threat["end"][1]))
+        hx,hy=map(lambda z:int(round(z)),j["head"])
+        ty=int(round(threat["end"][1]))
         if hy>ty+1 and 0<=hx<W:
             for yy in range(ty+1,hy):
                 if 0<=yy<H and g[yy][hx]==" ": g[yy][hx]=":"
@@ -136,32 +137,62 @@ def support_short(support):
         else:out.append(s)
     return "+".join(out)
 
+def mini_frame(k):
+    # Compact canonical decisive-key sheet: same authored coordinates, projected to a readable 42x16 audit view.
+    mw,mh=42,16
+    g=[[" " for _ in range(mw)] for _ in range(mh)]
+    def proj(pt):
+        x,y=pt
+        return max(0,min(mw-1,int(round((x-32)*0.72)))), max(0,min(mh-1,int(round((y-5)*0.52))))
+    ex,_=proj([EDGE,UPPER]); _,uy=proj([EDGE,UPPER]); _,ly=proj([EDGE,LOWER])
+    for x in range(0,ex): g[ly][x]="_"
+    for y in range(uy,ly+1): g[y][ex]="|"
+    for x in range(ex,mw): g[uy][x]="_"
+    threat=k["threat_state"]
+    if threat.get("active"):
+        sx,sy=proj(threat["start"]); tx,ty=proj(threat["end"])
+        for x,y in bres(sx,sy,tx,ty):
+            if 0<=x<mw and 0<=y<mh and g[y][x]==" ": g[y][x]="-"
+        if 0<=tx<mw and 0<=ty<mh:g[ty][tx]="<"
+    j={n:proj(v) for n,v in k["pose_rig"]["joint_xy"].items()}
+    for aa,bb in LINKS:
+        A=j[aa]; B=j[bb]; gl=glyph(A,B)
+        for x,y in bres(*A,*B)[1:-1]:
+            if 0<=x<mw and 0<=y<mh and g[y][x]==" ":g[y][x]=gl
+    marks={"head":"O","neck":"o","shoulder_l":"o","shoulder_r":"o","elbow_l":"o","elbow_r":"o","hand_l":"+","hand_r":"+","pelvis":"@","knee_l":"o","knee_r":"o"}
+    for name,(x,y) in j.items():
+        if name in ("foot_l","foot_r"): continue
+        g[y][x]=marks.get(name,"o")
+    for name in ("foot_l","foot_r"):
+        x,y=j[name]; st=support_state(name,k["support_contact"])
+        g[y][x]="?" if "PROBE" in st else ("x" if "UNSUPPORTED" in st else "#")
+    return ["".join(r).rstrip() for r in g]
+
 def contact_sheet():
     out=[
       "ASCII KINESIS V2 DEFENSE025 — STEP-DOWN LINE BREAK / HEIGHT HANDOFF",
-      "SOURCE EVIDENCE: TSR asset 81106 Bullwinkle — The Adventures of Rocky and Bullwinkle and Friends — NES; commissioned evidence artifact 1zQGdJx7uIqTnvJlHp2NfydUu_EDDNvt01tCAlQvlYQ8; whole 187x432 static PNG sheet inspected there.",
-      "SOURCE ROLE: STYLE_REFERENCE. OBSERVED: separate Idle / Walking / Charge / Using Stairs families; static sheet provides no source-authentic decisive-key timing or exact support chronology.",
-      "AUTHORED PRINCIPLE: LOWER-TREAD PROBE -> TRUSTWORTHY MIXED-HEIGHT CATCH -> EARNED ROOT DROP UNDER HIGH LINE -> UPPER SUPPORT RELEASE -> TRAILING LOWER CATCH -> COUNTER-RISE -> LATE GUARD REOPEN.",
-      "TIMING: every decisive compile timing class INFERRED / STREET_FIGHTER-CAPCOM. ONES/TWOS/FOURS are cadence classes, never seconds.",
-      "LEGEND: upper tread '_' at y29 right of riser | lower tread '_' at y32 left of riser | # full support | ^ forefoot | ? probe | x unsupported | @ pelvis | threat ----< | ':' visible clearance witness.",
-      "RIGHTS: independent abstract ASCII rig only; no source pixels/palette/character contour/costume/face/antlers/layout/tracing/choreography/audio.",
+      "SOURCE: TSR asset 81106 Bullwinkle — NES | commissioned evidence 1zQGdJx7uIqTnvJlHp2NfydUu_EDDNvt01tCAlQvlYQ8 | whole 187x432 static sheet inspected.",
+      "ROLE: STYLE_REFERENCE | source timing UNKNOWN | authored timing INFERRED / STREET_FIGHTER-CAPCOM.",
+      "PRINCIPLE: lower probe -> mixed-height trusted catch -> earned root drop under high line -> old-height release -> trailing lower catch -> counter-rise -> late guard reopen.",
+      "LEGEND: # trusted foot | ? probe | x unsupported | @ pelvis | O head | <---- threat | stair/riser is literal terrain.",
+      "RIGHTS: abstract ASCII only; no source pixels/palette/contours/costume/layout/tracing/choreography/audio.",
       ""
     ]
     for k in M["keys"]:
-        fr=draw(k["pose_rig"]["joint_xy"],k["support_contact"],k["threat_state"],k["guard_state"])
         out.extend([
-            f"{k['key_id']} {k['name']} [{k['timing_class']}/INFERRED] SUPPORT={support_short(k['support_contact'])}",
-            f"THREAT={k['threat_state']['relation']} | GUARD={k['guard_state']['relation']}",
-            "ROOT: "+k["motion_arc_root_note"],
-            "ROLE: "+k["causal_role"],
-            *fr[1:35],
-            ""
+          f"{k['key_id']} {k['name']} [{k['timing_class']}/{k['timing_provenance']}] SUPPORT={support_short(k['support_contact'])}",
+          f"THREAT={k['threat_state']['relation']} | GUARD={k['guard_state']['relation']}",
+          "ROOT: "+k["motion_arc_root_note"],
+          "ROLE: "+k["causal_role"],
+          *mini_frame(k),
+          ""
         ])
     return "\n".join(out).rstrip()+"\n"
 
 def render_media():
     fs=compile_frames(); fd=ROOT/"_frames"; shutil.rmtree(fd,ignore_errors=True); fd.mkdir()
-    font=ImageFont.truetype(FONT,12); small=ImageFont.truetype(FONT,10)
+    font=ImageFont.truetype(FONT,12)
+    small=ImageFont.truetype(FONT,10)
     for i,(j,s,t,g,label) in enumerate(fs):
         im=Image.new("RGB",(800,450),"black"); d=ImageDraw.Draw(im)
         d.multiline_text((8,3),"\n".join(draw(j,s,t,g,label)),font=font,fill="white",spacing=0)
