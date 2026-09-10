@@ -1,0 +1,399 @@
+ASCII KINESIS V2 · LOCOMOTION 025 · RELATIONSHIP DRAG / SUPPORT REVOCATION / RELEASE RUNOUT
+legend: A=@/c/O carrier root/COM/head · B=&/d/o partner root/COM/head · *=trusted fixed support · ~=free/untrusted foot · R== relationship frame · .=root routes
+source evidence: Billy & Jimmy / Double Dragon II: The Revenge / NES / TSR asset 30327 / Home Center artifact 1icTndAfTH5fge6tCAL35HzU9X7dsKVzRa0ah_n6gwWk
+OBSERVED: commissioned full-sheet evidence contains neutral/travel plus attacker and receiver relationship families, including explicit held/grabbed/kneed/throw states; source is a static PNG.
+UNKNOWN: exact source chronology, root paths, grip points, support-revocation timing, paired opponent pose, mass/force values, and source-authentic exposure.
+authored timing: INFERRED / STREET_FIGHTER-CAPCOM. rights firewall: independent abstract two-body rig only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio/redistribution/close imitation.
+thesis: first touch does not steal partner support. Carrier travel loads a locked relationship against grounded partner support; partner support must unload/revoke before shared travel. Release then removes braking load, causing a larger carrier overrun, shorter corrections, unsynchronized partner lag, and displaced settle.
+
+K00 SEPARATE_APPROACH · FOURS/4f · INFERRED · A=LEFT · B=BILATERAL · R=NONE · AΔ=0.0px · BΔ=0.0px · lag=0px
+
+
+
+
+      O
+                                             o
+
+       |
+       |                                     |
+       |                                     |
+        |                                    |
+        |c                                  d|
+        @.....                  .............&............               ..
+        //    ....     .........            //...........................
+       /  /       .....                     / /
+       /  /                                /  /
+       /   /                               /   /
+       /    /                             /    /
+      /      ~                            /     /
+______*__________________________________*______*_______________________________________________
+
+
+
+
+
+causal: establish carrier forward travel and an independently grounded partner before any contact claim
+
+K01 ONE_ANCHOR_TOUCH · TWOS/2f · INFERRED · A=LEFT · B=BILATERAL · R=ONE_ANCHOR · AΔ=26.2px · BΔ=0.0px · lag=0px
+
+
+
+
+
+          O                                  o
+
+
+           |    ====                  ===    |
+           |        =======      =====       |
+           |               ===R==            |
+            |c                              d|
+        ....@.                  .............&............               ..
+           / /....     .........            //...........................
+          /   /   .....                     / /
+         /    /                            /  /
+         /     /                           /   /
+        /       /                         /    /
+       /         ~                        /     /
+______*__________________________________*______*_______________________________________________
+
+
+
+
+
+causal: make first inter-body contact visible while partner retains complete ground ownership; touch is not drag authority
+
+K02 RELATIONSHIP_FRAME_LOCK · TWOS/2f · INFERRED · A=LEFT · B=BILATERAL · R=LOCKED · AΔ=22.6px · BΔ=1.0px · lag=21px
+
+
+
+
+
+                                             o
+            O
+
+              |                        ==    |
+              |    ===              ===      |
+               |      ======     ===         |
+               |            ===R=           d|
+        ......  |c              .............&............               ..
+              ..@.     .........            //...........................
+              // /.....                     / /
+            //    /                        /  /
+           /      /                        /   /
+         //        /                      /    /
+       //           ~                     /     /
+______*__________________________________*______*_______________________________________________
+
+
+
+
+
+causal: lock a shared relationship frame while partner feet remain world-fixed; carrier drive can now accumulate visible constraint debt
+
+K03 DRAG_TENSION_BUILD · TWOS/2f · INFERRED · A=LEFT_UNLOADING+RIGHT_PROBE · B=BILATERAL_BRAKE · R=LOCKED_LOADED · AΔ=27.7px · BΔ=2.8px · lag=45px
+
+
+
+
+
+                                               o
+
+               O
+                                              |
+                 |                      ==    |
+                  |   ===            ===      |
+                  |      ======    ==       d|
+        ......     |  c        ==R=..........&............               ..
+              .... |   .........            //...........................
+                  ./@..                     / /
+                ///  /                     /  /
+             ///      /                    /   /
+           //         /                   /    /
+        ///            /                  /     /
+______*/________________~________________*______*_______________________________________________
+
+
+
+
+
+causal: carrier root advances against a nearly fixed partner, visibly loading the relationship instead of teleporting partner translation
+
+K04 PARTNER_REAR_SUPPORT_UNLOAD · TWOS/2f · INFERRED · A=RIGHT · B=RIGHT+LEFT_UNLOADING · R=LOCKED_LOADED · AΔ=28.1px · BΔ=6.4px · lag=55px
+
+
+
+
+
+
+                    O                           o
+
+                                               |
+                      |                  ==    |
+                       |   ==          ==      |
+                       |     ====    ==       |
+        ......          |  c    .==R=.......d.|...........               ..
+              ....     ..@......              &..........................
+                  ..... //                   //
+                       /  /                 /  /
+                      /   /                 /  /
+                     /    /                /   /
+                    /      /              /     /
+___________________~_______*_____________*______*_______________________________________________
+
+
+
+
+
+causal: author the partner support change before real shared travel; rear partner support visibly unloads under accumulated relationship demand
+
+K05 PARTNER_FIXED_SUPPORT_REVOKED · ONES/1f · INFERRED · A=RIGHT · B=RIGHT_TOE_LIGHT · R=LOCKED_TRANSFER · AΔ=29.4px · BΔ=12.2px · lag=58px
+
+
+
+
+
+                          O
+                                                   o
+
+                           |
+                           |     =         ==     |
+                            |     ==     ==       |
+                            |       == ==        |
+        ......               | c......R........d.|........               ..
+              ....     ......@..              ..&........................
+                  .....     //                 //
+                           //                  //
+                          / /                 / /
+                         /  /                 / /
+                        ~  /                 ~  /
+___________________________*____________________~_______________________________________________
+
+
+
+
+
+causal: revoke partner fixed-ground braking before partner translation accelerates; relationship frame now owns the transfer rather than planted feet
+
+K06 SHARED_TRAVEL_PARTNER_LAG · TWOS/2f · INFERRED · A=LEFT · B=NONE_TRANSIT · R=LOCKED_TRANSFER · AΔ=33.2px · BΔ=26.0px · lag=61px
+
+
+
+
+
+                                 O
+                                                       o
+
+                                 |     =
+                                 |      =       ==    |
+                                  |      ==  ===      |
+                                  |  c     R=        |
+        ......                  ...@...............d.|....               ..
+              ....     .........  //          ......&....................
+                  .....          /  /              / /
+                               //   /              / /
+                              /      /            /   /
+                             /       /            /   /
+                            /         /          ~     ~
+___________________________~__________*_________________________________________________________
+
+
+
+
+
+causal: both roots now travel after partner support revocation; partner remains visibly late instead of being welded to carrier spacing
+
+K07 PARTNER_CATCH_WHILE_COUPLED · TWOS/2f · INFERRED · A=LEFT · B=LEFT · R=LOCKED_CO_MOVE · AΔ=32.0px · BΔ=29.1px · lag=60px
+
+
+
+
+
+                                       O
+                                                          o
+                                       |
+                                       |    =             |
+                                       |     =      ==    |
+                                        |     ==  ==      |
+                                        | c     R=       |
+        ......                  ........@...............d|               ..
+              ....     .........        //    ...........&...............
+                  .....                /  /              /
+                                       /  /             / /
+                                       /   /            / /
+                                       /    /          /  /
+                                      /      ~         ~   /
+______________________________________*____________________*____________________________________
+
+
+
+
+
+causal: partner earns a new trustworthy foot catch while the relationship remains live, proving shared travel rather than a dragged floating proxy
+
+K08 RELATIONSHIP_LOAD_UNLOAD · ONES/1f · INFERRED · A=LEFT_UNLOADING · B=LEFT · R=UNLOADING · AΔ=28.1px · BΔ=25.0px · lag=55px
+
+
+
+
+                                            O
+                                                              o
+
+                                            |
+                                            |    =           |
+                                            |     =     =    |
+                                             |     == ==     |
+                                             |c      R       |
+        ......                  .............@............  d|           ..
+              ....     .........            / /..............&...........
+                  .....                    /  /              //
+                                          /    /            / /
+                                         /      /           /  /
+                                        /       /           /  /
+                                       /         ~         /    ~
+______________________________________*____________________*____________________________________
+
+
+
+
+
+causal: reduce shared-frame load after both bodies have established forward motion; contact remains for one causal beat before release
+
+K09 RELATIONSHIP_FRAME_RELEASE · ONES/1f · INFERRED · A=RIGHT_PROBE · B=LEFT_UNLOADING · R=NONE_RELEASED · AΔ=26.0px · BΔ=22.0px · lag=49px
+
+
+
+
+                                                 O
+                                                                 o
+
+                                                 |
+                                                 |               |
+                                                 |               |
+                                                 |               |
+                                                 |c             |
+        ......                  .................@........      d        ..
+              ....     .........              .../..............&........
+                  .....                         / /            / /
+                                                / /           /  /
+                                               /  /           /   /
+                                               /   /         /    /
+                                              ~    ~        /      ~
+___________________________________________________________*____________________________________
+
+
+
+
+
+causal: destroy the relationship frame explicitly after shared travel exists; carrier and partner now owe separate clocks
+
+K10 CARRIER_FREE_OVERRUN_CATCH · TWOS/2f · INFERRED · A=RIGHT · B=LEFT · R=NONE · AΔ=44.2px · BΔ=28.0px · lag=78px
+
+
+
+
+
+                                                          O          o
+
+
+                                                         |           |
+                                                         |           |
+                                                         |           |
+                                                        |            |
+        ......                  ........................@c           d   ..
+              ....     .........              ........././...........&...
+                  .....                                / /           //
+                                                      /   /          //
+                                                     /    /          / /
+                                                     /     /        /  /
+                                                    ~      /        /   ~
+____________________________________________________________*_______*___________________________
+
+
+
+
+
+causal: removing partner braking load releases carrier speed into the largest carrier post-release spacing event; partner continues farther on its own clock so independence remains visible
+
+K11 CARRIER_BRAKE_COMPRESSION · TWOS/2f · INFERRED · A=RIGHT · B=LEFT_UNLOADING · R=NONE · AΔ=27.2px · BΔ=17.0px · lag=69px
+
+
+
+
+
+                                                                       o
+                                                               O
+
+                                                                       |
+                                                              |        |
+                                                              |        |
+                                                             |          |
+        ......                  ..........................   |         d|..
+              ....     .........              ..............@c..........&
+                  .....                                     //         / /
+                                                            / /        / /
+                                                            / /       /   /
+                                                            /  /     /    /
+                                                            /   ~    /     ~
+____________________________________________________________*_______*___________________________
+
+
+
+
+
+causal: carrier holds the overrun catch and compresses to brake newly unburdened translation while partner continues a smaller independent forward step without re-coupling
+
+K12 CARRIER_SHORT_COUNTERSTEP · TWOS/2f · INFERRED · A=LEFT · B=LEFT · R=NONE · AΔ=18.2px · BΔ=10.0px · lag=61px
+
+
+
+
+
+                                                                 O       o
+
+
+                                                                |        |
+                                                                |        |
+                                                                |        |
+                                                               |         |
+        ......                  ..........................     |c        d.
+              ....     .........              .................@........./
+                  .....                                        /         //
+                                                              / /        //
+                                                              / /         //
+                                                             /   /        //
+                                                             /   /        / ~
+____________________________________________________________~_____*_______*_____________________
+
+
+
+
+
+causal: short carrier counterstep changes support ownership to catch residual release debt; partner executes a separate smaller catch so the two recovery clocks stay legible
+
+K13 DISPLACED_INDEPENDENT_SETTLE · FOURS/4f · INFERRED · A=LEFT_UNLOADING · B=LEFT_UNLOADING · R=NONE · AΔ=10.4px · BΔ=6.1px · lag=57px
+
+
+
+
+
+                                                                  O       o
+
+
+                                                                 |        |
+                                                                 |        |
+                                                                 |        |
+                                                                 |        |
+        ......                  ..........................       c       .d
+              ....     .........              ...................@....... //
+                  .....                                          //       //
+                                                                 / /      / /
+                                                                 / /      /  /
+                                                                  / /     /  /
+                                                                  /  ~    /   ~
+__________________________________________________________________*_______*_____________________
+
+
+
+
+
+causal: both bodies settle displaced with durable visual separation, carrier support still unloading, and no reconstructed relationship frame
