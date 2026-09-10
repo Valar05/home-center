@@ -62,7 +62,7 @@
     "execution_boundary": "Exact current validator source and exact current candidate were freshly read in Standard Chat; candidate-isolated structural predicates pass. Repository-global checkout/shell-suite execution is not claimed."
   },
   "closure": {
-    "status": "USER_SURFACED_PENDING_TERMINAL_DURABILITY",
+    "status": "HEALTHY_USER_SURFACED",
     "repo_persisted": true,
     "final_readback": true,
     "exact_one_spa": true,
@@ -72,13 +72,15 @@
       "pre_delivery_readback": true,
       "reporting_chat_receipt": 5619763714,
       "reporting_chat_readback": true,
-      "terminal_durability_anchor": null,
-      "terminal_anchor_readback": false
+      "terminal_durability_anchor": 5619809316,
+      "terminal_anchor_readback": true
     },
     "campaign_reporting_checkpoint": true,
     "campaign_reporting_readback": true,
+    "campaign_terminal_anchor": "ascii-kinesis-airborne038-terminal-anchor-20260910-0835",
+    "campaign_terminal_anchor_readback": true,
     "chat_delivery": {"part1_ascii": true, "part2_json": true, "part3_video": true, "ordered": true},
     "DREW_ACCEPTED": false,
-    "next_authorized": null
+    "next_authorized": "v2-airborne-039"
   }
 }
