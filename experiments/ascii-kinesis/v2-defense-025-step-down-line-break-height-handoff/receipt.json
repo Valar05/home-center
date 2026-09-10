@@ -16,37 +16,22 @@
     "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78"
   },
   "lineage": {
-    "kind": "NEW_CONCEPT",
-    "revises": null,
-    "negative_fixture": null,
-    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
-    "successor_collision": false,
+    "kind": "NEW_CONCEPT", "revises": null, "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT", "successor_collision": false,
     "defense024_non_authoritative_successor_churn_preserved": "v2-defense-024-deflected-threat-clock-fork"
   },
   "source": {
-    "provider": "The Spriters Resource",
-    "asset_id": 81106,
+    "provider": "The Spriters Resource", "asset_id": 81106,
     "identity": "Bullwinkle — The Adventures of Rocky and Bullwinkle and Friends — NES",
-    "role": "STYLE_REFERENCE",
-    "campaign_evidence_id": "1zQGdJx7uIqTnvJlHp2NfydUu_EDDNvt01tCAlQvlYQ8",
-    "whole_source_inspected": true,
-    "whole_source": "187×432 static PNG; Idle/Walking/Charge/Using Stairs families",
-    "source_authentic_timing": "UNKNOWN",
-    "authored_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
-    "rights_firewall": "PASS"
+    "role": "STYLE_REFERENCE", "campaign_evidence_id": "1zQGdJx7uIqTnvJlHp2NfydUu_EDDNvt01tCAlQvlYQ8",
+    "whole_source_inspected": true, "whole_source": "187×432 static PNG; Idle/Walking/Charge/Using Stairs families",
+    "source_authentic_timing": "UNKNOWN", "authored_timing": "INFERRED / STREET_FIGHTER-CAPCOM", "rights_firewall": "PASS"
   },
   "actual_render": {
-    "codec": "h264",
-    "pix_fmt": "yuv420p",
-    "width": 800,
-    "height": 450,
-    "fps": 24,
-    "frames": 51,
-    "duration_seconds": 2.125,
-    "bytes": 21372,
+    "codec": "h264", "pix_fmt": "yuv420p", "width": 800, "height": 450, "fps": 24, "frames": 51,
+    "duration_seconds": 2.125, "bytes": 21372,
     "sha256": "38f224d8cc3aa98aa68dc69a83b39ce871c0e71ca22b258aaa10fd9305b70039",
-    "decode": "PASS",
-    "origin": "abstract ASCII rig + authored timing only through Motion Dungeon builder semantics",
+    "decode": "PASS", "origin": "abstract ASCII rig + authored timing only through Motion Dungeon builder semantics",
     "fresh_byte_identical_reconstruction": true
   },
   "tango": {
@@ -57,11 +42,8 @@
     "r1_reason": "Fresh byte-identical actual render shows lower probe before authority, mixed-height support gating the root drop, zero-contact high-line clearance, post-clearance upper-foot release, visibly unsupported trailing sweep, both final supports on the lower tread, counter-rise, late guard reopening, and displaced lower-root debt."
   },
   "noodle_queen": {
-    "current_worker": true,
-    "after_tango": "R1_CURRENT_WORKER_REVALIDATION",
-    "taste": "PASS",
-    "function": "PASS",
-    "contempt": "PASS",
+    "current_worker": true, "after_tango": "R1_CURRENT_WORKER_REVALIDATION",
+    "taste": "PASS", "function": "PASS", "contempt": "PASS",
     "reason": "The riser is an actual mechanical antagonist, not scenery: the split-height catch, low silhouette, trailing-foot debt, lower-base compression, and grudging guard recovery remain specific rather than polite."
   },
   "validator": {
@@ -71,12 +53,10 @@
     "boundary": "Current official validator source freshly read; exact candidate blobs are unchanged from the persisted candidate-isolated PASS."
   },
   "repo": {
-    "persisted": true,
-    "repo_readback": true,
-    "body_files_readback": 6,
-    "spa_count": 1,
-    "reconciliation_manifest_commit": "1fe23ecdb268268ab981ce1504ce5060090d948e",
-    "manifest_blob": "3132e82a2d1623b80c992f77f47a7679afbdf2b1",
+    "persisted": true, "repo_readback": true, "body_files_readback": 6, "spa_count": 1,
+    "reconciliation_manifest_commit": "448a4a9ac1421fdce625df88d7f595bff4368a7e",
+    "manifest_blob": "3cad1bb5a106a749d98ae3e1d00a6e6e332241bd",
+    "pre_chat_receipt_commit": "757ce6e80b0946cc9231c84806f8b7ad8d87ee83",
     "body_blobs": {
       "build.py": "713a9d145cabb53ee945a18a57319583809d6663",
       "contact-sheet.txt": "5c358af1bd07525d0f80923d781a3fa9887b6fe9",
@@ -84,18 +64,8 @@
       "step-down-line-break-height-handoff.motion.html": "52a9057b11a1713b5318d9ba8cc94b9a24ccf280"
     }
   },
-  "issue": {
-    "pre_chat_receipt": null,
-    "readback": false
-  },
-  "campaign": {
-    "closure_propagated": false,
-    "readback": false
-  },
-  "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false
-  },
+  "issue": {"pre_chat_receipt": 5614995885, "readback": true},
+  "campaign": {"closure_propagated": false, "readback": false},
+  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_video": false},
   "drew_accepted": false
 }
