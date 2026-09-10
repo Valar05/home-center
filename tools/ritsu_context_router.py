@@ -99,6 +99,24 @@ class RitsuContextRouter:
                 if incumbent and incumbent != episode_id:
                     raise ValueError(f"ambiguous deterministic alias {alias!r}")
                 self.alias_to_episode[key] = episode_id
+
+        # Only explicitly promoted multi-token aliases may bind inside ordinary
+        # sentences. Weak shorthand remains exact-only unless exact wording is being
+        # requested, which keeps natural continuity from swallowing generic speech.
+        self.embedded_aliases: set[str] = set()
+        for episode_id, episode in self.episodes.items():
+            for alias in episode.get("embedded_aliases", []):
+                key = normalize_cue(alias)
+                if self.alias_to_episode.get(key) != episode_id:
+                    raise ValueError(
+                        f"embedded alias {alias!r} must also be an alias of {episode_id!r}"
+                    )
+                if len(key.split()) < 2:
+                    raise ValueError(
+                        f"embedded alias {alias!r} must contain at least two tokens"
+                    )
+                self.embedded_aliases.add(key)
+
         self.reserved = {
             normalize_cue(item["cue"]): item["owner"]
             for item in self.policy.get("reserved_existing_continuity", [])
@@ -183,6 +201,7 @@ class RitsuContextRouter:
         cue: str,
         *,
         allow_embedded_alias: bool,
+        allow_weak_embedded_alias: bool = False,
     ) -> tuple[str | None, str | None, tuple[str, ...]]:
         episode_id = self.alias_to_episode.get(cue)
         if episode_id:
@@ -190,11 +209,12 @@ class RitsuContextRouter:
         if not allow_embedded_alias:
             return None, None, ()
 
-        # Multi-token aliases may occur inside ordinary natural speech. Single-token
-        # aliases stay exact-only so local memory does not become a semantic vacuum.
         padded = f" {cue} "
         matches: list[tuple[str, str]] = []
         for alias, candidate_id in self.alias_to_episode.items():
+            promoted = alias in self.embedded_aliases
+            if not (promoted or allow_weak_embedded_alias):
+                continue
             if len(alias.split()) >= 2 and f" {alias} " in padded:
                 matches.append((candidate_id, alias))
 
@@ -299,10 +319,11 @@ class RitsuContextRouter:
                 reason="AGAIN requires the attributable current target; do not guess",
             )
 
-        # Pass 2-4: local multi-token alias -> relational episode -> correction overlay.
+        # Pass 2-4: promoted local alias -> relational episode -> correction overlay.
         episode_id, matched_alias, ambiguous_ids = self._match_episode(
             cue,
             allow_embedded_alias=True,
+            allow_weak_embedded_alias=exact,
         )
         if ambiguous_ids:
             return RouteResult(
