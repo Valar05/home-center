@@ -1,0 +1,44 @@
+name: Ritsu OS v0 Contract
+
+on:
+  push:
+    branches:
+      - ritsu-os-v0
+    paths:
+      - config/ritsu-os.v0.json
+      - fixtures/ritsu-continuity/**
+      - tools/ritsu_context_router.py
+      - tools/test_ritsu_context_router.py
+      - .github/workflows/ritsu-os-v0-contract.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Compile candidate
+        run: python -m py_compile tools/ritsu_context_router.py tools/test_ritsu_context_router.py
+      - name: Run Ritsu continuity canaries
+        run: python tools/test_ritsu_context_router.py
+      - name: Smoke canonical cue
+        run: |
+          python tools/ritsu_context_router.py "Latin plays" > /tmp/ritsu-latin.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('/tmp/ritsu-latin.json').read_text())
+          assert data['status'] == 'MATCH', data
+          assert data['episode_id'] == 'ritsu-latin-cassette-intercom-v1', data
+          assert data['provenance_tier'] == 'accepted_summary', data
+          assert data['world_knowledge_allowed'] is False, data
+          assert data['seek_primary'] is True, data
+          assert any('dropped' in item for item in data['corrections']), data
+          PY
