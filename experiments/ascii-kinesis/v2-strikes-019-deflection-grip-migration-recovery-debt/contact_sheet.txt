@@ -1,0 +1,378 @@
+ASCII KINESIS V2 STRIKES019 — DEFLECTION_GRIP_MIGRATION_RECOVERY_DEBT
+Legend: O head | ^ pelvis/root | o joint/hand | = shaft | ) hooked head | X authored contact | _ ground
+Source art is evidence-only and is not reproduced. All authored pose/timing/contact mechanics below are INFERRED / STREET_FIGHTER-CAPCOM.
+
+K00 CROOKED_READY | FOURS | INFERRED | support=BOTH
+role=readiness
+
+
+
+
+
+
+                           O
+
+
+                         o/-|-o\\
+                           /|/   \\o        ====)
+                            | /o  ==========
+                            |<====
+                            |
+                            ^
+                           / \\
+                          /    \
+                        //      \
+                       /         \\
+                      /            \
+          ____________________________________________________
+root_note=Displaced asymmetric ready; tool task clock quiet.
+
+K01 REAR_COIL | FOURS | INFERRED | support=REAR_DOMINANT
+role=anticipation
+
+
+
+
+
+
+
+                       O
+
+                                          ==)
+                     o/-|-o\\         ====
+                       /|//  \\o =====
+                        |  /o====
+                        | <==
+                        |
+                        ^
+                      // \\
+                     /     \\
+                   //        \\
+                  /            \\
+          ____________________________________________________
+root_note=Root shifts back; rear hip loads while distal hook keeps a readable return reserve.
+
+K02 PELVIS_COMMIT | TWOS | INFERRED | support=REAR_TO_FRONT
+role=directional commitment
+
+
+
+
+
+
+                            O
+
+
+                          o/|--o\\              ===)
+                            |//   \\o    =======
+                            |  /o =======
+                             |<===
+                             |
+                             ^
+                           // \\
+                          /     \
+                        //       \\
+                      //           \\
+                     /               \
+          ____________________________________________________
+root_note=Pelvis/root commits before the hook reaches the line.
+
+K03 PRECONTACT_GAP | ONES | INFERRED | support=FRONT_BIASED
+role=precontact gap
+
+
+
+
+
+
+                              O
+
+
+                            o/|/-o\\\\\o            ===)
+                              | ///o        ========
+                               |    ========
+                               |<===
+                                |
+                                ^
+                              // \\
+                            //     \
+                          //        \\
+                        //            \\
+                      //                \
+          ____________________________________________________
+root_note=Distinct air gap remains before the authored impact.
+
+K04 DEFLECTION_CONTACT | ONES | INFERRED | support=FRONT_BIASED
+role=deflection contact
+
+
+
+
+
+
+                                O                             ^
+                                                             <
+                                                            <
+                              o/|/-o\\\\\\o           ====)X
+                                | ///o        ========
+                                 |    ========
+                                 |<===
+                                  |
+                                 /^
+                               //  \\
+                             //      \
+                           //         \
+                         //            \\
+                       //                \
+          ____________________________________________________
+root_note=Contact is not maximum reach; external force begins rotating tool axis.
+
+K05 ROOT_OVERRUN_TOOL_KICK | TWOS | INFERRED | support=FRONT_BIASED
+role=impact consequence
+
+
+                                                         ^
+                                                        <
+                                                     =)
+                                                   ==
+                                                 ==
+                                   O           ==
+                                          \o ==
+                                        \\ ==
+                                 o//|/o\ ==
+                                    |  ==
+                                     |=
+                                   ==|
+                                  < /^
+                                  //  \
+                               ///     \
+                            ///         \\
+                          //              \
+                        //                 \
+          ____________________________________________________
+root_note=Hook snaps up/back while pelvis/root continues forward one authored beat.
+
+K06 NEAR_HAND_PIVOT_FAR_HAND_SLIDE | TWOS | INFERRED | support=OUTER_FRONT
+role=grip migration begins
+
+
+
+                                                    )
+                                                  ==
+                                                 =
+                                               ==
+                                            o =
+                                  O       \\==
+                                        \\ =
+                                      \\ ==
+                               o--|--o ==
+                                /  |  =
+                                 / |==
+                                  o=|
+                                 ==/^\
+                               ////   \\
+                            ///=        \\
+                        //// <            \\
+                      //                    \\
+          ____________________________________________________
+root_note=Near hand becomes temporary pivot; far hand slides along shaft instead of dragging tool through old line.
+
+K07 OUTER_SUPPORT_CATCH | TWOS | INFERRED | support=OUTER_FRONT_LOCKED
+role=support catches torque
+
+
+
+
+                                                  )
+                                                ==
+                                               =
+                                             ==
+                                           o=
+                                O        \\=
+                                        \==
+                                      \\=
+                              o---|--o==
+                               /  |  =
+                                / |==
+                                 o=|
+                                 = |
+                               =///^\\
+                         ///////      \\\\\\
+                     ////   ==              \\\
+          _________________<__________________________________
+root_note=Wide front support catches returned torque; body compresses under the deflected axis.
+
+K08 DEFLECTED_AXIS_LOAD_HOLD | FOURS | INFERRED | support=BOTH_FRONT_HEAVY
+role=load hold
+
+
+
+
+                                                  )
+                                                ==
+                                               =
+                                             ==
+                                            =
+                               O         \o=
+                                       \\=
+                                     \\==
+                             o--|---o==
+                              //|   =
+                                /o==
+                                 |
+                               == |
+                              =///^\\
+                        ///////      \\\\\\
+                    ////   <               \\\
+          ____________________________________________________
+root_note=Tool and torso remain twisted; this hold makes the new return corridor legible.
+
+K09 GRIP_MIGRATION | TWOS | INFERRED | support=BOTH
+role=grip topology reset
+
+
+
+
+
+                                               )
+                                             ==
+                                            =
+                               O          ==
+                                         =
+                                       ==
+                             o--|--o ==
+                              / |   \o
+                               / |==
+                                o|
+                               == |
+                              = //^\
+                            ////    \\\
+                        ///<           \\\\
+                     ///                   \\
+          ____________________________________________________
+root_note=Far hand migrates inward; hand spacing changes before major weapon recovery.
+
+K10 NEW_AXIS_RETRACT | TWOS | INFERRED | support=BOTH
+role=axial retract on deflected corridor
+
+
+
+
+
+
+
+                                           )
+                              O          ==
+                                       ==
+                                      =
+                            o--|--o ==
+                             /  |  \
+                              / |==o
+                               o=|
+                              = /^\
+                            =///   \\
+                          /</        \\
+                       ///             \\
+                     //                  \\
+          ____________________________________________________
+root_note=Hook retracts along the deflected shaft axis; root does not rotate yet.
+
+K11 HOOK_CLEAR | ONES | INFERRED | support=BOTH
+role=clearance achieved
+
+
+
+
+
+
+
+
+                             O          )
+                                      ==
+                                    ==
+                           o--|--o\\o
+                            // | ==
+                              /o=
+                              ==|
+                            == /^
+                           <///  \\
+                          //       \\
+                       ///           \\
+                     //                \\
+          ____________________________________________________
+root_note=Hook is now inside the legal return pocket; counterrotation becomes permissible.
+
+K12 COUNTERROTATE_AFTER_CLEAR | TWOS | INFERRED | support=REAR_TO_BOTH
+role=counterrotation / torso overshoot
+
+
+
+
+
+
+
+                            O
+
+
+                          o//|--o
+                             /|/o\\
+                              |    \o
+                            <==|===========)
+                               ^
+                             // \\
+                           //     \
+                         //        \\
+                       //            \\
+                     //                \
+          ____________________________________________________
+root_note=Hands rotate tool only after clearance; torso overshoots opposite the old deflection.
+
+K13 SHAFT_LAG_SECONDARY_SETTLE | TWOS | INFERRED | support=BOTH
+role=secondary lag / settle
+
+
+
+
+
+
+
+                           O
+
+
+                         o//|--o\
+                             |//o\\o =========)
+                            <|=======
+                              |
+                              ^
+                            // \\
+                          //     \
+                        //        \\
+                      //            \\
+                     /                \
+          ____________________________________________________
+root_note=Body has nearly restacked while distal shaft still lags right; no reverse interpolation.
+
+K14 DISPLACED_READY | FOURS | INFERRED | support=BOTH
+role=re-entry with displaced debt
+
+
+
+
+
+
+                             O
+
+
+                           o/-|--o\\
+                             /|//   \\o      ====)
+                              |  /o =========
+                               <====
+                               |
+                               ^
+                             // \\
+                            /     \
+                           /       \\
+                         //          \\
+                        /              \
+          ____________________________________________________
+root_note=Readiness returns at a new address and altered stance width; recovery does not reset to K00.
