@@ -1,0 +1,246 @@
+ASCII KINESIS V2 DEFENSE026 — MOVING-BASE GUARD INERTIA / REBASE
+SOURCE: TSR asset 133611 Ride Armor — Mega Man X — SNES | commissioned evidence 13LNIYKD8DmWrc9trwiicS873bX-p-lku8QVNqdFk2Yc | whole 900x800 static sheet inspected.
+ROLE: STYLE_REFERENCE | timing authority=false | source timing UNKNOWN | authored timing INFERRED / STREET_FIGHTER-CAPCOM.
+PRINCIPLE: moving base owns lateral impulse -> body/guard inertial lag -> trailing pressure decays -> foot peel/sweep -> new base catch -> base brake/root overrun -> counter-torque -> late guard reopen.
+LEGEND: # trusted base support | ^ forefoot pressure | x unsupported | @ pelvis | O head | [====] moving base | ^ fixed world datum | <---- fixed threat bearing.
+RIGHTS: abstract ASCII only; no source pixels/palette/contours/costume/layout/tracing/choreography/audio/redistribution/close imitation.
+
+K00 MOVING_BASE_READY [FOURS/INFERRED] SUPPORT=L#+R#
+BASE=x38..76 | THREAT=DISTANT_DIRECTIONAL_PRESSURE | GUARD=ASYM_WORLD_FACING_READY
+ROOT: root stacked over still base; guard already asymmetric toward fixed world threat
+ROLE: establish a stable translating-base relationship before the external base owns force
+
+
+                       O
+                      -o--o       <-------
+                  + o- |   |-+
+                  ||   |   o
+                   o  |
+                      |
+                      @
+                    // \\
+                   o     o
+                   |     |
+                  |       |
+          [=======#=======#====]
+..................................^.............
+
+
+
+K01 THREAT_READ_PRELOAD [FOURS/INFERRED] SUPPORT=L#+R#
+BASE=x38..76 | THREAT=PRESSURE_CUE_CLOSING | GUARD=HIGH_GUARD_PRELOAD
+ROOT: knees and pelvis preload while base remains still; threat-facing hand rises before surge
+ROLE: pre-compress and orient guard before base acceleration
+
+
+                      O
+                      |      +    <-------
+                   o--o--o //
+                  +|  |   o
+                   o |
+                     |
+                     @
+                    / \
+                    /  \
+                   o    o
+                  |      \
+          [=======#=======#====]
+..................................^.............
+
+
+
+K02 BASE_SURGE_ONSET [ONES/INFERRED] SUPPORT=L#+R#
+BASE=x35..73 | THREAT=FIXED_WORLD_PRESSURE | GUARD=GUARD_HOLDS_WORLD_BEARING
+ROOT: feet ride left with base first; pelvis follows less; head and guard lag against platform acceleration
+ROLE: external base begins translating while body and guard lag in world space
+
+
+                      O
+                     |       +    <-------
+                   o-o---o //
+                 +|  |    o
+                  o |
+                    |
+                    @
+                   / \
+                   /  \
+                  o    o
+                 /      |
+        [=======#=======#====]
+..................................^.............
+
+
+
+K03 INERTIA_LAG_EXTREME [TWOS/INFERRED] SUPPORT=L#+R^
+BASE=x32..70 | THREAT=FIXED_WORLD_PRESSURE | GUARD=WORLD_BEARING_GUYWIRE
+ROOT: base outruns pelvis left; torso counterleans right; right forefoot becomes the last trailing pressure point
+ROLE: make inertial lag visible before support must reorganize
+
+
+                     O
+                    |        +    <-------
+                  o-o---o  //
+                 |  |    -o
+                +o  |
+                   |
+                   |
+                   @
+                  / \
+                 /   o
+                o     \
+       [=======#=======^====]
+..................................^.............
+
+
+
+K04 TRAILING_FOOT_PEEL [ONES/INFERRED] SUPPORT=L#+Rx
+BASE=x29..67 | THREAT=FIXED_WORLD_PRESSURE | GUARD=GUARD_STILL_WORLD_FACING
+ROOT: left foot alone owns the accelerating base; right foot lifts visibly above surface instead of sliding as planted theater
+ROLE: release the trailing foot because inertial demand exceeds its dwindling pressure authority
+
+
+                    O
+                   |              <-------
+                o--o---o    -+
+                |  |    \ --
+               +o |      o
+                  |
+                 |
+                 @
+                / \\
+               /    ox
+              o
+     [=======#============]
+..................................^.............
+
+
+
+K05 FREE_FOOT_SWEEP_REBASE [TWOS/INFERRED] SUPPORT=L#+Rx
+BASE=x26..64 | THREAT=FIXED_WORLD_PRESSURE | GUARD=GUARD_BEARING_WITH_SHOULDER_LAG
+ROOT: single support carries root; free foot clears the moving surface and crosses inward; pelvis begins catching platform translation
+ROLE: sweep the free foot to a new base address while guard resists being dragged off line
+
+
+                   O
+                  |               <-------
+               o--o---o    -+
+               | /     \ --
+              +o/       o
+                /
+               @
+              | \\
+              | x-o
+             |
+             o
+   [========#===========]
+..................................^.............
+
+
+
+K06 REAR_CATCH_ON_TRANSLATING_BASE [ONES/INFERRED] SUPPORT=L#+R#
+BASE=x24..62 | THREAT=FIXED_WORLD_PRESSURE | GUARD=CATCH_COMPRESSION_GUARD_LAG
+ROOT: new right-foot catch compresses pelvis and shortens the world-facing guard line; catch is a causal join
+ROLE: reacquire two-foot support on the moving base before the base brakes
+
+
+
+                  O               <-------
+                -o---o   +
+              o-|     \ /
+             +| |      o
+              o|
+               |
+              |
+              @
+             / \
+            o   o
+  [=======#======#=====]
+..................................^.............
+
+
+
+K07 BASE_BRAKE_ROOT_OVERRUN [TWOS/INFERRED] SUPPORT=L#+R#
+BASE=x22..60 | THREAT=THREAT_CLEAR_BEARING_RETURNS | GUARD=BRAKE_OVERRUN_GUARD_DRAG
+ROOT: platform brake precedes root arrest; pelvis overruns left of the fresh support midpoint and guard trails
+ROLE: stop the base while pelvis and shoulders continue through their stored lateral momentum
+
+
+
+               O                  <-------
+              -o---o   +
+            o- |    |//
+          +-| |     o
+            o |
+             |
+             @
+            / \
+           /   \
+          o     o
+ [=======#======#=====]
+..................................^.............
+
+
+
+K08 COUNTER_TORQUE_RESTACK [TWOS/INFERRED] SUPPORT=L#+R#
+BASE=x22..60 | THREAT=CLEARED | GUARD=COUNTER_TORQUE_GUARD_LATE
+ROOT: feet stay fixed on stopped base while pelvis recenters right; shoulders counter-rotate later than hips
+ROLE: reverse torso yaw over stable feet to pay the brake-induced overshoot
+
+
+              O
+              |
+            o-o---o
+           |  |    \
+          +o |      o-+
+             |
+             @
+            | \
+            |  \
+           |   \
+           o    o
+ [=======#======#=====]
+..................................^.............
+
+
+
+K09 LATE_GUARD_REOPEN [FOURS/INFERRED] SUPPORT=L#+R#
+BASE=x22..60 | THREAT=CLEARED | GUARD=GUARD_REOPENING_AFTER_ROOT
+ROOT: root is nearly restacked but right hand remains late; base and feet do not return to their original world address
+ROLE: restore defensive width only after root and support have survived the moving-base brake
+
+
+              O
+              |
+            o-o---o  +
+          +|  |    |/
+           o  |    o
+              |
+              @
+             / \
+             / \
+            o   o
+           /    |
+ [========#=====#=====]
+..................................^.............
+
+
+
+K10 DISPLACED_BASE_READY [FOURS/INFERRED] SUPPORT=L#+R#
+BASE=x22..60 | THREAT=CLEARED | GUARD=ASYM_READY_WITH_BASE_DEBT
+ROOT: platform, feet, and pelvis remain displaced left; final asymmetry proves recovery is not an idle reset
+ROLE: finish ready at the translated world address with visible residual stance and guard debt
+
+
+              O
+              |
+            o-o---o  +
+          +|  |    |/
+           o  |    o
+              |
+              @
+             / \
+             / \
+            o   o
+           /    |
+ [========#=====#=====]
+..................................^.............
