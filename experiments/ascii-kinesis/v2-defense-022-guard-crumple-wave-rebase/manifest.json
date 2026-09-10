@@ -5,7 +5,7 @@
   "lane": "defense",
   "number": 22,
   "title": "GUARD CRUMPLE / WAVE REBASE",
-  "status": "REPO_AND_ISSUE_VERIFIED_PENDING_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "primary_tabs": [
     "ASCII",
     "JSON",
@@ -69,13 +69,13 @@
     "repo_readback": true,
     "body_files_readback": 6,
     "exactly_one_spa": true,
-    "readback_commit": "6d612ea8afa11c0a10220324c4409b3f41c31b05",
+    "readback_commit": "4de0e24c27fe26e24cff4c508acdad517db5fcd7",
     "manifest_previous_blob": "d51907bddd231a35d63f268224846f99105668c3",
     "blobs": {
       "build.py": "985f86c23884412f1b716216869fe53f94860c10",
       "contact-sheet.txt": "63c198361257df01d8eec87f1d79783b48b19c10",
       "motion.json": "e9f5d55ce0bad6904b58dcc4cda859ab02968f1f",
-      "receipt.json": "923b5e89b2e74277294d8c8e2c991e65eb7fb1e9",
+      "receipt.json": "a5f5e32c1996ad5564a777a88cb4e03e85125b27",
       "guard-crumple-wave-rebase.motion.html": "cbdf3ee02a95e80a966ce673445292f9eb53a4b5"
     }
   },
@@ -85,10 +85,14 @@
     "readback": true
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_visible_video": false,
-    "ordered": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_visible_video": true,
+    "ordered": true,
+    "ascii_byte_identical_to_persisted": true,
+    "json_byte_identical_to_persisted": true,
+    "video_byte_identical_to_authoritative": true,
+    "video_sha256": "606a9f48777a7f71322812f70575fcafe27f7530aac8503caff14f0b9069cc0d"
   },
   "drew_accepted": false
 }
