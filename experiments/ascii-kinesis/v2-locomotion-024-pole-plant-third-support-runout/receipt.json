@@ -76,26 +76,24 @@
     "path": "experiments/ascii-kinesis/v2-locomotion-024-pole-plant-third-support-runout/",
     "expected_file_count": 6,
     "expected_spa_count": 1,
-    "post_write_readback": false,
-    "exact_six_file_body": false,
+    "post_write_readback": true,
+    "exact_six_file_body": true,
     "stable_body_files": {
       "build.py": "d78386682f9feb20f9abb03aa74838ab9a48d27a",
       "contact-sheet.txt": "414a2a3ce7d38c02b2cebce89acadc727fc42319",
+      "manifest.json": "a44f5c45aed886a4b8776a1f35ec18491ac9b773",
       "motion.json": "47dc4dd3d9f9b4946781badbb39d966f5081a6fd",
       "pole-plant-third-support-runout.motion.html": "c55f351daea9b1c6719d5066d69427d5645b7937"
     }
   },
   "issue": {
     "number": 343,
-    "pre_delivery_receipt": null,
-    "pre_delivery_readback": false,
+    "pre_delivery_receipt": 5622186639,
+    "pre_delivery_readback": true,
     "closure_receipt": null,
     "closure_readback": false
   },
-  "campaign": {
-    "propagated": false,
-    "readback": false
-  },
+  "campaign": {"propagated": false, "readback": false},
   "chat_delivery": {
     "part1_ascii": false,
     "part2_json": false,
