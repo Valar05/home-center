@@ -24,7 +24,7 @@
   },
   "quality": {
     "actual_media_decode": "PASS",
-    "actual_media_sha256": "b26b315cee8599695edf891fb9874db3589c76204f915205888c25f5dc5f50de",
+    "actual_media_sha256": "0d85e707f754c03ba7f2e50d873db0d740059207cb00d99b34bbe8dac1741b76",
     "candidate_isolated_validator": "PASS",
     "fresh_current_worker_noodle_queen": "PASS",
     "fresh_current_worker_tango": "PASS",
@@ -52,6 +52,11 @@
         "round": 1,
         "status": "PASS",
         "visible_read": "coil and support ownership now carry turn preparation; one-tick K03 cross-body witness makes the 95→305 degree ambiguous jump direction legible; K04 travel and K05 right-catch compression visibly own the consequence; K06 crosses phase wrap without body reset; K07 brake and K08 displaced restack pay recovery debt"
+      },
+      {
+        "round": 2,
+        "status": "PASS",
+        "visible_read": "current builder-native 640x280 render preserves the revised embodied sequence: K01 coil, K02 release lift, K03 cross-body directional witness, K04 COM travel, K05 right-catch compression, K06 wrap continuation, K07 brake and K08 displaced restack remain legible; no new visible defect"
       }
     ]
   },
