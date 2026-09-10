@@ -3,6 +3,7 @@ K00 READY_BASELINE | FOURS/4t | PROV=INFERRED | SUPPORT=BOTH
 
 
 
+
                   O
                   |
             o    -o-    o
@@ -52,6 +53,7 @@ K02 EVASIVE_TRAVEL | TWOS/2t | PROV=INFERRED | SUPPORT=NONE
 
 
 
+
                               O
                        o  o--o--o  o
                         o/   |   \o
@@ -89,6 +91,7 @@ K03 RECOVERY_PROBE | ONES/1t | PROV=INFERRED | SUPPORT=LEFT_PROBE
 ROOT_X=+1.70  DEBT=0.85  READINESS=PARTIAL  INTERRUPT=NONE
 ------------------------------------------------------------------------
 K04 TRUSTED_RECOVERY_INCOMPLETE | TWOS/2t | PROV=INFERRED | SUPPORT=LEFT_TRUSTED
+
 
 
 
@@ -161,6 +164,7 @@ K07 POST_PREEMPT_DEBT_PAYMENT | TWOS/2t | PROV=INFERRED | SUPPORT=BOTH_RIGHT_DOM
 
 
 
+
                                             O
                                             |
                                            -o-
@@ -179,6 +183,7 @@ K07 POST_PREEMPT_DEBT_PAYMENT | TWOS/2t | PROV=INFERRED | SUPPORT=BOTH_RIGHT_DOM
 ROOT_X=+2.60  DEBT=0.12  READINESS=RECOVERING  INTERRUPT=RESOLVED
 ------------------------------------------------------------------------
 K08 DISPLACED_READY_RESTACK | FOURS/4t | PROV=INFERRED | SUPPORT=BOTH
+
 
 
 
