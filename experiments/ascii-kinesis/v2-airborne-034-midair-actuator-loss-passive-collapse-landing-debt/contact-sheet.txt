@@ -1,0 +1,489 @@
+ASCII KINESIS V2 — AIRBORNE034 — MID-AIR ACTUATOR LOSS / PASSIVE COLLAPSE / LANDING DEBT
+SOURCE EVIDENCE: TSR asset 133611 Ride Armor — Mega Man X — SNES — whole-sheet campaign evidence only
+SOURCE-ART FIREWALL: no source pixels / palette / costume / contours / layout / choreography / audio
+TIMING: every decisive key INFERRED / STREET_FIGHTER-CAPCOM; source-authentic timing UNKNOWN
+PRINCIPLE: internal joint-authority loss changes local collision eligibility without inventing a root impulse
+
+A034-K0 COILED_STIFF_READY | timing=FOURS | provenance=INFERRED | actuator=ON | support=BOTH_FEET_STIFF | role=active stiffness loads support break
+root=[18.0, 20.5] | root_arc=root compressed low before takeoff; both feet own root
+
+  AIRBORNE034  POWER:ON
+
+
+
+
+
+
+
+
+
+
+                  O
+                  |
+                  |
+                  |
+              o---#---o
+              /   |   \
+             /    |    \x
+            /     |
+            x    ~@
+                  \
+                // \\
+                /   \
+              /o     o\
+              /       \
+=============*=========*========================================================================
+.       .       .       .       .       .       .       .       .       .       .       .
+
+
+
+
+
+
+A034-K1 SUPPORT_BREAK | timing=ONES | provenance=INFERRED | actuator=ON | support=NONE | role=external support ends; powered body commits up-right
+root=[22.0, 17.0] | root_arc=support release earns one continuous ballistic root arc
+
+  AIRBORNE034  POWER:ON
+
+
+
+
+
+
+                        O
+                        |
+                       |
+                      /#---
+                    ///|  -o
+                   // ||   \\
+                  o   |     \
+                 //   |      x
+                 /   ~@
+                x   ///\\
+                    /   \o
+                   o/     \
+                   |       =
+                  |
+                  =
+
+
+================================================================================================
+.       .       .       .       .       .       .       .       .       .       .       .
+
+
+
+
+
+
+A034-K2 ASCEND_STIFF | timing=TWOS | provenance=INFERRED | actuator=ON | support=NONE | role=active stiffness shapes silhouette without new support
+root=[29.0, 12.8] | root_arc=ballistic rise; articulated pose remains actively organized
+
+  AIRBORNE034  POWER:ON
+
+
+
+                               O
+                              ||
+                              |
+                             /#-
+                            / | --
+                          //  |   o--
+                        ///  |      -x
+                        o    |
+                       /    ~@\
+                      //  --- \
+                      x /o-    \\
+                        /       o
+                       =         \\
+                                  =
+
+
+
+
+
+
+
+================================================================================================
+.       .       .       .       .       .       .       .       .       .       .       .
+
+
+
+
+
+
+A034-K3 APEX_LOCK | timing=FOURS | provenance=INFERRED | actuator=ON | support=NONE | role=last fully actuated airborne silhouette
+root=[38.0, 9.8] | root_arc=apex read; root velocity transitions through zero vertical speed
+
+  AIRBORNE034  POWER:ON
+                                        O
+                                        |
+                                       |
+                                      -#\
+                                    ---|\\
+                                  --- ||  \
+                                /o-   |    o\
+                              ///     |     \\
+                              x      ~@-      x
+                                    //  --
+                                  ///     o
+                                  o        \\
+                                //          =
+                                =
+
+
+
+
+
+
+
+
+
+================================================================================================
+.       .       .       .       .       .       .       .       .       .       .       .
+
+
+
+
+
+
+A034-K4 ACTUATOR_CUT | timing=ONES | provenance=INFERRED | actuator=CUT | support=NONE | role=joint stiffness authority revoked at apex exit
+root=[43.5, 10.2] | root_arc=internal authority changes but root remains on ballistic trajectory; no impulse injected
+
+  AIRBORNE034  POWER:CUT
+                                              O
+                                             |
+                                             |
+                                            #|
+                                           //\
+                                          / | \
+                                        /// | \\
+                                        .   |  \.
+                                       /  ~ @   \
+                                      /   //\\  \\
+                                      x .//   .  \x
+                                        |      |
+                                        |      |
+                                        =      |=
+
+
+
+
+
+
+
+
+
+================================================================================================
+.       .       .       .       .       .       .       .       .       .       .       .
+
+
+
+
+
+
+A034-K5 PASSIVE_FOLD_LAG | timing=TWOS | provenance=INFERRED | actuator=OFF | support=NONE | role=passive articulation collapses under inertia/gravity
+root=[49.0, 11.8] | root_arc=descent begins; distal joints lag downward while root keeps traveling right
+
+  AIRBORNE034  POWER:OFF
+
+
+
+                                                     O
+                                                    /
+                                                   #/
+                                                  /|
+                                                 // |
+                                                //| |
+                                               //|   |
+                                               .~@\  .
+                                               |||\\ |
+                                                |   \ |
+                                                .    .|
+                                                x     x
+                                               ||     |
+                                               |      ||
+                                               =       =
+
+
+
+
+
+
+================================================================================================
+.       .       .       .       .       .       .       .       .       .       .       .
+
+
+
+
+
+
+A034-K6 SLACK_DESCENT | timing=TWOS | provenance=INFERRED | actuator=OFF | support=NONE | role=passive collapse becomes visible as negative-space shrink
+root=[56.0, 14.4] | root_arc=unsupported descent steepens; loose limbs trail behind root translation
+
+  AIRBORNE034  POWER:OFF
+
+
+
+
+
+
+                                                            /O
+                                                            /
+                                                           #
+                                                          /||
+                                                         // |
+                                                       ~@/  ||
+                                                        .\   .
+                                                        | \  |
+                                                        |  \\||
+                                                        .|  \.|
+                                                        |x   |x
+                                                        |     |
+                                                        |     |
+                                                        =      =
+
+
+
+================================================================================================
+.       .       .       .       .       .       .       .       .       .       .       .
+
+
+
+
+
+
+A034-K7 PRECONTACT_SLACK | timing=TWOS | provenance=INFERRED | actuator=OFF | support=NONE | role=body cannot actively open; collision eligibility comes from slack geometry
+root=[63.0, 18.0] | root_arc=separated floor precontact; left knee/shin is lowest eligible passive catcher
+
+  AIRBORNE034  POWER:OFF
+
+
+
+
+
+
+
+
+
+
+                                                                   /O
+                                                                  #
+                                                                /|||
+                                                                /| |
+                                                              ~@\| |
+                                                               |.   |
+                                                               ||\\ .
+                                                               || \\|
+                                                               .|   .|
+                                                               |x    \
+                                                               ||    x\
+                                                                |     =
+================================================================================================
+.       .       .       .       .       .       .       .       .       .       .       .
+
+
+
+
+
+
+A034-K8 LEFT_KNEE_FIRST_CONTACT | timing=ONES | provenance=INFERRED | actuator=OFF | support=LEFT_KNEE_NEW | role=passive first catch converts fall into slide/rotation
+root=[68.0, 20.5] | root_arc=left knee acquires floor support while forward root momentum survives
+
+  AIRBORNE034  POWER:OFF
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                         O
+                                                                        -
+                                                                      /#
+                                                                      / |
+                                                                   ~@// |
+                                                                    \\  |
+                                                                    . \  .
+                                                                    | \\ |
+                                                                   |||  .||
+                                                                   | |   \\
+===================================================================*-x====x=====================
+.       .       .       .       .       .       .       .       .   -=  .       .       .
+
+
+
+
+
+
+A034-K9 PASSIVE_CRUSH_RIGHT_FOOT_CATCH | timing=FOURS | provenance=INFERRED | actuator=OFF | support=LEFT_KNEE_PLUS_RIGHT_FOOT | role=ground reaction pays vertical speed without active brace
+root=[72.0, 21.5] | root_arc=root continues right/down into asymmetric passive crush; second support is delayed
+
+  AIRBORNE034  POWER:OFF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                              O
+                                                                            ---
+                                                                          -/#
+                                                                        ---/|
+                                                                       ~@\/ ||
+                                                                       | /\  |
+                                                                       | .\. .\
+                                                                      |   | \ \
+======================================================================*-==x=\*\x================
+.       .       .       .       .       .       .       .       .       =       .       .
+
+
+
+
+
+
+A034-K10 TORSO_OVERRUN | timing=TWOS | provenance=INFERRED | actuator=OFF | support=RIGHT_FOOT_PRIMARY | role=secondary lag exposes unresolved momentum debt
+root=[75.5, 21.0] | root_arc=right foot becomes primary while torso/head overshoot past root
+
+  AIRBORNE034  POWER:OFF
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                              --#|--O
+                                                                          ~ @- / |
+                                                                           |\ // |.
+                                                                           | \.   \
+                                                                           | \.   \\
+                                                                          .   \     x
+===========================================================================\==x\*===============
+.       .       .       .       .       .       .       .       .       .       .       .
+
+
+
+
+
+
+A034-K11 ACTUATOR_RESTORE_UNDER_LOAD | timing=ONES | provenance=INFERRED | actuator=RESTORE | support=BOTH_FEET_REACQUIRED | role=active stiffness re-enters under load rather than resetting pose
+root=[77.0, 20.7] | root_arc=power returns only after both feet earn support; root still displaced
+
+  AIRBORNE034  POWER:RESTORE
+
+
+
+
+
+
+
+
+
+
+
+                                                                                 O
+                                                                                ||
+                                                                                #
+                                                                              --\\
+                                                                            --// +\
+                                                                           + //   \
+                                                                          ||~@     x
+                                                                          | / \
+                                                                          x/  \\
+                                                                          +    +
+                                                                         ||     \
+=========================================================================*=======*==============
+.       .       .       .       .       .       .       .       .       .       .       .
+
+
+
+
+
+
+A034-K12 POWERED_RISE_RESTACK | timing=TWOS | provenance=INFERRED | actuator=ON | support=BOTH_FEET | role=recovery spends ground support to rebuild stature
+root=[79.0, 19.4] | root_arc=powered joints extend from loaded support; root rises locally without reversing flight
+
+  AIRBORNE034  POWER:ON
+
+
+
+
+
+
+
+                                                                                O
+                                                                                |
+                                                                                |
+                                                                                #
+                                                                              --\\\
+                                                                           o--  | \o
+                                                                          /    ||   \
+                                                                         x/    |    \x
+                                                                              ~@
+                                                                              / \
+                                                                             // \\
+                                                                            o     o
+                                                                            |     |
+                                                                           ||     ||
+                                                                           *       *
+================================================================================================
+.       .       .       .       .       .       .       .       .       .       .       .
+
+
+
+
+
+
+A034-K13 DISPLACED_STABLE | timing=FOURS | provenance=INFERRED | actuator=ON | support=BOTH_FEET | role=displaced recovery closes actuator-loss debt
+root=[82.0, 19.8] | root_arc=stable at a new address; no idle-position rewind
+
+  AIRBORNE034  POWER:ON
+
+
+
+
+
+
+
+
+                                                                                  O
+                                                                                  |
+                                                                                  |
+                                                                                 -#-
+                                                                               -- | --
+                                                                              o   |   o
+                                                                            //    |    \\
+                                                                            x     |     x
+                                                                                 ~@
+                                                                                // \\
+                                                                                /   \
+                                                                               o     o
+                                                                              ||     ||
+                                                                              |       |
+==============================================================================*=======*=========
+.       .       .       .       .       .       .       .       .       .       .       .
