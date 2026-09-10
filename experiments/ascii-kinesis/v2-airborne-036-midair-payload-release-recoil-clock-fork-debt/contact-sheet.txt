@@ -1,0 +1,391 @@
+ASCII KINESIS V2 — AIRBORNE036
+PRIMITIVE: AIRBORNE_CUSTODY_RELEASE_RECOIL_CLOCK_FORK_DEBT
+SOURCE ART: NONE — abstract ASCII rig only
+READ ORDER: coupled carry -> unsupported launch -> apex counterload -> release clock fork -> recoil split -> displaced one-foot catch -> crush -> late second support -> overshoot -> settle
+
+A036-K0  COUPLED CROUCH / PAYLOAD BANK  FOURS / INFERRED
+ROLE: ANTICIPATION_LOAD_WITH_PAYLOAD_IN_BODY_CLOCK
+SUPPORT: LEFT_FOOT,RIGHT_FOOT | CUSTODY: BODY_CLOCK_LOCKED
+ROOT: GROUND LOAD; PAYLOAD LOCKED TO THROWING HAND; REAR-LEFT BIAS
+
+                 O
+                  |
+                 -|-
+               o- | -o
+              /   |   \
+            //    |    \
+           h      |     \
+                  |      h [#]
+                  @
+                 / \
+               //   \
+              o      o
+             /        \
+             /        \
+            /          \
+            /          \
+===========^============^===================================================================================================
+
+A036-K1  SUPPORT BREAK / CARRY RISE  ONES / INFERRED
+ROLE: EARN_SUPPORT_BREAK_WITH_PAYLOAD_STILL_COUPLED
+SUPPORT: NONE | CUSTODY: BODY_CLOCK_LOCKED
+ROOT: BOTH FEET CLEAR; ROOT LAUNCHES UP-RIGHT; PAYLOAD REMAINS HAND-LOCKED
+
+                      O
+                       |
+                       |-
+                     --| -o
+                   o-  |   \
+                  /    |    \
+                 /     |     h [#]
+                h      |
+                       @
+                      / \
+                     /   \
+                     /    o
+                    o      \
+                   |        \
+                   |        \
+                  |          \
+                  |
+
+============================================================================================================================
+
+A036-K2  RISING CARRY / OPEN SILHOUETTE  TWOS / INFERRED
+ROLE: ESTABLISH_UNSUPPORTED_COUPLED_FLIGHT
+SUPPORT: NONE | CUSTODY: BODY_CLOCK_LOCKED
+ROOT: BALLISTIC RISE; LEGS OPEN; PAYLOAD STILL RIDES HAND CLOCK
+
+                             O
+                              |
+                             -|-
+                           -- | --o
+                         o-   |    \
+                        /     |     \
+                       /      |      \
+                       /      |       h [#]
+                      h       @
+                             / \
+                            /   \\
+                           /      o
+                          o        \
+                          |         \
+                         |          \
+                         |           \
+                        |             \
+                        |
+
+============================================================================================================================
+
+A036-K3  MID-AIR COUNTERLOAD / ARM SWEEP BACK  TWOS / INFERRED
+ROLE: AUTHORED_BRIDGE_BANK_COUNTERROTATION_BEFORE_RELEASE
+SUPPORT: NONE | CUSTODY: BODY_CLOCK_LOCKED
+ROOT: ROOT STILL RISES; THROW ARM/PAYLOAD SWEEP BACK AS TORSO OPPOSES
+
+                             h        O
+                              \      |
+                              \     -|-
+                               \  -- | -o
+                                o-  -|-
+                                  h-[#]
+                                     |
+                                     |
+                                     @
+                                    / \
+                                   /   \\
+                                  /      o
+                                 o        \
+                                /          \
+                               /            \
+                               /             \
+                              /
+                             /
+
+============================================================================================================================
+
+A036-K4  APEX WINDUP / CLOCKS STILL COUPLED  FOURS / INFERRED
+ROLE: READABLE_APEX_HOLD_BEFORE_FORCE_TRANSFER
+SUPPORT: NONE | CUSTODY: BODY_CLOCK_LOCKED
+ROOT: APEX; BODY CLOCK PAUSES VISUALLY WHILE PAYLOAD CONSTRAINT REMAINS HARD
+
+                                            O
+                                       h-[#]
+                                         --|-
+                                        -- | -o
+                                      o-   |
+                                     /     |
+                                   //      |
+                                  h        |
+                                           @
+                                          / \\
+                                         /    \\
+                                        /       o
+                                       o         \
+                                      |           \
+                                      |           \
+                                     |             \
+                                     |              \
+                                    |
+                                    |
+
+============================================================================================================================
+
+A036-K5  COMMIT TRANSFER / FULL EXTENSION  ONES / INFERRED
+ROLE: BODY_SPENDS_TORSO_ARM_CHAIN_WHILE_CONSTRAINT_STILL_EXISTS
+SUPPORT: NONE | CUSTODY: BODY_CLOCK_LOCKED
+ROOT: ROOT BEGINS DESCENT; THROW ARM WHIPS FORWARD; TORSO COUNTERLEANS
+
+                                       h       O
+                                        \\      |
+                                          \   --|
+                                           o--  |\\
+                                                |  o----
+                                                 |      -----h [#]
+                                                 |
+                                                 |
+                                                 @
+                                                / \
+                                              //   \
+                                             /      \
+                                            o        o
+                                           /          \
+                                           /           \
+                                          /            \
+                                         /              \
+                                         /               \
+                                        /
+
+============================================================================================================================
+
+A036-K6  RELEASE FORK / CONSTRAINT OFF  TWOS / INFERRED
+ROLE: EXPLICIT_CUSTODY_TOPOLOGY_CHANGE_WITHOUT_SUPPORT
+SUPPORT: NONE | CUSTODY: FREE_OBJECT_CLOCK_FORK
+ROOT: BALLISTIC DESCENT CONTINUES; HAND RELEASES; VISIBLE GAP OPENS BEFORE BODY // PAYLOAD CLOCKS DIVERGE
+
+                                                  O
+                                          h-       |
+                                            --   --|
+                                              o--  |\\              >>[#]
+                                                    | o---------h//
+                                                    |
+                                                    |
+                                                     |
+                                                     @
+                                                    / \
+                                                  //   \
+                                                 /      \
+                                                o        o
+                                               /          \
+                                               /           \
+                                              /            \
+                                             /              \
+                                             /               \
+                                            /
+
+============================================================================================================================
+
+A036-K7  RECOIL SPLIT / BODY PEELS LEFT  ONES / INFERRED
+ROLE: SHOW_IMMEDIATE_EQUAL_AND_OPPOSITE_BODY_CONSEQUENCE
+SUPPORT: NONE | CUSTODY: FREE_OBJECT_INDEPENDENT
+ROOT: PAYLOAD LEADS RIGHT-UP; BODY ROOT BENDS LEFT/DOWN FROM RELEASE RECOIL
+
+                                                                            >>[#]
+
+                                                  O
+                                                   |      h
+                                                 --|    //
+                                              o--   |\ /
+                                             /      | o
+                                           //        |
+                                          h          |
+                                                      |
+                                                      @
+                                                     / \
+                                                   //   \
+                                                  /     \
+                                                 o       o
+                                                |         \
+                                                |          \
+                                               |           \
+                                               |            \
+                                              |              \
+                                              |
+
+============================================================================================================================
+
+A036-K8  TWO CLOCKS DIVERGE / PAYLOAD LEADS  TWOS / INFERRED
+ROLE: BODY_RECOVERY_AND_OBJECT_TRAVEL_RUN_AT_DIFFERENT_PHASES
+SUPPORT: NONE | CUSTODY: FREE_OBJECT_INDEPENDENT
+ROOT: BODY DESCENDS WITH RECOIL YAW; PAYLOAD ADVANCES ON INDEPENDENT CLOCK
+
+                                                                                  >>[#]
+
+                                                   O
+                                                    |     h
+                                                  --|    /
+                                               o--   |\ /
+                                              /      | o
+                                             /        |
+                                             /        |
+                                            h          |
+                                                       @
+                                                      / \
+                                                     /   \
+                                                    /     \
+                                                   o       o
+                                                   |        \
+                                                  |          \
+                                                  |           \
+                                                  |            \
+                                                 |              \
+                                                 |
+
+============================================================================================================================
+
+A036-K9  SEPARATED PRECONTACT / LEFT TOE LOW  TWOS / INFERRED
+ROLE: BODY_PREPARES_LANDING_WITHOUT_WAITING_FOR_OBJECT_CLOCK
+SUPPORT: NONE | CUSTODY: FREE_OBJECT_INDEPENDENT
+ROOT: LEFT TOE LOWEST BUT CLEAR; PAYLOAD ALREADY OUTLEADS BODY
+
+                                                                                       >>[#]
+
+                                                     O
+                                                      |
+                                                    --|     h
+                                                 o--   |\ //
+                                                /      | o
+                                               /        |
+                                              h         |
+                                                         |
+                                                         @
+                                                        / \
+                                                       /   \
+                                                      /     \
+                                                     o       o
+                                                     |        \
+                                                    |          \\
+                                                    |            \
+                                                   |              \
+                                                   |
+
+============================================================================================================================
+
+A036-K10  LEFT TOE CATCH / PAYLOAD STILL FREE  ONES / INFERRED
+ROLE: FIRST_SUPPORT_ACQUISITION_AFTER_CLOCK_FORK
+SUPPORT: LEFT_FOOT | CUSTODY: FREE_OBJECT_INDEPENDENT
+ROOT: LEFT TOE TAKES GROUND; ROOT STILL FALLS/DRIFTS; PAYLOAD DOES NOT RECOUPLE
+
+                                                                                          >>[#]
+
+                                                      O
+                                                       |
+                                                     --|     h
+                                                  o--   |\ //
+                                                 /      | o
+                                                /        |
+                                               h         |
+                                                          |
+                                                          @
+                                                         / \
+                                                        /   \
+                                                       /     \
+                                                      o       o
+                                                      |        \
+                                                     |          \\
+                                                     |            \
+                                                    |              \
+====================================================^=======================================================================
+
+A036-K11  LEFT-SIDE CRUSH / THROW ARM LAG  FOURS / INFERRED
+ROLE: PAY_FORCE_DEBT_WITH_UNILATERAL_COMPRESSION_AND_ARM_OVERRUN
+SUPPORT: LEFT_FOOT | CUSTODY: FREE_OBJECT_INDEPENDENT
+ROOT: LEFT SUPPORT COMPRESSES; PELVIS DROPS; EMPTY THROW ARM OVERSHOOTS FORWARD
+
+                                                       O
+                                                        \
+                                                       --\       -h
+                                                    o--   |\  ---
+                                                   /      | o-
+                                                  /        |
+                                                 /         |
+                                                h           |
+                                                            @
+                                                           / \
+                                                         //   \
+                                                        /      \
+                                                       o        o
+                                                      /          \\
+                                                     /             \\
+====================================================^=======================================================================
+
+A036-K12  RIGHT FOOT DELAYED SET / BODY CLOCK ONLY  TWOS / INFERRED
+ROLE: DELAYED_SECOND_SUPPORT_AFTER_UNILATERAL_CRUSH
+SUPPORT: LEFT_FOOT,RIGHT_FOOT | CUSTODY: FREE_OBJECT_INDEPENDENT
+ROOT: RIGHT FOOT JOINS AFTER CRUSH; ROOT BRAKES; ARM STILL AHEAD
+
+                                                          O
+                                                           \
+                                                          --\      -h
+                                                       o--   |\  --
+                                                      /      | o-
+                                                     /        |
+                                                    h         |
+                                                               |
+                                                               @
+                                                              / \
+                                                            //   \
+                                                           /     \
+                                                          o       o
+                                                         /         \
+                                                        /           \
+                                                       /             \
+======================================================^===============^=====================================================
+
+A036-K13  TORSO COUNTERSWAY / DISPLACED SETTLE  TWOS / INFERRED
+ROLE: OVERSHOOT_THEN_COUNTERSETTLE_WITHOUT_RECOUPLING_OBJECT
+SUPPORT: LEFT_FOOT,RIGHT_FOOT | CUSTODY: FREE_OBJECT_INDEPENDENT
+ROOT: FEET HOLD; TORSO SWAYS BACK PAST ROOT; HAND RETURNS LATE
+
+                                                              O
+                                                               |
+                                                             --|
+                                                          o--  |\\
+                                                        h-      | o
+                                                                |  \\
+                                                                |    h
+                                                                 |
+                                                                 @
+                                                                / \
+                                                              //   \
+                                                             /     \
+                                                            o       o
+                                                           /         \
+                                                          /           \
+                                                          /           \
+                                                         /             \
+========================================================^===============^===================================================
+
+A036-K14  DISPLACED READY / CLOCK FORK PERSISTS  FOURS / INFERRED
+ROLE: BODY_RECOVERS_ACTION_AUTHORITY_WITH_OBJECT_STILL_SEPARATE
+SUPPORT: LEFT_FOOT,RIGHT_FOOT | CUSTODY: FREE_OBJECT_INDEPENDENT
+ROOT: STABLE DISPLACED BODY; OBJECT STORY REMAINS OUTSIDE BODY CLOCK
+
+                                                                 O
+                                                                 |
+                                                               --|-
+                                                            o--  | -o
+                                                           /     |   \\
+                                                          /       |    h
+                                                         h        |
+                                                                  |
+                                                                  @
+                                                                 / \
+                                                               //   \
+                                                              /     \
+                                                             o       o
+                                                            /         \
+                                                            /         \
+                                                           /           \
+                                                          /             \
+                                                          /             \
+=========================================================^===============^==================================================
