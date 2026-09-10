@@ -65,8 +65,8 @@
     "motion_source_lineage_choreography_unchanged": true
   },
   "issue_343": {
-    "pre_delivery_receipt": null,
-    "pre_delivery_readback": false,
+    "pre_delivery_receipt": 5619723653,
+    "pre_delivery_readback": true,
     "reporting_chat_receipt": null,
     "reporting_chat_readback": false,
     "terminal_durability_anchor": null,
