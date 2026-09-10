@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import importlib.util
 import json
-import sys
 import tempfile
 import unittest
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,7 +33,7 @@ class RitsuContextRouterContract(unittest.TestCase):
         self.assertEqual(r.status, "MATCH")
         self.assertEqual(r.episode_id, EPISODE_ID)
         self.assertEqual(r.provenance_tier, "accepted_summary")
-        self.assertEqual(r.summary, SUMMARY)
+        self.assertEqual(r.content, SUMMARY)
         self.assertFalse(r.world_knowledge_allowed)
         self.assertTrue(r.seek_primary)
         self.assertTrue(any("dropped" in c for c in r.corrections))
@@ -46,8 +46,9 @@ class RitsuContextRouterContract(unittest.TestCase):
     def test_exact_wording_without_primary_is_continuity_gap_not_fabrication(self) -> None:
         r = self.router.resolve("Latin plays", exact_wording=True)
         self.assertEqual(r.status, "CONTINUITY_GAP")
-        self.assertEqual(r.provenance_tier, "unknown")
-        self.assertEqual(r.summary, SUMMARY)
+        self.assertEqual(r.provenance_tier, "accepted_summary")
+        self.assertEqual(r.content, SUMMARY)
+        self.assertEqual(r.required_provenance, "primary_transcript")
         self.assertTrue(r.seek_primary)
         self.assertFalse(r.world_knowledge_allowed)
 
@@ -90,30 +91,43 @@ class RitsuContextRouterContract(unittest.TestCase):
         self.assertEqual(r.status, "NO_LOCAL_MATCH")
         self.assertTrue(r.world_knowledge_allowed)
 
+    def test_exact_wording_marker_can_embed_known_alias_without_semantic_search(self) -> None:
+        r = self.router.resolve("What did Ritsu say about Latin plays?")
+        self.assertEqual(r.status, "CONTINUITY_GAP")
+        self.assertEqual(r.episode_id, EPISODE_ID)
+        self.assertEqual(r.required_provenance, "primary_transcript")
+
+    def test_primary_transcript_outranks_accepted_summary_when_bound(self) -> None:
+        policy = ROOT / "config" / "ritsu-os.v0.json"
+        records = [{
+            "record_type": "episode",
+            "id": "primary",
+            "aliases": ["primary cue"],
+            "summary_tier": "accepted_summary",
+            "accepted_summary": "summary only",
+            "primary_sources": [{"source": "test", "text": "PRIMARY WORDING"}],
+        }]
+        with tempfile.TemporaryDirectory() as td:
+            ledger = Path(td) / "ledger.jsonl"
+            ledger.write_text("\n".join(json.dumps(x) for x in records) + "\n", encoding="utf-8")
+            router = mod.RitsuContextRouter(policy, ledger)
+            r = router.resolve("primary cue", exact_wording=True)
+            self.assertEqual(r.status, "MATCH")
+            self.assertEqual(r.provenance_tier, "primary_transcript")
+            self.assertEqual(r.content, "PRIMARY WORDING")
+            self.assertFalse(r.seek_primary)
+
     def test_ambiguous_aliases_fail_closed(self) -> None:
         policy = ROOT / "config" / "ritsu-os.v0.json"
         records = [
-            {
-                "record_type": "episode",
-                "id": "a",
-                "aliases": ["same cue"],
-                "summary_tier": "accepted_summary",
-                "accepted_summary": "a",
-            },
-            {
-                "record_type": "episode",
-                "id": "b",
-                "aliases": ["same cue"],
-                "summary_tier": "accepted_summary",
-                "accepted_summary": "b",
-            },
+            {"record_type": "episode", "id": "a", "aliases": ["same cue"],
+             "summary_tier": "accepted_summary", "accepted_summary": "a"},
+            {"record_type": "episode", "id": "b", "aliases": ["same cue"],
+             "summary_tier": "accepted_summary", "accepted_summary": "b"},
         ]
         with tempfile.TemporaryDirectory() as td:
             ledger = Path(td) / "ledger.jsonl"
-            ledger.write_text(
-                "\n".join(json.dumps(x) for x in records) + "\n",
-                encoding="utf-8",
-            )
+            ledger.write_text("\n".join(json.dumps(x) for x in records) + "\n", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "ambiguous deterministic alias"):
                 mod.RitsuContextRouter(policy, ledger)
 
