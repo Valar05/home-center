@@ -1,0 +1,22 @@
+{
+  "schema": "ritsu-os.plan-delta.v0",
+  "scope": "isolated branch ritsu-os-v0 immediate-bind regression repair",
+  "trigger": "Review of the documented canary `Ritzu again.` found that the current router can rebind only a ledger episode id, not an attributable non-episode working target such as an image critique.",
+  "boundary": {
+    "allowed": "extend deterministic immediate bind to a typed current working target and add regression canaries",
+    "forbidden": "semantic guessing, model inference, replacing existing organs, deployment, or promoting the candidate"
+  },
+  "five_pass_review": {
+    "target": "`Ritzu again.` must continue the attributable current Ritzu target before any retrieval or global-latest-tool fallback.",
+    "antagonist": "Refuse actor-mismatched working targets and refuse to guess when no current target is supplied.",
+    "provenance": "Working-state target identity is immediate conversational state, not a primary historical transcript and must not be upgraded to one.",
+    "regression": "Preserve `Again.` episode binding, Latin deterministic routing, exact-wording CONTINUITY_GAP, and reserved existing-organ canaries.",
+    "compression": "One typed `current_target` map is sufficient; no model or new memory subsystem is required."
+  },
+  "safety_review": {
+    "risk": "low-risk reversible isolated-branch code and tests",
+    "deployment": false,
+    "venice": "prohibited by active manic-accessibility repository safety mode"
+  },
+  "directive": "PLAN_ALLOWED_LOW_RISK_ISOLATED"
+}
