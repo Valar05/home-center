@@ -71,9 +71,13 @@ def art(k,m):
  force_inset(g,k)
  return '\n'.join(''.join(r).rstrip() for r in g)
 def sheet(m):
- o=['ASCII KINESIS V2 CONTACT025 — FRICTION-CONE DIRECTIONAL ADMISSIBILITY GATE','Legend: O head | @ root | x COM | o zero/open hand | * closed contact | ! ground support | : cone boundary | R actual reaction | D demanded direction | X outside cone','Primitive: CLOSED contact does not guarantee static support. A visible demanded-force direction sweeps through a visible friction cone; crossing the boundary changes static authority before topology opens.','Novelty: unlike Contact016 traction hysteresis, the decisive variable here is force-DIRECTION admissibility. Patch position stays fixed through center→inside→boundary; outside demand appears before first slide; demand re-enters before restick.','Release law: unload tangential force, then normal force, preserve one zero-load touch, then open a real gap. Source art never enters this rig.','']
+ o=['ASCII KINESIS V2 CONTACT025 — FRICTION-CONE DIRECTIONAL ADMISSIBILITY GATE','Legend: O head | @ root | x COM | o zero/open hand | * closed contact | ! support | : cone boundary | R reaction | D demand | X outside','Primitive: closed contact only carries static tangential support while the demanded force direction remains inside the visible friction cone.','Novelty vs Contact016: force-DIRECTION admissibility is the decisive variable. Patch stays fixed through INSIDE→BOUNDARY; OUTSIDE appears before slide; re-entry precedes restick.','Release: tangential unload → normal unload → zero-load touch → real gap. Source art never enters this rig.','']
  for k in m['keys']:
-  o += [f"{k['key_id']}  {k['name']}  [{k['timing_class']}/{k['timing_provenance']}]",f"REL={k['relationship_state']}  CONTACT={k['contact_state']}  CONE={k['cone_status']}  N={k['normal_load']:.2f}  T={k['tangent_load']:.2f}  DEMAND_T={k['demand_tangent']:.2f}",f"SUPPORT={k['support_contact']}  FORCE_OWNER={k['force_owner']}  CUSTODY=NONE",f"CAUSE: {k['root_com_note']}",art(k,m),'']
+  full=[r.ljust(m['rig']['grid']['width']) for r in art(k,m).splitlines()]
+  crop=[]
+  for y in range(8,18):
+   r=full[y] if y<len(full) else ' '*m['rig']['grid']['width'];crop.append(r[14:51]+'   '+r[60:77])
+  o += [f"{k['key_id']} {k['name']} [{k['timing_class']}/{k['timing_provenance']}]",f"REL={k['relationship_state']} CONTACT={k['contact_state']} CONE={k['cone_status']} N={k['normal_load']:.2f} T={k['tangent_load']:.2f} DEMAND={k['demand_tangent']:.2f}",f"ROOT={k['root']} HAND={k['hand']} SUPPORT={k['support_contact']} FORCE={k['force_owner']} CUSTODY=NONE",*crop,'']
  return '\n'.join(o).rstrip()+'\n'
 def frame(k,m,fonts):
  im=Image.new('RGB',tuple(m['compile']['canvas']),(9,10,13));d=ImageDraw.Draw(im)
