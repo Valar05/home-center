@@ -27,37 +27,48 @@
     "path": "experiments/ascii-kinesis/v2-timing-028-hidden-interval-state-advance/"
   },
   "quality": {
-    "actual_media_bytes": 28290,
+    "actual_media_bytes": 8788,
     "actual_media_decode": "PASS",
-    "actual_media_dimensions": "720x320",
+    "actual_media_dimensions": "520x220",
     "actual_media_frames": 20,
-    "actual_media_sha256": "42e167274bd0304b154e07cd09fd2348501b6695d500f9493fd4fc79e48b0d1d",
+    "actual_media_sha256": "3d4352dbbdd9a2faab2cadeac790b8ae4a0cdffefb8474cd62dfa724fab58330",
     "candidate_isolated_validator": "PASS_EXACT_OFFICIAL_VALIDATOR_BLOB_7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-    "current_worker_queen_judgment": "PASS TASTE+FUNCTION+CONTEMPT: occlusion removes evidence, not state progression; the body visibly spends hidden time and the far-side reveal arrives with earned support/root consequence.",
-    "current_worker_reconstruction": "DETERMINISTIC_PASS",
-    "current_worker_tango_visible_read": "R0 found an un-authored second cover crossing at restack. R1 keeps the task on the post-reveal side: clearance load precedes entry; K03/K04 body/root/support advance while the tip is hidden; K05 reveals a phase-forward state; K06-K08 pay consequence/brake/restack without replay, rewind, or reset.",
+    "current_worker_queen_judgment": "PASS TASTE+FUNCTION+CONTEMPT: cover removes task evidence while body/support/root continue to spend time; reveal arrives phase-forward and the displaced restack preserves post-reveal custody.",
+    "current_worker_reconstruction": "BYTE_IDENTICAL_DETERMINISTIC_PASS",
+    "current_worker_tango_visible_read": "Fresh current-worker R4 PASS with no authored mutation: clearance load precedes entry; K03/K04 advance body/root/support during genuine task occlusion; K05 reveals phase-forward; K06-K08 pay consequence/brake/restack without replay, rewind, second cover crossing, or reset.",
     "fresh_current_worker_noodle_queen": "PASS",
-    "fresh_current_worker_tango": "PASS_R1_AFTER_SAME_BODY_CORRECTION",
+    "fresh_current_worker_tango": "PASS_R4_NO_MUTATION",
     "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
     "repository_global_validator": "NOT_CLAIMED_STANDARD_CHAT_BOUNDARY",
     "tango_rounds": [
       {
-        "correction": "keep K07/K08 task geometry on the post-reveal side while braking and restacking the displaced body",
-        "highest_value_visible_defect": "K07→K08 snapped the task tip back across cover, inventing a second un-authored visibility crossing that read like reverse/reset",
         "round": 0,
-        "status": "REVISE_REQUIRED"
+        "status": "REVISE_REQUIRED",
+        "highest_value_visible_defect": "K07→K08 snapped the task tip back across cover, inventing a second un-authored visibility crossing that read like reverse/reset",
+        "correction": "keep K07/K08 task geometry on the post-reveal side while braking and restacking the displaced body"
       },
+      {"round": 1, "status": "PASS"},
+      {"round": 2, "status": "PASS"},
+      {"round": 3, "status": "PASS"},
       {
-        "round": 1,
-        "status": "PASS"
+        "round": 4,
+        "status": "PASS",
+        "note": "fresh current-worker byte-identical reconstruction/reinspection; no mutation earned"
       }
     ]
   },
   "repo": {
-    "files": {},
-    "persisted": false,
-    "readback": false,
-    "spa_persistence_commit": null
+    "files": {
+      "build.py": "18c23406e00a32db7a62f0e6b342665573cd523b",
+      "contact-sheet.txt": "e659cf52ba2aecb2c6459deff1fd9b09e86744bc",
+      "hidden-interval-state-advance.motion.html": "e5eedf4b0078fd5f3c2f310e1b8057b5db28e5cc",
+      "manifest.json": "3131eddfb4251d76ce74b88fa4af7f199c93e65b",
+      "motion.json": "e39df9e8113db3095e56a72b22be33304ad8a1fe"
+    },
+    "persisted": true,
+    "readback": true,
+    "spa_persistence_commit": "bb32d14c36abb49f39567a457054172a6babacf3",
+    "manifest_reconciliation_commit": "956c1011c71cd682be2dc2ed36e108944af486f8"
   },
   "schema": "ascii-kinesis.receipt-v2",
   "source": {
@@ -67,13 +78,10 @@
     "name": "Spear",
     "platform": "Arcade",
     "source_pixels_in_output": false,
-    "source_roles": [
-      "POSE_REFERENCE",
-      "CONTACT_REFERENCE"
-    ],
+    "source_roles": ["POSE_REFERENCE", "CONTACT_REFERENCE"],
     "timing_authority": false,
     "timing_provenance": "INFERRED",
     "whole_source_inspected": true
   },
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE"
+  "status": "PERSISTED_READY_FOR_USER_SURFACE"
 }
