@@ -1,0 +1,19 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "id": "v2-strikes-024-impact-created-tool-support-release-debt",
+  "status": "QUALITY_GATES_PASS_READY_FOR_REPO_PERSISTENCE",
+  "current_worker_preflight": {"home_center_campaign":"PASS_FRESH_EXACT","github":"PASS_FRESH_AUTHENTICATED"},
+  "source": {"evidence":"1L34d3S-4Q_xBZEUE1t20VKszFKFINVZOLn1e8YOKd6k","pass":"STRIKES PASS 004 — VERIFIED","asset_id":2879,"source_timing":"UNKNOWN","timing_authority":false,"rights_firewall":"PASS"},
+  "media": {"codec":"H.264","pixel_format":"yuv420p","width":800,"height":360,"fps":24,"frames":33,"bytes":18284,"sha256":"13f1992b34f5baf9aa76a3e99df2bcf6273d6ec4f519d990e51fb23aa9cbe19f","decode":"PASS"},
+  "quality": {
+    "tango": {"round":"R0_FRESH_CURRENT_WORKER_REINSPECTION","verdict":"PASS","media_sha256":"13f1992b34f5baf9aa76a3e99df2bcf6273d6ec4f519d990e51fb23aa9cbe19f","judgment":"K05 acquires tool-ground support; K06 visibly overruns the pinned head with rear foot airborne; K07-K08 repay load through regrip and two-foot handoff before K09 release; K10-K12 arc into tool overshoot plus hand/shoulder lag rather than reverse playback; K14-K15 settle displaced."},
+    "noodle_queen": {"verdict":"PASS","media_sha256":"13f1992b34f5baf9aa76a3e99df2bcf6273d6ec4f519d990e51fb23aa9cbe19f","taste":"The tool briefly becomes load-bearing architecture, which gives the impact a memorable structural consequence.","function":"Tool-ground support, root overrun, feet reclaiming root ownership, explicit release, rebound overshoot, secondary hand lag, and displaced settlement are separately readable.","contempt":"No cheap bounce-back: rebound is forbidden until the feet take the body back from the tool, and recovery does not rewind the strike."}
+  },
+  "repository": {"exact_six_files_one_spa":"PENDING","readback":"PENDING","final_readback":"PENDING"},
+  "validator": {"official_v2":"PASS_CANDIDATE_ISOLATED","scope":"current official validator executed against isolated Strikes024 specimen; repo-global execution unclaimed at Standard Chat boundary"},
+  "issue343": {"pre_chat_receipt":null,"readback":false,"user_surface":null,"terminal_durable_addendum":null},
+  "campaign": {"pre_chat_binding":"PENDING","terminal_binding":"PENDING","terminal_self_binding":"PENDING"},
+  "chat_delivery": {"part1":false,"part2":false,"part3":false},
+  "DREW_ACCEPTED": false,
+  "next_authorized": null
+}
