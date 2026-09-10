@@ -23,14 +23,14 @@
     "source_change": "NOT_APPLICABLE_NEW_CONCEPT"
   },
   "media": {
-    "bytes": 28290,
+    "bytes": 8788,
     "codec": "h264",
     "fps": 24,
     "frames": 20,
-    "height": 320,
+    "height": 220,
     "pix_fmt": "yuv420p",
-    "sha256": "42e167274bd0304b154e07cd09fd2348501b6695d500f9493fd4fc79e48b0d1d",
-    "width": 720
+    "sha256": "3d4352dbbdd9a2faab2cadeac790b8ae4a0cdffefb8474cd62dfa724fab58330",
+    "width": 520
   },
   "next_authorized": null,
   "pocket_rule": "OCCLUSION HIDES EVIDENCE, NOT TIME. ADVANCE THE HIDDEN CHANNEL; REVEAL ITS CONSEQUENCE, DON'T REPLAY ITS LAST VISIBLE POSE.",
@@ -42,16 +42,16 @@
   "primitive": "HIDDEN_INTERVAL_STATE_ADVANCE",
   "quality": {
     "actual_media_decode": "PASS",
-    "actual_media_identity": "CURRENT_WORKER_DETERMINISTIC_RECONSTRUCTION_PASS",
+    "actual_media_identity": "CURRENT_WORKER_BYTE_IDENTICAL_DETERMINISTIC_RECONSTRUCTION_PASS",
     "noodle_queen": "PASS_CURRENT_WORKER_AFTER_TANGO",
-    "tango": "PASS_CURRENT_WORKER_R1_AFTER_SAME_BODY_CORRECTION",
+    "tango": "PASS_CURRENT_WORKER_R4_FRESH_REINSPECTION_NO_MUTATION",
     "validator": "PASS_CANDIDATE_ISOLATED_OFFICIAL_BLOB_7d9fc7608d54bca4a2cfbd36660c2d379e27fd78; REPOSITORY_GLOBAL_NOT_CLAIMED_STANDARD_CHAT_BOUNDARY"
   },
   "repo": {
-    "persisted": false,
-    "readback": false,
-    "spa_blob": null,
-    "spa_persistence_commit": null
+    "persisted": true,
+    "readback": true,
+    "spa_blob": "e5eedf4b0078fd5f3c2f310e1b8057b5db28e5cc",
+    "spa_persistence_commit": "bb32d14c36abb49f39567a457054172a6babacf3"
   },
   "source": {
     "asset_id": "255871",
@@ -69,7 +69,7 @@
     "whole_source_inspected": true
   },
   "source_art_embedded": false,
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "PERSISTED_READY_FOR_USER_SURFACE",
   "title": "Hidden Interval State Advance",
   "video_required": true,
   "video_source": "abstract_ascii_rig_only"
