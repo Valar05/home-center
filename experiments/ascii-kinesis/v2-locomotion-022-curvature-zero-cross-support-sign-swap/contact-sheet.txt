@@ -4,7 +4,7 @@ source evidence: The Duke / Mina the Hollower / TSR asset 566077 / Home Center a
 OBSERVED: commissioned evidence inspected all 61 archive PNGs; Run/Run Down/Run Up each preserve four phase slots; Turn is separate; exact source playback timing is absent.
 UNKNOWN: source chronology/exposure/root coordinates/support forces. This S-curve choreography and every timing class are INFERRED / STREET_FIGHTER-CAPCOM.
 rights firewall: independent abstract rig only; no source pixels, palette, costume, contours, layout, tracing, choreography, audio, redistribution, or close imitation.
-thesis: keep gait phase and forward travel alive while curvature demand crosses zero; bank/support-vector sign may swap only after an earned opposite-support catch; exit pays secondary yaw/bank lag without pivot or idle reset.
+thesis: keep gait phase and forward travel alive while curvature demand crosses zero; one world-fixed RIGHT stance carries support-vector sign A→ZERO→B; the following LEFT catch confirms the already-visible reversal; exit pays secondary yaw/bank lag without pivot or idle reset.
 
 K00 ENTRY_LEFT_CATCH · TWOS/2f · INFERRED · support=LEFT · phase=CURVE_A_ENTRY · rootΔ=0px · yaw=+18° · bank=-6° · torso=+18°
 
