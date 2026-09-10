@@ -128,7 +128,36 @@ def contact_text(motion):
           f'causal_role={k["causal_role"]}',
           f'root_note={k["motion_arc_root_note"]}'
         ]
-        out.extend(grid_for_state(motion,semantic_state(k)))
+        frame=grid_for_state(motion,semantic_state(k))
+        ground=motion["rig"]["grid"]["ground_y"]
+        # Persist a complete but compact aligned ASCII frame: all authored marks plus
+        # a local ground/support span, instead of hundreds of semantically empty cells.
+        marks=[]
+        for y,row in enumerate(frame):
+            if y==ground:
+                for x,ch in enumerate(row):
+                    if ch not in (" ","="):
+                        marks.append((x,y))
+            else:
+                for x,ch in enumerate(row):
+                    if ch!=" ": marks.append((x,y))
+        if marks:
+            xs=[x for x,_ in marks]; ys=[y for _,y in marks]
+            x0=max(0,min(xs)-3); x1=min(motion["rig"]["grid"]["columns"],max(xs)+4)
+            y0=max(0,min(ys)-2); y1=min(len(frame),max(max(ys)+3,ground+1))
+            cropped=[]
+            for y in range(y0,y1):
+                row=frame[y]
+                if y==ground:
+                    local=list(row[x0:x1].ljust(x1-x0))
+                    for i,ch in enumerate(local):
+                        if ch==" ": local[i]="="
+                    cropped.append("".join(local).rstrip())
+                else:
+                    cropped.append(row[x0:x1].rstrip())
+            while cropped and not cropped[0].strip(): cropped.pop(0)
+            while cropped and not cropped[-1].strip(): cropped.pop()
+            out.extend(cropped)
         out.append("")
     return "\n".join(out).rstrip()+"\n"
 
