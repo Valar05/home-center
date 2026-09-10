@@ -1,0 +1,110 @@
+{
+  "schema": "ascii-kinesis.manifest-v2",
+  "format_version": 2,
+  "specimen_id": "v2-defense-023-long-guard-rear-clearance-fold",
+  "lane": "defense",
+  "number": 23,
+  "title": "LONG GUARD / REAR-CLEARANCE FOLD",
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "lineage": {
+    "classification": "NEW_CONCEPT",
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "prior_closure_comment": 5611264595,
+    "successor_collision": false
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "255871",
+    "character": "Spear",
+    "game": "Legend of Heroes",
+    "platform": "Arcade",
+    "role": "STYLE_REFERENCE",
+    "campaign_artifact": "1jHICZp08ScMRjXlFCM1-uBbGP0IUkwETERBzQPoCseo",
+    "whole_source_inspected": true,
+    "width": 502,
+    "height": 715,
+    "bytes": 53816,
+    "sha256": "e850b6944ee00b9087d67d3aebf96d7a8676a495c80bfcaf091df9949d41f611",
+    "source_authentic_timing": "UNKNOWN"
+  },
+  "timing": {
+    "compile_policy": "STREET_FIGHTER/CAPCOM",
+    "provenance": "INFERRED",
+    "nominal_fps": 24,
+    "decisive_key_count": 12
+  },
+  "principle": "MIDSPAN PIN -> rear-clearance shaft fold with continuous two-hand custody -> pelvis/support load -> contact release -> rear-foot break/sweep/catch -> counter-torque -> late guard re-span -> displaced low-ready debt.",
+  "quality": {
+    "tango": {
+      "round": "R0",
+      "verdict": "PASS",
+      "basis": "current-worker inspection of actual 49-frame render",
+      "visible_checks": [
+        "midspan contact occurs before maximum displacement and away from tool tip",
+        "rear end folds away from explicit clearance plane under pressure",
+        "two-hand custody remains visually continuous through fold",
+        "pelvis/support consequence follows tool fold instead of simultaneous squash",
+        "contact releases before rear support break",
+        "single-support rear-leg sweep and compressed catch are visible",
+        "counter-torque precedes late guard re-span",
+        "final low-ready is displaced rather than idle reset"
+      ]
+    },
+    "noodle_queen": {
+      "verdict": "PASS",
+      "taste": true,
+      "function": true,
+      "contempt": true,
+      "basis": "same actual final render + full specimen after Tango PASS"
+    }
+  },
+  "media": {
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "width": 800,
+    "height": 450,
+    "fps": 24,
+    "frames": 49,
+    "duration_seconds": 2.0416666666666665,
+    "bytes": 21378,
+    "sha256": "98456c37455fecadf220ccb0b0c03a4688d1b29ad210e03a5ab7a6fc4dba84cb",
+    "decode_verified": true
+  },
+  "validator": {
+    "current_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS_EXACT_CURRENT_VALIDATOR_BLOB",
+    "boundary": "Standard Chat has exact current validator source but no full repository checkout; candidate-isolated structural predicates are callable locally, repo-global suite is not claimed."
+  },
+  "repo": {
+    "persisted": false,
+    "repo_readback": false,
+    "files_expected": 6,
+    "spa_expected": 1,
+    "commit": null,
+    "blobs": {}
+  },
+  "issue": {
+    "number": 343,
+    "receipt_comment": null,
+    "readback": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_visible_video": false,
+    "ordered": false
+  },
+  "drew_accepted": false
+}
