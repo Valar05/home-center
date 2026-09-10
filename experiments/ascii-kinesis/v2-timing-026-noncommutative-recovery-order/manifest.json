@@ -1,0 +1,60 @@
+{
+  "DREW_ACCEPTED": false,
+  "ascii_literal_text": true,
+  "backward_compatible": true,
+  "entry": "v2-timing-026-noncommutative-recovery-order",
+  "files": [
+    "build.py",
+    "contact-sheet.txt",
+    "manifest.json",
+    "motion.json",
+    "receipt.json",
+    "noncommutative-recovery-order.motion.html"
+  ],
+  "format_version": 2,
+  "lane": "timing",
+  "lineage": {
+    "negative_fixture": null,
+    "revises": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT"
+  },
+  "media": {
+    "bytes": 13517,
+    "codec": "h264",
+    "fps": 24,
+    "frames": 26,
+    "height": 300,
+    "pix_fmt": "yuv420p",
+    "sha256": "3f81392643f6f7706be1073c3f8c060b9ace79e914f1e992125baafaf9f535f5",
+    "width": 720
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "primitive": "NONCOMMUTATIVE_RECOVERY_ORDER",
+  "quality": {
+    "actual_render_inspected": true,
+    "current_worker_noodle_queen": "PASS",
+    "current_worker_tango": "PASS"
+  },
+  "schema": "ascii-kinesis.manifest-v2",
+  "source": {
+    "asset_id": "23976",
+    "campaign_evidence_file_id": "1BW6UzsUckanhIqsAIcO6mWhc7FNCHGCX7A5tsdfO1EU",
+    "provider": "The Spriters Resource",
+    "rights": "evidence_only_no_source_pixels",
+    "source_roles": [
+      "POSE_REFERENCE"
+    ],
+    "timing_authority": false,
+    "timing_provenance": "INFERRED"
+  },
+  "source_art_embedded": false,
+  "spa": "noncommutative-recovery-order.motion.html",
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "title": "Noncommutative Recovery Order",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only"
+}
