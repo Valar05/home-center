@@ -1,0 +1,96 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "specimen": "v2-contact-024-dual-anchor-couple-moment-release-gate",
+  "status": "QUALITY_GATES_PASS_PENDING_REPO_PERSISTENCE",
+  "current_worker_liveness": {
+    "home_center_campaign_exact_read": true,
+    "github_authenticated_persistence_readback": true,
+    "preflight": "PASS"
+  },
+  "ownership": {
+    "one_body": true,
+    "collision": "NONE",
+    "new_concept": true,
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT"
+  },
+  "source": {
+    "commissioned_evidence_id": "1icTndAfTH5fge6tCAL35HzU9X7dsKVzRa0ah_n6gwWk",
+    "tsr_asset": 30327,
+    "whole_source_read": true,
+    "source_roles": [
+      "POSE_REFERENCE",
+      "CONTACT_REFERENCE"
+    ],
+    "source_authentic_timing": "UNKNOWN",
+    "compiled_timing": "INFERRED",
+    "rights_firewall": "PASS_NO_SOURCE_PIXELS"
+  },
+  "primitive": "DUAL_ANCHOR_COUPLE_MOMENT_RELEASE_GATE",
+  "media": {
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "width": 600,
+    "height": 340,
+    "fps": 24,
+    "frames": 30,
+    "bytes": 9689,
+    "sha256": "08efc28a47907cfb48d0abf38f3fb842dfea03146c454f14abc2021f650d6402",
+    "decode": "PASS"
+  },
+  "quality": {
+    "tango": {
+      "status": "PASS_R1_CURRENT_WORKER_ACTUAL_RENDER",
+      "rounds": [
+        {
+          "round": "R0",
+          "verdict": "REVISE_REQUIRED",
+          "highest_value_visible_defect": "post-release roots collapsed inward and open arms still pointed at retired relationship anchors, destroying split silhouette and making release read like continued grapple",
+          "same_body_correction": "retract open limbs to body-local space; reverse post-unload root travel so lower-anchor resultant opens negative space; make A overshoot farther than B and settle displaced"
+        },
+        {
+          "round": "R1",
+          "verdict": "PASS",
+          "evidence": "actual 30-frame H.264 render visually inspected as filmstrip; dual-contact couple, zero-load-before-release, topology openings, unequal overshoot and displaced settle read distinctly"
+        }
+      ]
+    },
+    "noodle_queen": {
+      "status": "PASS_TASTE_FUNCTION_CONTEMPT_SAME_R1_RENDER",
+      "taste": "PASS_specific_double-anchor_torque_silhouette",
+      "function": "PASS_force_couple_then_resultant_then_release_is_visible",
+      "contempt": "PASS_no_placeholder_reversal_idle_reset_or_decorative_relationship_state"
+    },
+    "actual_render_identity": "08efc28a47907cfb48d0abf38f3fb842dfea03146c454f14abc2021f650d6402"
+  },
+  "validator": {
+    "source_blob_expected": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS_EXACT_CURRENT_OFFICIAL_PREDICATES",
+    "repository_global_execution": "UNCLAIMED_STANDARD_CHAT_BOUNDARY"
+  },
+  "repository": {
+    "persisted": false,
+    "readback": false,
+    "exact_six_files": false,
+    "exact_one_spa": false,
+    "final_readback": false
+  },
+  "issue": {
+    "pre_delivery_receipt": null,
+    "user_surface_receipt": null,
+    "terminal_receipt": null
+  },
+  "campaign": {
+    "propagated": false,
+    "readback": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false,
+    "ordered_together": false
+  },
+  "DREW_ACCEPTED": false,
+  "next_authorized": null
+}
