@@ -18,6 +18,9 @@ from typing import Any, Iterable, Mapping
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_POLICY = ROOT / "config" / "ritsu-os.v0.json"
 DEFAULT_LEDGER = ROOT / "fixtures" / "ritsu-continuity" / "episode-ledger.v0.jsonl"
+DEFAULT_ACTIVE_RETRIEVAL = (
+    ROOT / "fixtures" / "ritsu-continuity" / "active-retrieval.v0.jsonl"
+)
 
 PROVENANCE_RANK = {
     "primary_transcript": 0,
@@ -25,6 +28,7 @@ PROVENANCE_RANK = {
     "adjacent_evidence": 2,
     "unknown": 3,
 }
+REVIEW_PASSES = ("target", "antagonist", "provenance", "regression", "compression")
 
 
 def normalize_cue(value: str) -> str:
@@ -66,6 +70,7 @@ class RouteResult:
     bound_target: dict[str, Any] | None = None
     delegated_owner: str | None = None
     required_provenance: str | None = None
+    active_retrieval: dict[str, Any] | None = None
     candidate_episode_ids: tuple[str, ...] = ()
     reason: str | None = None
 
@@ -81,6 +86,7 @@ class RitsuContextRouter:
         self,
         policy_path: Path = DEFAULT_POLICY,
         ledger_path: Path = DEFAULT_LEDGER,
+        active_retrieval_path: Path | None = None,
     ) -> None:
         self.policy = _load_json(policy_path)
         self.records = _load_jsonl(ledger_path)
@@ -91,6 +97,50 @@ class RitsuContextRouter:
         for record in self.records:
             if record.get("record_type") == "correction":
                 self.corrections.setdefault(record["episode_id"], []).append(record)
+
+        # Synthetic ledgers used by deterministic tests should not accidentally inherit
+        # production retrieval obligations. Production/default ledger does.
+        if active_retrieval_path is None and Path(ledger_path).resolve() == DEFAULT_LEDGER.resolve():
+            active_retrieval_path = DEFAULT_ACTIVE_RETRIEVAL
+        self.active_retrieval_records = (
+            _load_jsonl(active_retrieval_path)
+            if active_retrieval_path is not None and active_retrieval_path.exists()
+            else []
+        )
+        self.active_retrieval_by_episode: dict[str, dict[str, Any]] = {}
+        for record in self.active_retrieval_records:
+            if record.get("record_type") != "active_retrieval":
+                continue
+            episode_id = record.get("episode_id")
+            if episode_id not in self.episodes:
+                raise ValueError(
+                    f"active retrieval {record.get('id')!r} references unknown episode {episode_id!r}"
+                )
+            if episode_id in self.active_retrieval_by_episode:
+                raise ValueError(f"multiple active retrieval records for {episode_id!r}")
+            if record.get("required_provenance") != "primary_transcript":
+                raise ValueError(
+                    f"active retrieval {record.get('id')!r} must require primary_transcript"
+                )
+            review = record.get("review")
+            if not isinstance(review, Mapping) or any(
+                not isinstance(review.get(name), str) or not review[name].strip()
+                for name in REVIEW_PASSES
+            ):
+                raise ValueError(
+                    f"active retrieval {record.get('id')!r} lacks complete five-pass review"
+                )
+            status = record.get("status")
+            if status not in {"open", "closed"}:
+                raise ValueError(
+                    f"active retrieval {record.get('id')!r} has invalid status {status!r}"
+                )
+            if status == "closed" and not self._has_readable_primary(self.episodes[episode_id]):
+                raise ValueError(
+                    f"active retrieval {record.get('id')!r} cannot close without readable primary transcript"
+                )
+            self.active_retrieval_by_episode[episode_id] = record
+
         self.alias_to_episode: dict[str, str] = {}
         for episode_id, episode in self.episodes.items():
             for alias in episode.get("aliases", []):
@@ -128,6 +178,33 @@ class RitsuContextRouter:
         expected_order = self.policy.get("provenance_order")
         if expected_order != list(PROVENANCE_RANK):
             raise ValueError("policy provenance order diverges from router contract")
+
+    @staticmethod
+    def _has_readable_primary(episode: Mapping[str, Any]) -> bool:
+        for source in episode.get("primary_sources") or []:
+            text = source.get("text") if isinstance(source, Mapping) else None
+            if isinstance(text, str) and text.strip():
+                return True
+        return False
+
+    def _active_retrieval_payload(self, episode_id: str) -> dict[str, Any] | None:
+        record = self.active_retrieval_by_episode.get(episode_id)
+        if record is None:
+            return None
+        # Keep user-facing routing output compact and mechanical. Search observations
+        # and review prose stay in the durable ledger instead of becoming narration.
+        return {
+            key: record[key]
+            for key in (
+                "id",
+                "status",
+                "required_provenance",
+                "deterministic_queries",
+                "search_order",
+                "closure_requires",
+            )
+            if key in record
+        }
 
     def _exact_wording_requested(self, utterance: str, explicit: bool) -> bool:
         if explicit:
@@ -168,6 +245,7 @@ class RitsuContextRouter:
         if tier not in PROVENANCE_RANK:
             raise ValueError(f"unknown provenance tier {tier!r}")
         has_primary = tier == "primary_transcript"
+        active_retrieval = None if has_primary else self._active_retrieval_payload(episode_id)
         if exact_wording and not has_primary:
             return RouteResult(
                 status="CONTINUITY_GAP",
@@ -180,6 +258,7 @@ class RitsuContextRouter:
                 world_knowledge_allowed=False,
                 seek_primary=True,
                 required_provenance="primary_transcript",
+                active_retrieval=active_retrieval,
                 reason="exact wording requested but no readable primary transcript is bound",
             )
 
@@ -193,6 +272,7 @@ class RitsuContextRouter:
             corrections=correction_effects,
             world_knowledge_allowed=False,
             seek_primary=not has_primary,
+            active_retrieval=active_retrieval,
             reason=reason,
         )
 
@@ -385,8 +465,9 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument("--exact-wording", action="store_true")
     parser.add_argument("--policy", type=Path, default=DEFAULT_POLICY)
     parser.add_argument("--ledger", type=Path, default=DEFAULT_LEDGER)
+    parser.add_argument("--active-retrieval", type=Path)
     args = parser.parse_args(list(argv) if argv is not None else None)
-    router = RitsuContextRouter(args.policy, args.ledger)
+    router = RitsuContextRouter(args.policy, args.ledger, args.active_retrieval)
     state = (
         {"last_episode_id": args.last_episode_id}
         if args.last_episode_id
