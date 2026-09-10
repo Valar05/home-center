@@ -1,0 +1,289 @@
+ASCII KINESIS V2 STRIKES017 — RECIPROCAL BIND / RELEASE DEBT
+SOURCE ART: NOT EMBEDDED | ABSTRACT ASCII ONLY | SOURCE TIMING: UNKNOWN | AUTHORED: INFERRED / STREET_FIGHTER-CAPCOM
+POCKET: THE BIND BORROWS BOTH TOOLS' FREEDOM. RELEASE REPAYS THE BORROW ON A NEW AXIS.
+LEGEND body o/+/@/* | lead ===> | reserve ~~~< | opposing ###< | [X] shared bind frame
+
+K00 READY_SPLIT_LINES f00 FOURS/INFERRED SUPPORT=BOTH CONTACT=NONE REL=FREE
+ROLE line inventory / asymmetrical readiness
+
+
+                                         ##
+            o                         ###
+            |                       <#
+          - + -    ===>
+        o*  |  -*==
+      ~~    |
+    <~      |
+            @
+          -- --
+         |     \
+         o      o
+          /    \
+
+ ____________________________________________
+
+K01 REAR_COIL_RESERVE_OPEN f04 FOURS/INFERRED SUPPORT=REAR_HEAVY CONTACT=NONE REL=FREE
+ROLE asymmetric anticipation / pelvis counter-rotation
+
+
+                                         ##
+           o                          ###
+   <~      |                        <#
+     ~~   - + -
+       *o-  |  *o=
+            |     ===>
+           |
+           @
+         -- --
+        |     \
+        o      o
+        /      \
+
+ ____________________________________________
+
+K02 LEAD_COMMIT_ROOT_EARNS_RANGE f08 TWOS/INFERRED SUPPORT=REAR_BRACE CONTACT=NONE REL=FREE
+ROLE root-first directional commitment
+
+
+                                         ##
+            o                          ##
+    <~      |                        ##
+      ~~   - + --                  <#
+        ~*-  |   -*======>
+             |
+             |
+             @
+           -- --
+          /     |
+         o      o
+         /      \
+
+ ____________________________________________
+
+K03 ENTRY_RESERVE_STAYS_OUTSIDE f11 TWOS/INFERRED SUPPORT=REAR_TO_DUAL CONTACT=NONE REL=APPROACH
+ROLE entry / lead-reserve hierarchy / negative-space wedge
+
+
+                                         ##
+      <      o                        ###
+       ~~    |                     ###
+         ~  - + --               <#
+          *-  |   -o*======>
+              |
+              |
+              @
+            -- --
+           /     \
+          o       o
+          /      \
+
+ ____________________________________________
+
+K04 PREBIND_ONE_CELL_GAP f14 ONES/INFERRED SUPPORT=DUAL_BRACED CONTACT=PRECONTACT_GAP REL=APPROACH
+ROLE distinct precontact gap before causal join
+
+
+                                         ##
+              o                       ###
+      <       |                   ####
+       ~~   -- + --            ###
+         ~o-   |   -o*=====> <#
+          *    |
+               |
+               @
+             -- --
+           //     |
+          o       o
+          /       \
+
+ ____________________________________________
+
+K05 BIND_ACQUIRE_SHARED_FRAME f16 ONES/INFERRED SUPPORT=BOTH_BRACED CONTACT=TOOL_TOOL_BIND REL=ACQUIRED
+ROLE explicit tool-tool contact instant / hit-stop implication
+
+
+                                         ##
+               o                     ####
+       <       |                  ###
+        ~   -- + --           ####
+         ~o-   |   -o-*====[X]
+          *    |
+               |
+               @
+             -- --
+           //     |
+          o       o
+          /       \
+
+ ____________________________________________
+
+K06 ROOT_COMPRESS_WHILE_BIND_FIXED f19 TWOS/INFERRED SUPPORT=FRONT_CATCH_REAR_DRIVE CONTACT=TOOL_TOOL_BIND REL=LOADED
+ROLE root overruns free travel into shared relationship frame
+
+
+                                         ##
+                                     ####
+               o                  ###
+        <      |              ####
+         ~~   - + ---o*====[X]
+           ~o-  |
+            *   |
+                |
+                @
+             --- --
+           o-      -o
+          /        \
+
+ ____________________________________________
+
+K07 TORSION_BANK_BREAK_WEDGE_CHOSEN f22 TWOS/INFERRED SUPPORT=FRONT_DOMINANT CONTACT=TOOL_TOOL_BIND REL=MAX_LOAD
+ROLE pelvis/spine torque peaks while joint remains fixed; escape wedge authored
+
+
+                                         ##
+                                     ####
+                o                 ###
+         <      |             ####
+          ~   -- + ---*====[X]
+           ~o-   |
+            *    |
+                 |
+                 |
+                 @
+            o---- --o
+           /       \
+
+ ____________________________________________
+
+K08 BREAK_VECTOR_RELEASE f24 ONES/INFERRED SUPPORT=FRONT_PIVOT CONTACT=RELEASE REL=BROKEN
+ROLE separately authored release exits shared frame on new axis
+
+
+                                         ##
+                          >            ##
+            <   o       ==           ##
+            ~   |      =           ##
+            ~ - + ---o*          ##
+            o-  |              ##
+             *  |             <
+                 |
+                 |
+                 @
+            o---- --o
+           /       \
+
+ ____________________________________________
+
+K09 LEAD_TOOL_UPPER_WEDGE_OVERSHOOT f28 TWOS/INFERRED SUPPORT=FRONT_TO_DUAL CONTACT=NONE REL=RELEASED
+ROLE lead tool overshoots release wedge while body begins recoil
+
+                       >
+                       =                  #
+                      =                 ##
+               o      =                #
+               |     =               ##
+              - + --o*              #
+            o-  |                  #
+             *~ |                ##
+               ~<               <
+                @
+             --- --
+           o-      -o
+          /        \
+
+ ____________________________________________
+
+K10 BODY_RECOIL_RESERVE_LAGS f32 TWOS/INFERRED SUPPORT=REAR_RETAKE CONTACT=NONE REL=FREE
+ROLE pelvis recoil leads; reserve tool trails loaded torso
+
+
+                     >                    #
+                     =                   #
+              o     =                   #
+              |     =                  #
+             / + --*                  #
+            o  |                     #
+             *~|~                   #
+              |  ~~~<              <
+              @
+            -- --
+          o-     -o
+         /        \
+
+ ____________________________________________
+
+K11 RESERVE_CATCH_CROSSES_DEBT f36 TWOS/INFERRED SUPPORT=REAR_BRACE CONTACT=NONE REL=FREE
+ROLE offhand reserve rekeys across body to catch remaining rotation
+
+
+                                          #
+                                         #
+             o      >                    #
+             |     =                    #
+            o-+ --o~~~<                #
+              |*~~*                   #
+              |                       #
+             |                       <
+             @
+           -- --
+         o-     -o
+         /       \
+
+ ____________________________________________
+
+K12 SUPPORT_CATCH_TIP_LAG f40 TWOS/INFERRED SUPPORT=DUAL_CATCH CONTACT=NONE REL=FREE
+ROLE support catches body while distal lead tip finishes secondary lag
+
+
+                                          #
+                                          #
+             o                           #
+             |    ~~~<                   #
+           -o+-*-o=>                    #
+             |   *                      #
+             |                         #
+             @                         <
+           -- --
+          /     |
+         o      o
+         /      \
+
+ ____________________________________________
+
+K13 DISPLACED_SETTLE f44 FOURS/INFERRED SUPPORT=BOTH CONTACT=NONE REL=FREE
+ROLE settle remains displaced; no idle reset
+
+
+                                          #
+                                          #
+            o                             #
+            |                             #
+       <~~o- + -*====>                   #
+          ~* |                           #
+             |                           <
+             @
+           -- --
+          /     |
+         o      o
+         /      \
+
+ ____________________________________________
+
+K14 READY_WITH_RELEASE_DEBT_VISIBLE f49 FOURS/INFERRED SUPPORT=BOTH_RESTACKED_DISPLACED CONTACT=NONE REL=FREE
+ROLE re-entry with altered tool spacing and root offset
+
+
+                                          #
+                                          #
+            o                             #
+            |                             #
+          o- + -*====>                     #
+      <~~~*  |                             #
+             |                             <
+             @
+           -- --
+          /     |
+         o      o
+         /      \
+
+ ____________________________________________
