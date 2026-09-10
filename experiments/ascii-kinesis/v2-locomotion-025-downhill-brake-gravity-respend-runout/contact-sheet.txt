@@ -1,0 +1,359 @@
+ASCII KINESIS V2 · LOCOMOTION 025 · DOWNHILL BRAKE / GRAVITY RESPEND / CATCH RUNOUT
+legend: @ root · c COM · * trusted fixed foot support · ? probe contact · ~ free foot · . authored root route · _ downhill ground
+source evidence: Garfield (The Curse of Cleofatra) / Garfield: Caught in the Act / Sega Genesis / TSR asset 123160 / Home Center artifact 1EcndzQbqHcHQ99qxELwoXpttbCITiJJ56WhzIgjBGMc
+OBSERVED: whole static sheet includes Run, Slip, Edge, Fall, Push and jump/travel families; Push shows trustworthy contact with suppressed translation while Slip shows visible contact with continuing translation.
+OBSERVED CAMPAIGN HANDLE: downhill braking was explicitly proposed as the next scene where friction is trustworthy but gravity continuously re-spends root momentum after each catch.
+UNKNOWN: source-authentic chronology, exposure counts, exact root coordinates, friction coefficients, gameplay velocity curves. Source grants NO timing authority.
+authored timing: INFERRED / STREET_FIGHTER-CAPCOM. rights firewall: independent abstract ASCII rig only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio/redistribution/close imitation.
+thesis: a trusted brake catch can reduce downhill velocity without ending the action; the field re-expands root spacing after each catch, producing a later overlong runout catch and shorter displaced corrections.
+
+K00 CONTROLLED_DESCENT · FOURS/4f · INFERRED · support=LEFT · phase=BASELINE · rootΔ=0px · lean=-7° · armLag=-10°
+
+    O
+
+   -T-----
+ -- |
+    |
+     |
+     @
+     /....
+     c/   ...
+     //      ......  .
+    /  /           ..
+    /  /
+ ___/   /
+    *___~__
+           ______
+                 _______
+                        ______
+                              _______
+                                     ______
+                                           ______
+                                                 _______
+                                                        ______
+                                                              _______
+causal: establish trustworthy downhill support before gravity is allowed to re-spend translation
+
+K01 GRAVITY_RESPEND_1 · TWOS/2f · INFERRED · support=LEFT · phase=RESPEND · rootΔ=10px · lean=+8° · armLag=-18°
+
+        O
+
+          ---
+      -T--
+    -- |
+       |
+     . |
+      .@..
+       /  ...
+      /c/    ......  .
+      / /          ..
+     /  /
+ ___ /   /
+    *____~_
+           ______
+                 _______
+                        ______
+                              _______
+                                     ______
+                                           ______
+                                                 _______
+                                                        ______
+                                                              _______
+causal: trusted brake releases enough that downhill field re-expands root spacing while old support still unloads
+
+K02 RIGHT_BRAKE_PROBE · ONES/1f · INFERRED · support=NONE · phase=PROBE · rootΔ=14px · lean=+14° · armLag=-22°
+
+
+           O
+
+          T----
+        --|
+       -  |
+     .   |
+      ...@
+        //...
+       / c/  ......  .
+       /  /        ..
+      /   /
+ ___ /    /
+    ~______/
+           ?_____
+                 _______
+                        ______
+                              _______
+                                     ______
+                                           ______
+                                                 _______
+                                                        ______
+                                                              _______
+causal: downslope foot reaches ahead of COM but does not own the root until the next authored catch
+
+K03 RIGHT_BRAKE_CATCH · TWOS/2f · INFERRED · support=RIGHT · phase=BRAKE · rootΔ=7px · lean=-16° · armLag=+18°
+
+
+
+       O
+
+    ----T
+        |--
+     .   | --
+      ...|
+          @..
+         //  ......  .
+         /c        ..
+        / /
+ ___    /  /
+    ___~___/
+           *_____
+                 _______
+                        ______
+                              _______
+                                     ______
+                                           ______
+                                                 _______
+                                                        ______
+                                                              _______
+causal: right support acquires ahead of root and converts forward/downhill velocity into visible compression
+
+K04 RIGHT_BRAKE_OVERRUN · TWOS/2f · INFERRED · support=RIGHT · phase=BRAKE · rootΔ=4px · lean=-20° · armLag=+28°
+
+
+
+       O
+     --
+       -T
+        |--
+     .   | --
+      ...|
+          @..
+          /  ......  .
+         //c       ..
+         //
+ ___    /  /
+    ____~__/
+           *_____
+                 _______
+                        ______
+                              _______
+                                     ______
+                                           ______
+                                                 _______
+                                                        ______
+                                                              _______
+causal: root/COM continue a shorter distance around the fixed right catch while torso and arms overshoot
+
+K05 GRAVITY_RESPEND_2 · ONES/1f · INFERRED · support=RIGHT · phase=RESPEND · rootΔ=11px · lean=+11° · armLag=+8°
+
+
+
+              O
+
+         ----T-
+             | ---
+     .       |
+      ....  |
+          ..@
+            /......  .
+            c/     ..
+            //
+ ___       / /
+    _______/  /
+           *__~__
+                 _______
+                        ______
+                              _______
+                                     ______
+                                           ______
+                                                 _______
+                                                        ______
+                                                              _______
+causal: before posture can reset, slope-directed travel grows again as the right catch unloads
+
+K06 LEFT_BRAKE_CATCH · TWOS/2f · INFERRED · support=LEFT · phase=BRAKE · rootΔ=12px · lean=-14° · armLag=+24°
+
+
+
+
+           O
+         --
+           -T-
+     .      | ---
+      ....   |
+          ...|
+             .@....  .
+             //    ..
+             /c
+ ___        /  /
+    _______ /  /
+           ~___*_
+                 _______
+                        ______
+                              _______
+                                     ______
+                                           ______
+                                                 _______
+                                                        ______
+                                                              _______
+causal: left foot becomes a new world-fixed brake ahead of the root after re-acceleration
+
+K07 LEFT_BRAKE_COMPRESSION · TWOS/2f · INFERRED · support=LEFT · phase=BRAKE · rootΔ=6px · lean=-19° · armLag=+31°
+
+
+
+
+           O
+
+         ---T
+     .      |--
+      ....   | --
+          ...|
+             .@....  .
+              //   ..
+              /c
+ ___           //
+    _______    //
+           ____*_~
+                 _______
+                        ______
+                              _______
+                                     ______
+                                           ______
+                                                 _______
+                                                        ______
+                                                              _______
+causal: fixed left support survives root passage while COM drops and residual debt compresses
+
+K08 GRAVITY_RESPEND_3 · ONES/1f · INFERRED · support=LEFT · phase=RESPEND · rootΔ=7px · lean=+9° · armLag=+14°
+
+
+
+                 O
+
+             --
+               -T--
+     .          |  ---
+      ....      |
+          ...  |
+             ..@...  .
+               //  ..
+               /c
+ ___           / /
+    _______    /  /
+           ____*_ /
+                 __~____
+                        ______
+                              _______
+                                     ______
+                                           ______
+                                                 _______
+                                                        ______
+                                                              _______
+causal: compression rebounds but external downhill demand re-spends the saved velocity before full restack
+
+K09 LONG_RIGHT_FREE_CATCH · ONES/1f · INFERRED · support=RIGHT · phase=RUNOUT · rootΔ=16px · lean=-12° · armLag=+26°
+
+
+
+
+                O
+
+             ---T-
+     .          | --
+      ....       |  --
+          ...    |
+             .....@  .
+                  /..
+                 /c/
+ ___             / /
+    _______     /  /
+           _____~   /
+                 ___*___
+                        ______
+                              _______
+                                     ______
+                                           ______
+                                                 _______
+                                                        ______
+                                                              _______
+causal: accumulated field debt forces the longest free catch; right support must own before correction can shorten
+
+K10 RIGHT_RUNOUT_ABSORB · TWOS/2f · INFERRED · support=RIGHT · phase=RUNOUT · rootΔ=9px · lean=-17° · armLag=+33°
+
+
+
+
+
+                O
+              --
+     .          -T
+      ....       |--
+          ...     | --
+             .....|  .
+                   @.
+                   /
+ ___               c/
+    _______         /
+           ______   //
+                 ___*~__
+                        ______
+                              _______
+                                     ______
+                                           ______
+                                                 _______
+                                                        ______
+                                                              _______
+causal: right catch pays the largest runout with deep root/COM compression and secondary upper-body overrun
+
+K11 SHORT_LEFT_CORRECTION · TWOS/2f · INFERRED · support=LEFT · phase=CORRECTION · rootΔ=9px · lean=-9° · armLag=+17°
+
+
+
+
+                   O
+
+                --
+     .            -T--
+      ....         |  ---
+          ...      |
+             ...... |.
+                   .@
+                    /
+ ___                /c
+    _______         //
+           ______   / /
+                 ___~_*_
+                        ______
+                              _______
+                                     ______
+                                           ______
+                                                 _______
+                                                        ______
+                                                              _______
+causal: shorter opposite catch acquires before the old right support is abandoned as a locomotion solution
+
+K12 DISPLACED_DOWNHILL_READY · FOURS/4f · INFERRED · support=LEFT · phase=RECOVERY_DEBT · rootΔ=6px · lean=+2° · armLag=+7°
+
+
+
+
+                      O
+
+                  ---T--
+     .               |  ---
+      ....           |
+          ...        |
+             ......  @
+                   ../
+                     /c
+ ___                 //
+    _______           /
+           ______     /
+                 _____*/
+                       ~______
+                              _______
+                                     ______
+                                           ______
+                                                 _______
+                                                        ______
+                                                              _______
+causal: settle remains downhill-displaced with a smaller unresolved forward demand instead of returning to idle
