@@ -15,10 +15,7 @@
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
     "evidence_id": "1E5bgjbMQx7B-iA2k2gi0Pm4lNkTUs8Iu1mgV4SGtQqU",
     "tsr_asset": 216526,
-    "roles": [
-      "POSE_REFERENCE",
-      "TOOL_FAMILY_REFERENCE"
-    ],
+    "roles": ["POSE_REFERENCE", "TOOL_FAMILY_REFERENCE"],
     "timing_authority": false,
     "source_authentic_timing": "UNKNOWN",
     "rights_firewall": "PASS_NO_SOURCE_PIXELS_AUDIO"
@@ -41,7 +38,7 @@
   "quality": {
     "tango": "PASS_R5_CURRENT_WORKER_ACTUAL_SPA_RENDER",
     "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_R5_CURRENT_WORKER_SAME_ACTUAL_SPA_RENDER",
-    "candidate_isolated_official_validator": "PASS_CURRENT_VALIDATOR_BLOB_7d9fc7608d54bca4a2cfbd36660c2d379e27fd78"
+    "candidate_isolated_official_validator": "PASS_CURRENT_VALIDATOR_BLOB_7d9fc7608d54bca4a2cfbd36660c2d379e27fd78_CURRENT_MAIN_EXACT_BODY"
   },
   "repository": {
     "persistence": true,
@@ -53,11 +50,11 @@
     "contact_blob": "32c8a6aa618c6b812de47e9ba968d4795bb935d8",
     "motion_blob": "ff01c4b6bb807a6671e222600f2cc7c954562a03",
     "spa_blob": "76c1b9c54c319bf9e9fb2dea1fc42b5520055e43",
-    "manifest_blob_at_stage": "4cadcc8d932aea140dc10704f73bce0357524368"
+    "manifest_blob_at_stage": "5fcfbe439f9f94726b558b9c9abf00c8242d039e"
   },
   "issue": {
     "pre_delivery_receipt": 5623176968,
-    "pre_delivery_readback": false,
+    "pre_delivery_readback": true,
     "user_surface_receipt": null,
     "user_surface_readback": false,
     "terminal_receipt": null,
