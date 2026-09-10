@@ -55,8 +55,8 @@ K01 DEEP_REAR_COIL
                        |
                        @\
                      //  \\\
-                   o/        \o\
-                 //              \.
+                   o/        \o\\
+                 //              \\.
                */
   __________________________________________________________________________
 
@@ -85,8 +85,8 @@ K02 PELVIS_DROP_COMMIT
                             @
                           // \\
                         //     \\
-                      /o         o\
-                   ///              \.
+                      /o         o\\
+                   ///              \\.
                  */
   __________________________________________________________________________
 
@@ -114,8 +114,8 @@ K03 DESCENT_ARC_BRIDGE
                               / \
                             //   \\
                            /       \
-                         /o         o\
-                     ////              \.
+                         /o         o\\
+                     ////              \\.
                    */
   __________________________________________________________________________
 
@@ -208,7 +208,7 @@ K06 BODY_OVERRUN_ON_TOOL_SUPPORT
 
 timing_class=TWOS | timing_provenance=INFERRED | causal_role=root overruns pinned tool; rear foot unweights
 support=FRONT_FOOT_PLUS_TOOL_REAR_AIR | contact=TOOL_GROUND_PIN | tool_support=LOAD_BEARING
-root_note=root falls past contact; rear foot leaves support
+root_note=root falls past contact; rear_foot leaves support
 rear_foot=AIR | front_foot=ACTIVE
 
 K07 COMPRESSION_REGRIP_BRIDGE
