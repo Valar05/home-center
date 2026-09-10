@@ -1,116 +1,21 @@
 {
   "schema": "ascii-kinesis.contact-receipt.v2",
   "experiment_id": "v2-contact-021-compliant-normal-contact-energy-return",
-  "status": "CANDIDATE_READY_FOR_REPO_PERSISTENCE",
-  "preflight": {
-    "home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
-    "home_center_campaign_read": true,
-    "github_persistence_readback": true,
-    "current_worker_liveness": "PASS"
-  },
-  "source": {
-    "asset_id": 602122,
-    "evidence_id": "1YgH5mmuXBEpf78-Cmjm4ycJAIWmWAvWqt1UNzDEx_aQ",
-    "whole_sheet_inspected": true,
-    "roles": [
-      "POSE_REFERENCE",
-      "CONTACT_REFERENCE"
-    ],
-    "timing_authenticity": "UNKNOWN",
-    "all_compiled_timing": "INFERRED"
-  },
-  "lineage": {
-    "revises": null,
-    "negative_fixture": null,
-    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
-    "successor_collision": false
-  },
+  "status": "PERSISTED_NOT_DELIVERED",
+  "preflight": {"home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s", "home_center_campaign_read": true, "github_persistence_readback": true, "current_worker_liveness": "PASS"},
+  "source": {"asset_id": 602122, "evidence_id": "1YgH5mmuXBEpf78-Cmjm4ycJAIWmWAvWqt1UNzDEx_aQ", "whole_sheet_inspected": true, "roles": ["POSE_REFERENCE", "CONTACT_REFERENCE"], "timing_authenticity": "UNKNOWN", "all_compiled_timing": "INFERRED"},
+  "lineage": {"revises": null, "negative_fixture": null, "source_change": "NOT_APPLICABLE_NEW_CONCEPT", "successor_collision": false},
   "primitive": "COMPLIANT_NORMAL_CONTACT_ENERGY_RETURN",
   "quality": {
-    "actual_render": {
-      "inspected_by_current_worker": true,
-      "decode": "PASS",
-      "frame_sheet_inspected": true,
-      "identity": {
-        "sha256": "9af548c8324ab248accf99c1a7183ec79f041eda9e82956b32415e864c57f23d",
-        "bytes": 6186,
-        "codec": "h264",
-        "pixel_format": "yuv420p",
-        "width": 560,
-        "height": 300,
-        "fps": 24,
-        "frames": 30
-      }
-    },
-    "tango": {
-      "status": "PASS",
-      "rounds": [
-        {
-          "round": "R0",
-          "verdict": "REVISE_REQUIRED",
-          "defect": "LOAD_MAX read too much like a generic forward crouch/push; the fixed wall point was clear, but the body did not visibly bank enough deformation to make stored compliant energy the primary read.",
-          "correction": "On SAME C021-K5, keep the wall hand and planted feet fixed while shortening the head-neck-pelvis stack, packing shoulders toward the contact, and moving COM into the compressed cage; preserve later root reversal under closed contact."
-        },
-        {
-          "round": "R1",
-          "verdict": "PASS",
-          "reason": "Actual revised decisive-frame sheet visibly earns gap→touch-zero→loaded compression, keeps the wall hand fixed through maximum deformation and root reversal, unloads to zero while still touching, opens a real release gap only afterward, then carries wall-side arm/head lag into rear-foot catch, counter-overshoot, and a displaced asymmetric restack. No custody, support teleport, reverse playback, endpoint-only contact, or generic bridge."
-        }
-      ]
-    },
-    "noodle_queen": {
-      "current_worker": true,
-      "status": "PASS",
-      "after_tango": true,
-      "taste": "The LOAD_MAX silhouette folds into a compact spring against the wall, then the pelvis escapes before the wall-side head and arm; the relationship has a memorable before/packed/return shape rather than mannequin contact.",
-      "function": "Topology and load visibly diverge: zero-load touch precedes force, the fixed contact survives compression and root reversal, zero-load touch returns before release, and the actual gap is authored after unloading.",
-      "contempt": "No generic wall shove, custody promotion, straight tween bridge, metadata-only spring, release-before-unload, idle reset, or copied source silhouette."
-    }
+    "actual_render": {"inspected_by_current_worker": true, "decode": "PASS", "frame_sheet_inspected": true, "identity": {"sha256": "9af548c8324ab248accf99c1a7183ec79f041eda9e82956b32415e864c57f23d", "bytes": 6186, "codec": "h264", "pixel_format": "yuv420p", "width": 560, "height": 300, "fps": 24, "frames": 30}},
+    "tango": {"status": "PASS", "current_worker": true, "rounds": [{"round": "R0", "verdict": "REVISE_REQUIRED", "defect": "LOAD_MAX read too much like a generic forward crouch/push; fixed wall contact was clear but stored compliant deformation was not primary.", "correction": "SAME C021-K5: keep wall hand and feet fixed; shorten head-neck-pelvis stack, pack shoulders toward contact, move COM into compressed cage."}, {"round": "R1", "verdict": "PASS", "reason": "Actual revised render earns gap→zero-load touch→loaded compression, fixed contact through root reversal, zero-load touch before release, real release gap, recoil lag, rear-foot catch, counter-overshoot, and displaced asymmetric settle."}]},
+    "noodle_queen": {"status": "PASS", "current_worker": true, "after_tango": true, "taste": "LOAD_MAX folds into a compact spring against the wall, then pelvis escapes before wall-side head and arm.", "function": "Topology and load visibly diverge through touch-zero, load/storage, return, touch-zero, then authored separation.", "contempt": "No generic wall shove, custody promotion, straight tween bridge, metadata-only spring, release-before-unload, idle reset, or copied source silhouette."}
   },
-  "media": {
-    "fps": 24,
-    "timing_policy": "STREET_FIGHTER/CAPCOM",
-    "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> ASCII-ONLY FRAME RENDER -> H.264 MP4 -> SPA",
-    "connective_motion": "NONE BETWEEN SEMANTIC CONTACT/LOAD KEYS; authored holds only.",
-    "source_sprite_pixels_used": false,
-    "width": 560,
-    "height": 300,
-    "codec": "h264",
-    "pixel_format": "yuv420p",
-    "frames": 30,
-    "media_bytes": 6186,
-    "media_sha256": "9af548c8324ab248accf99c1a7183ec79f041eda9e82956b32415e864c57f23d"
-  },
-  "contract": {
-    "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-    "candidate_isolated_pass": true,
-    "execution_scope": "exact current official validator source executed against isolated Contact021 construction tree; remote repository-global execution unclaimed",
-    "repository_global_claimed": false
-  },
-  "repository": {
-    "persisted": false,
-    "readback": false,
-    "exact_six_files": false,
-    "exact_one_spa": false,
-    "final_readback": false,
-    "blobs": {}
-  },
-  "issue": {
-    "pre_delivery_receipt": null,
-    "pre_delivery_receipt_readback": false,
-    "closure": null,
-    "closure_readback": false
-  },
-  "campaign_propagation": {
-    "required": true,
-    "appended": false,
-    "readback": false
-  },
-  "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_visible_video": false,
-    "ordered": false
-  },
+  "media": {"fps": 24, "timing_policy": "STREET_FIGHTER/CAPCOM", "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> ASCII-ONLY FRAME RENDER -> H.264 MP4 -> SPA", "connective_motion": "NONE BETWEEN SEMANTIC CONTACT/LOAD KEYS; authored holds only.", "source_sprite_pixels_used": false, "width": 560, "height": 300, "codec": "h264", "pixel_format": "yuv420p", "frames": 30, "media_bytes": 6186, "media_sha256": "9af548c8324ab248accf99c1a7183ec79f041eda9e82956b32415e864c57f23d"},
+  "contract": {"official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78", "candidate_isolated_pass": true, "execution_scope": "exact current validator source against isolated Contact021 construction; remote repository-global execution unclaimed", "repository_global_claimed": false},
+  "repository": {"persisted": true, "readback": true, "exact_six_files": true, "exact_one_spa": true, "final_readback": false, "blobs": {"build.py": "541bb54713dee7d2691fc09ee553afb9de182b66", "contact-sheet.txt": "234b398da732706243a8ff459a156b2bf04f673d", "manifest.json": "d740afebc5f01407cad8fe69fe74612bece83bf4", "motion.json": "5795c5faa0f5f41ac801b11744bf72a27ea430c3", "compliant-normal-contact-energy-return.motion.html": "5908963d297ff23f92bc34ac9de913710eba2694"}},
+  "issue": {"pre_delivery_receipt": 5611913822, "pre_delivery_receipt_readback": true, "closure": null, "closure_readback": false},
+  "campaign_propagation": {"required": true, "appended": true, "readback": true},
+  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_visible_video": false, "ordered": false},
   "drew_accepted": false
 }
