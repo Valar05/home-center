@@ -1,0 +1,134 @@
+K00 DUAL_READY | FOURS/4t | PROV=INFERRED | SUPPORT=BOTH
+
+
+                         O
+                         |
+                   o----o----o======>
+                  /     |     \
+              <---      |      \
+                         @
+                        / \
+                       o   o
+                      /     \
+  ___________________*_______*________________________________________
+ LEAD=READY_COMPACT  RESERVE=READY_WITHHELD  LINE=OPEN  ROOT_X=+0.00
+------------------------------------------------------------------------
+K01 LEAD_LINE_CLAIM | TWOS/2t | PROV=INFERRED | SUPPORT=LEFT
+
+
+                         O
+                         |
+                   o----o----o================>
+                  /     |     \
+              <---      |      \
+                         @
+                        / \
+                       o   o
+                      /     \
+  ___________________*_______+________________________________________
+ LEAD=OWNS_LINE  RESERVE=READY_WITHHELD  LINE=OCCUPIED  ROOT_X=+0.22
+------------------------------------------------------------------------
+K02 BIND_ACQUIRE | TWOS/2t | PROV=INFERRED | SUPPORT=LEFT_DOMINANT
+
+
+                           O
+                           |
+                     o----o----o=============X
+                    /     |     \            |
+                <---      |      \           |
+                           @                  |
+                          / \                 |
+                         o   o                |
+                        /     \               |
+  _____________________*_______+______________|_______________________
+ LEAD=BOUND  RESERVE=READY_WITHHELD  LINE=OCCUPIED  ROOT_X=+0.42
+------------------------------------------------------------------------
+K03 BIND_LOAD_RESERVE_DENIED | STREET_FIGHTER/CAPCOM/3t | PROV=INFERRED | SUPPORT=LEFT_TO_RIGHT
+
+
+                              O
+                             /
+                       o----o----o==========X
+                      /    /      \         |
+                  <---    /        \        |
+                          @                 |
+                         / \                |
+                        o   o               |
+                       /     \              |
+  ____________________+_______*_____________|_________________________
+ LEAD=BOUND_LOAD  RESERVE=COILED_NOT_ADMITTED  LINE=OCCUPIED  ROOT_X=+0.58
+------------------------------------------------------------------------
+K04 RELEASE_WEDGE | ONES/1t | PROV=INFERRED | SUPPORT=RIGHT
+
+
+                              O
+                             /
+                       o----o====/
+                      /    /    /
+                  <---    /    /
+                          @
+                         / \
+                        o   o
+                       /     \
+  ____________________+_______*_______________________________________
+ LEAD=CLEARING_UP  RESERVE=COILED_NOT_ADMITTED  LINE=RELEASING  ROOT_X=+0.66
+------------------------------------------------------------------------
+K05 RESERVE_ADMISSION_BRIDGE | ONES/1t | PROV=INFERRED | SUPPORT=RIGHT_CATCH
+
+
+                                O
+                               /
+                         o====o----o
+                        /    /      \
+                       /    /        \
+                          @------==>
+                         / \
+                        o   o
+                       /     \
+  ____________________+_______*_______________________________________
+ LEAD=ABOVE_LINE  RESERVE=CROSSING_VACATED_LINE  LINE=ADMISSION_WINDOW  ROOT_X=+0.78
+------------------------------------------------------------------------
+K06 RESERVE_CONSEQUENCE | TWOS/2t | PROV=INFERRED | SUPPORT=RIGHT_DOMINANT
+
+
+                                   O
+                                  /
+                            o====o----o
+                           /    /      \
+                          /    /        \
+                             @=====================>
+                            / \
+                           o   o
+                          /     \
+  _______________________+_______*____________________________________
+ LEAD=RECOVERING_HIGH  RESERVE=EXTENDED  LINE=RESERVE_OWNS  ROOT_X=+1.08
+------------------------------------------------------------------------
+K07 CROSS_CHANNEL_BRAKE | TWOS/2t | PROV=INFERRED | SUPPORT=BOTH_RIGHT_DOMINANT
+
+
+                                    O
+                                    |
+                              o====o----o
+                             /      |    \
+                            /       |     \
+                                @=============>
+                               / \
+                              o   o
+                             /     \
+  __________________________*_______*_________________________________
+ LEAD=HIGH_COVER  RESERVE=BRAKING  LINE=RESERVE_OWNS  ROOT_X=+1.22
+------------------------------------------------------------------------
+K08 DISPLACED_RESTACK | FOURS/4t | PROV=INFERRED | SUPPORT=BOTH
+
+
+                                    O
+                                    |
+                              o====o----o
+                             /      |    \
+                            /       |     \
+                                @=======>
+                               / \
+                              o   o
+                             /     \
+  __________________________*_______*_________________________________
+ LEAD=HIGH_COVER  RESERVE=POST_ADMISSION  LINE=SETTLED  ROOT_X=+1.26
