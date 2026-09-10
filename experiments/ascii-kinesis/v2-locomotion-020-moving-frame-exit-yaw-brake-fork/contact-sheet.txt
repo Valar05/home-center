@@ -1,0 +1,375 @@
+ASCII KINESIS V2 · LOCOMOTION 020 · MOVING-FRAME EXIT / YAW-BRAKE FORK
+legend: @ root/COM · * support owner · + probe · = old moving frame · . fixed turn lane · O head
+source evidence: Mowgli / The Jungle Book / Sega Genesis / asset 28829 / Home Center artifact 1BA2z9DYof9hEfdqYdt5SzUmMnkPe_uWpVpLfMXsB-vc
+source observations: whole sheet shows upright, low, airborne, hand-supported, and recovery families; static sheet gives support contrasts, not chronology.
+source timing authority: UNKNOWN / Animated GIFs (0) · authored cadence: INFERRED / STREET_FIGHTER-CAPCOM
+rights firewall: generic abstract rig only; no source pixels, palette, costume, contours, layout, tracing, choreography, audio, redistribution, or close imitation.
+thesis: exit a moving support frame onto fixed ground, spend inherited translation first, then earn a separate yaw catch; braking and heading change are distinct causal joins.
+
+K00 OLD_FRAME_CARRY · FOURS/4f · INFERRED · support=OLD_MOVING_BOTH · phase=OLD_FRAME · rootΔ=0px · pathΔ=0px
+
+
+
+
+
+
+           O
+
+                                                              ..
+         / T \\o                                            ..
+       /o  |                                             ...
+           |                                            .
+           |                                          ..
+           |                                      ....
+           @                                    ..
+         // \\                                ..
+       //     \                            ...
+       /      \                        ....
+       /      \                     ...
+=======_======_=============........:...:...:...:...:...:...:...:...:...
+       *      *
+
+
+causal: ESTABLISH_INHERITED_WORLD_VELOCITY
+
+K01 EXIT_PREP · TWOS/2f · INFERRED · support=OLD_MOVING_TRAIL · phase=EXIT_PREP · rootΔ=20px · pathΔ=20px
+
+
+
+
+
+
+               O
+
+             / T \ o                                          ..
+            /  |  \\                                        ..
+           /o  |                                         ...
+               |                                        .
+              |                                       ..
+              |                                   ....
+              @                                 ..
+            // \\                             ..
+          //     \\                        ...
+          /       \                    ....
+          /        \                ...
+==========_========_========........:...:...:...:...:...:...:...:...:...
+          *
+
+
+causal: UNWEIGHT_LEAD_WITHOUT_SHEDDING_WORLD_SPEED
+
+K02 FIXED_PROBE · TWOS/2f · INFERRED · support=OLD_MOVING_TRAIL · phase=PROBE · rootΔ=26px · pathΔ=26px
+
+
+
+
+
+
+                    O
+
+                 /  T \ o                                     ..
+                /   |  \\                                   ..
+                /o |                                     ...
+                   |                                    .
+                  |                                   ..
+                  @\                              ....
+                 /  \\                          ..
+               //     \\                      ..
+              /         \\                 ...
+              /           \            ....
+              /            \        ...
+==============_=============_.......:...:...:...:...:...:...:...:...:...
+              *             +
+
+
+causal: TOUCH_NEW_FRAME_WITHOUT_OWNERSHIP
+
+K03 DUAL_FRAME_JOIN · TWOS/2f · INFERRED · support=OLD_MOVING_PLUS_NEW_FIXED · phase=DUAL_FRAME · rootΔ=27px · pathΔ=27px
+
+
+
+
+
+
+                         O
+
+                      / T  \                                  ..
+                      / |   \o                              ..
+                      /o|                                ...
+                       |                                .
+                       |                              ..
+                       @                          ....
+                     // \                       ..
+                   //    \\                   ..
+                  /        \               ...
+                  /        \           ....
+                 /          \       ...
+=================_==========_.......:...:...:...:...:...:...:...:...:...
+                 *          *
+
+
+causal: MAKE_REFERENCE_FRAME_EXCHANGE_A_DECISIVE_JOIN
+
+K04 NEW_FRAME_OWNS · ONES/1f · INFERRED · support=NEW_FIXED_RIGHT · phase=TRANSFER · rootΔ=32px · pathΔ=32px
+
+
+
+
+
+
+                               O
+
+                            / T \                             ..
+                            / |  \o                         ..
+                            /o                           ...
+                             |                          .
+                            |                         ..
+                           /@                     ....
+                         //  \                  ..
+                       //     \               ..
+                       /     \             ...
+                      /      \         ....
+                      _     \       ...
+============================_.......:...:...:...:...:...:...:...:...:...
+                            *
+
+
+causal: TRANSFER_SUPPORT_BEFORE_WORLD_VELOCITY_IS_SPENT
+
+K05 INHERITED_OVERRUN · ONES/1f · INFERRED · support=NEW_FIXED_RIGHT · phase=INHERITED_CARRY · rootΔ=34px · pathΔ=34px
+
+
+
+
+
+
+                                     O
+
+                                  / T \                       ..
+                                  / |  \                    ..
+                                   o   o                 ...
+                                   |                    .
+                                  |                   ..
+                                 \@               ....
+                              /\\               ..
+                             \\               ..
+                             \             ...
+                            \_         ....
+                            \       ...
+============================_.......:...:...:...:...:...:...:...:...:...
+                            *
+
+
+causal: DISPLAY_WORLD_SPEED_RELATIVE_TO_FIXED_SUPPORT
+
+K06 BRAKE_COMPRESSION · TWOS/2f · INFERRED · support=NEW_FIXED_RIGHT · phase=BRAKE · rootΔ=24px · pathΔ=24px
+
+
+
+
+
+
+                                       O
+
+                                     / T \                    ..
+                                    /  |  \                 ..
+                                    / |   \              ...
+                                     o|  o              .
+                                     |                ..
+                                     @            ....
+                                   \\           ..
+                                 \\/          ..
+                               \\  /       ...
+                              \     /  ....
+                             \      _..
+============================_.......:...:...:...:...:...:...:...:...:...
+                            *
+
+
+causal: SPEND_TRANSLATIONAL_DEBT_BEFORE_YAW
+
+K07 YAW_PROBE · TWOS/2f · INFERRED · support=NEW_FIXED_RIGHT · phase=YAW_PREP · rootΔ=12px · pathΔ=15px
+
+
+
+
+
+                                        O
+
+
+                                       / T \                  ..
+                                      /  | \                ..
+                                     /o |  \             ...
+                                        | o             .
+                                       |              ..
+                                      \@          ....
+                                  \\\\  //      ..
+                                \\        /   ..
+                               \          /...
+                              \        .../
+                             \      ...   _
+============================_.......:...:.+.:...:...:...:...:...:...:...
+                            *
+
+
+causal: BEGIN_HEADING_CHANGE_ONLY_AFTER_BRAKE_JOIN
+
+K08 TURN_CATCH · TWOS/2f · INFERRED · support=TURN_ARC_LEFT · phase=YAW_CATCH · rootΔ=13px · pathΔ=16px
+
+
+
+
+                                           O
+
+                                          /
+                                         / T \
+                                        /  | \                ..
+                                        o  | \              ..
+                                          | o            ...
+                                          |             .
+                                         \@           ..
+                                      \\\  /      ....
+                                    \\      /   ..
+                                   \       /  ..
+                                   \       /..
+                                  \    ..._
+                                  _ ...   *
+============================........:...:...:...:...:...:...:...:...:...
+
+
+
+causal: EARN_CURVED_TRAVEL_WITH_SECOND_SUPPORT_TRANSFER
+
+K09 TANGENT_OVERRUN · ONES/1f · INFERRED · support=TURN_ARC_LEFT · phase=TURN_OVERRUN · rootΔ=16px · pathΔ=21px
+
+
+                                              O
+
+                                             /
+                                            / T
+                                           /  |\
+                                          o  | \
+                                             |o               ..
+                                            |               ..
+                                            @            ...
+                                          \\            .
+                                        \\ /          ..
+                                        \ /       ....
+                                        \ /     ..
+                                        \ /   ..
+                                        _ /...
+                                       ..._
+                                    ...   *
+============================........:...:...:...:...:...:...:...:...:...
+
+
+
+causal: LET_ROOT_PASS_CATCH_ALONG_NEW_TANGENT
+
+K10 CORRECTION_PROBE · TWOS/2f · INFERRED · support=TURN_ARC_LEFT · phase=CORRECTION_PROBE · rootΔ=8px · pathΔ=14px
+
+
+                                              O
+
+                                              /T
+                                            // |\
+                                           o   |\
+                                              o\\
+                                              |
+                                              @               ..
+                                             / \            ..
+                                            /   \        ...
+                                            /   \       .
+                                           /    \     ..
+                                           /    \ ....
+                                           /    _.
+                                          /   ..+
+                                          /...
+                                       ..._
+                                    ...   *
+============================........:...:...:...:...:...:...:...:...:...
+
+
+
+causal: PROBE_SHORTER_STEP_AFTER_TANGENT_OVERRUN
+
+K11 CORRECTION_CATCH · TWOS/2f · INFERRED · support=NEW_HEADING_RIGHT · phase=CORRECTION_CATCH · rootΔ=6px · pathΔ=10px
+
+                                               O
+
+                                              /T
+                                             / |\
+                                            o  |\
+                                              o\
+                                               |
+                                               @
+                                              / \             ..
+                                             /  \           ..
+                                             /   \       ...
+                                            /    \      .
+                                            /   \     ..
+                                             /  \ ....
+                                             /  _.
+                                             _..*
+                                           ...
+                                       ....
+                                    ...
+============================........:...:...:...:...:...:...:...:...:...
+
+
+
+causal: SHORTEN_RESIDUAL_TRAVEL_WITH_NEW_HEADING_SUPPORT
+
+K12 SETTLE_OVERSHOOT · FOURS/4f · INFERRED · support=NEW_HEADING_RIGHT · phase=SETTLE · rootΔ=5px · pathΔ=6px
+                                               O
+
+                                               /
+                                              / T\
+                                             /o \
+                                             o\\\
+                                               |
+                                               |
+                                               @
+                                              / \             ..
+                                             /  \           ..
+                                              /  \       ...
+                                              /  \      .
+                                               /\     ..
+                                               _\ ....
+                                                _.
+                                              ..*
+                                           ...
+                                       ....
+                                    ...
+============================........:...:...:...:...:...:...:...:...:...
+
+
+
+causal: COMPRESS_REMAINDER_WITH_SECONDARY_LAG
+
+K13 DISPLACED_RESTACK · FOURS/4f · INFERRED · support=NEW_HEADING_BOTH · phase=DISPLACED_RECOVERY · rootΔ=4px · pathΔ=5px
+                                               O
+
+                                               /T
+                                              o |\
+                                              o\\
+                                                |
+                                                |
+                                                @
+                                               \ /
+                                               \ /            ..
+                                              \   /         ..
+                                              \   /      ...
+                                               \  /     .
+                                               \  _   ..
+                                                \ *...
+                                                _.
+                                              ..*
+                                           ...
+                                       ....
+                                    ...
+============================........:...:...:...:...:...:...:...:...:...
+
+
+
+causal: FINISH_ACTION_READY_WITHOUT_RETURNING_TO_ENTRY_POSE
