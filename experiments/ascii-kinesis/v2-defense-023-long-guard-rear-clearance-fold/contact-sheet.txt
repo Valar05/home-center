@@ -1,0 +1,210 @@
+ASCII KINESIS V2 DEFENSE023 — LONG GUARD / REAR-CLEARANCE FOLD
+SOURCE EVIDENCE: TSR asset 255871 Spear — Legend of Heroes — Arcade | exact whole source 502x715 PNG / 53,816 bytes / SHA-256 e850b6944ee00b9087d67d3aebf96d7a8676a495c80bfcaf091df9949d41f611.
+SOURCE ROLE: STYLE_REFERENCE. OBSERVED only: long tool occupancy changes body envelope and spends space on both sides of hands. Source-authentic timing UNKNOWN.
+AUTHORED PRINCIPLE: MIDSPAN PIN -> REAR-END CLEARANCE FOLD UNDER CONTINUOUS TWO-HAND CUSTODY -> PELVIS LOAD -> CONTACT RELEASE -> REAR-FOOT BREAK/SWEEP/CATCH -> COUNTERTORQUE -> LATE RESPAN.
+TIMING: every decisive compile timing class INFERRED / STREET_FIGHTER-CAPCOM. ONES/TWOS/FOURS are hold classes, never seconds.
+LEGEND: # full support | ^ forefoot | x unsupported | @ pelvis | X active midspan contact | = long guard | ] rear butt | : rear clearance plane.
+RIGHTS: independent abstract ASCII rig only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio.
+
+K00 LONG_GUARD_READY                                               K01 PRECONTACT_CLEARANCE_BRACE
+FOURS/INFERRED SUP=L#+R# CONTACT=OFF                               FOURS/INFERRED SUP=L#+R# CONTACT=OFF
+THREAT=MIDLINE_PRESSURE_FAR                                        THREAT=PRESSURE_CLOSING
+TOOL=LONG_SPAN_NEAR_REAR_CLEARANCE                                 TOOL=SPAN_HELD_REAR_MARGIN_THIN
+
+                                              REAR CLEARANCE                                                     REAR CLEARANCE
+                                                            :                                                                  :
+                                                            :                                                                  :
+                            O                               :                                                                  :
+                            |                               :                                 O                                :
+                          --o--                             :                                 |                                :
+                       o--  |  --o                          :                            o----o----o                           :
+                     //     |     --                        :                          //     |     --                         :
+                    o       |       -o    ===========]      :                         o       |       -o     ===========]      :
+                   ===============+=======                  :                        ===============+========                  :
+       <===========+         |                              :      ------<>==========+        |                                :
+                             |                              :                                  |                               :
+                             |                              :                                  |                               :
+                             |                              :                                  |                               :
+                             @                              :                                  |                               :
+                            / \                             :                                  @                               :
+                           /   \                            :                                 / \\                             :
+                         //     \\                          :                                /    \                            :
+                        /         \                         :                              //      \                           :
+                       o           o                        :                             /         \\                         :
+                      /             \                       :                            o            o                        :
+                      /             \                       :                           /              \                       :
+                     /               \                      :                           /               \                      :
+                    /                 \                     :                          /                \                      :
+                    /                 \                     :                          /                 \                     :
+                   o                   o                                              o                   o
+_________________==#==_______________==#==_____________________    _________________==#==_______________==#==_____________________
+
+
+K02 MIDSPAN_PIN                                                    K03 SHAFT_FOLD_BEGINS
+ONES/INFERRED SUP=L#+R# CONTACT=ON@34,12                           TWOS/INFERRED SUP=L#+R# CONTACT=ON@34,11.7
+THREAT=CONTACT_AT_MIDSPAN                                          THREAT=MIDSPAN_PRESSURE_HELD
+TOOL=MIDSPAN_PINNED_REAR_END_CROWDED                               TOOL=REAR_END_ARCS_UP_FROM_CLEARANCE
+
+                                              REAR CLEARANCE                                                     REAR CLEARANCE
+                                                            :                                                                  :
+                                                            :                                                                  :
+                                                            :                                                                  :
+                            O                               :                                   O                              :
+                            |                               :                                   |                              :
+                          --o----o                          :                                  -o--             =====]         :
+                       o--  |     \\                        :                                -- |  --o==========               :
+                     //     |      -o                       :                              o========+---o                      :
+                    o       |====+==================]       :                   ===========     |                              :
+------<-------X====+=========                               :      -------<------X     +o       |                              :
+                             |                              :                                    |                             :
+                             |                              :                                    |                             :
+                             |                              :                                    |                             :
+                             |                              :                                    |                             :
+                             @                              :                                    |                             :
+                            / \                             :                                    @                             :
+                           /   \                            :                                  // \\                           :
+                         //     \\                          :                                 /     \                          :
+                        /         \                         :                               //       \\                        :
+                       o           o                        :                              o           o                       :
+                      /             \                       :                             /             \                      :
+                     /               \                      :                            /              \                      :
+                     /               \                      :                           /                \                     :
+                    /                 \                     :                          /                 \                     :
+                   o                   o                                              o                   o
+_________________==#==_______________==#==_____________________    _________________==#==_______________==#==_____________________
+
+
+K04 TWO_HAND_CLEARANCE_FOLD                                        K05 PELVIS_LOAD_REAR_HEEL_UNLOAD
+TWOS/INFERRED SUP=L#+R# CONTACT=ON@34.5,11.5                       FOURS/INFERRED SUP=L#+R^ CONTACT=ON@35,11.7
+THREAT=PRESSURE_ROUTED_THROUGH_FOLD                                THREAT=CONTACT_PEAK_LOAD
+TOOL=REAR_OVERHANG_VENTED_UP                                       TOOL=FOLD_HELD_UNDER_PEAK_LOAD
+
+                                              REAR CLEARANCE                                                     REAR CLEARANCE
+                                                            :                                                                  :
+                                                            :                                                                  :
+                                            ==]             :                                                                  :
+                                       =====                :                                                  ==]             :
+                              O    ====                     :                                              ====                :
+                              =====                         :                                      O  =====                    :
+                         =====o-+--o                        :                                    ==+==-                        :
+                    =====o--  |    --o                      :                                =o==--o----oo                     :
+                ====   //     |                             :                           =====/     |                           :
+--------------X=     +o        |                            :      ---------------X===== +-o       |                           :
+        <==                    |                            :                  ====                 |                          :
+                               |                            :               <==                     |                          :
+                               |                            :                                       |                          :
+                               |                            :                                       |                          :
+                                |                           :                                       |                          :
+                                |                           :                                        |                         :
+                               /@                           :                                        |                         :
+                             //  \                          :                                       -@                         :
+                           //     \\                        :                                     --  \\                       :
+                         o/         \                       :                                   --      \\                     :
+                        /            o                      :                                 o-          o                    :
+                       /              |                     :                               --            |                    :
+                     //               |                     :                             --              |                    :
+                    /                  |                    :                           --                |                    :
+                   o                   o                                              o-                  o
+_________________==#==_______________==#==_____________________    _________________==#==_________________^^^_____________________
+
+
+K06 CONTACT_RELEASE_REAR_FOOT_BREAK                                K07 REAR_LEG_CLEARANCE_SWEEP
+ONES/INFERRED SUP=L#+Rx CONTACT=OFF                                TWOS/INFERRED SUP=L#+Rx CONTACT=OFF
+THREAT=PRESSURE_SPENT                                              THREAT=PRESSURE_SPENT
+TOOL=FOLDED_GUARD_LAGS_RELEASE                                     TOOL=GUARD_REAR_END_STILL_LATE
+
+                                              REAR CLEARANCE                                                     REAR CLEARANCE
+                                                            :                                                                  :
+                                                            :                                                                  :
+                                                            :                                                                  :
+                                            ==]             :                                                  ==]             :
+                                        ====                :                                              ====                :
+                                O  =====                    :                                       O  ====                    :
+                               ====                         :                                     =====                        :
+                          =====-o+----o                     :                                 ====--o+---o                     :
+                      ====  o-- |    --o                    :                            ===== o--  |    --o                   :
+                 ===== +- //    |                           :                        ====     /     |                          :
+             ====        o       |                          :                    ====      +-o       |                         :
+          <==                    |                          :                 <==                    |                         :
+                                 |                          :                                        |                         :
+                                 |                          :                                        |                         :
+                                 |                          :                                        |                         :
+                                  |                         :                                         |                        :
+                                  |                         :                                         |                        :
+                                  @\                        :                                        -@-                       :
+                                --  \\\                     :                                      --   --                     :
+                              --       \o                   :                                    --       -o-                  :
+                           -o-          |                   :                                 -o-            --                :
+                         --             |                   :                               --                 -x              :
+                       --               x                   :                             --                                   :
+                     --                                     :                           --                                     :
+                   o-                                                                 o-
+_________________==#==_________________________________________    _________________==#==_________________________________________
+
+
+K08 COMPRESSED_REAR_CATCH                                          K09 COUNTERTORQUE_GUARD_LAG
+ONES/INFERRED SUP=L#+R# CONTACT=OFF                                TWOS/INFERRED SUP=L^+R# CONTACT=OFF
+THREAT=PRESSURE_SPENT                                              THREAT=PRESSURE_SPENT
+TOOL=CATCH_BEFORE_GUARD_REOPEN                                     TOOL=REAR_END_DESCENDS_AFTER_ROOT_COUNTERTORQUE
+
+                                              REAR CLEARANCE                                                     REAR CLEARANCE
+                                                            :                                                                  :
+                                                            :                                                                  :
+                                                            :                                                                  :
+                                                            :                                                                  :
+                                             ==]            :                                                                  :
+                                  O      ====               :                                      O             ===]          :
+                                  |  ====                   :                                      |       ======              :
+                                ==o==--o                    :                                     -o=====o=                    :
+                            ====- +---  -                   :                                 =o====     --o                   :
+                       ===== o-   |   ---o                  :                          =======/    | +---                      :
+                   ====    //      |                        :                    ======    o/       |                          :
+               ====     +-o        |                        :                <===         +         |                          :
+            <==                    |                        :                                       |                          :
+                                   |                        :                                       |                          :
+                                   |                        :                                       |                          :
+                                    |                       :                                        |                         :
+                                    |                       :                                        |                         :
+                                    @                       :                                       -@                         :
+                                  -- \                      :                                     --  \\                       :
+                                --    \\                    :                                   --      \\                     :
+                              --        \                   :                                 o-          \o                   :
+                            -o           o                  :                               --              \\                 :
+                         ---              \\                :                             --                  \                :
+                     ----                   \\              :                           --                     \\              :
+                   o-                         o                                       o-                         o
+_________________==#==______________________==#==______________    _________________^^^________________________==#==______________
+
+
+K10 LATE_GUARD_RESPAN                                              K11 DISPLACED_LOW_READY_DEBT
+FOURS/INFERRED SUP=L#+R# CONTACT=OFF                               FOURS/INFERRED SUP=L#+R# CONTACT=OFF
+THREAT=PRESSURE_SPENT                                              THREAT=PRESSURE_SPENT
+TOOL=GUARD_RESPANS_AFTER_BASE_RECOVERY                             TOOL=LOW_READY_NOT_IDLE_RESET
+
+                                              REAR CLEARANCE                                                     REAR CLEARANCE
+                                                            :                                                                  :
+                                                            :                                                                  :
+                                                            :                                                                  :
+                                                            :                                                                  :
+                               O                            :                                    O                             :
+                               |                            :                                    |                             :
+                             --o--                          :                                   -o--                           :
+                          o--  |  --o-       =====]         :                                o-- |  ---o                       :
+                        //     |   ====o=====               :                              //    |      \                      :
+                       o===========+--                      :                            o/       |   +--o=========]           :
+              =======+==       |                            :                         ====================                     :
+        <=====                  |                           :               <=========  +         |                            :
+                                |                           :                                     |                            :
+                                |                           :                                      |                           :
+                                |                           :                                      |                           :
+                                @                           :                                      @                           :
+                              // \\                         :                                    // \\                         :
+                             /     \\                       :                                   /     \\                       :
+                           //        \\                     :                                 //        \\                     :
+                          o            o                    :                                o            o                    :
+                         /              \\                  :                               /              \\                  :
+                        /                 \                 :                              /                 \                 :
+                      //                   \                :                            //                   \                :
+                     /                      \\              :                           /                      \\              :
+                    o                         o                                        o                         o
+__________________==#==_____________________==#==______________    __________________==#==_____________________==#==______________
