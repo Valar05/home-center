@@ -1,6 +1,10 @@
 name: Repair Phone Hands Queue Starvation
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/repair-phone-hands-queue-starvation.yml'
   workflow_dispatch:
     inputs:
       project:
@@ -25,7 +29,7 @@ concurrency:
 
 jobs:
   repair-deploy-prove:
-    if: ${{ inputs.confirm == 'repair' }}
+    if: ${{ (github.event_name == 'push' && contains(github.event.head_commit.message, '[run-phone-queue-repair]')) || (github.event_name == 'workflow_dispatch' && inputs.confirm == 'repair') }}
     runs-on: ubuntu-latest
     env:
       PROJECT: ${{ inputs.project || 'home-center-dclar' }}
