@@ -1,0 +1,104 @@
+{
+  "format_version": 2,
+  "experiment_id": "v2-airborne-039-scoped-thrust-sync-lift-landing-debt",
+  "status": "PERSISTED_NOT_DELIVERED",
+  "primitive": "SCOPED_THRUST_SYNC_LIFT_LANDING_DEBT",
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "one_body_binding": true,
+    "successor_collision": false
+  },
+  "source": {
+    "asset_id": 97821,
+    "commissioned_evidence_artifact_id": "1-CTvmeVYA83T3es43KZSJ0OCXx_wm6wCBwZakSZYNrI",
+    "source_authentic_timing": "UNKNOWN",
+    "timing_authority": false,
+    "rights_firewall": "PASS",
+    "whole_source_evidence_read": true
+  },
+  "repository": {
+    "repo": "Valar05/home-center",
+    "path": "experiments/ascii-kinesis/v2-airborne-039-scoped-thrust-sync-lift-landing-debt/",
+    "persisted": true,
+    "exact_one_spa": true,
+    "six_file_readback": false,
+    "final_readback": false,
+    "git_blobs": {
+      "build_motion.py": "d212c7e555c27b04de31006dea3e141a9cea8497",
+      "contact-sheet.txt": "1f7acc097cc2da3cb8072340dae1c4e47d8bb7d1",
+      "manifest.json": "3e1ee24733d3e6411f339fcb5215a041f6520a21",
+      "motion.json": "a5c0f58e13df998d2d6d55735f66f62f19448852",
+      "scoped-thrust-sync-lift-landing-debt.motion.html": "622f687cf620a7b236c1c8bd829ef71553493a44"
+    }
+  },
+  "authoritative_media": {
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 800,
+    "height": 448,
+    "fps": 24,
+    "frames": 90,
+    "bytes": 47754,
+    "sha256": "645bb91fca4c62db6d511dede354da73108fbd1988f569427255923a9dccbdea",
+    "decode": "PASS"
+  },
+  "spa_delivery_media": {
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 640,
+    "height": 358,
+    "fps": 24,
+    "frames": 90,
+    "bytes": 14257,
+    "sha256": "dda4e0506c007e0e636123e018ebfb120b3e121feb3c2e0f862f86b9c52a6727",
+    "decode": "PASS",
+    "deterministic_non_authoritative_presentation": true
+  },
+  "quality": {
+    "tango": {
+      "current_worker": true,
+      "final_round": "R4",
+      "verdict": "PASS",
+      "same_authoritative_render": true,
+      "spa_presentation_reinspection": "PASS"
+    },
+    "noodle_queen": {
+      "current_worker": true,
+      "same_final_specimen": true,
+      "taste": "PASS",
+      "function": "PASS",
+      "contempt": "PASS"
+    }
+  },
+  "contract": {
+    "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PENDING_FINAL_RECHECK",
+    "standard_chat_boundary": "No repo-global checkout or shell-suite claim."
+  },
+  "issue_343": {
+    "global_reset": 5576901079,
+    "airborne038_final_durable_readback": 5619856681,
+    "airborne039_partial_checkpoint": 5624530470,
+    "pre_delivery_receipt": null,
+    "pre_delivery_readback": false,
+    "reporting_chat_closure": null,
+    "terminal_durable_readback": null
+  },
+  "campaign": {
+    "file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "preflight_read": true,
+    "pre_delivery_checkpoint": false,
+    "final_closure": false,
+    "final_readback": false
+  },
+  "chat_delivery": {
+    "part1_complete_persisted_ascii": false,
+    "part2_actual_persisted_json": false,
+    "part3_actual_visible_authoritative_video": false,
+    "ordered_complete": false
+  },
+  "drew_accepted": false,
+  "next_authorized": null
+}
