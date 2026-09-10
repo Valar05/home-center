@@ -3,7 +3,7 @@
   "schema": "ascii-kinesis.manifest.v2",
   "specimen": "v2-contact-025-friction-cone-stick-slip-support-gate",
   "lane": "contact",
-  "status": "DURABILITY_READY_PENDING_TERMINAL_ISSUE",
+  "status": "HEALTHY_USER_SURFACED",
   "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
@@ -17,7 +17,7 @@
     "exact_one_spa": true,
     "persisted": true,
     "readback": true,
-    "final_readback": false,
+    "final_readback": true,
     "build_blob": "0dca19efe1bea8acbee994b8a80ea9d3e37a1f06",
     "contact_blob": "e6040b0dbf768eb9d58ca035e359b8fffc87281d",
     "motion_blob": "76cc478476efe87d396646dc2e5410333736b3d3",
@@ -43,9 +43,9 @@
     "note": "R0 rejected metadata-dominant cone logic; SAME Contact025 authored visible cone/resultant sweep, boundary-before-slip, clamp, re-entry-before-restick; current authoritative bytes freshly reconstructed and inspected without further choreography mutation."
   },
   "validator": {"official_path": "tools/test_ascii_kinesis_swarm_contract_v2.py", "official_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78", "candidate_isolated": "PASS_CURRENT_VALIDATOR_PREDICATES", "boundary": "Exact current validator source reread; candidate-isolated structural predicates checked in Standard Chat construction. Repository-global checkout execution is not claimed."},
-  "issue_343": {"pre_delivery_receipt": 5618248070, "user_surface_closure": 5618274618, "terminal_anchor": null, "terminal_readback": false},
+  "issue_343": {"pre_delivery_receipt": 5618248070, "user_surface_closure": 5618274618, "terminal_anchor": 5618309626, "terminal_readback": true},
   "campaign": {"propagated": true, "readback": true},
   "chat_delivery": {"part1_ascii": true, "part2_json": true, "part3_video": true, "ordered": true},
   "drew_accepted": false,
-  "next_authorized": null
+  "next_authorized": "v2-contact-026"
 }
