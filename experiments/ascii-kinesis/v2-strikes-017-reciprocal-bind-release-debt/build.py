@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 from pathlib import Path
-import base64, hashlib, html, json, shutil, subprocess
+import base64, gzip, hashlib, html, json, shutil, subprocess
 from PIL import Image, ImageDraw, ImageFont
 
 OUT = Path(__file__).resolve().parent
@@ -151,15 +151,18 @@ def make_video():
         dr.text((0,8),art,font=font,fill=(245,245,245),spacing=0)
         img.save(frames/f'{f:04d}.png')
     mp4=OUT/f'{SLUG}.mp4'
-    subprocess.run(['ffmpeg','-y','-hide_banner','-loglevel','error','-framerate',str(FPS),'-i',str(frames/'%04d.png'),'-c:v','libx264','-preset','slow','-crf','34','-pix_fmt','yuv420p','-profile:v','high','-level','4.0','-movflags','+faststart','-r',str(FPS),str(mp4)],check=True)
+    subprocess.run(['ffmpeg','-y','-hide_banner','-loglevel','error','-framerate',str(FPS),'-i',str(frames/'%04d.png'),'-c:v','libx264','-preset','slow','-crf','44','-pix_fmt','yuv420p','-profile:v','high','-level','4.0','-movflags','+faststart','-r',str(FPS),str(mp4)],check=True)
     return mp4.read_bytes()
 
 def make_spa(contact_sheet, media):
     motion_text=(OUT/'motion.json').read_text(encoding='utf-8')
+    # Exact ASCII and JSON are gzip-compressed only for transport size; browser expands them into selectable literal <pre> surfaces.
+    a64=base64.b64encode(gzip.compress(contact_sheet.encode('utf-8'),mtime=0)).decode('ascii')
+    j64=base64.b64encode(gzip.compress(motion_text.encode('utf-8'),mtime=0)).decode('ascii')
+    v64=base64.b64encode(media).decode('ascii')
     css='body{margin:0;background:#0a0a0a;color:#eee;font-family:system-ui,sans-serif}nav{position:sticky;top:0;background:#111;padding:10px;display:flex;gap:8px}button{font:inherit;padding:8px 14px}section{display:none;padding:14px}section.active{display:block}pre{font-family:monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.05}video{max-width:100%;height:auto;border:1px solid #555}'
-    js="const bs=[...document.querySelectorAll('button[data-view]')],ss=[...document.querySelectorAll('section[data-panel]')];function show(v){ss.forEach(s=>s.classList.toggle('active',s.dataset.panel===v));}bs.forEach(b=>b.onclick=()=>show(b.dataset.view));show('ascii');"
-    b64=base64.b64encode(media).decode('ascii')
-    page=f'<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis Strikes017</title><style>{css}</style></head><body><nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><section data-panel="ascii"><pre>{html.escape(contact_sheet)}</pre></section><section data-panel="json"><pre>{html.escape(motion_text)}</pre></section><section data-panel="video"><video controls loop playsinline src="data:video/mp4;base64,{b64}"></video></section><script>{js}</script></body></html>'
+    js=f"""const P={{ascii:'{a64}',json:'{j64}'}};async function inflate(s){{const b=Uint8Array.from(atob(s),c=>c.charCodeAt(0));const ds=new DecompressionStream('gzip');return await new Response(new Blob([b]).stream().pipeThrough(ds)).text();}};(async()=>{{document.getElementById('ascii-pre').textContent=await inflate(P.ascii);document.getElementById('json-pre').textContent=await inflate(P.json);}})();const bs=[...document.querySelectorAll('button[data-view]')],ss=[...document.querySelectorAll('section[data-panel]')];function show(v){{ss.forEach(s=>s.classList.toggle('active',s.dataset.panel===v));}}bs.forEach(b=>b.onclick=()=>show(b.dataset.view));show('ascii');"""
+    page=f'<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ASCII Kinesis Strikes017</title><style>{css}</style></head><body><nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><section data-panel="ascii"><pre id="ascii-pre"></pre></section><section data-panel="json"><pre id="json-pre"></pre></section><section data-panel="video"><video controls loop playsinline src="data:video/mp4;base64,{v64}"></video></section><script>{js}</script></body></html>'
     (OUT/f'{SLUG}.motion.html').write_text(page,encoding='utf-8')
 
 if __name__=='__main__':
