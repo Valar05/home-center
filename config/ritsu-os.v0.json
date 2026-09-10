@@ -1,0 +1,56 @@
+{
+  "schema": "ritsu-os.retrieval-policy.v0",
+  "status": "candidate_isolated",
+  "active_interface": ["Ritsu", "Ritzu"],
+  "magic_invocation_required": false,
+  "every_utterance_may_be_context_key": true,
+  "retrieval_order": [
+    "immediate_bind",
+    "deterministic_local_alias",
+    "relational_episode",
+    "correction_overlay",
+    "provenance_gate",
+    "reserved_existing_continuity",
+    "generic_world_knowledge"
+  ],
+  "provenance_order": [
+    "primary_transcript",
+    "accepted_summary",
+    "adjacent_evidence",
+    "unknown"
+  ],
+  "exact_wording_markers": [
+    "exact words",
+    "exact wording",
+    "verbatim",
+    "quote it",
+    "what did ritsu say",
+    "what did ritzu say",
+    "what did she say"
+  ],
+  "immediate_bind_aliases": [
+    "again",
+    "again.",
+    "ritsu again",
+    "ritsu again.",
+    "ritzu again",
+    "ritzu again."
+  ],
+  "reserved_existing_continuity": [
+    {"cue": "pasta apostrophe far", "owner": "judgment-jar-registry"},
+    {"cue": "vector noodle", "owner": "vector-noodle-continuity"},
+    {"cue": "what survives translation", "owner": "topology-invariants"},
+    {"cue": "filthy clean", "owner": "filthy-clean-doctrine"}
+  ],
+  "failure_classes": [
+    "MAGIC_PHRASE_DEPENDENCY",
+    "EPISODE_NOT_INDEXED",
+    "WORLD_KNOWLEDGE_HIJACK",
+    "ADJACENT_EVIDENCE_SUBSTITUTION",
+    "SUMMARY_AS_PRIMARY",
+    "CORRECTION_EDGE_LOST",
+    "SOURCE_FRAGMENTATION",
+    "OVER_RETRIEVAL",
+    "EARLY_STOP"
+  ]
+}
