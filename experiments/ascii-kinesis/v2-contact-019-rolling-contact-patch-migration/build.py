@@ -115,7 +115,7 @@ def main():
             im.save(frame_dir/f"{index:04d}.png"); index+=1
     subprocess.run([
         "ffmpeg","-y","-loglevel","error","-framerate","24","-i",str(frame_dir/"%04d.png"),
-        "-map_metadata","-1","-c:v","libx264","-threads","1","-pix_fmt","yuv420p",
+        "-map_metadata","-1","-c:v","libx264","-threads","1","-pix_fmt","yuv420p","-crf","42",
         "-movflags","+faststart","-fflags","+bitexact","-flags:v","+bitexact",str(VIDEO)
     ],check=True)
     video=VIDEO.read_bytes()
