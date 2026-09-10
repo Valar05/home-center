@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.contact-receipt.v2",
   "experiment_id": "v2-contact-021-compliant-normal-contact-energy-return",
-  "status": "PERSISTED_NOT_DELIVERED",
+  "status": "HEALTHY_USER_SURFACED",
   "preflight": {"home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s", "home_center_campaign_read": true, "github_persistence_readback": true, "current_worker_liveness": "PASS"},
   "source": {"asset_id": 602122, "evidence_id": "1YgH5mmuXBEpf78-Cmjm4ycJAIWmWAvWqt1UNzDEx_aQ", "whole_sheet_inspected": true, "roles": ["POSE_REFERENCE", "CONTACT_REFERENCE"], "timing_authenticity": "UNKNOWN", "all_compiled_timing": "INFERRED"},
   "lineage": {"revises": null, "negative_fixture": null, "source_change": "NOT_APPLICABLE_NEW_CONCEPT", "successor_collision": false},
@@ -13,9 +13,10 @@
   },
   "media": {"fps": 24, "timing_policy": "STREET_FIGHTER/CAPCOM", "method": "AUTHORED ASCII KEYS -> EXPLICIT HOLDS/TIMING -> ASCII-ONLY FRAME RENDER -> H.264 MP4 -> SPA", "connective_motion": "NONE BETWEEN SEMANTIC CONTACT/LOAD KEYS; authored holds only.", "source_sprite_pixels_used": false, "width": 560, "height": 300, "codec": "h264", "pixel_format": "yuv420p", "frames": 30, "media_bytes": 6186, "media_sha256": "9af548c8324ab248accf99c1a7183ec79f041eda9e82956b32415e864c57f23d"},
   "contract": {"official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78", "candidate_isolated_pass": true, "execution_scope": "exact current validator source against isolated Contact021 construction; remote repository-global execution unclaimed", "repository_global_claimed": false},
-  "repository": {"persisted": true, "readback": true, "exact_six_files": true, "exact_one_spa": true, "final_readback": false, "blobs": {"build.py": "541bb54713dee7d2691fc09ee553afb9de182b66", "contact-sheet.txt": "234b398da732706243a8ff459a156b2bf04f673d", "manifest.json": "d740afebc5f01407cad8fe69fe74612bece83bf4", "motion.json": "5795c5faa0f5f41ac801b11744bf72a27ea430c3", "compliant-normal-contact-energy-return.motion.html": "5908963d297ff23f92bc34ac9de913710eba2694"}},
-  "issue": {"pre_delivery_receipt": 5611913822, "pre_delivery_receipt_readback": true, "closure": null, "closure_readback": false},
+  "repository": {"persisted": true, "readback": true, "exact_six_files": true, "exact_one_spa": true, "final_readback": true, "blobs": {"build.py": "541bb54713dee7d2691fc09ee553afb9de182b66", "contact-sheet.txt": "234b398da732706243a8ff459a156b2bf04f673d", "manifest.json": "45f13abd837f7d367b85959f05e9362d96f5d5de", "motion.json": "5795c5faa0f5f41ac801b11744bf72a27ea430c3", "compliant-normal-contact-energy-return.motion.html": "5908963d297ff23f92bc34ac9de913710eba2694"}},
+  "issue": {"pre_delivery_receipt": 5611913822, "pre_delivery_receipt_readback": true, "closure": 5611929182, "closure_readback": true},
   "campaign_propagation": {"required": true, "appended": true, "readback": true},
-  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_visible_video": false, "ordered": false},
-  "drew_accepted": false
+  "chat_delivery": {"part1_ascii": true, "part2_json": true, "part3_visible_video": true, "ordered": true},
+  "drew_accepted": false,
+  "next_authorized": "v2-contact-022"
 }
