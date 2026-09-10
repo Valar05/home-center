@@ -20,14 +20,14 @@
     "source_change": "NOT_APPLICABLE_NEW_CONCEPT"
   },
   "media": {
-    "bytes": 24269,
+    "bytes": 16895,
     "codec": "h264",
     "fps": 24,
     "frames": 19,
-    "height": 360,
+    "height": 280,
     "pix_fmt": "yuv420p",
-    "sha256": "b26b315cee8599695edf891fb9874db3589c76204f915205888c25f5dc5f50de",
-    "width": 900
+    "sha256": "0d85e707f754c03ba7f2e50d873db0d740059207cb00d99b34bbe8dac1741b76",
+    "width": 640
   },
   "pocket_rule": "WHEN SPARSE ORIENTATION SAMPLES COULD LIE ABOUT TURN DIRECTION, SPEND ONE AUTHORED WITNESS KEY AT THE AMBIGUOUS CROSSING. DO NOT TAX THE WHOLE CLIP.",
   "primary_tabs": [
@@ -39,7 +39,7 @@
   "quality": {
     "actual_media_decode": "PASS",
     "noodle_queen": "PASS",
-    "tango": "PASS_AFTER_R0_REVISION",
+    "tango": "PASS_AFTER_R0_REVISION_AND_FINAL_BUILDER_REINSPECTION",
     "validator": "PASS_CANDIDATE_ISOLATED"
   },
   "repo": {
