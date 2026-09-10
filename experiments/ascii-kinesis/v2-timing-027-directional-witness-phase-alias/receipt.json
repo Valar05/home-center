@@ -5,17 +5,17 @@
     "home_center_campaign_read": true
   },
   "delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_byte_identical_authoritative": false,
-    "part3_video": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_byte_identical_authoritative": true,
+    "part3_video": true
   },
   "entry": "v2-timing-027-directional-witness-phase-alias",
   "issue_343": {
     "pre_delivery_readback": true,
     "pre_delivery_receipt_id": 5613776133,
-    "verification_comment_id": null,
-    "verification_readback": false
+    "verification_comment_id": 5613792414,
+    "verification_readback": true
   },
   "next_authorized": null,
   "one_body": {
@@ -35,26 +35,21 @@
     "candidate_isolated_validator": "PASS_RECORDED_CANDIDATE; CURRENT_ENTRY_PREDICATES_RECONFIRMED",
     "repository_global_validator": "NOT_CLAIMED_STANDARD_CHAT_BOUNDARY",
     "current_worker_tango_visible_read": "K01 coil and left support load visibly prepare the turn; K02 release lifts; one-tick K03 cross-body witness resolves the sparse directional alias; K04 back-quadrant COM travel and K05 right-catch compression own the consequence; K06 crosses wrap without reset; K07 brake and K08 displaced restack preserve recovery debt.",
-    "current_worker_queen_judgment": "PASS TASTE+FUNCTION+CONTEMPT: one witness key solves the ambiguity without taxing the clip; body/support geometry, not the pointer alone, now carries direction and consequence.",
+    "current_worker_queen_judgment": "PASS TASTE+FUNCTION+CONTEMPT: one witness key solves the ambiguity without taxing the clip; body/support geometry, not the pointer alone, carries direction and consequence.",
     "tango_rounds": [
-      {
-        "correction": "same-body K01-K07 root/support geometry deepened: visible left coil, release lift, cross-body witness torsion, back-quadrant COM travel, right-catch compression, wrap carry, and two-support brake",
-        "highest_value_visible_defect": "task pointer carried most of the directional read while root/support/body silhouette changed too timidly, making the witness resemble a dial rather than embodied motion",
-        "round": 0,
-        "status": "REVISE_REQUIRED"
-      },
+      {"round": 0, "status": "REVISE_REQUIRED", "highest_value_visible_defect": "task pointer carried most of the directional read while root/support/body silhouette changed too timidly", "correction": "same-body K01-K07 root/support geometry deepened"},
       {"round": 1, "status": "PASS"},
       {"round": 2, "status": "PASS"},
       {"round": 3, "status": "PASS_CURRENT_WORKER_BYTE_IDENTICAL_RECONSTRUCTION"}
     ]
   },
   "repo": {
-    "commit": "ed5ef30f94cdfdb1edfa76bce8cf0d69e3b92dc2",
+    "commit": "46861c5b170bd4ab8a6f7f13c8174fc4b56cff55",
     "files": {
       "build.py": "3c39f6906f99994d9068cb380fcbc1ce828fc0fb",
       "contact-sheet.txt": "f9e60216d4b48719e5037af1409b9f02879bdf50",
       "directional-witness-phase-alias.motion.html": "9e7ae9a62ca65d986bd22b6e6aa3a84c6acd0724",
-      "manifest.json": "13ee857c1409439ba256d3e1267593efa47c975b",
+      "manifest.json": "7a9cbc48b0b8f4d5d7f6add95cbf6e35ce5b94cb",
       "motion.json": "317c3b1d25638ebc229f515eed3aada85e18661a"
     },
     "persisted": true,
@@ -71,5 +66,5 @@
     "timing_provenance": "INFERRED",
     "whole_source_inspected": true
   },
-  "status": "PERSISTED_READY_FOR_USER_SURFACE"
+  "status": "USER_SURFACED_PENDING_FINAL_DURABILITY"
 }
