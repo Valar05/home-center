@@ -9,6 +9,8 @@ A033-K0 LEFT_LEDGE_COIL | timing=FOURS | provenance=INFERRED | support=GROUND_BO
 
 
 
+
+
               O
               |   --x
               |---o
@@ -16,7 +18,7 @@ A033-K0 LEFT_LEDGE_COIL | timing=FOURS | provenance=INFERRED | support=GROUND_BO
           -o- ||
          x-    |
                @\
-             // \\
+             // \
             o/   o
            //    ||
 ===========*======*===================|~~~~~~~~~~~~~~~~|================================
@@ -33,6 +35,7 @@ A033-K0 LEFT_LEDGE_COIL | timing=FOURS | provenance=INFERRED | support=GROUND_BO
 
 
 A033-K1 RIGHT_DRIVEN_SUPPORT_BREAK | timing=ONES | provenance=INFERRED | support=RIGHT_LAST_CONTACT_TO_NONE | env=INTACT | role=earned launch leaves stable floor
+
 
 
 
@@ -107,6 +110,8 @@ A033-K3 APEX_FOLD_FOR_PANEL | timing=TWOS | provenance=INFERRED | support=NONE |
 
 
 
+
+
                                   O
                             x--   |
                               -o---|
@@ -138,6 +143,8 @@ A033-K3 APEX_FOLD_FOR_PANEL | timing=TWOS | provenance=INFERRED | support=NONE |
 
 
 A033-K4 PANEL_PRECONTACT_SEPARATION | timing=TWOS | provenance=INFERRED | support=NONE_PRECONTACT | env=INTACT | role=clear separated precontact above fragile panel
+
+
 
 
 
@@ -182,10 +189,13 @@ A033-K5 RIGHT_TOE_FRAGILE_UNDERCATCH | timing=ONES | provenance=INFERRED | suppo
 
 
 
+
+
+
                                           O     -x
                                           |+----o
                                          //\
-                                        o/  \\
+                                        o/  \
                                        //   @
                                       x   ---|
                                         --o  |
@@ -205,6 +215,8 @@ A033-K5 RIGHT_TOE_FRAGILE_UNDERCATCH | timing=ONES | provenance=INFERRED | suppo
 
 
 A033-K6 PANEL_SAG_TWO_FOOT_LOAD | timing=FOURS | provenance=INFERRED | support=BOTH_FEET_FRAGILE_PANEL_SAGGING | env=SAGGING | role=panel briefly carries full load while visibly yielding
+
+
 
 
 
@@ -252,6 +264,8 @@ A033-K7 SUPPORT_REVOCATION_BREAK | timing=ONES | provenance=INFERRED | support=F
 
 
 
+
+
                                              O
                                              |
                                             -+--
@@ -283,6 +297,14 @@ A033-K8 SECONDARY_REDROP_ARM_SPREAD | timing=ONES | provenance=INFERRED | suppor
 
 
 
+
+
+
+
+
+
+
+
                                               O
                                               |
                                          -o---+----o-
@@ -299,7 +321,16 @@ A033-K8 SECONDARY_REDROP_ARM_SPREAD | timing=ONES | provenance=INFERRED | suppor
 
 
 
+
 A033-K9 BILATERAL_RIM_FOREARM_CATCH | timing=ONES | provenance=INFERRED | support=BILATERAL_FOREARM_RIM_SUPPORT | env=BROKEN | role=upper-body arrest catches the stable rim after redrop; legs remain below
+
+
+
+
+
+
+
+
 
 
 
@@ -340,6 +371,14 @@ A033-K10 SHOULDER_CRUSH_LEG_OVERSHOOT | timing=FOURS | provenance=INFERRED | sup
 
 
 
+
+
+
+
+
+
+
+
                                                 O
                                                ||
 ======================================|x--*--- | ---*-x|================================
@@ -356,6 +395,15 @@ A033-K10 SHOULDER_CRUSH_LEG_OVERSHOOT | timing=FOURS | provenance=INFERRED | sup
 
 
 A033-K11 RIGHT_KNEE_RIM_REENTRY | timing=TWOS | provenance=INFERRED | support=FOREARMS_PLUS_RIGHT_KNEE_RIM | env=BROKEN | role=right knee earns first lower-body support while arms still carry load
+
+
+
+
+
+
+
+
+
 
 
 
@@ -392,6 +440,12 @@ A033-K12 RIGHT_FOOT_LEDGE_TRANSFER | timing=ONES | provenance=INFERRED | support
 
 
 
+
+
+
+
+
+
                                                        O   x
                                                        | o-
                                                      -+--
@@ -411,7 +465,10 @@ A033-K12 RIGHT_FOOT_LEDGE_TRANSFER | timing=ONES | provenance=INFERRED | support
 
 
 
+
 A033-K13 TWO_FOOT_RIGHT_LEDGE_RESTACK | timing=TWOS | provenance=INFERRED | support=BOTH_FEET_RIGHT_LEDGE | env=BROKEN | role=delayed second foot rebinds stable lower-body support
+
+
 
 
 
@@ -444,7 +501,10 @@ A033-K13 TWO_FOOT_RIGHT_LEDGE_RESTACK | timing=TWOS | provenance=INFERRED | supp
 
 
 
+
 A033-K14 DISPLACED_RIGHT_LEDGE_SETTLE | timing=FOURS | provenance=INFERRED | support=BOTH_FEET_RIGHT_LEDGE_NEW_ADDRESS | env=BROKEN | role=displaced settle retains leftward counterlean after recovery
+
+
 
 
 
