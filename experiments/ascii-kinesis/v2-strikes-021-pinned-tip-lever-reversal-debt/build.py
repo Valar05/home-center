@@ -92,7 +92,7 @@ def build_video(out):
     with tempfile.TemporaryDirectory() as td:
         td=Path(td)
         for i,k in enumerate(frames): render_frame(k,td/f'{i:04d}.png')
-        subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate',str(FPS),'-i',str(td/'%04d.png'),'-c:v','libx264','-crf','38','-preset','veryslow','-pix_fmt','yuv420p','-movflags','+faststart',str(out)],check=True)
+        subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate',str(FPS),'-i',str(td/'%04d.png'),'-c:v','libx264','-crf','44','-preset','veryslow','-pix_fmt','yuv420p','-movflags','+faststart',str(out)],check=True)
     return len(frames)
 
 def main():
