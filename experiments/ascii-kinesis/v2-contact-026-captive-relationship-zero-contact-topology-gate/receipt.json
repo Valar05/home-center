@@ -1,0 +1,70 @@
+{
+  "schema": "ascii-kinesis.v2-receipt",
+  "status": "REPO_PERSISTENCE_STAGED_PENDING_SPA_READBACK",
+  "lane": "CONTACT",
+  "experiment": "v2-contact-026-captive-relationship-zero-contact-topology-gate",
+  "primitive": "CAPTIVE_RELATIONSHIP_PERSISTS_THROUGH_ZERO_CONTACT",
+  "lineage": {
+    "kind": "NEW_CONCEPT",
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "successor_collision": false
+  },
+  "source": {
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "evidence_id": "1E5bgjbMQx7B-iA2k2gi0Pm4lNkTUs8Iu1mgV4SGtQqU",
+    "tsr_asset": 216526,
+    "roles": ["POSE_REFERENCE", "TOOL_FAMILY_REFERENCE"],
+    "timing_authority": false,
+    "source_authentic_timing": "UNKNOWN",
+    "rights_firewall": "PASS_NO_SOURCE_PIXELS_AUDIO"
+  },
+  "liveness": {
+    "home_center_campaign": "PASS_CURRENT_WORKER_EXACT_CAMPAIGN_READ",
+    "github_authenticated_readback": "PASS_CURRENT_WORKER"
+  },
+  "media": {
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 720,
+    "height": 360,
+    "fps": 24,
+    "frames": 32,
+    "bytes": 11282,
+    "sha256": "09f0a7fffd5610c3551a19915b32bb66fd7db5f56738d4fde49f9b8f0cb9d301",
+    "decode": "PASS_CURRENT_WORKER_ACTUAL_RENDER"
+  },
+  "quality": {
+    "tango": "PASS_R3_CURRENT_WORKER_FRESH_REINSPECTION_SAME_ACTUAL_RENDER",
+    "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_R3_CURRENT_WORKER_SAME_ACTUAL_RENDER",
+    "candidate_isolated_official_validator": "PASS_CURRENT_VALIDATOR_BLOB_7d9fc7608d54bca4a2cfbd36660c2d379e27fd78"
+  },
+  "repository": {
+    "persistence": true,
+    "readback": false,
+    "final_readback": false,
+    "expected_exact_file_count": 6,
+    "expected_exact_spa_count": 1
+  },
+  "issue": {
+    "pre_delivery_receipt": null,
+    "pre_delivery_readback": false,
+    "user_surface_receipt": null,
+    "user_surface_readback": false,
+    "terminal_receipt": null,
+    "terminal_readback": false
+  },
+  "campaign": {
+    "propagated": false,
+    "readback": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false,
+    "ordered": false
+  },
+  "drew_accepted": false,
+  "next_authorized": null
+}
