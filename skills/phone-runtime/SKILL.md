@@ -15,6 +15,11 @@ Never diagnose a failed `phone_shell` command as a Shizuku failure merely becaus
 
 If source inspection shows `phone_shell` is incorrectly behind an interaction gate, fix the canonical relay and regression test. Repository repair proves implementation only; the phone still requires the corrected relay source to be present and the relay process to be restarted before runtime callability is restored.
 
+## Shizuku bootstrap-only invariant
+Shizuku/rish is a brittle privilege entry point, never a durability dependency, health signal, or completion proof. A user-restored Shizuku session may be used only to cross an Android privilege boundary that cannot be crossed through the established background lane. Once that boundary is crossed, ordinary Home Center relay startup, polling, `phone_shell`, recovery, health checks, receipts, and self-healing must remain functional with Shizuku stopped, unpaired, or absent.
+
+Do not celebrate, preserve, or optimize a working Shizuku session as though it repaired phone control. Any design that requires Shizuku to keep background phone control alive is architecturally failed even when it currently works. Prefer a deterministic Shizuku-independent body path, and use Shizuku only for explicitly interactive Android/UI actions that genuinely require it.
+
 ## Executable handoff standard
 Whenever the user must touch Termux manually, the handoff is not complete until it contains one exact command they can paste and run immediately from their current shell.
 
