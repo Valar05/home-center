@@ -1,0 +1,423 @@
+ASCII KINESIS V2 · LOCOMOTION 022 · CURVATURE ZERO-CROSS / SUPPORT-SIGN SWAP
+plan/oblique legend: @ root · c COM-bank marker · * support owner · ~ swing foot · ! support→COM vector · O head · . authored root route · > tangent
+source evidence: The Duke / Mina the Hollower / TSR asset 566077 / Home Center artifact 1m1AEz8Wi66rICM7_aQvqwJRTqKQ29g5VzIQPmfFOxTY
+OBSERVED: commissioned evidence inspected all 61 archive PNGs; Run/Run Down/Run Up each preserve four phase slots; Turn is separate; exact source playback timing is absent.
+UNKNOWN: source chronology/exposure/root coordinates/support forces. This S-curve choreography and every timing class are INFERRED / STREET_FIGHTER-CAPCOM.
+rights firewall: independent abstract rig only; no source pixels, palette, costume, contours, layout, tracing, choreography, audio, redistribution, or close imitation.
+thesis: keep gait phase and forward travel alive while curvature demand crosses zero; bank/support-vector sign may swap only after an earned opposite-support catch; exit pays secondary yaw/bank lag without pivot or idle reset.
+
+K00 ENTRY_LEFT_CATCH · TWOS/2f · INFERRED · support=LEFT · phase=CURVE_A_ENTRY · rootΔ=0px · yaw=+18° · bank=-7° · torso=+18°
+
+
+
+
+
+                                     ........
+                              .......        ......
+                            ..                     ...
+         c\~  \\        ....                          ...
+        @-   \      ....
+        / -->.......
+       *       O
+            ////
+
+
+
+
+
+
+
+
+
+
+
+
+
+causal: establish curved running travel on a real left support catch
+
+K01 LEFT_PASS_R · ONES/1f · INFERRED · support=LEFT_UNLOADING · phase=CURVE_A_BUILD · rootΔ=22.0px · yaw=+12° · bank=-10° · torso=+16°
+
+
+
+
+
+                                     ........
+                              .......        ......
+                            ..                     ...
+           c            ....                          ...
+        .!!  \~\\\  ....
+        !//@--->....
+       */    ||T  O
+              /////
+
+
+
+
+
+
+
+
+
+
+
+
+
+causal: continue gait phase while curve-A inward demand builds
+
+K02 RIGHT_CATCH_LEFT_ARC · TWOS/2f · INFERRED · support=RIGHT · phase=CURVE_A_CATCH · rootΔ=26.0px · yaw=+5° · bank=-14° · torso=+10°
+
+
+
+
+
+                                     ........
+                              .......        ......
+                            ..                     ...
+              *c        ....                          ...
+        ..    \    \\...
+          ....@----> \\
+               /||T  O
+                 ~/
+                   //
+
+
+
+
+
+
+
+
+
+
+
+
+causal: right catch earns stronger curve-A support vector without speed clamp
+
+K03 RIGHT_PASS_L_OVERRUN · TWOS/2f · INFERRED · support=RIGHT_UNLOADING · phase=CURVE_A_OVERRUN · rootΔ=30.0px · yaw=-4° · bank=-15° · torso=+2°
+
+
+
+
+
+                                     ........
+                              .......        ......
+                            ..                     ...
+              *!!!c   \\....                          ...
+        ..     \\   ....\\
+          .......\@--->  O
+                    /~/
+                       //
+
+
+
+
+
+
+
+
+
+
+
+
+
+causal: spend tangent travel through curve-A with upper-body lag
+
+K04 LEFT_CATCH_UNWIND · TWOS/2f · INFERRED · support=LEFT · phase=CURVE_A_UNWIND · rootΔ=32.0px · yaw=-13° · bank=-12° · torso=-7°
+
+
+
+
+
+                                     ........
+                           \  .......        ......
+                      c ~ \ ..                     ...
+                      !\-->. O                        ...
+        ..          ..@-||T //
+          ..........  /   //
+                      *
+
+
+
+
+
+
+
+
+
+
+
+
+
+causal: left catch starts reducing curve-A demand before the inflection
+
+K05 LEFT_PASS_R_NEUTRALIZE · TWOS/2f · INFERRED · support=LEFT_UNLOADING · phase=INFLECTION_APPROACH · rootΔ=29.0px · yaw=-20° · bank=-7° · torso=-14°
+
+
+
+
+
+                              \      ........
+                           ~ \.......        ......
+                         c\ -T> O/                 ...
+                        !.@-   //                     ...
+        ..          ....//    /
+          ..........   /
+                      *
+
+
+
+
+
+
+
+
+
+
+
+
+
+causal: unwind bank toward neutral while phase and forward travel continue
+
+K06 RIGHT_CATCH_ZERO_CURVATURE · TWOS/2f · INFERRED · support=RIGHT · phase=ZERO_CURVATURE_JOIN · rootΔ=26.0px · yaw=-23° · bank=+0° · torso=-18°
+
+
+
+
+
+                                \\\O ........
+                           *  .-T>...        ......
+                            \c-                    ...
+                        ....   /~///                  ...
+        ..          ....
+          ..........
+
+
+
+
+
+
+
+
+
+
+
+
+
+causal: right catch carries the curvature-zero join; heading remains tangent and bank reaches neutral
+
+K07 RIGHT_PASS_L_SIGN_PROBE · ONES/1f · INFERRED · support=RIGHT_UNLOADING · phase=CURVE_B_PROBE · rootΔ=24.0px · yaw=-21° · bank=+4° · torso=-20°
+
+
+
+
+                                   \\\O
+                                 --> ........
+                           *\\\@-/...        ......
+                            ..!!c /~///            ...
+                        ....                          ...
+        ..          ....
+          ..........
+
+
+
+
+
+
+
+
+
+
+
+
+
+causal: manifest the newly earned opposite-sign demand after the zero-curvature catch without pivoting
+
+K08 LEFT_CATCH_SIGN_SWAP · TWOS/2f · INFERRED · support=LEFT · phase=CURVE_B_CATCH · rootΔ=28.0px · yaw=-15° · bank=+9° · torso=-18°
+
+
+                                       \
+                                      \
+                                     ~    O
+                                    \-->//...
+                              .....@-  /     ......
+                            ..     *               ...
+                        ....                          ...
+        ..          ....
+          ..........
+
+
+
+
+
+
+
+
+
+
+
+
+
+causal: left catch decisively owns the opposite inward support-vector sign
+
+K09 LEFT_PASS_R_BUILD · TWOS/2f · INFERRED · support=LEFT_UNLOADING · phase=CURVE_B_BUILD · rootΔ=31.0px · yaw=-7° · bank=+13° · torso=-12°
+
+
+                                           \\
+                                         ~\
+                                        \     O
+                                     ./@--->.//
+                              ......//     //......
+                            ..     *!!!c           ...
+                        ....                          ...
+        ..          ....
+          ..........
+
+
+
+
+
+
+
+
+
+
+
+
+
+causal: build curve-B while preserving nonuniform forward spacing
+
+K10 RIGHT_CATCH_OPPOSITE_ARC · TWOS/2f · INFERRED · support=RIGHT · phase=CURVE_B_PEAK · rootΔ=30.0px · yaw=+2° · bank=+15° · torso=-4°
+
+
+
+
+                                          *   \\\\\
+                                     .....!@--->  O
+                              .......     ! /......
+                            ..            c  ~ /// ...
+                        ....                          ...
+        ..          ....
+          ..........
+
+
+
+
+
+
+
+
+
+
+
+
+
+causal: right catch carries peak opposite curvature with phase continuity
+
+K11 RIGHT_PASS_L_OVERRUN · TWOS/2f · INFERRED · support=RIGHT_UNLOADING · phase=CURVE_B_OVERRUN · rootΔ=27.0px · yaw=+10° · bank=+12° · torso=+5°
+
+
+
+
+                                          *
+                                     ......\\     \\
+                              .......       !\@---> \O
+                            ..                c/  /...
+                        ....                    ~  // ...
+        ..          ....
+          ..........
+
+
+
+
+
+
+
+
+
+
+
+
+
+causal: let torso/head lag survive beyond peak curve-B demand
+
+K12 LEFT_CATCH_EXIT_UNWIND · TWOS/2f · INFERRED · support=LEFT · phase=EXIT_UNWIND · rootΔ=25.0px · yaw=+16° · bank=+7° · torso=+12°
+
+
+
+
+
+                                     ........      \~ \\
+                              .......        ....@-  \
+                            ..                   c -->
+                        ....                    *    ///O
+        ..          ....
+          ..........
+
+
+
+
+
+
+
+
+
+
+
+
+
+causal: left catch unwinds opposite bank while root keeps traveling
+
+K13 LEFT_PASS_R_CORRECT · ONES/1f · INFERRED · support=LEFT_UNLOADING · phase=EXIT_CORRECTION · rootΔ=28.0px · yaw=+19° · bank=+3° · torso=+16°
+
+
+
+
+
+                                     ........
+                              .......        ......   \~  \\
+                            ..                    //@-   \
+                        ....                    */!!c -->
+        ..          ....                                  /O
+          ..........                                    //
+
+
+
+
+
+
+
+
+
+
+
+
+
+causal: pay residual lateral/yaw debt through a shorter running correction
+
+K14 RIGHT_CATCH_DISPLACED_TANGENT · TWOS/2f · INFERRED · support=RIGHT · phase=DISPLACED_TANGENT_RECOVERY · rootΔ=31.0px · yaw=+19° · bank=+0° · torso=+18°
+
+
+
+
+
+                                     ........
+                              .......        ......
+                            ..                     ...  *
+                        ....                          ..c-   \
+        ..          ....                                 /--> \\
+          ..........                                      ~    O
+                                                           /
+                                                            //
+
+
+
+
+
+
+
+
+
+
+
+
+causal: finish on a displaced tangent with different support phase and no idle reset
