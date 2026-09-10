@@ -87,7 +87,6 @@ K02 RIGHT_CATCH_CURVE_A · TWOS/2f · INFERRED · support=RIGHT · phase=CURVE_A
 
 
 
-
 causal: right catch earns stronger curve-A lateral support without speed clamp
 
 K03 RIGHT_PASS_L_OVERRUN · TWOS/2f · INFERRED · support=RIGHT_UNLOADING · phase=CURVE_A_OVERRUN · rootΔ=28.0px · yaw=-3° · bank=-15° · torso=+4°
@@ -105,7 +104,6 @@ K03 RIGHT_PASS_L_OVERRUN · TWOS/2f · INFERRED · support=RIGHT_UNLOADING · ph
                     /~
                       /
                        //
-
 
 
 
@@ -178,7 +176,7 @@ K06 RIGHT_CATCH_PRE_ZERO · TWOS/2f · INFERRED · support=RIGHT · phase=INTRA_
 
 
 
-                               \\\\\.........
+                               \\\\\\\.........
                            *  -->. O         ...
                            .c-..                ....
                         ...   /~ ///                ...
@@ -204,7 +202,7 @@ K07 RIGHT_MIDSTANCE_ZERO_CROSS · ONES/1f · INFERRED · support=RIGHT_MIDSTANCE
 
 
 
-                                  \\\\
+                                  \\\\\
                                   >..O.......
                            *\   --T          ...
                            ..\\c|  ///          ....
@@ -316,7 +314,7 @@ K11 RIGHT_CATCH_CURVE_B · TWOS/2f · INFERRED · support=RIGHT · phase=CURVE_B
 
 
 
-                                          *    \\\\
+                                          *    \\\\\
                                   ........!@-||T  O
                                 ..         !/-->
                            .....           ! ~ /....
@@ -401,7 +399,7 @@ K14 LEFT_PASS_R_CORRECT · ONES/1f · INFERRED · support=LEFT_UNLOADING · phas
 
                                   ...........
                                 ..           ...
-                           .....                ....   ~  \\\
+                           .....                ....   ~  \\\\
                         ...                      *///c-
         ..          ....                               -->  O
           ..........                                     ////
