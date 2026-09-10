@@ -1,27 +1,27 @@
 {
   "DREW_ACCEPTED": false,
   "campaign": {
-    "final_closure_readback": false,
-    "final_closure_request_id": null
+    "final_closure_readback": true,
+    "final_closure_request_id": "ascii-kinesis-timing028-closure-20260910-0748"
   },
   "current_worker_liveness": {
     "github_persistence_readback": true,
     "home_center_campaign_read": true
   },
   "delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_byte_identical_authoritative": false,
-    "part3_video": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_byte_identical_authoritative": true,
+    "part3_video": true
   },
   "entry": "v2-timing-028-hidden-interval-state-advance",
   "issue_343": {
     "pre_delivery_readback": true,
     "pre_delivery_receipt_id": 5615001401,
-    "verification_comment_id": null,
-    "verification_readback": false
+    "verification_comment_id": 5615027773,
+    "verification_readback": true
   },
-  "next_authorized": null,
+  "next_authorized": "v2-timing-029",
   "one_body": {
     "collision": false,
     "path": "experiments/ascii-kinesis/v2-timing-028-hidden-interval-state-advance/"
@@ -33,7 +33,7 @@
     "actual_media_frames": 20,
     "actual_media_sha256": "3d4352dbbdd9a2faab2cadeac790b8ae4a0cdffefb8474cd62dfa724fab58330",
     "candidate_isolated_validator": "PASS_EXACT_OFFICIAL_VALIDATOR_BLOB_7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-    "current_worker_queen_judgment": "PASS TASTE+FUNCTION+CONTEMPT: cover removes task evidence while body/support/root continue to spend time; reveal arrives phase-forward and the displaced restack preserves post-reveal custody.",
+    "current_worker_queen_judgment": "PASS TASTE+FUNCTION+CONTEMPT: cover removes task evidence while body/support/root continue to spend time; reveal arrives phase-forward and displaced restack preserves post-reveal custody.",
     "current_worker_reconstruction": "BYTE_IDENTICAL_DETERMINISTIC_PASS",
     "current_worker_tango_visible_read": "Fresh current-worker R4 PASS with no authored mutation: clearance load precedes entry; K03/K04 advance body/root/support during genuine task occlusion; K05 reveals phase-forward; K06-K08 pay consequence/brake/restack without replay, rewind, second cover crossing, or reset.",
     "fresh_current_worker_noodle_queen": "PASS",
@@ -44,7 +44,7 @@
       {
         "round": 0,
         "status": "REVISE_REQUIRED",
-        "highest_value_visible_defect": "K07→K08 snapped the task tip back across cover, inventing a second un-authored visibility crossing that read like reverse/reset",
+        "highest_value_visible_defect": "K07→K08 snapped the task tip back across cover, inventing an un-authored second visibility crossing that read like reverse/reset",
         "correction": "keep K07/K08 task geometry on the post-reveal side while braking and restacking the displaced body"
       },
       {"round": 1, "status": "PASS"},
@@ -62,13 +62,13 @@
       "build.py": "18c23406e00a32db7a62f0e6b342665573cd523b",
       "contact-sheet.txt": "e659cf52ba2aecb2c6459deff1fd9b09e86744bc",
       "hidden-interval-state-advance.motion.html": "e5eedf4b0078fd5f3c2f310e1b8057b5db28e5cc",
-      "manifest.json": "338eb3ecd2df4b0fb4195d0aaf8e72296ec4da34",
+      "manifest.json": "f3067f321fd7e3f5054d8095be48fff1f2d8550d",
       "motion.json": "e39df9e8113db3095e56a72b22be33304ad8a1fe"
     },
+    "final_manifest_commit": "efbe50a9391087a4dd9ce6e9c9624077dae2db79",
     "persisted": true,
     "readback": true,
-    "spa_persistence_commit": "bb32d14c36abb49f39567a457054172a6babacf3",
-    "manifest_reconciliation_commit": "32cd8b8acdfd5b3909e937785790301c1133fe1d"
+    "spa_persistence_commit": "bb32d14c36abb49f39567a457054172a6babacf3"
   },
   "schema": "ascii-kinesis.receipt-v2",
   "source": {
@@ -83,5 +83,5 @@
     "timing_provenance": "INFERRED",
     "whole_source_inspected": true
   },
-  "status": "PERSISTED_READY_FOR_USER_SURFACE"
+  "status": "HEALTHY_USER_SURFACED"
 }
