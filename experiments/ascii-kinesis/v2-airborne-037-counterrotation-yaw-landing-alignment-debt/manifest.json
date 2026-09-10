@@ -80,5 +80,26 @@
     "candidate_isolated": "PASS",
     "execution_boundary": "Fresh Standard Chat read of the current official validator and exact current candidate artifacts satisfies its structural predicates; repository-global checkout/shell-suite execution is not claimed."
   },
+  "closure": {
+    "status": "HEALTHY_USER_SURFACED",
+    "issue_343": {
+      "pre_delivery_receipt": 5617467773,
+      "pre_delivery_readback": true,
+      "reporting_chat_receipt": 5617501223,
+      "reporting_chat_readback": true,
+      "terminal_durability_anchor": 5617542126,
+      "terminal_anchor_readback": true
+    },
+    "campaign_reporting_checkpoint": true,
+    "campaign_reporting_readback": true,
+    "chat_delivery": {
+      "part1_ascii": true,
+      "part2_json": true,
+      "part3_video": true,
+      "ordered": true
+    },
+    "DREW_ACCEPTED": false,
+    "next_authorized": "v2-airborne-038"
+  },
   "correction_hooks": ["KEEP", "REVISE_SAME_BODY", "RETIME", "EXAGGERATE", "COMPRESS"]
 }
