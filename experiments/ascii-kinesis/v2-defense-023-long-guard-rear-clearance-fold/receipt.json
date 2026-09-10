@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.defense-receipt-v2",
   "specimen_id": "v2-defense-023-long-guard-rear-clearance-fold",
-  "status": "REPO_VERIFIED_PENDING_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "current_worker_liveness": {
     "home_center_campaign_exact_read": true,
     "campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
@@ -49,7 +49,7 @@
       "verdict": "PASS",
       "current_worker": true,
       "round": "R0_REVALIDATION",
-      "judgment": "Threat closes before interior-shaft contact; the rear guard end folds up from the explicit clearance plane while two-hand custody remains continuous; pelvis/root and rear-heel unload follow the fold; contact is absent once the rear foot is unsupported; one-leg rear sweep, compressed catch, counter-torque, late re-span, and displaced low-ready debt remain visible."
+      "judgment": "Threat closes before interior-shaft contact; rear guard end folds upward away from the explicit clearance plane under continuous two-hand custody; pelvis/root and rear-heel unload follow the fold; contact is absent once the rear foot is unsupported; one-leg rear clearance sweep, compressed catch, counter-torque, late re-span, and displaced low-ready debt remain visible."
     },
     "noodle_queen": {
       "verdict": "PASS",
@@ -75,28 +75,33 @@
     "body_files_readback": 6,
     "spa_count_readback": 1,
     "exactly_one_spa": true,
-    "current_main_commit_before_receipt": "f9a6f63459879f4914713fed7e39b5124df53938",
-    "manifest_commit": "36c42632db5be7e002494090a34fdd00af7e6a00",
+    "current_main_commit_before_receipt": "a673300fb0108a61daabd747e1e8f9ef1cb103da",
+    "manifest_commit": "a673300fb0108a61daabd747e1e8f9ef1cb103da",
+    "pre_delivery_receipt_commit": "f83ce2804d1eb33adf8c521c66424750604ac557",
     "blobs": {
       "build.py": "0bdb3fff7db3e44c6f226de1be696f6af5c7aa83",
       "contact-sheet.txt": "0002d64710968c8578315a360ef5b632d570216c",
-      "manifest.json": "46e99dc4e732ed08369306fac1c63b701685d098",
+      "manifest.json": "8933903ecfa9aa1cfa5ce844bfade789dad32cce",
       "motion.json": "65086178f1f55f860187a2eb23a7d5f98460ac99",
       "long-guard-rear-clearance-fold.motion.html": "d97fc42d8ec8383ac02695c423dd876ed958ab32"
     },
-    "receipt_previous_blob": "a323b463998f8835ee087a1d997af73d13b4f6e4"
+    "receipt_previous_blob": "1c238a5e0891b2f66d05ccc3a036e7b42e77acc5"
   },
   "issue": {
     "number": 343,
-    "comment_id": null,
-    "readback": false
+    "comment_id": 5611890049,
+    "readback": true
   },
   "chat_delivery": {
-    "part1_complete_ascii": false,
-    "part2_persisted_json": false,
-    "part3_visible_media": false,
-    "ordered": false
+    "part1_complete_ascii": true,
+    "part2_persisted_json": true,
+    "part3_visible_media": true,
+    "ordered": true,
+    "ascii_byte_identical_to_persisted": true,
+    "json_byte_identical_to_persisted": true,
+    "video_byte_identical_to_authoritative": true,
+    "video_sha256": "98456c37455fecadf220ccb0b0c03a4688d1b29ad210e03a5ab7a6fc4dba84cb"
   },
   "drew_accepted": false,
-  "next_authorized": "NONE_UNTIL_DEFENSE023_HEALTHY"
+  "next_authorized": "DEFENSE024_AFTER_FRESH_PREFLIGHT_AND_MAIN_INVENTORY"
 }
