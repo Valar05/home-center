@@ -5,7 +5,7 @@
   "lane": "defense",
   "number": 23,
   "title": "LONG GUARD / REAR-CLEARANCE FOLD",
-  "status": "REPO_VERIFIED_PENDING_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "primary_tabs": [
     "ASCII",
     "JSON",
@@ -16,6 +16,7 @@
   "video_source": "abstract_ascii_rig_only",
   "source_art_embedded": false,
   "backward_compatible": true,
+  "spa_file": "long-guard-rear-clearance-fold.motion.html",
   "lineage": {
     "classification": "NEW_CONCEPT",
     "revises": null,
@@ -57,7 +58,7 @@
         "threat closes before midspan contact and contact occurs before maximum guard/body displacement",
         "rear guard end folds upward away from the explicit clearance plane while two-hand custody remains continuous",
         "pelvis/root displacement and rear-heel unloading follow the guard fold rather than collapsing simultaneously",
-        "the first unsupported rear-foot frame carries no active contact and flows into a visible one-leg clearance sweep",
+        "contact is absent once the rear foot is unsupported and the free rear leg visibly sweeps under single support",
         "compressed rear catch occurs before counter-torque and before late guard re-span",
         "final low-ready remains wider, lower, and displaced rather than resetting to idle"
       ]
@@ -72,6 +73,8 @@
     }
   },
   "media": {
+    "file": "long-guard-rear-clearance-fold.mp4",
+    "embedded_in_spa": true,
     "codec": "h264",
     "pixel_format": "yuv420p",
     "width": 800,
@@ -97,27 +100,32 @@
     "repo_readback": true,
     "body_files_readback": 6,
     "exactly_one_spa": true,
-    "readback_commit": "aef1acaeb00e9ef6c5325403e74b62a99a1400bf",
-    "manifest_previous_blob": "9074a4515579ef587cb9f6f226a21870924dab7d",
+    "pre_delivery_manifest_commit": "36c42632db5be7e002494090a34fdd00af7e6a00",
+    "pre_delivery_receipt_commit": "f83ce2804d1eb33adf8c521c66424750604ac557",
+    "latest_main_observed_before_final_manifest": "0c0d58953222efcddfb8fc39bbac09592302ab34",
+    "manifest_previous_blob": "46e99dc4e732ed08369306fac1c63b701685d098",
     "blobs": {
       "build.py": "0bdb3fff7db3e44c6f226de1be696f6af5c7aa83",
       "contact-sheet.txt": "0002d64710968c8578315a360ef5b632d570216c",
       "motion.json": "65086178f1f55f860187a2eb23a7d5f98460ac99",
-      "receipt.json": "a323b463998f8835ee087a1d997af73d13b4f6e4",
+      "receipt.json": "1c238a5e0891b2f66d05ccc3a036e7b42e77acc5",
       "long-guard-rear-clearance-fold.motion.html": "d97fc42d8ec8383ac02695c423dd876ed958ab32"
     }
   },
   "issue": {
     "issue": 343,
-    "receipt_comment": null,
-    "readback": false
+    "receipt_comment": 5611890049,
+    "readback": true
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_visible_video": false,
-    "ordered": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_visible_video": true,
+    "ordered": true,
+    "ascii_byte_identical_to_persisted": true,
+    "json_byte_identical_to_persisted": true,
+    "video_byte_identical_to_authoritative": true,
+    "video_sha256": "98456c37455fecadf220ccb0b0c03a4688d1b29ad210e03a5ab7a6fc4dba84cb"
   },
-  "drew_accepted": false,
-  "spa_file": "long-guard-rear-clearance-fold.motion.html"
+  "drew_accepted": false
 }
