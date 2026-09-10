@@ -1,6 +1,6 @@
 {
   "schema": "ascii-kinesis.v2-receipt",
-  "status": "REPO_PERSISTENCE_STAGED_PENDING_SPA_READBACK",
+  "status": "REPO_PERSISTED_READY_FOR_USER_SURFACE",
   "lane": "CONTACT",
   "experiment": "v2-contact-026-captive-relationship-zero-contact-topology-gate",
   "primitive": "CAPTIVE_RELATIONSHIP_PERSISTS_THROUGH_ZERO_CONTACT",
@@ -33,19 +33,24 @@
     "frames": 32,
     "bytes": 11282,
     "sha256": "09f0a7fffd5610c3551a19915b32bb66fd7db5f56738d4fde49f9b8f0cb9d301",
-    "decode": "PASS_CURRENT_WORKER_ACTUAL_RENDER"
+    "decode": "PASS_CURRENT_WORKER_FRESH_RECONSTRUCTION"
   },
   "quality": {
-    "tango": "PASS_R3_CURRENT_WORKER_FRESH_REINSPECTION_SAME_ACTUAL_RENDER",
-    "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_R3_CURRENT_WORKER_SAME_ACTUAL_RENDER",
+    "tango": "PASS_R4_CURRENT_WORKER_FRESH_RECONSTRUCTION_SAME_ACTUAL_RENDER",
+    "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_R4_CURRENT_WORKER_SAME_ACTUAL_RENDER",
     "candidate_isolated_official_validator": "PASS_CURRENT_VALIDATOR_BLOB_7d9fc7608d54bca4a2cfbd36660c2d379e27fd78"
   },
   "repository": {
     "persistence": true,
-    "readback": false,
+    "readback": true,
     "final_readback": false,
-    "expected_exact_file_count": 6,
-    "expected_exact_spa_count": 1
+    "exact_file_count": 6,
+    "exact_spa_count": 1,
+    "build_blob": "2e914f4116019d20814d2f51cd8a79a8e0ea8fc4",
+    "contact_blob": "32c8a6aa618c6b812de47e9ba968d4795bb935d8",
+    "motion_blob": "3443039113541cc9ef3cf8fbc27da10e3fd95c11",
+    "spa_blob": "3d27fbd765996db4d5d6aa3e90d7e77d093ac382",
+    "manifest_blob_at_stage": "5ce10948669d94add7fa0eb5fff26d9e7043e365"
   },
   "issue": {
     "pre_delivery_receipt": null,
