@@ -1,0 +1,302 @@
+ASCII KINESIS V2 CONTACT021 — COMPLIANT NORMAL CONTACT ENERGY RETURN
+Source evidence: TSR asset 602122 Meatman / Chasm / PC; POSE_REFERENCE + CONTACT_REFERENCE only; timing UNKNOWN.
+All displayed rig geometry/choreography/cadence is abstract authored INFERRED evidence transfer. No source pixels.
+Legend: # wall  * authored contact  x COM  + pelvis  < wall-normal load cue  _ ground
+
+C021-K0 READY_SEPARATE [FOURS | INFERRED]  contact=SEPARATE load=0.00 compression=0.00
+
+
+                                                     #
+                                                     #
+                                                     #
+                           O                         #
+                           |                         #
+                           o                         #
+                         o-|-o-                      #
+                        /  |   -o-                   #
+                       o   |      ----               #
+                      /    |          -o             #
+                     o     +                         #
+                          / \                        #
+                         /   \                       #
+                        o     o                      #
+                        |      |                     #
+                       |       |                     #
+                       |        |                    #
+  _____________________o________o____________________#________
+                                                     #
+
+
+
+C021-K1 APPROACH_ASYMMETRIC [TWOS | INFERRED]  contact=SEPARATE load=0.00 compression=0.00
+
+
+                                                     #
+                                                     #
+                                                     #
+                                  O                  #
+                                  |                  #
+                                 -o                  #
+                               o- |-o--              #
+                             //   |    --o-          #
+                            o    |         ---       #
+                           /     |            -o     #
+                           /     +                   #
+                          o     / \                  #
+                              //   \                 #
+                             o      o                #
+                            |        \               #
+                            |         \              #
+                           |          \              #
+  _________________________o___________o_____________#________
+                                                     #
+
+
+
+C021-K2 PRECONTACT_ELIGIBLE_GAP [ONES | INFERRED]  contact=PRECONTACT_ELIGIBLE load=0.00 compression=0.00
+
+
+                                                     #
+                                                     #
+                                                     #
+                                     O               #
+                                     |               #
+                                    -o               #
+                                  o- |-o--           #
+                                //   |    ---o-      #
+                               o    |          ---   #
+                              /     |             -o #
+                              /     +                #
+                             o     / \               #
+                                 //   \              #
+                                o      o             #
+                               |        \            #
+                               |         \           #
+                              |          \           #
+  ____________________________o___________o__________#________
+                                                     #
+
+
+
+C021-K3 TOUCH_ZERO_LOAD [TWOS | INFERRED]  contact=WALL_TOUCH_ZERO_LOAD load=0.00 compression=0.05
+
+
+                                                     #
+                                                     #
+                                                     #
+                                       O             #
+                                       |             #
+                                      -o             #
+                                    o- |-o--         #
+                                  //  |     ---o-    #
+                                 o    |          --  #
+                                /    |             -*#
+                                /    +               #
+                               o    / \              #
+                                  //   \             #
+                                 o      o            #
+                                |        \           #
+                                |         \          #
+                               |          \          #
+  _____________________________o___________o_________#________
+                                                     #
+
+
+
+C021-K4 COMPRESSION_LOAD_ONSET [TWOS | INFERRED]  contact=WALL_CONTACT_LOADED load=0.35 compression=0.45
+
+
+                                                     #
+                                                   < #
+                                                     #
+                                                     #
+                                          O          #
+                                          |          #
+                                         -o          #
+                                       o-/ -o--      #
+                                     //  /     --o-  #
+                                    o   /          -*#
+                                   /    /            #
+                                   /   +             #
+                                  o   / \            #
+                                    //   \           #
+                                   o      o          #
+                                  /       |          #
+                                //         |         #
+  _____________________________o___________o_________#________
+                                                     #
+
+
+
+C021-K5 COMPRESSION_LOAD_MAX [FOURS | INFERRED]  contact=WALL_CONTACT_LOADED load=1.00 compression=1.00
+
+
+                                                     #
+                                               <<<<< #
+                                                     #
+                                                     #
+                                                     #
+                                                     #
+                                                     #
+                                               O     #
+                                               |     #
+                                           -o--o-o-o*#
+                                        o--   /      #
+                                       /    //       #
+                                       /   +x        #
+                                      o  -- \        #
+                                       --   \        #
+                                    -o-      o       #
+                                 ---        /        #
+  _____________________________o___________o_________#________
+                                                     #
+
+
+
+C021-K6 ENERGY_RETURN_CONTACT_HELD [FOURS | INFERRED]  contact=WALL_CONTACT_RETURNING load=0.58 compression=0.62
+
+
+                                                     #
+                                                 <<< #
+                                                     #
+                                                     #
+                                                     #
+                                             O       #
+                                            |        #
+                                         o--o-o-     #
+                                       --  /    -o-  #
+                                     o-   /        -*#
+                                    /    /           #
+                                    /   +            #
+                                   o  // \           #
+                                    //    \          #
+                                   o       o         #
+                                  /        |         #
+                                //         |         #
+  _____________________________o___________o_________#________
+                                                     #
+
+
+
+C021-K7 UNLOAD_TOUCH_ZERO [TWOS | INFERRED]  contact=WALL_TOUCH_ZERO_LOAD load=0.00 compression=0.18
+
+
+                                                     #
+                                                     #
+                                                     #
+                                                     #
+                                          O          #
+                                         |           #
+                                      o--o-o-        #
+                                    --  /    --      #
+                                  o-   /       -o-   #
+                                 /     /          --*#
+                                 /    +              #
+                                o    / \             #
+                                   //   \            #
+                                  o      o           #
+                                 /        |          #
+                                /         |          #
+                                /          |         #
+  _____________________________o___________o_________#________
+                                                     #
+
+
+
+C021-K8 AUTHORED_RELEASE_GAP [ONES | INFERRED]  contact=SEPARATED_AFTER_ZERO_LOAD load=0.00 compression=0.00
+
+
+                                                     #
+                                                     #
+                                                     #
+                                                     #
+                                       O             #
+                                      |              #
+                                   o--o-o-           #
+                                 --  /    --         #
+                               o-   /       -o--     #
+                              /     /           --o  #
+                              /    +                 #
+                             o    / \                #
+                                //   \               #
+                               o      o              #
+                              |        \             #
+                              |         \            #
+                             |           \           #
+  ___________________________o____________o__________#________
+                                                     #
+
+
+
+C021-K9 RECOIL_OVERRUN_REAR_CATCH [TWOS | INFERRED]  contact=SEPARATE load=0.00 compression=0.00
+
+
+                                                     #
+                                                     #
+                                                     #
+                                  O                  #
+                                 |                   #
+                                -o                   #
+                             -o-/ -o--               #
+                          o--   /     --o-           #
+                         /     /          --         #
+                        o      /            -o       #
+                              +                      #
+                             / \                     #
+                            /   \                    #
+                           o     \                   #
+                           |      o                  #
+                          |        \\                #
+                          |          \\              #
+  ________________________o____________o_____________#________
+                                                     #
+
+
+
+C021-K10 COUNTER_OVERSHOOT [TWOS | INFERRED]  contact=SEPARATE load=0.00 compression=0.00
+
+
+                                                     #
+                                                     #
+                                                     #
+                             O                       #
+                              |                      #
+                              o-                     #
+                            o-| -o                   #
+                          --   |  --                 #
+                        o-     |    -o               #
+                       /        |     --             #
+                      o         +       -o           #
+                               / \                   #
+                             //   \                  #
+                            o      o                 #
+                           |        \                #
+                           |         \               #
+                          |           \              #
+  ________________________o____________o_____________#________
+                                                     #
+
+
+
+C021-K11 READY_DISPLACED_DEBT [FOURS | INFERRED]  contact=SEPARATE load=0.00 compression=0.00
+
+
+                                                     #
+                                                     #
+                                                     #
+                               O                     #
+                               |                     #
+                               o-                    #
+                             o-| -o                  #
+                           //  |   --                #
+                          o    |     -o              #
+                         /     |       \\            #
+                        o      +         o           #
+                              / \                    #
+                             /   \\                  #
+                            o      o                 #
+                            |       \                #
+                           |         \               #
+                           |         \               #
+  _________________________o__________o______________#________
+                                                     #
