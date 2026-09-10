@@ -5,11 +5,7 @@
   "title": "Defense025 — Step-Down Line Break / Height Handoff",
   "lane": "defense",
   "repo_path": "experiments/ascii-kinesis/v2-defense-025-step-down-line-break-height-handoff/",
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "contact_sheet_file": "contact-sheet.txt",
   "motion_file": "motion.json",
@@ -37,17 +33,8 @@
     "whole_source": "187×432 static PNG; whole sheet inspected in commissioned evidence; four labeled families Idle/Walking/Charge/Using Stairs",
     "source_timing": "UNKNOWN"
   },
-  "timing": {
-    "authored_compile": "INFERRED",
-    "policy": "STREET_FIGHTER-CAPCOM",
-    "fps": 24
-  },
-  "rights_firewall": {
-    "source_pixels": false,
-    "source_audio": false,
-    "tracing": false,
-    "close_imitation": false
-  },
+  "timing": {"authored_compile": "INFERRED", "policy": "STREET_FIGHTER-CAPCOM", "fps": 24},
+  "rights_firewall": {"source_pixels": false, "source_audio": false, "tracing": false, "close_imitation": false},
   "quality": {
     "tango": {
       "round0": "REVISE_REQUIRED",
@@ -57,10 +44,7 @@
       "round1_reason": "Fresh byte-identical 51-frame reconstruction visibly preserves upper brace, lower probe, mixed-height support gate, earned root drop under the high line, post-clearance upper-foot release, unsupported trailing sweep, lower-base catch/compression, counter-rise, late guard reopening, and displaced lower-root debt."
     },
     "noodle_queen": {
-      "taste": "PASS",
-      "function": "PASS",
-      "contempt": "PASS",
-      "after_tango_round": 1,
+      "taste": "PASS", "function": "PASS", "contempt": "PASS", "after_tango_round": 1,
       "reason": "The riser remains a mechanical antagonist rather than scenery; the split-height catch, low threat-clearance silhouette, trailing-foot debt, lower-base compression, and late readiness return are specific and readable."
     },
     "validator": {
@@ -70,25 +54,16 @@
     }
   },
   "media": {
-    "codec": "h264",
-    "pix_fmt": "yuv420p",
-    "width": 800,
-    "height": 450,
-    "fps": 24,
-    "frames": 51,
-    "duration_seconds": 2.125,
-    "bytes": 21372,
+    "codec": "h264", "pix_fmt": "yuv420p", "width": 800, "height": 450, "fps": 24, "frames": 51,
+    "duration_seconds": 2.125, "bytes": 21372,
     "sha256": "38f224d8cc3aa98aa68dc69a83b39ce871c0e71ca22b258aaa10fd9305b70039",
-    "decode_verified": true,
-    "embedded_authoritative": true,
-    "fresh_byte_identical_reconstruction": true
+    "decode_verified": true, "embedded_authoritative": true, "fresh_byte_identical_reconstruction": true
   },
   "repo": {
-    "persisted": true,
-    "repo_readback": true,
-    "body_files_readback": 6,
-    "spa_count": 1,
+    "persisted": true, "repo_readback": true, "body_files_readback": 6, "spa_count": 1,
     "pre_reconciliation_main_commit": "78fa92da42d6938d4411891f74ea9f17d444869b",
+    "reconciliation_manifest_commit": "1fe23ecdb268268ab981ce1504ce5060090d948e",
+    "pre_chat_receipt_commit": "757ce6e80b0946cc9231c84806f8b7ad8d87ee83",
     "body_blobs": {
       "build.py": "713a9d145cabb53ee945a18a57319583809d6663",
       "contact-sheet.txt": "5c358af1bd07525d0f80923d781a3fa9887b6fe9",
@@ -96,19 +71,9 @@
       "step-down-line-break-height-handoff.motion.html": "52a9057b11a1713b5318d9ba8cc94b9a24ccf280"
     }
   },
-  "issue": {
-    "pre_chat_receipt": null,
-    "readback": false
-  },
-  "campaign": {
-    "closure_propagated": false,
-    "readback": false
-  },
-  "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false
-  },
+  "issue": {"pre_chat_receipt": 5614995885, "readback": true},
+  "campaign": {"closure_propagated": false, "readback": false},
+  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_video": false},
   "status": "REPO_VERIFIED_PENDING_CHAT_DELIVERY",
   "drew_accepted": false
 }
