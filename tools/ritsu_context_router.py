@@ -11,7 +11,7 @@ import argparse
 import json
 import re
 import unicodedata
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
@@ -54,6 +54,24 @@ def _load_jsonl(path: Path) -> list[dict[str, Any]]:
             raise ValueError(f"{path}:{line_no}: record must be an object")
         records.append(item)
     return records
+
+
+def _stable_primary_text(source: Any) -> str | None:
+    """Return primary text only when it has a stable durable source binding.
+
+    ``text`` alone is not primary evidence. Without a non-empty ``source_id`` the
+    router must fall through to accepted summary / adjacent evidence so anonymous
+    copied prose cannot silently erase a continuity gap.
+    """
+    if not isinstance(source, Mapping):
+        return None
+    source_id = source.get("source_id")
+    text = source.get("text")
+    if not isinstance(source_id, str) or not source_id.strip():
+        return None
+    if not isinstance(text, str) or not text.strip():
+        return None
+    return text.strip()
 
 
 @dataclass(frozen=True)
@@ -135,9 +153,9 @@ class RitsuContextRouter:
                 raise ValueError(
                     f"active retrieval {record.get('id')!r} has invalid status {status!r}"
                 )
-            if status == "closed" and not self._has_readable_primary(self.episodes[episode_id]):
+            if status == "closed" and not self._primary_closure_ready(episode_id):
                 raise ValueError(
-                    f"active retrieval {record.get('id')!r} cannot close without readable primary transcript"
+                    f"active retrieval {record.get('id')!r} cannot close without stable primary transcript and correction evidence"
                 )
             self.active_retrieval_by_episode[episode_id] = record
 
@@ -180,12 +198,23 @@ class RitsuContextRouter:
             raise ValueError("policy provenance order diverges from router contract")
 
     @staticmethod
-    def _has_readable_primary(episode: Mapping[str, Any]) -> bool:
-        for source in episode.get("primary_sources") or []:
-            text = source.get("text") if isinstance(source, Mapping) else None
-            if isinstance(text, str) and text.strip():
-                return True
-        return False
+    def _has_readable_primary(record: Mapping[str, Any]) -> bool:
+        return any(
+            _stable_primary_text(source) is not None
+            for source in record.get("primary_sources") or []
+        )
+
+    def _primary_closure_ready(self, episode_id: str) -> bool:
+        episode = self.episodes[episode_id]
+        if not self._has_readable_primary(episode):
+            return False
+        corrections = self.corrections.get(episode_id, [])
+        for correction in corrections:
+            if correction.get("edge") != "CORRECTED_BY":
+                return False
+            if not self._has_readable_primary(correction):
+                return False
+        return True
 
     def _active_retrieval_payload(self, episode_id: str) -> dict[str, Any] | None:
         record = self.active_retrieval_by_episode.get(episode_id)
@@ -217,8 +246,8 @@ class RitsuContextRouter:
 
     def _best_content(self, episode: Mapping[str, Any]) -> tuple[str, str | None]:
         for source in episode.get("primary_sources") or []:
-            text = source.get("text") if isinstance(source, Mapping) else None
-            if isinstance(text, str) and text.strip():
+            text = _stable_primary_text(source)
+            if text is not None:
                 return "primary_transcript", text
         summary = episode.get("accepted_summary")
         if isinstance(summary, str) and summary.strip():
@@ -245,7 +274,7 @@ class RitsuContextRouter:
         if tier not in PROVENANCE_RANK:
             raise ValueError(f"unknown provenance tier {tier!r}")
         has_primary = tier == "primary_transcript"
-        active_retrieval = None if has_primary else self._active_retrieval_payload(episode_id)
+        active_retrieval = None if self._primary_closure_ready(episode_id) else self._active_retrieval_payload(episode_id)
         if exact_wording and not has_primary:
             return RouteResult(
                 status="CONTINUITY_GAP",
@@ -259,7 +288,7 @@ class RitsuContextRouter:
                 seek_primary=True,
                 required_provenance="primary_transcript",
                 active_retrieval=active_retrieval,
-                reason="exact wording requested but no readable primary transcript is bound",
+                reason="exact wording requested but no stably bound primary transcript is available",
             )
 
         return RouteResult(
@@ -271,7 +300,7 @@ class RitsuContextRouter:
             content=content,
             corrections=correction_effects,
             world_knowledge_allowed=False,
-            seek_primary=not has_primary,
+            seek_primary=not self._primary_closure_ready(episode_id),
             active_retrieval=active_retrieval,
             reason=reason,
         )
@@ -468,11 +497,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument("--active-retrieval", type=Path)
     args = parser.parse_args(list(argv) if argv is not None else None)
     router = RitsuContextRouter(args.policy, args.ledger, args.active_retrieval)
-    state = (
-        {"last_episode_id": args.last_episode_id}
-        if args.last_episode_id
-        else None
-    )
+    state = {"last_episode_id": args.last_episode_id} if args.last_episode_id else None
     print(
         json.dumps(
             router.resolve(
