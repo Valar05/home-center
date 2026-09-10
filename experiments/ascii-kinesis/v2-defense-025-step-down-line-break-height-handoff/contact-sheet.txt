@@ -1,0 +1,257 @@
+ASCII KINESIS V2 DEFENSE025 — STEP-DOWN LINE BREAK / HEIGHT HANDOFF
+SOURCE: TSR asset 81106 Bullwinkle — NES | commissioned evidence 1zQGdJx7uIqTnvJlHp2NfydUu_EDDNvt01tCAlQvlYQ8 | whole 187x432 static sheet inspected.
+ROLE: STYLE_REFERENCE | source timing UNKNOWN | authored timing INFERRED / STREET_FIGHTER-CAPCOM.
+PRINCIPLE: lower probe -> mixed-height trusted catch -> earned root drop under high line -> old-height release -> trailing lower catch -> counter-rise -> late guard reopen.
+LEGEND: # trusted foot | ? probe | x unsupported | @ pelvis | O head | <---- threat | stair/riser is literal terrain.
+RIGHTS: abstract ASCII only; no source pixels/palette/contours/costume/layout/tracing/choreography/audio.
+
+K00 UPPER_READY [FOURS/INFERRED] SUPPORT=L U#+R U#
+THREAT=DISTANT_HIGH_LINE | GUARD=ASYM_READY
+ROOT: root stacked on upper tread; stance already asymmetric
+ROLE: establish upper-tread ready before the threat owns the lane
+
+                      O
+                      |          <--------
+                 o----o---o
+               +-|    |   |-+
+                 o    |   o
+                      |
+                      @
+                     / \
+                    /  \
+                   o    o
+                  /      \
+             ____#________#_______________
+             |
+_____________|
+
+
+K01 HIGH_LINE_READ_BRACE [FOURS/INFERRED] SUPPORT=L U#+R U#
+THREAT=CLOSING_HIGH_LINE | GUARD=HIGH_GUARD_BRACE
+ROOT: pelvis lowers slightly but remains fully upper-supported
+ROLE: brace and spend vertical mobility before attempting the step-down
+
+
+                     O       <------------
+                    -o---o  +
+                +o-- |   |//
+                ||   |   o
+                 o   |
+                     |
+                     @
+                   // \\
+                  o     o
+                 |       \
+             ____#________#_______________
+             |
+_____________|
+
+
+K02 LOWER_FOOT_RELEASE [TWOS/INFERRED] SUPPORT=L x+R U#
+THREAT=CLOSING_HIGH_LINE | GUARD=HIGH_GUARD_HELD
+ROOT: root does not descend merely because a foot left the upper tread
+ROLE: free the retreat-side foot while the upper foot still owns all root load
+
+
+                    O    <----------------
+                   -o---o  +
+               +o-- |   |//
+               ||   |   o
+                o   |
+                    |
+                    @
+                  // --
+                -o     -o
+              x-         \
+             _____________#_______________
+             |
+_____________|
+
+
+K03 LOWER_TREAD_PROBE [TWOS/INFERRED] SUPPORT=L L?+R U#
+THREAT=LINE_NEAR_HEAD | GUARD=GUARD_NARROW
+ROOT: pelvis height stays upper-level while left contact is only a probe
+ROLE: touch lower tread without granting it root authority
+
+
+                   O  <-------------------
+                  -o----o  +
+              +o-- |    |//
+              ||   |    o
+               o   |
+                   |
+                   @
+                 // --
+                o     -o
+               /        \\
+             _____________#_______________
+            /|
+___________?__|
+
+
+K04 LOWER_CATCH_MIXED_HEIGHT [ONES/INFERRED] SUPPORT=L L#+R U#
+THREAT=LINE_AT_CLEARANCE_GATE | GUARD=GUARD_NARROW
+ROOT: mixed-height dual support is the permission gate for vertical evasion
+ROLE: lower contact becomes trustworthy before any root drop
+
+
+                   O----------------------
+                 --o---o  +
+              +--  |   |//
+              |    |   o
+              o    |
+                   |
+                   @
+                  / --
+                //    -o
+               o        \\
+             _____________#_______________
+            /|
+___________#__|
+
+
+K05 EARNED_ROOT_DROP_UNDER_LINE [TWOS/INFERRED] SUPPORT=L L#+R U^
+THREAT=THREAT_PASSES_ABOVE | GUARD=COMPRESSED_COVER
+ROOT: root descends discretely toward lower tread; upper forefoot becomes residual brace
+ROLE: drop the body below the line only after lower support is authoritative
+
+
+                <-------------------------
+
+                 O
+               --o---o  +
+            +--  |   |//
+            |    |   o
+            o    |
+                 @-
+                /  --
+              //     -o-
+             o____________#_______________
+            /|
+___________#__|
+
+
+K06 CLEARANCE_CONFIRMED_UPPER_RELEASE [ONES/INFERRED] SUPPORT=L L#+R x
+THREAT=HIGH_LINE_CONTINUES_PAST | GUARD=COMPRESSED_COVER
+ROOT: left lower tread owns root; trailing foot lifts clear of the riser
+ROLE: release the upper foot only after the head and root are already below the threat
+
+
+            <-----------------------------
+
+              O
+             -o----o
+           o- |    |  +
+          +|  |    |//
+           o  |    o
+              @-
+             /  --
+             /    -o--x
+            o_____________________________
+          // |
+_________#___|
+
+
+K07 TRAIL_SWEEP_BELOW_RISER [TWOS/INFERRED] SUPPORT=L L#+R x
+THREAT=THREAT_BEYOND_BODY | GUARD=LOW_GUARD_DRAG
+ROOT: no midair hop: one lower foot owns the body through the entire sweep
+ROLE: carry the free trailing leg below the old support height while the root stays low
+
+
+       <----------------------------------
+
+            O
+           -o----o
+         o- |    | +
+        +|  |    |/
+         o  |    o
+            @
+           / \\
+          /    \\
+         o   ____x________________________
+        /    |
+_______#_____|
+
+
+K08 TRAIL_CATCH_LOWER_COMPRESSION [TWOS/INFERRED] SUPPORT=L L#+R L#
+THREAT=THREAT_BEYOND_BODY | GUARD=LOW_GUARD_DRAG
+ROOT: both lower contacts land left of the riser and absorb; pelvis remains compressed until catch is paid
+ROLE: second lower-tread catch closes the step-down on actual lower support, without springing upright
+
+
+    <-------------------------------------
+
+         O
+        -o---o
+     o-- |   |  +
+    +|   |   |//
+     o   |   o
+         @
+        / \
+       /   \\
+      o      o____________________________
+     /      ||
+____#_______#|
+
+
+K09 COUNTER_RISE_WITH_GUARD_LAG [TWOS/INFERRED] SUPPORT=L L#+R L#
+THREAT=CLEARED | GUARD=GUARD_RECOVERY_LAG
+ROOT: counter-rise occurs entirely over the new lower base; no support exists beneath the old upper address
+ROLE: rise from the new lower support base while the rear guard deliberately lags
+
+
+
+         O
+        -o----o
+      o- |    |
+     +|  |    |
+      o  |    o--+
+         @
+        / \\
+       /    \\
+      o       o
+     /       _____________________________
+     /       |
+____#_______#|
+
+
+K10 LATE_GUARD_REOPEN [FOURS/INFERRED] SUPPORT=L L#+R L#
+THREAT=CLEARED | GUARD=GUARD_REOPENING
+ROOT: torso untwists over the lower tread; right hand remains late and no upper-tread reset occurs
+ROLE: reopen guard only after both lower supports and root height are trustworthy
+
+
+          O
+          |
+      o---o---o
+    +-|   |    | -+
+      o   |    o-
+          |
+          @
+         / \
+        /   \\
+       o      o
+      /      _____________________________
+      /      |
+_____#______#|
+
+
+K11 LOWER_READY_WITH_VERTICAL_DEBT [FOURS/INFERRED] SUPPORT=L L#+R L#
+THREAT=CLEARED | GUARD=ASYM_LOW_READY
+ROOT: new lower root address persists left of the riser; stance and hands remain slightly staggered
+ROLE: finish ready on the lower tread with visible displaced guard and stance debt
+
+
+          O
+          |
+      o---o---o
+    +-|   |    |-+
+      o   |    o
+          |
+          @
+         / \
+        /   \\
+       o      o
+      /      _____________________________
+      /      |
+_____#______#|
