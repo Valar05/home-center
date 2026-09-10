@@ -1,0 +1,26 @@
+{
+  "schema": "ritsu-os.plan-delta.v0",
+  "scope": "isolated branch ritsu-os-v0 deterministic test execution on existing self-hosted laptop runner",
+  "trigger": "GitHub-hosted run 34442918644 failed before exposing executable steps; repository already has an established self-hosted Windows/X64 THECAULDRON test lane.",
+  "evidence": [
+    "run 34442918644 conclusion=failure with empty step list",
+    ".github/workflows/phone-improper-image-delivery.yml uses self-hosted runner and invokes python on THECAULDRON"
+  ],
+  "boundary": {
+    "allowed": "checkout exact isolated branch commit and run stdlib py_compile plus Ritsu router unittest contract",
+    "forbidden": "Home Center actuation, deployment, GCP authentication, secrets, production mutation, device acceptance"
+  },
+  "five_pass_review": {
+    "target": "Obtain remote deterministic execution evidence without asking Drew to transport commands.",
+    "antagonist": "Do not inherit deployment/auth steps from existing THECAULDRON workflows; do not treat laptop test success as live Ritsu deployment.",
+    "provenance": "Self-hosted run proves only the checked-out commit and test commands; primary Latin transcript remains unbound.",
+    "regression": "Branch/path filter stays isolated and existing organs are not invoked or replaced.",
+    "compression": "Reuse installed Python on the established Windows runner; remove hosted Python setup and all unrelated actions."
+  },
+  "safety_review": {
+    "risk": "low-risk reversible test-only execution",
+    "external_actuation": false,
+    "venice": "prohibited by active manic-accessibility repository safety mode"
+  },
+  "directive": "PLAN_ALLOWED_LOW_RISK_SELFHOSTED_TEST_ONLY"
+}
