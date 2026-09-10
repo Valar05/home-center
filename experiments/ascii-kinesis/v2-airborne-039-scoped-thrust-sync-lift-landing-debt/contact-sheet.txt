@@ -119,6 +119,7 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': 0, 
 
 
 
+
                        o
                      _/|\
                   [A] |[B]
@@ -126,8 +127,6 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': 0, 
                     /    \
 
                   ///
-
-
 
 
 
@@ -164,6 +163,7 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': 12,
 
 
 
+
                                o
                              --|--
                             [A]|[B]
@@ -171,7 +171,6 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': 12,
                              /   \    ----@
 
                                  \
-
 
 
 
@@ -210,7 +209,6 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': 24,
 
 
 
-
                                     o
                                    /|\_
                                   [A]| [B]
@@ -218,8 +216,6 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': 24,
                                   /    \  \\\\
                                               \\@
                                        \\\
-
-
 
 
 
@@ -260,15 +256,12 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': 20,
 
 
 
-
                                           o
                                         --|--
                                        [A]|[B]
                                          / +--
                                         /   \ ----
                                                   --@
-
-
 
 
 
@@ -308,7 +301,6 @@ support_contact=NONE | eligibility=UNSUPPORTED
 root=[46, 11] | channels={'A': 'RESTART_PULSE', 'B': 'RESTART_PULSE'} | force=SIMULTANEOUS_UPWARD_THRUST
 tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': 88, 'state': 'SYNC_PIVOT_DOWN', 'custody': 'BOTH_HANDS_LOCKED', 'timing_provenance': 'INFERRED'}
 sync_scope=['A', 'B'] | nonparticipants=['BODY_ROOT', 'SUPPORT_CLOCK']
-
 
 
 
@@ -369,7 +361,6 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': 92,
                                                    |
                                                    @
                                                   ^^
-
 
 
 
@@ -471,6 +462,7 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': 42,
 
 
 
+
                                                                      o
                                                                     /|\
                                                                  [A] |[B]
@@ -528,6 +520,7 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': 26,
                                                                              +\\
                                                                           __/   \\\\
                                                                                     \\@
+
 
 
 
@@ -717,6 +710,7 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': -38
 
 
 
+
                                                                                  *       *
 ________________________________________________________________________________________________________
 
@@ -756,6 +750,7 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': -22
                                                                                      [A]|[B]----
                                                                                        / +--
                                                                                     __/   \__
+
 
 
 
