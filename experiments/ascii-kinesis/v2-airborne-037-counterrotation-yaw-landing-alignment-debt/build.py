@@ -129,29 +129,6 @@ def all_states(motion):
                 out.append((transition_state(k,b,t,float(tr.get("root_arc",0.0))),k["key_id"],tr["curve"]))
     return out
 
-def contact_sheet_text(motion):
-    blocks=[]
-    for k in motion["keys"]:
-        st=semantic_state_from_key(k); rows=grid_for_state(motion,st)
-        nonempty=[i for i,r in enumerate(rows) if r.strip()]
-        lo=max(0,min(nonempty)-1); hi=min(len(rows),max(nonempty)+2)
-        blocks.append(
-            f'{k["key_id"]}  {k["label"]}  {k["timing_class"]} / {k["timing_provenance"]}\n'
-            f'ROLE: {k["causal_role"]}\n'
-            f'SUPPORT: {",".join(k["support_contact"]) if k["support_contact"] else "NONE"} | '
-            f'UPPER_YAW: {k["upper_yaw_deg"]:+.0f} | LOWER_YAW: {k["lower_yaw_deg"]:+.0f} | {k["velocity_hint"]}\n'
-            f'ROOT: {k["motion_arc_root_note"]}\n'
-            + "\n".join(rows[lo:hi]).rstrip()+"\n"
-        )
-    return (
-        "ASCII KINESIS V2 - AIRBORNE037\n"
-        "PRIMITIVE: AIRBORNE_COUNTERROTATION_YAW_LANDING_ALIGNMENT_DEBT\n"
-        "SOURCE ART: NONE - abstract ASCII rig only\n"
-        "READ ORDER: coiled axis bank -> support break -> unsupported upper/lower counterrotation -> apex orientation split -> landing-axis lock -> separated precontact -> right-toe yaw brake -> torsional crush -> delayed trail-foot catch -> rebound counterswing -> displaced restack\n"
-        "LAW: FACING MAY CHANGE IN AIR WITHOUT ROOT DIRECTION CHANGING; SUPPORT MUST PAY HEADING/VELOCITY MISALIGNMENT.\n\n"
-        + "\n".join(blocks)
-    )
-
 def get_font(size=14):
     candidates=[
         "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
@@ -179,13 +156,12 @@ def render_mp4(motion,out_path):
                 if y0+rr*line_h>=h: break
                 d.text((x0,y0+rr*line_h),lines[row_i][view_x0:view_x1],font=font,fill=(238,238,238))
             img.save(td/f"frame_{i:04d}.png",optimize=False)
-        cmd=[
+        subprocess.run([
             "ffmpeg","-hide_banner","-loglevel","error","-y",
             "-framerate",str(fps),"-i",str(td/"frame_%04d.png"),
-            "-c:v","libx264","-preset","veryslow","-crf","42","-pix_fmt","yuv420p",
+            "-c:v","libx264","-preset","veryslow","-crf","28","-pix_fmt","yuv420p",
             "-movflags","+faststart","-metadata","creation_time=1970-01-01T00:00:00Z",str(out_path)
-        ]
-        subprocess.run(cmd,check=True)
+        ],check=True)
     return len(states)
 
 def compact_gzip_b64(text: str) -> str:
@@ -196,12 +172,11 @@ def make_spa(motion,ascii_text,mp4_bytes):
     a=compact_gzip_b64(ascii_text)
     j=compact_gzip_b64(js)
     v=base64.b64encode(mp4_bytes).decode("ascii")
-    return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Airborne037 - Counterrotation Yaw Landing Alignment Debt</title><style>body{{margin:0;background:#0b0d10;color:#e8eaed;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}}nav{{position:sticky;top:0;background:#11151a;padding:10px;border-bottom:1px solid #444}}button{{font:inherit;margin-right:8px;padding:8px 14px}}section{{display:none;padding:14px}}section.active{{display:block}}pre{{white-space:pre;overflow:auto;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;line-height:1.08}}video{{max-width:100%;height:auto;background:#000}}</style></head><body><nav><button data-view="ascii" onclick="show('ascii')">ASCII</button><button data-view="json" onclick="show('json')">JSON</button><button data-view="video" onclick="show('video')">VIDEO</button></nav><section id="ascii" class="active"><h1>ASCII</h1><pre id="asciipre"></pre></section><section id="json"><h1>JSON</h1><pre id="jsonpre"></pre></section><section id="video"><h1>VIDEO</h1><video id="v" controls loop playsinline src="data:video/mp4;base64,{v}"></video><p>Compiled solely from abstract ASCII rig + authored timing. No source pixels or audio.</p></section><script>const A="{a}",J="{j}";async function ungz(s){{const b=Uint8Array.from(atob(s),c=>c.charCodeAt(0));return await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'))).text()}}Promise.all([ungz(A),ungz(J)]).then(([a,j])=>{{document.getElementById('asciipre').textContent=a;document.getElementById('jsonpre').textContent=j}});function show(id){{document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}}</script></body></html>'''
+    return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Airborne037 — Counterrotation Yaw Landing Alignment Debt</title><style>body{{margin:0;background:#0b0d10;color:#e8eaed;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}}nav{{position:sticky;top:0;background:#11151a;padding:10px;border-bottom:1px solid #444}}button{{font:inherit;margin-right:8px;padding:8px 14px}}section{{display:none;padding:14px}}section.active{{display:block}}pre{{white-space:pre;overflow:auto;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;line-height:1.08}}video{{max-width:100%;height:auto;background:#000}}</style></head><body><nav><button data-view="ascii" onclick="show('ascii')">ASCII</button><button data-view="json" onclick="show('json')">JSON</button><button data-view="video" onclick="show('video')">VIDEO</button></nav><section id="ascii" class="active"><h1>ASCII</h1><pre id="asciipre"></pre></section><section id="json"><h1>JSON</h1><pre id="jsonpre"></pre></section><section id="video"><h1>VIDEO</h1><video id="v" controls loop playsinline src="data:video/mp4;base64,{v}"></video><p>Compiled solely from abstract ASCII rig + authored timing. No source pixels or audio.</p></section><script>const A="{a}",J="{j}";async function ungz(s){{const b=Uint8Array.from(atob(s),c=>c.charCodeAt(0));return await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'))).text()}}Promise.all([ungz(A),ungz(J)]).then(([a,j])=>{{document.getElementById('asciipre').textContent=a;document.getElementById('jsonpre').textContent=j}});function show(id){{document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}}</script></body></html>'''
 
 def main():
     motion=json.loads(MOTION_PATH.read_text(encoding="utf-8"))
-    ascii_text=contact_sheet_text(motion)
-    CONTACT_PATH.write_text(ascii_text,encoding="utf-8")
+    ascii_text=CONTACT_PATH.read_text(encoding="utf-8")
     frames=render_mp4(motion,MP4_PATH)
     media=MP4_PATH.read_bytes()
     SPA_PATH.write_text(make_spa(motion,ascii_text,media),encoding="utf-8")
