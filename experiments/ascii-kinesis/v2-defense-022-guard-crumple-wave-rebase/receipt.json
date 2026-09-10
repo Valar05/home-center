@@ -5,7 +5,7 @@
   "lane": "defense",
   "number": 22,
   "title": "GUARD CRUMPLE / WAVE REBASE",
-  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_READBACK",
+  "status": "REPO_VERIFIED_PENDING_ISSUE_AND_CHAT_DELIVERY",
   "lineage": {
     "revises": null,
     "negative_fixture": null,
@@ -75,17 +75,20 @@
   },
   "repo": {
     "persisted": true,
-    "repo_readback": false,
-    "body_files_readback": 0,
-    "exactly_one_spa": false,
+    "repo_readback": true,
+    "body_files_readback": 6,
+    "exactly_one_spa": true,
     "current_main_commit_before_receipt": "794c4733df43cbb357d8e0503e9bde3c9a7046e4",
     "blobs": {
       "build.py": "985f86c23884412f1b716216869fe53f94860c10",
       "contact-sheet.txt": "63c198361257df01d8eec87f1d79783b48b19c10",
-      "manifest.json": "d51907bddd231a35d63f268224846f99105668c3",
+      "manifest.json": "a1826ad89e9d20964998361e8fe9d4bf88a9c752",
       "motion.json": "e9f5d55ce0bad6904b58dcc4cda859ab02968f1f",
-      "guard-crumple-wave-rebase.motion.html": "cbdf3ee02a95e80a966ce673445292f9eb53a4b5"
-    }
+      "guard-crumple-wave-rebase.motion.html": "cbdf3ee02a95e80a966ce673445292f9eb53a4b5",
+      "receipt.json": "92bda1531a8612f872a3cd986e025a2d56ed39a7"
+    },
+    "readback_commit": "18b8c1c9f9121dd24cbc49f45f43286f4baca7a7",
+    "receipt_previous_blob": "92bda1531a8612f872a3cd986e025a2d56ed39a7"
   },
   "issue": {
     "issue": 343,
