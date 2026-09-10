@@ -1,0 +1,350 @@
+ASCII KINESIS V2 CONTACT027 — OVERLAPPING CUSTODY TRANSFER / NO-FREE-STATE GATE
+Primitive: OVERLAPPING_CUSTODY_TRANSFER_WITHOUT_FREE_STATE
+Pocket rule: TOUCH DOES NOT TELEPORT OWNERSHIP. B earns eligibility, contact, then load authority before A may release; the baton never enters FREE state.
+Legend: O head | P root | x COM | o hand | * hand/object contact | [====] baton | ! trusted support | ~ unloaded/probe | ? precontact | < > load authority | a/b/B custody witness
+Source role: commercial source evidence only. No source pixels, palette, costume, contours, layout, choreography, audio, tracing, or close imitation enter this artifact.
+
+K0 READ_CARRIED [FOURS/INFERRED]
+REL=A_OWNS CUSTODY=A A_CONTACT=True B_CONTACT=False LOAD_A=1.00 LOAD_B=0.00
+A_ROOT=[26, 20] A_LEAN=0 A_SUPPORT=BOTH | B_ROOT=[72, 20] B_LEAN=0 B_SUPPORT=BOTH
+ROLE=Establish unmistakable A-owned carried object and generous negative space before B commits.
+
+
+
+
+
+
+
+
+
+
+                          O                                             O
+                          |                                             |
+                           -     <<<<                                  -
+                        --| -- -------*===========]           o----- -- |--
+                          |                                             |
+                     --   x                 A                           x   --
+                    h     |                                             |     h
+                          |                                             |
+                          |                                             |
+                          P                                             P
+                         / \                                           / \
+                        /   --                                       --   \
+                       /      \                                     /      \
+ _____________________!________!___________________________________!________!__________________
+                          A                                             B
+
+
+K1 B_PREP_COUNTERLEAN [FOURS/INFERRED]
+REL=A_OWNS CUSTODY=A A_CONTACT=True B_CONTACT=False LOAD_A=1.00 LOAD_B=0.00
+A_ROOT=[27, 20] A_LEAN=2 A_SUPPORT=REAR_DOMINANT | B_ROOT=[70, 21] B_LEAN=-3 B_SUPPORT=REAR_DOMINANT
+ROLE=B spends root/stance before reach; A counteroffers without surrendering custody.
+
+
+
+
+
+
+
+
+
+
+                            O
+                            |                                       O
+                             -     <<<<                              |
+                          --| -- -------*===========]      o---     -
+                            |                                  -- -- |--
+                       --   x                 A                      |
+                      h     |                                       x    --
+                           |                                         |     h
+                           |                                          |
+                           P                                          |
+                          / \                                         P
+                         /   --                                     -- \
+                        /      \                                  --    --
+ ______________________!________~________________________________~________!____________________
+                           A                                          B
+
+
+K2 B_ELIGIBLE_PRECONTACT [TWOS/INFERRED]
+REL=B_ELIGIBLE CUSTODY=A A_CONTACT=True B_CONTACT=False LOAD_A=1.00 LOAD_B=0.00
+A_ROOT=[29, 21] A_LEAN=3 A_SUPPORT=REAR_DOMINANT | B_ROOT=[66, 22] B_LEAN=-5 B_SUPPORT=FRONT_PROBE
+ROLE=B hand enters capture corridor but leaves a visible one-cell gap; eligibility precedes contact.
+
+
+
+
+
+
+
+
+
+
+
+                               O
+                              |                                O
+                               -     <<<<                       |
+                            --| -- -------*===========]?o--    -
+                              |                            - -- |--
+                         --    x                A                |
+                        h     |                                x    --
+                             |                                   |    h
+                             |                                    |
+                             P                                    |
+                            / --                                 -P
+                          --    --                             --  --
+ ________________________!________~__________________________!________~________________________
+                             A                                    B
+
+
+K3 DUAL_CONTACT_ACQUIRE [ONES/INFERRED]
+REL=DUAL_CONTACT CUSTODY=A_PRIMARY_B_CONTACT A_CONTACT=True B_CONTACT=True LOAD_A=0.88 LOAD_B=0.12
+A_ROOT=[31, 21] A_LEAN=3 A_SUPPORT=REAR_DOMINANT | B_ROOT=[64, 22] B_LEAN=-5 B_SUPPORT=FRONT_CATCH
+ROLE=B earns geometric contact; ownership does not teleport merely because both hands touch.
+
+
+
+
+
+
+
+
+
+
+
+                                 O
+                                |                            O
+                                 -    <<<<                    |
+                              --| -- ------*===========*-    -
+                                |                        - -- |--
+                           --    x               a             |
+                          h     |                            x    --
+                               |                               |    h
+                               |                                |
+                               P                                |
+                              / --                             -P
+                            --    --                         --  --
+ __________________________!________~______________________!________~__________________________
+                               A                                B
+
+
+K4 LOAD_SHARE_PROOF [FOURS/INFERRED]
+REL=DUAL_LOAD CUSTODY=DUAL_A_PRIMARY A_CONTACT=True B_CONTACT=True LOAD_A=0.65 LOAD_B=0.35
+A_ROOT=[33, 20] A_LEAN=-1 A_SUPPORT=REAR_DOMINANT | B_ROOT=[61, 21] B_LEAN=-2 B_SUPPORT=FRONT_DOMINANT
+ROLE=Visible baton cant and opposing root response prove B is carrying real load while A still owns more.
+
+
+
+
+
+
+
+
+
+
+                                 O
+                                 |                          O
+                                  -                       > |
+                               --| -- -              ===*  -
+                                 |     -<<<    ======    -- |--
+                            --  x          -*==             |
+                           h     |                a         x   --
+                                 |                          |     h
+                                 |                           |
+                                 P                           |
+                                / \                          P
+                               /   --                      -- \
+                              /      \                   --    --
+ ____________________________!________~_________________!________~_____________________________
+                                 A                           B
+
+
+K5 OWNERSHIP_CROSSOVER [TWOS/INFERRED]
+REL=DUAL_LOAD CUSTODY=DUAL_B_PRIMARY A_CONTACT=True B_CONTACT=True LOAD_A=0.35 LOAD_B=0.65
+A_ROOT=[31, 19] A_LEAN=-5 A_SUPPORT=FRONT_CATCH | B_ROOT=[59, 20] B_LEAN=2 B_SUPPORT=REAR_DOMINANT
+ROLE=Ownership crosses while both contacts persist; root/COM polarity flips before release.
+
+
+
+
+
+
+
+
+
+
+                            O
+                             |                              O
+                              -                             >>>
+                           --| -- -                      =*-
+                              |    ---                ===-- |--
+                        --  x         ---         ====      |
+                       h      |          --<   ===          x   --
+                               |            -*=     b       |     h
+                               |                           |
+                               P                           |
+                              / \                          P
+                             |   \                        / \
+                             |    \                     --   \
+                            /      \                   /      \
+ __________________________~________!_________________~________!_______________________________
+                               A                           B
+
+
+K6 B_FULL_SUPPORT_AUTHORITY [FOURS/INFERRED]
+REL=B_SUPPORT_PROVEN CUSTODY=DUAL_B_FULL A_CONTACT=True B_CONTACT=True LOAD_A=0.08 LOAD_B=0.92
+A_ROOT=[29, 19] A_LEAN=-6 A_SUPPORT=FRONT_LIGHT | B_ROOT=[57, 19] B_LEAN=4 B_SUPPORT=REAR_DOMINANT
+ROLE=B must visibly own nearly all load with a stable support chain before A is eligible to release.
+
+
+
+
+
+
+
+
+
+
+                         O                                  O
+                          |                                | >>>>
+                           -                             -=*
+                        --| -- -                       === |--
+                           |    ----                ===   |
+                     --  x          ----          ==       x   --
+                    h       |           ----   ===  B     |      h
+                            |               -*=          |
+                             |                           |
+                             P                           P
+                            / \                         / \
+                           |   \                       /   |
+                           |    \                     /    |
+                          /      \                   /      \
+ ________________________~________!_________________~________!_________________________________
+                             A                           B
+
+
+K7 A_RELEASE_NO_FREE_STATE [ONES/INFERRED]
+REL=B_OWNS CUSTODY=B A_CONTACT=False B_CONTACT=True LOAD_A=0.00 LOAD_B=1.00
+A_ROOT=[27, 20] A_LEAN=-7 A_SUPPORT=FRONT_CATCH | B_ROOT=[58, 19] B_LEAN=4 B_SUPPORT=REAR_DOMINANT
+ROLE=A contact opens only after B load authority exists; object has no FREE frame.
+
+
+
+
+
+
+
+
+
+
+                                                             O
+                       O                                    |>>>>
+                        |                                 =*
+                         -                             ===- |--
+                      --| -- -                      ===    |
+                         |    ---                 ==        x   --
+                   --  x         ----          ===  B      |      h
+                  h       |          ---     [=           |
+                          |             -o                |
+                           |                              P
+                           P                             / \
+                          / \                           /   |
+                         /   --                        /    |
+                        /      \                      /      \
+ ______________________~________!____________________~________!________________________________
+                           A                              B
+
+
+K8 B_DRIVE_A_RECOIL [TWOS/INFERRED]
+REL=B_OWNS CUSTODY=B A_CONTACT=False B_CONTACT=True LOAD_A=0.00 LOAD_B=1.00
+A_ROOT=[24, 21] A_LEAN=-5 A_SUPPORT=REAR_CATCH | B_ROOT=[62, 19] B_LEAN=5 B_SUPPORT=FRONT_DRIVE
+ROLE=B carries object away while A's released hand and torso lag behind the transfer.
+
+
+
+
+
+
+
+
+
+
+                                                                >>>>
+                                                             =* |
+                     O                                    ===  -
+                      |                                ===      |--
+                       -                             ==        |
+                    --| -- -                      ===            x  --
+                       |    ----                [=     B       |      h
+                 --  x          ----                          |
+                h      |            --o                       |
+                        |                                     P
+                        |                                    / \
+                        P                                   /   |
+                       / --                                /    |
+                     --    --                             /      \
+ ___________________!________~___________________________!________~____________________________
+                        A                                     B
+
+
+K9 B_OVERSHOOT [TWOS/INFERRED]
+REL=B_OWNS CUSTODY=B A_CONTACT=False B_CONTACT=True LOAD_A=0.00 LOAD_B=1.00
+A_ROOT=[23, 20] A_LEAN=-2 A_SUPPORT=BOTH_RECOVER | B_ROOT=[66, 18] B_LEAN=6 B_SUPPORT=FRONT_CATCH
+ROLE=Receiver and baton overshoot the nominal carry line; A remains displaced rather than snapping idle.
+
+
+
+
+
+
+
+
+
+                                                                    >>>>
+                                                                 =*- |
+                      O                                        ==   -
+                      |                                      ==      |--
+                       -                                  ===       |
+                    --| -- -                            ==            x  --
+                      |     ----                      ==   B       |       h
+                 --   x         ----                [=             |
+                h     |             -o                            |
+                       |                                          P
+                       |                                         / |
+                       P                                        /  |
+                      / \                                      |    \
+                     /   --                                    |     |
+                    /      \                                  /      |
+ __________________!________!________________________________!________~________________________
+                       A                                          B
+
+
+K10 DISPLACED_SETTLE [FOURS/INFERRED]
+REL=B_OWNS CUSTODY=B A_CONTACT=False B_CONTACT=True LOAD_A=0.00 LOAD_B=1.00
+A_ROOT=[25, 20] A_LEAN=0 A_SUPPORT=BOTH | B_ROOT=[63, 20] B_LEAN=1 B_SUPPORT=BOTH
+ROLE=B settles with custody; A recovers to a new displaced stance instead of reverse-interpolating to K0.
+
+
+
+
+
+
+
+
+
+
+                         O                                     O
+                         |                                     | >>>>
+                          -                                 ===*
+                       --| -- ----                    ======-- |--
+                         |        -----o          [===         |
+                    --   x                              B       x  --
+                   h     |                                     |     h
+                         |                                     |
+                         |                                     |
+                         P                                     P
+                        / \                                   / \
+                       /   --                               --   \
+                      /      \                             /      \
+ ____________________!________!___________________________!________!___________________________
+                         A                                     B
