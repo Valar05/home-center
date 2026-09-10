@@ -1,20 +1,20 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "id": "v2-strikes-024-impact-created-tool-support-release-debt",
-  "status": "REPO_VERIFIED_READY_FOR_USER_SURFACE",
+  "status": "HEALTHY_USER_SURFACED",
   "current_worker_preflight": {"home_center_campaign":"PASS_FRESH_EXACT:1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s","github":"PASS_FRESH_AUTHENTICATED"},
-  "source": {"evidence":"1L34d3S-4Q_xBZEUE1t20VKszFKFINVZOLn1e8YOKd6k","pass":"STRIKES PASS 004 — VERIFIED","asset_id":2879,"source_timing":"UNKNOWN","timing_authority":false,"rights_firewall":"PASS"},
+  "source": {"evidence":"1L34d3S-4Q_xBZEUE1t20VKszFKFINVZOLn1e8YOKd6k","pass":"STRIKES PASS 004 — VERIFIED","asset_id":2879,"source_timing":"UNKNOWN","timing_authority":false,"authored_timing":"INFERRED / STREET_FIGHTER-CAPCOM","rights_firewall":"PASS"},
   "media": {"codec":"H.264","pixel_format":"yuv420p","width":800,"height":360,"fps":24,"frames":33,"bytes":18284,"sha256":"13f1992b34f5baf9aa76a3e99df2bcf6273d6ec4f519d990e51fb23aa9cbe19f","decode":"PASS","spa_embed":"BOUND_TO_EXACT_BYTES_AT_PERSISTENCE","current_worker_rebuild":"BYTE_IDENTICAL_SHA_AND_SIZE_PASS"},
   "quality": {
-    "tango": {"round":"R1_FRESH_AUTOMATION_ACTUAL_RENDER_REINSPECTION","verdict":"PASS","media_sha256":"13f1992b34f5baf9aa76a3e99df2bcf6273d6ec4f519d990e51fb23aa9cbe19f","judgment":"All 33 displayed frames were reconstructed byte-identically and inspected. K05 acquires a ground-pinned third support, K06 visibly overruns it with rear support airborne, K07-K08 reclaim bilateral foot ownership before K09 release, and K10-K15 pay rebound with overshoot, hand/shoulder lag, support reentry, and displaced settle. No authored mutation earned."},
-    "noodle_queen": {"verdict":"PASS","media_sha256":"13f1992b34f5baf9aa76a3e99df2bcf6273d6ec4f519d990e51fb23aa9cbe19f","taste":"The hammer briefly becomes load-bearing architecture rather than just a prop at an endpoint.","function":"Impact, root overrun, temporary tool support, foot handoff, explicit release, rebound overshoot, secondary lag, and displaced settlement are separately readable.","contempt":"No cheap bounce-back and no reverse-playback recovery; release is earned by support transfer first."}
+    "tango": {"round":"R1_FRESH_AUTOMATION_ACTUAL_RENDER_REINSPECTION","verdict":"PASS","media_sha256":"13f1992b34f5baf9aa76a3e99df2bcf6273d6ec4f519d990e51fb23aa9cbe19f","judgment":"Fresh current-worker inspection of the byte-identical 33-frame render passes the support-release debt thesis. Tool-ground support is acquired before overrun, retained through compression, relinquished only after bilateral foot ownership returns, then rebound overshoot and hand/shoulder lag pay the event into a displaced settle."},
+    "noodle_queen": {"verdict":"PASS","media_sha256":"13f1992b34f5baf9aa76a3e99df2bcf6273d6ec4f519d990e51fb23aa9cbe19f","taste":"The hammer becoming temporary architecture is specific enough to remember and legible enough to teach.","function":"The causal chain remains readable in the actual media rather than metadata alone.","contempt":"Cheap bounce-back is refused; release is gated by support transfer and recovery does not reverse the attack."}
   },
-  "repository": {"build_blob":"bfe26c00b88fca0802481d5fddc781198f08a399","contact_blob":"32c1175e1dc2a18db5a006fa43d18d5015b6a7f6","motion_blob":"309774e4bcee989990faf58d2643c8aab0610f36","spa_blob":"9a3a44b6dcb6a05bdc582a7f8ac7082356bb0942","manifest_blob":"938bfe1ed697a5c83de55996a2d481caf121b441","receipt_blob":"SELF_THIS_WRITE","exact_six_files_one_spa":"PASS_CURRENT_MAIN","readback":"PASS_CURRENT_MAIN_EXACT_PRE_CHAT","final_readback":"PENDING_USER_SURFACE"},
+  "repository": {"build_blob":"bfe26c00b88fca0802481d5fddc781198f08a399","contact_blob":"32c1175e1dc2a18db5a006fa43d18d5015b6a7f6","motion_blob":"309774e4bcee989990faf58d2643c8aab0610f36","spa_blob":"9a3a44b6dcb6a05bdc582a7f8ac7082356bb0942","manifest_blob":"ac031cbb54f9b51770763b63f635472941042e1d","receipt_blob":"SELF_THIS_WRITE","exact_six_files_one_spa":"PASS_CURRENT_MAIN","readback":"PASS_CURRENT_MAIN_EXACT_AFTER_USER_SURFACE","final_readback":"PASS_CURRENT_MAIN_EXACT_AFTER_USER_SURFACE"},
   "ascii_authority": {"part1":"TRACKED_CONTACT_SIDECAR","contact_blob":"32c1175e1dc2a18db5a006fa43d18d5015b6a7f6","spa_ascii":"COMPLETE_SELECTABLE_DETERMINISTIC_BUILDER_OUTPUT","byte_identity_between_sidecar_and_spa_ascii":false},
   "validator": {"official_v2":"PASS_CANDIDATE_ISOLATED","validator_blob":"7d9fc7608d54bca4a2cfbd36660c2d379e27fd78","scope":"Current official validator predicates pass for isolated Strikes024; repo-global execution remains unclaimed at Standard Chat boundary."},
-  "issue343": {"pre_chat_receipt":5623126039,"readback":true,"user_surface":null,"terminal_durable_addendum":null},
-  "campaign": {"pre_chat_binding":"ascii-kinesis-strikes024-pre-chat-binding-20260910","pre_chat_readback":true,"user_surface":"PENDING","terminal_binding":"PENDING","terminal_self_binding":"PENDING"},
-  "chat_delivery": {"part1":false,"part2":false,"part3":false},
+  "issue343": {"pre_chat_receipt":5623126039,"pre_chat_readback":true,"user_surface":5623301361,"user_surface_readback":true,"terminal_durable_addendum":5623314082,"terminal_addendum_finalization":"EXTERNAL_SAME_COMMENT_AFTER_IMMUTABLE_REPO_AND_CAMPAIGN_BINDING"},
+  "campaign": {"pre_chat_binding":"ascii-kinesis-strikes024-pre-chat-binding-20260910","pre_chat_readback":true,"user_surface":"ascii-kinesis-strikes024-user-surface-20260910","user_surface_readback":true,"terminal_binding":"ascii-kinesis-strikes024-terminal-binding-20260910","terminal_self_binding":"ascii-kinesis-strikes024-terminal-self-binding-20260910","binding_strategy":"EXTERNAL_BINDING_NAMES_IMMUTABLE_FINAL_MANIFEST_RECEIPT_PAIR_TO_AVOID_RECURSIVE_HASH_CHURN"},
+  "chat_delivery": {"part1":true,"part2":true,"part3":true,"ordered":true},
   "DREW_ACCEPTED": false,
-  "next_authorized": null
+  "next_authorized": "v2-strikes-025"
 }
