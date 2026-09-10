@@ -1,0 +1,47 @@
+{
+  "schema": "home-center.primary-phone-rescue-bootstrap.v1",
+  "date": "2026-09-10",
+  "owner": "Drew",
+  "commission": "Restore durable Home Center phone control without making Shizuku load-bearing or using Drew as ongoing command transport.",
+  "rescueBootstrap": {
+    "status": "RESCUE_READY",
+    "deviceId": "primary-phone-rescue-v1",
+    "pid": 5729,
+    "sourceSha256": "a18096e9affd54d0ac580de3bd5f329060164ec818f125096779d196e8cbff5d",
+    "mainRelayPid": 15928,
+    "mainHeartbeatAgeSecondsAtBootstrap": 1,
+    "normalRuntimeMutated": false,
+    "shizukuRequired": false,
+    "rescueState": "/data/data/com.termux/files/home/.local/state/home-center/rescue-relay/primary-phone-rescue-v1",
+    "bootstrapSourceCommit": "0f9a1f7868717d98bf5170cd1856b789aa991c77",
+    "bootstrapPath": "tools/bootstrap_home_center_rescue_relay.sh",
+    "evidenceOrigin": "operator-visible Termux output from the hardened immutable bootstrap command"
+  },
+  "shizukuPolicy": {
+    "stateAtReport": "reconnected by operator",
+    "role": "bootstrap privilege entry point only",
+    "durabilityDependency": false,
+    "completionEvidence": false,
+    "canonicalSkillCommit": "5785d52d6872a46423807809bf34fd7ccdf4b716"
+  },
+  "chatgptIngress": {
+    "state": "BLOCKED_TRANSIENT_TOOL_REGISTRY",
+    "observation": "In the same ChatGPT turn, Home Center command_center_operation was discovered, immediate direct invocation returned Resource not found, and subsequent discovery removed the Home Center namespace.",
+    "phoneRebootstrapRequired": false,
+    "nextAuthorizedTransition": "Reacquire callable Home Center command_center_operation, list primary-phone-rescue-v1, enqueue one harmless bounded phone_shell canary to that device, and read the completed receipt.",
+    "canonicalSkillCommit": "91d4f926b65df3202166a5890bd7e5245eabd6fd"
+  },
+  "capabilityTruth": {
+    "primaryPhoneNormalRelay": "heartbeat was fresh at bootstrap; queue consumption previously observed starved",
+    "rescueRelayLocalHomeCenterReachability": "PROVEN by fresh bootstrap heartbeat",
+    "chatgptToRescueEnqueue": "NOT YET PROVEN because current ChatGPT Home Center ingress disappeared",
+    "shizukuIndependentBackgroundControl": "IMPLEMENTED and rescue bootstrap reports SHIZUKU_REQUIRED=0; end-to-end ChatGPT canary still pending",
+    "phoneControlAccepted": false
+  },
+  "doNotDo": [
+    "Do not rerun the rescue bootstrap merely because ChatGPT lacks Home Center tools.",
+    "Do not reinterpret Shizuku reconnection as phone-control durability.",
+    "Do not substitute GitHub, desktop, another remote-control product, or Drew's shell as completion proof without explicit boundary-change approval.",
+    "Do not claim restored phone control until Home Center returns an actual completed phone_shell receipt from primary-phone-rescue-v1 or the repaired primary-phone lane."
+  ]
+}
