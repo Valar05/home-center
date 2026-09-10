@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-airborne-035-moment-of-inertia-tuck-rate-landing-debt",
-  "status": "REPO_PERSISTENCE_IN_PROGRESS",
+  "status": "REPO_VERIFIED_PENDING_CHAT_DELIVERY",
   "preflight": {
     "home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
     "home_center_campaign_read": "PASS_CURRENT_WORKER",
@@ -33,19 +33,19 @@
     "height": 432,
     "fps": 24,
     "frames": 55,
-    "bytes": 26802,
-    "sha256": "7665163461c4ab9f22e19a0fd05b3b6f94e1dc3602f9be0761fbb657ec818526",
+    "bytes": 13303,
+    "sha256": "2edad1bc1947c008c6cfd265d0b6f8d943ae8367542b32ec6744afdecc728c7f",
     "decode": "PASS_FULL_FFMPEG_CURRENT_WORKER"
   },
   "quality": {
     "actual_render_inspected": true,
     "tango": {
-      "rounds": [
+      "history": [
         "R0 REVISE_REQUIRED — weighted tool custody under-read because the shaft visually detached during the radius-change phase; SAME-body correction anchored the rigid shaft to BOTH authored hand endpoints and added explicit grip links.",
-        "R1 PASS_CURRENT_WORKER_ACTUAL_RENDER"
+        "R1 PASS on corrected persisted render."
       ],
-      "final": "PASS_CURRENT_WORKER_ACTUAL_RENDER",
-      "render_sha256": "7665163461c4ab9f22e19a0fd05b3b6f94e1dc3602f9be0761fbb657ec818526",
+      "current_worker_reinspection": "PASS_CURRENT_WORKER_ACTUAL_RENDER",
+      "render_sha256": "2edad1bc1947c008c6cfd265d0b6f8d943ae8367542b32ec6744afdecc728c7f",
       "highest_value_visible_defect": "NONE_AT_ACCEPTANCE_SCALE"
     },
     "noodle_queen": {
@@ -53,8 +53,8 @@
       "taste": "PASS",
       "function": "PASS",
       "contempt": "PASS",
-      "render_sha256": "7665163461c4ab9f22e19a0fd05b3b6f94e1dc3602f9be0761fbb657ec818526",
-      "note": "Wide loaded mass -> authored gather -> visibly faster compact rotation -> re-extension brake -> toe-first crush -> delayed catch -> tool/torso overshoot is specific and causally readable rather than a generic flip."
+      "render_sha256": "2edad1bc1947c008c6cfd265d0b6f8d943ae8367542b32ec6744afdecc728c7f",
+      "note": "Wide loaded mass -> authored gather -> visibly faster compact rotation -> re-extension brake -> toe-first crush -> delayed catch -> tool/torso overshoot remains a specific causal sentence rather than a generic flip."
     },
     "post_pass_motion_churn": false,
     "DREW_ACCEPTED": false
@@ -66,11 +66,18 @@
     "repo_global": "UNCLAIMED_STANDARD_CHAT_BOUNDARY"
   },
   "repo": {
-    "persisted": false,
-    "final_readback": false,
-    "exact_one_spa": false,
-    "six_file_readback": false,
-    "current_blobs": {}
+    "persisted": true,
+    "final_readback": true,
+    "exact_one_spa": true,
+    "six_file_readback": true,
+    "current_blobs": {
+      "build.py": "78c6e4734f49b02a80bb555eabc1007056c2b4f1",
+      "contact-sheet.txt": "41e6a21e79523b7bbdd2732c9d7bda268a4b1079",
+      "manifest.json": "9725eb97e2297608c68569cbf00c8e505e9b9b47",
+      "motion.json": "9226d597817365938466a16a3846a5a4b282a20d",
+      "airborne-tool-radius-rate-landing-debt.motion.html": "1ececb822eb0170bb66121d2055ca571edc84668"
+    },
+    "manifest_reconciliation_commit": "a1b29e998db949cac98e258249f299b5f2dd9534"
   },
   "issue_343": {
     "closure_receipt": null,
@@ -88,6 +95,9 @@
     "closure_appended": false,
     "readback": false
   },
+  "corrections": [
+    "REPOSITORY_BOOKKEEPING_DRIFT_RECONCILED: stale manifest/receipt media identity 766516... was superseded by exact current motion+builder reconstruction 2edad1...; choreography, source, lineage, and body identity were not changed."
+  ],
   "DREW_ACCEPTED": false,
   "next_authorized": null
 }
