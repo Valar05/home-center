@@ -5,11 +5,7 @@
   "slug": "v2-locomotion-024-pole-plant-third-support-runout",
   "lane": "LOCOMOTION",
   "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_CHAT_DELIVERY",
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
@@ -75,7 +71,7 @@
   },
   "artifact_reconciliation": {
     "current_build_motion_reconstruction_sha256": "fddffe48bdcd497dad4f528f87a0d023b938eb2599c6a90cbe14c27e67906c55",
-    "media_identity_matches_motion_candidate": true,
+    "media_identity_matches_persisted_spa": true,
     "persisted_contact_before_reconciliation": "1831b879b69dfbca46cc456da7f9711604eedf18",
     "current_build_regenerated_contact": "414a2a3ce7d38c02b2cebce89acadc727fc42319",
     "contact_drift_detected": true,
@@ -89,7 +85,7 @@
       "decision": "PASS",
       "round": "R_CURRENT",
       "final_render_sha256": "fddffe48bdcd497dad4f528f87a0d023b938eb2599c6a90cbe14c27e67906c55",
-      "inspection": "Pole tip stays world-fixed through K02-K07 while root/COM cross the anchor; right-foot ownership is visibly established before release; K09 is the largest post-release free catch; K10-K14 shorten with retained secondary pole/torso lag and displaced recovery."
+      "inspection": "Pole tip stays world-fixed through K02-K07 while root/COM cross the anchor; right-foot ownership is established before release; K09 is the largest post-release free catch; K10-K14 shorten with retained secondary pole/torso lag and displaced recovery."
     },
     "noodle_queen": {
       "current_worker": true,
@@ -99,7 +95,7 @@
       "contempt": "PASS",
       "pass": true,
       "final_render_sha256": "fddffe48bdcd497dad4f528f87a0d023b938eb2599c6a90cbe14c27e67906c55",
-      "inspection": "The fixed-pole pivot and body-over-anchor silhouette read immediately; the release fork, long free catch, compression brake and shrinking correction tail remain specific rather than generic gait filler."
+      "inspection": "The fixed-pole pivot and body-over-anchor silhouette read immediately; release, long free catch, compression brake and shrinking correction tail remain specific rather than generic gait filler."
     }
   },
   "validator": {
@@ -112,19 +108,19 @@
     "path": "experiments/ascii-kinesis/v2-locomotion-024-pole-plant-third-support-runout/",
     "expected_file_count": 6,
     "expected_spa_count": 1,
-    "post_write_readback": false,
-    "exact_six_file_body": false,
+    "post_write_readback": true,
+    "exact_six_file_body": true,
     "stable_body_files": {
       "build.py": "d78386682f9feb20f9abb03aa74838ab9a48d27a",
       "contact-sheet.txt": "414a2a3ce7d38c02b2cebce89acadc727fc42319",
       "motion.json": "47dc4dd3d9f9b4946781badbb39d966f5081a6fd",
-      "pole-plant-third-support-runout.motion.html": "f03f2a9750c25df85df4eaebec349442446bf2d1"
+      "pole-plant-third-support-runout.motion.html": "c55f351daea9b1c6719d5066d69427d5645b7937"
     }
   },
   "issue": {
     "number": 343,
-    "pre_delivery_receipt": null,
-    "pre_delivery_readback": false,
+    "pre_delivery_receipt": 5622186639,
+    "pre_delivery_readback": true,
     "closure_receipt": null,
     "closure_readback": false
   },
@@ -135,10 +131,7 @@
     "ordered": false,
     "video_byte_identical": false
   },
-  "campaign": {
-    "propagated": false,
-    "readback": false
-  },
+  "campaign": {"propagated": false, "readback": false},
   "DREW_ACCEPTED": false,
   "next_authorized": null
 }
