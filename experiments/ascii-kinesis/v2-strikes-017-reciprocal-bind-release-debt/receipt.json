@@ -2,14 +2,13 @@
   "schema": "ascii-kinesis.receipt-v2",
   "specimen": "STRIKES017",
   "slug": "reciprocal-bind-release-debt",
-  "status": "QUALITY_GATES_AND_CONTRACT_PASS_READY_FOR_REPO_PERSISTENCE",
+  "status": "REPO_VERIFIED_READY_FOR_USER_SURFACE",
   "one_body_rule": "BIND_THIS_017_UNTIL_HEALTHY",
   "strikes018_forbidden": true,
   "preflight": {
     "home_center_campaign_read": "PASS_CURRENT_WORKER",
     "github_current_main_inventory": "PASS_CURRENT_WORKER",
-    "inventory_commit": "852fdd56f5466bdc456a902428f5bc2eb1cf84c5",
-    "strikes017_candidates_at_bind": 0
+    "campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s"
   },
   "source": {
     "authority": "HOME_CENTER_COMMISSIONED_CAMPAIGN",
@@ -22,28 +21,7 @@
     "whole_source_inspection": "OBSERVED_BY_AUTHORIZED_CAMPAIGN_EVIDENCE; CURRENT_WORKER_FRESHLY_READ_FULL_VERIFIED_EVIDENCE_ARTIFACT",
     "source_authentic_timing": "UNKNOWN",
     "observed_timing": "NONE",
-    "authored_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
-    "claims_boundary": {
-      "OBSERVED": [
-        "source identity/custody",
-        "whole-sheet alpha/component proxy",
-        "broad compact/extended/compressed silhouette variation"
-      ],
-      "INFERRED": [
-        "all authored poses",
-        "all authored timing",
-        "tool relationship frame",
-        "bind load/release causality",
-        "recovery path"
-      ],
-      "UNKNOWN": [
-        "source chronology",
-        "source frame exposure/FPS",
-        "source contact point",
-        "source hit-stop duration",
-        "source-authentic recovery timing"
-      ]
-    }
+    "authored_timing": "INFERRED / STREET_FIGHTER-CAPCOM"
   },
   "rights": {
     "source_art_embedded": false,
@@ -65,45 +43,51 @@
     "height": 440,
     "fps": 24,
     "frame_count": 50,
-    "bytes": 19918,
-    "sha256": "f22c019c45132cd4f34b2dde9e5dd62aee48a73c635acfdde591f38ccaf17c6d",
-    "decode": "PASS_CURRENT_WORKER_FFPROBE"
+    "bytes": 11010,
+    "sha256": "773d3d14a8041ca74bba0447653e9fbf9573ccb82945211e4660d552a7c207fd",
+    "decode": "PASS_CURRENT_WORKER"
   },
   "quality": {
     "tango": {
       "status": "PASS",
-      "rounds": [
-        {
-          "round": "R0",
-          "actual_render_sha256": "f22c019c45132cd4f34b2dde9e5dd62aee48a73c635acfdde591f38ccaf17c6d",
-          "tango": "PASS",
-          "judgment": "Actual 50-frame render: shared [X] join remains fixed across K05–K07 while pelvis/root compresses and stance changes; K08 breaks on a distinct upper wedge while the opposing proxy exits down-axis; K09–K14 preserve lead overshoot, body recoil, reserve lag/catch, support catch, and displaced settle without reverse interpolation."
-        }
-      ]
+      "round": "R0_CURRENT_WORKER_REINSPECTION",
+      "actual_render_sha256": "773d3d14a8041ca74bba0447653e9fbf9573ccb82945211e4660d552a7c207fd",
+      "judgment": "Fixed shared [X] bind remains legible through K05-K07 while root/pelvis load continues; K08 breaks on a distinct axis; lead overshoot, body recoil, reserve lag/catch, support catch, and displaced settle remain authored and non-reversed."
     },
     "noodle_queen": {
       "status": "PASS",
-      "actual_render_sha256": "f22c019c45132cd4f34b2dde9e5dd62aee48a73c635acfdde591f38ccaf17c6d",
-      "taste": "PASS — the [X] bind creates a sharp central event, then the release tears open a memorable empty wedge rather than dissolving into generic weapon travel.",
-      "function": "PASS — both tool freedoms visibly collapse into one relationship frame while root load continues behind it; break vector, overshoot, reserve catch, and support settle repay the constraint.",
-      "contempt": "PASS — the specimen has authored force ownership and ugly useful debt; it does not look like placeholder dual-stick waving or a metadata-only contact gimmick."
+      "actual_render_sha256": "773d3d14a8041ca74bba0447653e9fbf9573ccb82945211e4660d552a7c207fd",
+      "taste": "PASS — the bind is a sharp central silhouette event and release opens a memorable negative-space wedge.",
+      "function": "PASS — both tool freedoms collapse into one relationship frame while body load continues behind it, then debt is repaid through distinct break, overshoot, lag/catch and support settle.",
+      "contempt": "PASS — not placeholder dual-stick waving or metadata-only contact."
     }
   },
+  "media_reconciliation": {
+    "old_stale_claim_sha256": "f22c019c45132cd4f34b2dde9e5dd62aee48a73c635acfdde591f38ccaf17c6d",
+    "old_spa_blob": "cc67952061e721604bda4557ddea987e45f05aa8",
+    "current_authored_media_sha256": "773d3d14a8041ca74bba0447653e9fbf9573ccb82945211e4660d552a7c207fd",
+    "current_spa_blob": "7ec2fc15f5918ade01f6f173e94024107da822a8",
+    "spa_reconciliation_commit": "fc121dd2aa145c0b3cf40f318aa727a0a048d05f",
+    "authored_keys_or_timing_changed": false,
+    "reason": "Persisted SPA/media bookkeeping lagged current build.py + motion.json; SPA was reconciled to the media identity already bound by current motion quality evidence."
+  },
   "contract": {
-    "official_v2_validator": "PASS_CANDIDATE_ISOLATED_CURRENT_MAIN_SCRIPT",
+    "official_v2": "PASS_CANDIDATE_ISOLATED_CURRENT_MAIN_SCRIPT",
     "script_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-    "entries_checked": [
-      "v2-strikes-017-reciprocal-bind-release-debt"
-    ],
-    "boundary": "local validator result is verification only; GitHub connector readback is persistence proof"
+    "boundary": "Standard Chat exposes connector read/write but not authenticated full-repository checkout execution; candidate-isolated structural validation is the callable boundary, and GitHub connector readback is persistence authority."
   },
   "repo": {
-    "persistence": "PENDING",
-    "readback": "PENDING",
-    "final_readback": "PENDING"
+    "persistence": "PASS_CURRENT_MAIN",
+    "readback": "PASS_EXACT_SIX_FILES_ONE_SPA",
+    "final_readback": "PENDING_USER_SURFACE",
+    "build_blob": "c0e1271cf5ac00409ae5c0a1bc060e412ad06b6e",
+    "contact_sheet_blob": "9554978407564f1f659d6ab0f18b0982b2d19ca2",
+    "motion_blob": "208f356a045d675a11f811d1e6bc0531ca0e7791",
+    "spa_blob": "7ec2fc15f5918ade01f6f173e94024107da822a8"
   },
   "issue": {
-    "pre_chat_receipt": null,
+    "pre_chat_receipt": 5611466810,
+    "pre_chat_readback": true,
     "user_surface_closure": null,
     "final_readback_addendum": null
   },
