@@ -1,0 +1,19 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "format_version": 2,
+  "id": "v2-strikes-026-yielding-contact-chase-step-debt",
+  "lane": "strikes",
+  "status": "QUALITY_GATES_PASS_READY_FOR_REPO_PERSISTENCE",
+  "preflight": {"home_center_campaign_read": "PASS", "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s", "github_authenticated_readback": "PASS", "repo": "Valar05/home-center"},
+  "repair_oldest_first": {"audited": true, "historical_rejected_strikes": ["v2-strikes-001-axial-thrust-recovery", "v2-strikes-002-contact-pin-disengage"], "strikes001": "CLOSED_BY_STRIKES003", "strikes002": "CLOSED_BY_STRIKES004", "pre_reset_strikes_remaining": 0, "evidence": "current Strikes004 receipt explicitly records both debts closed and pre_reset_strikes_remaining=0"},
+  "lineage": {"revises": null, "negative_fixture": null, "source_change": "NOT_APPLICABLE_NEW_CONCEPT", "one_body_binding": true, "successor_collision": false},
+  "source": {"campaign_pass": "STRIKES PASS 002 — VERIFIED", "evidence_id": "1UfoqNv9CxNtSJYOyjFIJZeEqp8NjwBsb69FgHmMO75Q", "tsr_asset": 5551, "identity": "Guile — Super Street Fighter II: The New Challengers — SNES — Fighters", "roles": ["POSE_REFERENCE", "RECOVERY_DEBT_REFERENCE"], "timing_authority": false, "source_timing": "UNKNOWN", "observed": ["complete static fighter sheet with neutral/travel/crouch/airborne anchors and close/far grounded attacks", "horizontal reach is purchased by torso/root commitment before or with distal extension", "recovery is structurally distinct from simple reverse playback and negative space changes with attack state"], "unknown": ["source-authentic chronology", "exposure duration", "frame cadence", "hit-stop duration", "exact gameplay hitbox/contact", "support transfer", "target compliance/yield"], "inferred": ["authored pose order", "yielding-target displacement", "contact pin while target gives way", "chase-step support transfer", "internal braking wave", "recoil", "overshoot", "secondary lag", "recovery", "all timing"], "direction_profile": "STREET_FIGHTER/CAPCOM", "rights_firewall": {"source_art_embedded": false, "source_audio_embedded": false, "source_pixels_embedded": false, "tracing": false, "close_imitation": false}},
+  "current_worker_actual_render": {"media_sha256": "67bfa678e54060f15eeaa5013a43fc9c77f01287fb62fc8e4e2a6735b1851c0a", "decode": "PASS", "frames": 46, "tango": "PASS_R0_FRESH_AUTOMATION_ACTUAL_RENDER_REINSPECTION", "noodle_queen": {"verdict": "PASS_TASTE_FUNCTION_CONTEMPT", "taste": "The target visibly drags the body into an uglier, longer obligation instead of rewarding contact with a clean snapback.", "function": "Yield, root overrun, chase-step launch/catch, release, proximal brake, distal lag, overshoot, and displaced recovery read as one causal chain.", "contempt": "Not a mannequin translation, endpoint tap, planted-feet pantomime, mirrored reversal, or metadata-only target yield."}, "inspection_basis": "all authored phases and representative deterministic connective frames inspected from current-worker render montage; render reconstructed from exact motion/build"},
+  "contract": {"official_validator": "PASS", "scope": "candidate-isolated exact current validator; repo-global execution not claimed in Standard Chat", "validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78"},
+  "repo_readback": {"state": "PENDING", "file_count": null, "spa_count": null, "artifacts": {}},
+  "issue_343": {"pre_chat": "PENDING", "user_surface": "PENDING", "durable_addendum": "PENDING"},
+  "campaign": {"pre_chat": "PENDING", "user_surface": "PENDING", "terminal_binding": "PENDING", "terminal_self_binding": "PENDING"},
+  "chat_delivery": {"state": "PENDING", "required_order": ["ASCII", "JSON", "VIDEO"], "part1": false, "part2": false, "part3": false},
+  "DREW_ACCEPTED": false,
+  "next_authorized": null
+}
