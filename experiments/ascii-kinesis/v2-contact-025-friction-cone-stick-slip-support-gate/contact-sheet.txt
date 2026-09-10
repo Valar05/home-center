@@ -1,0 +1,392 @@
+ASCII KINESIS V2 CONTACT025 — FRICTION-CONE STICK/SLIP SUPPORT GATE
+Legend: O head | @ root | x COM | o zero/open hand | * closed loaded contact | | wall | < normal force | ^ tangent support | v sliding patch | ! ground support
+Primitive: contact topology can remain CLOSED while tangential authority changes STICK -> SLIDE -> RESTICK. Custody stays NONE.
+Release law: unload tangential force, then normal force, preserve one zero-load touch, then open a real gap. Source art never enters this rig.
+
+K00  SEPARATE_READ  [FOURS/INFERRED]
+REL=SEPARATE  CONTACT=OPEN  N=0.00  T=0.00
+SUPPORT=GROUND_BOTH  FORCE_OWNER=GROUND  CUSTODY=NONE
+CAUSE: root is stacked over both feet; wall carries nothing
+
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+               o      O              ---o         |
+                --    |        ------             |
+                   --    -- ---                   |
+                     -|--                         |
+                      |                           |
+                      x                           |
+                      |                           |
+                      @                           |
+                     / \                          |
+                   --   --                        |
+                  /       \                       |
+ ________________!_________!_____________________________________________
+
+
+K01  ELIGIBILITY_APPROACH  [TWOS/INFERRED]
+REL=ELIGIBLE  CONTACT=OPEN  N=0.00  T=0.00
+SUPPORT=GROUND_FRONT_DOM  FORCE_OWNER=GROUND  CUSTODY=NONE
+CAUSE: COM advances before palm contact; support remains ground-owned
+
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                              --o |
+                             O           -----    |
+                            |       -----         |
+                   o---- --    -- --              |
+                           -|--                   |
+                            |                     |
+                           x                      |
+                           |                      |
+                           @                      |
+                          / \                     |
+                        --   --                   |
+                       /       \                  |
+ _______________________________!________________________________________
+
+
+K02  TOUCH_ZERO  [TWOS/INFERRED]
+REL=CLOSED_ZERO_LOAD  CONTACT=TOUCH_ZERO  N=0.00  T=0.00
+SUPPORT=GROUND_REAR_DOM  FORCE_OWNER=GROUND  CUSTODY=NONE
+CAUSE: palm touches wall but root is still carried by ground; no static-friction claim yet
+
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                --o
+                               O           -----  |
+                              |       -----       |
+                       --- --    -- --            |
+                   o---      -|--                 |
+                              |                   |
+                             |x                   |
+                             |                    |
+                             @                    |
+                            / \                   |
+                          --   --                 |
+                         /       \                |
+ _______________________!________________________________________________
+
+
+K03  NORMAL_PRELOAD  [TWOS/INFERRED]
+REL=STICK_PRELOAD  CONTACT=STICK  N=0.45  T=0.18
+SUPPORT=GROUND_REAR_DOM|WALL_ASSIST  FORCE_OWNER=GROUND_PLUS_WALL  CUSTODY=NONE
+CAUSE: normal load rises first; shoulder closes toward wall while rear foot counters the normal reaction
+
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  ^
+                                                <-*
+                                              --- |
+                                 O        ----    |
+                                |      ---        |
+                        ---- --    -- -           |
+                  o-----       | --               |
+                               x                  |
+                              |                   |
+                              @                   |
+                             / \                  |
+                           --   --                |
+                          /       \               |
+ ________________________!_______________________________________________
+
+
+K04  STICK_LOAD_RISE  [FOURS/INFERRED]
+REL=STICK_LOADED  CONTACT=STICK  N=0.78  T=0.62
+SUPPORT=GROUND_REAR_EDGE|WALL_STATIC_SUPPORT  FORCE_OWNER=WALL_STATIC_PLUS_GROUND  CUSTODY=NONE
+CAUSE: palm remains world-fixed at y=7 while pelvis sinks; diagonal body line and rear-foot edge show wall-assisted support
+
+                                                  |
+                                                  |
+                                                  |
+                                                  ^
+                                                  ^
+                                                  ^
+                                              <<<-*
+                                               -- |
+                                             --   |
+                                    O      --     |
+                                   |     --       |
+                         ----- --    -- -         |
+                  o------        | --             |
+                                 x                |
+                                |                 |
+                                @                 |
+                              -- --               |
+                            --     --             |
+ __________________________!_____________________________________________
+
+
+K05  IMPENDING_SLIP  [TWOS/INFERRED]
+REL=IMPENDING_SLIP  CONTACT=STICK_LIMIT  N=0.82  T=0.98
+SUPPORT=GROUND_REAR_EDGE|WALL_STATIC_LIMIT  FORCE_OWNER=WALL_STATIC_PLUS_GROUND  CUSTODY=NONE
+CAUSE: COM falls farther beneath a still-fixed palm; static support is visibly at its authored limit
+
+                                                  |
+                                                  ^
+                                                  ^
+                                                  ^
+                                                  ^
+                                                  ^
+                                              <<<<*
+                                                 /|
+                                               -- |
+                                              /   |
+                                             /    |
+                                      O    --     |
+                                     |    /       |
+                 o-------------- --    --         |
+                                   x --           |
+                                  |               |
+                                -@-               |
+                              --   --             |
+ ___________________________!____________________________________________
+
+
+K06  SLIP_ONSET  [ONES/INFERRED]
+REL=CLOSED_SLIDING  CONTACT=SLIDE  N=0.80  T=0.72
+SUPPORT=GROUND_REAR_EDGE|WALL_SLIDING_CONTACT  FORCE_OWNER=GROUND_DOMINANT_WALL_FRICTION_DYNAMIC  CUSTODY=NONE
+CAUSE: contact stays closed but hand y changes for first time; static wall support authority is gone and root overruns downward
+
+                                                  |
+                                                  |
+                                                  |
+                                                  ^
+                                                  ^
+                                                  ^
+                                                  ^
+                                              <<<<*
+                                                --v
+                                               /  v
+                                              /   |
+                                       O    --    |
+                 o--------            |    /      |
+                          ------- --    --        |
+                                    x --          |
+                                   |              |
+                                 -@-              |
+                               --   --            |
+ ____________________________!___________________________________________
+
+
+K07  SLIDING_DROP  [TWOS/INFERRED]
+REL=CLOSED_SLIDING  CONTACT=SLIDE  N=0.72  T=0.48
+SUPPORT=GROUND_REAR_PROBE|WALL_SLIDING_CONTACT  FORCE_OWNER=GROUND_PROBE_PLUS_DYNAMIC_FRICTION  CUSTODY=NONE
+CAUSE: palm slides four rows while root and COM continue down/right; free arm remains high as opposing secondary lag
+
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                  o-                              ^
+                    ----                          ^
+                        ----          O       <<--*
+                            ----     |      ----  v
+                                - --    -- -      v
+                                    x --          |
+                                    |             |
+                                  -@-             |
+                                --   --           |
+ _____________________________!__________________________________________
+
+
+K08  SHEAR_UNLOAD_WHILE_SLIDING  [TWOS/INFERRED]
+REL=CLOSED_SLIDING_UNLOAD  CONTACT=SLIDE  N=0.66  T=0.22
+SUPPORT=GROUND_FRONT_CATCH|WALL_SLIDING_CONTACT  FORCE_OWNER=GROUND_CATCH  CUSTODY=NONE
+CAUSE: front foot catches and root begins rising while palm finishes one last downward cell; shear demand falls before restick
+
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                    o-                            |
+                      ---                         |
+                         --         O             |
+                           ---     |              v
+                              - --    -- ----     ^
+                                  -|--       -----*
+                                  x               v
+                                  |               v
+                                  @               |
+                                -- --             |
+                              --     --           |
+ ______________________________________!_________________________________
+
+
+K09  RESTICK_DISPLACED  [FOURS/INFERRED]
+REL=RESTICKED_DISPLACED  CONTACT=STICK  N=0.74  T=0.38
+SUPPORT=GROUND_FRONT_LOCK|WALL_STATIC_SUPPORT  FORCE_OWNER=GROUND_PLUS_WALL  CUSTODY=NONE
+CAUSE: palm y=13 stays fixed while body rebounds upward/left; new anchor is displaced and visibly earns support
+
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                      o                           |
+                       --                         |
+                         \       O                |
+                          --    |                 |
+                             --                   ^
+                               -|--               ^
+                               |x  -- ------------*
+                               |                  |
+                               @                  |
+                              / \                 |
+                            --   --               |
+                           /       \              |
+ ___________________________________!____________________________________
+
+
+K10  TANGENTIAL_UNLOAD_ZERO  [TWOS/INFERRED]
+REL=CLOSED_NORMAL_ONLY  CONTACT=STICK_ZERO_TANGENT  N=0.40  T=0.00
+SUPPORT=GROUND_BOTH|WALL_NORMAL_ONLY  FORCE_OWNER=GROUND  CUSTODY=NONE
+CAUSE: root is restacked by ground before wall release; palm still presses but carries no tangential support
+
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                        o                         |
+                        |                         |
+                        |    O                    |
+                         |   |                    |
+                          --                      |
+                            -|--                  |
+                             |  -- -------        |
+                             x            --------*
+                             |                    |
+                             @                    |
+                            / \                   |
+                          --   --                 |
+                         /       \                |
+ _______________________!_________!______________________________________
+
+
+K11  NORMAL_UNLOAD_ZERO  [TWOS/INFERRED]
+REL=CLOSED_ZERO_LOAD  CONTACT=TOUCH_ZERO  N=0.00  T=0.00
+SUPPORT=GROUND_BOTH  FORCE_OWNER=GROUND  CUSTODY=NONE
+CAUSE: both force components are zero while palm still touches; release is now eligible
+
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                         o                        |
+                         |  O                     |
+                        |   |                     |
+                         --                       |
+                           -|--                   |
+                            |  -- --------        |
+                            x             --------o
+                            |                     |
+                            @                     |
+                           / \                    |
+                         --   --                  |
+                        /       \                 |
+ ______________________!_________!_______________________________________
+
+
+K12  RELEASE_GAP  [ONES/INFERRED]
+REL=SEPARATED_RELEASE  CONTACT=OPEN  N=0.00  T=0.00
+SUPPORT=GROUND_FRONT_DOM  FORCE_OWNER=GROUND  CUSTODY=NONE
+CAUSE: a real horizontal gap opens; torso recoils away while free arm continues upward
+
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                           o                      |
+                          /                       |
+                        -O                        |
+                       /  |                       |
+                       --                         |
+                         -|--                     |
+                          |  -- ---------------o  |
+                           x                      |
+                           |                      |
+                           @                      |
+                          / \                     |
+                        --   --                   |
+                       /       \                  |
+ _______________________________!________________________________________
+
+
+K13  COUNTER_OVERSHOOT  [TWOS/INFERRED]
+REL=SEPARATE  CONTACT=OPEN  N=0.00  T=0.00
+SUPPORT=GROUND_REAR_BRAKE  FORCE_OWNER=GROUND  CUSTODY=NONE
+CAUSE: root overshoots left; contact arm lags low and free arm stays high, creating split clocks and open negative space
+
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                              -o                  |
+                          ----                    |
+                  O   ----                        |
+                  -|--                            |
+                 --                               |
+                   - |-                           |
+                     | -- ----                    |
+                     x|       ---------           |
+                      |                ----o      |
+                       @                          |
+                      / \                         |
+                    --   --                       |
+                   /       \                      |
+ _________________!______________________________________________________
+
+
+K14  DISPLACED_SETTLE  [FOURS/INFERRED]
+REL=SEPARATE_DISPLACED  CONTACT=OPEN  N=0.00  T=0.00
+SUPPORT=GROUND_BOTH_DISPLACED  FORCE_OWNER=GROUND  CUSTODY=NONE
+CAUSE: root settles right of the opening address with asymmetric arms and preserved release gap
+
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                                                  |
+                          O                       |
+                       o  |                       |
+                       --    -- -----             |
+                         -|--        -----o       |
+                          |                       |
+                          x                       |
+                          |                       |
+                          @                       |
+                         / \                      |
+                       --   --                    |
+                      /       \                   |
+ ____________________!_________!_________________________________________
