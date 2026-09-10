@@ -1,0 +1,95 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "experiment_id": "v2-airborne-034-midair-actuator-loss-passive-collapse-landing-debt",
+  "status": "REPO_VERIFIED_PENDING_CHAT_DELIVERY",
+  "preflight": {
+    "home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "home_center_campaign_read": "PASS_CURRENT_WORKER",
+    "github_persistence_readback": "PASS_CURRENT_WORKER"
+  },
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "successor_collision": false,
+    "one_body_binding": true
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "133611",
+    "identity": "Ride Armor — Mega Man X — SNES",
+    "campaign_evidence_artifact": "13LNIYKD8DmWrc9trwiicS873bX-p-lku8QVNqdFk2Yc",
+    "whole_source_inspected": true,
+    "source_authentic_timing": "UNKNOWN",
+    "decisive_compile_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "rights_firewall": true
+  },
+  "primitive": "MID_AIR_ACTUATOR_LOSS_PASSIVE_COLLAPSE_LANDING_DEBT",
+  "media": {
+    "codec": "H.264",
+    "pixel_format": "yuv420p",
+    "width": 792,
+    "height": 502,
+    "fps": 24,
+    "frames": 61,
+    "bytes": 14944,
+    "sha256": "b22fff22aaf80e740ab2859b4530c7fdf1d7d480bc39117121be4ad67cf07f54",
+    "decode": "PASS_FULL_FFMPEG_CURRENT_WORKER",
+    "source": "abstract_ascii_rig_only",
+    "embedded_in_spa": true
+  },
+  "quality": {
+    "actual_render_inspected": true,
+    "tango": {
+      "rounds": ["R0 PASS"],
+      "final": "PASS",
+      "render_sha256": "b22fff22aaf80e740ab2859b4530c7fdf1d7d480bc39117121be4ad67cf07f54",
+      "highest_value_visible_defect": "NONE_AT_ACCEPTANCE_SCALE"
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "taste": "PASS",
+      "function": "PASS",
+      "contempt": "PASS",
+      "render_sha256": "b22fff22aaf80e740ab2859b4530c7fdf1d7d480bc39117121be4ad67cf07f54"
+    }
+  },
+  "contract": {
+    "validator_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS_EXACT_FETCHED_VALIDATOR_SOURCE_BLOB_7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "repo_global": "UNCLAIMED_STANDARD_CHAT_BOUNDARY"
+  },
+  "repo": {
+    "persisted": true,
+    "final_readback": false,
+    "exact_one_spa": true,
+    "six_file_readback": false,
+    "blobs": {
+      "build.py": "23494d339306a79c7b46fa8c48f7cf394b2fef94",
+      "contact-sheet.txt": "4df261eef84a51cca3b0650d5c9a6ce9f91e9f1e",
+      "manifest.json": "ad2e5b4c503c49381b72fd74a2705ca6be3674c1",
+      "motion.json": "c68f12794f5bf0e16601e0d0cdba376910f9ec05",
+      "midair-actuator-loss-passive-collapse-landing-debt.motion.html": "95c26a9118a29eeb3e0d3f53d64e5158a247c8ef",
+      "receipt.json": null
+    }
+  },
+  "issue_343": {
+    "pre_chat_receipt": null,
+    "pre_chat_readback": false,
+    "final_durable_addendum": null,
+    "final_durable_readback": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false,
+    "ordered": false
+  },
+  "campaign": {
+    "closure_appended": false,
+    "closure_readback": false
+  },
+  "DREW_ACCEPTED": false,
+  "next_authorized": "BLOCKED_UNTIL_AIRBORNE034_HEALTHY"
+}
