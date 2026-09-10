@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import base64, html, json, subprocess, tempfile
+import base64, gzip, json, subprocess, tempfile
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
@@ -120,29 +120,19 @@ def build_video(out):
     return len(frames)
 
 def make_spa(ascii_text,motion_text,video_bytes):
-    video64=base64.b64encode(video_bytes).decode('ascii')
-    a=html.escape(ascii_text); j=html.escape(motion_text)
-    template="""<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+    a64=base64.b64encode(gzip.compress(ascii_text.encode('utf-8'),compresslevel=9,mtime=0)).decode('ascii')
+    j64=base64.b64encode(gzip.compress(motion_text.encode('utf-8'),compresslevel=9,mtime=0)).decode('ascii')
+    v64=base64.b64encode(video_bytes).decode('ascii')
+    return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ASCII Kinesis V2 Strikes022 - Swing-Leg Strike / Support Reentry Debt</title>
-<style>
-body{margin:0;background:#0b0c0f;color:#f3f3f3;font-family:ui-monospace,Menlo,Consolas,monospace}
-nav{position:sticky;top:0;background:#15171d;padding:10px;display:flex;gap:8px}
-button{font:inherit;padding:8px 14px}main{padding:12px}
-section{display:none}section.active{display:block}
-pre{white-space:pre;overflow:auto;font-variant-ligatures:none;line-height:1.0}
-video{max-width:100%;height:auto;background:black}
-</style></head><body>
-<nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
-<main>
-<section id="ascii" class="active"><pre>__ASCII__</pre></section>
-<section id="json"><pre>__JSON__</pre></section>
-<section id="video"><video controls loop playsinline src="data:video/mp4;base64,__VIDEO__"></video></section>
-</main>
-<script>
-const ss=[...document.querySelectorAll('section')];for(const b of document.querySelectorAll('button[data-view]'))b.onclick=()=>{ss.forEach(s=>s.classList.toggle('active',s.id===b.dataset.view));};
+<style>body{{margin:0;background:#0b0c0f;color:#f3f3f3;font-family:ui-monospace,Menlo,Consolas,monospace}}nav{{position:sticky;top:0;background:#15171d;padding:10px;display:flex;gap:8px}}button{{font:inherit;padding:8px 14px}}main{{padding:12px}}section{{display:none}}section.active{{display:block}}pre{{white-space:pre;overflow:auto;font-variant-ligatures:none;line-height:1}}video{{max-width:100%;height:auto;background:black}}</style></head><body>
+<nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav><main>
+<section id="ascii" class="active"><pre id="a"></pre></section><section id="json"><pre id="j"></pre></section><section id="video"><video controls loop playsinline src="data:video/mp4;base64,{v64}"></video></section>
+</main><script>
+const ss=[...document.querySelectorAll('section')];for(const b of document.querySelectorAll('button[data-view]'))b.onclick=()=>{{ss.forEach(s=>s.classList.toggle('active',s.id===b.dataset.view));}};
+async function gunzip(s){{const b=Uint8Array.from(atob(s),c=>c.charCodeAt(0));const r=new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip')));return r.text();}}
+Promise.all([gunzip('{a64}'),gunzip('{j64}')]).then(([a,j])=>{{document.getElementById('a').textContent=a;document.getElementById('j').textContent=j;}});
 </script></body></html>"""
-    return template.replace('__ASCII__',a).replace('__JSON__',j).replace('__VIDEO__',video64)
 
 def main():
     contact=make_contact_sheet()
