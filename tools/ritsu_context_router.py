@@ -63,6 +63,7 @@ class RouteResult:
     corrections: tuple[str, ...]
     world_knowledge_allowed: bool
     seek_primary: bool
+    bound_target: dict[str, Any] | None = None
     delegated_owner: str | None = None
     required_provenance: str | None = None
     reason: str | None = None
@@ -99,6 +100,10 @@ class RitsuContextRouter:
         self.reserved = {
             normalize_cue(item["cue"]): item["owner"]
             for item in self.policy.get("reserved_existing_continuity", [])
+        }
+        self.immediate_bind_aliases = {
+            normalize_cue(item)
+            for item in self.policy.get("immediate_bind_aliases", [])
         }
         expected_order = self.policy.get("provenance_order")
         if expected_order != list(PROVENANCE_RANK):
@@ -189,6 +194,63 @@ class RitsuContextRouter:
             return matches[0]
         return None, None
 
+    @staticmethod
+    def _requested_actor(cue: str) -> str | None:
+        first = cue.split(" ", 1)[0] if cue else ""
+        if first in {"ritsu", "ritzu"}:
+            return "ritsu"
+        return None
+
+    @staticmethod
+    def _canonical_actor(value: Any) -> str | None:
+        if not isinstance(value, str) or not value.strip():
+            return None
+        actor = normalize_cue(value)
+        if actor in {"ritsu", "ritzu"}:
+            return "ritsu"
+        return actor
+
+    def _bind_current_target(
+        self,
+        cue: str,
+        working_state: Mapping[str, Any] | None,
+    ) -> RouteResult | None:
+        raw_target = (working_state or {}).get("current_target")
+        if not isinstance(raw_target, Mapping):
+            return None
+        target = dict(raw_target)
+        owner = self._canonical_actor(target.get("owner"))
+        target_id = target.get("target_id")
+        if owner is None or not isinstance(target_id, str) or not target_id.strip():
+            return None
+        requested_actor = self._requested_actor(cue)
+        if requested_actor is not None and owner != requested_actor:
+            return RouteResult(
+                status="NEEDS_WORKING_STATE",
+                route="immediate_bind",
+                episode_id=None,
+                matched_cue=cue,
+                provenance_tier="unknown",
+                content=None,
+                corrections=(),
+                world_knowledge_allowed=False,
+                seek_primary=False,
+                reason="named AGAIN cue does not match the attributable current target owner; do not guess",
+            )
+        return RouteResult(
+            status="BOUND_WORKING_TARGET",
+            route="immediate_bind",
+            episode_id=None,
+            matched_cue=cue,
+            provenance_tier="unknown",
+            content=None,
+            corrections=(),
+            world_knowledge_allowed=False,
+            seek_primary=False,
+            bound_target=target,
+            reason="bound attributable current target before episodic or generic retrieval",
+        )
+
     def resolve(
         self,
         utterance: str,
@@ -201,7 +263,10 @@ class RitsuContextRouter:
         exact = self._exact_wording_requested(utterance, exact_wording)
 
         # Pass 1: immediate bind. AGAIN is grammatical state, not a search term.
-        if cue in {normalize_cue(x) for x in self.policy.get("immediate_bind_aliases", [])}:
+        if cue in self.immediate_bind_aliases:
+            target_result = self._bind_current_target(cue, working_state)
+            if target_result is not None:
+                return target_result
             episode_id = (working_state or {}).get("last_episode_id")
             if episode_id in self.episodes:
                 return self._episode_result(
