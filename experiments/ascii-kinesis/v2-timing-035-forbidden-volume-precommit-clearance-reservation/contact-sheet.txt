@@ -1,0 +1,120 @@
+K00 CONSTRAINT_VISIBLE_READY | FOURS/4t | PROV=INFERRED | SUPPORT=BOTH
+                 ############################ FORBIDDEN VOLUME
+                 ############################
+                      O
+                     /|\
+                [T]---o---\          >
+                      |    \
+                      @
+                     / \
+                    o   o
+                   /     \
+  ________________*_______*________________________________________
+ CEILING=KNOWN  TOOL=NEUTRAL_LOW  ROOT=+0.00  CLEARANCE=UNSPENT
+------------------------------------------------------------------------------
+K01 CLEARANCE_READ | TWOS/2t | PROV=INFERRED | SUPPORT=BOTH_REAR
+                 ############################ FORBIDDEN VOLUME
+                 ############################
+                         O_
+                        /| \
+                   [T]--o   \         >
+                       /|    \
+                      / @
+                     / / \
+                    o o   o
+                     /     \
+  __________________*_______+______________________________________
+ CEILING=READ  TOOL=WITHDRAWING_SIDE  ROOT=+0.08  CLEARANCE=CLAIMED_EARLY
+------------------------------------------------------------------------------
+K02 SIDELOAD_COIL | FOURS/4t | PROV=INFERRED | SUPPORT=REAR_DOMINANT
+                 ############################ FORBIDDEN VOLUME
+                 ############################
+                           O
+                          /|
+                     [T]==o\
+                        \ | \
+                         \@  \
+                        _/ \_
+                       o     o
+                      /       \
+  ___________________*_________+___________________________________
+ CEILING=KNOWN  TOOL=TUCKED_SIDE  ROOT=+0.14,-0.18  STORED=LOW_PLANE
+------------------------------------------------------------------------------
+K03 CLEARANCE_WEDGE | ONES/1t | PROV=INFERRED | SUPPORT=REAR_TO_FRONT
+                 ############################ FORBIDDEN VOLUME
+                 ############################
+                             O
+                            /|
+                       [T]==o \       >
+                            \|  \
+                             @---\
+                            / \   \
+                           o   o
+  _________________________+___*___________________________________
+ CEILING=UNTOUCHED  TOOL=LOW_DIAGONAL  ROOT=+0.28,-0.12  ARC=LEGAL
+------------------------------------------------------------------------------
+K04 DIAGONAL_COMMIT | ONES/1t | PROV=INFERRED | SUPPORT=FRONT_DOMINANT
+                 ############################ FORBIDDEN VOLUME
+                 ############################
+                                O
+                               /|
+                              / o================[T]>
+                             /  |
+                            @---/
+                           / \
+                          o   o
+  ________________________+____*___________________________________
+ CEILING=UNTOUCHED  TOOL=FAST_LOW_PLANE  ROOT=+0.58,-0.06  COMMIT=YES
+------------------------------------------------------------------------------
+K05 AUTHORED_THREAT_CONTACT | ONES/1t | PROV=INFERRED | SUPPORT=FRONT
+                 ############################ FORBIDDEN VOLUME
+                 ############################
+                                  O
+                                 /|
+                                / o====================[T]X
+                               /  |
+                              @---/
+                             / \
+                            o   o
+  __________________________+____*_________________________________
+ CEILING=UNTOUCHED  TARGET_CONTACT=YES  ROOT=+0.82,-0.02  ENV_CONTACT=NO
+------------------------------------------------------------------------------
+K06 LOW_PLANE_FOLLOW | TWOS/2t | PROV=INFERRED | SUPPORT=FRONT
+                 ############################ FORBIDDEN VOLUME
+                 ############################
+                                   O
+                                   |\
+                                   | o==================[T])
+                                   |/
+                                 _@_
+                                /   \
+                               o     o
+  _____________________________+______*_____________________________
+ CEILING=UNTOUCHED  TOOL=SPENDS_FORWARD_MOMENTUM  ROOT=+1.02,+0.02
+------------------------------------------------------------------------------
+K07 SIDE_RECALL_BRIDGE | TWOS/2t | PROV=INFERRED | SUPPORT=FRONT_TO_BOTH
+                 ############################ FORBIDDEN VOLUME
+                 ############################
+                                  O
+                                 /|\
+                           [T]===o | \        >
+                                \ |  \
+                                 \@   \
+                                 / \
+                                o   o
+  ______________________________+___*_______________________________
+ CEILING=UNTOUCHED  TOOL=RECALLS_SIDE  ROOT=+1.12,+0.00  NO_REVERSE_PLAYBACK
+------------------------------------------------------------------------------
+K08 DISPLACED_RESTACK | FOURS/4t | PROV=INFERRED | SUPPORT=BOTH
+                 ############################ FORBIDDEN VOLUME
+                 ############################
+                                   O
+                                  /|\
+                             [T]---o---\       >
+                                   |   \
+                                   @
+                                  / \
+                                 o   o
+                                /     \
+  _____________________________*_______*____________________________
+ CEILING=UNTOUCHED  TOOL=CONTROLLED_LOW  ROOT=+1.16,+0.00  READY=DISPLACED
