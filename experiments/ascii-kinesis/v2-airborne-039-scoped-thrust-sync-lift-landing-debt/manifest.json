@@ -2,11 +2,7 @@
   "format_version": 2,
   "experiment_id": "v2-airborne-039-scoped-thrust-sync-lift-landing-debt",
   "primitive": "SCOPED_THRUST_SYNC_LIFT_LANDING_DEBT",
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
@@ -28,15 +24,9 @@
     "category": "Playable Characters",
     "commissioned_evidence_artifact_id": "1-CTvmeVYA83T3es43KZSJ0OCXx_wm6wCBwZakSZYNrI",
     "source_raw_sha256_observed": "d203f5004e62f5f9e0232aa2534c66e3ce30e0727428d561454dacbdb7f063ad",
-    "source_dimensions_observed": [
-      445,
-      554
-    ],
+    "source_dimensions_observed": [445, 554],
     "source_raw_bytes_observed": 10150,
-    "roles": [
-      "LOCAL_CHANNEL_RELATIONSHIP_EVIDENCE",
-      "STATE_FAMILY_REFERENCE"
-    ],
+    "roles": ["LOCAL_CHANNEL_RELATIONSHIP_EVIDENCE", "STATE_FAMILY_REFERENCE"],
     "source_authentic_timing": "UNKNOWN",
     "timing_authority": false,
     "whole_source_evidence_read": true,
@@ -52,33 +42,57 @@
     "scoped_sync_policy": "RESTART_A_B_ONLY_BODY_ROOT_PRESERVED"
   },
   "media": {
+    "role": "AUTHORITATIVE_CANDIDATE_RENDER",
     "codec": "h264",
     "pix_fmt": "yuv420p",
     "width": 800,
     "height": 448,
     "fps": 24,
-    "frames": 89,
-    "bytes": 39440,
-    "sha256": "063996d4ab6a632b22f580d2f9910fb75c6261e67070b97b0b1d6301c8327d12",
-    "decode": "PASS"
+    "frames": 90,
+    "bytes": 47754,
+    "sha256": "645bb91fca4c62db6d511dede354da73108fbd1988f569427255923a9dccbdea",
+    "decode": "PASS",
+    "identity_basis": "exact persisted motion + exact unchanged build_motion.py"
+  },
+  "spa_delivery_media": {
+    "role": "SELF_CONTAINED_SPA_PRESENTATION",
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 640,
+    "height": 358,
+    "fps": 24,
+    "frames": 90,
+    "bytes": 14257,
+    "sha256": "dda4e0506c007e0e636123e018ebfb120b3e121feb3c2e0f862f86b9c52a6727",
+    "decode": "PASS",
+    "provenance": "deterministic presentation encoding of the exact abstract-rig authored frames; no source pixels or audio",
+    "authoritative_media_replaced": false
+  },
+  "artifact_git_blobs": {
+    "build_motion.py": "d212c7e555c27b04de31006dea3e141a9cea8497",
+    "contact-sheet.txt": "1f7acc097cc2da3cb8072340dae1c4e47d8bb7d1",
+    "motion.json": "a5c0f58e13df998d2d6d55735f66f62f19448852",
+    "scoped-thrust-sync-lift-landing-debt.motion.html": "622f687cf620a7b236c1c8bd829ef71553493a44",
+    "receipt.json": null
   },
   "artifact_sha256": {
     "build_motion.py": "b9bbe271ef7780f9bb2b15c1ca97c6e85048ecffa589b549d5ea854da982316a",
-    "contact-sheet.txt": "205468a8d75da106e023311c68d662f2e0796e53f5cb22b479979320407c7f72",
-    "motion.json": "7df4be8fd48359094caec09f0ae0d5d85dc0a4b77d17a139c3e323cbe0981a46",
-    "scoped-thrust-sync-lift-landing-debt.motion.html": "9ba08e26955ad4f132d3be7b8beccfda75df122a0b5bd9371a02b5db20757662"
+    "contact-sheet.txt": "e0f3626d625e3849a3f3b346b2bd3a7b797afa24a1c6a7347a41e3bf3a771802",
+    "motion.json": "e15d1035da2b5ab283447bab2f329fb391ed8fb53542dd8e2c5612cd9151fe64"
   },
   "quality": {
     "tango": {
       "current_worker": true,
-      "final_round": "R1",
-      "final_render_sha256": "063996d4ab6a632b22f580d2f9910fb75c6261e67070b97b0b1d6301c8327d12",
+      "final_round": "R4",
+      "authoritative_render_sha256": "645bb91fca4c62db6d511dede354da73108fbd1988f569427255923a9dccbdea",
+      "spa_presentation_sha256": "dda4e0506c007e0e636123e018ebfb120b3e121feb3c2e0f862f86b9c52a6727",
       "verdict": "PASS",
-      "r0": "REVISE_REQUIRED: lateral A/B force debt was metadata-heavy because exhaust vectors read vertically; SAME-body correction added opposed diagonal ASCII exhaust and nonuniform horizontal velocity changes."
+      "r3": "PASS after SAME-body landing correction: K09 separated precontact, K10 earned right-toe support, K11 unilateral force payment, K12 bilateral catch, K13 compression, K14 rebound, K15 displaced settle.",
+      "r4": "PASS on the compact self-contained SPA presentation encoding; scoped A+B thrust sync, tool-tip pivot, unsupported lift, support acquisition, overshoot, secondary lag, and displaced recovery remain visually readable."
     },
     "noodle_queen": {
       "current_worker": true,
-      "same_render": true,
+      "same_final_specimen": true,
       "taste": "PASS",
       "function": "PASS",
       "contempt": "PASS"
@@ -86,14 +100,21 @@
   },
   "contract": {
     "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-    "candidate_isolated": "PASS",
-    "standard_chat_boundary": "No repo-global checkout or shell-suite claim.",
-    "validator_execution": {
-      "blob_identity_verified_locally_against_fresh_authenticated_read": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-      "entries_checked": [
-        "v2-airborne-039-scoped-thrust-sync-lift-landing-debt"
-      ],
-      "ok": true
-    }
+    "candidate_isolated": "PENDING_FINAL_RECHECK",
+    "standard_chat_boundary": "No repo-global checkout or shell-suite claim."
+  },
+  "persistence": {
+    "status": "PERSISTED_NOT_DELIVERED",
+    "repo_persisted": true,
+    "exact_one_spa": true,
+    "six_file_readback": false,
+    "final_readback": false,
+    "issue_pre_delivery_receipt": false,
+    "campaign_pre_delivery_checkpoint": false,
+    "chat_part1_ascii": false,
+    "chat_part2_json": false,
+    "chat_part3_video": false,
+    "drew_accepted": false,
+    "next_authorized": null
   }
 }
