@@ -1,0 +1,102 @@
+{
+  "schema": "ascii-kinesis.receipt-v2",
+  "format_version": 2,
+  "specimen_id": "v2-defense-022-guard-crumple-wave-rebase",
+  "lane": "defense",
+  "number": 22,
+  "title": "GUARD CRUMPLE / WAVE REBASE",
+  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_READBACK",
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "prior_closure_comment": 5610088288,
+    "successor_collision": false
+  },
+  "preflight": {
+    "current_worker": "PASS_HOME_CENTER_PLUS_GITHUB",
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "campaign_read": true,
+    "github_persistence_readback": true
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "30327",
+    "character": "Billy & Jimmy",
+    "game": "Double Dragon II: The Revenge",
+    "platform": "NES",
+    "source_role": "STYLE_REFERENCE",
+    "campaign_artifact": "1icTndAfTH5fge6tCAL35HzU9X7dsKVzRa0ah_n6gwWk",
+    "whole_source_sha256": "4bc16d9c88b58d6ad6d727b285f373c4caa1957b2762aebf44476a2f77f3e33c",
+    "source_authentic_timing": "UNKNOWN",
+    "compile_timing_provenance": "INFERRED",
+    "compile_policy": "STREET_FIGHTER/CAPCOM",
+    "rights_firewall": "PASS_NO_SOURCE_PIXELS_OR_AUDIO"
+  },
+  "media": {
+    "authoritative_file": "guard-crumple-wave-rebase.mp4",
+    "embedded_in_spa": true,
+    "sha256": "606a9f48777a7f71322812f70575fcafe27f7530aac8503caff14f0b9069cc0d",
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "width": 800,
+    "height": 450,
+    "fps": 24,
+    "frames": 53,
+    "duration_seconds": 2.2083333333333335,
+    "bytes": 19582,
+    "decode_verified": true,
+    "byte_identical_reconstruction": true,
+    "generated_from": "abstract_ascii_rig_plus_authored_timing_only"
+  },
+  "quality": {
+    "actual_render_sha256": "606a9f48777a7f71322812f70575fcafe27f7530aac8503caff14f0b9069cc0d",
+    "tango": {
+      "verdict": "PASS",
+      "current_worker": true,
+      "round": "R0",
+      "judgment": "Threat reads before contact; same left guard joint catches before maximum compression; distal fold leads shoulder/rib compression, pelvis/backload follows late; contact releases before lead support peel; right-only overshoot, unsupported rebase, toe probe, counter-torque, late guard reopen, and displaced ready debt remain visible without metadata."
+    },
+    "noodle_queen": {
+      "verdict": "PASS",
+      "current_worker": true,
+      "after_tango": "R0",
+      "taste": "Specific narrow catch -> folded rightward crumple -> one-legged rear-load silhouette sentence.",
+      "function": "Incoming pressure, serial compliance wave, release-before-support-break, rebase, and late readiness read in the actual render.",
+      "contempt": "The body keeps paying after pressure disappears instead of politely resetting."
+    }
+  },
+  "validator": {
+    "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "scope": "candidate-isolated current-validator semantics",
+    "verdict": "PASS",
+    "repo_global_execution_claimed": false
+  },
+  "repo": {
+    "persisted": true,
+    "repo_readback": false,
+    "body_files_readback": 0,
+    "exactly_one_spa": false,
+    "current_main_commit_before_receipt": "794c4733df43cbb357d8e0503e9bde3c9a7046e4",
+    "blobs": {
+      "build.py": "985f86c23884412f1b716216869fe53f94860c10",
+      "contact-sheet.txt": "63c198361257df01d8eec87f1d79783b48b19c10",
+      "manifest.json": "d51907bddd231a35d63f268224846f99105668c3",
+      "motion.json": "e9f5d55ce0bad6904b58dcc4cda859ab02968f1f",
+      "guard-crumple-wave-rebase.motion.html": "cbdf3ee02a95e80a966ce673445292f9eb53a4b5"
+    }
+  },
+  "issue": {
+    "issue": 343,
+    "receipt_comment": null,
+    "readback": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_visible_video": false,
+    "ordered": false
+  },
+  "drew_accepted": false
+}
