@@ -23,12 +23,12 @@ CONTACT_PATH = ROOT / "contact-sheet.txt"
 SLUG = "serial-consequence-wave-root-rebase"
 SPA_PATH = ROOT / f"{SLUG}.motion.html"
 
-WIDTH = 760
-HEIGHT = 340
+WIDTH = 440
+HEIGHT = 200
 FPS = 24
 FONT_PATH = Path("/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf")
-FONT_SIZE = 17
-SMALL_SIZE = 10
+FONT_SIZE = 9
+SMALL_SIZE = 6
 
 def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
@@ -44,15 +44,15 @@ def render_mp4(output_path: Path) -> bytes:
             for _ in range(int(key["exposure_ticks"])):
                 im = Image.new("RGB", (WIDTH, HEIGHT), "white")
                 draw = ImageDraw.Draw(im)
-                draw.multiline_text((14, 18), key["pose_rig"], fill="black", font=font, spacing=1)
-                draw.line((10, 285, 750, 285), fill="black", width=1)
+                draw.multiline_text((6, 8), key["pose_rig"], fill="black", font=font, spacing=0)
+                draw.line((4, 158, 436, 158), fill="black", width=1)
                 footer = (
                     f"{key['key_id']}  {key['causal_role']}  {key['timing_class']}  "
                     f"SUPPORT={key['support_contact']}  V={key['root_velocity']:+.2f}  "
                     f"WAVE={key['consequence_stage']}"
                 )
-                draw.text((14, 298), footer, fill="black", font=small)
-                draw.text((14, 318), "abstract ASCII rig only | source pixels: none", fill="black", font=small)
+                draw.text((6, 164), footer, fill="black", font=small)
+                draw.text((6, 181), "abstract ASCII rig only | source pixels: none", fill="black", font=small)
                 im.save(frames_dir / f"frame_{frame_no:04d}.png")
                 frame_no += 1
         subprocess.run(
@@ -60,7 +60,7 @@ def render_mp4(output_path: Path) -> bytes:
                 "ffmpeg", "-y", "-loglevel", "error", "-framerate", str(FPS),
                 "-i", str(frames_dir / "frame_%04d.png"),
                 "-c:v", "libx264", "-pix_fmt", "yuv420p",
-                "-preset", "medium", "-crf", "28", "-threads", "1",
+                "-preset", "medium", "-crf", "38", "-threads", "1",
                 "-movflags", "+faststart", "-map_metadata", "-1",
                 str(output_path),
             ],
