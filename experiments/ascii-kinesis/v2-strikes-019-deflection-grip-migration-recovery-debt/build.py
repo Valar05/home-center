@@ -61,10 +61,11 @@ def ascii_pose(key, rig=None, semantic=None):
 def build_contact(motion):
     blocks=[]
     for k in motion["keys"]:
+        pose=ascii_pose(k).strip("\n")
         blocks.append(
             f"{k['key_id']} {k['name']} | {k['timing_class']} | {k['timing_provenance']} | support={k['support_contact']}\n"
             f"role={k['causal_role']}\n"
-            f"{ascii_pose(k)}\n"
+            f"{pose}\n"
             f"root_note={k['motion_arc_root_note']}\n"
         )
     return (
@@ -88,16 +89,16 @@ def font(sz):
     return ImageFont.load_default()
 
 def render_frame(text, title, subtitle, index, total, out_path):
-    img=Image.new("RGB",(880,440),(12,12,14))
+    img=Image.new("RGB",(480,270),(12,12,14))
     d=ImageDraw.Draw(img)
-    titlef=font(18); subf=font(12); bodyf=font(14)
-    d.text((22,18),title,font=titlef,fill=(240,240,240))
-    d.text((22,43),subtitle,font=subf,fill=(170,170,170))
-    y=72
+    titlef=font(10); subf=font(7); bodyf=font(8)
+    d.text((12,9),title,font=titlef,fill=(240,240,240))
+    d.text((12,23),subtitle,font=subf,fill=(170,170,170))
+    y=38
     for line in text.splitlines():
-        d.text((42,y),line,font=bodyf,fill=(235,235,235))
-        y+=15
-    d.text((735,414),f"{index+1:03d}/{total:03d}",font=subf,fill=(150,150,150))
+        d.text((20,y),line,font=bodyf,fill=(235,235,235))
+        y+=9
+    d.text((405,254),f"{index+1:03d}/{total:03d}",font=subf,fill=(150,150,150))
     img.save(out_path,compress_level=9)
 
 def compile_frames(motion):
@@ -127,7 +128,7 @@ def render_mp4(motion):
     cmd=[
         "ffmpeg","-loglevel","error","-y","-framerate","24","-i",str(FRAME_DIR/"f%04d.png"),
         "-an","-c:v","libx264","-pix_fmt","yuv420p","-profile:v","high","-level","4.0",
-        "-preset","veryslow","-crf","22","-g","120","-bf","2",
+        "-preset","veryslow","-crf","32","-g","120","-bf","2",
         "-x264-params","scenecut=0:open_gop=0:nal-hrd=none",
         "-map_metadata","-1","-fflags","+bitexact","-flags:v","+bitexact",
         "-movflags","+faststart",str(TMP_MP4)
@@ -137,16 +138,23 @@ def render_mp4(motion):
     return frames
 
 def make_spa(motion, contact, media):
+    import gzip
     media64=base64.b64encode(media).decode("ascii")
+    ascii64=base64.b64encode(gzip.compress(contact.encode("utf-8"),compresslevel=9,mtime=0)).decode("ascii")
     json_text=json.dumps(motion,separators=(",",":"),ensure_ascii=True)
+    json64=base64.b64encode(gzip.compress(json_text.encode("utf-8"),compresslevel=9,mtime=0)).decode("ascii")
     css="""body{margin:0;background:#0d0d0f;color:#eee;font-family:ui-monospace,Consolas,monospace}nav{position:sticky;top:0;background:#17171b;padding:12px;border-bottom:1px solid #444}button{font:inherit;margin-right:8px;padding:8px 14px;background:#222;color:#eee;border:1px solid #666}section{display:none;padding:18px}section.active{display:block}pre{font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.12}video{display:block;max-width:100%;margin:auto;background:#000}"""
     return f"""<!doctype html><html><head><meta charset="utf-8"><title>ASCII Kinesis V2 Strikes019</title><style>{css}</style></head><body>
 <nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
-<section id="ascii" class="active"><pre>{html.escape(contact)}</pre></section>
-<section id="json"><pre>{html.escape(json_text)}</pre></section>
+<section id="ascii" class="active"><pre id="ascii-pre"></pre></section>
+<section id="json"><pre id="json-pre"></pre></section>
 <section id="video"><video controls playsinline src="data:video/mp4;base64,{media64}"></video></section>
-<script>const bs=[...document.querySelectorAll('button[data-view]')];const ss=[...document.querySelectorAll('section')];bs.forEach(b=>b.onclick=()=>{{ss.forEach(s=>s.classList.toggle('active',s.id===b.dataset.view));}});</script>
-</body></html>"""
+<script>
+const bs=[...document.querySelectorAll('button[data-view]')],ss=[...document.querySelectorAll('section')];
+bs.forEach(b=>b.onclick=()=>ss.forEach(s=>s.classList.toggle('active',s.id===b.dataset.view)));
+async function ungzip(b64,id){{const a=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));const st=new Blob([a]).stream().pipeThrough(new DecompressionStream('gzip'));document.getElementById(id).textContent=await new Response(st).text();}}
+ungzip('{ascii64}','ascii-pre');ungzip('{json64}','json-pre');
+</script></body></html>"""
 
 def main():
     motion=json.loads(MOTION.read_text(encoding="utf-8"))
@@ -158,8 +166,8 @@ def main():
     motion["compile"]["frame_count"]=len(frames)
     motion["compile"]["media_sha256"]=sha
     motion["compile"]["media_bytes"]=len(media)
-    motion["compile"]["width"]=880
-    motion["compile"]["height"]=440
+    motion["compile"]["width"]=480
+    motion["compile"]["height"]=270
     # Bind compiled identity back into persisted structured source.
     MOTION.write_text(json.dumps(motion,separators=(",",":"),ensure_ascii=True),encoding="utf-8")
     spa=make_spa(motion,contact,media)
