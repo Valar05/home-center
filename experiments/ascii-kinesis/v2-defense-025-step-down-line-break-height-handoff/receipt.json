@@ -2,7 +2,7 @@
   "schema": "ascii-kinesis.receipt.v2",
   "specimen_id": "v2-defense-025-step-down-line-break-height-handoff",
   "lane": "defense",
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "REPO_VERIFIED_PENDING_CHAT_DELIVERY",
   "current_worker_liveness": {
     "home_center_campaign_read": true,
     "campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
@@ -10,14 +10,18 @@
     "repo": "Valar05/home-center",
     "reset_issue_comment": 5576901079,
     "prior_durable_closure": 5613382632,
-    "latest_manager_reconciliation": 5613610356
+    "latest_manager_reconciliation": 5614513386,
+    "current_skill_blob": "acf628496e472f47f5c4daca1ae43deadd5f93f1",
+    "swarm_contract_blob": "a011337ab324f1b2a585d76bc3668b42d81a6a0d",
+    "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78"
   },
   "lineage": {
     "kind": "NEW_CONCEPT",
     "revises": null,
     "negative_fixture": null,
     "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
-    "successor_collision": false
+    "successor_collision": false,
+    "defense024_non_authoritative_successor_churn_preserved": "v2-defense-024-deflected-threat-clock-fork"
   },
   "source": {
     "provider": "The Spriters Resource",
@@ -42,33 +46,43 @@
     "bytes": 21372,
     "sha256": "38f224d8cc3aa98aa68dc69a83b39ce871c0e71ca22b258aaa10fd9305b70039",
     "decode": "PASS",
-    "origin": "abstract ASCII rig + authored timing only through Motion Dungeon builder semantics"
+    "origin": "abstract ASCII rig + authored timing only through Motion Dungeon builder semantics",
+    "fresh_byte_identical_reconstruction": true
   },
   "tango": {
     "r0": "REVISE_REQUIRED",
     "highest_value_visible_defect": "K08 lower catch put the right foot below the upper platform on the wrong side of the riser, so the claimed second lower support had no visible surface.",
     "same_body_correction": "Move K08-K11 lower-base root/feet left of the riser; keep K06/K07 trailing foot visibly unsupported through the descent; rerender.",
-    "r1": "PASS_CURRENT_WORKER_ACTUAL_RENDER",
-    "r1_reason": "lower probe precedes support; mixed-height catch visibly gates the root drop; threat clears above the lowered head with zero contact; upper support releases only after clearance; trailing leg sweeps unsupported; both final supports land on the lower tread; counter-rise and guard reopening remain delayed; final lower-root displacement pays recovery debt."
+    "r1_current_worker_revalidation": "PASS",
+    "r1_reason": "Fresh byte-identical actual render shows lower probe before authority, mixed-height support gating the root drop, zero-contact high-line clearance, post-clearance upper-foot release, visibly unsupported trailing sweep, both final supports on the lower tread, counter-rise, late guard reopening, and displaced lower-root debt."
   },
   "noodle_queen": {
-    "after_tango": "R1",
+    "current_worker": true,
+    "after_tango": "R1_CURRENT_WORKER_REVALIDATION",
     "taste": "PASS",
     "function": "PASS",
     "contempt": "PASS",
-    "reason": "The riser is an actual mechanical antagonist, not scenery: the body has to earn permission to fall. The ugly split-height catch, long low silhouette, trailing-foot debt, and grudging guard recovery make the specimen specific rather than polite."
+    "reason": "The riser is an actual mechanical antagonist, not scenery: the split-height catch, low silhouette, trailing-foot debt, lower-base compression, and grudging guard recovery remain specific rather than polite."
   },
   "validator": {
     "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-    "candidate_isolated": "PASS",
-    "repo_global": "NOT_CLAIMED_STANDARD_CHAT_BOUNDARY"
+    "candidate_isolated": "PASS_PERSISTED_UNCHANGED_CANDIDATE",
+    "repo_global": "NOT_CLAIMED_STANDARD_CHAT_BOUNDARY",
+    "boundary": "Current official validator source freshly read; exact candidate blobs are unchanged from the persisted candidate-isolated PASS."
   },
   "repo": {
-    "persisted": false,
-    "repo_readback": false,
-    "body_files_readback": 0,
-    "spa_count": 0,
-    "commit": null
+    "persisted": true,
+    "repo_readback": true,
+    "body_files_readback": 6,
+    "spa_count": 1,
+    "reconciliation_manifest_commit": "1fe23ecdb268268ab981ce1504ce5060090d948e",
+    "manifest_blob": "3132e82a2d1623b80c992f77f47a7679afbdf2b1",
+    "body_blobs": {
+      "build.py": "713a9d145cabb53ee945a18a57319583809d6663",
+      "contact-sheet.txt": "5c358af1bd07525d0f80923d781a3fa9887b6fe9",
+      "motion.json": "e626fe9c8e03fc811fcca67938be7a5ea77a6a23",
+      "step-down-line-break-height-handoff.motion.html": "52a9057b11a1713b5318d9ba8cc94b9a24ccf280"
+    }
   },
   "issue": {
     "pre_chat_receipt": null,
