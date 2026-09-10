@@ -1,0 +1,373 @@
+ASCII KINESIS V2 CONTACT023 — UNILATERAL HOOK CONTACT FORCE-SIGN GATE
+Legend: # fixed post | @ fixed peg | J/) generic hook | X closed contact | - unloaded shaft | = loaded shaft | + root | x COM | ! owning ground support
+Topology truth: CLOSED hook contact may carry ZERO load; force exists only while motion/load seats the hook into its blocking face. Environment custody is NONE.
+Independent abstract ASCII rig only; no source art.
+
+K0  READY_SEPARATE  [FOURS/INFERRED]
+CONTACT=SEPARATE  REL=OPEN  SUPPORT=GROUND_BOTH  ENV_CUSTODY=NONE
+HOOK=OPEN  LOAD=0.00  INTENT=NONE  FORCE_AXIS=NONE
+CAUSE: Displaced ready begins left of the fixed peg; no relationship exists.
+
+
+
+
+
+
+                                                  #
+                                                  #
+                                                  #
+                                                  #
+                O                                 #
+                |                                 @
+                o                                 #
+              o-|-o                  _)           #
+              | |  \             ---- J           #
+               | |  o        ----                 #
+               o-|   \\  ----                     #
+                 +o    o-                         #
+                / \                               #
+               o   o                              #
+              /     \                             #
+              /     \                             #
+  ___________!_______!______________________________________
+
+
+
+
+K1  ELIGIBLE_ALIGN  [TWOS/INFERRED]
+CONTACT=SEPARATE  REL=ELIGIBLE  SUPPORT=GROUND_BOTH  ENV_CUSTODY=NONE
+HOOK=OPEN  LOAD=0.00  INTENT=APPROACH  FORCE_AXIS=NONE
+CAUSE: Front step and hand extension align the hook mouth while preserving a visible gap.
+
+
+
+
+
+
+                                                  #
+                                                  #
+                                                  #
+                                                  #
+                   O                              #
+                   |                              @
+                   o                   ---_)      #
+                 o-|-o-        --------    J      #
+                  ||   -o--o---                   #
+                  o---o                           #
+                   |                              #
+                   +                              #
+                  / \                            #
+                 o    o                           #
+                /      \                          #
+                /       \                         #
+  _____________!_________!__________________________________
+
+
+
+
+K2  MOUTH_PASSES_PEG  [ONES/INFERRED]
+CONTACT=SEPARATE  REL=ELIGIBLE_PAST_CENTER  SUPPORT=GROUND_FRONT_BIASED  ENV_CUSTODY=NONE
+HOOK=OPEN_BEYOND  LOAD=0.00  INTENT=PASS_BEYOND  FORCE_AXIS=NONE
+CAUSE: Hook mouth passes beyond peg center with no force; projected overlap does not close topology.
+
+
+
+
+
+
+                                                  #
+                                                  #
+                                                  #
+                                                  #
+                      O                           #
+                      |                      --_) @
+                      o                ------   J #
+                    o-|-o-       ------           #
+                     ||   -o--o--                 #
+                     o---o                        #
+                     |                            #
+                     +                            #
+                    | \                          #
+                    o   o                         #
+                   /     \                        #
+                   /      \                       #
+  ________________o________!________________________________
+
+
+
+
+K3  THROAT_CLOSE_ZERO_LOAD  [TWOS/INFERRED]
+CONTACT=CLOSED_ZERO_LOAD  REL=HOOK_CLOSED  SUPPORT=GROUND_BOTH  ENV_CUSTODY=NONE
+HOOK=CLOSED  LOAD=0.00  INTENT=CLOSE_WITHOUT_PULL  FORCE_AXIS=NONE
+CAUSE: Hook throat closes around peg at zero load; closure is topology, not force and not custody.
+
+
+
+
+
+
+                                                  #
+                                                  #
+                                                  #
+                                                  #
+                      O                         )_#
+                      |                          X@
+                      o                     ---- J#
+                    o-|-o-         ---------      #
+                     ||   -o--o----               #
+                     o---o                        #
+                      |                           #
+                      +                           #
+                     | \                         #
+                     o   o                        #
+                    /     \                       #
+                    /      \                      #
+  _________________!________!_______________________________
+
+
+
+
+K4  SEAT_LOAD  [TWOS/INFERRED]
+CONTACT=CLOSED_LOADED  REL=HOOK_SEATED_BLOCKING_FACE  SUPPORT=GROUND_REAR_DOMINANT  ENV_CUSTODY=NONE
+HOOK=SEATED  LOAD=0.55  INTENT=PULL_INTO_BLOCKING_FACE  FORCE_AXIS=PEG_TO_ROOT_LEFT_DOWN
+CAUSE: Pelvis retreats and drops after closure; rear support pins while fixed hook throat makes a visible load path.
+
+
+
+
+
+
+                                                  #
+                                                  #
+                                                  #
+                                                  #
+                                         <<<    )_#
+                                                 X@
+                  O                          === J#
+                   |                  =======     #
+                   o            ======            #
+                 o-|-o-    -o===                  #
+                  \ |--o-o-                       #
+                   o-                             #
+                    +                             #
+                  // \                            #
+                 o    o                           #
+               //      \                          #
+  ____________!_________o___________________________________
+
+
+
+
+K5  LOAD_MAX  [FOURS/INFERRED]
+CONTACT=CLOSED_LOADED  REL=HOOK_SEATED_BLOCKING_FACE  SUPPORT=GROUND_REAR_PINNED  ENV_CUSTODY=NONE
+HOOK=SEATED  LOAD=1.00  INTENT=PULL_INTO_BLOCKING_FACE  FORCE_AXIS=PEG_TO_ROOT_LEFT_DOWN
+CAUSE: Maximum counterlean and compressed rear leg carry reaction through hands, shoulders, pelvis, and planted foot; hook point does not drift.
+
+
+
+
+
+
+                                                  #
+                                                  #
+                                                  #
+                                                  #
+                                         <<<    )_#
+                                                 X@
+                                              == J#
+                                         =====    #
+              O                     =====         #
+               |                ====              #
+               o           =====                  #
+             o- -o-    -o==                       #
+              \ \--o-o-                           #
+               o-+                                #
+             o--  \                               #
+           //      o-                             #
+  ________!___________o_____________________________________
+
+
+
+
+K6  RETURN_STILL_LOADED  [TWOS/INFERRED]
+CONTACT=CLOSED_LOADED  REL=HOOK_SEATED_BLOCKING_FACE  SUPPORT=GROUND_REAR_DOMINANT  ENV_CUSTODY=NONE
+HOOK=SEATED  LOAD=0.42  INTENT=RELAX_TOWARD_ZERO  FORCE_AXIS=PEG_TO_ROOT_LEFT
+CAUSE: Body advances before hook moves; load decays while same peg contact stays closed, producing opposing tool/torso lag.
+
+
+
+
+
+
+                                                  #
+                                                  #
+                                                  #
+                                                  #
+                                         <<<    )_#
+                                                 X@
+                 O                           === J#
+                 |                   ========     #
+                 o            =======             #
+               o- -o-    -o===                    #
+                \ |--o-o-                         #
+                 o-|                              #
+                   +                              #
+                 // \                             #
+                o    o                            #
+              //      \                           #
+  ___________!_________o____________________________________
+
+
+
+
+K7  UNLOAD_TOUCH  [TWOS/INFERRED]
+CONTACT=CLOSED_ZERO_LOAD  REL=HOOK_CLOSED  SUPPORT=GROUND_BOTH  ENV_CUSTODY=NONE
+HOOK=CLOSED  LOAD=0.00  INTENT=REVERSE_SIGN_UNLOADED  FORCE_AXIS=NONE
+CAUSE: Root passes forward of loaded line while throat still touches; reversed intent cannot push through unilateral hook, so force is zero.
+
+
+
+
+
+
+                                                  #
+                                                  #
+                                                  #
+                                                  #
+                       O                        )_#
+                       |                         X@
+                       o                      -- J#
+                     o-|-o                ----    #
+                      ||  \          -----        #
+                      o-   o-    ----             #
+                      | -o   -o--                 #
+                      +                           #
+                     / \                          #
+                    o   o                         #
+                   /     \                        #
+                   /     \                        #
+  ________________!_______!_________________________________
+
+
+
+
+K8  UNSEAT_EDGE_TOUCH  [ONES/INFERRED]
+CONTACT=EDGE_TOUCH_ZERO_LOAD  REL=UNSEATING  SUPPORT=GROUND_FRONT_BIASED  ENV_CUSTODY=NONE
+HOOK=EDGE_TOUCH  LOAD=0.00  INTENT=LIFT_THROUGH_RELEASE_APERTURE  FORCE_AXIS=NONE
+CAUSE: Hands lift and rotate through a distinct clearance arc while last edge touch stays unloaded.
+
+
+
+
+
+
+                                                  #
+                                                  #
+                                                  #
+                         O      o--------        )_
+                        |  -o //         --------JX
+                        o-- -o                    @
+                      o-o-o-                      #
+                        |                         #
+                       |                          #
+                       |                          #
+                       +                          #
+                      | \                        #
+                      o   o                       #
+                     |     \                      #
+                     |      \                     #
+                    |       \                     #
+  __________________o________!______________________________
+
+
+
+
+K9  RELEASE_CLEAR_GAP  [ONES/INFERRED]
+CONTACT=SEPARATE  REL=OPEN  SUPPORT=GROUND_FRONT_BIASED  ENV_CUSTODY=NONE
+HOOK=CLEAR  LOAD=0.00  INTENT=CLEAR_AWAY  FORCE_AXIS=NONE
+CAUSE: A real gap opens only after hook clears above and left of peg; tool head starts its own recovery clock.
+
+
+
+
+
+
+                                                  #
+                                                  #
+                                o------------_)   #
+                         O    //              J   #
+                         |  oo                    #
+                         o///                     @
+                       o-o-o                      #
+                         |                        #
+                        |                         #
+                        |                         #
+                        +                         #
+                       / \                       #
+                      o    o                      #
+                     |      \                     #
+                     |       \                    #
+                    |        \                    #
+  __________________o_________!_____________________________
+
+
+
+
+K10  COUNTER_OVERSHOOT  [TWOS/INFERRED]
+CONTACT=SEPARATE  REL=OPEN  SUPPORT=GROUND_FRONT_PINNED  ENV_CUSTODY=NONE
+HOOK=CLEAR  LOAD=0.00  INTENT=RECOVER  FORCE_AXIS=NONE
+CAUSE: Torso overshoots toward peg while freed hook head lags behind; front support catches body.
+
+
+
+
+
+
+                                                  #
+                                                  #
+                                                  #
+                                                  #
+                            O            _)       #
+                            |           --J       @
+                            o          -          #
+                          o-|-o       -           #
+                         | |   |    --            #
+                         o-|   o-  -              #
+                          |-o    -o               #
+                          +                       #
+                         | \                     #
+                         o   o                    #
+                        /     \                   #
+                        /      \                  #
+  _____________________o________!___________________________
+
+
+
+
+K11  READY_DISPLACED_SETTLE  [FOURS/INFERRED]
+CONTACT=SEPARATE  REL=OPEN  SUPPORT=GROUND_BOTH  ENV_CUSTODY=NONE
+HOOK=OPEN  LOAD=0.00  INTENT=NONE  FORCE_AXIS=NONE
+CAUSE: Body settles two columns right of opening ready and tool hangs on a different diagonal; no idle reset.
+
+
+
+
+
+
+                                                  #
+                                                  #
+                                                  #
+                                                  #
+                         O                        #
+                         |                        @
+                         o                        #
+                       o-|-o          _)          #
+                       | |  \        --J          #
+                        |    o     --             #
+                        o-    \\ --               #
+                        + -o    o                 #
+                       / \                        #
+                      o   o                       #
+                     /     \                      #
+                     /     \                      #
+  __________________!_______!_______________________________
