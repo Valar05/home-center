@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-airborne-038-drag-collapse-reacceleration-landing-debt",
-  "status": "REPO_VERIFIED_READY_FOR_USER_SURFACE",
+  "status": "USER_SURFACED_PENDING_TERMINAL_DURABILITY",
   "current_worker": {
     "home_center_campaign_read": true,
     "github_persistence_readback": true,
@@ -22,13 +22,7 @@
     "timing_authority": false,
     "rights_firewall": true
   },
-  "lineage": {
-    "revises": null,
-    "negative_fixture": null,
-    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
-    "successor_collision": false,
-    "one_body_binding": true
-  },
+  "lineage": {"revises": null, "negative_fixture": null, "source_change": "NOT_APPLICABLE_NEW_CONCEPT", "successor_collision": false, "one_body_binding": true},
   "repo": {
     "persisted": true,
     "final_readback": true,
@@ -36,44 +30,16 @@
     "six_file_readback": true,
     "build_blob": "828b192dea98128fe585519a1901a2d81b6e757a",
     "contact_blob": "f8015b089a932d3575121ae01d6346726f60c9ca",
-    "manifest_blob": "f46f4780f834b8e5b2591b07290a9018716251f4",
+    "manifest_blob": "14cc07145fac8e968877395b9c1dfb10d60b9bbb",
     "motion_blob": "79e483c7097aba85bd36f72f0150e2fcb2238f26",
     "spa_blob": "00769ff689ece90c074a1987c3f1b5c639584139"
   },
-  "media": {
-    "sha256": "aa3aa28d7442d7dc5c81b23d3918cf1d5498718388798c12692cb6d1ed172041",
-    "bytes": 46583,
-    "codec": "H.264",
-    "pixel_format": "yuv420p",
-    "width": 800,
-    "height": 448,
-    "fps": 24,
-    "frames": 79,
-    "decode": "PASS",
-    "authority": "AUTHORITATIVE"
-  },
-  "validator": {
-    "source_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-    "candidate_isolated": "PASS_CURRENT_VALIDATOR_PREDICATES",
-    "execution_boundary": "Exact current validator source and candidate were freshly read; candidate-isolated structural predicates pass in Standard Chat. Repository-global shell-suite execution is not claimed."
-  },
-  "repository_correction": {
-    "classification": "CONTACT_SERIALIZATION_DRIFT",
-    "bad_write_commit": "9ffc48621068108eb0ffb5aebd05b2e355c182f8",
-    "bad_contact_blob": "bb4562107d435008b288f7c15d3e4feb67df06ee",
-    "correct_contact_blob": "f8015b089a932d3575121ae01d6346726f60c9ca",
-    "motion_source_lineage_choreography_unchanged": true
-  },
-  "issue_343": {
-    "pre_delivery_receipt": 5619723653,
-    "pre_delivery_readback": true,
-    "reporting_chat_receipt": null,
-    "reporting_chat_readback": false,
-    "terminal_durability_anchor": null,
-    "terminal_anchor_readback": false
-  },
-  "campaign": {"checkpoint": false, "readback": false},
-  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_video": false, "ordered": false},
+  "media": {"sha256": "aa3aa28d7442d7dc5c81b23d3918cf1d5498718388798c12692cb6d1ed172041", "bytes": 46583, "codec": "H.264", "pixel_format": "yuv420p", "width": 800, "height": 448, "fps": 24, "frames": 79, "decode": "PASS", "authority": "AUTHORITATIVE"},
+  "validator": {"source_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78", "candidate_isolated": "PASS_CURRENT_VALIDATOR_PREDICATES", "execution_boundary": "Exact current validator source and candidate were freshly read; candidate-isolated structural predicates pass in Standard Chat. Repository-global shell-suite execution is not claimed."},
+  "repository_correction": {"classification": "CONTACT_SERIALIZATION_DRIFT", "bad_write_commit": "9ffc48621068108eb0ffb5aebd05b2e355c182f8", "bad_contact_blob": "bb4562107d435008b288f7c15d3e4feb67df06ee", "correct_contact_blob": "f8015b089a932d3575121ae01d6346726f60c9ca", "motion_source_lineage_choreography_unchanged": true},
+  "issue_343": {"pre_delivery_receipt": 5619723653, "pre_delivery_readback": true, "reporting_chat_receipt": 5619763714, "reporting_chat_readback": true, "terminal_durability_anchor": null, "terminal_anchor_readback": false},
+  "campaign": {"reporting_checkpoint": "ascii-kinesis-airborne038-reporting-checkpoint-20260910-0835", "checkpoint": true, "readback": true, "terminal_confirmation": false, "terminal_readback": false},
+  "chat_delivery": {"part1_ascii": true, "part2_json": true, "part3_video": true, "ordered": true},
   "DREW_ACCEPTED": false,
   "next_authorized": null
 }
