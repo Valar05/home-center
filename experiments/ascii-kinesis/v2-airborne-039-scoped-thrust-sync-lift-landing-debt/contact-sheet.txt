@@ -1,0 +1,741 @@
+ASCII KINESIS V2 - AIRBORNE039
+SCOPED_THRUST_SYNC_LIFT_LANDING_DEBT
+SOURCE EVIDENCE: TSR asset 97821 - Robot - Nuclear Throne - PC / Computer - Playable Characters
+SOURCE TIMING: UNKNOWN. ALL DECISIVE COMPILE TIMING BELOW: INFERRED / STREET_FIGHTER-CAPCOM.
+RIGHTS: source evidence only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio/close imitation.
+CLOCK LAW: A period=5 ticks INFERRED; B period=7 ticks INFERRED; scoped sync restarts A+B only; BODY_ROOT/SUPPORT_CLOCK preserve phase.
+
+========================================================================================================
+K00 :: LOAD / CHANNELS QUIET
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=ANTICIPATION_LOAD
+support_contact=BOTH_FEET_GROUND | eligibility=SUPPORTED
+root=[8, 32] | channels={'A': 'LOW', 'B': 'LOW'} | force=GROUND_REACTION_LOAD
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        o
+      _/|\_
+     [A]|[B]
+       / \
+     _/   \_
+
+
+
+
+
+
+
+
+
+
+
+    *       *
+________________________________________________________________________________________________________
+
+
+
+========================================================================================================
+K01 :: SUPPORT BREAK / PAIRED LAUNCH
+timing_class=ONES | timing_provenance=INFERRED | causal_role=EARNED_SUPPORT_BREAK
+support_contact=NONE | eligibility=SUPPORT_REVOKED
+root=[13, 25] | channels={'A': 'PULSE', 'B': 'PULSE'} | force=PAIRED_UPWARD_LAUNCH_IMPULSE
+
+
+
+
+
+
+
+
+
+
+
+
+
+             o
+            /|\
+          [A]|[B]
+            / \
+           /   \
+
+          /// \\\
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+________________________________________________________________________________________________________
+
+
+
+========================================================================================================
+K02 :: A PULSE / RIGHTWARD DEBT
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=ASYNC_FORCE_SAMPLE_A
+support_contact=NONE | eligibility=UNSUPPORTED
+root=[21, 18] | channels={'A': 'PULSE', 'B': 'LOW'} | force=A_UP_RIGHT_RESULTANT
+
+
+
+
+
+
+
+
+
+
+
+                       o
+                     _/|\
+                  [A] |[B]
+                     /  \
+                    /    \
+
+                  ///
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+________________________________________________________________________________________________________
+
+
+
+========================================================================================================
+K03 :: B PREP / COAST
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=ASYNC_PHASE_GAP
+support_contact=NONE | eligibility=UNSUPPORTED
+root=[31, 13] | channels={'A': 'LOW', 'B': 'PREP'} | force=BALLISTIC_COAST
+
+
+
+
+
+
+                               o
+                             --|--
+                            [A]|[B]
+                              / \
+                             /   \
+
+                                 \
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+________________________________________________________________________________________________________
+
+
+
+========================================================================================================
+K04 :: B PULSE / LEFTWARD DEBT
+timing_class=ONES | timing_provenance=INFERRED | causal_role=ASYNC_FORCE_SAMPLE_B
+support_contact=NONE | eligibility=UNSUPPORTED
+root=[38, 10] | channels={'A': 'LOW', 'B': 'PULSE'} | force=B_UP_LEFT_RESULTANT
+
+
+
+
+                                    o
+                                   /|\_
+                                  [A]| [B]
+                                   /  \
+                                  /    \
+
+                                       \\\
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+________________________________________________________________________________________________________
+
+
+
+========================================================================================================
+K05 :: FREE-RUN APEX / PHASE DISAGREEMENT
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=ASYNC_RESULTANT_READ
+support_contact=NONE | eligibility=UNSUPPORTED
+root=[42, 9] | channels={'A': 'LOW', 'B': 'LOW'} | force=BALLISTIC_APEX_AFTER_ASYNC_PULSES
+
+
+
+
+                                          o
+                                        --|--
+                                       [A]|[B]
+                                         / \
+                                        /   \
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+________________________________________________________________________________________________________
+
+
+
+========================================================================================================
+K06 :: SCOPED SYNC / BODY CLOCK PRESERVED
+timing_class=ONES | timing_provenance=INFERRED | causal_role=SCOPED_SYNC_FORCE_JOIN
+support_contact=NONE | eligibility=UNSUPPORTED
+root=[46, 11] | channels={'A': 'RESTART_PULSE', 'B': 'RESTART_PULSE'} | force=SIMULTANEOUS_UPWARD_THRUST
+sync_scope=['A', 'B'] | nonparticipants=['BODY_ROOT', 'SUPPORT_CLOCK']
+
+
+
+
+
+                                              o
+                                             /|\
+                                           [A]|[B]
+                                             | |
+                                             | |
+
+                                           /// \\\
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+________________________________________________________________________________________________________
+
+
+
+========================================================================================================
+K07 :: SYNC LIFT / ROOT REACCELERATED UP
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=ROOT_VELOCITY_CHANGE_FROM_SYNC
+support_contact=NONE | eligibility=UNSUPPORTED
+root=[52, 7] | channels={'A': 'PULSE', 'B': 'PULSE'} | force=PAIRED_LIFT_WITH_LATERAL_CANCELLATION
+
+
+                                                    o
+                                                  \|/
+                                                 [A]|[B]
+                                                   | |
+                                                  /   \
+
+                                                 /// \\\
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+________________________________________________________________________________________________________
+
+
+
+========================================================================================================
+K08 :: POST-SYNC COAST / SECOND APEX
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=SECOND_APEX_READ
+support_contact=NONE | eligibility=UNSUPPORTED
+root=[60, 8] | channels={'A': 'LOW', 'B': 'LOW'} | force=BALLISTIC_COAST_AFTER_LIFT
+
+
+
+                                                            o
+                                                          --|--
+                                                         [A]|[B]
+                                                           / \
+                                                          /   \
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+________________________________________________________________________________________________________
+
+
+
+========================================================================================================
+K09 :: DESCENT PREP / RIGHT TOE LEADS
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=LANDING_ELIGIBILITY
+support_contact=NONE | eligibility=RIGHT_TOE_SEPARATED_PRECONTACT
+root=[70, 15] | channels={'A': 'LOW', 'B': 'LOW'} | force=GRAVITY_DESCENT
+
+
+
+
+
+
+
+
+                                                                       o
+                                                                      /|\
+                                                                   [A] |[B]
+                                                                      / \
+                                                                     /   \__
+                                                                            _
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+________________________________________________________________________________________________________
+
+
+
+========================================================================================================
+K10 :: RIGHT TOE CATCH / UNILATERAL CRUSH
+timing_class=ONES | timing_provenance=INFERRED | causal_role=FIRST_SUPPORT_CATCH
+support_contact=RIGHT_TOE_ONLY | eligibility=RIGHT_SUPPORT_ACQUIRED
+root=[77, 25] | channels={'A': 'LOW', 'B': 'LOW'} | force=RIGHT_SUPPORT_IMPACT_BRAKE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                               o
+                                                                              /|\
+                                                                          [A]  |[B]
+                                                                              / \
+                                                                           __/   \_
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                 *
+________________________________________________________________________________________________________
+
+
+
+========================================================================================================
+K11 :: TORSO OVERSHOOT / RIGHT SUPPORT HOLDS
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=IMPACT_FORCE_PAYMENT
+support_contact=RIGHT_FOOT_DOMINANT | eligibility=LEFT_FOOT_NOT_YET_ELIGIBLE
+root=[80, 28] | channels={'A': 'LOW', 'B': 'LOW'} | force=UNILATERAL_COMPRESSION_WITH_TORSO_OVERRUN
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                    o
+                                                                                  _/|\
+                                                                             [A]   |[B]
+                                                                                 _/ \
+                                                                              __/    \_
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                    *
+________________________________________________________________________________________________________
+
+
+
+========================================================================================================
+K12 :: LEFT FOOT CATCH / BRAKE WIDENS
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=DELAYED_SECOND_SUPPORT
+support_contact=BOTH_FEET_GROUND | eligibility=SECOND_SUPPORT_ACQUIRED
+root=[82, 29] | channels={'A': 'LOW', 'B': 'LOW'} | force=BILATERAL_BRAKE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                    o
+                                                                                   /|\
+                                                                               [A]  |[B]
+                                                                                  _/ \_
+                                                                               __/     \_
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                              *       *
+________________________________________________________________________________________________________
+
+
+
+========================================================================================================
+K13 :: COMPRESSION / UPPER LAG
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=COMPRESSION_AND_SECONDARY_LAG
+support_contact=BOTH_FEET_GROUND | eligibility=SUPPORTED_UNDER_LOAD
+root=[83, 31] | channels={'A': 'LOW', 'B': 'LOW'} | force=BILATERAL_COMPRESSION
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                    o
+                                                                                  _/|\_
+                                                                                [A] |[B]
+                                                                                 __/ \__
+                                                                               _/       \_
+
+
+
+
+
+
+
+
+
+
+
+                                                                               *       *
+________________________________________________________________________________________________________
+
+
+
+========================================================================================================
+K14 :: REBOUND / COUNTERSWING
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=OVERSHOOT_REVERSAL
+support_contact=BOTH_FEET_GROUND | eligibility=SUPPORTED
+root=[85, 28] | channels={'A': 'LOW', 'B': 'LOW'} | force=GROUND_REBOUND
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                    o
+                                                                                   /|\_
+                                                                                 [A]| [B]
+                                                                                   / \
+                                                                                __/   \__
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                 *       *
+________________________________________________________________________________________________________
+
+
+
+========================================================================================================
+K15 :: DISPLACED SETTLE
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=DISPLACED_RECOVERY_DEBT_PAID
+support_contact=BOTH_FEET_GROUND | eligibility=SUPPORTED_STABLE
+root=[88, 30] | channels={'A': 'LOW', 'B': 'LOW'} | force=SETTLED
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                        o
+                                                                                       /|\
+                                                                                     [A]|[B]
+                                                                                       / \
+                                                                                    __/   \__
+
+
+
+
+
+
+
+
+
+
+
+                                                                                    *       *
+________________________________________________________________________________________________________
