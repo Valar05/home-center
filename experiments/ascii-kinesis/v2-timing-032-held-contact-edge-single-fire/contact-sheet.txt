@@ -1,0 +1,80 @@
+K00 SEPARATE_READY | FOURS/4t | PROV=INFERRED | CONTACT=LOW | EDGE=ARMED
+ A:        O                                  O        :B
+          /|\                                /|\
+        o--@--o                R             o--@--o
+          / \                                / \
+         *   *                              *   *
+  __________________________________________________________________
+ ROOT_A=+0.00  ROOT_B=+0.00  SUPPORT=A_BOTH|B_BOTH  EVENT_COUNT=0
+----------------------------------------------------------------------------
+K01 APPROACH_COIL | TWOS/2t | PROV=INFERRED | CONTACT=LOW | EDGE=ARMED
+ A:          O                             O           :B
+            /|\                           /|\
+          o--@--o  --->            <---  o--@--o
+           /  \             R             / \
+          *    +                          *   *
+  __________________________________________________________________
+ ROOT_A=+0.12  ROOT_B=+0.00  SUPPORT=A_LEFT|B_BOTH  EVENT_COUNT=0
+----------------------------------------------------------------------------
+K02 ACQUIRE_EDGE_FIRE | ONES/1t | PROV=INFERRED | CONTACT=RISING | EDGE=FIRE_ONCE
+ A:             O                        O!          :B
+               /|\            h*=======/|
+             o--@--o          R         @--o
+              /  \                    / \
+             *    +                   *   *
+  __________________________________________________________________
+ ROOT_A=+0.22  ROOT_B=+0.10  SUPPORT=A_LEFT_CATCH|B_BOTH  EVENT_COUNT=1
+----------------------------------------------------------------------------
+K03 HELD_IMPULSE_ABSORB | TWOS/2t | PROV=INFERRED | CONTACT=HIGH | EDGE=SPENT
+ A:                O                    O            :B
+                  /|\       h*========/|
+                o--@--o     R          @--o
+                  / \                 /  \
+                 +   *                *    +
+  __________________________________________________________________
+ ROOT_A=+0.31  ROOT_B=+0.18  SUPPORT=A_RIGHT|B_LEFT  EVENT_COUNT=1
+----------------------------------------------------------------------------
+K04 HELD_LOAD_CARRY | FOURS/4t | PROV=INFERRED | CONTACT=HIGH | EDGE=SPENT
+ A:                    O              O              :B
+                      /|\   h*========|\
+                    o--@--o R         @--o
+                      / \             \ \
+                     +   *              + *
+  __________________________________________________________________
+ ROOT_A=+0.43  ROOT_B=+0.30  SUPPORT=A_RIGHT|B_RIGHT  EVENT_COUNT=1
+----------------------------------------------------------------------------
+K05 HELD_CROSS_SUPPORT | TWOS/2t | PROV=INFERRED | CONTACT=HIGH | EDGE=SPENT
+ A:                      O          O                 :B
+                        /|\ h*=======|\
+                      o--@-o R       @--o
+                       /|            / \
+                      * *           *   +
+  __________________________________________________________________
+ ROOT_A=+0.53  ROOT_B=+0.38  SUPPORT=A_BOTH|B_LEFT  EVENT_COUNT=1
+----------------------------------------------------------------------------
+K06 RELEASE_PREP_HIGH | TWOS/2t | PROV=INFERRED | CONTACT=HIGH | EDGE=SPENT
+ A:                       O        O                  :B
+                         /|\h*======|\
+                       o--@-o R     @--o
+                        / \        / \
+                       *   *       *   *
+  __________________________________________________________________
+ ROOT_A=+0.58  ROOT_B=+0.42  SUPPORT=A_BOTH|B_BOTH  EVENT_COUNT=1
+----------------------------------------------------------------------------
+K07 RELEASE_OPEN | ONES/1t | PROV=INFERRED | CONTACT=FALLING | EDGE=NO_FIRE
+ A:                        O      O                   :B
+                          /|\ h //|\
+                        o--@-o R// @--o
+                         / \       / \
+                        *   *      *   *
+  __________________________________________________________________
+ ROOT_A=+0.61  ROOT_B=+0.48  SUPPORT=A_BOTH|B_BOTH  EVENT_COUNT=1
+----------------------------------------------------------------------------
+K08 DISPLACED_SETTLE | FOURS/4t | PROV=INFERRED | CONTACT=LOW | EDGE=DISARMED
+ A:                         O             O          :B
+                           /|\           /|\
+                         o--@--o    R    o--@--o
+                           / \           / \
+                          *   *         *   *
+  __________________________________________________________________
+ ROOT_A=+0.64  ROOT_B=+0.52  SUPPORT=A_BOTH|B_BOTH  EVENT_COUNT=1
