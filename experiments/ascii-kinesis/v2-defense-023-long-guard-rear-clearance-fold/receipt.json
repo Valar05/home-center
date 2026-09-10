@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.defense-receipt-v2",
   "specimen_id": "v2-defense-023-long-guard-rear-clearance-fold",
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "REPO_VERIFIED_PENDING_CHAT_DELIVERY",
   "current_worker_liveness": {
     "home_center_campaign_exact_read": true,
     "campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
@@ -17,12 +17,19 @@
     "source_role": "STYLE_REFERENCE"
   },
   "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "255871",
+    "character": "Spear",
+    "game": "Legend of Heroes",
+    "platform": "Arcade",
     "whole_source_sha256": "e850b6944ee00b9087d67d3aebf96d7a8676a495c80bfcaf091df9949d41f611",
     "source_authentic_timing": "UNKNOWN",
     "compile_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
-    "rights_firewall": "PASS"
+    "rights_firewall": "PASS_NO_SOURCE_PIXELS_OR_AUDIO"
   },
   "media": {
+    "authoritative_file": "long-guard-rear-clearance-fold.mp4",
+    "embedded_in_spa": true,
     "codec": "h264",
     "pixel_format": "yuv420p",
     "width": 800,
@@ -32,28 +39,55 @@
     "duration_seconds": 2.0416666666666665,
     "bytes": 21378,
     "sha256": "98456c37455fecadf220ccb0b0c03a4688d1b29ad210e03a5ab7a6fc4dba84cb",
-    "decode_verified": true
+    "decode_verified": true,
+    "byte_identical_reconstruction": true,
+    "generated_from": "abstract_ascii_rig_plus_authored_timing_only"
   },
   "quality": {
-    "tango_round": "R0",
-    "tango": "PASS_CURRENT_WORKER_ACTUAL_RENDER",
-    "noodle_queen": "PASS_CURRENT_WORKER_ACTUAL_RENDER_TASTE_FUNCTION_CONTEMPT",
-    "mutation_after_pass": false
+    "actual_render_sha256": "98456c37455fecadf220ccb0b0c03a4688d1b29ad210e03a5ab7a6fc4dba84cb",
+    "tango": {
+      "verdict": "PASS",
+      "current_worker": true,
+      "round": "R0_REVALIDATION",
+      "judgment": "Threat closes before interior-shaft contact; the rear guard end folds up from the explicit clearance plane while two-hand custody remains continuous; pelvis/root and rear-heel unload follow the fold; contact is absent once the rear foot is unsupported; one-leg rear sweep, compressed catch, counter-torque, late re-span, and displaced low-ready debt remain visible."
+    },
+    "noodle_queen": {
+      "verdict": "PASS",
+      "current_worker": true,
+      "after_tango": "R0_REVALIDATION",
+      "taste": "Specific long-span guard versus rear-clearance constraint produces a memorable folded silhouette sequence.",
+      "function": "Clearance debt visibly propagates into pelvis/support choice, rear-leg sweep, catch, counter-torque, and delayed guard reopening.",
+      "contempt": "Recovery stays wider, lower, and inconvenient instead of politely returning to idle."
+    },
+    "mutation_after_revalidation": false
   },
   "validator": {
+    "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-    "candidate_isolated": "PASS_EXACT_CURRENT_VALIDATOR_BLOB",
-    "repo_global": "NOT_CLAIMED_STANDARD_CHAT_NO_FULL_CHECKOUT"
+    "scope": "candidate-isolated exact current-validator semantics",
+    "verdict": "PASS_CURRENT_WORKER",
+    "stdout": "{\"entries_checked\": [\"v2-defense-023-long-guard-rear-clearance-fold\"], \"ok\": true, \"schema\": \"ascii-kinesis.swarm-contract-v2-test\"}",
+    "repo_global_execution_claimed": false
   },
   "repo": {
-    "persisted": false,
-    "repo_readback": false,
-    "body_files_readback": 0,
-    "spa_count_readback": 0,
-    "commit": null,
-    "blobs": {}
+    "persisted": true,
+    "repo_readback": true,
+    "body_files_readback": 6,
+    "spa_count_readback": 1,
+    "exactly_one_spa": true,
+    "current_main_commit_before_receipt": "f9a6f63459879f4914713fed7e39b5124df53938",
+    "manifest_commit": "36c42632db5be7e002494090a34fdd00af7e6a00",
+    "blobs": {
+      "build.py": "0bdb3fff7db3e44c6f226de1be696f6af5c7aa83",
+      "contact-sheet.txt": "0002d64710968c8578315a360ef5b632d570216c",
+      "manifest.json": "46e99dc4e732ed08369306fac1c63b701685d098",
+      "motion.json": "65086178f1f55f860187a2eb23a7d5f98460ac99",
+      "long-guard-rear-clearance-fold.motion.html": "d97fc42d8ec8383ac02695c423dd876ed958ab32"
+    },
+    "receipt_previous_blob": "a323b463998f8835ee087a1d997af73d13b4f6e4"
   },
   "issue": {
+    "number": 343,
     "comment_id": null,
     "readback": false
   },
