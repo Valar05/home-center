@@ -1,0 +1,115 @@
+{
+  "schema": "ascii-kinesis.v2.receipt",
+  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_CHAT_DELIVERY",
+  "lane": "LOCOMOTION",
+  "number": 25,
+  "body_path": "experiments/ascii-kinesis/v2-locomotion-025-friction-break-slide-catch-runout/",
+  "preflight": {
+    "home_center_campaign": true,
+    "github_authenticated_readback": true
+  },
+  "repair_queue": {
+    "pre_reset_locomotion_debt_exhausted": true,
+    "evidence_issue_closure": "5597272086",
+    "manager_reconciliation": "pre-reset Locomotion repair debt is therefore exhausted"
+  },
+  "lineage": {
+    "type": "NEW_CONCEPT",
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "one_successor_binding": true,
+    "collision": false,
+    "predecessor_closure": "5622347443"
+  },
+  "source": {
+    "home_center_campaign": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "evidence_document": "13LNIYKD8DmWrc9trwiicS873bX-p-lku8QVNqdFk2Yc",
+    "asset_id": 133611,
+    "identity": "Ride Armor — Mega Man X — SNES — The Spriters Resource",
+    "source_role": "EVIDENCE_ONLY",
+    "whole_source_inspected": true,
+    "observed": [
+      "static source family includes distinct walking, jumping/landing, dashing, action variants, and disassembled/auxiliary material",
+      "source document explicitly treats whole sheet as evidence-only and timing as unavailable"
+    ],
+    "inferred": [
+      "friction-break locomotion causality",
+      "sliding-support world drift",
+      "right-foot recapture",
+      "all root/COM/support choreography",
+      "all timing classes and holds"
+    ],
+    "unknown": [
+      "source-authentic chronology",
+      "source-authentic exposure duration",
+      "source-authentic support ownership",
+      "source-authentic root path",
+      "source-authentic friction behavior"
+    ],
+    "timing_authority": "UNKNOWN",
+    "timing_profile": "INFERRED / STREET_FIGHTER-CAPCOM"
+  },
+  "rights": {
+    "firewall": true,
+    "source_art_embedded": false,
+    "source_pixels": false,
+    "source_audio": false,
+    "no_palette_copy": true,
+    "no_contour_copy": true,
+    "no_layout_copy": true,
+    "no_tracing": true,
+    "no_choreography_copy": true,
+    "no_close_imitation": true
+  },
+  "media": {
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 480,
+    "height": 270,
+    "fps": 24,
+    "frames": 29,
+    "bytes": 14775,
+    "sha256": "b2b35418826241b963f2c4944ddd724a4cf46c3fa16395fcee5982899d7a37cd",
+    "decode": true
+  },
+  "quality": {
+    "tango": "PASS",
+    "tango_worker": "current-reporting-worker",
+    "noodle_queen": "PASS",
+    "queen_axes": [
+      "TASTE",
+      "FUNCTION",
+      "CONTEMPT"
+    ],
+    "same_actual_render": true
+  },
+  "validator": {
+    "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS",
+    "repository_global": "UNCLAIMED_STANDARD_CHAT_CONNECTOR_BOUNDARY"
+  },
+  "repo": {
+    "post_write_readback": false,
+    "exact_six_file_body": false,
+    "one_spa": false
+  },
+  "issue_343": {
+    "pre_delivery_receipt": null,
+    "readback": false,
+    "closure": null,
+    "terminal_readback": null
+  },
+  "campaign": {
+    "preflight_read": true,
+    "terminal_propagated": false,
+    "terminal_readback": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false
+  },
+  "drew_accepted": false,
+  "next_authorized": null
+}
