@@ -17,6 +17,7 @@ sys.modules[SPEC.name] = mod
 SPEC.loader.exec_module(mod)
 
 EPISODE_ID = "ritsu-latin-cassette-intercom-v1"
+RETRIEVAL_ID = "latin-primary-retrieval-v1"
 SUMMARY = (
     "Recurring Latin cassette/intercom ambience in Ritsu/Drew roleplay; "
     "the device became repetitive; Drew corrected Ritsu with AGAIN about the Latin; "
@@ -37,6 +38,10 @@ class RitsuContextRouterContract(unittest.TestCase):
         self.assertFalse(r.world_knowledge_allowed)
         self.assertTrue(r.seek_primary)
         self.assertTrue(any("dropped" in c for c in r.corrections))
+        self.assertIsNotNone(r.active_retrieval)
+        self.assertEqual(r.active_retrieval["id"], RETRIEVAL_ID)
+        self.assertEqual(r.active_retrieval["status"], "open")
+        self.assertEqual(r.active_retrieval["required_provenance"], "primary_transcript")
 
     def test_latin_plays_normalizes_punctuation_without_broad_semantic_guessing(self) -> None:
         r = self.router.resolve("  LATIN—PLAYS!!! ")
@@ -69,6 +74,7 @@ class RitsuContextRouterContract(unittest.TestCase):
         self.assertEqual(r.matched_cue, "the latin")
         self.assertEqual(r.required_provenance, "primary_transcript")
         self.assertFalse(r.world_knowledge_allowed)
+        self.assertEqual(r.active_retrieval["id"], RETRIEVAL_ID)
 
     def test_exact_wording_without_primary_is_continuity_gap_not_fabrication(self) -> None:
         r = self.router.resolve("Latin plays", exact_wording=True)
@@ -78,6 +84,35 @@ class RitsuContextRouterContract(unittest.TestCase):
         self.assertEqual(r.required_provenance, "primary_transcript")
         self.assertTrue(r.seek_primary)
         self.assertFalse(r.world_knowledge_allowed)
+        self.assertEqual(r.active_retrieval["id"], RETRIEVAL_ID)
+        self.assertIn("Latin plays", r.active_retrieval["deterministic_queries"])
+        self.assertIn("Drew AGAIN correction evidence", r.active_retrieval["closure_requires"])
+
+    def test_active_retrieval_has_complete_five_pass_review(self) -> None:
+        record = self.router.active_retrieval_by_episode[EPISODE_ID]
+        self.assertEqual(tuple(record["review"]), mod.REVIEW_PASSES)
+        for name in mod.REVIEW_PASSES:
+            self.assertTrue(record["review"][name].strip())
+
+    def test_active_retrieval_cannot_close_on_summary_or_adjacent_evidence(self) -> None:
+        review = {name: f"pass {name}" for name in mod.REVIEW_PASSES}
+        false_closure = {
+            "record_type": "active_retrieval",
+            "id": "false-close",
+            "episode_id": EPISODE_ID,
+            "status": "closed",
+            "required_provenance": "primary_transcript",
+            "review": review,
+        }
+        with tempfile.TemporaryDirectory() as td:
+            active = Path(td) / "active.jsonl"
+            active.write_text(json.dumps(false_closure) + "\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "cannot close without readable primary transcript"):
+                mod.RitsuContextRouter(
+                    ROOT / "config" / "ritsu-os.v0.json",
+                    ROOT / "fixtures" / "ritsu-continuity" / "episode-ledger.v0.jsonl",
+                    active,
+                )
 
     def test_again_immediate_bind_reuses_attributable_episode(self) -> None:
         r = self.router.resolve("Again.", working_state={"last_episode_id": EPISODE_ID})
@@ -183,6 +218,7 @@ class RitsuContextRouterContract(unittest.TestCase):
             self.assertEqual(r.provenance_tier, "primary_transcript")
             self.assertEqual(r.content, "PRIMARY WORDING")
             self.assertFalse(r.seek_primary)
+            self.assertIsNone(r.active_retrieval)
 
     def test_ambiguous_aliases_fail_closed(self) -> None:
         policy = ROOT / "config" / "ritsu-os.v0.json"
