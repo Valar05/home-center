@@ -1,0 +1,73 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "experiment_id": "v2-airborne-037-counterrotation-yaw-landing-alignment-debt",
+  "status": "QUALITY_GATES_PASS_PENDING_REPO_PERSISTENCE_AND_CHAT_DELIVERY",
+  "current_worker_liveness": {
+    "home_center_campaign_read": true,
+    "github_persistence_readback": true
+  },
+  "lineage": {
+    "one_body_binding": true,
+    "successor_collision": false,
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT"
+  },
+  "source": {
+    "asset_id": "185069",
+    "campaign_evidence_artifact": "1vV3cT1mRbRIT-jZY1kbnbQLX_JzHaZ1zmIHaPhMUaQs",
+    "whole_source_evidence_read": true,
+    "source_authentic_timing": "UNKNOWN",
+    "rights_firewall": true
+  },
+  "quality": {
+    "actual_render_sha256": "f3b51c5841430ebcff58f8501dc5c956e9c769e04bc4fd7df9bf442c87f5cd2f",
+    "media_bytes": 39471,
+    "width": 768,
+    "height": 432,
+    "fps": 24,
+    "frames": 64,
+    "decode": "PASS",
+    "tango": {
+      "revision": "R0",
+      "status": "PASS",
+      "current_worker": true
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "taste": "PASS",
+      "function": "PASS",
+      "contempt": "PASS",
+      "current_worker": true
+    }
+  },
+  "validator": {
+    "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS",
+    "execution_boundary": "Exact current validator source blob executed against isolated Airborne037 candidate; repository-global checkout/shell suite not claimed."
+  },
+  "repo": {
+    "persisted": false,
+    "final_readback": false,
+    "exact_one_spa": false,
+    "six_file_readback": false,
+    "files": {}
+  },
+  "issue_343": {
+    "pre_delivery_receipt": null,
+    "readback": false,
+    "reporting_chat_receipt": null,
+    "terminal_durable_addendum": null
+  },
+  "campaign": {
+    "closure_propagated": false,
+    "readback": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false
+  },
+  "DREW_ACCEPTED": false,
+  "next_authorized": null
+}
