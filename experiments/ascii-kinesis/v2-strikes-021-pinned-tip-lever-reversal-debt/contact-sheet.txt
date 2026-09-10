@@ -1,0 +1,285 @@
+K00 READY_OFFSET
+
+
+
+                                                   #
+                                                   #
+                                                   #
+                                                   #
+                  O                                #
+                  |                                #
+                 \\\                               #
+              <====+===+==========>                #
+                 |                                 #
+                 @                                 #
+                / \                                #
+               /   \                               #
+               /    \                              #
+              *      *                             #
+
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=READ / COMPACT READY
+support=BOTH | contact=OPEN | root_note=Root compact and slightly rear of final recovery address.
+
+K01 ASYMMETRIC_COIL
+
+
+
+                                                   #
+                                                   #
+                                                   #
+                                                   #
+                                                   #
+                 O                                 #
+                |                                  #
+          <======+===+==========>                  #
+               |                                   #
+               |                                   #
+               @                                   #
+              / \\                                 #
+             /    \\                               #
+            *       \*                             #
+
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=ANTICIPATION / STORE
+support=REAR_DOMINANT | contact=OPEN | root_note=Pelvis drops and shifts rearward while shaft compresses without losing forward line.
+
+K02 LINE_EARNED
+
+
+
+                                                   #
+                                                   #
+                                                   #
+                                                   #
+                    O                              #
+                   |                               #
+                  \\\                              #
+            <========+===+==============>          #
+                  |                                #
+                  @                                #
+                 / \\                              #
+               //    \                             #
+              /       \\                           #
+             *          *                          #
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=DIRECTIONAL COMMITMENT PRE-GATE
+support=REAR_DOMINANT | contact=OPEN | root_note=Root begins forward spend; hands resolve one thrust line before fastest travel.
+
+K03 PRECONTACT
+
+
+
+                                                   #
+                                                   #
+                                                   #
+                                                   #
+                       O                           #
+                      |                            #
+                     \\\                           #
+               <=========+===+===================> #
+                     |                             #
+                     @                             #
+                   // \\                           #
+                  /     \\                         #
+                //        \\                       #
+               *            *                      #
+
+timing_class=ONES | timing_provenance=INFERRED | causal_role=FAST ENTRY / PRECONTACT
+support=FRONT_CATCH | contact=OPEN | root_note=Root and front support chase the tip; contact still open one beat before impact.
+
+K04 TIP_CONTACT
+
+
+
+                                                   #
+                                                   #
+                                                   #
+                                                   #
+                         O                         #
+                        |                          #
+                       \\\                         #
+                <==========+===+==================!#
+                       |                           #
+                       @                           #
+                     // \\                         #
+                   //     \\                       #
+                 //         \\                     #
+                *             *                    #
+
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=AUTHORED CONTACT / DISTAL STOP
+support=FRONT_DOMINANT | contact=PINNED_TIP | root_note=Tip pins at wall while root still owns forward momentum; this is not farthest-reach endpoint decoration.
+
+K05 ROOT_OVERRUN_PINNED
+
+
+
+                                                   #
+                                                   #
+                                                   #
+                                                   #
+                                                   #
+                             O                     #
+                            |                      #
+                           \\\              =====!#
+                           | /+\\\+==========      #
+                       ===========                 #
+                 <=====   /@                       #
+                        //  \\                     #
+                      //      \\                   #
+                    */          \*                 #
+
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=FORCE TRANSFER / LEVER BEGINS
+support=FRONT_DOMINANT | contact=PINNED_TIP | root_note=Root advances beneath a fixed tip; hands migrate and shaft angle changes around distal contact.
+
+K06 LEVER_MAX
+
+
+
+                                                   #
+                                                   #
+                                                   #
+                                                   #
+                                                   #
+                                                   #
+                               O                   #
+                               |               ===!#
+                              \\\+     ======    #
+                              |+   ======          #
+                             ======                #
+                       ======/@\                   #
+                   <===  ////   \\                 #
+                       */         \*               #
+
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=PINNED LEVER / ANGULAR DEBT MAX
+support=BOTH | contact=PINNED_TIP | root_note=Pelvis compresses and passes the thrust line; rear shaft rises while tip remains fixed, making angular debt unmistakable.
+
+K07 CONTACT_RELEASE
+
+
+
+                                                   #
+                                                   #
+                                                   #
+                                                   #
+                                                   #
+                             O                ==>  #
+                             |           =====     #
+                            \\\+  =====          #
+                            |+ =====               #
+                          =====                    #
+                     ===== /@\                     #
+                  <==    //   \\                   #
+                       //       \\                 #
+                     */           \*               #
+
+timing_class=ONES | timing_provenance=INFERRED | causal_role=CONSTRAINT RELEASE
+support=REAR_CATCH | contact=OPEN | root_note=Tip unpins only after lever maximum; root begins recoil while the shaft still carries clockwise debt.
+
+K08 COUNTERSWING_OVERSHOOT
+
+
+
+                                                   #
+                                                   #
+                                                   #
+                                           =>      #
+                         O             ====        #
+                         |         ====            #
+                        \\\+ ====                #
+                        |+  ===                    #
+                        ====                       #
+                    ====@\                         #
+                ====  //  \\                       #
+              <=     /      \\                     #
+                   //         \\                   #
+                  *             \*                 #
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=RECOIL / ANGULAR OVERSHOOT
+support=REAR_CATCH | contact=OPEN | root_note=Root recoils but shaft overshoots above the old axis; recovery is not reverse interpolation.
+
+K09 BUTT_END_LAG
+
+
+
+                                                   #
+                                                   #
+                                                   #
+                                                   #
+                      O                            #
+                      |               ==>          #
+                     \\\        ======             #
+                     |+ \\+=====                   #
+                     |=====                        #
+                =====@                             #
+             <==    / \\                           #
+                  //    \\                         #
+                 /        \\                       #
+                *           \*                     #
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=SECONDARY LAG / TOOL DEBT
+support=REAR_DOMINANT | contact=OPEN | root_note=Torso recenters before rear shaft; butt-end remains high and late, visibly separating body recovery from tool lag.
+
+K10 SUPPORT_CATCH
+
+
+
+                                                   #
+                                                   #
+                                                   #
+                                                   #
+                                                   #
+                     O                             #
+                     |                             #
+                    \\\                            #
+                    |+ \\+===========>             #
+             <===========                          #
+                    @\                             #
+                  //  \\                           #
+                //      \\                         #
+               *          \*                       #
+
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=RECOVERY PLANT / ABSORB
+support=BOTH | contact=OPEN | root_note=Front foot returns, pelvis absorbs residual rotation, shaft drops through a compact catch arc.
+
+K11 DISPLACED_SETTLE
+
+
+
+                                                   #
+                                                   #
+                                                   #
+                                                   #
+                     O                             #
+                     |                             #
+                    \\\                            #
+                    |+ \\+===========>             #
+              <===========                         #
+                    @                              #
+                   / \\                            #
+                 //    \\                          #
+                /        \\                        #
+               *           *                       #
+
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=SETTLE / DEBT REPAYMENT
+support=BOTH | contact=OPEN | root_note=Body settles action-capable three cells forward of start; residual shaft angle and root displacement visibly preserve the event.
+
+K12 READY_REENTRY_DISPLACED
+
+
+
+                                                   #
+                                                   #
+                                                   #
+                                                   #
+                     O                             #
+                     |                             #
+                    \\\                            #
+               <======+===+===========>            #
+                    |                              #
+                    @                              #
+                   / \\                            #
+                 //    \\                          #
+                /        \\                        #
+               *           *                       #
+
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=ACTION ELIGIBILITY RESTORED
+support=BOTH | contact=OPEN | root_note=Re-entry restores options at a clearly displaced root address; compact shaft envelope does not erase the impact history.
