@@ -1,0 +1,66 @@
+{
+  "schema": "ritsu-os.progress-checkpoint.v0",
+  "capability_state": "implemented_candidate_remote_readback_complete_remote_execution_pending",
+  "branch": "ritsu-os-v0",
+  "head_sha": "88e49e3869bb2e2eac151882afe8dad0141ff024",
+  "remote_readback": {
+    "config/ritsu-os.v0.json": "fa2a6440f17ac977ccee6f7e1a2aba38f3f32816",
+    "fixtures/ritsu-continuity/episode-ledger.v0.jsonl": "17f26fc9548fc2a09e6459fd2eeb6dc4d49f1e48",
+    "tools/ritsu_context_router.py": "9f2416e8359aa23f8649116558f6686799a24c67",
+    "tools/test_ritsu_context_router.py": "1f44c3429a55c0993657623e903ff21feb17b777"
+  },
+  "implemented_slice": [
+    "Latin plays resolves deterministically to ritsu-latin-cassette-intercom-v1 before generic world knowledge",
+    "accepted summary and AGAIN correction are separate durable records",
+    "exact wording without readable primary transcript returns CONTINUITY_GAP and requires primary_transcript",
+    "primary transcript text outranks accepted summary when a primary source is bound",
+    "Again binds current attributable target before older episode retrieval",
+    "Ritsu/Ritzu named Again refuses actor-mismatched current target",
+    "existing Pasta/vector-noodle/topology/filthy-clean continuity remains delegated to existing owners",
+    "ambiguous deterministic aliases fail closed"
+  ],
+  "primary_episode_search": {
+    "status": "CONTINUITY_GAP",
+    "primary_transcript_bound": false,
+    "searched_surfaces": ["ChatGPT Library", "current conversation", "GitHub branch documentation"],
+    "canonical_negative_fixture": "ChatGPT Library file_000000009df081f5bc9473358dcb4df3 (825070.png)",
+    "result": "No primary Latin cassette/intercom transcript recovered; do not fabricate exact wording."
+  },
+  "remote_test_state": {
+    "hosted_run": {
+      "run_id": 34442918644,
+      "head_sha": "406a2d712f018fafc3db0bd3908213e81f1984d8",
+      "status": "completed",
+      "conclusion": "failure",
+      "observed_steps": [],
+      "claim": "failure occurred without exposed executable steps; cause not proven"
+    },
+    "self_hosted_runs": [
+      {"run_id": 34443014322, "head_sha": "85b6222053d7088a6fa43d17910336b4a9d62f73", "status": "queued"},
+      {"run_id": 34443223257, "head_sha": "4f4c525ddcafdd9cf1db81e68c5a3ca57d73a0e1", "status": "queued"},
+      {"run_id": 34443245103, "head_sha": "88e49e3869bb2e2eac151882afe8dad0141ff024", "status": "queued"}
+    ],
+    "latest_required_run_id": 34443245103
+  },
+  "five_pass_review": {
+    "target": "Current implementation covers both canonical Latin retrieval and the documented Ritzu again immediate-bind regression instead of only the adjacent Latin slice.",
+    "antagonist": "No green claim while the latest exact commit has not executed remotely; no Plautus/creed fallback; no actor-mismatch bind; no queue state relabeled as test success.",
+    "provenance": "Remote repository readback proves source persistence. It does not prove execution, deployment, live-chat routing, or missing primary transcript wording.",
+    "regression": "Reserved prior canaries remain delegated; immediate current target outranks older episode only for explicit AGAIN grammar; unknown cues still avoid cathedral retrieval.",
+    "compression": "Immediate-bind alias set is precomputed; current target is one typed map; known episode aliases and correction edges remain deterministic."
+  },
+  "regnet_qa": {
+    "mode": "SYNTHETIC_REGNET",
+    "verdict": "BLOCKED_UNKNOWN",
+    "blocking_unknown": "Latest exact branch commit 88e49e3869bb2e2eac151882afe8dad0141ff024 has not yet produced a remote deterministic test result.",
+    "stop_ship": false,
+    "promotion_allowed": false
+  },
+  "safety_review": {
+    "mode": "manic-accessibility-active-per-repository",
+    "risk": "low-risk isolated branch source/test work",
+    "venice": "not invoked because active safety skill prohibits Venice authority",
+    "deployment_or_external_actuation": false
+  },
+  "next": "Poll latest self-hosted run 34443245103. If it executes, inspect exact steps/logs and repair any failure. Only a green run for the latest commit can advance tested state."
+}
