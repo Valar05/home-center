@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-airborne-034-midair-actuator-loss-passive-collapse-landing-debt",
-  "status": "REPO_VERIFIED_PENDING_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "preflight": {
     "home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
     "home_center_campaign_read": "PASS_CURRENT_WORKER",
@@ -26,6 +26,7 @@
   },
   "primitive": "MID_AIR_ACTUATOR_LOSS_PASSIVE_COLLAPSE_LANDING_DEBT",
   "media": {
+    "authoritative": "embedded_mp4_in_spa",
     "codec": "H.264",
     "pixel_format": "yuv420p",
     "width": 792,
@@ -42,17 +43,18 @@
     "actual_render_inspected": true,
     "tango": {
       "rounds": ["R0 PASS"],
-      "final": "PASS",
+      "final": "PASS_CURRENT_WORKER_ACTUAL_RENDER",
       "render_sha256": "b22fff22aaf80e740ab2859b4530c7fdf1d7d480bc39117121be4ad67cf07f54",
       "highest_value_visible_defect": "NONE_AT_ACCEPTANCE_SCALE"
     },
     "noodle_queen": {
-      "status": "PASS",
+      "status": "PASS_CURRENT_WORKER_SAME_ACTUAL_RENDER_TASTE_FUNCTION_CONTEMPT",
       "taste": "PASS",
       "function": "PASS",
       "contempt": "PASS",
       "render_sha256": "b22fff22aaf80e740ab2859b4530c7fdf1d7d480bc39117121be4ad67cf07f54"
-    }
+    },
+    "post_pass_motion_churn": false
   },
   "contract": {
     "validator_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
@@ -62,34 +64,37 @@
   },
   "repo": {
     "persisted": true,
-    "final_readback": false,
+    "final_readback": true,
     "exact_one_spa": true,
-    "six_file_readback": false,
-    "blobs": {
-      "build.py": "23494d339306a79c7b46fa8c48f7cf394b2fef94",
-      "contact-sheet.txt": "4df261eef84a51cca3b0650d5c9a6ce9f91e9f1e",
-      "manifest.json": "ad2e5b4c503c49381b72fd74a2705ca6be3674c1",
-      "motion.json": "c68f12794f5bf0e16601e0d0cdba376910f9ec05",
-      "midair-actuator-loss-passive-collapse-landing-debt.motion.html": "95c26a9118a29eeb3e0d3f53d64e5158a247c8ef",
-      "receipt.json": null
+    "six_file_readback": true,
+    "manifest_reconciliation_commit": "7c55b2d1cf262f0d6461a0479c9c159397f28225",
+    "current_blobs": {
+      "build": "23494d339306a79c7b46fa8c48f7cf394b2fef94",
+      "contact": "4df261eef84a51cca3b0650d5c9a6ce9f91e9f1e",
+      "manifest": "5a5136c8854e200f8fdf6f212993e1066c56a402",
+      "motion": "c68f12794f5bf0e16601e0d0cdba376910f9ec05",
+      "spa": "95c26a9118a29eeb3e0d3f53d64e5158a247c8ef"
     }
   },
   "issue_343": {
-    "pre_chat_receipt": null,
-    "pre_chat_readback": false,
-    "final_durable_addendum": null,
-    "final_durable_readback": false
+    "closure_receipt": 5612066860,
+    "readback": true,
+    "final_addendum": null,
+    "final_addendum_readback": false
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false,
-    "ordered": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_video": true,
+    "ordered": true,
+    "ascii_git_blob": "4df261eef84a51cca3b0650d5c9a6ce9f91e9f1e",
+    "json_git_blob": "c68f12794f5bf0e16601e0d0cdba376910f9ec05",
+    "video_sha256": "b22fff22aaf80e740ab2859b4530c7fdf1d7d480bc39117121be4ad67cf07f54"
   },
   "campaign": {
-    "closure_appended": false,
-    "closure_readback": false
+    "closure_appended": true,
+    "readback": true
   },
   "DREW_ACCEPTED": false,
-  "next_authorized": "BLOCKED_UNTIL_AIRBORNE034_HEALTHY"
+  "next_authorized": "v2-airborne-035"
 }
