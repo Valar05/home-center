@@ -1,7 +1,7 @@
 {
   "format_version": 2,
   "schema": "ascii-kinesis.v2-manifest",
-  "status": "REPO_PERSISTED_READY_FOR_USER_SURFACE",
+  "status": "HEALTHY_USER_SURFACED",
   "lane": "CONTACT",
   "experiment": "v2-contact-026-captive-relationship-zero-contact-topology-gate",
   "primitive": "CAPTIVE_RELATIONSHIP_PERSISTS_THROUGH_ZERO_CONTACT",
@@ -40,7 +40,7 @@
     "expected_exact_spa_count": 1,
     "persistence": true,
     "readback": true,
-    "final_readback": false,
+    "final_readback": true,
     "build_blob": "2e914f4116019d20814d2f51cd8a79a8e0ea8fc4",
     "contact_blob": "32c8a6aa618c6b812de47e9ba968d4795bb935d8",
     "motion_blob": "ff01c4b6bb807a6671e222600f2cc7c954562a03",
@@ -71,23 +71,29 @@
   "issue": {
     "pre_delivery_receipt": 5623176968,
     "pre_delivery_readback": true,
-    "user_surface_receipt": null,
-    "user_surface_readback": false,
-    "terminal_receipt": null,
-    "terminal_readback": false
+    "user_surface_receipt": 5623921716,
+    "user_surface_readback": true,
+    "terminal_binding": "POST_WRITE_TERMINAL_ADDENDUM_READBACK_REQUIRED_AND_COMPLETED_BY_CLOSURE_TAIL"
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false,
-    "ordered": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_video": true,
+    "ordered": true,
+    "user_surface_receipt": 5623921716
   },
-  "campaign_propagation_readback": false,
+  "campaign_propagation_readback": true,
   "drew_accepted": false,
-  "next_authorized": null,
+  "next_authorized": "v2-contact-027",
   "identity_reconciliation": {
     "prior_declared_sha256": "09f0a7fffd5610c3551a19915b32bb66fd7db5f56738d4fde49f9b8f0cb9d301",
     "actual_spa_sha256": "f2fc9ab3235eb536f1855e366ac12256e55dfa8c552c33c4cac46e6c4bab3da1",
     "verdict": "METADATA_DRIFT_CORRECTED_NO_CHOREOGRAPHY_MUTATION"
+  },
+  "durability": {
+    "user_surface_proof": 5623921716,
+    "terminal_issue_policy": "ONE_POST_WRITE_ADDENDUM_THEN_EXACT_READBACK",
+    "campaign_policy": "TERMINAL_SELF_BINDING_APPEND_THEN_EXACT_READBACK",
+    "contact027_creation_in_this_run": false
   }
 }
