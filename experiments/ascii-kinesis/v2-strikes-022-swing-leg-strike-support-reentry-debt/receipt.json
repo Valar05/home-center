@@ -2,15 +2,16 @@
   "schema": "ascii-kinesis.receipt.v2",
   "format_version": 2,
   "id": "v2-strikes-022-swing-leg-strike-support-reentry-debt",
-  "status": "REPO_VERIFIED_READY_FOR_USER_SURFACE",
+  "status": "HEALTHY_USER_SURFACED",
   "current_worker_preflight": {"home_center_campaign_read":"PASS_FRESH_EXACT","campaign_id":"1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s","github_authenticated_read":"PASS_FRESH","repository":"Valar05/home-center","issue343_reset_read":5576901079,"strikes021_terminal_read":5617580349,"latest_manager_reconciliation_read":5618518917,"skill_read":"PASS_CURRENT_MAIN","contract_read":"PASS_CURRENT_MAIN","validator_blob":"7d9fc7608d54bca4a2cfbd36660c2d379e27fd78"},
   "inventory": {"direct_current_main_before_binding":"EXACTLY_ONE_V2_STRIKES_022_BODY","bound_body":"experiments/ascii-kinesis/v2-strikes-022-swing-leg-strike-support-reentry-debt/","one_body":"PASS_BIND_EXISTING","successor_collision":"NONE"},
   "source": {"campaign_evidence":"1fshOV6xbFjFc2KYyeEfW9f7A8lCzfwRZwDYC6ZHMmSM","tsr_asset":128015,"roles":["LOCOMOTION_REFERENCE","SUPPORT_REFERENCE"],"observed":["whole 506x428 sheet was recorded as visually inspected in commissioned evidence","side-travel families have materially different stride spread","front/vertical support organizations differ from alternating side-view travel","source-authentic exposure duration was not measured"],"inferred":["all strike choreography and target/contact geometry","same-leg strike-to-support reentry causality","all authored timing classes/connective decisions"],"unknown":["source-authentic chronology and timing","source-authentic joint/root/support/contact mechanics","hit-stop duration"],"rights_firewall":"PASS_NO_SOURCE_PIXELS_OR_CLOSE_IMITATION"},
   "quality": {"actual_media":{"codec":"h264","pixel_format":"yuv420p","width":640,"height":320,"fps":24,"frames":31,"bytes":8107,"sha256":"a6f8e2b9103448d790f72f96e0fb15a6cf3aaecbe337061929660396dd5ded32","decode":"PASS","identity_recheck":"PASS_DETERMINISTIC_REBUILD_BYTE_IDENTICAL"},"tango_current_worker":{"verdict":"PASS","media_sha256":"a6f8e2b9103448d790f72f96e0fb15a6cf3aaecbe337061929660396dd5ded32","judgment":"K05-K06 pin knee contact while root overruns; K07 peels before K09 probe/K10 support catch; K11-K13 preserve overshoot, trailing-leg catch, and displaced gait debt."},"queen_current_worker":{"verdict":"PASS","taste":"PASS","function":"PASS","contempt":"PASS","media_sha256":"a6f8e2b9103448d790f72f96e0fb15a6cf3aaecbe337061929660396dd5ded32"},"official_validator_candidate_isolated":"PASS","repo_global_validator":"UNCLAIMED_STANDARD_CHAT_BOUNDARY"},
-  "repo": {"persistence":"PASS_CURRENT_MAIN","readback":"PASS_CURRENT_MAIN_EXACT","exact_six_files_one_spa":"PASS","final_readback":"PENDING_AFTER_USER_SURFACE"},
-  "issue343": {"pre_chat_receipt":5619246947,"pre_chat_readback":true,"user_surface_closure":null,"user_surface_readback":false,"durable_addendum":null,"durable_addendum_readback":false},
-  "campaign": {"closure_marker":null,"closure_readback":false,"terminal_binding":null,"terminal_binding_readback":false},
-  "chat_delivery": {"part1_ascii":false,"part2_json":false,"part3_video":false},
+  "ascii_authority": {"spa_blob":"6897236ba5c557ed9d29be08127a0f604b13ab47","spa_ascii_payload_rebuild":"PASS_FULL_SPA_GIT_BLOB_BYTE_IDENTICAL","tracked_contact_sidecar_blob":"29678038b560e473e4d88377640506559bfcb0f2","tracked_contact_sidecar_matches_spa_ascii":false,"sidecar_difference_note":"tracked contact-sheet.txt is 11 bytes shorter; user surface used exact persisted SPA ASCII and reported the distinction"},
+  "repo": {"persistence":"PASS_CURRENT_MAIN","readback":"PASS_CURRENT_MAIN_EXACT","exact_six_files_one_spa":"PASS","final_readback":"PASS_CURRENT_MAIN_EXACT_AFTER_USER_SURFACE","final_manifest_commit":"202ea55c1441803787a39bc8299ed4f09dfb0190","final_manifest_blob":"bb3946d35fdd22217dd07dadf75450450d651383"},
+  "issue343": {"pre_chat_receipt":5619246947,"pre_chat_readback":true,"user_surface_closure":5619382595,"user_surface_readback":true,"durable_addendum":5619419779,"durable_addendum_readback":true},
+  "campaign": {"closure_marker":"ascii-kinesis-strikes022-durable-closure-20260910","closure_readback":true,"terminal_binding":"ascii-kinesis-strikes022-terminal-binding-20260910","terminal_binding_readback":true},
+  "chat_delivery": {"part1_ascii":true,"part1_authority":"PERSISTED_SPA_ASCII_PAYLOAD","part2_json":true,"part3_video":true},
   "DREW_ACCEPTED": false,
-  "next_authorized": null
+  "next_authorized": "v2-strikes-023"
 }
