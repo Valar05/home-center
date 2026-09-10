@@ -1,0 +1,112 @@
+K00 READY | FOURS/4t | PROV=INFERRED | SUPPORT=BOTH
+                         O
+                        /|\
+                   o---/ | \---o
+                         |
+                         @
+                        / \
+                       o   o
+                      /     \
+  ___________________*_______*____________________________________
+ ROOT=+0.00  MOMENTUM=ZERO  CUE=ABSENT  RESPONSE=NONE
+------------------------------------------------------------------------------
+K01 COMMIT_COIL | STREET_FIGHTER/CAPCOM/3t | PROV=INFERRED | SUPPORT=REAR_DOMINANT
+                           O
+                          /|
+                     o---/ |----o
+                         \|
+                          @
+                         / \
+                        o   o
+                       /     \
+  ____________________*_______+___________________________________
+ ROOT=+0.10  MOMENTUM=STORING  CUE=ABSENT  RESPONSE=NONE
+------------------------------------------------------------------------------
+K02 COMMIT_RELEASE | ONES/1t | PROV=INFERRED | SUPPORT=REAR_TO_FRONT
+                              O
+                             /|
+                        o---/ |------o
+                            \|
+                             @
+                            / \
+                           o   o
+                          /     \
+  _______________________+_______*________________________________
+ ROOT=+0.34  MOMENTUM=POSITIVE_FAST  CUE=ABSENT  RESPONSE=NONE
+------------------------------------------------------------------------------
+K03 SPENT_CARRY | TWOS/2t | PROV=INFERRED | SUPPORT=FRONT
+                                  O
+                                 /|
+                            o---/ |-------o
+                                \|
+                                 @
+                                / \
+                               o   o
+                              /     \
+  ___________________________+_______*____________________________
+ ROOT=+0.62  MOMENTUM=POSITIVE  CUE=ABSENT  RESPONSE=NONE
+------------------------------------------------------------------------------
+K04 LATE_CUE_EDGE | ONES/1t | PROV=INFERRED | SUPPORT=FRONT
+                                             <<< !
+                                    O
+                                   /|
+                              o---/ |-------o
+                                  \|
+                                   @
+                                  / \
+                                 o   o
+                                /     \
+  _____________________________+_______*__________________________
+ ROOT=+0.78  MOMENTUM=POSITIVE  CUE=EDGE_NOW  RESPONSE=NOT_YET
+------------------------------------------------------------------------------
+K05 HORIZON_CARRY | ONES/1t | PROV=INFERRED | SUPPORT=FRONT_UNLOADING
+                                             <<< !
+                                      O
+                                     /|
+                                o---/ |-----o
+                                    \|
+                                     @
+                                   _/ \
+                                  o    o
+                                 /      \
+  ______________________________+________*________________________
+ ROOT=+0.94  MOMENTUM=POSITIVE_DECAYING  CUE=KNOWN  RESPONSE=BEGIN_LAG_ONLY
+------------------------------------------------------------------------------
+K06 DOWNSTREAM_RESPONSE | TWOS/2t | PROV=INFERRED | SUPPORT=LATERAL_PLANT
+                                             <<< !
+                                      O
+                                     /|
+                              o=====/ |   o
+                                   \ |
+                                    \@
+                                  _/  \
+                                 o     o
+                                /       \
+  ______________________________*________+________________________
+ ROOT=+1.06  MOMENTUM=REDIRECTING  CUE=KNOWN  RESPONSE=TORQUE_AND_PLANT
+------------------------------------------------------------------------------
+K07 RESPONSE_BRAKE | TWOS/2t | PROV=INFERRED | SUPPORT=BOTH_OFFSET
+                                             <<< !
+                                       O
+                                      /|\
+                                o====/ | \---o
+                                     \|
+                                     _@_
+                                    /   \
+                                   o     o
+                                  /       \
+  _______________________________*_________*______________________
+ ROOT=+1.12  MOMENTUM=LOW  CUE=KNOWN  RESPONSE=COMPRESSED_BRAKE
+------------------------------------------------------------------------------
+K08 DISPLACED_RESTACK | FOURS/4t | PROV=INFERRED | SUPPORT=BOTH
+                                             <<< !
+                                        O
+                                       /|\
+                                  o---/ | \---o
+                                        |
+                                        @
+                                       / \
+                                      o   o
+                                     /     \
+  __________________________________*_______*_____________________
+ ROOT=+1.15  MOMENTUM=ZERO  CUE=KNOWN  RESPONSE=DISPLACED_READY
