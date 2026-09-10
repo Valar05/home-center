@@ -173,6 +173,7 @@ def build_video(data):
 def make_spa(data,ascii_text,mp4_bytes):
     pretty=json.dumps(data,separators=(",",":"),ensure_ascii=False)
     video_b64=base64.b64encode(mp4_bytes).decode("ascii")
+    video_parts=json.dumps([video_b64[i:i+4000] for i in range(0,len(video_b64),4000)],separators=(",",":"))
     ascii_gz=base64.b64encode(gzip.compress(ascii_text.encode("utf-8"),compresslevel=9,mtime=0)).decode("ascii")
     json_gz=base64.b64encode(gzip.compress(pretty.encode("utf-8"),compresslevel=9,mtime=0)).decode("ascii")
     page=f"""<!doctype html>
@@ -189,9 +190,11 @@ video{{max-width:100%;height:auto;background:#000}}
 <nav><button data-view=\"ascii\">ASCII</button><button data-view=\"json\">JSON</button><button data-view=\"video\">VIDEO</button></nav>
 <section id=\"ascii\"><pre id=\"ascii-pre\"></pre></section>
 <section id=\"json\" hidden><pre id=\"json-pre\"></pre></section>
-<section id=\"video\" hidden><video controls loop playsinline><source src=\"data:video/mp4;base64,{video_b64}\" type=\"video/mp4\"></video></section>
+<section id=\"video\" hidden><video id=\"video-player\" controls loop playsinline></video></section>
 <script>
 const ids=[\"ascii\",\"json\",\"video\"];
+const videoParts={video_parts};
+document.getElementById(\"video-player\").src=\"data:video/mp4;base64,\"+videoParts.join(\"\");
 document.querySelectorAll(\"button[data-view]\").forEach(b=>b.onclick=()=>{{
   ids.forEach(id=>document.getElementById(id).hidden=(id!==b.dataset.view));
 }});
