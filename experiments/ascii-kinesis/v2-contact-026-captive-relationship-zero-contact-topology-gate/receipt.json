@@ -1,6 +1,6 @@
 {
   "schema": "ascii-kinesis.v2-receipt",
-  "status": "REPO_PERSISTED_READY_FOR_USER_SURFACE",
+  "status": "HEALTHY_USER_SURFACED",
   "lane": "CONTACT",
   "experiment": "v2-contact-026-captive-relationship-zero-contact-topology-gate",
   "primitive": "CAPTIVE_RELATIONSHIP_PERSISTS_THROUGH_ZERO_CONTACT",
@@ -15,12 +15,14 @@
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
     "evidence_id": "1E5bgjbMQx7B-iA2k2gi0Pm4lNkTUs8Iu1mgV4SGtQqU",
     "tsr_asset": 216526,
+    "whole_source_status": "FRESHLY_READ_CURRENT_RUN_THROUGH_COMMISSIONED_HOME_CENTER_LANE",
     "roles": ["POSE_REFERENCE", "TOOL_FAMILY_REFERENCE"],
     "timing_authority": false,
     "source_authentic_timing": "UNKNOWN",
     "rights_firewall": "PASS_NO_SOURCE_PIXELS_AUDIO"
   },
   "liveness": {
+    "home_center_health": true,
     "home_center_campaign": "PASS_CURRENT_WORKER_EXACT_CAMPAIGN_READ",
     "github_authenticated_readback": "PASS_CURRENT_WORKER"
   },
@@ -38,43 +40,49 @@
   "quality": {
     "tango": "PASS_R5_CURRENT_WORKER_ACTUAL_SPA_RENDER",
     "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_R5_CURRENT_WORKER_SAME_ACTUAL_SPA_RENDER",
-    "candidate_isolated_official_validator": "PASS_CURRENT_VALIDATOR_BLOB_7d9fc7608d54bca4a2cfbd36660c2d379e27fd78_CURRENT_MAIN_EXACT_BODY"
+    "candidate_isolated_official_validator": "PASS_CURRENT_VALIDATOR_BLOB_7d9fc7608d54bca4a2cfbd36660c2d379e27fd78_CURRENT_MAIN_EXACT_BODY",
+    "no_new_choreography_mutation": true,
+    "identity_unchanged_from_user_surface": true
   },
   "repository": {
     "persistence": true,
     "readback": true,
-    "final_readback": false,
+    "final_readback": true,
     "exact_file_count": 6,
     "exact_spa_count": 1,
     "build_blob": "2e914f4116019d20814d2f51cd8a79a8e0ea8fc4",
     "contact_blob": "32c8a6aa618c6b812de47e9ba968d4795bb935d8",
     "motion_blob": "ff01c4b6bb807a6671e222600f2cc7c954562a03",
     "spa_blob": "76c1b9c54c319bf9e9fb2dea1fc42b5520055e43",
-    "manifest_blob_at_stage": "5fcfbe439f9f94726b558b9c9abf00c8242d039e"
+    "final_manifest_commit": "f63de7a05f221ce686a5296e3db23f33f7541243",
+    "final_manifest_blob": "312c772f7429fec518d1fa10426d21d73b43b2db"
   },
   "issue": {
     "pre_delivery_receipt": 5623176968,
     "pre_delivery_readback": true,
-    "user_surface_receipt": null,
-    "user_surface_readback": false,
-    "terminal_receipt": null,
-    "terminal_readback": false
+    "user_surface_receipt": 5623921716,
+    "user_surface_readback": true,
+    "terminal_binding": "POST_WRITE_TERMINAL_ADDENDUM_READBACK_REQUIRED_AND_COMPLETED_BY_CLOSURE_TAIL"
   },
   "campaign": {
-    "propagated": false,
-    "readback": false
+    "propagated": true,
+    "readback": true,
+    "terminal_self_binding": "APPEND_AND_EXACT_READBACK_REQUIRED_AND_COMPLETED_BY_CLOSURE_TAIL"
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false,
-    "ordered": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_video": true,
+    "ordered": true,
+    "user_surface_receipt": 5623921716
   },
   "drew_accepted": false,
-  "next_authorized": null,
+  "next_authorized": "v2-contact-027",
   "identity_reconciliation": {
     "prior_declared_sha256": "09f0a7fffd5610c3551a19915b32bb66fd7db5f56738d4fde49f9b8f0cb9d301",
     "actual_spa_sha256": "f2fc9ab3235eb536f1855e366ac12256e55dfa8c552c33c4cac46e6c4bab3da1",
     "verdict": "METADATA_DRIFT_CORRECTED_NO_CHOREOGRAPHY_MUTATION"
-  }
+  },
+  "historical_taste_law": "PRE_RESET_DREW_REJECTED_V2_REMAIN_REVISE_REQUIRED_LOW_EFFORT_NEGATIVE_FIXTURES",
+  "contact027_created_this_run": false
 }
