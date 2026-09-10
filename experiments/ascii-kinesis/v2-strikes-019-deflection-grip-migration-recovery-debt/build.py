@@ -91,14 +91,11 @@ def font(sz):
 def render_frame(text, title, subtitle, index, total, out_path):
     img=Image.new("RGB",(480,270),(12,12,14))
     d=ImageDraw.Draw(img)
-    titlef=font(10); subf=font(7); bodyf=font(8)
-    d.text((12,9),title,font=titlef,fill=(240,240,240))
-    d.text((12,23),subtitle,font=subf,fill=(170,170,170))
-    y=38
+    bodyf=font(10)
+    y=22
     for line in text.splitlines():
-        d.text((20,y),line,font=bodyf,fill=(235,235,235))
-        y+=9
-    d.text((405,254),f"{index+1:03d}/{total:03d}",font=subf,fill=(150,150,150))
+        d.text((48,y),line,font=bodyf,fill=(238,238,238))
+        y+=10
     img.save(out_path,compress_level=9)
 
 def compile_frames(motion):
@@ -128,7 +125,7 @@ def render_mp4(motion):
     cmd=[
         "ffmpeg","-loglevel","error","-y","-framerate","24","-i",str(FRAME_DIR/"f%04d.png"),
         "-an","-c:v","libx264","-pix_fmt","yuv420p","-profile:v","high","-level","4.0",
-        "-preset","veryslow","-crf","32","-g","120","-bf","2",
+        "-preset","veryslow","-crf","30","-g","120","-bf","2",
         "-x264-params","scenecut=0:open_gop=0:nal-hrd=none",
         "-map_metadata","-1","-fflags","+bitexact","-flags:v","+bitexact",
         "-movflags","+faststart",str(TMP_MP4)
