@@ -1,0 +1,91 @@
+{
+  "schema": "home-center.workload.phone-control-preflight.v1",
+  "observedAtUtc": "2026-09-10T19:10:06.546Z",
+  "owner": "Drew",
+  "status": "WORKLOAD_EXECUTOR_UNAVAILABLE",
+  "statusProvenance": "Carrier preflight assessment; not output from executing the handoff script.",
+  "source": {
+    "repository": "Valar05/home-center",
+    "commit": "c8f64f7364efb155ed56e37313d404aebb68d0bf",
+    "path": "tools/workload_phone_control_recovery_handoff.sh",
+    "gitBlobSha": "dc416db370171727e7db86639d5867c13b52d6ca",
+    "url": "https://github.com/Valar05/home-center/blob/c8f64f7364efb155ed56e37313d404aebb68d0bf/tools/workload_phone_control_recovery_handoff.sh",
+    "verifiedThrough": "Home Center authenticated github_read_file"
+  },
+  "requestedOutcome": "Execute the committed workload handoff, deploy only phoneHandsRelay, and prove rescue and primary with separate fresh Home Center phone_shell canaries before retiring rescue.",
+  "execution": {
+    "scriptExecuted": false,
+    "repositorySourceChanged": false,
+    "deploymentPerformed": false,
+    "deployedPhoneHandsSourceVerified": false,
+    "canariesEnqueued": false,
+    "rescueRetired": false,
+    "phoneControlProven": false
+  },
+  "observedIngress": {
+    "homeCenterAlive": true,
+    "releaseIdentity": {
+      "sourceRepository": "Valar05/home-center",
+      "sourceCommit": "2c23152a95bcd9d4229a7a550d19d692b1f66966",
+      "sourceRef": "refs/heads/main",
+      "registrySchemaRevision": "2026-09-04.browser-nerve-action-surface-v1",
+      "publicManifestSha256": "91617e301b8021d9d365d495ab0fa1e9a13e467b0a143b5d41e652332cd5c142",
+      "deployedServiceRevision": "homecentermcp-00250-soq"
+    },
+    "phoneHandsOperationsAdvertised": [
+      "command_center.phone_hands.devices",
+      "command_center.phone_hands.enqueue",
+      "command_center.phone_hands.get"
+    ],
+    "workloadLaunchOperationAdvertised": false,
+    "retiredWorkerDispatch": "Pinned docs/COMMAND_CENTER_MCP.md states jobs.*, agents.*, workers.*, and provisioning.* are retired."
+  },
+  "carrierDiagnostics": {
+    "gcloudOnPath": false,
+    "ghOnPath": false,
+    "workspaceHasCheckout": false,
+    "configuredHomeCenterRepoOverridePresent": false,
+    "scope": "Current execution carrier only; not a scan or claim about all remote machines.",
+    "acceptanceEvidence": false
+  },
+  "devices": [
+    {
+      "deviceId": "primary-phone",
+      "status": "online",
+      "lastSeenAtMs": 1789067319167,
+      "lastSeenAtUtc": "2026-09-10T19:08:39.167Z",
+      "proofKind": "heartbeat_only",
+      "freshCanaryReceiptInThisRecovery": null
+    },
+    {
+      "deviceId": "primary-phone-rescue-v1",
+      "status": "online",
+      "lastSeenAtMs": 1789067317692,
+      "lastSeenAtUtc": "2026-09-10T19:08:37.692Z",
+      "proofKind": "heartbeat_only",
+      "freshCanaryReceiptInThisRecovery": null
+    }
+  ],
+  "blocker": {
+    "kind": "executor_missing",
+    "firstUnsatisfiedScriptPrerequisite": "command -v gcloud",
+    "homeCenterIngressBlocked": false,
+    "detail": "No authorized Workload shell/deployment binding is exposed to this session. Home Center itself is callable."
+  },
+  "boundaries": {
+    "noGitHubActions": true,
+    "noForcePush": true,
+    "noPhoneBootstrap": true,
+    "noDrewCarriedShellCommand": true,
+    "noShizukuRishAdbDependency": true,
+    "noSubstituteControlPlane": true,
+    "noLocalAcceptanceEvidence": true
+  },
+  "continuation": {
+    "requiredSurface": "The authorized Workload carrier with its existing gcloud identity and authorized Valar05/home-center checkout, plus callable Home Center ingress.",
+    "entrypoint": "tools/workload_phone_control_recovery_handoff.sh",
+    "entrypointCommit": "c8f64f7364efb155ed56e37313d404aebb68d0bf",
+    "nextStep": "Once that exact carrier is callable, execute the supplied handoff there and preserve its deployment receipt. Then execute its continuation packet in order, verifying terminal command receipts before rescue retirement.",
+    "doNot": "Do not ask Drew to run another phone command, infer control from heartbeat, use retired jobs dispatch, or claim this observation receipt completes phone recovery."
+  }
+}
