@@ -1,0 +1,346 @@
+ASCII KINESIS V2 STRIKES026 — YIELDING CONTACT CHASE STEP DEBT
+Pocket rule: CONTACT THAT GIVES WAY DOES NOT CANCEL MOMENTUM. THE ROOT MUST CHASE THE TARGET BEFORE SUPPORT CAN BRAKE.
+Legend: O head | @ root | g guard hand | o elbow/knee | * strike hand | X pinned contact | : synthetic yielding target | # active support | . light | ^ air | _ ground
+Source: STRIKES PASS 002 — VERIFIED | Home Center evidence 1UfoqNv9CxNtSJYOyjFIJZeEqp8NjwBsb69FgHmMO75Q | TSR asset 5551 | Guile — Super Street Fighter II: The New Challengers — SNES — Fighters.
+Source roles: POSE_REFERENCE + RECOVERY_DEBT_REFERENCE. Timing authority=false. Source timing=UNKNOWN.
+OBSERVED: complete static fighter sheet; grounded horizontal reach is purchased by torso/root commitment; recovery is authored as a distinct state family rather than reverse playback.
+UNKNOWN: source chronology/exposure/FPS/hit-stop/gameplay hitbox/support transfer/target compliance.
+INFERRED: all authored poses, synthetic target yield, pinned yielding contact, chase-step causality, internal braking wave, recoil/overshoot/secondary lag/recovery and all timing. Direction=STREET_FIGHTER/CAPCOM.
+Rights firewall: generic ASCII biped + synthetic target only; no source pixels/palette/costume/contours/layout/tracing/named choreography/audio/redistribution/close imitation.
+Lineage: NEW_CONCEPT | revises=null | negative_fixture=null | source_change=NOT_APPLICABLE_NEW_CONCEPT.
+
+K00 ASYMMETRIC_READY — timing=FOURS — provenance=INFERRED
+role=READ / BANK OPTIONS | support=dual; rear slightly dominant | contact=NONE
+root_arc=root stacked behind split base; guard closes rear corridor while strike hand floats forward
+target=target stationary at x55
+
+
+
+
+
+                        O                              :
+                        |                              :
+                        |                              :
+                        |                              :
+                  g/////\\\\\o----*                    |
+                        |                              :
+                         |                             :
+                         \                             :
+                       // \\                           :
+                     o/     \o
+                    /         \
+                   /           \
+                   /            \
+  ________________#______________#__________________________________
+
+K01 COIL_REAR_LOAD — timing=FOURS — provenance=INFERRED
+role=ANTICIPATION / STORE | support=rear loads; front light | contact=NONE
+root_arc=root drops rearward and torso folds away from strike corridor; strike arm compresses instead of translating
+target=target stationary
+
+
+
+
+
+                                                       :
+                    O                                  :
+                    |                                  :
+                    |                                  :
+                     |                                 |
+                g////\\\\o--                           :
+                     |      --*                        :
+                      |                                :
+                      \\\                              :
+                    //   \\\o
+                   o         \
+                  /           \
+                  /            \
+  _______________#______________.___________________________________
+
+K02 ROOT_COMMIT_BRIDGE — timing=TWOS — provenance=INFERRED
+role=AUTHORED BRIDGE / DIRECTIONAL COMMIT | support=rear drive feeds front brace | contact=NONE
+root_arc=pelvis advances before distal hand; shoulders unwind into a rising diagonal
+target=target stationary
+
+
+
+
+
+                          O                            :
+                          |                            :
+                          |                            :
+                          |  \\o-------*               :
+                    g/////\\\                          |
+                          |                            :
+                           |                           :
+                           \\                          :
+                         //  \\                        :
+                       o/      \o
+                      /          \
+                    //            \
+                   /              \
+  ________________#________________#________________________________
+
+K03 PRECONTACT_SURGE — timing=ONES — provenance=INFERRED
+role=PRECONTACT / COMMITMENT | support=both; rear still driving | contact=NONE
+root_arc=root and shoulder line surge into threat lane; hand is short of target while body commitment is already paid
+target=target stationary
+
+
+
+
+                                O
+                                |                      :
+                                |                      :
+                                |  \\\o-----           :
+                        g///////\\\         ------*    :
+                                |                      |
+                                |                      :
+                                \\                     :
+                               /  \\                   :
+                             //     \o                 :
+                            o         \
+                          //          \
+                        //             \
+                      //               \
+  ___________________#__________________#___________________________
+
+K04 CONTACT_INSTANT — timing=ONES — provenance=INFERRED
+role=CONTACT INSTANT / HIT-STOP IMPLICATION | support=front braces while rear still drives | contact=TARGET
+root_arc=distal hand reaches target while pelvis is still advancing; impact does not freeze root
+target=first contact at x55
+
+
+
+
+                                    O
+                                    |                  :
+                                    |                  :
+                                    |  \\\o---         :
+                           g////////\\\       ------   :
+                                    |               ---X
+                                   |                   :
+                                   \\                  :
+                                  /  \\                :
+                                //     \o              :
+                               o         \
+                             //          \
+                           //             \
+                         //               \
+  ______________________#__________________#________________________
+
+K05 YIELD_PIN_ROOT_OVERRUN — timing=TWOS — provenance=INFERRED
+role=IMPACT CONSEQUENCE / YIELD PIN | support=front catches first overrun; rear lightens | contact=TARGET_HOLD
+root_arc=target and hand travel together while root continues through contact; torso compresses behind moving distal point
+target=target yields from x55 to x58 while contact remains pinned
+
+
+
+
+
+                                        O                 :
+                                        |                 :
+                                        |                 :
+                                        |   \\\o-----     :
+                              g/////////\\\\         -----X
+                                        |                 :
+                                       |                  :
+                                       \\                 :
+                                      /  \\               :
+                                    //     \o
+                                  /o         \
+                                //           \
+                             ///              \
+  _________________________./_________________#_____________________
+
+K06 CHASE_STEP_LAUNCH — timing=TWOS — provenance=INFERRED
+role=AUTHORED BRIDGE / CHASE STEP LAUNCH | support=rear support catches root while front foot chases | contact=TARGET_HOLD
+root_arc=because target kept yielding, base can no longer brake in old place; front support leaves ground while torso remains committed
+target=target yields again to x61; fist stays pinned
+
+
+
+
+
+                                            O                :
+                                            |                :
+                                            |                :
+                                            |   \\\o----     :
+                                  g/////////\\\\        -----X
+                                            |                :
+                                           |                 :
+                                           \\                :
+                                          /  \\\             :
+                                        //      \o\
+                                      /o           \^
+                                    //
+                                 ///
+  _____________________________#/___________________________________
+
+K07 CHASE_STEP_CATCH — timing=TWOS — provenance=INFERRED
+role=SUPPORT HANDOFF / BRAKE PURCHASE | support=front support lands forward and owns brake | contact=TARGET_HOLD
+root_arc=new front contact catches translated root; strike arm remains loaded into yielded target for one beat
+target=target gives last unit to x62 under pinned contact
+
+
+
+
+
+                                                O             :
+                                                |             :
+                                                |             :
+                                                |   \\\o---   :
+                                      g/////////\\\\       ---X
+                                                |             :
+                                               |              :
+                                               \\             :
+                                              /  \\\          :
+                                            //      \o
+                                          /o          \
+                                       ///             \
+                                    ///                \
+  ________________________________./____________________#___________
+
+K08 TARGET_RELEASE_ARM_OVERRUN — timing=ONES — provenance=INFERRED
+role=DISENGAGE / DISTAL OVERRUN | support=front planted; rear trails | contact=NONE
+root_arc=target stops yielding and contact breaks; distal hand overruns past target while pelvis is finally checked by new front support
+target=target stays at x62; hand passes to x64 after release
+
+
+
+
+
+                                                              :
+                                                 O            :
+                                                 |            :
+                                                 |            :
+                                                |   \\\\o-------*
+                                       g////////\\\\          :
+                                                |             :
+                                                |             :
+                                                \\\           :
+                                              //   \\\o
+                                           /o/         \
+                                        ///             \
+                                     ///                \
+  _________________________________./____________________#__________
+
+K09 PELVIS_COUNTERBRAKE — timing=TWOS — provenance=INFERRED
+role=ROOT BRAKE / INTERNAL FORCE RETURN | support=dual support; front still primary brake | contact=NONE
+root_arc=pelvis reverses first against new base while shoulder/hand remain forward; internal braking wave begins proximal-to-distal
+target=target stationary after yield
+
+
+
+
+
+                                                              :
+                                             O                :
+                                             |                :
+                                             |                :
+                                             |                |
+                                     g///////\\\\\\\\o-------*:
+                                             |                :
+                                             |                :
+                                             \\\\             :
+                                           //    \\\o
+                                         o/          \
+                                       //             \\
+                                     //                 \
+  _________________________________#/____________________#__________
+
+K10 SHOULDER_HAND_LAG — timing=TWOS — provenance=INFERRED
+role=SECONDARY LAG / BRAKING WAVE | support=rear reclaims load; front lightens | contact=NONE
+root_arc=root has already traveled back while strike shoulder and hand are still finishing forward/downward arc
+target=target stationary
+
+
+
+
+
+                                        O                     :
+                                        |                     :
+                                        |                     :
+                                         |                    :
+                                   g/////\\\\\\\\o-           |
+                                         |         ----       :
+                                          |            --*    :
+                                          \\                  :
+                                        //  \\\\              :
+                                       o        \\o
+                                      /            \\
+                                    //               \
+                                   /                  \\
+  ________________________________#_____________________.___________
+
+K11 RECOIL_OVERSHOOT — timing=TWOS — provenance=INFERRED
+role=RECOIL OVERSHOOT | support=rear support catches recoil; front searches | contact=NONE
+root_arc=strike hand retracts past torso after root brake, making recoil visibly overshoot rather than mirror the launch
+target=target stationary
+
+
+
+
+
+                                                              :
+                                     O                        :
+                                     |                        :
+                                     |                        :
+                                  g// |                       |
+                                     /\\                      :
+                                   *------o                   :
+                                       |                      :
+                                       \\\\                   :
+                                     //    \\\\o
+                                    o           \\
+                                   /              \\
+                                  /                 \\
+  _______________________________#____________________\.____________
+
+K12 FRONT_SUPPORT_LAG_CATCH — timing=TWOS — provenance=INFERRED
+role=SECONDARY SUPPORT LAG / CATCH | support=front settles late into widened displaced base | contact=NONE
+root_arc=root restacks while strike arm rebounds from overshoot; front support completes recovery one beat later
+target=target remains displaced at x62
+
+
+
+
+
+                                        O                     :
+                                        |                     :
+                                        |                     :
+                                        |      --*            :
+                                   g////\\\\\o-               |
+                                        |                     :
+                                         |                    :
+                                         \\                   :
+                                       //  \\\\               :
+                                      o        \\o
+                                     /            \
+                                    /              \\
+                                   /                 \
+  ________________________________#___________________#_____________
+
+K13 DISPLACED_READY — timing=FOURS — provenance=INFERRED
+role=RECOVERY COMPLETE / DISPLACED READY | support=dual support restored in forward-shifted stance | contact=NONE
+root_arc=body settles well forward of K00; yielded contact permanently spent a chase step
+target=target remains displaced, preserving consequence
+
+
+
+
+
+                                          O                   :
+                                          |                   :
+                                          |                   :
+                                          |                   :
+                                    g/////\\\\o-----*         |
+                                          |                   :
+                                          |                   :
+                                          \\                  :
+                                        //  \\\\              :
+                                       o        \\o
+                                      /            \
+                                     /              \\
+                                    /                 \
+  _________________________________#___________________#____________
