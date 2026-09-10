@@ -1,5 +1,9 @@
 {
   "DREW_ACCEPTED": false,
+  "campaign": {
+    "user_surface_checkpoint_readback": true,
+    "user_surface_checkpoint_request_id": "timing027-campaign-checkpoint-20260910T0546Z"
+  },
   "current_worker_liveness": {
     "github_persistence_readback": true,
     "home_center_campaign_read": true
@@ -17,7 +21,7 @@
     "verification_comment_id": 5613792414,
     "verification_readback": true
   },
-  "next_authorized": null,
+  "next_authorized": "v2-timing-028",
   "one_body": {
     "collision": false,
     "path": "experiments/ascii-kinesis/v2-timing-027-directional-witness-phase-alias/"
@@ -37,19 +41,33 @@
     "current_worker_tango_visible_read": "K01 coil and left support load visibly prepare the turn; K02 release lifts; one-tick K03 cross-body witness resolves the sparse directional alias; K04 back-quadrant COM travel and K05 right-catch compression own the consequence; K06 crosses wrap without reset; K07 brake and K08 displaced restack preserve recovery debt.",
     "current_worker_queen_judgment": "PASS TASTE+FUNCTION+CONTEMPT: one witness key solves the ambiguity without taxing the clip; body/support geometry, not the pointer alone, carries direction and consequence.",
     "tango_rounds": [
-      {"round": 0, "status": "REVISE_REQUIRED", "highest_value_visible_defect": "task pointer carried most of the directional read while root/support/body silhouette changed too timidly", "correction": "same-body K01-K07 root/support geometry deepened"},
-      {"round": 1, "status": "PASS"},
-      {"round": 2, "status": "PASS"},
-      {"round": 3, "status": "PASS_CURRENT_WORKER_BYTE_IDENTICAL_RECONSTRUCTION"}
+      {
+        "round": 0,
+        "status": "REVISE_REQUIRED",
+        "highest_value_visible_defect": "task pointer carried most of the directional read while root/support/body silhouette changed too timidly",
+        "correction": "same-body K01-K07 root/support geometry deepened"
+      },
+      {
+        "round": 1,
+        "status": "PASS"
+      },
+      {
+        "round": 2,
+        "status": "PASS"
+      },
+      {
+        "round": 3,
+        "status": "PASS_CURRENT_WORKER_BYTE_IDENTICAL_RECONSTRUCTION"
+      }
     ]
   },
   "repo": {
-    "commit": "46861c5b170bd4ab8a6f7f13c8174fc4b56cff55",
+    "commit": "fde82fbc8e024bb458fc35e7c1f0c2cce49b53f9",
     "files": {
       "build.py": "3c39f6906f99994d9068cb380fcbc1ce828fc0fb",
       "contact-sheet.txt": "f9e60216d4b48719e5037af1409b9f02879bdf50",
       "directional-witness-phase-alias.motion.html": "9e7ae9a62ca65d986bd22b6e6aa3a84c6acd0724",
-      "manifest.json": "7a9cbc48b0b8f4d5d7f6add95cbf6e35ce5b94cb",
+      "manifest.json": "799fc3a87c1cea4226e654654d1cbc03504cecc8",
       "motion.json": "317c3b1d25638ebc229f515eed3aada85e18661a"
     },
     "persisted": true,
@@ -61,10 +79,13 @@
     "asset_id": "185069",
     "campaign_evidence_file_id": "1vV3cT1mRbRIT-jZY1kbnbQLX_JzHaZ1zmIHaPhMUaQs",
     "source_pixels_in_output": false,
-    "source_roles": ["POSE_REFERENCE", "CONTACT_REFERENCE"],
+    "source_roles": [
+      "POSE_REFERENCE",
+      "CONTACT_REFERENCE"
+    ],
     "timing_authority": false,
     "timing_provenance": "INFERRED",
     "whole_source_inspected": true
   },
-  "status": "USER_SURFACED_PENDING_FINAL_DURABILITY"
+  "status": "HEALTHY_USER_SURFACED"
 }
