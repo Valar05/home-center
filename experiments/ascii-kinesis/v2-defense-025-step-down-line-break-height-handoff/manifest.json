@@ -25,7 +25,8 @@
     "negative_fixture": null,
     "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
     "prior_durable_closure_issue_comment": 5613382632,
-    "successor_collision": false
+    "successor_collision": false,
+    "defense024_non_authoritative_collision_preserved": "v2-defense-024-deflected-threat-clock-fork"
   },
   "source": {
     "provider": "The Spriters Resource",
@@ -52,25 +53,20 @@
       "round0": "REVISE_REQUIRED",
       "round0_defect": "K08 lower-tread catch placed the right foot to the right of the riser where no lower support surface existed; support authority was visually impossible.",
       "round0_correction": "SAME body: move K08-K11 lower-base root/feet left of the riser so both support glyphs physically sit on the lower tread; preserve K06/K07 lifted trailing-foot sweep.",
-      "round1": "PASS_CURRENT_WORKER_ACTUAL_RENDER"
+      "round1": "PASS_CURRENT_WORKER_REVALIDATED_ACTUAL_RENDER",
+      "round1_reason": "Fresh byte-identical 51-frame reconstruction visibly preserves upper brace, lower probe, mixed-height support gate, earned root drop under the high line, post-clearance upper-foot release, unsupported trailing sweep, lower-base catch/compression, counter-rise, late guard reopening, and displaced lower-root debt."
     },
     "noodle_queen": {
       "taste": "PASS",
       "function": "PASS",
       "contempt": "PASS",
-      "after_tango_round": 1
+      "after_tango_round": 1,
+      "reason": "The riser remains a mechanical antagonist rather than scenery; the split-height catch, low threat-clearance silhouette, trailing-foot debt, lower-base compression, and late readiness return are specific and readable."
     },
     "validator": {
       "source_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-      "candidate_isolated": "PASS",
-      "result": {
-        "schema": "ascii-kinesis.swarm-contract-v2-test",
-        "entries_checked": [
-          "v2-defense-025-step-down-line-break-height-handoff"
-        ],
-        "ok": true
-      },
-      "boundary": "Exact current official validator source blob executed candidate-isolated; no repository-global checkout execution claimed."
+      "candidate_isolated": "PASS_PERSISTED_UNCHANGED_CANDIDATE",
+      "boundary": "Current official validator source freshly read; exact candidate blobs are unchanged from the candidate-isolated PASS. No repository-global checkout execution claimed."
     }
   },
   "media": {
@@ -84,16 +80,28 @@
     "bytes": 21372,
     "sha256": "38f224d8cc3aa98aa68dc69a83b39ce871c0e71ca22b258aaa10fd9305b70039",
     "decode_verified": true,
-    "embedded_authoritative": true
+    "embedded_authoritative": true,
+    "fresh_byte_identical_reconstruction": true
   },
   "repo": {
-    "persisted": false,
-    "repo_readback": false,
-    "body_files_readback": 0,
-    "spa_count": 0
+    "persisted": true,
+    "repo_readback": true,
+    "body_files_readback": 6,
+    "spa_count": 1,
+    "pre_reconciliation_main_commit": "78fa92da42d6938d4411891f74ea9f17d444869b",
+    "body_blobs": {
+      "build.py": "713a9d145cabb53ee945a18a57319583809d6663",
+      "contact-sheet.txt": "5c358af1bd07525d0f80923d781a3fa9887b6fe9",
+      "motion.json": "e626fe9c8e03fc811fcca67938be7a5ea77a6a23",
+      "step-down-line-break-height-handoff.motion.html": "52a9057b11a1713b5318d9ba8cc94b9a24ccf280"
+    }
   },
   "issue": {
     "pre_chat_receipt": null,
+    "readback": false
+  },
+  "campaign": {
+    "closure_propagated": false,
     "readback": false
   },
   "chat_delivery": {
@@ -101,5 +109,6 @@
     "part2_json": false,
     "part3_video": false
   },
+  "status": "REPO_VERIFIED_PENDING_CHAT_DELIVERY",
   "drew_accepted": false
 }
