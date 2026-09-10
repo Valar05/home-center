@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "specimen": "v2-defense-024-glance-line-arc-reentry",
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "REPO_VERIFIED_PENDING_CHAT_DELIVERY",
   "current_worker_liveness": {
     "home_center_campaign_read": true,
     "github_persistence_readback": true,
@@ -10,7 +10,7 @@
   "inventory_before_creation": {
     "defense024_candidates": 0,
     "successor_collision": false,
-    "source": "fresh current-main GitHub search + manager reconciliation"
+    "source": "fresh current-main GitHub inventory plus manager reconciliation"
   },
   "source": {
     "provider": "The Spriters Resource",
@@ -53,7 +53,7 @@
     {
       "round": "R1",
       "verdict": "PASS",
-      "basis": "Actual rebuilt render shows contact release before travel authority changes, visibly lifted free feet, earned catch overlap, three support-driven heading edits, counter-yaw, late guard reopen, and residual asymmetry."
+      "basis": "Fresh actual rebuilt render shows contact release before travel authority changes, visibly lifted free feet, earned catch overlap, three support-driven heading edits, counter-yaw, late guard reopen, and residual asymmetry."
     }
   ],
   "noodle_queen": {
@@ -67,18 +67,24 @@
     "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
     "candidate_isolated": "PASS",
     "execution_output": {
-      "entries_checked": [
-        "v2-defense-024-glance-line-arc-reentry"
-      ],
+      "entries_checked": ["v2-defense-024-glance-line-arc-reentry"],
       "ok": true
-    }
+    },
+    "boundary": "Current Standard Chat worker executed the exact current validator code against a candidate-isolated staged entry. No repo-global checkout execution is claimed."
   },
   "repo": {
-    "persisted": false,
-    "repo_readback": false,
-    "exact_files": {},
-    "body_files_readback": 0,
-    "spa_count": 0
+    "persisted": true,
+    "repo_readback": true,
+    "body_files_readback": 6,
+    "spa_count": 1,
+    "exact_files": {
+      "build.py": "4968f891bc73a3cbe8536e65b5641845800c74b6",
+      "contact-sheet.txt": "c4587181139ae0f25927d6d9a14eb65ba2b19ae2",
+      "manifest.json": "791f27dee655b586fd291953ef2d184d6919f73f",
+      "motion.json": "8b11c70944d855e8b35c19181876b7e1a88693da",
+      "glance-line-arc-reentry.motion.html": "3bf0e55b41df56dc2f9171ec20adeac765d0de5d"
+    },
+    "manifest_repo_verify_commit": "c1223a4d82ba34478866b0f898516bcb5ef414cf"
   },
   "issue": {
     "pre_chat_receipt": null,
