@@ -1,0 +1,320 @@
+ASCII KINESIS V2 STRIKES025 — REAR CLEARANCE GATES COMMIT STEP DEBT
+Pocket rule: THE STRIKE OWES A STEP BEFORE IT OWES A THRUST. IF THE BUTT HAS NO REAR ROOM, ROOT SUPPORT MUST MOVE FIRST.
+Legend: # rear obstruction | | target | B staff butt | T staff tip | X target contact | + hands | O head | @ root | o knee | * active support | . light | ^ air | _ ground
+Source: STRIKES PASS 005 — VERIFIED | Home Center evidence 1BW6UzsUckanhIqsAIcO6mWhc7FNCHGCX7A5tsdfO1EU | TSR asset 23976 | Donatello — TMNT Tournament Fighters — SNES.
+Source roles: POSE_REFERENCE + CONTACT_REFERENCE. Timing authority=false. Source timing=UNKNOWN.
+OBSERVED: static long-weapon fighter sheet; front/rear staff volume; commissioned lifecycle proposes rear-occluded partial-cover follow-up testing root movement before coil.
+INFERRED: authored pose order, root/support clearance gate, contact/hit-stop implication, recoil, overshoot, secondary lag, recovery, all timing. Direction=STREET_FIGHTER/CAPCOM.
+Rights firewall: generic ASCII biped + line-segment staff only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio/redistribution/close imitation.
+
+K00 READY_BEHIND_PARTIAL_COVER — timing=FOURS — provenance=INFERRED
+role=READ / OCCLUDED REAR VOLUME | support=dual support; rear leg slightly dominant
+root_arc=root stacked behind feet with staff already reading forward | clearance=butt sits inside legal corridor but rear reserve is narrow
+     #
+     #
+     #
+     #
+     #
+     #                                                        |
+     #                  O                                     |
+     #                  |                                     |
+     #                  |                                     |
+     #                  |                                     |
+     #  B===========+======+================T                 |
+     #                  |                                     |
+     #                  |                                     |
+     #                  @                                     |
+     #                // \\                                   |
+     #               o     \o                                 |
+     #              /        \                                |
+     #              /         \                               |
+     #             /          \                               |
+     ______________*___________*______________________________|___
+
+K01 DENIED_COIL_LOAD — timing=FOURS — provenance=INFERRED
+role=ANTICIPATION / DENIED COIL | support=rear support loads; front lightens
+root_arc=root compresses rearward one cell while front support unweights | clearance=butt approaches wall reserve; no thrust permission yet
+     #
+     #
+     #
+     #
+     #
+     #                                                        |
+     #                 O                                      |
+     #                 |                                      |
+     #                 |                                      |
+     #                 |                                      |
+     # B===========+======+===============T                   |
+     #                 |                                      |
+     #                 |                                      |
+     #                 @                                      |
+     #               // \\                                    |
+     #              o     \o                                  |
+     #             /        \                                 |
+     #             /         \                                |
+     #            /          \                                |
+     _____________*___________._______________________________|___
+
+K02 CLEARING_STEP_LAUNCH — timing=TWOS — provenance=INFERRED
+role=AUTHORED BRIDGE / CLEARING STEP LAUNCH | support=rear support owns body while front foot travels
+root_arc=root begins forward-right translation before tool coil | clearance=front foot leaves ground; root buys rear clearance
+     #
+     #
+     #
+     #
+     #
+     #                                                        |
+     #                   O                                    |
+     #                   |                                    |
+     #                   |                                    |
+     #                   |                                    |
+     #   B===========+======+===============T                 |
+     #                   |                                    |
+     #                   |                                    |
+     #                   @\                                   |
+     #                 //  \\                                 |
+     #                o      \o                               |
+     #               /         \\                             |
+     #               /           \\                           |
+     #              /              ^                          |
+     _______________*_________________________________________|___
+
+K03 CLEARING_STEP_CATCH — timing=TWOS — provenance=INFERRED
+role=SUPPORT HANDOFF / CLEARANCE PURCHASE | support=front support catches; rear becomes light
+root_arc=root crosses over newly planted front support | clearance=rear wall gap grows before any legal coil
+     #
+     #
+     #
+     #
+     #
+     #                                                        |
+     #                      O                                 |
+     #                      |                                 |
+     #                      |                                 |
+     #                      |                                 |
+     #      B===========+======+===============T              |
+     #                      |                                 |
+     #                      |                                 |
+     #                      @\                                |
+     #                    //  \\                              |
+     #                   o      \o                            |
+     #                  /         \                           |
+     #                 /           \                          |
+     #                 /            \                         |
+     _________________.______________*________________________|___
+
+K04 LEGAL_COIL_AFTER_STEP — timing=FOURS — provenance=INFERRED
+role=LEGAL COIL / REAR-VOLUME SPEND | support=front support owns root; rear is steering contact
+root_arc=root settles over front support while hands draw staff rearward | clearance=butt can now travel rearward to x=9 without wall collision because step created room
+     #
+     #
+     #
+     #
+     #
+     #                                                        |
+     #                       O                                |
+     #                       |                                |
+     #                       |                                |
+     #                       |                                |
+     #   B==============+=======+=============T               |
+     #                       |                                |
+     #                       |                                |
+     #                       @\                               |
+     #                     //  \\                             |
+     #                    o      \o                           |
+     #                   /         \                          |
+     #                  /           \                         |
+     #                  /            \                        |
+     __________________.______________*_______________________|___
+
+K05 AXIS_COMMIT_BRIDGE — timing=TWOS — provenance=INFERRED
+role=AUTHORED BRIDGE / AXIS COMMIT | support=front support braces; rear pushes lightly
+root_arc=root advances under aligned shaft instead of hands firing alone | clearance=rear end remains clear while tip claims target corridor
+     #
+     #
+     #
+     #
+     #
+     #                                                        |
+     #                         O                              |
+     #                         |                              |
+     #                         |                              |
+     #                         |                              |
+     #     B===============+=======+================T         |
+     #                         |                              |
+     #                         |                              |
+     #                         @\                             |
+     #                       //  \\                           |
+     #                      o      \o                         |
+     #                     /         \                        |
+     #                    /           \                       |
+     #                   /            \                       |
+     ___________________.______________*______________________|___
+
+K06 PRECONTACT — timing=ONES — provenance=INFERRED
+role=PRECONTACT / COMMITMENT | support=both contacts active; rear drive feeds front brace
+root_arc=root still advances as tip stops one cell short | clearance=both tool ends remain inside proven clearance corridor
+     #
+     #
+     #
+     #
+     #
+     #                                                        |
+     #                            O                           |
+     #                            |                           |
+     #                            |                           |
+     #                            |                           |
+     #        B===============+========+====================T |
+     #                            |                           |
+     #                            |                           |
+     #                            @\                          |
+     #                          //  \\                        |
+     #                         o      \o                      |
+     #                        /         \                     |
+     #                      //          \                     |
+     #                     /             \                    |
+     _____________________*______________*____________________|___
+
+K07 CONTACT_PIN — timing=ONES — provenance=INFERRED
+role=CONTACT INSTANT / HIT-STOP IMPLICATION | support=front support hard brace; rear drive remains active
+root_arc=root reaches contact with pelvis still forward of precontact | clearance=tip pins target; butt remains safely away from rear wall
+     #
+     #
+     #
+     #
+     #
+     #                                                        |
+     #                              O                         |
+     #                              |                         |
+     #                              |                         |
+     #                              |                         |
+     #          B===============+========+====================X
+     #                              |                         |
+     #                              |                         |
+     #                              @\                        |
+     #                            //  \\                      |
+     #                           o      \o                    |
+     #                          /         \                   |
+     #                        //          \                   |
+     #                       /             \                  |
+     _______________________*______________*__________________|___
+
+K08 BODY_CHECK_OVERTRAVEL — timing=TWOS — provenance=INFERRED
+role=IMPACT CONSEQUENCE / BODY CHECK | support=front support owns check; rear lightens
+root_arc=tip stays pinned while root and hands overrun one beat | clearance=contact is not endpoint-only; body pays force while distal point is held
+     #
+     #
+     #
+     #
+     #
+     #                                                        |
+     #                               O                        |
+     #                               |                        |
+     #                               |                        |
+     #                               |                        |
+     #           B===============+========+===================X
+     #                               |                        |
+     #                               |                        |
+     #                               @\                       |
+     #                             //  \\                     |
+     #                            o      \o                   |
+     #                           /         \                  |
+     #                         //          \                  |
+     #                        /             \                 |
+     ________________________.______________*_________________|___
+
+K09 AXIAL_WITHDRAW — timing=ONES — provenance=INFERRED
+role=DISENGAGE / AXIAL WITHDRAW | support=front support stays active during extraction
+root_arc=root checks backward after tip clears target | clearance=withdraw follows already-proven axis before any rotation
+     #
+     #
+     #
+     #
+     #
+     #                                                        |
+     #                             O                          |
+     #                             |                          |
+     #                             |                          |
+     #                             |                          |
+     #         B===============+=======+=================T    |
+     #                             |                          |
+     #                             |                          |
+     #                             @\                         |
+     #                           //  \\                       |
+     #                          o      \o                     |
+     #                         /         \                    |
+     #                        /           \                   |
+     #                       /            \                   |
+     _______________________.______________*__________________|___
+
+K10 RECOIL_OVERSHOOT — timing=TWOS — provenance=INFERRED
+role=RECOIL OVERSHOOT | support=rear support catches returning root; front becomes light
+root_arc=root overshoots behind its eventual recovery stack | clearance=tool retracts farther than ready while rear clearance remains legal
+     #
+     #
+     #
+     #
+     #
+     #                                                        |
+     #                          O                             |
+     #                          |                             |
+     #                          |                             |
+     #                          |                             |
+     #      B===============+=======+===========T             |
+     #                          |                             |
+     #                          |                             |
+     #                          @\                            |
+     #                        //  \\                          |
+     #                       o      \o                        |
+     #                      /         \                       |
+     #                     /           \                      |
+     #                    /             \                     |
+     ____________________*_______________.____________________|___
+
+K11 HAND_LAG_CATCH — timing=TWOS — provenance=INFERRED
+role=SECONDARY LAG / HAND CATCH | support=rear support stable; front searches
+root_arc=root starts restacking before hands and shaft finish rebound | clearance=hands/tool remain a beat behind root instead of mirrored reversal
+     #
+     #
+     #
+     #
+     #
+     #                                                        |
+     #                           O                            |
+     #                           |                            |
+     #                           |                            |
+     #                           |                            |
+     #       B===============+=======+============T           |
+     #                           |                            |
+     #                           |                            |
+     #                           @\                           |
+     #                         //  \\                         |
+     #                        o      \o                       |
+     #                       /         \                      |
+     #                      /           \                     |
+     #                     /            \                     |
+     _____________________*______________.____________________|___
+
+K12 DISPLACED_READY — timing=FOURS — provenance=INFERRED
+role=RECOVERY COMPLETE / DISPLACED READY | support=dual support restored
+root_arc=root settles forward of K00; strike permanently spent a clearing step | clearance=rear clearance remains larger than at start; no idle reset
+     #
+     #
+     #
+     #
+     #
+     #                                                        |
+     #                            O                           |
+     #                            |                           |
+     #                            |                           |
+     #                            |                           |
+     #        B===============+=======+============T          |
+     #                            |                           |
+     #                            |                           |
+     #                            @\                          |
+     #                          //  \\                        |
+     #                         o      \o                      |
+     #                        /         \                     |
+     #                       /           \                    |
+     #                      /            \                    |
+     ______________________*______________*___________________|___
