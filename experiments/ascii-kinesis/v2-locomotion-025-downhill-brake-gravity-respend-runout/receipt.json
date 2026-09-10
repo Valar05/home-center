@@ -1,17 +1,59 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "specimen": "v2-locomotion-025-downhill-brake-gravity-respend-runout",
-  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_ISSUE_CHAT",
+  "status": "REPO_VERIFIED_READY_FOR_CURRENT_CHAT_DELIVERY",
   "preflight": {
     "home_center_campaign": true,
     "github_persistence_readback": true
   },
   "binding": {
-    "one_body": true,
-    "collision": false,
+    "canonical_body": "experiments/ascii-kinesis/v2-locomotion-025-downhill-brake-gravity-respend-runout/",
+    "one_authoritative_body": true,
+    "collision": true,
+    "collision_count": 6,
+    "collision_class": "SUCCESSOR_COLLISION_RESOLVED_BY_EXACT_CREATION_CHRONOLOGY",
+    "canonical_first_commit": "c17adf4bce27b808abc36e34b8c8054e06d51507",
+    "canonical_first_created_at": "2026-09-10T17:43:41Z",
+    "later_churn": [
+      {
+        "path": "v2-locomotion-025-headwind-load-collapse-propulsion-surge-catch",
+        "first_commit": "f2750243bcb7cdcd0ff5580e411be8271640348f",
+        "first_created_at": "2026-09-10T18:26:43Z",
+        "classification": "NON_AUTHORITATIVE_SUCCESSOR_CHURN"
+      },
+      {
+        "path": "v2-locomotion-025-buoyancy-surrender-bank-catch-runout",
+        "first_commit": "5e73c5143423d9fb5520dc40425a2e41324f5ea4",
+        "first_created_at": "2026-09-10T18:44:32Z",
+        "classification": "NON_AUTHORITATIVE_SUCCESSOR_CHURN"
+      },
+      {
+        "path": "v2-locomotion-025-relationship-drag-support-revocation-runout",
+        "first_commit": "c766c8f2a9873825b804eeb67ffe747183155978",
+        "first_created_at": "2026-09-10T19:22:54Z",
+        "classification": "NON_AUTHORITATIVE_SUCCESSOR_CHURN"
+      },
+      {
+        "path": "v2-locomotion-025-low-obstacle-split-support-trailing-clearance-runout",
+        "first_commit": "b6bde892e7dce8a97d4e740353451be5bd48701d",
+        "first_created_at": "2026-09-10T19:51:40Z",
+        "classification": "NON_AUTHORITATIVE_SUCCESSOR_CHURN"
+      },
+      {
+        "path": "v2-locomotion-025-friction-break-slide-catch-runout",
+        "first_commit": "433040c9ccfd02bfba7fcf5753dc72cdd808bd22",
+        "first_created_at": "2026-09-10T20:21:13Z",
+        "classification": "NON_AUTHORITATIVE_SUCCESSOR_CHURN"
+      }
+    ],
     "revises": null,
     "negative_fixture": null,
-    "source_change": "NOT_APPLICABLE_NEW_CONCEPT"
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "numbering_frozen": true
+  },
+  "repair_oldest_first": {
+    "unresolved_pre_reset_debt": false,
+    "basis": "Pre-reset Locomotion repair debt durably exhausted by Locomotion013 closure 5597272086. Historical Drew-rejected specimens remain negative fixtures."
   },
   "source": {
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
@@ -23,32 +65,44 @@
     "role": "EVIDENCE_ONLY"
   },
   "quality": {
-    "actual_media_sha256": "9548a1d7e984e0d0987499b16f96c541929d8715b004ee971ee2c42a953ff8f4",
+    "actual_media_sha256": "838295e49c420cb088bfec36800febb88538c6e12f2bdf00194c56ff74b81a70",
+    "actual_media_bytes": 5431,
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 480,
+    "height": 270,
+    "fps": 24,
+    "frames": 26,
+    "current_worker_byte_identical_reconstruction": true,
     "decode_render": "PASS",
-    "tango": "PASS_R0_CURRENT_WORKER",
-    "noodle_queen": "PASS_AFTER_TANGO_SAME_RENDER"
+    "tango": "PASS_R0_CURRENT_WORKER_FRESH_ACTUAL_RENDER",
+    "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_AFTER_TANGO_SAME_RENDER"
   },
   "validator": {
     "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-    "candidate_isolated": "PASS_EXIT_0",
+    "candidate_isolated": "PASS_STRUCTURAL_PREDICATES",
     "repository_global": "UNCLAIMED_STANDARD_CHAT_CONNECTOR_BOUNDARY"
   },
   "repository": {
     "expected_six_files_one_spa": true,
-    "post_write_readback": false,
-    "exact_six_file_body": false,
+    "post_write_readback": true,
+    "exact_six_file_body": true,
     "stable_body_files": {
-      "build.py": "49eb89caea948a88aca5b7fc319e31a263b5ae83",
+      "build.py": "f0c40588cce5a4fbf99476510ab399836b540bfe",
       "contact-sheet.txt": "eaf174fdc707b425a50e01eb2045fb5b3e7b7d09",
-      "motion.json": "dcfbe75ab6f61b34e974bf78f2cf07e164820775",
-      "downhill-brake-gravity-respend-runout.motion.html": "87e8c353edda685acb8a948f74edf21985bdac58"
-    }
+      "motion.json": "e511692834b49ecffbf70e5b8953d8fcdda01be8",
+      "downhill-brake-gravity-respend-runout.motion.html": "5a4af43ceee1c7e894ee7e9a66b0fbf4312e003c",
+      "manifest.json": "8e5f5b10090890b35beb4e2544f5a85da081044d"
+    },
+    "manifest_commit": "6e52a0a3b02522220fd1c6945fb2e5895c0d3f0a",
+    "final_readback": false
   },
   "issue": {
     "pre_delivery_receipt": null,
     "readback": false,
     "user_surface_closure": null,
-    "closure_readback": false
+    "closure_readback": false,
+    "terminal_durable_readback": null
   },
   "campaign": {
     "user_surface_marker": null,
@@ -60,7 +114,8 @@
     "part1_ascii": false,
     "part2_json": false,
     "part3_video": false,
-    "ordered": false
+    "ordered": false,
+    "video_byte_identical": false
   },
   "DREW_ACCEPTED": false,
   "next_authorized": null
