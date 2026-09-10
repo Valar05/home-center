@@ -1,0 +1,29 @@
+{
+  "schema": "ascii-kinesis.manifest.v2",
+  "format_version": 2,
+  "experiment_id": "v2-contact-027-overlap-custody-transfer-no-free-state-gate",
+  "lane": "contact",
+  "status": "CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "files": {
+    "build.py": "e15ae2a70afd7621eedee6621ea488bc9b8dd1c6",
+    "contact-sheet.txt": "d4ff065e97e00f9fb45ee252e1d36a61e44e86c2",
+    "motion.json": "62de00c0bc48816242507ed02daf6678049a2f41",
+    "overlap-custody-transfer-no-free-state-gate.motion.html": "b324dfee432bf6fd01f3aa772ecd14cc08a21f7a"
+  },
+  "lineage": {"kind":"NEW_CONCEPT","revises":null,"negative_fixture":null,"source_change":"NOT_APPLICABLE_NEW_CONCEPT","successor_collision":"NONE","authorized_after":"v2-contact-026-captive-relationship-zero-contact-topology-gate","authorization_issue_comment":5624442925},
+  "source": {"commissioned_evidence_id":"1PSEuJ3-KtMaQ8zkFgULnF0KlBa-ytjX6fFiuTamZPCI","tsr_asset":55723,"roles":["POSE_REFERENCE","TOOL_FAMILY_REFERENCE"],"whole_source_read":true,"timing_authority":false,"source_timing":"UNKNOWN","rights_firewall":"PASS_NO_SOURCE_PIXELS_AUDIO"},
+  "concept": {"primitive":"OVERLAPPING_CUSTODY_TRANSFER_WITHOUT_FREE_STATE","novelty":"Unlike Contact026 captivity-through-zero-contact, Contact027 keeps continuous object contact while custody authority migrates across two simultaneous anchors; unlike release-fork studies, the object never becomes FREE."},
+  "media": {"codec":"h264","pix_fmt":"yuv420p","width":600,"height":340,"fps":24,"frames":30,"bytes":12398,"sha256":"1dcee69972362a6c921e833ff2c58c289545afd33e70248710a03bb924c2d494","decode":"PASS_CURRENT_WORKER_ACTUAL_RENDER"},
+  "quality": {"tango":"PASS_R1_CURRENT_WORKER_ACTUAL_RENDER","noodle_queen":"PASS_TASTE_FUNCTION_CONTEMPT_R1_SAME_ACTUAL_RENDER","drew_accepted":false},
+  "validator": {"path":"tools/test_ascii_kinesis_swarm_contract_v2.py","blob":"7d9fc7608d54bca4a2cfbd36660c2d379e27fd78","candidate_isolated":"PASS_CURRENT_VALIDATOR_STRUCTURAL_PREDICATES","repo_global_execution":"NOT_CALLED_STANDARD_CHAT_BOUNDARY"},
+  "repository": {"persisted":false,"readback":false,"exact_file_count":null,"exact_spa_count":null,"final_readback":false},
+  "issue": {"pre_delivery":null,"user_surface":null,"terminal":null},
+  "campaign": {"propagated":false,"readback":false},
+  "chat_delivery": {"part1_ascii":false,"part2_json":false,"part3_video":false}
+}
