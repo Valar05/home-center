@@ -122,9 +122,10 @@ def sheet(m):
     for k in m['keys']:
         full=[r.ljust(m['rig']['grid']['width']) for r in art(k,m).splitlines()]
         crop=[]
-        for y in range(5,26):
+        # Compact but complete key card: action band + root rows + floor.
+        for y in list(range(8,19))+[20,21,25]:
             r=full[y] if y<len(full) else ' '*m['rig']['grid']['width']
-            crop.append(r[10:76])
+            crop.append(r[12:74])
         o += [
             f"{k['key_id']} {k['name']} [{k['timing_class']}/{k['timing_provenance']}]",
             f"REL={k['relationship_state']} CAPTURE={k['capture']} CONTACT={k['contact_state']} FORCE={k['force_owner']} N={k['normal_load']:.2f}",
