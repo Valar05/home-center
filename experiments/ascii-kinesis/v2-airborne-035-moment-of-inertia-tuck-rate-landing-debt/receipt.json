@@ -1,0 +1,93 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "experiment_id": "v2-airborne-035-moment-of-inertia-tuck-rate-landing-debt",
+  "status": "REPO_PERSISTENCE_IN_PROGRESS",
+  "preflight": {
+    "home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "home_center_campaign_read": "PASS_CURRENT_WORKER",
+    "github_persistence_readback": "PASS_CURRENT_WORKER"
+  },
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "successor_collision": false,
+    "one_body_binding": true
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "2879",
+    "identity": "Hammer Kirby — Kirby Super Star — SNES — Playable Characters",
+    "campaign_evidence_artifact": "1L34d3S-4Q_xBZEUE1t20VKszFKFINVZOLn1e8YOKd6k",
+    "whole_source_inspected": true,
+    "source_authentic_timing": "UNKNOWN",
+    "decisive_compile_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "rights_firewall": true
+  },
+  "primitive": "MOMENT_OF_INERTIA_TUCK_RATE_LANDING_DEBT",
+  "media": {
+    "authoritative": "embedded_mp4_in_spa",
+    "codec": "H.264",
+    "pixel_format": "yuv420p",
+    "width": 768,
+    "height": 432,
+    "fps": 24,
+    "frames": 55,
+    "bytes": 26802,
+    "sha256": "7665163461c4ab9f22e19a0fd05b3b6f94e1dc3602f9be0761fbb657ec818526",
+    "decode": "PASS_FULL_FFMPEG_CURRENT_WORKER"
+  },
+  "quality": {
+    "actual_render_inspected": true,
+    "tango": {
+      "rounds": [
+        "R0 REVISE_REQUIRED — weighted tool custody under-read because the shaft visually detached during the radius-change phase; SAME-body correction anchored the rigid shaft to BOTH authored hand endpoints and added explicit grip links.",
+        "R1 PASS_CURRENT_WORKER_ACTUAL_RENDER"
+      ],
+      "final": "PASS_CURRENT_WORKER_ACTUAL_RENDER",
+      "render_sha256": "7665163461c4ab9f22e19a0fd05b3b6f94e1dc3602f9be0761fbb657ec818526",
+      "highest_value_visible_defect": "NONE_AT_ACCEPTANCE_SCALE"
+    },
+    "noodle_queen": {
+      "status": "PASS_CURRENT_WORKER_SAME_ACTUAL_RENDER_TASTE_FUNCTION_CONTEMPT",
+      "taste": "PASS",
+      "function": "PASS",
+      "contempt": "PASS",
+      "render_sha256": "7665163461c4ab9f22e19a0fd05b3b6f94e1dc3602f9be0761fbb657ec818526",
+      "note": "Wide loaded mass -> authored gather -> visibly faster compact rotation -> re-extension brake -> toe-first crush -> delayed catch -> tool/torso overshoot is specific and causally readable rather than a generic flip."
+    },
+    "post_pass_motion_churn": false,
+    "DREW_ACCEPTED": false
+  },
+  "contract": {
+    "validator_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS_STRUCTURAL_PREDICATES_CURRENT_WORKER",
+    "repo_global": "UNCLAIMED_STANDARD_CHAT_BOUNDARY"
+  },
+  "repo": {
+    "persisted": false,
+    "final_readback": false,
+    "exact_one_spa": false,
+    "six_file_readback": false,
+    "current_blobs": {}
+  },
+  "issue_343": {
+    "closure_receipt": null,
+    "readback": false,
+    "final_addendum": null,
+    "final_addendum_readback": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false,
+    "ordered": false
+  },
+  "campaign": {
+    "closure_appended": false,
+    "readback": false
+  },
+  "DREW_ACCEPTED": false,
+  "next_authorized": null
+}
