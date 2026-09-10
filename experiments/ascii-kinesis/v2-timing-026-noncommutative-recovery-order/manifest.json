@@ -2,6 +2,12 @@
   "DREW_ACCEPTED": false,
   "ascii_literal_text": true,
   "backward_compatible": true,
+  "delivery": {
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_byte_identical_authoritative": true,
+    "part3_video": true
+  },
   "entry": "v2-timing-026-noncommutative-recovery-order",
   "files": [
     "build.py",
@@ -12,6 +18,11 @@
     "noncommutative-recovery-order.motion.html"
   ],
   "format_version": 2,
+  "issue_343": {
+    "pre_delivery_receipt_id": 5612451885,
+    "readback": true,
+    "user_surface_closure_id": 5612475596
+  },
   "lane": "timing",
   "lineage": {
     "negative_fixture": null,
@@ -28,6 +39,7 @@
     "sha256": "3f81392643f6f7706be1073c3f8c060b9ace79e914f1e992125baafaf9f535f5",
     "width": 720
   },
+  "next_authorized": "v2-timing-027",
   "primary_tabs": [
     "ASCII",
     "JSON",
@@ -53,7 +65,7 @@
   },
   "source_art_embedded": false,
   "spa": "noncommutative-recovery-order.motion.html",
-  "status": "PERSISTED_READY_FOR_USER_SURFACE",
+  "status": "HEALTHY_USER_SURFACED",
   "title": "Noncommutative Recovery Order",
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
@@ -65,7 +77,7 @@
       "contact-sheet.txt": "063a2ce754d37e6a73b634789f5e2dba53f0e12c",
       "manifest.json": "PENDING_SELF_UPDATE",
       "motion.json": "856e5ba30bb1c9679cc4414ad34309524a36c51b",
-      "receipt.json": "PENDING_SELF_UPDATE",
+      "receipt.json": "PENDING_FINAL_RECEIPT",
       "noncommutative-recovery-order.motion.html": "fced399ed683ad8b0e4705c4d6f116f5e3ed1eda"
     }
   }
