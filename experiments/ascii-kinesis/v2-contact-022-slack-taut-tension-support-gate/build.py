@@ -86,7 +86,7 @@ def main():
  for i,k in enumerate(m["keys"]):
   for _ in range(HOLD[k["timing_class"]]):frame(k,m,fonts).save(B/"f"/f"{n:04}.png");n+=1
   if i+1<len(m["keys"]):q,p=bridge(k,m["keys"][i+1],m);frame(q,m,fonts,p).save(B/"f"/f"{n:04}.png");n+=1
- subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate","24","-i",str(B/"f"/"%04d.png"),"-map_metadata","-1","-c:v","libx264","-threads","1","-pix_fmt","yuv420p","-crf","38","-movflags","+faststart","-fflags","+bitexact","-flags:v","+bitexact",str(V)],check=True)
+ subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate","24","-i",str(B/"f"/"%04d.png"),"-map_metadata","-1","-c:v","libx264","-threads","1","-pix_fmt","yuv420p","-crf","42","-movflags","+faststart","-fflags","+bitexact","-flags:v","+bitexact",str(V)],check=True)
  v=V.read_bytes();h=hashlib.sha256(v).hexdigest();e=m["compile"].get("media_sha256")
  if e and h!=e:raise SystemExit(f"MEDIA_IDENTITY_MISMATCH {e} != {h}")
  S.write_text(spa(A.read_text(),M.read_text(),v));print(json.dumps({"ok":True,"frames":n,"media_sha256":h,"media_bytes":len(v)},sort_keys=True))
