@@ -57,6 +57,19 @@ class RitsuContextRouterContract(unittest.TestCase):
         self.assertEqual(r.status, "NO_LOCAL_MATCH")
         self.assertTrue(r.world_knowledge_allowed)
 
+    def test_weak_alias_inside_generic_sentence_does_not_hijack_world_knowledge(self) -> None:
+        r = self.router.resolve("What is the Latin word for sleep?")
+        self.assertEqual(r.status, "NO_LOCAL_MATCH")
+        self.assertTrue(r.world_knowledge_allowed)
+
+    def test_exact_wording_can_use_weak_alias_but_still_requires_primary(self) -> None:
+        r = self.router.resolve("What did Ritsu say about the Latin?")
+        self.assertEqual(r.status, "CONTINUITY_GAP")
+        self.assertEqual(r.episode_id, EPISODE_ID)
+        self.assertEqual(r.matched_cue, "the latin")
+        self.assertEqual(r.required_provenance, "primary_transcript")
+        self.assertFalse(r.world_knowledge_allowed)
+
     def test_exact_wording_without_primary_is_continuity_gap_not_fabrication(self) -> None:
         r = self.router.resolve("Latin plays", exact_wording=True)
         self.assertEqual(r.status, "CONTINUITY_GAP")
@@ -189,8 +202,10 @@ class RitsuContextRouterContract(unittest.TestCase):
         policy = ROOT / "config" / "ritsu-os.v0.json"
         records = [
             {"record_type": "episode", "id": "a", "aliases": ["alpha cue"],
+             "embedded_aliases": ["alpha cue"],
              "summary_tier": "accepted_summary", "accepted_summary": "a"},
             {"record_type": "episode", "id": "b", "aliases": ["beta cue"],
+             "embedded_aliases": ["beta cue"],
              "summary_tier": "accepted_summary", "accepted_summary": "b"},
         ]
         with tempfile.TemporaryDirectory() as td:
