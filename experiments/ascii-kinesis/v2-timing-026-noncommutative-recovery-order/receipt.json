@@ -48,10 +48,17 @@
     ]
   },
   "repo": {
-    "commit": null,
-    "files": {},
-    "persisted": false,
-    "readback": false
+    "commit": "83d1ab11f0d1eac995cf176729c3ca3d89934d34",
+    "files": {
+      "build.py": "23a5d3c9c8396fe7af881c2f54b1cf84e8c097fa",
+      "contact-sheet.txt": "063a2ce754d37e6a73b634789f5e2dba53f0e12c",
+      "manifest.json": "b2cc6bf8bf6fb252c66c55a05c0cff97cbc99dc2",
+      "motion.json": "856e5ba30bb1c9679cc4414ad34309524a36c51b",
+      "receipt.json": "PENDING_SELF_UPDATE",
+      "noncommutative-recovery-order.motion.html": "fced399ed683ad8b0e4705c4d6f116f5e3ed1eda"
+    },
+    "persisted": true,
+    "readback": true
   },
   "schema": "ascii-kinesis.receipt-v2",
   "source": {
@@ -62,5 +69,5 @@
     "timing_provenance": "INFERRED",
     "whole_source_inspected": true
   },
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE"
+  "status": "PERSISTED_READY_FOR_USER_SURFACE"
 }
