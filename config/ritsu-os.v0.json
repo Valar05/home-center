@@ -19,6 +19,15 @@
     "adjacent_evidence",
     "unknown"
   ],
+  "presentation_contract": {
+    "preferred_interface": "Ritsu",
+    "accepted_interface_aliases": ["Ritsu", "Ritzu"],
+    "retrieval_visibility": "internal",
+    "pre_answer_narration_allowed": false,
+    "identity_explanation_allowed": false,
+    "deferred_owner_handoff_visibility": "internal",
+    "unknown_router_state_visibility": "internal"
+  },
   "exact_wording_markers": [
     "exact words",
     "exact wording",
@@ -51,6 +60,8 @@
     "CORRECTION_EDGE_LOST",
     "SOURCE_FRAGMENTATION",
     "OVER_RETRIEVAL",
-    "EARLY_STOP"
+    "EARLY_STOP",
+    "RETRIEVAL_NARRATION_LEAK",
+    "IDENTITY_EXPLANATION_LEAK"
   ]
 }
