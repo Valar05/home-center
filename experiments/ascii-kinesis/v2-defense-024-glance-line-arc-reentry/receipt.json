@@ -7,10 +7,24 @@
     "github_persistence_readback": true,
     "verdict": "PASS_HOME_CENTER_PLUS_GITHUB"
   },
-  "inventory_before_creation": {
-    "defense024_candidates": 0,
-    "successor_collision": false,
-    "source": "fresh current-main GitHub inventory plus manager reconciliation"
+  "lineage": {
+    "kind": "NEW_CONCEPT",
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "prior_defense_closure_issue_comment": 5611903666,
+    "successor_collision": true,
+    "collision_resolution": {
+      "classification": "SUCCESSOR_COLLISION",
+      "canonical_path": "experiments/ascii-kinesis/v2-defense-024-glance-line-arc-reentry/",
+      "canonical_first_commit": "4358ee29df2a4704593d547ecff8b9d2f927a301",
+      "canonical_active_at": "2026-09-10T03:49:18Z",
+      "later_path": "experiments/ascii-kinesis/v2-defense-024-deflected-threat-clock-fork/",
+      "later_first_commit": "dac7944f5a55958d3a0793794d5d4126d6130cb2",
+      "later_started_at": "2026-09-10T04:14:57Z",
+      "later_disposition": "NON_AUTHORITATIVE_SUCCESSOR_CHURN_PRESERVED_UNCHANGED",
+      "manager_reconciliation_issue_comment": 5613059541
+    }
   },
   "source": {
     "provider": "The Spriters Resource",
@@ -41,7 +55,8 @@
     "fps": 24,
     "frames": 41,
     "duration_seconds": 1.708333,
-    "decode_verified": true
+    "decode_verified": true,
+    "current_worker_byte_identical_reconstruction": true
   },
   "tango": [
     {
@@ -53,24 +68,26 @@
     {
       "round": "R1",
       "verdict": "PASS",
-      "basis": "Fresh actual rebuilt render shows contact release before travel authority changes, visibly lifted free feet, earned catch overlap, three support-driven heading edits, counter-yaw, late guard reopen, and residual asymmetry."
+      "basis": "Actual rebuilt render shows contact release before travel authority changes, visibly lifted free feet, earned catch overlap, three support-driven heading edits, counter-yaw, late guard reopen, and residual asymmetry."
+    },
+    {
+      "round": "R1_CURRENT_WORKER_REVALIDATION",
+      "verdict": "PASS",
+      "basis": "Fresh byte-identical authoritative reconstruction produced 41 frames / 18,366 bytes / SHA-256 7ae8aba34d7b9476da779782202db380c26d6b4a1634e02dde17a71618c184ec and full decode PASS. Visual reinspection confirms the threat glances and releases before the grounded arc; unsupported feet are visibly lifted; catch overlap owns heading changes; counter-yaw and late guard reopen retain displaced recovery debt. No new defect earned choreography mutation."
     }
   ],
   "noodle_queen": {
     "verdict": "PASS",
-    "taste": "specific asymmetrical guard-to-run silhouette progression",
-    "function": "glance contact ends before the three-catch grounded arc; support changes visibly own the root",
-    "contempt": "no mannequin reset, support-label theater, or generic reverse interpolation"
+    "current_worker_revalidated": true,
+    "taste": "specific asymmetrical guard-to-run silhouette progression with a readable curved escape",
+    "function": "glance contact ends before the three-catch grounded arc; support changes visibly own the root and heading edits",
+    "contempt": "no mannequin reset, hidden support teleport, threat/contact theater, or generic reverse interpolation"
   },
   "validator": {
     "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
     "candidate_isolated": "PASS",
-    "execution_output": {
-      "entries_checked": ["v2-defense-024-glance-line-arc-reentry"],
-      "ok": true
-    },
-    "boundary": "Current Standard Chat worker executed the exact current validator code against a candidate-isolated staged entry. No repo-global checkout execution is claimed."
+    "boundary": "Exact current validator source and canonical candidate were read. No authorized repository-global checkout executor is exposed in Standard Chat, so repository-global execution is not claimed."
   },
   "repo": {
     "persisted": true,
@@ -80,15 +97,17 @@
     "exact_files": {
       "build.py": "4968f891bc73a3cbe8536e65b5641845800c74b6",
       "contact-sheet.txt": "c4587181139ae0f25927d6d9a14eb65ba2b19ae2",
-      "manifest.json": "791f27dee655b586fd291953ef2d184d6919f73f",
+      "manifest.json": "3ffe71a56102dd1f66328262d1c3873a44c16e5f",
       "motion.json": "8b11c70944d855e8b35c19181876b7e1a88693da",
       "glance-line-arc-reentry.motion.html": "3bf0e55b41df56dc2f9171ec20adeac765d0de5d"
     },
-    "manifest_repo_verify_commit": "c1223a4d82ba34478866b0f898516bcb5ef414cf"
+    "manifest_reconciliation_commit": "c5eb818338b1fc38b2c5d9f6a4e179d1e103bfe7",
+    "collision_churn_preserved": true
   },
   "issue": {
-    "pre_chat_receipt": null,
-    "pre_chat_readback": false,
+    "pre_chat_receipt": 5612750391,
+    "pre_chat_readback": true,
+    "manager_reconciliation": 5613059541,
     "final_receipt": null,
     "final_readback": false
   },
