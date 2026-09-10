@@ -6,17 +6,17 @@ UNKNOWN: source chronology/exposure/root coordinates/support forces. This S-curv
 rights firewall: independent abstract rig only; no source pixels, palette, costume, contours, layout, tracing, choreography, audio, redistribution, or close imitation.
 thesis: keep gait phase and forward travel alive while curvature demand crosses zero; bank/support-vector sign may swap only after an earned opposite-support catch; exit pays secondary yaw/bank lag without pivot or idle reset.
 
-K00 ENTRY_LEFT_CATCH · TWOS/2f · INFERRED · support=LEFT · phase=CURVE_A_ENTRY · rootΔ=0px · yaw=+18° · bank=-7° · torso=+18°
+K00 ENTRY_LEFT_CATCH · TWOS/2f · INFERRED · support=LEFT · phase=CURVE_A_ENTRY · rootΔ=0px · yaw=+18° · bank=-6° · torso=+18°
 
 
 
 
 
-                                     ........
-                              .......        ......
-                            ..                     ...
-         c\~  \\        ....                          ...
-        @-   \      ....
+                                  ...........
+                                ..           ...
+                           .....                ....
+         c\~  \\        ...                         ...
+        @-   \      ....                               ...
         / -->.......
        *       O
             ////
@@ -32,20 +32,19 @@ K00 ENTRY_LEFT_CATCH · TWOS/2f · INFERRED · support=LEFT · phase=CURVE_A_ENT
 
 
 
+causal: establish curve-A travel on a real left support catch
 
-causal: establish curved running travel on a real left support catch
-
-K01 LEFT_PASS_R · ONES/1f · INFERRED · support=LEFT_UNLOADING · phase=CURVE_A_BUILD · rootΔ=22.0px · yaw=+12° · bank=-10° · torso=+16°
-
+K01 LEFT_PASS_R · ONES/1f · INFERRED · support=LEFT_UNLOADING · phase=CURVE_A_BUILD · rootΔ=22.6px · yaw=+12° · bank=-9° · torso=+17°
 
 
 
 
-                                     ........
-                              .......        ......
-                            ..                     ...
-           c            ....                          ...
-        .!!  \~\\\  ....
+
+                                  ...........
+                                ..           ...
+                           .....                ....
+                        ...                         ...
+        ..!c \~ \\\ ....                               ...
         !//@--->....
        */    ||T  O
               /////
@@ -61,20 +60,19 @@ K01 LEFT_PASS_R · ONES/1f · INFERRED · support=LEFT_UNLOADING · phase=CURVE_
 
 
 
+causal: continue phase while curve-A inward demand grows
 
-causal: continue gait phase while curve-A inward demand builds
-
-K02 RIGHT_CATCH_LEFT_ARC · TWOS/2f · INFERRED · support=RIGHT · phase=CURVE_A_CATCH · rootΔ=26.0px · yaw=+5° · bank=-14° · torso=+10°
-
+K02 RIGHT_CATCH_CURVE_A · TWOS/2f · INFERRED · support=RIGHT · phase=CURVE_A_CATCH · rootΔ=26.1px · yaw=+5° · bank=-13° · torso=+11°
 
 
 
 
-                                     ........
-                              .......        ......
-                            ..                     ...
-              *c        ....                          ...
-        ..    \    \\...
+
+                                  ...........
+                                ..           ...
+                           .....                ....
+              *c        ...                         ...
+        ..    \    \\...                               ...
           ....@----> \\
                /||T  O
                  ~/
@@ -90,22 +88,22 @@ K02 RIGHT_CATCH_LEFT_ARC · TWOS/2f · INFERRED · support=RIGHT · phase=CURVE_
 
 
 
+causal: right catch earns stronger curve-A lateral support without speed clamp
 
-causal: right catch earns stronger curve-A support vector without speed clamp
-
-K03 RIGHT_PASS_L_OVERRUN · TWOS/2f · INFERRED · support=RIGHT_UNLOADING · phase=CURVE_A_OVERRUN · rootΔ=30.0px · yaw=-4° · bank=-15° · torso=+2°
-
+K03 RIGHT_PASS_L_OVERRUN · TWOS/2f · INFERRED · support=RIGHT_UNLOADING · phase=CURVE_A_OVERRUN · rootΔ=28.0px · yaw=-3° · bank=-15° · torso=+4°
 
 
 
 
-                                     ........
-                              .......        ......
-                            ..                     ...
-              *!!!c   \\....                          ...
-        ..     \\   ....\\
-          .......\@--->  O
-                    /~/
+
+                                  ...........
+                                ..           ...
+                           .....                ....
+              *!!!c     ...                         ...
+        ..     \\   ..\\                               ...
+          .......\@---> \O
+                    /~
+                      /
                        //
 
 
@@ -118,24 +116,21 @@ K03 RIGHT_PASS_L_OVERRUN · TWOS/2f · INFERRED · support=RIGHT_UNLOADING · ph
 
 
 
+causal: spend tangent travel with right support and upper-body lag
 
-
-causal: spend tangent travel through curve-A with upper-body lag
-
-K04 LEFT_CATCH_UNWIND · TWOS/2f · INFERRED · support=LEFT · phase=CURVE_A_UNWIND · rootΔ=32.0px · yaw=-13° · bank=-12° · torso=-7°
+K04 LEFT_CATCH_UNWIND · TWOS/2f · INFERRED · support=LEFT · phase=CURVE_A_UNWIND · rootΔ=30.6px · yaw=-11° · bank=-12° · torso=-6°
 
 
 
 
 
-                                     ........
-                           \  .......        ......
-                      c ~ \ ..                     ...
-                      !\-->. O                        ...
-        ..          ..@-||T //
-          ..........  /   //
-                      *
-
+                                  ...........
+                           \    ..           ...
+                        ~  \....                ....
+                     c \..\                         ...
+        ..          .!@---> /O                         ...
+          .......... !/   //
+                     *
 
 
 
@@ -148,23 +143,21 @@ K04 LEFT_CATCH_UNWIND · TWOS/2f · INFERRED · support=LEFT · phase=CURVE_A_UN
 
 
 
-causal: left catch starts reducing curve-A demand before the inflection
+causal: left catch begins curve-A unwind before the inflection
 
-K05 LEFT_PASS_R_NEUTRALIZE · TWOS/2f · INFERRED · support=LEFT_UNLOADING · phase=INFLECTION_APPROACH · rootΔ=29.0px · yaw=-20° · bank=-7° · torso=-14°
-
-
+K05 LEFT_PASS_R_APPROACH · TWOS/2f · INFERRED · support=LEFT_UNLOADING · phase=INFLECTION_APPROACH · rootΔ=28.5px · yaw=-18° · bank=-8° · torso=-14°
 
 
 
-                              \      ........
-                           ~ \.......        ......
-                         c\ -T> O/                 ...
-                        !.@-   //                     ...
-        ..          ....//    /
-          ..........   /
-                      *
 
 
+                              \   ...........
+                           ~ \  ..           ...
+                         c\-->..O               ....
+                        !@-||T  //                  ...
+        ..          ...//     //                       ...
+          ..........  /
+                     *
 
 
 
@@ -176,19 +169,20 @@ K05 LEFT_PASS_R_NEUTRALIZE · TWOS/2f · INFERRED · support=LEFT_UNLOADING · p
 
 
 
-causal: unwind bank toward neutral while phase and forward travel continue
 
-K06 RIGHT_CATCH_ZERO_CURVATURE · TWOS/2f · INFERRED · support=RIGHT · phase=ZERO_CURVATURE_JOIN · rootΔ=26.0px · yaw=-23° · bank=+0° · torso=-18°
+causal: reduce bank and yaw-rate while forward travel stays live
 
-
-
+K06 RIGHT_CATCH_PRE_ZERO · TWOS/2f · INFERRED · support=RIGHT · phase=INTRA_STANCE_PRE_ZERO · rootΔ=26.0px · yaw=-22° · bank=-4° · torso=-18°
 
 
-                                \\\O ........
-                           *  .-T>...        ......
-                            \c-                    ...
-                        ....   /~///                  ...
-        ..          ....
+
+
+
+                               \\\\\.........
+                           *  -->. O         ...
+                           .c-..                ....
+                        ...   /~ ///                ...
+        ..          ....                               ...
           ..........
 
 
@@ -203,19 +197,19 @@ K06 RIGHT_CATCH_ZERO_CURVATURE · TWOS/2f · INFERRED · support=RIGHT · phase=
 
 
 
-causal: right catch carries the curvature-zero join; heading remains tangent and bank reaches neutral
+causal: right catch owns the final negative-sign demand entering the inflection
 
-K07 RIGHT_PASS_L_SIGN_PROBE · ONES/1f · INFERRED · support=RIGHT_UNLOADING · phase=CURVE_B_PROBE · rootΔ=24.0px · yaw=-21° · bank=+4° · torso=-20°
-
-
+K07 RIGHT_MIDSTANCE_ZERO_CROSS · ONES/1f · INFERRED · support=RIGHT_MIDSTANCE · phase=INTRA_STANCE_ZERO · rootΔ=19.7px · yaw=-23° · bank=+0° · torso=-20°
 
 
-                                   \\\O
-                                 --> ........
-                           *\\\@-/...        ......
-                            ..!!c /~///            ...
-                        ....                          ...
-        ..          ....
+
+
+                                  \\\\
+                                  >..O.......
+                           *\   --T          ...
+                           ..\\c|  ///          ....
+                        ...      ~                  ...
+        ..          ....                               ...
           ..........
 
 
@@ -230,19 +224,48 @@ K07 RIGHT_PASS_L_SIGN_PROBE · ONES/1f · INFERRED · support=RIGHT_UNLOADING ·
 
 
 
-causal: manifest the newly earned opposite-sign demand after the zero-curvature catch without pivoting
+causal: SAME right foot remains world-fixed while COM passes to neutral and lateral support demand reaches zero
 
-K08 LEFT_CATCH_SIGN_SWAP · TWOS/2f · INFERRED · support=LEFT · phase=CURVE_B_CATCH · rootΔ=28.0px · yaw=-15° · bank=+9° · torso=-18°
+K08 RIGHT_UNLOAD_OPPOSITE_SIGN · ONES/1f · INFERRED · support=RIGHT_UNLOADING · phase=INTRA_STANCE_SIGN_REVERSED · rootΔ=17.1px · yaw=-21° · bank=+6° · torso=-21°
 
 
+
+
+                                      \\
+                                    \\ O
+                                  .-T>.......
+                           *\\\\\@-  /       ...
+                           ...!!!c ~  //        ....
+                        ...                         ...
+        ..          ....                               ...
+          ..........
+
+
+
+
+
+
+
+
+
+
+
+
+
+causal: SAME right support remains fixed as COM crosses to the opposite side and lateral demand reverses before unload
+
+K09 LEFT_CATCH_CONFIRM_SIGN · TWOS/2f · INFERRED · support=LEFT · phase=CURVE_B_CONFIRM · rootΔ=23.8px · yaw=-14° · bank=+10° · torso=-18°
+
+
+
+                                        \
                                        \
-                                      \
-                                     ~    O
-                                    \-->//...
-                              .....@-  /     ......
-                            ..     *               ...
-                        ....                          ...
-        ..          ....
+                                     ~    O/
+                                  .@---T>//..
+                                .. /    /    ...
+                           .....   *c           ....
+                        ...                         ...
+        ..          ....                               ...
           ..........
 
 
@@ -257,19 +280,20 @@ K08 LEFT_CATCH_SIGN_SWAP · TWOS/2f · INFERRED · support=LEFT · phase=CURVE_B
 
 
 
-causal: left catch decisively owns the opposite inward support-vector sign
+causal: left catch confirms and accepts the already-visible opposite-sign demand; it does not invent the swap
 
-K09 LEFT_PASS_R_BUILD · TWOS/2f · INFERRED · support=LEFT_UNLOADING · phase=CURVE_B_BUILD · rootΔ=31.0px · yaw=-7° · bank=+13° · torso=-12°
+K10 LEFT_PASS_R_BUILD · TWOS/2f · INFERRED · support=LEFT_UNLOADING · phase=CURVE_B_BUILD · rootΔ=29.1px · yaw=-6° · bank=+13° · torso=-12°
 
 
-                                           \\
-                                         ~\
-                                        \     O
-                                     ./@--->.//
-                              ......//     //......
-                            ..     *!!!c           ...
-                        ....                          ...
-        ..          ....
+
+                                            \
+                                           \
+                                         ~    O
+                                  ..../@--->. //
+                                ..  //      //..
+                           .....   *!!!c        ....
+                        ...                         ...
+        ..          ....                               ...
           ..........
 
 
@@ -284,19 +308,20 @@ K09 LEFT_PASS_R_BUILD · TWOS/2f · INFERRED · support=LEFT_UNLOADING · phase=
 
 
 
-causal: build curve-B while preserving nonuniform forward spacing
+causal: build curve-B under left support while gait phase continues
 
-K10 RIGHT_CATCH_OPPOSITE_ARC · TWOS/2f · INFERRED · support=RIGHT · phase=CURVE_B_PEAK · rootΔ=30.0px · yaw=+2° · bank=+15° · torso=-4°
-
-
+K11 RIGHT_CATCH_CURVE_B · TWOS/2f · INFERRED · support=RIGHT · phase=CURVE_B_PEAK · rootΔ=29.1px · yaw=+3° · bank=+15° · torso=-4°
 
 
-                                          *   \\\\\
-                                     .....!@--->  O
-                              .......     ! /......
-                            ..            c  ~ /// ...
-                        ....                          ...
-        ..          ....
+
+
+
+                                          *    \\\\
+                                  ........!@-||T  O
+                                ..         !/-->
+                           .....           ! ~ /....
+                        ...                c    //  ...
+        ..          ....                               ...
           ..........
 
 
@@ -311,19 +336,20 @@ K10 RIGHT_CATCH_OPPOSITE_ARC · TWOS/2f · INFERRED · support=RIGHT · phase=CU
 
 
 
-causal: right catch carries peak opposite curvature with phase continuity
+causal: right catch carries peak curve-B demand with no reset
 
-K11 RIGHT_PASS_L_OVERRUN · TWOS/2f · INFERRED · support=RIGHT_UNLOADING · phase=CURVE_B_OVERRUN · rootΔ=27.0px · yaw=+10° · bank=+12° · torso=+5°
+K12 RIGHT_PASS_L_OVERRUN · TWOS/2f · INFERRED · support=RIGHT_UNLOADING · phase=CURVE_B_OVERRUN · rootΔ=28.6px · yaw=+11° · bank=+11° · torso=+4°
+
 
 
 
 
                                           *
-                                     ......\\     \\
-                              .......       !\@---> \O
-                            ..                c/  /...
-                        ....                    ~  // ...
-        ..          ....
+                                  .........\\      \\
+                                ..          !\@--|T  O\
+                           .....             ! /.-->
+                        ...                   c ~ / ...
+        ..          ....                           //  ...
           ..........
 
 
@@ -340,17 +366,17 @@ K11 RIGHT_PASS_L_OVERRUN · TWOS/2f · INFERRED · support=RIGHT_UNLOADING · ph
 
 causal: let torso/head lag survive beyond peak curve-B demand
 
-K12 LEFT_CATCH_EXIT_UNWIND · TWOS/2f · INFERRED · support=LEFT · phase=EXIT_UNWIND · rootΔ=25.0px · yaw=+16° · bank=+7° · torso=+12°
+K13 LEFT_CATCH_EXIT_UNWIND · TWOS/2f · INFERRED · support=LEFT · phase=EXIT_UNWIND · rootΔ=27.2px · yaw=+16° · bank=+7° · torso=+10°
 
 
 
 
 
-                                     ........      \~ \\
-                              .......        ....@-  \
-                            ..                   c -->
-                        ....                    *    ///O
-        ..          ....
+                                  ...........          \\
+                                ..           ...    ~ \
+                           .....                ..@-||T
+                        ...                      *  -->//O
+        ..          ....                             //...
           ..........
 
 
@@ -365,22 +391,20 @@ K12 LEFT_CATCH_EXIT_UNWIND · TWOS/2f · INFERRED · support=LEFT · phase=EXIT_
 
 
 
-causal: left catch unwinds opposite bank while root keeps traveling
+causal: left catch unwinds curve-B bank while root keeps traveling
 
-K13 LEFT_PASS_R_CORRECT · ONES/1f · INFERRED · support=LEFT_UNLOADING · phase=EXIT_CORRECTION · rootΔ=28.0px · yaw=+19° · bank=+3° · torso=+16°
-
-
+K14 LEFT_PASS_R_CORRECT · ONES/1f · INFERRED · support=LEFT_UNLOADING · phase=EXIT_CORRECTION · rootΔ=29.4px · yaw=+19° · bank=+3° · torso=+15°
 
 
 
-                                     ........
-                              .......        ......   \~  \\
-                            ..                    //@-   \
-                        ....                    */!!c -->
-        ..          ....                                  /O
-          ..........                                    //
 
 
+                                  ...........
+                                ..           ...
+                           .....                ....   ~  \\\
+                        ...                      *///c-
+        ..          ....                               -->  O
+          ..........                                     ////
 
 
 
@@ -392,22 +416,24 @@ K13 LEFT_PASS_R_CORRECT · ONES/1f · INFERRED · support=LEFT_UNLOADING · phas
 
 
 
-causal: pay residual lateral/yaw debt through a shorter running correction
-
-K14 RIGHT_CATCH_DISPLACED_TANGENT · TWOS/2f · INFERRED · support=RIGHT · phase=DISPLACED_TANGENT_RECOVERY · rootΔ=31.0px · yaw=+19° · bank=+0° · torso=+18°
 
 
+causal: pay residual yaw/lateral debt through a short running correction
+
+K15 RIGHT_CATCH_DISPLACED_TANGENT · TWOS/2f · INFERRED · support=RIGHT · phase=DISPLACED_TANGENT_RECOVERY · rootΔ=32.0px · yaw=+20° · bank=+0° · torso=+18°
 
 
 
-                                     ........
-                              .......        ......
-                            ..                     ...  *
-                        ....                          ..c-   \
-        ..          ....                                 /--> \\
-          ..........                                      ~    O
-                                                           /
-                                                            //
+
+
+                                  ...........
+                                ..           ...
+                           .....                ....    *
+                        ...                         ...  \    \
+        ..          ....                               ..c-    \
+          ..........                                      /-->  \
+                                                           ~/   O
+                                                             //
 
 
 
