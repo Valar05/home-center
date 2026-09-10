@@ -1,0 +1,79 @@
+{
+  "DREW_ACCEPTED": false,
+  "campaign": {
+    "final_closure_readback": false,
+    "final_closure_request_id": null
+  },
+  "current_worker_liveness": {
+    "github_persistence_readback": true,
+    "home_center_campaign_read": true
+  },
+  "delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_byte_identical_authoritative": false,
+    "part3_video": false
+  },
+  "entry": "v2-timing-028-hidden-interval-state-advance",
+  "issue_343": {
+    "pre_delivery_readback": false,
+    "pre_delivery_receipt_id": null,
+    "verification_comment_id": null,
+    "verification_readback": false
+  },
+  "next_authorized": null,
+  "one_body": {
+    "collision": false,
+    "path": "experiments/ascii-kinesis/v2-timing-028-hidden-interval-state-advance/"
+  },
+  "quality": {
+    "actual_media_bytes": 28290,
+    "actual_media_decode": "PASS",
+    "actual_media_dimensions": "720x320",
+    "actual_media_frames": 20,
+    "actual_media_sha256": "42e167274bd0304b154e07cd09fd2348501b6695d500f9493fd4fc79e48b0d1d",
+    "candidate_isolated_validator": "PASS_EXACT_OFFICIAL_VALIDATOR_BLOB_7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "current_worker_queen_judgment": "PASS TASTE+FUNCTION+CONTEMPT: occlusion removes evidence, not state progression; the body visibly spends hidden time and the far-side reveal arrives with earned support/root consequence.",
+    "current_worker_reconstruction": "DETERMINISTIC_PASS",
+    "current_worker_tango_visible_read": "R0 found an un-authored second cover crossing at restack. R1 keeps the task on the post-reveal side: clearance load precedes entry; K03/K04 body/root/support advance while the tip is hidden; K05 reveals a phase-forward state; K06-K08 pay consequence/brake/restack without replay, rewind, or reset.",
+    "fresh_current_worker_noodle_queen": "PASS",
+    "fresh_current_worker_tango": "PASS_R1_AFTER_SAME_BODY_CORRECTION",
+    "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "repository_global_validator": "NOT_CLAIMED_STANDARD_CHAT_BOUNDARY",
+    "tango_rounds": [
+      {
+        "correction": "keep K07/K08 task geometry on the post-reveal side while braking and restacking the displaced body",
+        "highest_value_visible_defect": "K07→K08 snapped the task tip back across cover, inventing a second un-authored visibility crossing that read like reverse/reset",
+        "round": 0,
+        "status": "REVISE_REQUIRED"
+      },
+      {
+        "round": 1,
+        "status": "PASS"
+      }
+    ]
+  },
+  "repo": {
+    "files": {},
+    "persisted": false,
+    "readback": false,
+    "spa_persistence_commit": null
+  },
+  "schema": "ascii-kinesis.receipt-v2",
+  "source": {
+    "asset_id": "255871",
+    "campaign_evidence_file_id": "1jHICZp08ScMRjXlFCM1-uBbGP0IUkwETERBzQPoCseo",
+    "game": "Legend of Heroes",
+    "name": "Spear",
+    "platform": "Arcade",
+    "source_pixels_in_output": false,
+    "source_roles": [
+      "POSE_REFERENCE",
+      "CONTACT_REFERENCE"
+    ],
+    "timing_authority": false,
+    "timing_provenance": "INFERRED",
+    "whole_source_inspected": true
+  },
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE"
+}
