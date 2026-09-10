@@ -1,0 +1,93 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "specimen_id": "v2-defense-027-slip-contact-trust-reacquisition",
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "preflight": {
+    "home_center_campaign_read": true,
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "github_authenticated_readback": true,
+    "repo": "Valar05/home-center"
+  },
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "predecessor_terminal_issue_comment": 5616604784,
+    "successor_collision": "NONE"
+  },
+  "source": {
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "evidence_id": "1EcndzQbqHcHQ99qxELwoXpttbCITiJJ56WhzIgjBGMc",
+    "tsr_asset": 123160,
+    "label": "Garfield (The Curse of Cleofatra) — Garfield: Caught in the Act — Sega Genesis",
+    "roles": [
+      "POSE_REFERENCE",
+      "CONTACT_REFERENCE"
+    ],
+    "whole_source_evidence_read": true,
+    "source_authentic_timing": "UNKNOWN",
+    "timing_authority": false,
+    "compile_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "rights_firewall": "PASS_NO_SOURCE_PIXELS_AUDIO_TRACE_OR_CLOSE_IMITATION"
+  },
+  "media": {
+    "pipeline": "AUTHORED ASCII KEYS + DIRECTION PROFILE -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA",
+    "fps": 24,
+    "width": 800,
+    "height": 450,
+    "frames": 35,
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "duration_seconds": 1.458333,
+    "media_bytes": 33165,
+    "media_sha256": "1acb6b0007db9d3f6417a8c13b2ae91dc710a7b97d819b856c12a506c0c79d43",
+    "decode_verified": true
+  },
+  "quality": {
+    "actual_render_inspected": true,
+    "tango": {
+      "round": "R0_CURRENT_WORKER",
+      "verdict": "PASS",
+      "notes": "Threat load, contact-without-support, root overrun, rear-foot peel/probe, first trustworthy brake catch, post-release root overshoot, secondary catch, counter-yaw, and late guard debt remain visibly distinct."
+    },
+    "noodle_queen": {
+      "verdict": "PASS",
+      "taste": "PASS",
+      "function": "PASS",
+      "contempt": "PASS",
+      "same_actual_render": true
+    },
+    "mutation_after_pass": false
+  },
+  "validator": {
+    "source_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS_CURRENT_VALIDATOR_PREDICATES_CURRENT_WORKER",
+    "repo_global": "UNCLAIMED_STANDARD_CHAT_NO_AUTHORIZED_CHECKOUT_EXECUTOR"
+  },
+  "repo": {
+    "persisted": false,
+    "readback": false,
+    "body_files_readback": 0,
+    "spa_count": 0,
+    "candidate_static_blobs": {
+      "build.py": "47a564254484b45a27234b2aae51f1ad2b2bfe43",
+      "contact-sheet.txt": "d36eff230f598f37514942a699bf4cfaa02b2cde",
+      "motion.json": "159ba149607fe15c843de2aab27b27648036182e",
+      "slip-contact-trust-reacquisition.motion.html": "8b06b29e73c20bf4826d6b880f11b52d26b0bc54"
+    }
+  },
+  "issue": {
+    "pre_chat_receipt": null,
+    "readback": false
+  },
+  "campaign": {
+    "closure_propagated": false,
+    "closure_readback": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false
+  },
+  "DREW_ACCEPTED": false
+}
