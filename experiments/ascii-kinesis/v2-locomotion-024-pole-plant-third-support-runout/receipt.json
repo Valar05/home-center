@@ -1,0 +1,108 @@
+{
+  "schema": "ascii-kinesis.v2-receipt",
+  "format_version": 2,
+  "lane": "LOCOMOTION",
+  "slug": "v2-locomotion-024-pole-plant-third-support-runout",
+  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_CHAT_DELIVERY",
+  "current_worker_date": "2026-09-10",
+  "preflight": {
+    "home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "home_center_campaign_read": true,
+    "github_repo": "Valar05/home-center",
+    "github_authenticated_persistence_readback": true
+  },
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "predecessor": "v2-locomotion-023-narrow-support-tandem-thread-runout",
+    "predecessor_durable_readback_issue_comment": 5619186851,
+    "one_successor_binding": true,
+    "successor_collision": false,
+    "repair_oldest_first_debt_discovered": false
+  },
+  "source": {
+    "authority": "HOME_CENTER_COMMISSIONED_CAMPAIGN",
+    "campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "evidence_artifact_file_id": "1BW6UzsUckanhIqsAIcO6mWhc7FNCHGCX7A5tsdfO1EU",
+    "tsr_asset_id": 23976,
+    "identity": "Donatello — Teenage Mutant Ninja Turtles: Tournament Fighters — SNES — Fighters",
+    "whole_source_inspected": true,
+    "timing_authority": "UNKNOWN",
+    "authored_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "source_role": "EVIDENCE_ONLY",
+    "source_pixels_embedded": false,
+    "source_audio_used": false
+  },
+  "authoritative_media": {
+    "mime": "video/mp4",
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 480,
+    "height": 270,
+    "fps": 24,
+    "frames": 32,
+    "bytes": 19005,
+    "sha256": "fddffe48bdcd497dad4f528f87a0d023b938eb2599c6a90cbe14c27e67906c55",
+    "current_worker_byte_identical_reconstruction": true,
+    "decode_render_inspected": true
+  },
+  "quality": {
+    "tango": {
+      "current_worker": true,
+      "decision": "PASS",
+      "round": "R_CURRENT",
+      "final_render_sha256": "fddffe48bdcd497dad4f528f87a0d023b938eb2599c6a90cbe14c27e67906c55",
+      "inspection": "The planted pole tip remains visibly world-fixed through K02-K07 while root and COM pass the anchor. Right-foot ownership is established before K08 release. K09 is the visibly overlong free catch, followed by 26.0, 18.2, 14.3, 11.4 and 8.2 px correction debt, while pole and torso lag decay instead of snapping to idle."
+    },
+    "noodle_queen": {
+      "current_worker": true,
+      "after_tango": true,
+      "taste": "PASS",
+      "function": "PASS",
+      "contempt": "PASS",
+      "pass": true,
+      "final_render_sha256": "fddffe48bdcd497dad4f528f87a0d023b938eb2599c6a90cbe14c27e67906c55",
+      "inspection": "The third-support pivot is immediately legible, the body visibly travels around the fixed tool anchor, and the release/runout tail remains specific and asymmetrical rather than collapsing into a generic gait."
+    }
+  },
+  "validator": {
+    "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS_EXIT_0",
+    "repository_global": "UNCLAIMED_STANDARD_CHAT_CONNECTOR_BOUNDARY"
+  },
+  "repository": {
+    "path": "experiments/ascii-kinesis/v2-locomotion-024-pole-plant-third-support-runout/",
+    "expected_file_count": 6,
+    "expected_spa_count": 1,
+    "post_write_readback": false,
+    "exact_six_file_body": false,
+    "stable_body_files": {
+      "build.py": "d78386682f9feb20f9abb03aa74838ab9a48d27a",
+      "contact-sheet.txt": "414a2a3ce7d38c02b2cebce89acadc727fc42319",
+      "motion.json": "47dc4dd3d9f9b4946781badbb39d966f5081a6fd",
+      "pole-plant-third-support-runout.motion.html": "c55f351daea9b1c6719d5066d69427d5645b7937"
+    }
+  },
+  "issue": {
+    "number": 343,
+    "pre_delivery_receipt": null,
+    "pre_delivery_readback": false,
+    "closure_receipt": null,
+    "closure_readback": false
+  },
+  "campaign": {
+    "propagated": false,
+    "readback": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false,
+    "ordered": false,
+    "video_byte_identical": false
+  },
+  "DREW_ACCEPTED": false,
+  "next_authorized": null
+}
