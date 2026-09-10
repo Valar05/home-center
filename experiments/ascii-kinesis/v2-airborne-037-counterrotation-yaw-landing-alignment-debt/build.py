@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import base64, hashlib, json, subprocess, tempfile
+import base64, gzip, hashlib, json, subprocess, tempfile
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
@@ -108,12 +108,9 @@ def grid_for_state(motion,state):
         p=state["joints"]["foot_l"]; put(grid,p["x"],ground,"^")
     if "RIGHT_FOOT" in supports:
         p=state["joints"]["foot_r"]; put(grid,p["x"],ground,"^")
-    put(grid,max(0,state["root"]["x"]-15),max(1,state["root"]["y"]-12),
-        yaw_tag("U",state["upper_yaw_deg"]))
-    put(grid,max(0,state["root"]["x"]-15),max(1,state["root"]["y"]+1),
-        yaw_tag("L",state["lower_yaw_deg"]))
-    put(grid,max(0,state["root"]["x"]-15),max(1,state["root"]["y"]+3),
-        state["velocity_hint"])
+    put(grid,max(0,state["root"]["x"]-15),max(1,state["root"]["y"]-12),yaw_tag("U",state["upper_yaw_deg"]))
+    put(grid,max(0,state["root"]["x"]-15),max(1,state["root"]["y"]+1),yaw_tag("L",state["lower_yaw_deg"]))
+    put(grid,max(0,state["root"]["x"]-15),max(1,state["root"]["y"]+3),state["velocity_hint"])
     return ["".join(row).rstrip() for row in grid]
 
 def all_states(motion):
@@ -185,42 +182,21 @@ def render_mp4(motion,out_path):
         cmd=[
             "ffmpeg","-hide_banner","-loglevel","error","-y",
             "-framerate",str(fps),"-i",str(td/"frame_%04d.png"),
-            "-c:v","libx264","-preset","veryslow","-crf","28","-pix_fmt","yuv420p",
+            "-c:v","libx264","-preset","veryslow","-crf","42","-pix_fmt","yuv420p",
             "-movflags","+faststart","-metadata","creation_time=1970-01-01T00:00:00Z",str(out_path)
         ]
         subprocess.run(cmd,check=True)
     return len(states)
 
-def html_escape(s):
-    return s.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
+def compact_gzip_b64(text: str) -> str:
+    return base64.b64encode(gzip.compress(text.encode("utf-8"),mtime=0)).decode("ascii")
 
 def make_spa(motion,ascii_text,mp4_bytes):
     js=json.dumps(motion,indent=2,ensure_ascii=False)
-    b64=base64.b64encode(mp4_bytes).decode("ascii")
-    return f'''<!doctype html>
-<html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Airborne037 - Counterrotation Yaw Landing Alignment Debt</title>
-<style>
-body{{margin:0;background:#0b0d10;color:#e8eaed;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}}
-nav{{position:sticky;top:0;background:#11151a;padding:10px;border-bottom:1px solid #444}}
-button{{font:inherit;margin-right:8px;padding:8px 14px}}
-section{{display:none;padding:14px}}section.active{{display:block}}
-pre{{white-space:pre;overflow:auto;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;line-height:1.1}}
-video{{max-width:100%;height:auto;background:#000}}
-.small{{opacity:.72;font-size:12px}}
-</style></head>
-<body>
-<nav>
-<button data-view="ascii" onclick="show('ascii')">ASCII</button>
-<button data-view="json" onclick="show('json')">JSON</button>
-<button data-view="video" onclick="show('video')">VIDEO</button>
-</nav>
-<section id="ascii" class="active"><h1>ASCII</h1><pre>{html_escape(ascii_text)}</pre></section>
-<section id="json"><h1>JSON</h1><pre>{html_escape(js)}</pre></section>
-<section id="video"><h1>VIDEO</h1><video controls loop playsinline src="data:video/mp4;base64,{b64}"></video><p class="small">Compiled solely from abstract ASCII rig + authored timing. No source pixels or audio.</p></section>
-<script>function show(id){{document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}}</script>
-</body></html>'''
+    a=compact_gzip_b64(ascii_text)
+    j=compact_gzip_b64(js)
+    v=base64.b64encode(mp4_bytes).decode("ascii")
+    return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Airborne037 - Counterrotation Yaw Landing Alignment Debt</title><style>body{{margin:0;background:#0b0d10;color:#e8eaed;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}}nav{{position:sticky;top:0;background:#11151a;padding:10px;border-bottom:1px solid #444}}button{{font:inherit;margin-right:8px;padding:8px 14px}}section{{display:none;padding:14px}}section.active{{display:block}}pre{{white-space:pre;overflow:auto;font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;line-height:1.08}}video{{max-width:100%;height:auto;background:#000}}</style></head><body><nav><button data-view="ascii" onclick="show('ascii')">ASCII</button><button data-view="json" onclick="show('json')">JSON</button><button data-view="video" onclick="show('video')">VIDEO</button></nav><section id="ascii" class="active"><h1>ASCII</h1><pre id="asciipre"></pre></section><section id="json"><h1>JSON</h1><pre id="jsonpre"></pre></section><section id="video"><h1>VIDEO</h1><video id="v" controls loop playsinline src="data:video/mp4;base64,{v}"></video><p>Compiled solely from abstract ASCII rig + authored timing. No source pixels or audio.</p></section><script>const A="{a}",J="{j}";async function ungz(s){{const b=Uint8Array.from(atob(s),c=>c.charCodeAt(0));return await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream('gzip'))).text()}}Promise.all([ungz(A),ungz(J)]).then(([a,j])=>{{document.getElementById('asciipre').textContent=a;document.getElementById('jsonpre').textContent=j}});function show(id){{document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}}</script></body></html>'''
 
 def main():
     motion=json.loads(MOTION_PATH.read_text(encoding="utf-8"))
