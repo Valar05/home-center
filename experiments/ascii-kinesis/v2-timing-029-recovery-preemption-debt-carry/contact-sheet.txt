@@ -1,0 +1,201 @@
+K00 READY_BASELINE | FOURS/4t | PROV=INFERRED | SUPPORT=BOTH
+
+
+
+
+                  O
+                  |
+            o    -o-    o
+            -  o- | -o  -
+             o/   |   \o
+                  |
+                  |
+                  @
+                 / \
+                /   \
+               o     o
+              /       \
+              /       \
+  ___________*_________*______________________________________________
+          ........^
+ROOT_X=+0.00  DEBT=0.00  READINESS=FULL  INTERRUPT=NONE
+------------------------------------------------------------------------
+K01 EVASIVE_COMMIT | ONES/1t | PROV=INFERRED | SUPPORT=LEFT_DOMINANT
+
+
+
+
+
+
+                       O
+                      |
+                   o--o-    o
+                  /   | -o\o
+                 o    |
+                o     |
+                      @
+                     / \
+                    /  \
+                   o    o
+                  /      \\
+                 /         +
+  ______________*_____________________________________________________
+          ............^
+ROOT_X=+0.40  DEBT=1.00  READINESS=LOCKED  INTERRUPT=NONE
+------------------------------------------------------------------------
+K02 EVASIVE_TRAVEL | TWOS/2t | PROV=INFERRED | SUPPORT=NONE
+
+
+
+
+
+
+
+
+                              O
+                       o  o--o--o  o
+                        o/   |   \o
+                             @
+                            / \
+                           o   o
+                         ./     \.
+
+
+  ____________________________________________________________________
+          ...................^
+ROOT_X=+1.10  DEBT=1.00  READINESS=LOCKED  INTERRUPT=NONE
+------------------------------------------------------------------------
+K03 RECOVERY_PROBE | ONES/1t | PROV=INFERRED | SUPPORT=LEFT_PROBE
+
+
+
+
+
+
+
+                                    O
+                                   |
+                             o  o--o--o  o
+                              o/   |   \o
+                                   |
+                                   @
+                                  / \\
+                                  /   o
+                                 o     \\
+                                /        \+
+                                /
+  _____________________________?______________________________________
+          .........................^
+ROOT_X=+1.70  DEBT=0.85  READINESS=PARTIAL  INTERRUPT=NONE
+------------------------------------------------------------------------
+K04 TRUSTED_RECOVERY_INCOMPLETE | TWOS/2t | PROV=INFERRED | SUPPORT=LEFT_TRUSTED
+
+
+
+
+                                      O
+                                      |
+                                     -o-
+                                o  o- | -o  o
+                                 o/   |   \o
+                                      |
+                                      |
+                                      @
+                                     / \\
+                                    /    o
+                                   o      \\
+                                  /         \+
+                                  /
+  _______________________________*____________________________________
+          ............................^
+ROOT_X=+2.00  DEBT=0.60  READINESS=REBOUNDING  INTERRUPT=ARMED
+------------------------------------------------------------------------
+K05 URGENT_PREEMPT_FROM_CURRENT_STATE | ONES/1t | PROV=INFERRED | SUPPORT=LEFT_TRUSTED
+
+
+
+
+
+
+                         o--       O
+                            -o/     |
+                               /o---o-
+                                     |-o\  -o
+                                     |   \o
+                                      |
+                                      @
+                                     / \\
+                                    /    o
+                                   o      \\
+                                  /         \+
+                                  /
+  _______________________________*____________________________________
+          ............................^
+ROOT_X=+2.00  DEBT=0.60  READINESS=TASK_PRIORITY  INTERRUPT=ADMITTED
+------------------------------------------------------------------------
+K06 PREEMPT_RESPONSE_CATCH | ONES/1t | PROV=INFERRED | SUPPORT=RIGHT_CATCH
+
+
+
+
+
+
+                                         O
+                               o---o/     |
+                                     /o---o-
+                                          | -o  o
+                                          |   \o
+                                          |
+                                          @
+                                         / \
+                                        /   \
+                                       o     o
+                                      /       \
+                                     /         \
+  __________________________________+___________*_____________________
+          ................................^
+ROOT_X=+2.40  DEBT=0.38  READINESS=TASK_PRIORITY  INTERRUPT=OWNED
+------------------------------------------------------------------------
+K07 POST_PREEMPT_DEBT_PAYMENT | TWOS/2t | PROV=INFERRED | SUPPORT=BOTH_RIGHT_DOMINANT
+
+
+
+
+                                            O
+                                            |
+                                           -o-
+                                      o//o- | -o  o
+                                    o-      |   \o
+                                            |
+                                            |
+                                            @
+                                           / \
+                                          /   \
+                                         o     o
+                                        /       \
+                                       /         \
+  ____________________________________*___________*___________________
+          ..................................^
+ROOT_X=+2.60  DEBT=0.12  READINESS=RECOVERING  INTERRUPT=RESOLVED
+------------------------------------------------------------------------
+K08 DISPLACED_READY_RESTACK | FOURS/4t | PROV=INFERRED | SUPPORT=BOTH
+
+
+
+
+                                             O
+                                             |
+                                       o    -o-    o
+                                       -  o- | -o  -
+                                        o/   |   \o
+                                             |
+                                             |
+                                             @
+                                            / \
+                                           /   \
+                                          o     o
+                                         /       \
+                                         /       \
+  ______________________________________*_________*___________________
+          ...................................^
+ROOT_X=+2.70  DEBT=0.00  READINESS=FULL  INTERRUPT=RESOLVED
