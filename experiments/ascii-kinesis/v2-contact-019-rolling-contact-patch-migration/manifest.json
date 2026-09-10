@@ -3,18 +3,9 @@
   "format_version": 2,
   "experiment_id": "v2-contact-019-rolling-contact-patch-migration",
   "lane": "contact",
-  "status": "CANDIDATE_READY_FOR_REPO_PERSISTENCE",
-  "lineage": {
-    "revises": null,
-    "negative_fixture": null,
-    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
-    "collision": "NONE"
-  },
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
+  "status": "REPO_VERIFIED_READY_FOR_USER_SURFACE",
+  "lineage": {"revises": null, "negative_fixture": null, "source_change": "NOT_APPLICABLE_NEW_CONCEPT", "collision": "NONE"},
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "ascii_surface": "real preformatted DOM text",
   "ligatures_disabled": true,
@@ -23,63 +14,15 @@
   "video_source": "abstract_ascii_rig_only",
   "source_art_embedded": false,
   "backward_compatible": true,
-  "files": [
-    "build.py",
-    "contact-sheet.txt",
-    "manifest.json",
-    "motion.json",
-    "receipt.json",
-    "rolling-contact-patch-migration.motion.html"
-  ],
-  "source": {
-    "site": "The Spriters Resource",
-    "asset_id": 155651,
-    "name": "The Bullet",
-    "game": "Enter the Gungeon",
-    "system": "PC / Computer",
-    "source_roles": [
-      "POSE_REFERENCE",
-      "CONTACT_REFERENCE"
-    ],
-    "timing_reference": false,
-    "source_authentic_timing": "UNKNOWN",
-    "whole_sheet_inspected": true,
-    "campaign_evidence_id": "1IyEadga2zJOCNr9vr0MJsnZvRr0x8YxBFjrk-MSsGEc"
-  },
+  "files": ["build.py", "contact-sheet.txt", "manifest.json", "motion.json", "receipt.json", "rolling-contact-patch-migration.motion.html"],
+  "source": {"site": "The Spriters Resource", "asset_id": 155651, "name": "The Bullet", "game": "Enter the Gungeon", "system": "PC / Computer", "source_roles": ["POSE_REFERENCE", "CONTACT_REFERENCE"], "timing_reference": false, "source_authentic_timing": "UNKNOWN", "whole_sheet_inspected": true, "campaign_evidence_id": "1IyEadga2zJOCNr9vr0MJsnZvRr0x8YxBFjrk-MSsGEc"},
   "primitive": "ROLLING_CONTACT_PATCH_MIGRATION",
-  "authoritative_media": {
-    "sha256": "36138fc081eb3ef00f65da25e5d31e16cd2d63bfcb2395d2ee8f22b3d5f053fa",
-    "bytes": 22649,
-    "codec": "h264",
-    "pixel_format": "yuv420p",
-    "width": 480,
-    "height": 270,
-    "fps": 24,
-    "frames": 32,
-    "decode": "PASS"
-  },
-  "quality": {
-    "tango": "PASS_AFTER_R0_SAME_BODY_CORRECTION",
-    "noodle_queen": "PASS_AFTER_TANGO",
-    "actual_render_inspected": true
-  },
-  "contract": {
-    "validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-    "candidate_isolated": "PASS"
-  },
-  "repository": {
-    "persisted": false,
-    "readback": false,
-    "exact_six_files": false,
-    "exact_one_spa": false
-  },
+  "authoritative_media": {"sha256": "2c1aa6a461f27c60e2f3bc97cd90712eaf0ef26bd151abfddba192cd85d713b2", "bytes": 5714, "codec": "h264", "pixel_format": "yuv420p", "width": 480, "height": 270, "fps": 24, "frames": 32, "decode": "PASS"},
+  "quality": {"actual_render_inspected": true, "current_worker_reinspection": true, "tango": "PASS_AFTER_CURRENT_WORKER_REINSPECTION", "noodle_queen": "PASS_AFTER_TANGO", "packaging_change_only": "CRF42_REENCODE_NO_SEMANTIC_ASCII_KEY_CHANGE"},
+  "contract": {"validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78", "candidate_isolated": "PASS", "repository_global_claimed": false},
+  "repository": {"persisted": true, "readback": true, "exact_six_files": true, "exact_one_spa": true},
   "issue_receipt": null,
-  "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_visible_video": false,
-    "ordered": false
-  },
+  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_visible_video": false, "ordered": false},
   "drew_accepted": false,
   "rights": "Source art evidence-only; no pixels/palette/costume/contours/layout/tracing/choreography/redistribution/close imitation embedded."
 }
