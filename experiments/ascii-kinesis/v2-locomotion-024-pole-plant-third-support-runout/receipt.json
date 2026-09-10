@@ -77,15 +77,15 @@
     "expected_spa_count": 1,
     "post_write_readback": true,
     "exact_six_file_body": true,
-    "final_manifest_commit": "36330a63fc6d6ffbdc46866a3ceee13ab4a31960",
-    "final_manifest_blob": "6efb19e18509ac1fdf5f306f088494a5bee6932b",
+    "final_manifest_commit": "e6e7d2a0b2423143198be42a702a91887afc04af",
+    "final_manifest_blob": "e71e874589537689bd4d6e32558a12d1661079df",
     "stable_body_files": {
       "build.py": "d78386682f9feb20f9abb03aa74838ab9a48d27a",
       "contact-sheet.txt": "414a2a3ce7d38c02b2cebce89acadc727fc42319",
       "motion.json": "47dc4dd3d9f9b4946781badbb39d966f5081a6fd",
       "pole-plant-third-support-runout.motion.html": "c55f351daea9b1c6719d5066d69427d5645b7937"
     },
-    "final_readback": "PENDING_THIS_WRITE_READBACK"
+    "final_readback": true
   },
   "issue": {
     "number": 343,
@@ -93,13 +93,13 @@
     "pre_delivery_readback": true,
     "user_surface_closure": 5622313972,
     "user_surface_closure_readback": true,
-    "terminal_durable_readback": null
+    "terminal_durable_readback": "EXTERNAL_SELF_BINDING_AFTER_FINAL_BLOBS"
   },
   "campaign": {
     "user_surface_marker": "ASCII_KINESIS_LOCOMOTION_024_USER_SURFACE_20260910",
     "propagated": true,
     "readback": true,
-    "terminal_self_binding": null
+    "terminal_self_binding": "EXTERNAL_SELF_BINDING_AFTER_FINAL_BLOBS"
   },
   "chat_delivery": {
     "part1_ascii": true,
