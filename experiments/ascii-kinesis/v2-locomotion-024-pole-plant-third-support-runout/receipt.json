@@ -3,7 +3,7 @@
   "format_version": 2,
   "lane": "LOCOMOTION",
   "slug": "v2-locomotion-024-pole-plant-third-support-runout",
-  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "current_worker_date": "2026-09-10",
   "preflight": {
     "home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
@@ -53,7 +53,7 @@
       "decision": "PASS",
       "round": "R_CURRENT",
       "final_render_sha256": "fddffe48bdcd497dad4f528f87a0d023b938eb2599c6a90cbe14c27e67906c55",
-      "inspection": "The planted pole tip remains visibly world-fixed through K02-K07 while root and COM pass the anchor. Right-foot ownership is established before K08 release. K09 is the visibly overlong free catch, followed by 26.0, 18.2, 14.3, 11.4 and 8.2 px correction debt, while pole and torso lag decay instead of snapping to idle."
+      "inspection": "Pole tip is visibly world-fixed through K02-K07 while root and COM pass the anchor; right-foot ownership is trustworthy before pole release; K09 is the overlong free catch; later corrections shorten while pole and torso lag decay without idle reset."
     },
     "noodle_queen": {
       "current_worker": true,
@@ -62,8 +62,7 @@
       "function": "PASS",
       "contempt": "PASS",
       "pass": true,
-      "final_render_sha256": "fddffe48bdcd497dad4f528f87a0d023b938eb2599c6a90cbe14c27e67906c55",
-      "inspection": "The third-support pivot is immediately legible, the body visibly travels around the fixed tool anchor, and the release/runout tail remains specific and asymmetrical rather than collapsing into a generic gait."
+      "final_render_sha256": "fddffe48bdcd497dad4f528f87a0d023b938eb2599c6a90cbe14c27e67906c55"
     }
   },
   "validator": {
@@ -78,29 +77,40 @@
     "expected_spa_count": 1,
     "post_write_readback": true,
     "exact_six_file_body": true,
+    "final_manifest_commit": "36330a63fc6d6ffbdc46866a3ceee13ab4a31960",
+    "final_manifest_blob": "6efb19e18509ac1fdf5f306f088494a5bee6932b",
     "stable_body_files": {
       "build.py": "d78386682f9feb20f9abb03aa74838ab9a48d27a",
       "contact-sheet.txt": "414a2a3ce7d38c02b2cebce89acadc727fc42319",
-      "manifest.json": "a44f5c45aed886a4b8776a1f35ec18491ac9b773",
       "motion.json": "47dc4dd3d9f9b4946781badbb39d966f5081a6fd",
       "pole-plant-third-support-runout.motion.html": "c55f351daea9b1c6719d5066d69427d5645b7937"
-    }
+    },
+    "final_readback": "PENDING_THIS_WRITE_READBACK"
   },
   "issue": {
     "number": 343,
     "pre_delivery_receipt": 5622186639,
     "pre_delivery_readback": true,
-    "closure_receipt": null,
-    "closure_readback": false
+    "user_surface_closure": 5622313972,
+    "user_surface_closure_readback": true,
+    "terminal_durable_readback": null
   },
-  "campaign": {"propagated": false, "readback": false},
+  "campaign": {
+    "user_surface_marker": "ASCII_KINESIS_LOCOMOTION_024_USER_SURFACE_20260910",
+    "propagated": true,
+    "readback": true,
+    "terminal_self_binding": null
+  },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false,
-    "ordered": false,
-    "video_byte_identical": false
+    "part1_ascii": true,
+    "part1_blob": "414a2a3ce7d38c02b2cebce89acadc727fc42319",
+    "part2_json": true,
+    "part2_blob": "47dc4dd3d9f9b4946781badbb39d966f5081a6fd",
+    "part3_video": true,
+    "ordered": true,
+    "video_byte_identical": true,
+    "video_sha256": "fddffe48bdcd497dad4f528f87a0d023b938eb2599c6a90cbe14c27e67906c55"
   },
   "DREW_ACCEPTED": false,
-  "next_authorized": null
+  "next_authorized": "v2-locomotion-025"
 }
