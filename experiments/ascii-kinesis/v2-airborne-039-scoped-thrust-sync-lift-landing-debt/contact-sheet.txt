@@ -320,7 +320,7 @@ sync_scope=['A', 'B'] | nonparticipants=['BODY_ROOT', 'SUPPORT_CLOCK']
                                              | |
                                              | |
                                                |
-                                           /// |\\\
+                                           /// |\\
                                                |
                                                @
                                               ^^
@@ -366,7 +366,7 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': 92,
                                                  | +
                                                 /  |\
                                                    |
-                                               /// |\\\
+                                               /// |\\
                                                    |
                                                    @
                                                   ^^
@@ -452,8 +452,17 @@ ________________________________________________________________________________
 K09 :: DESCENT PREP / RIGHT TOE LEADS
 timing_class=TWOS | timing_provenance=INFERRED | causal_role=LANDING_ELIGIBILITY_INHERITS_SYNC_DEBT
 support_contact=NONE | eligibility=RIGHT_TOE_SEPARATED_PRECONTACT
-root=[68, 15] | channels={'A': 'LOW', 'B': 'LOW'} | force=GRAVITY_DESCENT
+root=[68, 27] | channels={'A': 'LOW', 'B': 'LOW'} | force=GRAVITY_DESCENT
 tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': 42, 'state': 'LANDING_STOW', 'custody': 'BOTH_HANDS_LOCKED', 'timing_provenance': 'INFERRED'}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -481,14 +490,6 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': 42,
 
 
 
-
-
-
-
-
-
-
-
 ________________________________________________________________________________________________________
 
 
@@ -498,8 +499,14 @@ ________________________________________________________________________________
 K10 :: RIGHT TOE CATCH / UNILATERAL CRUSH
 timing_class=ONES | timing_provenance=INFERRED | causal_role=FIRST_SUPPORT_CATCH
 support_contact=RIGHT_TOE_ONLY | eligibility=RIGHT_SUPPORT_ACQUIRED
-root=[76, 25] | channels={'A': 'LOW', 'B': 'LOW'} | force=RIGHT_SUPPORT_IMPACT_BRAKE
+root=[76, 34] | channels={'A': 'LOW', 'B': 'LOW'} | force=RIGHT_SUPPORT_IMPACT_BRAKE
 tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': 26, 'state': 'CATCH_LAG', 'custody': 'BOTH_HANDS_LOCKED', 'timing_provenance': 'INFERRED'}
+
+
+
+
+
+
 
 
 
@@ -519,16 +526,8 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': 26,
                                                                              /|\
                                                                          [A]  |[B]
                                                                              +\\
-                                                                          __/   \\\
-                                                                                    \@
-
-
-
-
-
-
-
-
+                                                                          __/   \\\\
+                                                                                    \\@
 
 
 
@@ -546,8 +545,12 @@ ________________________________________________________________________________
 K11 :: TORSO OVERSHOOT / RIGHT SUPPORT HOLDS
 timing_class=TWOS | timing_provenance=INFERRED | causal_role=IMPACT_FORCE_PAYMENT
 support_contact=RIGHT_FOOT_DOMINANT | eligibility=LEFT_FOOT_NOT_YET_ELIGIBLE
-root=[80, 28] | channels={'A': 'LOW', 'B': 'LOW'} | force=UNILATERAL_COMPRESSION_WITH_TORSO_OVERRUN
+root=[80, 34] | channels={'A': 'LOW', 'B': 'LOW'} | force=UNILATERAL_COMPRESSION_WITH_TORSO_OVERRUN
 tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': 12, 'state': 'OVERSHOOT_LAG', 'custody': 'BOTH_HANDS_LOCKED', 'timing_provenance': 'INFERRED'}
+
+
+
+
 
 
 
@@ -568,14 +571,8 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': 12,
                                                                                     o
                                                                                   _/|\
                                                                              [A]   |[B]
-                                                                                 +----
-                                                                              __/    \-----@
-
-
-
-
-
-
+                                                                                 +-----
+                                                                              __/    \_----@
 
 
 
@@ -593,8 +590,11 @@ ________________________________________________________________________________
 K12 :: LEFT FOOT CATCH / BRAKE WIDENS
 timing_class=TWOS | timing_provenance=INFERRED | causal_role=DELAYED_SECOND_SUPPORT
 support_contact=BOTH_FEET_GROUND | eligibility=SECOND_SUPPORT_ACQUIRED
-root=[82, 29] | channels={'A': 'LOW', 'B': 'LOW'} | force=BILATERAL_BRAKE
+root=[82, 34] | channels={'A': 'LOW', 'B': 'LOW'} | force=BILATERAL_BRAKE
 tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': -2, 'state': 'BRAKE_SWEEP', 'custody': 'BOTH_HANDS_LOCKED', 'timing_provenance': 'INFERRED'}
+
+
+
 
 
 
@@ -626,10 +626,6 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': -2,
 
 
 
-
-
-
-
                                                                               *       *
 ________________________________________________________________________________________________________
 
@@ -640,8 +636,9 @@ ________________________________________________________________________________
 K13 :: COMPRESSION / UPPER + TOOL LAG
 timing_class=FOURS | timing_provenance=INFERRED | causal_role=COMPRESSION_AND_SECONDARY_LAG
 support_contact=BOTH_FEET_GROUND | eligibility=SUPPORTED_UNDER_LOAD
-root=[83, 31] | channels={'A': 'LOW', 'B': 'LOW'} | force=BILATERAL_COMPRESSION
+root=[83, 34] | channels={'A': 'LOW', 'B': 'LOW'} | force=BILATERAL_COMPRESSION
 tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': -18, 'state': 'COMPRESSION_LAG', 'custody': 'BOTH_HANDS_LOCKED', 'timing_provenance': 'INFERRED'}
+
 
 
 
@@ -675,9 +672,6 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': -18
 
 
 
-
-
-
                                                                                *       *
 ________________________________________________________________________________________________________
 
@@ -688,7 +682,7 @@ ________________________________________________________________________________
 K14 :: REBOUND / COUNTERSWING
 timing_class=TWOS | timing_provenance=INFERRED | causal_role=OVERSHOOT_REVERSAL
 support_contact=BOTH_FEET_GROUND | eligibility=SUPPORTED
-root=[85, 28] | channels={'A': 'LOW', 'B': 'LOW'} | force=GROUND_REBOUND
+root=[85, 31] | channels={'A': 'LOW', 'B': 'LOW'} | force=GROUND_REBOUND
 tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': -38, 'state': 'COUNTERSWING', 'custody': 'BOTH_HANDS_LOCKED', 'timing_provenance': 'INFERRED'}
 
 
@@ -707,14 +701,13 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': -38
 
 
 
+
+
                                                                                     o        /@
-                                                                                   /|\_    //
-                                                                                 [A]| [B///
+                                                                                   /|\_   ///
+                                                                                 [A]| [B//
                                                                                    / \+/
                                                                                 __/   \__
-
-
-
 
 
 
@@ -734,8 +727,12 @@ ________________________________________________________________________________
 K15 :: DISPLACED SETTLE
 timing_class=FOURS | timing_provenance=INFERRED | causal_role=DISPLACED_RECOVERY_DEBT_PAID
 support_contact=BOTH_FEET_GROUND | eligibility=SUPPORTED_STABLE
-root=[88, 30] | channels={'A': 'LOW', 'B': 'LOW'} | force=SETTLED
+root=[88, 33] | channels={'A': 'LOW', 'B': 'LOW'} | force=SETTLED
 tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': -22, 'state': 'SETTLED_DISPLACED', 'custody': 'BOTH_HANDS_LOCKED', 'timing_provenance': 'INFERRED'}
+
+
+
+
 
 
 
@@ -759,9 +756,6 @@ tool_tip_pivot={'rig': 'GENERIC_TWO_HAND_THRUST_DIRECTOR_BOOM', 'pivot_deg': -22
                                                                                      [A]|[B]----
                                                                                        / +--
                                                                                     __/   \__
-
-
-
 
 
 
