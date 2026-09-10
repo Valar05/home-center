@@ -1,0 +1,214 @@
+K00 FALL_READ | FOURS/4t | PROV=INFERRED | SUPPORT=NONE
+  DESCENT LANE
+      :
+      :                         O
+      :                        /|\
+      :                       o-@-o             vvv
+      :                        / \
+      :                       o   o
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+
+ROOT_Y=+0.00  VY=DOWN_HIGH  ACCEL=GRAVITY  DRAG=STOWED
+CAUSAL_ROLE=establish unsupported descent before force ownership changes
+------------------------------------------------------------------------------
+K01 FALL_COMMIT | TWOS/2t | PROV=INFERRED | SUPPORT=NONE
+  DESCENT LANE
+      :
+      :
+      :
+      :                         O
+      :                        /|\
+      :                         @               vvv
+      :                        / \
+      :                       o   o
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+
+ROOT_Y=+0.34  VY=DOWN_HIGH  ACCEL=GRAVITY  DRAG=STOWED
+CAUSAL_ROLE=spend another high-velocity descent sample; no hidden braking yet
+------------------------------------------------------------------------------
+K02 DRAG_DEPLOY | ONES/1t | PROV=INFERRED | SUPPORT=NONE
+  DESCENT LANE
+      :                ~~~~~~~^~~~~~~~
+      :                    \  |  /
+      :
+      :
+      :
+      :                         O
+      :                       \ | /
+      :                        o@o              vvv
+      :                        / \
+      :                       o   o
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+
+ROOT_Y=+0.69  VY=DOWN_HIGH  ACCEL=DRAG_TURNING_ON  DRAG=DEPLOYING
+CAUSAL_ROLE=external drag surface deploys; acceleration law changes but root does not teleport
+------------------------------------------------------------------------------
+K03 DRAG_CAPTURE_JOIN | ONES/1t | PROV=INFERRED | SUPPORT=NONE
+  DESCENT LANE
+      :                ~~~~~~~^~~~~~~~
+      :                    \ :|: /
+      :                       :
+      :
+      :
+      :
+      :
+      :                         O
+      :                        \|/
+      :                         |               vv>
+      :                        o@o
+      :                        / \
+      :                       o   o
+      :
+      :
+      :
+      :
+      :
+
+ROOT_Y=+1.05  VY=DOWN_HIGH_TO_MED  ACCEL=UPWARD_NET_DECEL  DRAG=TAUT_CAPTURE
+CAUSAL_ROLE=authored causal join; downward velocity survives capture while deceleration begins
+------------------------------------------------------------------------------
+K04 DECELERATE_ONE | TWOS/2t | PROV=INFERRED | SUPPORT=NONE
+  DESCENT LANE
+      :                ~~~~~~~^~~~~~~~
+      :                    \ :|: /
+      :                       :
+      :
+      :
+      :
+      :
+      :
+      :
+      :                         O
+      :                        /|\
+      :                        o@o              vv
+      :                        / \
+      :                       o   o
+      :
+      :
+      :
+      :
+
+ROOT_Y=+1.28  VY=DOWN_MED  ACCEL=UPWARD_NET_DECEL  DRAG=TAUT
+CAUSAL_ROLE=first post-capture spacing contraction; body hangs into the new force owner
+------------------------------------------------------------------------------
+K05 DECELERATE_TWO | TWOS/2t | PROV=INFERRED | SUPPORT=NONE
+  DESCENT LANE
+      :                ~~~~~~~^~~~~~~~
+      :                    \ :|: /
+      :                       :
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+      :                         O
+      :                        /|\
+      :                        o@o              v
+      :                         \ \
+      :                          o o
+      :
+      :
+      :
+
+ROOT_Y=+1.42  VY=DOWN_LOW  ACCEL=UPWARD_NET_DECEL  DRAG=TAUT
+CAUSAL_ROLE=second spacing contraction; secondary legs continue downward lag while root slows
+------------------------------------------------------------------------------
+K06 CONTROLLED_DESCENT | FOURS/4t | PROV=INFERRED | SUPPORT=NONE
+  DESCENT LANE
+      :                ~~~~~~~^~~~~~~~
+      :                    \ :|: /
+      :                       :
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+      :                         O
+      :                        /|\
+      :                        o@o              v
+      :                        / \
+      :                       o   o
+      :
+      :
+
+ROOT_Y=+1.50  VY=DOWN_LOW_STEADY  ACCEL=NEAR_BALANCED  DRAG=TAUT
+CAUSAL_ROLE=new descent regime reads without stopping or reversing the root
+------------------------------------------------------------------------------
+K07 LOCAL_COUNTERBALANCE | TWOS/2t | PROV=INFERRED | SUPPORT=NONE
+  DESCENT LANE
+      :                ~~~~~~~^~~~~~~~
+      :                    \ :|: /
+      :                       :
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+      :                        O
+      :                       /|\_
+      :                       o@  o             v
+      :                       / \
+      :                       o  o
+      :
+
+ROOT_Y=+1.58  VY=DOWN_LOW_STEADY  ACCEL=NEAR_BALANCED  DRAG=TAUT
+CAUSAL_ROLE=local body counterbalance changes silhouette while root descent remains continuous
+------------------------------------------------------------------------------
+K08 DRAG_STEADY_READ | FOURS/4t | PROV=INFERRED | SUPPORT=NONE
+  DESCENT LANE
+      :                ~~~~~~~^~~~~~~~
+      :                    \ :|: /
+      :                       :
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+      :
+      :                         O
+      :                        /|\
+      :                        o@o              v
+      :                        / \
+      :                       o   o
+
+ROOT_Y=+1.66  VY=DOWN_LOW_STEADY  ACCEL=NEAR_BALANCED  DRAG=TAUT
+CAUSAL_ROLE=readable nonzero terminal descent; no stop, rebound, reset, or return-to-idle
