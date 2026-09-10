@@ -1,0 +1,209 @@
+ASCII KINESIS V2 DEFENSE024 — GLANCE LINE / ARC REENTRY
+SOURCE EVIDENCE: TSR asset 566077 The Duke — Mina the Hollower — PC / Computer | exact whole ZIP 36,359 bytes / 61 PNGs inspected / SHA-256 d4947e1821e24a9096417a596f974a2178790b49285c5335abb4f99a53959ce3.
+SOURCE ROLE: STYLE_REFERENCE. OBSERVED: three four-slot Run heading families + separate two-frame Turn family. Source-authentic timing UNKNOWN.
+AUTHORED PRINCIPLE: BRIEF GUARD GLANCE -> CONTACT RELEASE -> THREE ALTERNATING SUPPORT CATCHES ROTATE A MOVING ESCAPE LINE -> COUNTERYAW -> LATE GUARD REOPEN.
+TIMING: every decisive compile timing class INFERRED / STREET_FIGHTER-CAPCOM. ONES/TWOS/FOURS are frame-hold classes, never seconds.
+LEGEND: # full support | ^ forefoot | x unsupported | @ pelvis | X authored guard contact | threat line = ----< | pelvis arrow marks authored heading channel.
+RIGHTS: independent abstract ASCII rig only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio.
+
+K00 NEW_LINE_READY                                                  K01 INSIDE_GUARD_PRELOAD
+FOURS/INFERRED  SUP=L#+R#                                           FOURS/INFERRED  SUP=L#+R^
+THREAT=DISTANT_INCOMING                                             THREAT=CLOSING_LINE
+CONTACT=OFF  YAW=0                                                  CONTACT=OFF  YAW=8
+
+
+
+
+
+
+                              O
+                              |                                                                    O
+                              |                                                                    |
+                           ---o---                    <---------                                   |              <-----------------
+                       o---   |   ---o                                                          ---o---
+                      + \     |     / +                                                     o---   |   ---o    +
+                       \\     |     //                                                       \     -+     |  //
+                         o    |    o                                                          \  --|       |/
+                              |                                                                o-  |       o
+                              |                                                                   |
+                              |                                                                   |
+                              |                                                                   |
+                              @ >                                                                 @ >
+                             / \                                                                / \
+                            /   \                                                              /   \
+                            /   \                                                             /   \
+                           /     \                                                            /     \
+                          o       o                                                          /       o
+                         /         \                                                        o         \
+                         /         \                                                       /           \
+                        /           \                                                     /             \
+                        /           \                                                     /             \
+_____________________==#==_________==#==________________________    _____________________==#==___________^^^________________________
+
+K02 GLANCE_CONTACT                                                  K03 CONTACT_RELEASE_L_CATCH
+ONES/INFERRED  SUP=L#+R^                                            ONES/INFERRED  SUP=L#+Rx
+THREAT=GUARD_GLANCE_CONTACT                                         THREAT=DEFLECTED_CLEAR
+CONTACT=ON@61,12  YAW=15                                            CONTACT=OFF  YAW=24
+
+
+
+
+
+                                                                                                        <----
+                                                                                                             ---------
+                              O                                                                 O                     ----------
+                              |                                                                 |                               ----
+                              |                            -----                               |
+                            --o---        -X---------------                                   -o------o
+                        o---  |   ---o ---                                                 --- |       \    +
+                         \    |      o-                                                  o-    |-+     \  //
+                          \   --+                                                         \\  --        \/
+                           o--|                                                             o- |        o
+                             |                                                                |
+                             |                                                                |
+                             |                                                                |
+                             |                                                                |
+                             @ >                                                              @ ↗
+                            / \                                                              / \
+                           /   \                                                            /   \
+                           /   \                                                           /     \
+                          /     \                                                         /       o-
+                         o       o                                                       o          --x
+                        /         \                                                     /
+                       /           \                                                   /
+                       /           \                                                   /
+____________________==#==___________^^^_________________________    ________________==#==___________________________________________
+
+K04 ARC_PASS_R_FREE                                                 K05 R_CATCH_OVERLAP_REAIM
+TWOS/INFERRED  SUP=L#+Rx                                            ONES/INFERRED  SUP=L#+R#
+THREAT=THREAT_CONTINUES_OLD_LINE                                    THREAT=THREAT_PASSES_OUTSIDE
+CONTACT=OFF  YAW=35                                                 CONTACT=OFF  YAW=48
+
+
+
+                                                                                              <---
+                              <---                                                                -------
+                                  -------                                                                ------
+                                         -------                                                               -------
+                        O                       --------                                O                             -------
+                        |                               -------                         |                                    ------
+                        |                                      -                       |                                           -
+                       -o-----o                                                       -o-----o
+                    --- |     |                                                     -- |     |
+                  o-    |     |                                                   o-   |     |
+                  |    |      |                                                   |    |      |
+                   |   |      |                                                    |   |      |
+                   o   |      o                                                    o  |       o
+                    -- |       \                                                    --|        \
+                      -+       \                                                      -+       \
+                      |         +                                                     |         +
+                      @ ↗                                                             @ ↗
+                     / |                                                             / \
+                    /  |                                                            /   \
+                    /   |                                                           /    \
+                   /    o-                                                         o      \
+                  o       --x                                                     |        o
+                 /                                                                |         \
+                 /                                                               |          \
+                /                                                                |           \
+                /                                                               |            \
+_____________==#==______________________________________________    __________==#==_________==#==___________________________________
+
+K06 L_RELEASE_DEEP_ARC                                              K07 L_CATCH_EXIT_OVERLAP
+TWOS/INFERRED  SUP=Lx+R#                                            ONES/INFERRED  SUP=L#+R#
+THREAT=THREAT_CLEARED                                               THREAT=CLEARED
+CONTACT=OFF  YAW=60                                                 CONTACT=OFF  YAW=72
+
+
+
+
+
+                 O                                                                    O
+                 |                                                                    |
+                 |                                                                    |
+               --o--                                                                --o--
+            o--  |  --o                                                          o--  |  --o      +
+            |    |    |                                                          |    -+    \   //
+            |    |     |                                                          | --|      \ /
+            |    |     |                                                          o-  |       o
+            o   |      o                                                             |
+             -- |       \                                                            |
+               -+       \                                                            |
+                |        +                                                           |
+                @ ↑                                                                  @ ↑
+               | \                                                                  / \
+               |  \                                                                /   \
+              |   \                                                               /    \
+             -o    \                                                             /      o
+          x--       o                                                           o        \
+                     \                                                         /         \
+                     \                                                         /          \
+                      \                                                       /            \
+                      \                                                       /            \
+_____________________==#==______________________________________    _______==#==__________==#==_____________________________________
+
+K08 TWO_FOOT_COUNTERYAW                                             K09 LATE_GUARD_REOPEN
+ONES/INFERRED  SUP=L#+R#                                            FOURS/INFERRED  SUP=L#+R#
+THREAT=CLEARED                                                      THREAT=CLEARED
+CONTACT=OFF  YAW=84                                                 CONTACT=OFF  YAW=90
+
+
+
+
+
+                    O                                                                       O
+                    |                                                                       |
+                    |                                                                       |
+                   -o--                                                                    -o-
+                o-- |  --o      +                                                       o-- | --o
+                |   -+    \   //                                                   +   /    |   |
+                | --|      \ /                                                      \\ /    |   |
+                o-  |       o                                                         o     |    |
+                     |                                                                      |    |
+                     |                                                                      |    o-
+                     |                                                                      |      -+
+                     |                                                                      |
+                     @ ⇧                                                                    @ ⇧
+                    / \                                                                    / \
+                   /   \                                                                  /  \
+                   /    \                                                                 /   \
+                  o      \                                                               /    \
+                 /        o                                                             o      o
+                 /         \                                                           /        \
+                /          \                                                           /         \
+               /            \                                                         /          \
+               /            \                                                         /           \
+____________==#==__________==#==________________________________    _______________==#==_________==#==______________________________
+
+K10 READY_NEW_HEADING_WITH_DEBT
+FOURS/INFERRED  SUP=L#+R#
+THREAT=CLEARED
+CONTACT=OFF  YAW=90
+
+
+
+
+
+                          O
+                          |
+                          |
+                         -o-
+                      o-- | --o
+                  +   |   |   |   +
+                   \\|    |    |//
+                     o    |    o
+                          |
+                          |
+                          |
+                          |
+                          @ ⇧
+                         / \
+                        /  \
+                        /   \
+                       /    \
+                      o      o
+                     /        \
+                     /         \
+                    /          \
+                    /           \
+_________________==#==_________==#==____________________________
