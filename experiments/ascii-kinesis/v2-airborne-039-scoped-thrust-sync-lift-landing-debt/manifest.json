@@ -1,0 +1,99 @@
+{
+  "format_version": 2,
+  "experiment_id": "v2-airborne-039-scoped-thrust-sync-lift-landing-debt",
+  "primitive": "SCOPED_THRUST_SYNC_LIFT_LANDING_DEBT",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "successor_collision": false,
+    "one_body_binding": true
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": 97821,
+    "character": "Robot",
+    "game": "Nuclear Throne",
+    "platform": "PC / Computer",
+    "category": "Playable Characters",
+    "commissioned_evidence_artifact_id": "1-CTvmeVYA83T3es43KZSJ0OCXx_wm6wCBwZakSZYNrI",
+    "source_raw_sha256_observed": "d203f5004e62f5f9e0232aa2534c66e3ce30e0727428d561454dacbdb7f063ad",
+    "source_dimensions_observed": [
+      445,
+      554
+    ],
+    "source_raw_bytes_observed": 10150,
+    "roles": [
+      "LOCAL_CHANNEL_RELATIONSHIP_EVIDENCE",
+      "STATE_FAMILY_REFERENCE"
+    ],
+    "source_authentic_timing": "UNKNOWN",
+    "timing_authority": false,
+    "whole_source_evidence_read": true,
+    "rights_firewall": "PASS"
+  },
+  "timing": {
+    "policy": "STREET_FIGHTER/CAPCOM",
+    "decisive_compile_timing": "INFERRED",
+    "source_authentic_timing": "UNKNOWN",
+    "A_period_ticks": 5,
+    "B_period_ticks": 7,
+    "periods_provenance": "INFERRED",
+    "scoped_sync_policy": "RESTART_A_B_ONLY_BODY_ROOT_PRESERVED"
+  },
+  "media": {
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 800,
+    "height": 448,
+    "fps": 24,
+    "frames": 89,
+    "bytes": 39440,
+    "sha256": "063996d4ab6a632b22f580d2f9910fb75c6261e67070b97b0b1d6301c8327d12",
+    "decode": "PASS"
+  },
+  "artifact_sha256": {
+    "build_motion.py": "b9bbe271ef7780f9bb2b15c1ca97c6e85048ecffa589b549d5ea854da982316a",
+    "contact-sheet.txt": "205468a8d75da106e023311c68d662f2e0796e53f5cb22b479979320407c7f72",
+    "motion.json": "7df4be8fd48359094caec09f0ae0d5d85dc0a4b77d17a139c3e323cbe0981a46",
+    "scoped-thrust-sync-lift-landing-debt.motion.html": "9ba08e26955ad4f132d3be7b8beccfda75df122a0b5bd9371a02b5db20757662"
+  },
+  "quality": {
+    "tango": {
+      "current_worker": true,
+      "final_round": "R1",
+      "final_render_sha256": "063996d4ab6a632b22f580d2f9910fb75c6261e67070b97b0b1d6301c8327d12",
+      "verdict": "PASS",
+      "r0": "REVISE_REQUIRED: lateral A/B force debt was metadata-heavy because exhaust vectors read vertically; SAME-body correction added opposed diagonal ASCII exhaust and nonuniform horizontal velocity changes."
+    },
+    "noodle_queen": {
+      "current_worker": true,
+      "same_render": true,
+      "taste": "PASS",
+      "function": "PASS",
+      "contempt": "PASS"
+    }
+  },
+  "contract": {
+    "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS",
+    "standard_chat_boundary": "No repo-global checkout or shell-suite claim.",
+    "validator_execution": {
+      "blob_identity_verified_locally_against_fresh_authenticated_read": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+      "entries_checked": [
+        "v2-airborne-039-scoped-thrust-sync-lift-landing-debt"
+      ],
+      "ok": true
+    }
+  }
+}
