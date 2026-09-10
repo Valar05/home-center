@@ -16,8 +16,8 @@
   },
   "entry": "v2-timing-028-hidden-interval-state-advance",
   "issue_343": {
-    "pre_delivery_readback": false,
-    "pre_delivery_receipt_id": null,
+    "pre_delivery_readback": true,
+    "pre_delivery_receipt_id": 5615001401,
     "verification_comment_id": null,
     "verification_readback": false
   },
@@ -62,13 +62,13 @@
       "build.py": "18c23406e00a32db7a62f0e6b342665573cd523b",
       "contact-sheet.txt": "e659cf52ba2aecb2c6459deff1fd9b09e86744bc",
       "hidden-interval-state-advance.motion.html": "e5eedf4b0078fd5f3c2f310e1b8057b5db28e5cc",
-      "manifest.json": "3131eddfb4251d76ce74b88fa4af7f199c93e65b",
+      "manifest.json": "338eb3ecd2df4b0fb4195d0aaf8e72296ec4da34",
       "motion.json": "e39df9e8113db3095e56a72b22be33304ad8a1fe"
     },
     "persisted": true,
     "readback": true,
     "spa_persistence_commit": "bb32d14c36abb49f39567a457054172a6babacf3",
-    "manifest_reconciliation_commit": "956c1011c71cd682be2dc2ed36e108944af486f8"
+    "manifest_reconciliation_commit": "32cd8b8acdfd5b3909e937785790301c1133fe1d"
   },
   "schema": "ascii-kinesis.receipt-v2",
   "source": {
