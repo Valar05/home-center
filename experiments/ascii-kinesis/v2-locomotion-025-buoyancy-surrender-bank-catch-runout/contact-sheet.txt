@@ -1,0 +1,411 @@
+ASCII KINESIS V2 · LOCOMOTION 025 · BUOYANCY SURRENDER / BANK CATCH RUNOUT
+legend: @ root · c COM · b COM with active buoyancy · * trusted fixed foot · ? fixed-ground probe · o free foot · ~ waterline · | bank face · . root route
+source evidence: Zora / The Legend of Zelda: Twilight Princess HD / Wii U / TSR asset 87965 / Home Center artifact 1uMv4sbEnhUz9T291CojdzO_P1yExMOzAboPdgti_2ck
+OBSERVED: commissioned evidence treats the entire 128×318 static sheet as one corpus with standing, water-adjacent, running/travel, and diving/jumping/out-of-water-like pose families.
+UNKNOWN: source-authentic chronology/exposure/root trajectory/support transfer/buoyancy decay/bank-contact forces/gameplay cadence. Source grants no timing authority.
+authored timing: INFERRED / STREET_FIGHTER-CAPCOM. rights firewall: independent abstract rig only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio/redistribution/close imitation.
+thesis: fixed bank contact must become trustworthy before buoyancy surrenders; horizontal travel survives the vertical support transfer, creating an overlong first free-ground catch, shorter corrections, and delayed secondary settle.
+
+K00 WATER_GLIDE_ENTRY · THREES/3f · INFERRED · support=WATER · medium=BUOYANCY_DOMINANT · buoy=1.00 · phase=WATER_GLIDE · rootΔ=0px · lean=-9° · lag=-10°
+
+
+
+
+
+    O
+
+     T
+     |
+     |
+      |
+      |b                 ...........        ...
+      @....      ........           ........
+      //   ......
+      / /
+      /  /
+~~~~~/~~~~/~~~~~~|
+     /     o     |
+     o           |__________________________________________________________________
+
+
+
+
+
+causal: establish forward travel while buoyancy owns vertical support and neither foot may claim fixed ground
+
+K01 BANK_COMPRESSION_PREP · TWOS/2f · INFERRED · support=WATER · medium=BUOYANCY_DOMINANT · buoy=0.92 · phase=BANK_PREP · rootΔ=20.4px · lean=-15° · lag=-7°
+
+
+
+
+
+      O
+
+
+       T
+       |
+        |
+        | b              ...........        ...
+      ...@.      ........           ........
+        / /......
+        /  /
+       /    /
+~~~~~~/~~~~~~/~~~|
+      /       ?  |
+     o           |__________________________________________________________________
+
+
+
+
+
+causal: compress and reach the bank without stopping forward root travel; right foot remains a probe
+
+K02 RIGHT_BANK_PROBE · TWOS/2f · INFERRED · support=WATER+RIGHT_PROBE · medium=BUOYANCY_DOMINANT · buoy=0.82 · phase=BANK_PROBE · rootΔ=23.1px · lean=-20° · lag=-3°
+
+
+
+
+
+
+         O
+
+          T
+          |
+           |
+           | b           ...........        ...
+      ..... |    ........           ........
+           .@....
+           / /
+         //   /
+~~~~~~~~/~~~~~~/~|
+       /        /|
+      o          ?__________________________________________________________________
+
+
+
+
+
+causal: right foot touches fixed bank while buoyancy still owns most vertical load; probe is not trusted support
+
+K03 RIGHT_BANK_CATCH_EARNED · ONES/1f · INFERRED · support=WATER+RIGHT · medium=BUOYANCY_SHARED · buoy=0.70 · phase=BANK_CATCH · rootΔ=22.0px · lean=-23° · lag=+2°
+
+
+
+
+
+
+           O
+
+             T
+             |
+              |
+              |          ...........        ...
+      .....    | b.......           ........
+           .../@.
+            //  /
+          //     /
+~~~~~~~~//~~~~~~~/
+       o         |/
+                 |_*________________________________________________________________
+
+
+
+
+
+causal: earn the first fixed-ground catch before reducing buoyancy authority
+
+K04 BUOYANCY_SURRENDER_A · TWOS/2f · INFERRED · support=RIGHT+WATER · medium=BUOYANCY_SHARED · buoy=0.52 · phase=SURRENDER_A · rootΔ=25.5px · lean=-18° · lag=+7°
+
+
+
+
+
+                O
+
+
+                 T
+                 |
+                  |
+                  | b    ...........        ...
+      .....      ./@.....           ........
+           .....// /
+              //   /
+            //     /
+~~~~~~~~~~//~~~~~| /
+         o       | /
+                 |_*________________________________________________________________
+
+
+
+
+
+causal: transfer vertical support toward the fixed right foot while root rises and keeps moving forward
+
+K05 BUOYANCY_SURRENDER_B · TWOS/2f · INFERRED · support=RIGHT+WATER_UNLOADING · medium=BUOYANCY_UNLOADING · buoy=0.28 · phase=SURRENDER_B · rootΔ=28.9px · lean=-11° · lag=+12°
+
+
+
+
+                     O
+
+
+                      T
+                      |
+                      |
+                       |b
+                       | ...........        ...
+      .....      ......@.           ........
+           ......    //
+                   // /
+                 //  /
+~~~~~~~~~~~~~~~//|  /
+              o  |  /
+                 |_*________________________________________________________________
+
+
+
+
+
+causal: continue the rise and reduce buoyancy without clamping horizontal velocity; left leg swings free
+
+K06 FIXED_GROUND_OWNS_BODY · TWOS/2f · INFERRED · support=RIGHT · medium=AIR · buoy=0.00 · phase=FIXED_GROUND · rootΔ=31.4px · lean=-4° · lag=+16°
+
+
+                           O
+
+
+                           T
+                           |
+                           |
+                           |
+                           | c
+                         ..@........        ...
+      .....      ........ /         ........
+           ......        /
+                       //
+                      /
+~~~~~~~~~~~~~~~~~|   /
+                 |  o
+                 |_*________________________________________________________________
+
+
+
+
+
+causal: water support reaches zero only after fixed-ground ownership is trustworthy; forward runout survives
+
+K07 LEFT_FREE_CATCH_OVERRUN · TWOS/2f · INFERRED · support=LEFT · medium=AIR · buoy=0.00 · phase=FREE_OVERRUN · rootΔ=43.0px · lean=+5° · lag=+22°
+
+
+
+
+                                   O
+
+                                  T
+                                  |
+                                  |
+                                  |
+                                  |c
+                         ......../@.        ...
+      .....      ........      //  /........
+           ......            //    /
+                           //       /
+                         //          /
+~~~~~~~~~~~~~~~~~|     //             /
+                 |   //               /
+                 |_o/__________________*____________________________________________
+
+
+
+
+
+causal: surviving forward velocity produces the deliberately overlong first free-ground catch after buoyancy release
+
+K08 LEFT_BRAKE_COMPRESSION · TWOS/2f · INFERRED · support=LEFT · medium=AIR · buoy=0.00 · phase=BRAKE_COMPRESSION · rootΔ=26.6px · lean=+11° · lag=+26°
+
+
+
+
+
+                                       O
+
+
+                                      T
+                                      |
+                                      |
+                         ........... |c     ...
+      .....      ........           .@......
+           ......                    ///
+                                      / /
+                                      /  /
+~~~~~~~~~~~~~~~~~|                    /   //
+                 |                     /    o
+                 |_____________________*____________________________________________
+
+
+
+
+
+causal: hold the overlong catch and compress root/COM to brake translation while upper-body lag still advances
+
+K09 RIGHT_CORRECTION_PROBE · ONES/1f · INFERRED · support=LEFT+RIGHT_PROBE · medium=AIR · buoy=0.00 · phase=COUNTERSTEP_PROBE · rootΔ=13.3px · lean=+9° · lag=+23°
+
+
+
+
+                                         O
+
+
+                                        T
+                                        |
+                                        |
+                                       |
+                         ...........   |c   ...
+      .....      ........           ...@....
+           ......                      //
+                                       //
+                                       / /
+~~~~~~~~~~~~~~~~~|                     /  /
+                 |                     /  /
+                 |_____________________*___?________________________________________
+
+
+
+
+
+causal: right foot probes under the braking body while left support remains trusted; correction ownership is not allowed to teleport
+
+K10 RIGHT_SHORT_CORRECTION_CATCH · TWOS/2f · INFERRED · support=RIGHT · medium=AIR · buoy=0.00 · phase=COUNTERSTEP_CATCH · rootΔ=13.2px · lean=+7° · lag=+18°
+
+
+
+
+                                          O
+
+
+                                          T
+                                          |
+                                          |
+                                         |
+                         ...........     |c ...
+      .....      ........           .....@..
+           ......                        /
+                                        / /
+                                        / /
+~~~~~~~~~~~~~~~~~|                     /  /
+                 |                     *   /
+                 |_________________________*________________________________________
+
+
+
+
+
+causal: right support becomes trustworthy only after the authored probe and catches the residual translation with a shorter spacing event
+
+K11 LEFT_FINAL_PROBE · TWOS/2f · INFERRED · support=RIGHT+LEFT_PROBE · medium=AIR · buoy=0.00 · phase=FINAL_PROBE · rootΔ=11.2px · lean=+4° · lag=+13°
+
+
+
+
+                                           O
+
+
+                                           T
+                                           |
+                                           |
+                                           |
+                         ...........       |c..
+      .....      ........           .......@
+           ......                          /
+                                           //
+                                           //
+~~~~~~~~~~~~~~~~~|                         / /
+                 |                         / ?
+                 |_________________________*________________________________________
+
+
+
+
+
+causal: left foot probes a final shorter correction while right remains trusted, preserving explicit support topology
+
+K12 LEFT_FINAL_CORRECTION_CATCH · TWOS/2f · INFERRED · support=LEFT · medium=AIR · buoy=0.00 · phase=FINAL_CATCH · rootΔ=9.2px · lean=+2° · lag=+9°
+
+
+
+
+                                            O
+
+
+                                            T
+                                            |
+                                            |
+                                            |
+                         ...........        @c.
+      .....      ........           ......../
+           ......                           /
+                                            /
+                                           / /
+~~~~~~~~~~~~~~~~~|                         / /
+                 |                         o /
+                 |___________________________*______________________________________
+
+
+
+
+
+causal: final trusted correction is smaller again and arrests root debt without recreating the water-entry stance
+
+K13 TORSO_LAG_PAYDOWN · TWOS/2f · INFERRED · support=LEFT_UNLOADING · medium=AIR · buoy=0.00 · phase=SECONDARY_SETTLE · rootΔ=7.3px · lean=+0° · lag=+5°
+
+
+
+
+                                             O
+
+                                             T
+                                             |
+                                             |
+                                             |
+                                             |
+                         ...........        .@c
+      .....      ........           ........ /
+           ......                            //
+                                             //
+                                             //
+~~~~~~~~~~~~~~~~~|                           / /
+                 |                           / o
+                 |___________________________*______________________________________
+
+
+
+
+
+causal: root slows first while torso and trailing leg continue to settle, paying secondary lag after the support corrections
+
+K14 DISPLACED_RECOVERY_DEBT · THREES/3f · INFERRED · support=LEFT_UNLOADING · medium=AIR · buoy=0.00 · phase=DISPLACED_SETTLE · rootΔ=5.1px · lean=-1° · lag=+2°
+
+
+
+                                              O
+
+
+                                              T
+                                              |
+                                              |
+                                              |
+                                              |
+                         ...........        ..c
+      .....      ........           ........  /
+           ......                             //
+                                              //
+                                             /  /
+~~~~~~~~~~~~~~~~~|                           /  /
+                 |                           *   o
+                 |__________________________________________________________________
+
+
+
+
+
+causal: finish displaced with live next-step debt rather than restoring the original buoyant entry pose
