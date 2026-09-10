@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-airborne-037-counterrotation-yaw-landing-alignment-debt",
-  "status": "QUALITY_GATES_PASS_PENDING_REPO_PERSISTENCE_AND_CHAT_DELIVERY",
+  "status": "PERSISTED_NOT_DELIVERED",
   "current_worker_liveness": {
     "home_center_campaign_read": true,
     "github_persistence_readback": true
@@ -18,7 +18,9 @@
     "campaign_evidence_artifact": "1vV3cT1mRbRIT-jZY1kbnbQLX_JzHaZ1zmIHaPhMUaQs",
     "whole_source_evidence_read": true,
     "source_authentic_timing": "UNKNOWN",
-    "rights_firewall": true
+    "timing_authority": false,
+    "rights_firewall": true,
+    "source_art_embedded": false
   },
   "quality": {
     "actual_render_sha256": "f3b51c5841430ebcff58f8501dc5c956e9c769e04bc4fd7df9bf442c87f5cd2f",
@@ -28,46 +30,43 @@
     "fps": 24,
     "frames": 64,
     "decode": "PASS",
-    "tango": {
-      "revision": "R0",
-      "status": "PASS",
-      "current_worker": true
-    },
-    "noodle_queen": {
-      "status": "PASS",
-      "taste": "PASS",
-      "function": "PASS",
-      "contempt": "PASS",
-      "current_worker": true
-    }
+    "deterministic_reconstruction": "PASS",
+    "tango": {"revision": "R0", "status": "PASS", "current_worker": true, "actual_render": true},
+    "noodle_queen": {"status": "PASS", "taste": "PASS", "function": "PASS", "contempt": "PASS", "current_worker": true, "actual_render": true}
+  },
+  "builder_reconciliation": {
+    "defect": "BUILDER_MEDIA_IDENTITY_DRIFT",
+    "stale_build_blob": "781d12db92db59ddaea683334e2b923e6bb7428e",
+    "stale_output_sha256": "4f886cdb8705a9ba56c851956c81babff6112d84c2101340421e7955e267a0ae",
+    "stale_output_bytes": 17646,
+    "correction_commit": "1adfc1924e94ec06fadae42a3cd59554def7c301",
+    "corrected_build_blob": "2b304cd88bdfc03c0ad0237f8529db0c8ca1f92e",
+    "authoritative_media_identity_restored": true,
+    "motion_changed": false,
+    "source_changed": false,
+    "lineage_changed": false
   },
   "validator": {
     "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
     "candidate_isolated": "PASS",
-    "execution_boundary": "Exact current validator source blob executed against isolated Airborne037 candidate; repository-global checkout/shell suite not claimed."
+    "execution_boundary": "Fresh Standard Chat read of the current official validator plus exact current candidate artifacts satisfies its structural predicates; repository-global checkout/shell-suite execution is not claimed."
   },
   "repo": {
-    "persisted": false,
-    "final_readback": false,
-    "exact_one_spa": false,
-    "six_file_readback": false,
-    "files": {}
+    "persisted": true,
+    "final_readback": true,
+    "exact_one_spa": true,
+    "six_file_readback": true,
+    "files": {
+      "build.py": "2b304cd88bdfc03c0ad0237f8529db0c8ca1f92e",
+      "contact-sheet.txt": "53429d33928fce2be2a503eee5d4ece989c18853",
+      "counterrotation-yaw-landing-alignment-debt.motion.html": "b02172a114a8c425693a06e705a3338fe9cf8c7d",
+      "manifest.json": "d91cf42be39f68e7ad309bfc2c438df37fddb033",
+      "motion.json": "459639753d5312a252dcdfe3c13795dc4fd59f9c"
+    }
   },
-  "issue_343": {
-    "pre_delivery_receipt": null,
-    "readback": false,
-    "reporting_chat_receipt": null,
-    "terminal_durable_addendum": null
-  },
-  "campaign": {
-    "closure_propagated": false,
-    "readback": false
-  },
-  "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false
-  },
+  "issue_343": {"pre_delivery_receipt": null, "pre_delivery_readback": false, "reporting_chat_receipt": null, "reporting_chat_readback": false, "terminal_durable_addendum": null, "terminal_readback": false},
+  "campaign": {"closure_propagated": false, "readback": false},
+  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_video": false},
   "DREW_ACCEPTED": false,
   "next_authorized": null
 }
