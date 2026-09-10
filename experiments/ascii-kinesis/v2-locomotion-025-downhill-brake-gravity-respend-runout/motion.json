@@ -1,0 +1,577 @@
+{
+  "schema": "ascii-kinesis.motion.v2",
+  "specimen": "v2-locomotion-025-downhill-brake-gravity-respend-runout",
+  "title": "DOWNHILL BRAKE / GRAVITY RESPEND / CATCH RUNOUT",
+  "lane": "locomotion",
+  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_CHAT_DELIVERY",
+  "lineage": {
+    "kind": "NEW_CONCEPT",
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "predecessor_terminal_issue_comment": 5622347443
+  },
+  "source": {
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "evidence_id": "1EcndzQbqHcHQ99qxELwoXpttbCITiJJ56WhzIgjBGMc",
+    "tsr_asset": 123160,
+    "identity": "Garfield (The Curse of Cleofatra) — Garfield: Caught in the Act — Sega Genesis — Playable Characters",
+    "role": "EVIDENCE_ONLY",
+    "whole_source_inspected": true,
+    "observed": [
+      "whole static sheet contains named Run, Slip, Edge, Fall, Push and jump/travel families",
+      "Push contrasts trustworthy contact with suppressed root translation; Slip contrasts visible contact with continued root travel",
+      "campaign artifact explicitly proposes downhill braking as next scene: friction trustworthy while gravity continuously re-spends root momentum after each catch"
+    ],
+    "unknown": [
+      "source-authentic chronology",
+      "source-authentic exposure counts",
+      "exact root coordinates",
+      "friction coefficients",
+      "engine velocity curves"
+    ],
+    "timing_authority": "NONE",
+    "rights_firewall": {
+      "source_pixels_in_output": false,
+      "source_audio_in_output": false,
+      "tracing": false,
+      "close_imitation": false,
+      "source_palette": false,
+      "source_costume": false,
+      "source_layout": false,
+      "source_choreography": false
+    }
+  },
+  "principle": "TRUSTWORTHY BRAKES DO NOT END DOWNHILL MOTION WHEN THE FIELD RE-SPENDS MOMENTUM BETWEEN CATCHES.",
+  "quality_thesis": "Each brake support must visibly acquire ahead of the moving root, survive root/COM passage through compression, then unload into a renewed spacing increase caused by downhill demand. The longest free catch arrives only after repeated re-spend. Corrections shorten and settle displaced.",
+  "rig": {
+    "viewport": [
+      640,
+      360
+    ],
+    "ground_model": {
+      "kind": "authored_slope",
+      "y_at_x50": 246,
+      "rise_per_px": 0.24
+    },
+    "root": "@",
+    "com": "c",
+    "head": "O",
+    "left_foot": "L",
+    "right_foot": "R",
+    "secondary": "arms",
+    "abstract_ascii_rig_only": true
+  },
+  "timing": {
+    "fps": 24,
+    "total_frames": 26,
+    "policy": "STREET_FIGHTER-CAPCOM",
+    "provenance": "INFERRED"
+  },
+  "keys": [
+    {
+      "key_id": "K00",
+      "name": "CONTROLLED_DESCENT",
+      "root": [
+        70,
+        183.8
+      ],
+      "com": [
+        72,
+        205.8
+      ],
+      "left_foot": [
+        62,
+        248.9
+      ],
+      "right_foot": [
+        87,
+        254.9
+      ],
+      "support": {
+        "owner": "LEFT",
+        "left": "PLANTED_FIXED",
+        "right": "AIR"
+      },
+      "torso_lean_deg": -7,
+      "arm_lag_deg": -10,
+      "root_spacing_px": 0,
+      "timing_class": "FOURS",
+      "hold_frames": 4,
+      "phase": "BASELINE",
+      "causal_role": "establish trustworthy downhill support before gravity is allowed to re-spend translation",
+      "timing_provenance": "INFERRED",
+      "sequence_policy": "STREET_FIGHTER-CAPCOM"
+    },
+    {
+      "key_id": "K01",
+      "name": "GRAVITY_RESPEND_1",
+      "root": [
+        80,
+        188.2
+      ],
+      "com": [
+        83,
+        210.2
+      ],
+      "left_foot": [
+        62,
+        248.9
+      ],
+      "right_foot": [
+        98,
+        257.5
+      ],
+      "support": {
+        "owner": "LEFT",
+        "left": "UNLOADING_FIXED",
+        "right": "AIR"
+      },
+      "torso_lean_deg": 8,
+      "arm_lag_deg": -18,
+      "root_spacing_px": 10,
+      "timing_class": "TWOS",
+      "hold_frames": 2,
+      "phase": "RESPEND",
+      "causal_role": "trusted brake releases enough that downhill field re-expands root spacing while old support still unloads",
+      "timing_provenance": "INFERRED",
+      "sequence_policy": "STREET_FIGHTER-CAPCOM"
+    },
+    {
+      "key_id": "K02",
+      "name": "RIGHT_BRAKE_PROBE",
+      "root": [
+        94,
+        192.6
+      ],
+      "com": [
+        98,
+        214.6
+      ],
+      "left_foot": [
+        62,
+        248.9
+      ],
+      "right_foot": [
+        108,
+        259.9
+      ],
+      "support": {
+        "owner": "NONE",
+        "left": "AIR",
+        "right": "PROBE"
+      },
+      "torso_lean_deg": 14,
+      "arm_lag_deg": -22,
+      "root_spacing_px": 14,
+      "timing_class": "ONES",
+      "hold_frames": 1,
+      "phase": "PROBE",
+      "causal_role": "downslope foot reaches ahead of COM but does not own the root until the next authored catch",
+      "timing_provenance": "INFERRED",
+      "sequence_policy": "STREET_FIGHTER-CAPCOM"
+    },
+    {
+      "key_id": "K03",
+      "name": "RIGHT_BRAKE_CATCH",
+      "root": [
+        101,
+        203.2
+      ],
+      "com": [
+        104,
+        224.2
+      ],
+      "left_foot": [
+        82,
+        253.7
+      ],
+      "right_foot": [
+        108,
+        259.9
+      ],
+      "support": {
+        "owner": "RIGHT",
+        "left": "AIR",
+        "right": "PLANTED_FIXED"
+      },
+      "torso_lean_deg": -16,
+      "arm_lag_deg": 18,
+      "root_spacing_px": 7,
+      "timing_class": "TWOS",
+      "hold_frames": 2,
+      "phase": "BRAKE",
+      "causal_role": "right support acquires ahead of root and converts forward/downhill velocity into visible compression",
+      "timing_provenance": "INFERRED",
+      "sequence_policy": "STREET_FIGHTER-CAPCOM"
+    },
+    {
+      "key_id": "K04",
+      "name": "RIGHT_BRAKE_OVERRUN",
+      "root": [
+        105,
+        201.2
+      ],
+      "com": [
+        108,
+        222.2
+      ],
+      "left_foot": [
+        90,
+        255.6
+      ],
+      "right_foot": [
+        108,
+        259.9
+      ],
+      "support": {
+        "owner": "RIGHT",
+        "left": "AIR",
+        "right": "PLANTED_FIXED"
+      },
+      "torso_lean_deg": -20,
+      "arm_lag_deg": 28,
+      "root_spacing_px": 4,
+      "timing_class": "TWOS",
+      "hold_frames": 2,
+      "phase": "BRAKE",
+      "causal_role": "root/COM continue a shorter distance around the fixed right catch while torso and arms overshoot",
+      "timing_provenance": "INFERRED",
+      "sequence_policy": "STREET_FIGHTER-CAPCOM"
+    },
+    {
+      "key_id": "K05",
+      "name": "GRAVITY_RESPEND_2",
+      "root": [
+        116,
+        198.8
+      ],
+      "com": [
+        120,
+        220.8
+      ],
+      "left_foot": [
+        132,
+        265.7
+      ],
+      "right_foot": [
+        108,
+        259.9
+      ],
+      "support": {
+        "owner": "RIGHT",
+        "left": "AIR",
+        "right": "UNLOADING_FIXED"
+      },
+      "torso_lean_deg": 11,
+      "arm_lag_deg": 8,
+      "root_spacing_px": 11,
+      "timing_class": "ONES",
+      "hold_frames": 1,
+      "phase": "RESPEND",
+      "causal_role": "before posture can reset, slope-directed travel grows again as the right catch unloads",
+      "timing_provenance": "INFERRED",
+      "sequence_policy": "STREET_FIGHTER-CAPCOM"
+    },
+    {
+      "key_id": "K06",
+      "name": "LEFT_BRAKE_CATCH",
+      "root": [
+        128,
+        208.7
+      ],
+      "com": [
+        130,
+        229.7
+      ],
+      "left_foot": [
+        136,
+        266.6
+      ],
+      "right_foot": [
+        108,
+        259.9
+      ],
+      "support": {
+        "owner": "LEFT",
+        "left": "PLANTED_FIXED",
+        "right": "AIR"
+      },
+      "torso_lean_deg": -14,
+      "arm_lag_deg": 24,
+      "root_spacing_px": 12,
+      "timing_class": "TWOS",
+      "hold_frames": 2,
+      "phase": "BRAKE",
+      "causal_role": "left foot becomes a new world-fixed brake ahead of the root after re-acceleration",
+      "timing_provenance": "INFERRED",
+      "sequence_policy": "STREET_FIGHTER-CAPCOM"
+    },
+    {
+      "key_id": "K07",
+      "name": "LEFT_BRAKE_COMPRESSION",
+      "root": [
+        134,
+        214.2
+      ],
+      "com": [
+        136,
+        235.2
+      ],
+      "left_foot": [
+        136,
+        266.6
+      ],
+      "right_foot": [
+        150,
+        270.0
+      ],
+      "support": {
+        "owner": "LEFT",
+        "left": "PLANTED_FIXED",
+        "right": "AIR"
+      },
+      "torso_lean_deg": -19,
+      "arm_lag_deg": 31,
+      "root_spacing_px": 6,
+      "timing_class": "TWOS",
+      "hold_frames": 2,
+      "phase": "BRAKE",
+      "causal_role": "fixed left support survives root passage while COM drops and residual debt compresses",
+      "timing_provenance": "INFERRED",
+      "sequence_policy": "STREET_FIGHTER-CAPCOM"
+    },
+    {
+      "key_id": "K08",
+      "name": "GRAVITY_RESPEND_3",
+      "root": [
+        141,
+        206.8
+      ],
+      "com": [
+        145,
+        228.8
+      ],
+      "left_foot": [
+        136,
+        266.6
+      ],
+      "right_foot": [
+        164,
+        273.4
+      ],
+      "support": {
+        "owner": "LEFT",
+        "left": "UNLOADING_FIXED",
+        "right": "AIR"
+      },
+      "torso_lean_deg": 9,
+      "arm_lag_deg": 14,
+      "root_spacing_px": 7,
+      "timing_class": "ONES",
+      "hold_frames": 1,
+      "phase": "RESPEND",
+      "causal_role": "compression rebounds but external downhill demand re-spends the saved velocity before full restack",
+      "timing_provenance": "INFERRED",
+      "sequence_policy": "STREET_FIGHTER-CAPCOM"
+    },
+    {
+      "key_id": "K09",
+      "name": "LONG_RIGHT_FREE_CATCH",
+      "root": [
+        157,
+        213.7
+      ],
+      "com": [
+        160,
+        235.7
+      ],
+      "left_foot": [
+        146,
+        269.0
+      ],
+      "right_foot": [
+        170,
+        274.8
+      ],
+      "support": {
+        "owner": "RIGHT",
+        "left": "AIR",
+        "right": "PLANTED_FIXED"
+      },
+      "torso_lean_deg": -12,
+      "arm_lag_deg": 26,
+      "root_spacing_px": 16,
+      "timing_class": "ONES",
+      "hold_frames": 1,
+      "phase": "RUNOUT",
+      "causal_role": "accumulated field debt forces the longest free catch; right support must own before correction can shorten",
+      "timing_provenance": "INFERRED",
+      "sequence_policy": "STREET_FIGHTER-CAPCOM"
+    },
+    {
+      "key_id": "K10",
+      "name": "RIGHT_RUNOUT_ABSORB",
+      "root": [
+        166,
+        220.8
+      ],
+      "com": [
+        168,
+        241.8
+      ],
+      "left_foot": [
+        181,
+        277.4
+      ],
+      "right_foot": [
+        170,
+        274.8
+      ],
+      "support": {
+        "owner": "RIGHT",
+        "left": "AIR",
+        "right": "PLANTED_FIXED"
+      },
+      "torso_lean_deg": -17,
+      "arm_lag_deg": 33,
+      "root_spacing_px": 9,
+      "timing_class": "TWOS",
+      "hold_frames": 2,
+      "phase": "RUNOUT",
+      "causal_role": "right catch pays the largest runout with deep root/COM compression and secondary upper-body overrun",
+      "timing_provenance": "INFERRED",
+      "sequence_policy": "STREET_FIGHTER-CAPCOM"
+    },
+    {
+      "key_id": "K11",
+      "name": "SHORT_LEFT_CORRECTION",
+      "root": [
+        175,
+        218.0
+      ],
+      "com": [
+        177,
+        239.0
+      ],
+      "left_foot": [
+        183,
+        277.9
+      ],
+      "right_foot": [
+        170,
+        274.8
+      ],
+      "support": {
+        "owner": "LEFT",
+        "left": "PLANTED_FIXED",
+        "right": "AIR"
+      },
+      "torso_lean_deg": -9,
+      "arm_lag_deg": 17,
+      "root_spacing_px": 9,
+      "timing_class": "TWOS",
+      "hold_frames": 2,
+      "phase": "CORRECTION",
+      "causal_role": "shorter opposite catch acquires before the old right support is abandoned as a locomotion solution",
+      "timing_provenance": "INFERRED",
+      "sequence_policy": "STREET_FIGHTER-CAPCOM"
+    },
+    {
+      "key_id": "K12",
+      "name": "DISPLACED_DOWNHILL_READY",
+      "root": [
+        181,
+        214.4
+      ],
+      "com": [
+        183,
+        236.4
+      ],
+      "left_foot": [
+        183,
+        277.9
+      ],
+      "right_foot": [
+        195,
+        280.8
+      ],
+      "support": {
+        "owner": "LEFT",
+        "left": "PLANTED_FIXED",
+        "right": "AIR"
+      },
+      "torso_lean_deg": 2,
+      "arm_lag_deg": 7,
+      "root_spacing_px": 6,
+      "timing_class": "FOURS",
+      "hold_frames": 4,
+      "phase": "RECOVERY_DEBT",
+      "causal_role": "settle remains downhill-displaced with a smaller unresolved forward demand instead of returning to idle",
+      "timing_provenance": "INFERRED",
+      "sequence_policy": "STREET_FIGHTER-CAPCOM"
+    }
+  ],
+  "motion_dungeon": {
+    "compile": "AUTHORED_ASCII_KEYS + DIRECTION_PROFILE -> DETERMINISTIC_CONNECTIVE_MOTION -> ASCII_ONLY_FRAME_RENDER -> MP4 -> SPA",
+    "connective_motion": "NONE_BETWEEN_DECISIVE_KEYS; holds repeat decisive authored states",
+    "media_target": {
+      "codec": "h264",
+      "pix_fmt": "yuv420p",
+      "width": 480,
+      "height": 270,
+      "fps": 24
+    }
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "FIX SUPPORT",
+    "FIX ARC",
+    "FIX RESPEND",
+    "FIX RECOVERY",
+    "RERUN"
+  ],
+  "media": {
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 480,
+    "height": 270,
+    "fps": 24,
+    "frames": 26,
+    "duration_s": 1.083333,
+    "bytes": 12211,
+    "sha256": "9548a1d7e984e0d0987499b16f96c541929d8715b004ee971ee2c42a953ff8f4",
+    "embedded_in_spa": true,
+    "source": "abstract_ascii_rig_plus_authored_timing_only"
+  },
+  "quality": {
+    "tango": {
+      "worker": "CURRENT_STANDARD_CHAT",
+      "rounds": [
+        {
+          "round": 0,
+          "verdict": "PASS",
+          "media_sha256": "9548a1d7e984e0d0987499b16f96c541929d8715b004ee971ee2c42a953ff8f4",
+          "basis": "All 26 decoded frames and 13 authored states inspected. Each trusted brake point stays world-fixed across compression/overrun, spacing contracts during braking then re-expands after unloading, and the later 16px free catch is the largest displacement. Torso counter-lean and arm overshoot lag the root before a shorter displaced correction."
+        }
+      ]
+    },
+    "noodle_queen": {
+      "worker": "CURRENT_STANDARD_CHAT",
+      "after_tango": true,
+      "verdict": "PASS",
+      "dimensions": [
+        "TASTE",
+        "FUNCTION",
+        "CONTEMPT"
+      ],
+      "media_sha256": "9548a1d7e984e0d0987499b16f96c541929d8715b004ee971ee2c42a953ff8f4",
+      "basis": "The descending support teeth, repeated brake/re-spend sentence, asymmetric counter-lean and delayed arm debt read as one specific locomotion mechanism rather than a generic gait."
+    }
+  }
+}
