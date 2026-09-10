@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.v2-receipt",
   "body": "v2-locomotion-022-curvature-zero-cross-support-sign-swap",
-  "status": "PERSISTED_NOT_DELIVERED",
+  "status": "FINALIZATION_PENDING_CAMPAIGN_READBACK",
   "current_worker": {"home_center_campaign_read": true, "github_persistence_readback": true, "preflight_pass": true},
   "lineage": {"revises": null, "negative_fixture": null, "source_change": "NOT_APPLICABLE_NEW_CONCEPT", "predecessor": "v2-locomotion-021-overhead-clearance-compression-release-runout", "predecessor_durable_readback_issue_comment": 5613814652, "one_successor_binding": true, "successor_collision": false},
   "source": {"campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s", "evidence_artifact_file_id": "1m1AEz8Wi66rICM7_aQvqwJRTqKQ29g5VzIQPmfFOxTY", "tsr_asset_id": 566077, "identity": "The Duke — Mina the Hollower — PC / Computer — Non-Playable Characters", "whole_source_inspected": true, "timing_authority": "UNKNOWN", "authored_timing": "INFERRED / STREET_FIGHTER-CAPCOM", "source_role": "EVIDENCE_ONLY"},
@@ -9,8 +9,8 @@
   "media": {"mime": "video/mp4", "codec": "h264", "pix_fmt": "yuv420p", "width": 480, "height": 270, "fps": 24, "frames": 28, "bytes": 12761, "sha256": "3c17599d08d3582cf6cafb7b5b646d598b49da75b9199831905027fa13b4d271", "source": "embedded SPA media generated only from abstract authored rig/timing via build.py"},
   "validator": {"blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78", "candidate_isolated": "PASS", "repository_global": "UNCLAIMED_STANDARD_CHAT_CONNECTOR_BOUNDARY"},
   "repository": {"path": "experiments/ascii-kinesis/v2-locomotion-022-curvature-zero-cross-support-sign-swap/", "post_write_readback": true, "exact_six_file_body": true, "stable_body_files": {"build.py": "cb990fdb4e954924059a47a70a3e3b3bcf6a244e", "contact-sheet.txt": "8c0aa88d56597ee6eb50d34cbc6024962627bc81", "motion.json": "f8b95603bd4646c60342a8aee66fae8caf735db4", "curvature-zero-cross-support-sign-swap.motion.html": "5d80230a868ce74e8d1a4ebcd644a14d5d6cbf42"}},
-  "issue": {"pre_delivery_receipt": 5617473711, "pre_delivery_readback": true, "closure_receipt": null, "closure_readback": false},
-  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_video": false, "ordered": false},
+  "issue": {"pre_delivery_receipt": 5617473711, "pre_delivery_readback": true, "closure_receipt": 5617510843, "closure_readback": true},
+  "chat_delivery": {"part1_ascii": true, "part2_json": true, "part3_video": true, "ordered": true, "video_byte_identical": true},
   "campaign": {"propagated": false, "readback": false},
   "DREW_ACCEPTED": false,
   "next_authorized": null
