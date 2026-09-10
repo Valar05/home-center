@@ -5,7 +5,7 @@
   "lane": "defense",
   "number": 23,
   "title": "LONG GUARD / REAR-CLEARANCE FOLD",
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "REPO_VERIFIED_PENDING_CHAT_DELIVERY",
   "primary_tabs": [
     "ASCII",
     "JSON",
@@ -47,27 +47,28 @@
   },
   "principle": "MIDSPAN PIN -> rear-clearance shaft fold with continuous two-hand custody -> pelvis/support load -> contact release -> rear-foot break/sweep/catch -> counter-torque -> late guard re-span -> displaced low-ready debt.",
   "quality": {
+    "actual_render_sha256": "98456c37455fecadf220ccb0b0c03a4688d1b29ad210e03a5ab7a6fc4dba84cb",
     "tango": {
-      "round": "R0",
+      "round": "R0_REVALIDATION",
       "verdict": "PASS",
-      "basis": "current-worker inspection of actual 49-frame render",
+      "current_worker": true,
+      "basis": "fresh current-worker inspection of byte-identical reconstructed authoritative 49-frame render",
       "visible_checks": [
-        "midspan contact occurs before maximum displacement and away from tool tip",
-        "rear end folds away from explicit clearance plane under pressure",
-        "two-hand custody remains visually continuous through fold",
-        "pelvis/support consequence follows tool fold instead of simultaneous squash",
-        "contact releases before rear support break",
-        "single-support rear-leg sweep and compressed catch are visible",
-        "counter-torque precedes late guard re-span",
-        "final low-ready is displaced rather than idle reset"
+        "threat closes before midspan contact and contact occurs before maximum guard/body displacement",
+        "rear guard end folds upward away from the explicit clearance plane while two-hand custody remains continuous",
+        "pelvis/root displacement and rear-heel unloading follow the guard fold rather than collapsing simultaneously",
+        "the first unsupported rear-foot frame carries no active contact and flows into a visible one-leg clearance sweep",
+        "compressed rear catch occurs before counter-torque and before late guard re-span",
+        "final low-ready remains wider, lower, and displaced rather than resetting to idle"
       ]
     },
     "noodle_queen": {
       "verdict": "PASS",
-      "taste": true,
-      "function": true,
-      "contempt": true,
-      "basis": "same actual final render + full specimen after Tango PASS"
+      "current_worker": true,
+      "after_tango": "R0_REVALIDATION",
+      "taste": "Long-span guard versus rear-clearance plane produces a specific folding silhouette sentence rather than generic blocking.",
+      "function": "Clearance debt propagates into pelvis/support choice, unsupported rear-leg sweep, catch, counter-torque, and only then re-span.",
+      "contempt": "The recovery stays inconvenient: the base and guard remain displaced and low instead of snapping back to a polite idle."
     }
   },
   "media": {
@@ -80,23 +81,34 @@
     "duration_seconds": 2.0416666666666665,
     "bytes": 21378,
     "sha256": "98456c37455fecadf220ccb0b0c03a4688d1b29ad210e03a5ab7a6fc4dba84cb",
-    "decode_verified": true
+    "decode_verified": true,
+    "byte_identical_reconstruction": true
   },
   "validator": {
-    "current_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-    "candidate_isolated": "PASS_EXACT_CURRENT_VALIDATOR_BLOB",
-    "boundary": "Standard Chat has exact current validator source but no full repository checkout; candidate-isolated structural predicates are callable locally, repo-global suite is not claimed."
+    "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS_CURRENT_WORKER",
+    "candidate_isolated_stdout": "{\"entries_checked\": [\"v2-defense-023-long-guard-rear-clearance-fold\"], \"ok\": true, \"schema\": \"ascii-kinesis.swarm-contract-v2-test\"}",
+    "repo_global_execution_claimed": false,
+    "boundary": "Standard Chat executed the exact current validator blob against an isolated reconstruction of this exact candidate structure; no full repository checkout/global suite is claimed."
   },
   "repo": {
-    "persisted": false,
-    "repo_readback": false,
-    "files_expected": 6,
-    "spa_expected": 1,
-    "commit": null,
-    "blobs": {}
+    "persisted": true,
+    "repo_readback": true,
+    "body_files_readback": 6,
+    "exactly_one_spa": true,
+    "readback_commit": "aef1acaeb00e9ef6c5325403e74b62a99a1400bf",
+    "manifest_previous_blob": "9074a4515579ef587cb9f6f226a21870924dab7d",
+    "blobs": {
+      "build.py": "0bdb3fff7db3e44c6f226de1be696f6af5c7aa83",
+      "contact-sheet.txt": "0002d64710968c8578315a360ef5b632d570216c",
+      "motion.json": "65086178f1f55f860187a2eb23a7d5f98460ac99",
+      "receipt.json": "a323b463998f8835ee087a1d997af73d13b4f6e4",
+      "long-guard-rear-clearance-fold.motion.html": "d97fc42d8ec8383ac02695c423dd876ed958ab32"
+    }
   },
   "issue": {
-    "number": 343,
+    "issue": 343,
     "receipt_comment": null,
     "readback": false
   },
@@ -106,5 +118,6 @@
     "part3_visible_video": false,
     "ordered": false
   },
-  "drew_accepted": false
+  "drew_accepted": false,
+  "spa_file": "long-guard-rear-clearance-fold.motion.html"
 }
