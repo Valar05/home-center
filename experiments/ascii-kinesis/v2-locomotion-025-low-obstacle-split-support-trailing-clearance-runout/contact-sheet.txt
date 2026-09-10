@@ -1,0 +1,357 @@
+ASCII KINESIS V2 · LOCOMOTION 025 · LOW OBSTACLE SPLIT SUPPORT / TRAILING CLEARANCE RUNOUT
+legend: @ root · c COM · * trusted foot support · ? probe · ~ free foot · # fixed low obstacle · . root route
+source evidence: Bob / Bob the Builder: Fix It Fun! / Game Boy-GBC / TSR asset 128015 / Home Center artifact 1fshOV6xbFjFc2KYyeEfW9f7A8lCzfwRZwDYC6ZHMmSM
+OBSERVED: commissioned evidence treated the entire 506x428 static sheet as one corpus with ten named families including Walk, Run, Duck, Climb, Off Ladder, Push and Pick Item.
+UNKNOWN: source-authentic chronology/exposure/root path/obstacle choreography/clearance/support force. Source grants no timing authority.
+authored timing: INFERRED / STREET_FIGHTER-CAPCOM. rights firewall: independent abstract rig only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio/redistribution/close imitation.
+thesis: lead foot clears and catches beyond a low obstacle while rear support remains behind; root/COM traverse that split-support bridge; trailing foot clears late into an overlong catch; shorter corrections pay surviving debt.
+
+K00 APPROACH_LEFT_SUPPORT · FOURS/4f · INFERRED · support=LEFT · phase=APPROACH · rootΔ=0px · lean=-7° · lag=-6° · clearance=CLEAR_GROUND
+
+
+
+    O
+
+
+     T
+     --
+   --| ---
+ --  |
+     |c
+     @.....                                      ..
+     //    ...         ..........................
+     / /      .........
+     /  /
+     /   /                   #######
+     /    /                  #######
+     /     ~                 #######
+_____*_______________________#######________________________________________________
+
+
+
+
+
+causal: establish asymmetric forward travel and the low obstacle ahead while left support owns the root
+
+K01 OBSTACLE_READ_SHORTEN · TWOS/2f · INFERRED · support=LEFT · phase=READ · rootΔ=22.4px · lean=-10° · lag=-4° · clearance=LEAD_APPROACH
+
+
+
+
+       O
+
+
+       T--
+     --|  ---
+    -   |
+        |
+     ....c.                                      ..
+        / /...         ..........................
+        /  /  .........
+       /    /
+       /     /               #######
+      /       /              #######
+      /        ~             #######
+_____*_______________________#######________________________________________________
+
+
+
+
+
+causal: shorten and lower slightly before the obstacle rather than converting the event into a jump
+
+K02 LEAD_KNEE_LIFT · TWOS/2f · INFERRED · support=LEFT · phase=LEAD_LIFT · rootΔ=25.3px · lean=-14° · lag=+3° · clearance=LEAD_ABOVE_TOP
+
+
+
+
+
+          O
+
+
+           T
+         --|--
+       --  |  --
+     ...... |c                                   ..
+           .@//        ..........................
+           /  ./////...
+          /         //~
+        //                   #######
+       /                     #######
+      /                      #######
+_____*_______________________#######________________________________________________
+
+
+
+
+
+causal: lift the lead right foot above obstacle height while old left support remains fixed and root travel stays live
+
+K03 LEAD_TOE_CLEAR_FRONT_EDGE · TWOS/2f · INFERRED · support=LEFT · phase=LEAD_CLEAR · rootΔ=30.8px · lean=-18° · lag=+8° · clearance=LEAD_OVER_OBSTACLE
+
+
+
+
+
+
+             O
+
+              T
+              --
+            -- |--
+     ......-   |  --                             ..
+           ...  | c    ..........................
+              ./@//////////////~
+             //
+           //                #######
+         //                  #######
+       //                    #######
+_____*/______________________#######________________________________________________
+
+
+
+
+
+causal: carry the lead foot across the obstacle top on an authored high point before any new support claim
+
+K04 LEAD_CATCH_BEYOND_SPLIT_SUPPORT · FOURS/4f · INFERRED · support=LEFT+RIGHT · phase=SPLIT_SUPPORT_ACQUIRE · rootΔ=30.2px · lean=-15° · lag=+6° · clearance=LEAD_BEYOND_CLEAR
+
+
+
+
+
+                  O
+
+
+                   T-
+                 --| --
+                -   |  --
+     ......         |                            ..
+           ...       |c..........................
+              ....../@/
+                 ///   ////
+             ////          ////#####
+          ///                ##///##
+       ///                   #####////
+_____*/______________________#######__/*____________________________________________
+
+
+
+
+
+causal: earn right-foot support beyond the obstacle while rear left support is still behind, creating the split-support bridge
+
+K05 ROOT_ENTERS_SUPPORT_GAP · TWOS/2f · INFERRED · support=RIGHT · phase=ROOT_PASS_A · rootΔ=29.1px · lean=-11° · lag=+10° · clearance=TRAIL_RELEASE
+
+
+
+
+
+                       O
+
+
+                        T
+                      --|--
+                    --  |  --
+     ......              | c                     ..
+           ...         ..@/......................
+              .........//  //
+                     //      //
+                    /        ##///##
+                  //         #####//
+                 ~           #######//
+_____________________________#######__/*____________________________________________
+
+
+
+
+
+causal: release the trailing left foot only after right support is trustworthy and carry root/COM toward the obstacle gap
+
+K06 TRAILING_KNEE_CLEARANCE · TWOS/2f · INFERRED · support=RIGHT · phase=TRAIL_LIFT · rootΔ=28.1px · lean=-7° · lag=+14° · clearance=TRAIL_ABOVE_TOP
+
+
+
+
+
+                            O
+
+                            T
+                           ---
+                         -- | --
+                             |  --
+     ......                  | c                 ..
+           ...         ...../@...................
+              .........   ~/  //
+                                //
+                             ####/#
+                             ######//
+                             ####### //
+_____________________________#######___*____________________________________________
+
+
+
+
+
+causal: raise the trailing left foot above obstacle top while right support remains world-fixed beyond it
+
+K07 ROOT_PASSES_TRAIL_TOE_CLEAR · ONES/1f · INFERRED · support=RIGHT · phase=TRAIL_CLEAR · rootΔ=23.2px · lean=-2° · lag=+17° · clearance=TRAIL_OVER_OBSTACLE
+
+
+
+
+                                O
+
+
+                                T
+                               ---
+                             -- | --
+                                |   --
+     ......                     | c              ..
+           ...         .........@................
+              .........          ~
+                                  /
+                             ######//
+                             ####### /
+                             #######  /
+_____________________________#######___*____________________________________________
+
+
+
+
+
+causal: let root/COM pass the obstacle as the trailing toe clears the far edge; support ownership does not teleport
+
+K08 TRAILING_FREE_CATCH_OVERRUN · TWOS/2f · INFERRED · support=LEFT+RIGHT_UNLOADING · phase=FREE_OVERRUN · rootΔ=46.1px · lean=+6° · lag=+22° · clearance=TRAIL_BEYOND_CATCH
+
+
+
+
+                                        O
+
+
+                                        T
+                                      --|--
+                                    --  |  --
+                                       |
+     ......                            | c       ..
+           ...         ................@.........
+              .........                ///
+                                       /  //
+                             #######   /    /
+                             #######   /     //
+                             #######   /       //
+_____________________________#######___*_________*__________________________________
+
+
+
+
+
+causal: preserve surviving forward velocity into an intentionally overlong trailing-foot catch far beyond the obstacle; the old right support unloads behind a visibly stretched recovery stance
+
+K09 LEFT_BRAKE_COMPRESSION · TWOS/2f · INFERRED · support=LEFT · phase=BRAKE_COMPRESSION · rootΔ=29.8px · lean=+11° · lag=+17° · clearance=POST_CLEAR
+
+
+
+
+                                             O
+
+
+                                             T
+                                           --|--
+                                         -- |   --
+     ......                                 |    ..
+           ...         ....................@/c...
+              .........                     ///
+                                             / //
+                             #######          /  //
+                             #######           /   //
+                             #######            /    /~
+_____________________________#######_____________*__________________________________
+
+
+
+
+
+causal: hold the exaggerated left catch world-fixed and compress beneath it to brake translation while the free right side and torso remain late
+
+K10 RIGHT_SHORT_COUNTERCATCH · TWOS/2f · INFERRED · support=RIGHT · phase=COUNTERCATCH · rootΔ=20.4px · lean=+7° · lag=+11° · clearance=POST_CLEAR
+
+
+
+
+                                                O
+
+
+                                               T
+                                              ----
+                                           --- |  ---
+                                              |
+     ......                                   |c ..
+           ...         .......................@..
+              .........                        /
+                                               //
+                             #######            ///
+                             #######            /  /
+                             #######             ~  /
+_____________________________#######_________________*______________________________
+
+
+
+
+
+causal: use a shorter right countercatch behind the prior free-foot reach to absorb remaining debt without becoming a symmetric gait phase
+
+K11 LEFT_CORRECTION_PROBE · TWOS/2f · INFERRED · support=RIGHT+LEFT_PROBE · phase=CORRECTION_PROBE · rootΔ=14.3px · lean=+3° · lag=+7° · clearance=POST_CLEAR
+
+
+
+
+                                                 O
+
+
+                                                 T
+                                               --|--
+                                             --  |  --
+                                                |
+     ......                                     |c.
+           ...         .........................@
+              .........                          /
+                                                  /
+                             #######              //
+                             #######               //
+                             #######                /?
+_____________________________#######_________________*______________________________
+
+
+
+
+
+causal: advance a still-smaller left probe while right support stays trustworthy and secondary lag continues to decay
+
+K12 DISPLACED_RECOVERY_SETTLE · FOURS/4f · INFERRED · support=LEFT · phase=DISPLACED_SETTLE · rootΔ=10.4px · lean=+1° · lag=+3° · clearance=POST_CLEAR
+
+
+
+
+                                                  O
+
+                                                  T
+                                                  --
+                                                --| ---
+                                              --  |
+                                                  |
+     ......                                      .@c
+           ...         ..........................  /
+              .........                            //
+                                                    ///
+                             #######                /  /
+                             #######                 /  /
+                             #######                 /   ~
+_____________________________#######__________________*_____________________________
+
+
+
+
+
+causal: settle beyond the obstacle with residual forward intent and free-foot debt rather than returning to the approach pose
