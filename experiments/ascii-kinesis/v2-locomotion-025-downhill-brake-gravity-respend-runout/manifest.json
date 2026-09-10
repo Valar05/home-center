@@ -4,7 +4,7 @@
   "title": "ASCII Kinesis V2 Locomotion 025 — Downhill Brake / Gravity Respend / Catch Runout",
   "slug": "v2-locomotion-025-downhill-brake-gravity-respend-runout",
   "lane": "LOCOMOTION",
-  "status": "HEALTHY_USER_SURFACED_PENDING_TERMINAL_DURABLE_READBACK",
+  "status": "HEALTHY_USER_SURFACED",
   "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
@@ -37,7 +37,8 @@
       {"path":"v2-locomotion-025-low-obstacle-split-support-trailing-clearance-runout","first_commit":"b6bde892e7dce8a97d4e740353451be5bd48701d","first_created_at":"2026-09-10T19:51:40Z","classification":"NON_AUTHORITATIVE_SUCCESSOR_CHURN"},
       {"path":"v2-locomotion-025-friction-break-slide-catch-runout","first_commit":"433040c9ccfd02bfba7fcf5753dc72cdd808bd22","first_created_at":"2026-09-10T20:21:13Z","classification":"NON_AUTHORITATIVE_SUCCESSOR_CHURN"}
     ],
-    "numbering_frozen_until_terminal_closure": true,
+    "numbering_frozen_until_terminal_closure": false,
+    "resolved_by_terminal_canonical_binding": true,
     "repair_oldest_first_debt_discovered": false,
     "repair_queue_basis": "Pre-reset Locomotion repair debt was durably exhausted by canonical Locomotion013 closure 5597272086. Historical Drew-rejected specimens remain negative fixtures and are not promoted by machine closure."
   },
@@ -86,7 +87,7 @@
   "validator": {"path":"tools/test_ascii_kinesis_swarm_contract_v2.py","blob":"7d9fc7608d54bca4a2cfbd36660c2d379e27fd78","candidate_isolated":"PASS_STRUCTURAL_PREDICATES","repository_global":"UNCLAIMED_STANDARD_CHAT_CONNECTOR_BOUNDARY"},
   "repository": {
     "path":"experiments/ascii-kinesis/v2-locomotion-025-downhill-brake-gravity-respend-runout/","expected_file_count":6,"expected_spa_count":1,
-    "post_write_readback":true,"exact_six_file_body":true,"final_readback":false,
+    "post_write_readback":true,"exact_six_file_body":true,"final_readback":true,
     "stable_body_files": {
       "build.py":"f0c40588cce5a4fbf99476510ab399836b540bfe",
       "contact-sheet.txt":"eaf174fdc707b425a50e01eb2045fb5b3e7b7d09",
@@ -98,12 +99,15 @@
     "number":343,
     "pre_delivery_receipt":5625938428,"pre_delivery_readback":true,
     "user_surface_closure":5625959800,"user_surface_closure_readback":true,
-    "terminal_durable_readback":"PENDING"
+    "terminal_durability_checkpoint":5625985128,"terminal_durability_checkpoint_readback":true
   },
   "campaign": {
     "user_surface_marker":"ASCII_KINESIS_LOCOMOTION_025_USER_SURFACE_20260910",
     "user_surface_request_id":"ascii-kinesis-locomotion025-user-surface-20260910-2155",
-    "propagated":true,"readback":true,"terminal_self_binding":"PENDING"
+    "propagated":true,"readback":true,
+    "terminal_self_binding":"ASCII_KINESIS_LOCOMOTION_025_TERMINAL_SELF_BINDING_20260910",
+    "terminal_self_binding_request_id":"ascii-kinesis-locomotion025-terminal-selfbind-20260910-2158",
+    "terminal_readback":true
   },
   "chat_delivery": {
     "part1_ascii":true,"part1_blob":"eaf174fdc707b425a50e01eb2045fb5b3e7b7d09",
@@ -112,5 +116,5 @@
     "video_sha256":"838295e49c420cb088bfec36800febb88538c6e12f2bdf00194c56ff74b81a70"
   },
   "DREW_ACCEPTED": false,
-  "next_authorized": null
+  "next_authorized": "v2-locomotion-026"
 }
