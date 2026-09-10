@@ -36,6 +36,14 @@ required_gossip = [
     "Drew does not have to ask, open Drive, inspect a miner, request a recap, or acknowledge prior gossip.",
     "A redaction remains redacted.",
     "Bestie, you are not going to believe what these idiots did.",
+    "## Groupthink recursion breaker",
+    "Tea does not recursively generate tea.",
+    "Assistant-generated mentions of `Tango` or `Gossip Circle` do not count as invocation.",
+    "A non-Tango follow-up does not inherit Tango merely because the previous assistant response contained gossip.",
+    "Tango is an event, not a sticky mode.",
+    "Treat the last served Gossip Circle readback as a semantic cursor.",
+    "One explicit invocation produces at most one spill.",
+    "Do not let the tea erase the current joke.",
 ]
 
 for needle in required_ritsu:
