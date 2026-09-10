@@ -1,0 +1,144 @@
+TIMING033 — SUPERPERIOD COINCIDENCE / NO MASTER RESET
+POCKET: COINCIDENCE IS A MEASUREMENT, NOT A COMMAND. WHEN INDEPENDENT CLOCKS ALIGN, LET THEM PASS THROUGH.
+------------------------------------------------------------------------------
+K00 INITIAL_COMPOSITE | FOURS/4t | PROV=INFERRED
+
+        O    o
+        |   /
+     o--@--o
+        | /
+        @o
+       / \
+      /   \
+     /     \
+     |     |
+_____*_____+__________________________________________________________________
+T=00 ROOT_X=+00 BASE=B0@0 SUPPORT=LEFT_PRIMARY LOCAL=L0@0 COINCIDENCE=YES
+------------------------------------------------------------------------------
+K01 BASE_PASS_LOCAL_C | ONES/1t | PROV=INFERRED
+
+              O o
+             \ /
+          o--@-
+            /
+            @  o
+            |   \
+           /     o
+           o      \
+           |       o
+___________+___*______________________________________________________________
+T=04 ROOT_X=+05 BASE=B1@4 SUPPORT=TRANSFER_L_TO_R LOCAL=L2@4 COINCIDENCE=NO
+------------------------------------------------------------------------------
+K02 LOCAL_WRAP_BASE_CONTINUES | TWOS/2t | PROV=INFERRED
+
+                 O    o
+                 |   /
+              o--@--o
+                 | /
+                 @o
+                / \
+               /   \
+              /     \
+              |     |
+______________+_____*_________________________________________________________
+T=06 ROOT_X=+10 BASE=B2@6 SUPPORT=RIGHT_PRIMARY LOCAL=L0@0 COINCIDENCE=NO
+------------------------------------------------------------------------------
+K03 BASE_WRAP_LOCAL_CONTINUES | ONES/1t | PROV=INFERRED
+
+                      O
+                      |
+                   o--@--o----o----o
+                      |
+                      @
+                     / \
+                    /   \
+                   /     \
+                   |     |
+___________________*_____+____________________________________________________
+T=08 ROOT_X=+14 BASE=B0@0 SUPPORT=LEFT_PRIMARY LOCAL=L1@2 COINCIDENCE=NO
+------------------------------------------------------------------------------
+K04 LOCAL_WRAP_SECOND_BASE_CYCLE | TWOS/2t | PROV=INFERRED
+
+                            O    o
+                            |   /
+                         o--@--o
+                            | /
+                            @o
+                           / \
+                          /   \
+                         /     \
+                         |     |
+_________________________+_____*______________________________________________
+T=12 ROOT_X=+19 BASE=B1@4 SUPPORT=TRANSFER_L_TO_R LOCAL=L0@0 COINCIDENCE=NO
+------------------------------------------------------------------------------
+K05 STATE_ALIAS_WITHOUT_PHASE_JOIN | TWOS/2t | PROV=INFERRED
+
+                                   O    o
+                                   |   /
+                                o--@--o
+                                   | /
+                                   @o
+                                  / \
+                                 /   \
+                                /     \
+                                |     |
+________________________________*_____+_______________________________________
+T=18 ROOT_X=+32 BASE=B0@2 SUPPORT=LEFT_PRIMARY LOCAL=L0@0 COINCIDENCE=NO
+------------------------------------------------------------------------------
+K06 PRE_SUPERPERIOD_APPROACH | ONES/1t | PROV=INFERRED
+
+                                           o
+                                          / O
+                                         /  |
+                                        o--@--o
+                                           \
+                                            @
+                                             \
+                                              \
+                                            o  o
+                                            |  |
+____________________________________________*__+______________________________
+T=23 ROOT_X=+42 BASE=B3@7 SUPPORT=TRANSFER_R_TO_L LOCAL=L2@5 COINCIDENCE=NO
+------------------------------------------------------------------------------
+K07 PERIODIC_COINCIDENCE_NO_JOIN | ONES/1t | PROV=INFERRED
+
+                                             O    o
+                                             |   /
+                                          o--@--o
+                                             | /
+                                             @o
+                                            / \
+                                           /   \
+                                          /     \
+                                          |     |
+__________________________________________*_____+_____________________________
+T=24 ROOT_X=+43 BASE=B0@0 SUPPORT=LEFT_PRIMARY LOCAL=L0@0 COINCIDENCE=YES
+EVENT_COUNT=0; ROOT DOES NOT RESET; NO HOLD/IMPACT/SYNC IS AUTHORED HERE
+------------------------------------------------------------------------------
+K08 POST_COINCIDENCE_DIVERGENCE | TWOS/2t | PROV=INFERRED
+
+                                               O
+                                               |
+                                            o--@--o----o----o
+                                               |
+                                               @
+                                              / \
+                                             /   \
+                                            /     \
+                                            |     |
+____________________________________________*_____+___________________________
+T=26 ROOT_X=+44 BASE=B0@2 SUPPORT=LEFT_PRIMARY LOCAL=L1@2 COINCIDENCE=NO
+------------------------------------------------------------------------------
+K09 CONTINUED_INDEPENDENT_CADENCE | FOURS/4t | PROV=INFERRED
+
+                                                    O o
+                                                   \ /
+                                                o--@-
+                                                  /
+                                                  @  o
+                                                  |   \
+                                                 /     o
+                                                 o      \
+                                                 |       o
+_________________________________________________+___*________________________
+T=28 ROOT_X=+47 BASE=B1@4 SUPPORT=TRANSFER_L_TO_R LOCAL=L2@4 COINCIDENCE=NO
