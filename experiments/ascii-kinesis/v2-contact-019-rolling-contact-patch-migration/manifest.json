@@ -3,7 +3,7 @@
   "format_version": 2,
   "experiment_id": "v2-contact-019-rolling-contact-patch-migration",
   "lane": "contact",
-  "status": "REPO_VERIFIED_READY_FOR_USER_SURFACE",
+  "status": "HEALTHY_USER_SURFACED",
   "lineage": {"revises": null, "negative_fixture": null, "source_change": "NOT_APPLICABLE_NEW_CONCEPT", "collision": "NONE"},
   "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
@@ -21,8 +21,9 @@
   "quality": {"actual_render_inspected": true, "current_worker_reinspection": true, "tango": "PASS_AFTER_CURRENT_WORKER_REINSPECTION", "noodle_queen": "PASS_AFTER_TANGO", "packaging_change_only": "CRF42_REENCODE_NO_SEMANTIC_ASCII_KEY_CHANGE"},
   "contract": {"validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78", "candidate_isolated": "PASS", "repository_global_claimed": false},
   "repository": {"persisted": true, "readback": true, "exact_six_files": true, "exact_one_spa": true},
-  "issue_receipt": null,
-  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_visible_video": false, "ordered": false},
+  "issue_receipt": 5610883053,
+  "issue_receipt_readback": true,
+  "chat_delivery": {"part1_ascii": true, "part2_json": true, "part3_visible_video": true, "ordered": true},
   "drew_accepted": false,
   "rights": "Source art evidence-only; no pixels/palette/costume/contours/layout/tracing/choreography/redistribution/close imitation embedded."
 }
