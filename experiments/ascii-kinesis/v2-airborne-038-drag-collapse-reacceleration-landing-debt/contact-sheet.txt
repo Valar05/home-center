@@ -98,6 +98,8 @@ root_note=BALLISTIC RISE; SUPPORT NONE; OPEN LIMBS ESTABLISH CLEAR FLIGHT SILHOU
 
 
 
+
+
 ==============================
 
 A038-K3  APEX READ
@@ -121,7 +123,6 @@ root_note=APEX HOLD; SUPPORT NONE; NO FORCE OWNER CHANGE
            /           \
          //             \\
         /                 \
-
 
 
 
@@ -181,6 +182,9 @@ root_note=DESCENT BEGINS BEFORE DEPLOY; BODY PREP DOES NOT ALTER ROOT CONTINUITY
 
 
 
+
+
+
 =============================
 
 A038-K5  DRAG SURFACE DEPLOY
@@ -210,6 +214,8 @@ root_note=SURFACE OPENS WHILE ROOT CONTINUES DOWN; NO SECOND LAUNCH
             |          \
            |            \
            |
+
+
 
 
 
@@ -252,6 +258,7 @@ root_note=OPEN SURFACE CAPTURES AIR; ROOT DESCENT SPACING COMPRESSES; STILL SUPP
             |         |
            |           |
            |           |
+
 
 
 
@@ -331,7 +338,6 @@ root_note=DRAG AREA COLLAPSES ASYMMETRICALLY; ROOT STILL DESCENDS; SUPPORT REMAI
          /              \
                         \
                          \
-
 
 
 

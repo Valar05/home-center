@@ -1,0 +1,121 @@
+{
+  "schema": "ascii-kinesis.manifest.v2",
+  "format_version": 2,
+  "experiment_id": "v2-airborne-038-drag-collapse-reacceleration-landing-debt",
+  "primitive": "AIRBORNE_DRAG_AUTHORITY_COLLAPSE_REACCELERATION_LANDING_DEBT",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "500827",
+    "identity": "Green Army Man — Toy Story — Sega Genesis — Non-Playable Characters",
+    "campaign_evidence_artifact": "1vTgZso5TSriX11FmZyBCDo65XfSCX5-0a36ffMbv6mQ",
+    "roles": [
+      "POSE_REFERENCE",
+      "FORCE_RELATIONSHIP_REFERENCE"
+    ],
+    "whole_source_inspected": true,
+    "source_authentic_timing": "UNKNOWN",
+    "timing_authority": false,
+    "rights_firewall": true
+  },
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "successor_collision": false,
+    "one_body_binding": true
+  },
+  "compile": {
+    "method": "MOTION_DUNGEON_AUTHORED_ASCII_KEYS_HOLDS_DETERMINISTIC_CONNECTIVE_MOTION",
+    "fps": 24,
+    "frames": 79,
+    "width": 800,
+    "height": 448,
+    "media_sha256": "aa3aa28d7442d7dc5c81b23d3918cf1d5498718388798c12692cb6d1ed172041",
+    "media_bytes": 46583,
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "decode": "PASS"
+  },
+  "quality": {
+    "tango": {
+      "revision": "R0",
+      "status": "PASS",
+      "actual_render": true,
+      "current_worker_reinspection": true,
+      "note": "Fresh actual-media reinspection: broad drag capture visibly compresses descent spacing; asymmetric canopy collapse removes drag authority while support stays NONE; post-collapse vertical spacing grows before separated right-toe precontact/catch, deep unilateral crush, delayed left-foot support, rebound, external-rig lag, and displaced settle."
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "taste": "PASS",
+      "function": "PASS",
+      "contempt": "PASS",
+      "actual_render": true,
+      "current_worker_reinspection": true,
+      "note": "Same 79-frame render makes the force-owner failure legible in silhouette and spacing: the broad drag surface collapses to a tethered streamer without custody release or support change, then the ground pays the extra fall-rate debt asymmetrically. Distinct from prior support-loss, actuator-loss, payload-fork, and yaw-debt grammars."
+    }
+  },
+  "repository_correction": {
+    "classification": "CONTACT_SERIALIZATION_DRIFT",
+    "bad_write_commit": "9ffc48621068108eb0ffb5aebd05b2e355c182f8",
+    "bad_contact_blob": "bb4562107d435008b288f7c15d3e4feb67df06ee",
+    "correct_contact_blob": "f8015b089a932d3575121ae01d6346726f60c9ca",
+    "correction": "Replace raw-string-escaped contact with byte-exact builder output; motion/source/lineage/choreography unchanged."
+  },
+  "files": {
+    "git_blobs": {
+      "build.py": "828b192dea98128fe585519a1901a2d81b6e757a",
+      "contact-sheet.txt": "f8015b089a932d3575121ae01d6346726f60c9ca",
+      "motion.json": "79e483c7097aba85bd36f72f0150e2fcb2238f26",
+      "drag-collapse-reacceleration-landing-debt.motion.html": "00769ff689ece90c074a1987c3f1b5c639584139"
+    },
+    "contact-sheet.txt_sha256": "5a488014429ba2cd9159f283cbcdb3f58b116878eed2e4fc0d4d00f5a319fda8",
+    "motion.json_sha256": "dd53c4bcdf285e819d30411ad2c8b264fe22ddc102981e129c114753f306be3f"
+  },
+  "validator": {
+    "source_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS",
+    "execution_boundary": "Fresh Standard Chat read of the current official validator plus exact current candidate artifacts satisfies its structural predicates; repository-global checkout/shell-suite execution is not claimed."
+  },
+  "closure": {
+    "status": "PERSISTED_NOT_DELIVERED",
+    "repo_persisted": true,
+    "final_readback": false,
+    "exact_one_spa": true,
+    "six_file_readback": false,
+    "issue_343": {
+      "pre_delivery_receipt": null,
+      "pre_delivery_readback": false,
+      "reporting_chat_receipt": null,
+      "reporting_chat_readback": false,
+      "terminal_durability_anchor": null,
+      "terminal_anchor_readback": false
+    },
+    "campaign_reporting_checkpoint": false,
+    "campaign_reporting_readback": false,
+    "chat_delivery": {
+      "part1_ascii": false,
+      "part2_json": false,
+      "part3_video": false,
+      "ordered": false
+    },
+    "DREW_ACCEPTED": false,
+    "next_authorized": null
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REVISE_SAME_BODY",
+    "RETIME",
+    "EXAGGERATE",
+    "COMPRESS"
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "experiment_id": "v2-airborne-038-drag-collapse-reacceleration-landing-debt",
+  "status": "PERSISTED_NOT_DELIVERED",
+  "current_worker": {
+    "home_center_campaign_read": true,
+    "github_persistence_readback": true,
+    "actual_render_reconstructed": true,
+    "actual_media_sha256": "aa3aa28d7442d7dc5c81b23d3918cf1d5498718388798c12692cb6d1ed172041",
+    "decode": "PASS",
+    "tango": {
+      "status": "PASS",
+      "revision": "R0",
+      "actual_render": true
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "taste": "PASS",
+      "function": "PASS",
+      "contempt": "PASS",
+      "actual_render": true
+    }
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "500827",
+    "identity": "Green Army Man — Toy Story — Sega Genesis — Non-Playable Characters",
+    "campaign_evidence_artifact": "1vTgZso5TSriX11FmZyBCDo65XfSCX5-0a36ffMbv6mQ",
+    "roles": [
+      "POSE_REFERENCE",
+      "FORCE_RELATIONSHIP_REFERENCE"
+    ],
+    "whole_source_inspected": true,
+    "source_authentic_timing": "UNKNOWN",
+    "timing_authority": false,
+    "rights_firewall": true
+  },
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "successor_collision": false,
+    "one_body_binding": true
+  },
+  "repo": {
+    "persisted": true,
+    "final_readback": false,
+    "exact_one_spa": true,
+    "six_file_readback": false,
+    "build_blob": "828b192dea98128fe585519a1901a2d81b6e757a",
+    "contact_blob": "f8015b089a932d3575121ae01d6346726f60c9ca",
+    "motion_blob": "79e483c7097aba85bd36f72f0150e2fcb2238f26",
+    "spa_blob": "00769ff689ece90c074a1987c3f1b5c639584139"
+  },
+  "media": {
+    "sha256": "aa3aa28d7442d7dc5c81b23d3918cf1d5498718388798c12692cb6d1ed172041",
+    "bytes": 46583,
+    "codec": "H.264",
+    "pixel_format": "yuv420p",
+    "width": 800,
+    "height": 448,
+    "fps": 24,
+    "frames": 79,
+    "decode": "PASS",
+    "authority": "AUTHORITATIVE"
+  },
+  "validator": {
+    "source_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS",
+    "execution_boundary": "Fresh Standard Chat read of the current official validator plus exact current candidate artifacts satisfies its structural predicates; repository-global checkout/shell-suite execution is not claimed."
+  },
+  "repository_correction": {
+    "classification": "CONTACT_SERIALIZATION_DRIFT",
+    "bad_write_commit": "9ffc48621068108eb0ffb5aebd05b2e355c182f8",
+    "bad_contact_blob": "bb4562107d435008b288f7c15d3e4feb67df06ee",
+    "correct_contact_blob": "f8015b089a932d3575121ae01d6346726f60c9ca",
+    "correction": "Replace raw-string-escaped contact with byte-exact builder output; motion/source/lineage/choreography unchanged."
+  },
+  "issue_343": {
+    "pre_delivery_receipt": null,
+    "pre_delivery_readback": false,
+    "reporting_chat_receipt": null,
+    "reporting_chat_readback": false,
+    "terminal_durability_anchor": null,
+    "terminal_anchor_readback": false
+  },
+  "campaign": {
+    "checkpoint": false,
+    "readback": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false,
+    "ordered": false
+  },
+  "DREW_ACCEPTED": false,
+  "next_authorized": null
+}
