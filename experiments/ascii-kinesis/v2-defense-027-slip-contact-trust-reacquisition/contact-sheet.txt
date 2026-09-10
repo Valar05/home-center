@@ -1,0 +1,270 @@
+ASCII KINESIS V2 — DEFENSE027
+SLIP CONTACT / TRUST REACQUISITION
+Legend: o head | @ root/pelvis | x trusted support | ? touching but untrusted | . airborne | <=incoming threat | ~=root momentum
+
+[D027-K00] DISPLACED_READY_BASELINE  timing=FOURS provenance=INFERRED
+
+
+
+
+
+                                   o
+
+                                +--|--+
+                              */   |   \*-                  <   <
+                               \   |      -]
+                               [   |
+                                   |
+                                   |
+                                   @
+                                  / \\
+                                 /    \
+                                 |     \
+                                |      \
+________________________________x_______x_______________________________
+
+
+support L=trusted R=trusted owner=BOTH; contact=False; role=baseline_ready
+root/arc: Stable asymmetric guard; support polygon owns root.
+
+[D027-K01] THREAT_READ_AND_PREBRACE  timing=TWOS provenance=INFERRED
+
+
+
+
+
+                                  o
+
+                               +--|--+-
+                             */   |    --*---]     -<<-<<-<<-<<-<<
+                              [   |
+                                  |
+                                  |
+                                  |
+                                  @
+                                 / \\
+                                /    \\
+                                |      \
+                               |       \
+_______________________________x________x_______________________________
+
+
+support L=trusted R=trusted owner=BOTH; contact=False; role=anticipation_prebrace
+root/arc: Pelvis shifts away before contact; long guard takes the line.
+
+[D027-K02] GUARD_CLAMP_LOAD  timing=ONES provenance=INFERRED
+
+
+
+
+
+
+                                  o
+                                  |--+--
+                               +--|     --*-----]=<=<=<=<=<=<=<=<=
+                             */   |
+                             [   |
+                                 |
+                                 |
+                                 @-
+                                /  --
+                               /     --
+                               |       \
+                              |        \
+______________________________x_________x_______________________________
+
+
+support L=trusted R=trusted owner=LEFT_BIASED; contact=True; role=incoming_load_acquired
+root/arc: Threat/guard contact becomes a real load. Root begins retreat left; rear/left base takes demand.
+
+[D027-K03] TRUST_BREAK_WHILE_TOUCHING  timing=TWOS provenance=INFERRED
+
+
+
+
+
+
+                                 o
+                              +--|--+----*-----]<=<=<=<=<=<=<=<=<=
+                            */   |
+                            |   |
+                            [   |
+                               |
+                        ~~~~~~~@-
+                              /  ---
+                              /     --
+                              |       \
+                             |        \
+_____________________________?_________?________________________________
+
+
+support L=touch_low R=touch_low owner=NONE; contact=True; role=contact_without_support_authority
+root/arc: Both feet still visibly touch but lose authority. Root continues left under guard load.
+
+[D027-K04] ROOT_OVERRUN  timing=ONES provenance=INFERRED
+
+
+
+
+
+
+                               o
+                               /--+-----*-----]=<=<=<=<=<=<=<=<=<=
+                            +-/
+                          */  /
+                           \ /
+                           [ /
+                     ~~~~~~~@-
+                           /  ----
+                           /      --
+                           |        \
+                            |        \
+____________________________?_________?_________________________________
+
+
+support L=touch_low R=touch_low owner=NONE; contact=True; role=body_outtravels_untrusted_contacts
+root/arc: Pelvis/root outruns both touching feet; torso crumples asymmetrically without a support owner.
+
+[D027-K05] REAR_FOOT_PEEL_PROBE  timing=ONES provenance=INFERRED
+
+
+
+
+
+
+                             o
+                              /--+-----*-----]<=<=<=<=<=<=<=<=<=<=
+                           +-/
+                         */ /
+                          \ /
+                          [/
+                          @-
+                         /  ----
+                         /      ---
+                       ./          \
+                                    \
+_____________________________________?__________________________________
+
+
+support L=air R=touch_low owner=NONE; contact=True; role=probe_search_under_load
+root/arc: Left foot fully peels and reaches behind; right foot merely skims. Guard contact persists, forcing the search.
+
+[D027-K06] BRAKE_CATCH_EARNS_AUTHORITY  timing=TWOS provenance=INFERRED
+
+
+
+
+
+
+                            o
+                             /--+-----*-----]=<=<=<=<=<=<=<=<=<=<=
+                          +-/
+                        */ /
+                         \ /
+                          [
+                  ~~~~~~~@-
+                        /  ----
+                        /      ---
+                       /          \
+                     //            \
+____________________x_______________?___________________________________
+
+
+support L=trusted R=touch_low owner=LEFT; contact=True; role=first_trustworthy_braking_anchor
+root/arc: Wide rear-left stab becomes trusted and opposes momentum. Root has not yet restacked over it.
+
+[D027-K07] CONTACT_RELEASE_ROOT_OVERSHOOT  timing=ONES provenance=INFERRED
+
+
+
+
+
+
+                           o
+                            /--+-----*-             <   <   <   <
+                          +/-          --]
+                        *//
+                          /[
+                         /
+                        @--
+                       /   ----
+                       /       ---
+                      /           \.
+                     /
+____________________x___________________________________________________
+
+
+support L=trusted R=air owner=LEFT; contact=False; role=load_release_with_momentum_debt
+root/arc: Threat releases only after support is trustworthy; pelvis continues past the catch while right foot trails airborne.
+
+[D027-K08] SECONDARY_CATCH_COUNTERYAW  timing=TWOS provenance=INFERRED
+
+
+
+
+
+                           o
+
+                         +--/                           <   <   <
+                        *- /---+-
+                          -/[    --*-
+                          /          --]
+                          /
+                  ~~~~~~~@-
+                        /  ----
+                       /       --
+                      /          \
+                     /            \\
+____________________x_______________x___________________________________
+
+
+support L=trusted R=trusted owner=BOTH; contact=False; role=secondary_support_and_countertorque
+root/arc: Right foot reacquires after release; shoulders counter-yaw against pelvis overrun while guard remains late.
+
+[D027-K09] TORSION_SETTLE_GUARD_LAG  timing=TWOS provenance=INFERRED
+
+
+
+
+
+                           o
+
+                         +--|---+-                          <   <
+                        *---|[    --*-
+                           |          --]
+                           |
+                          |
+                          @-
+                         /  ---
+                        /      --
+                       /         \
+                      /           \\
+_____________________x______________x___________________________________
+
+
+support L=trusted R=trusted owner=BOTH; contact=False; role=settle_with_secondary_lag
+root/arc: Pelvis settles inside base before the guard fully reopens; upper body carries residual counter-torque.
+
+[D027-K10] DISPLACED_LOW_READY_DEBT  timing=FOURS provenance=INFERRED
+
+
+
+
+
+                            o
+
+                          +--|---+-                         <   <   <
+                         *-  |     --*--
+                           -|[          --]
+                            |
+                           |
+                           @-
+                          /  ---
+                         /      --
+                        /         \
+                       /           \\
+______________________x______________x__________________________________
+
+
+support L=trusted R=trusted owner=BOTH; contact=False; role=ready_reentry_with_debt
+root/arc: Ready returns at a displaced address with a deliberately lower/late guard, preserving recovery debt rather than resetting.
