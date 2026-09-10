@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "id": "v2-strikes-023-detached-threat-impact-clock-fork-debt",
-  "status": "REPO_VERIFIED_READY_FOR_USER_SURFACE",
+  "status": "HEALTHY_USER_SURFACED",
   "preflight": {
     "home_center_campaign": "PASS_FRESH_EXACT",
     "github_authenticated": "PASS_FRESH_DIRECT_CURRENT_MAIN",
@@ -62,30 +62,29 @@
       "build": "5a26cf12b2a9cc5eb15f149b3fb68a198ff2fa36",
       "contact_sidecar": "2dd51ce444a9668b91524ca734a035241f9cc009",
       "motion": "b916c8f155df748fe59d47eb045798cad88002db",
-      "spa": "ff5b6c1e85af8b75c4d16f4a4c5723b7b16ac464",
-      "manifest_pre_surface": "c30410a01d5dfe2c18ab5aae1e4636e5edaee126"
+      "spa": "ff5b6c1e85af8b75c4d16f4a4c5723b7b16ac464"
     },
-    "final_readback": "PENDING_AFTER_USER_SURFACE"
+    "final_readback": "PASS_CURRENT_MAIN_EXACT_AFTER_USER_SURFACE"
   },
   "issue": {
     "pre_chat_receipt": 5621366820,
     "pre_chat_readback": true,
-    "user_surface_closure": null,
-    "user_surface_readback": false,
-    "durable_addendum": null,
-    "durable_addendum_readback": false
+    "user_surface_closure": 5621443692,
+    "user_surface_readback": true,
+    "durable_addendum": 5621448776,
+    "durable_addendum_readback": true
   },
   "campaign": {
-    "terminal_binding": "PENDING",
-    "terminal_binding_readback": false,
-    "terminal_self_binding": "PENDING",
+    "terminal_binding": "ascii-kinesis-strikes023-terminal-binding-20260910",
+    "terminal_binding_readback": true,
+    "terminal_self_binding": "PENDING_AFTER_FINAL_REPO_READBACK",
     "terminal_self_binding_readback": false
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_video": true
   },
   "DREW_ACCEPTED": false,
-  "next_authorized": "FORBIDDEN_UNTIL_023_HEALTHY"
+  "next_authorized": "v2-strikes-024"
 }
