@@ -137,7 +137,7 @@ def make_contact_sheet():
       "OBSERVED: commissioned evidence inspected all 61 archive PNGs; Run/Run Down/Run Up each preserve four phase slots; Turn is separate; exact source playback timing is absent.",
       "UNKNOWN: source chronology/exposure/root coordinates/support forces. This S-curve choreography and every timing class are INFERRED / STREET_FIGHTER-CAPCOM.",
       "rights firewall: independent abstract rig only; no source pixels, palette, costume, contours, layout, tracing, choreography, audio, redistribution, or close imitation.",
-      "thesis: keep gait phase and forward travel alive while curvature demand crosses zero; bank/support-vector sign may swap only after an earned opposite-support catch; exit pays secondary yaw/bank lag without pivot or idle reset.",
+      "thesis: keep gait phase and forward travel alive while curvature demand crosses zero; one world-fixed RIGHT stance carries support-vector sign A→ZERO→B; the following LEFT catch confirms the already-visible reversal; exit pays secondary yaw/bank lag without pivot or idle reset.",
       ""
     ]
     for k in MOTION["keys"]:
