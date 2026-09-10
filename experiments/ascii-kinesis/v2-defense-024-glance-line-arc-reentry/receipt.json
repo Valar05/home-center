@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "specimen": "v2-defense-024-glance-line-arc-reentry",
-  "status": "REPO_VERIFIED_PENDING_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "current_worker_liveness": {
     "home_center_campaign_read": true,
     "github_persistence_readback": true,
@@ -87,39 +87,45 @@
     "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
     "candidate_isolated": "PASS",
-    "boundary": "Exact current validator source and canonical candidate were read. No authorized repository-global checkout executor is exposed in Standard Chat, so repository-global execution is not claimed."
+    "boundary": "Exact current validator source and unchanged canonical candidate were read. No authorized repository-global checkout executor is exposed in Standard Chat, so repository-global execution is not claimed."
   },
   "repo": {
     "persisted": true,
     "repo_readback": true,
+    "final_readback": true,
     "body_files_readback": 6,
     "spa_count": 1,
     "exact_files": {
       "build.py": "4968f891bc73a3cbe8536e65b5641845800c74b6",
       "contact-sheet.txt": "c4587181139ae0f25927d6d9a14eb65ba2b19ae2",
-      "manifest.json": "3ffe71a56102dd1f66328262d1c3873a44c16e5f",
+      "manifest.json": "02cae3e89101a5243a943b1cead7e32b5cf2ae6d",
       "motion.json": "8b11c70944d855e8b35c19181876b7e1a88693da",
       "glance-line-arc-reentry.motion.html": "3bf0e55b41df56dc2f9171ec20adeac765d0de5d"
     },
-    "manifest_reconciliation_commit": "c5eb818338b1fc38b2c5d9f6a4e179d1e103bfe7",
+    "final_manifest_commit": "628b926dafd7fdee965f7df1346b4b29c369b8ed",
     "collision_churn_preserved": true
   },
   "issue": {
     "pre_chat_receipt": 5612750391,
     "pre_chat_readback": true,
     "manager_reconciliation": 5613059541,
-    "final_receipt": null,
-    "final_readback": false
+    "user_surface_receipt": 5613360696,
+    "user_surface_readback": true,
+    "final_durable_addendum": null,
+    "final_durable_addendum_readback": false
   },
   "campaign": {
-    "closure_propagated": false,
-    "closure_readback": false
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "closure_propagated": true,
+    "closure_readback": true
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false,
-    "ordered": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_video": true,
+    "ordered": true,
+    "video_byte_identical": true
   },
-  "drew_accepted": false
+  "drew_accepted": false,
+  "next_authorized": "v2-defense-025"
 }
