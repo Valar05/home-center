@@ -59,11 +59,12 @@ class RouteResult:
     episode_id: str | None
     matched_cue: str | None
     provenance_tier: str
-    summary: str | None
+    content: str | None
     corrections: tuple[str, ...]
     world_knowledge_allowed: bool
     seek_primary: bool
     delegated_owner: str | None = None
+    required_provenance: str | None = None
     reason: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -112,6 +113,21 @@ class RitsuContextRouter:
             for marker in self.policy.get("exact_wording_markers", [])
         )
 
+    def _best_content(self, episode: Mapping[str, Any]) -> tuple[str, str | None]:
+        for source in episode.get("primary_sources") or []:
+            text = source.get("text") if isinstance(source, Mapping) else None
+            if isinstance(text, str) and text.strip():
+                return "primary_transcript", text
+        summary = episode.get("accepted_summary")
+        if isinstance(summary, str) and summary.strip():
+            return episode.get("summary_tier", "accepted_summary"), summary
+        adjacent = episode.get("adjacent_evidence") or []
+        for item in adjacent:
+            text = item.get("text") if isinstance(item, Mapping) else None
+            if isinstance(text, str) and text.strip():
+                return "adjacent_evidence", text
+        return "unknown", None
+
     def _episode_result(
         self,
         episode_id: str,
@@ -123,36 +139,55 @@ class RitsuContextRouter:
         correction_effects = tuple(
             c["effect"] for c in self.corrections.get(episode_id, [])
         )
-        primary_sources = episode.get("primary_sources") or []
-        if exact_wording and not primary_sources:
+        tier, content = self._best_content(episode)
+        if tier not in PROVENANCE_RANK:
+            raise ValueError(f"unknown provenance tier {tier!r}")
+        has_primary = tier == "primary_transcript"
+        if exact_wording and not has_primary:
             return RouteResult(
                 status="CONTINUITY_GAP",
                 route="episodic",
                 episode_id=episode_id,
                 matched_cue=matched_cue,
-                provenance_tier="unknown",
-                summary=episode.get("accepted_summary"),
+                provenance_tier=tier,
+                content=content,
                 corrections=correction_effects,
                 world_knowledge_allowed=False,
                 seek_primary=True,
-                reason="exact wording requested but no primary transcript is bound",
+                required_provenance="primary_transcript",
+                reason="exact wording requested but no readable primary transcript is bound",
             )
 
-        tier = episode.get("summary_tier", "unknown")
-        if tier not in PROVENANCE_RANK:
-            raise ValueError(f"unknown provenance tier {tier!r}")
         return RouteResult(
             status="MATCH",
             route="episodic",
             episode_id=episode_id,
             matched_cue=matched_cue,
             provenance_tier=tier,
-            summary=episode.get("accepted_summary"),
+            content=content,
             corrections=correction_effects,
             world_knowledge_allowed=False,
-            seek_primary=not bool(primary_sources),
+            seek_primary=not has_primary,
             reason=reason,
         )
+
+    def _match_episode(self, cue: str, *, allow_embedded_alias: bool) -> tuple[str | None, str | None]:
+        episode_id = self.alias_to_episode.get(cue)
+        if episode_id:
+            return episode_id, cue
+        if not allow_embedded_alias:
+            return None, None
+        padded = f" {cue} "
+        matches: list[tuple[str, str]] = []
+        for alias, candidate_id in self.alias_to_episode.items():
+            if len(alias.split()) >= 2 and f" {alias} " in padded:
+                matches.append((candidate_id, alias))
+        unique_ids = {item[0] for item in matches}
+        if len(unique_ids) > 1:
+            raise ValueError("ambiguous embedded deterministic episode aliases")
+        if matches:
+            return matches[0]
+        return None, None
 
     def resolve(
         self,
@@ -181,7 +216,7 @@ class RitsuContextRouter:
                 episode_id=None,
                 matched_cue=cue,
                 provenance_tier="unknown",
-                summary=None,
+                content=None,
                 corrections=(),
                 world_knowledge_allowed=False,
                 seek_primary=False,
@@ -189,11 +224,11 @@ class RitsuContextRouter:
             )
 
         # Pass 2-4: exact local alias -> relational episode -> correction overlay.
-        episode_id = self.alias_to_episode.get(cue)
+        episode_id, matched_alias = self._match_episode(cue, allow_embedded_alias=exact)
         if episode_id:
             return self._episode_result(
                 episode_id,
-                matched_cue=cue,
+                matched_cue=matched_alias or cue,
                 exact_wording=exact,
                 reason="deterministic relational alias outranked generic world knowledge",
             )
@@ -207,7 +242,7 @@ class RitsuContextRouter:
                 episode_id=None,
                 matched_cue=cue,
                 provenance_tier="unknown",
-                summary=None,
+                content=None,
                 corrections=(),
                 world_knowledge_allowed=False,
                 seek_primary=False,
@@ -221,7 +256,7 @@ class RitsuContextRouter:
             episode_id=None,
             matched_cue=None,
             provenance_tier="unknown",
-            summary=None,
+            content=None,
             corrections=(),
             world_knowledge_allowed=True,
             seek_primary=False,
