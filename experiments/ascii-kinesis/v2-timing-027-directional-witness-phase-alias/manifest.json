@@ -10,8 +10,8 @@
   "entry": "v2-timing-027-directional-witness-phase-alias",
   "format_version": 2,
   "issue_343": {
-    "pre_delivery_receipt_id": null,
-    "readback": false
+    "pre_delivery_receipt_id": 5613776133,
+    "readback": true
   },
   "lane": "timing",
   "lineage": {
