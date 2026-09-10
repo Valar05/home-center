@@ -27,19 +27,25 @@ def pt(root, r, deg):
 def limb_points(k):
     root=tuple(k['root'])
     ba=k['body_angle']
+    # local anatomy rotates as a single gross silhouette around pelvis; asymmetry is authored separately.
     chest=pt(root,3.1,ba)
     neck=pt(root,5.0,ba)
     head=pt(root,6.1,ba)
     shL=pt(chest,1.7,ba-90); shR=pt(chest,1.7,ba+90)
     hipL=pt(root,1.3,ba-90); hipR=pt(root,1.3,ba+90)
+    # limbs are relative to body orientation; key-local offsets carry acting.
     eL=pt(shL,2.5,ba+k['arm_l']); eR=pt(shR,2.5,ba+k['arm_r'])
     hL=pt(eL,2.2,ba+k['fore_l']); hR=pt(eR,2.2,ba+k['fore_r'])
     kneeL=pt(hipL,3.2,ba+k['leg_l']); kneeR=pt(hipR,3.2,ba+k['leg_r'])
     footL=pt(kneeL,3.0,ba+k['shin_l']); footR=pt(kneeR,3.0,ba+k['shin_r'])
+    # weighted tool: rigid shaft is visibly coupled to BOTH authored hand endpoints.
+    # The grip is the average hand anchor; arm folding therefore changes tool-head radius
+    # without changing shaft length or allowing the tool to float free.
     grip=((hL[0]+hR[0])/2.0,(hL[1]+hR[1])/2.0)
     ta=k['tool_angle']
     tail=pt(grip,1.7,ta+180); headT=pt(grip,3.8,ta)
-    return dict(root=root,chest=chest,neck=neck,head=head,shL=shL,shR=shR,eL=eL,eR=eR,hL=hL,hR=hR,hipL=hipL,hipR=hipR,kneeL=kneeL,kneeR=kneeR,footL=footL,footR=footR,tool_tail=tail,tool_head=headT,tool_center=grip,tool_grip=grip)
+    return dict(root=root,chest=chest,neck=neck,head=head,shL=shL,shR=shR,eL=eL,eR=eR,hL=hL,hR=hR,
+                hipL=hipL,hipR=hipR,kneeL=kneeL,kneeR=kneeR,footL=footL,footR=footR,tool_tail=tail,tool_head=headT,tool_center=grip,tool_grip=grip)
 
 def interp(a,b,t): return a+(b-a)*t
 
@@ -70,16 +76,22 @@ def draw_seg(draw,p1,p2,ch='/',width=2):
 
 def draw_pose(draw,k, label=''):
     p=limb_points(k)
+    # motion envelope / root path is not a support surface.
+    # spine
     draw_seg(draw,p['root'],p['chest'],'|',3); draw_seg(draw,p['chest'],p['neck'],'|',3)
+    # shoulders/arms
     draw_seg(draw,p['shL'],p['eL'],3); draw_seg(draw,p['eL'],p['hL'],3)
     draw_seg(draw,p['shR'],p['eR'],3); draw_seg(draw,p['eR'],p['hR'],3)
+    # hips/legs
     draw_seg(draw,p['hipL'],p['kneeL'],3); draw_seg(draw,p['kneeL'],p['footL'],3)
     draw_seg(draw,p['hipR'],p['kneeR'],3); draw_seg(draw,p['kneeR'],p['footR'],3)
+    # tool rigid shaft + weighted head; explicit custody links prevent floating-prop reads.
     draw_seg(draw,p['hL'],p['tool_grip'],2); draw_seg(draw,p['hR'],p['tool_grip'],2)
     draw_seg(draw,p['tool_tail'],p['tool_head'],4)
     th=grid_to_px(p['tool_head']); tt=grid_to_px(p['tool_tail'])
     draw.text((th[0]-12,th[1]-12),'[@]',font=FONT,fill=(240,240,240))
     draw.text((tt[0]-6,tt[1]-10),'=',font=FONT,fill=(220,220,220))
+    # joints/identity glyphs
     hp=grid_to_px(p['head']); rp=grid_to_px(p['root'])
     draw.text((hp[0]-7,hp[1]-11),'O',font=FONT,fill=(255,255,255))
     draw.text((rp[0]-7,rp[1]-10),'P',font=FONT,fill=(255,255,255))
@@ -87,6 +99,7 @@ def draw_pose(draw,k, label=''):
         q=grid_to_px(p[nm]); draw.text((q[0]-5,q[1]-8),'o',font=SMALL,fill=(220,220,220))
     for nm in ('footL','footR'):
         q=grid_to_px(p[nm]); draw.text((q[0]-5,q[1]-8),'!',font=SMALL,fill=(235,235,235))
+    # actual ground/support is drawn only on landing keys and later.
     draw.line([(35,GROUND_Y),(735,GROUND_Y)],fill=(115,115,115),width=2)
     if k.get('support_contact','NONE')!='NONE':
         for nm in ('footL','footR'):
@@ -96,6 +109,7 @@ def draw_pose(draw,k, label=''):
 
 def render_frame(k,label):
     im=Image.new('RGB',(W,H),(8,8,10)); d=ImageDraw.Draw(im)
+    # subtle ballistic root trace
     d.arc((80,65,650,330),190,350,fill=(38,38,44),width=1)
     draw_pose(d,k,label)
     return im
@@ -110,6 +124,7 @@ def ascii_frame(k,cols=64,rows=24):
         x1,y1=a; x2,y2=b; n=max(1,int(max(abs(x2-x1),abs(y2-y1))*2))
         for i in range(n+1):
             t=i/n; x=x1+(x2-x1)*t; y=y1+(y2-y1)*t; put(x,y,ch)
+    # normalize source grid to contact frame space
     xoff=-4; yoff=0
     def q(v): return (v[0]+xoff,v[1]+yoff)
     seg(q(p['root']),q(p['chest']),'|'); seg(q(p['chest']),q(p['neck']),'|')
@@ -123,7 +138,8 @@ def ascii_frame(k,cols=64,rows=24):
     gy=rows-2
     for x in range(cols): canvas[gy][x]='_'
     lines=[''.join(r).rstrip() for r in canvas]
-    return '\n'.join(line.ljust(cols) for line in lines)
+    # preserve all rows to maintain alignment
+    return '\n'.join(lines)
 
 def build_contact(m):
     chunks=[]
@@ -131,8 +147,11 @@ def build_contact(m):
     chunks.append('Legend: O=head P=pelvis o=hand !=foot @=weighted tool head ==rigid shaft _=ground  Facing/rightward travel =>')
     chunks.append('Source art is NOT present. Every drawing below is an independent abstract ASCII rig key.')
     for k in m['keys']:
-        chunks += ['', f"{k['key_id']}  {k['name']}  timing={k['timing_class']}  provenance={k['timing_provenance']}", f"support={k['support_contact']}  contact={k['contact']}  root={k['motion_arc_root_note']}", f"causal_role={k['causal_role']}", ascii_frame(k)]
-    chunks += ['', 'POCKET RULE: radius changes may change rotation RATE while external support/contact remains NONE; they do not mint a new root impulse.', 'LANDING DEBT: right-toe catch -> unilateral crush -> delayed left-foot catch -> tool/torso overshoot -> displaced settle.']
+        chunks += ['', f"{k['key_id']}  {k['name']}  timing={k['timing_class']}  provenance={k['timing_provenance']}",
+                   f"support={k['support_contact']}  contact={k['contact']}  root={k['motion_arc_root_note']}",
+                   f"causal_role={k['causal_role']}", ascii_frame(k)]
+    chunks += ['', 'POCKET RULE: radius changes may change rotation RATE while external support/contact remains NONE; they do not mint a new root impulse.',
+               'LANDING DEBT: right-toe catch -> unilateral crush -> delayed left-foot catch -> tool/torso overshoot -> displaced settle.']
     return '\n'.join(chunks)+'\n'
 
 def encode_video(frames):
@@ -161,15 +180,26 @@ def make_spa(m,contact):
     js=json.dumps(m,indent=2,ensure_ascii=False)
     a64=base64.b64encode(gzip.compress(contact.encode("utf-8"),compresslevel=9,mtime=0)).decode("ascii")
     j64=base64.b64encode(gzip.compress(js.encode("utf-8"),compresslevel=9,mtime=0)).decode("ascii")
-    head=("<!doctype html><html><head><meta charset=\"utf-8\"><title>"+m["experiment_id"]+"</title><style>" "body{background:#09090b;color:#eee;font-family:system-ui;margin:0}nav{position:sticky;top:0;background:#111;padding:10px}" "button{margin-right:8px;padding:8px 14px}section{display:none;padding:16px}section.active{display:block}" "pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.02}" "video{max-width:100%;background:#000}</style></head><body>")
-    nav=("<nav><button data-view=\"ascii\">ASCII</button><button data-view=\"json\">JSON</button><button data-view=\"video\">VIDEO</button></nav>" "<section id=\"ascii\" class=\"active\"><pre>loading exact persisted ASCII...</pre></section>" "<section id=\"json\"><pre>loading exact persisted JSON...</pre></section>" "<section id=\"video\"><video controls autoplay loop muted playsinline><source src=\"data:video/mp4;base64,"+b64+"\" type=\"video/mp4\"></video></section>")
-    script=("<script>const PAYLOAD={ascii:'"+a64+"',json:'"+j64+"'};" "async function gunzip64(s){const raw=Uint8Array.from(atob(s),c=>c.charCodeAt(0));const ds=new DecompressionStream('gzip');return new TextDecoder().decode(await new Response(new Blob([raw]).stream().pipeThrough(ds)).arrayBuffer())}" "Promise.all([gunzip64(PAYLOAD.ascii),gunzip64(PAYLOAD.json)]).then(([a,j])=>{document.querySelector('#ascii pre').textContent=a;document.querySelector('#json pre').textContent=j});" "for(const b of document.querySelectorAll('button[data-view]'))b.onclick=()=>{for(const s of document.querySelectorAll('section'))s.classList.remove('active');document.getElementById(b.dataset.view).classList.add('active')};</script></body></html>")
+    head=("<!doctype html><html><head><meta charset=\"utf-8\"><title>"+m["experiment_id"]+"</title><style>"
+          "body{background:#09090b;color:#eee;font-family:system-ui;margin:0}nav{position:sticky;top:0;background:#111;padding:10px}"
+          "button{margin-right:8px;padding:8px 14px}section{display:none;padding:16px}section.active{display:block}"
+          "pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.02}"
+          "video{max-width:100%;background:#000}</style></head><body>")
+    nav=("<nav><button data-view=\"ascii\">ASCII</button><button data-view=\"json\">JSON</button><button data-view=\"video\">VIDEO</button></nav>"
+         "<section id=\"ascii\" class=\"active\"><pre>loading exact persisted ASCII...</pre></section>"
+         "<section id=\"json\"><pre>loading exact persisted JSON...</pre></section>"
+         "<section id=\"video\"><video controls autoplay loop muted playsinline><source src=\"data:video/mp4;base64,"+b64+"\" type=\"video/mp4\"></video></section>")
+    script=("<script>const PAYLOAD={ascii:'"+a64+"',json:'"+j64+"'};"
+            "async function gunzip64(s){const raw=Uint8Array.from(atob(s),c=>c.charCodeAt(0));const ds=new DecompressionStream('gzip');return new TextDecoder().decode(await new Response(new Blob([raw]).stream().pipeThrough(ds)).arrayBuffer())}"
+            "Promise.all([gunzip64(PAYLOAD.ascii),gunzip64(PAYLOAD.json)]).then(([a,j])=>{document.querySelector('#ascii pre').textContent=a;document.querySelector('#json pre').textContent=j});"
+            "for(const b of document.querySelectorAll('button[data-view]'))b.onclick=()=>{for(const s of document.querySelectorAll('section'))s.classList.remove('active');document.getElementById(b.dataset.view).classList.add('active')};</script></body></html>")
     return head+nav+script
 
 def main():
     m=json.loads(MOTION.read_text())
     contact=build_contact(m); CONTACT.write_text(contact)
     n=build_video(m); m['compile']['frames']=n
+    # bind media facts after render, then rewrite motion once and rebuild contact/SPA; media is unaffected by metadata.
     import hashlib
     media=VIDEO.read_bytes(); m['media'].update({'frames':n,'bytes':len(media),'sha256':hashlib.sha256(media).hexdigest()})
     MOTION.write_text(json.dumps(m,indent=2,ensure_ascii=False)+'\n')
