@@ -66,11 +66,13 @@ class RouteResult:
     bound_target: dict[str, Any] | None = None
     delegated_owner: str | None = None
     required_provenance: str | None = None
+    candidate_episode_ids: tuple[str, ...] = ()
     reason: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
         data["corrections"] = list(self.corrections)
+        data["candidate_episode_ids"] = list(self.candidate_episode_ids)
         return data
 
 
@@ -176,23 +178,32 @@ class RitsuContextRouter:
             reason=reason,
         )
 
-    def _match_episode(self, cue: str, *, allow_embedded_alias: bool) -> tuple[str | None, str | None]:
+    def _match_episode(
+        self,
+        cue: str,
+        *,
+        allow_embedded_alias: bool,
+    ) -> tuple[str | None, str | None, tuple[str, ...]]:
         episode_id = self.alias_to_episode.get(cue)
         if episode_id:
-            return episode_id, cue
+            return episode_id, cue, ()
         if not allow_embedded_alias:
-            return None, None
+            return None, None, ()
+
+        # Multi-token aliases may occur inside ordinary natural speech. Single-token
+        # aliases stay exact-only so local memory does not become a semantic vacuum.
         padded = f" {cue} "
         matches: list[tuple[str, str]] = []
         for alias, candidate_id in self.alias_to_episode.items():
             if len(alias.split()) >= 2 and f" {alias} " in padded:
                 matches.append((candidate_id, alias))
-        unique_ids = {item[0] for item in matches}
+
+        unique_ids = tuple(sorted({item[0] for item in matches}))
         if len(unique_ids) > 1:
-            raise ValueError("ambiguous embedded deterministic episode aliases")
+            return None, None, unique_ids
         if matches:
-            return matches[0]
-        return None, None
+            return matches[0][0], matches[0][1], ()
+        return None, None, ()
 
     @staticmethod
     def _requested_actor(cue: str) -> str | None:
@@ -288,8 +299,25 @@ class RitsuContextRouter:
                 reason="AGAIN requires the attributable current target; do not guess",
             )
 
-        # Pass 2-4: exact local alias -> relational episode -> correction overlay.
-        episode_id, matched_alias = self._match_episode(cue, allow_embedded_alias=exact)
+        # Pass 2-4: local multi-token alias -> relational episode -> correction overlay.
+        episode_id, matched_alias, ambiguous_ids = self._match_episode(
+            cue,
+            allow_embedded_alias=True,
+        )
+        if ambiguous_ids:
+            return RouteResult(
+                status="AMBIGUOUS_LOCAL_MATCH",
+                route="episodic",
+                episode_id=None,
+                matched_cue=None,
+                provenance_tier="unknown",
+                content=None,
+                corrections=(),
+                world_knowledge_allowed=False,
+                seek_primary=False,
+                candidate_episode_ids=ambiguous_ids,
+                reason="multiple deterministic relational aliases matched; fail closed instead of guessing",
+            )
         if episode_id:
             return self._episode_result(
                 episode_id,
