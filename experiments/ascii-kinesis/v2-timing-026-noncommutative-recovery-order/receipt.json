@@ -5,18 +5,18 @@
     "home_center_campaign_read": true
   },
   "delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_byte_identical_authoritative": false,
-    "part3_video": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_byte_identical_authoritative": true,
+    "part3_video": true
   },
   "entry": "v2-timing-026-noncommutative-recovery-order",
   "issue_343": {
-    "pre_delivery_receipt_id": null,
-    "readback": false,
-    "verification_comment_id": null
+    "pre_delivery_receipt_id": 5612451885,
+    "readback": true,
+    "verification_comment_id": 5612475596
   },
-  "next_authorized": null,
+  "next_authorized": "v2-timing-027",
   "one_body": {
     "collision": false,
     "path": "experiments/ascii-kinesis/v2-timing-026-noncommutative-recovery-order/"
@@ -25,6 +25,8 @@
     "actual_media_decode": "PASS",
     "actual_media_sha256": "3f81392643f6f7706be1073c3f8c060b9ace79e914f1e992125baafaf9f535f5",
     "candidate_isolated_validator": "PASS",
+    "fresh_current_worker_noodle_queen": "PASS",
+    "fresh_current_worker_tango": "PASS",
     "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
     "repository_global_validator": "NOT_CLAIMED_STANDARD_CHAT_BOUNDARY",
     "tango_rounds": [
@@ -48,14 +50,14 @@
     ]
   },
   "repo": {
-    "commit": "83d1ab11f0d1eac995cf176729c3ca3d89934d34",
+    "commit": "0051d84aed980c7622e6c0ac62086b855a9a47e7",
     "files": {
       "build.py": "23a5d3c9c8396fe7af881c2f54b1cf84e8c097fa",
       "contact-sheet.txt": "063a2ce754d37e6a73b634789f5e2dba53f0e12c",
-      "manifest.json": "b2cc6bf8bf6fb252c66c55a05c0cff97cbc99dc2",
+      "manifest.json": "d07b36245010ef552742e17ffdee14afc7d42fd1",
       "motion.json": "856e5ba30bb1c9679cc4414ad34309524a36c51b",
-      "receipt.json": "PENDING_SELF_UPDATE",
-      "noncommutative-recovery-order.motion.html": "fced399ed683ad8b0e4705c4d6f116f5e3ed1eda"
+      "noncommutative-recovery-order.motion.html": "fced399ed683ad8b0e4705c4d6f116f5e3ed1eda",
+      "receipt.json": "PENDING_SELF_UPDATE"
     },
     "persisted": true,
     "readback": true
@@ -69,5 +71,5 @@
     "timing_provenance": "INFERRED",
     "whole_source_inspected": true
   },
-  "status": "PERSISTED_READY_FOR_USER_SURFACE"
+  "status": "HEALTHY_USER_SURFACED"
 }
