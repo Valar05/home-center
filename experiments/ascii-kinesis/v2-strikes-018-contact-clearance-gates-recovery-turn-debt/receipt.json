@@ -2,7 +2,7 @@
   "schema": "ascii-kinesis.receipt-v2",
   "specimen": "STRIKES018",
   "slug": "contact-clearance-gates-recovery-turn-debt",
-  "status": "QUALITY_GATES_PASS_READY_FOR_REPO_PERSISTENCE",
+  "status": "REPO_VERIFIED_READY_FOR_USER_SURFACE",
   "one_body_rule": "BIND_THIS_018_UNTIL_HEALTHY",
   "strikes019_forbidden": true,
   "preflight": {
@@ -19,7 +19,6 @@
     "tsr_asset": "5791",
     "identity": "Eric Lecarde — Castlevania: Bloodlines — Sega Genesis",
     "source_media_sha256": "489e54a403dfd52737a780d68bab8e36f284f9c178eb5a2a8aa5080e26fb90c7",
-    "whole_source_inspection": "OBSERVED_BY_AUTHORIZED_CAMPAIGN_EVIDENCE; CURRENT_WORKER_FRESHLY_READ_EXACT_COMMISSIONED_CAMPAIGN_AND_VERIFIED_PASS_008_RECEIPT",
     "source_authentic_timing": "UNKNOWN",
     "observed_timing": "NONE",
     "authored_timing": "INFERRED / STREET_FIGHTER-CAPCOM"
@@ -44,20 +43,20 @@
     "height": 440,
     "fps": 24,
     "frame_count": 49,
-    "bytes": 15871,
-    "sha256": "4688f82b816ec82acb41996d30020dada9ec32642d90cb33c4fd7b9955ff0f64",
+    "bytes": 11090,
+    "sha256": "d0ed3ffdf16f8829b81cbc996172ebbf559869063c2159d0504033b9aac183a1",
     "decode": "PASS_CURRENT_WORKER"
   },
   "quality": {
     "tango": {
       "status": "PASS",
       "round": "R0_CURRENT_WORKER_ACTUAL_RENDER",
-      "actual_render_sha256": "4688f82b816ec82acb41996d30020dada9ec32642d90cb33c4fd7b9955ff0f64",
+      "actual_render_sha256": "d0ed3ffdf16f8829b81cbc996172ebbf559869063c2159d0504033b9aac183a1",
       "judgment": "K04-K06 pin contact while root compresses; K07-K08 pay axial clearance before K09 root rebase; K10-K14 preserve overshoot, support catch, shaft lag and displaced settle."
     },
     "noodle_queen": {
       "status": "PASS",
-      "actual_render_sha256": "4688f82b816ec82acb41996d30020dada9ec32642d90cb33c4fd7b9955ff0f64",
+      "actual_render_sha256": "d0ed3ffdf16f8829b81cbc996172ebbf559869063c2159d0504033b9aac183a1",
       "taste": "PASS — pinned contact, axial withdrawal, delayed rebase are distinct memorable silhouettes.",
       "function": "PASS — clearance visibly gates root turn and support/shaft debt is paid afterward.",
       "contempt": "PASS — not metadata-only clearance or generic polearm waving."
@@ -69,13 +68,17 @@
     "boundary": "Standard Chat exposes connector read/write but not authenticated full-repository checkout execution; candidate-isolated structural validation is the callable boundary, and GitHub connector readback is persistence authority."
   },
   "repo": {
-    "persistence": "PENDING",
-    "readback": "PENDING",
-    "final_readback": "PENDING"
+    "persistence": "PASS_CURRENT_MAIN",
+    "readback": "PASS_EXACT_SIX_FILES_ONE_SPA",
+    "final_readback": "PENDING_USER_SURFACE",
+    "build_blob": "0d3ed91618d09e525d06c0d8aff2144bc2ecd704",
+    "contact_blob": "def19bf3262ef1b65b14dba649758c49275a5298",
+    "motion_blob": "42bb98b872bc816a9314f0f91fdd9f313a478b06",
+    "spa_blob": "c0290636ef2e6d97618ef069ffe83e7f32c97562"
   },
   "issue": {
-    "pre_chat_receipt": null,
-    "pre_chat_readback": false,
+    "pre_chat_receipt": 5612696010,
+    "pre_chat_readback": true,
     "user_surface_closure": null,
     "user_surface_readback": false,
     "final_readback_addendum": null
