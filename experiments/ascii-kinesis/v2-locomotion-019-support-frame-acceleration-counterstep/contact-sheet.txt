@@ -1,0 +1,438 @@
+ASCII KINESIS V2 · LOCOMOTION 019 · SUPPORT-FRAME ACCELERATION COUNTERSTEP
+legend: @ root/COM · * support owner · + probe · = moving support frame · . fixed world ruler · O head
+source evidence: Dr Robuttnik (Elevator) / Sunky's Schoolhouse / PC / asset 191044
+source exact identity: 4480×360 RGBA PNG · 32,657 bytes · SHA-256 1304b1cacd772e783e9d000691ba22b39f254d7964b53a1e552e3c881facefca
+source timing authority: UNKNOWN / NONE OBSERVED · authored cadence: INFERRED / STREET_FIGHTER-CAPCOM
+thesis: acceleration can force corrective locomotion before support topology changes; load shift earns release, counterstep catch, long catch-up, overrun, short correction, displaced restack.
+
+K00 STABLE_CARRY · FOURS/4f · INFERRED · support=BOTH_BALANCED · phase=steady_carry · rootΔ=0px · platformΔ=0px · localRootX=120
+
+
+
+
+
+
+
+
+                     O
+
+                  o/ T\o
+                     |
+                     |
+                     @
+                    / \
+                   /  \
+                  /    \
+                  /    \
+                  /    \
+                  /    \
+       ===========_====_==============
+                  *    *
+
+.    .    .    .    .    .    .    .    .    .    .    .    .    .    .
+causal: Constant-velocity support frame carries the body with balanced two-foot load; no local locomotion key is earned by parent translation alone.
+
+K01 ACCELERATION_JOIN · TWOS/2f · INFERRED · support=BOTH_LEFT_BIASED · phase=accel_onset · rootΔ=16px · platformΔ=30px · localRootX=106
+
+
+
+
+
+
+
+
+                    O
+
+                    /T o
+                  o/ |
+                      |
+                      @
+                      /\
+                     /  \\
+                     /    \
+                     /    \
+                      /    \
+                      /    \
+          ============_====_=============
+                      *    *
+
+.    .    .    .    .    .    .    .    .    .    .    .    .    .    .
+causal: Support frame accelerates right faster than the root; unchanged contacts redistribute load toward the trailing/left foot and the torso counterleans.
+
+K02 PEAK_INERTIAL_LAG · ONES/1f · INFERRED · support=LEFT_HEAVY · phase=load_peak · rootΔ=16px · platformΔ=38px · localRootX=84
+
+
+
+
+
+
+
+
+
+                    O
+                     /T\o
+                    /  |\
+                  o/   |
+                        @
+                         \\
+                         / \\
+                          /  \
+                          /   \
+                          /   \
+                          /    \
+               ===========_====_=============
+                          *    *
+
+.    .    .    .    .    .    .    .    .    .    .    .    .    .    .
+causal: The platform continues gaining speed while both feet remain attached; COM lags deeper and trailing support load peaks without a topology change.
+
+K03 RIGHT_RELEASE · ONES/1f · INFERRED · support=LEFT · phase=release · rootΔ=13px · platformΔ=26px · localRootX=71
+
+
+
+
+
+
+
+
+
+                     O
+                        To
+                      / |\\
+                    o/   |
+                         |
+                          @
+                           \\
+                           / \
+                            / \
+                            / \
+                             / _
+                  ===========_==================
+                             *
+
+.    .    .    .    .    .    .    .    .    .    .    .    .    .    .
+causal: The lighter right contact releases only after inertial lag has made the two-foot base insufficient; left support still moves with the accelerating frame.
+
+K04 BACKSTEP_PROBE · TWOS/2f · INFERRED · support=LEFT · phase=counterstep_probe · rootΔ=9px · platformΔ=26px · localRootX=54
+
+
+
+
+
+
+
+
+
+                       O
+
+                        /T\o
+                     o//  |
+                          |
+                           @
+                          \ /
+                          \  /
+                         \    /
+                         \     /
+                         \     /
+                     ====_======_==================
+                         +      *
+
+.    .    .    .    .    .    .    .    .    .    .    .    .    .    .
+causal: Released right foot probes backward in platform space while the left foot remains the sole support owner; the root has not yet been rescued.
+
+K05 BACKSTEP_CATCH · ONES/1f · INFERRED · support=RIGHT · phase=counterstep_catch · rootΔ=4px · platformΔ=15px · localRootX=43
+
+
+
+
+
+
+
+
+
+                         O
+
+                         /T \
+                        / | o\
+                        o |
+                           |
+                           @
+                          \ //
+                          \   //
+                          \     /
+                          \      /
+                      ====_=======_==================
+                          *
+
+.    .    .    .    .    .    .    .    .    .    .    .    .    .    .
+causal: Backward right-foot catch widens the base behind the lagging COM and compresses the root; support transfer arrests the relative fall without stopping platform travel.
+
+K06 CATCH_COMPRESSION · TWOS/2f · INFERRED · support=RIGHT · phase=compression · rootΔ=8px · platformΔ=17px · localRootX=34
+
+
+
+
+
+
+
+
+
+
+                           O
+                            T
+                          / |\o
+                         /o |
+                            |
+                            @
+                           \ //
+                           \   //
+                           \     /
+                            \    /
+                        ====_=====_====================
+                            *
+
+.    .    .    .    .    .    .    .    .    .    .    .    .    .    .
+causal: Right support absorbs the lag at maximum compression while the old left support unloads; platform motion continues, so the debt is not yet paid.
+
+K07 LONG_CATCHUP_DRIVE · ONES/1f · INFERRED · support=RIGHT · phase=catchup_drive · rootΔ=42px · platformΔ=18px · localRootX=58
+
+
+
+
+
+
+
+
+
+                                  O
+                                 /T \ o
+                                o |  \
+                                  |
+                                 |
+                                 @
+                                \ //
+                                \   /
+                               \    /
+                               \    /
+                              \     _
+                          ====_==========================
+                              *
+
+.    .    .    .    .    .    .    .    .    .    .    .    .    .    .
+causal: With acceleration spent into the catch, the planted right foot now drives a long catch-up surge relative to the still-moving platform; spacing spikes rather than resetting gait.
+
+K08 FORWARD_PROBE · TWOS/2f · INFERRED · support=RIGHT · phase=forward_probe · rootΔ=35px · platformΔ=18px · localRootX=75
+
+
+
+
+
+
+
+
+                                      O
+
+                                    o/T \ o
+                                    / |  \
+                                     |
+                                     @
+                                    \ /
+                                   \   /
+                                  \     /
+                                 \      /
+                                 \      /
+                                \       /
+                            ====_=======_==================
+                                *       +
+
+.    .    .    .    .    .    .    .    .    .    .    .    .    .    .
+causal: Long left-foot probe reaches ahead in the moving support frame while right support continues propulsion; root spacing remains larger than platform spacing.
+
+K09 FORWARD_CATCH · TWOS/2f · INFERRED · support=LEFT · phase=forward_catch · rootΔ=24px · platformΔ=18px · localRootX=81
+
+
+
+
+
+
+
+
+
+                                       O
+
+                                      /T\o
+                                     /o| \
+                                        |
+                                        @
+                                       \/
+                                     \\  /
+                                    \    /
+                                   \     /
+                                   \     /
+                              ====_======_===================
+                                         *
+
+.    .    .    .    .    .    .    .    .    .    .    .    .    .    .
+causal: Forward catch converts the catch-up surge into compression; torso counterlean begins while the previous support peels away.
+
+K10 ROOT_OVERRUN · ONES/1f · INFERRED · support=LEFT · phase=overrun · rootΔ=36px · platformΔ=18px · localRootX=99
+
+
+
+
+
+
+
+
+
+                                             O
+                                             T   o
+                                          o//| \\\
+                                             |
+                                            |
+                                            @
+                                           / \\
+                                           /   \
+                                          /    \
+                                          /     \
+                                           /    _
+                                 ==========_====+==============
+                                           *
+
+.    .    .    .    .    .    .    .    .    .    .    .    .    .    .
+causal: Residual self-propelled catch-up momentum carries the root beyond the first forward catch; upper body lags the renewed surge and the next probe overreaches.
+
+K11 SHORT_CORRECTION_CATCH · TWOS/2f · INFERRED · support=RIGHT · phase=correction_catch · rootΔ=20px · platformΔ=18px · localRootX=101
+
+
+
+
+
+
+
+
+
+                                              O
+
+                                            /T \
+                                            /| o\
+                                            o|
+                                              |
+                                              @
+                                             / \
+                                            /   \
+                                            /   \
+                                             /  \
+                                   ==========_==_================
+                                                *
+
+.    .    .    .    .    .    .    .    .    .    .    .    .    .    .
+causal: Shorter right-foot catch pays the overrun with renewed compression; cadence contracts instead of mirroring the long catch-up step.
+
+K12 SECONDARY_LAG_PEAK · TWOS/2f · INFERRED · support=RIGHT · phase=secondary_lag · rootΔ=12px · platformΔ=18px · localRootX=95
+
+
+
+
+
+
+
+
+
+                                                O
+
+                                              /T\
+                                             /o| o
+                                                |
+                                                @
+                                               / \
+                                              /  \
+                                              /   \
+                                              /   \
+                                              /   \
+                                     =========_===_================
+                                                  *
+
+.    .    .    .    .    .    .    .    .    .    .    .    .    .    .
+causal: Root motion nearly matches the platform while head and arms continue forward; the body has support but still owes secondary-motion recovery.
+
+K13 SETTLE_PROBE · TWOS/2f · INFERRED · support=RIGHT · phase=settle_probe · rootΔ=12px · platformΔ=18px · localRootX=89
+
+
+
+
+
+
+
+
+                                                  O
+
+                                                /T\
+                                               o | o
+                                                 |
+                                                 |
+                                                 @
+                                                 /\
+                                                  /\
+                                                  / \
+                                                  / \
+                                                  / \
+                                       ===========_=_================
+                                                  + *
+
+.    .    .    .    .    .    .    .    .    .    .    .    .    .    .
+causal: A modest left probe narrows the correction; root travel now approximately follows the platform instead of chasing it.
+
+K14 DUAL_SUPPORT_SETTLE · TWOS/2f · INFERRED · support=BOTH_RIGHT_BIASED · phase=settle · rootΔ=14px · platformΔ=18px · localRootX=85
+
+
+
+
+
+
+
+
+                                                   O
+
+                                                o/ T\o
+                                                /  | \
+                                                   |
+                                                   @
+                                                   /\
+                                                    /\
+                                                    / \
+                                                    / \
+                                                    /  \
+                                                    /  \
+                                         ===========_==_================
+                                                    *  *
+
+.    .    .    .    .    .    .    .    .    .    .    .    .    .    .
+causal: Both contacts are restored with a slight right-side load bias; root spacing is now subordinate to support-frame travel.
+
+K15 DISPLACED_RESTACK · FOURS/4f · INFERRED · support=BOTH_BALANCED · phase=restack · rootΔ=18px · platformΔ=18px · localRootX=85
+
+
+
+
+
+
+
+
+                                                     O
+
+                                                  o/ T\o
+                                                     |
+                                                     |
+                                                     @
+                                                     /\
+                                                      /\
+                                                      / \
+                                                      / \
+                                                      /  \
+                                                      /  \
+                                           ===========_==_==============
+                                                      *  *
+
+.    .    .    .    .    .    .    .    .    .    .    .    .    .    .
+causal: The body restacks while remaining thirty-five pixels behind its original local platform address: acceleration debt is paid functionally, not erased by an idle reset.
