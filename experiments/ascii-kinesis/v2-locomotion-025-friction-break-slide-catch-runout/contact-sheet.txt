@@ -1,0 +1,371 @@
+ASCII KINESIS V2 · LOCOMOTION 025 · FRICTION BREAK / SLIDE CATCH / RUNOUT
+legend: @ root · c COM · * world-fixed foot · = sliding-contact foot · ? probe contact · ~ free foot · . root route · | fixed ground ruler ticks
+source evidence: Ride Armor / Mega Man X / SNES / TSR asset 133611 / Home Center evidence document 13LNIYKD8DmWrc9trwiicS873bX-p-lku8QVNqdFk2Yc
+OBSERVED: whole static source family contains distinct walking, jumping/landing, dashing, action variants, and disassembled/auxiliary material; source timing was not measured.
+UNKNOWN: source-authentic chronology/exposure/root/support/friction behavior. Source grants no timing authority.
+authored timing: INFERRED / STREET_FIGHTER-CAPCOM. rights firewall: evidence-only source; independent abstract rig; no source pixels/palette/costume/contours/layout/tracing/choreography/audio/redistribution/close imitation.
+thesis: a trusted support exceeds tangential authority and visibly slides while contact survives; opposite probe earns fixed catch, root/COM overruns it, then shorter corrections and secondary lag finish displaced.
+
+K00 TRUSTED LEFT LOAD · FOURS/4f · INFERRED · support=LEFT_FIXED · phase=LOAD · rootD=0px · lean=-4deg · lag=+0px
+
+
+
+
+           O
+
+
+         ---T---
+            |
+            |
+            |
+            c
+            @.............   ......
+            //            ...
+           /  /
+           /  /
+           /   /
+          /     ~
+_|_____|__*__|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|____
+
+
+
+
+causal: trusted left support establishes world-fixed authority
+
+K01 PRESSURE BUILDS · TWOS/2f · INFERRED · support=LEFT_FIXED · phase=PRESS · rootD=6px · lean=+2deg · lag=-2px
+
+
+
+
+
+             O
+
+          ---T---
+             |
+             |
+             |
+             c
+            .@............   ......
+             //           ...
+            /  /
+            /  /
+           /    /
+           /     ~
+_|_____|__*__|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|____
+
+
+
+
+causal: root advances while left contact remains exactly world-fixed
+
+K02 ACCELERATE ON FIXED SUPPORT · TWOS/2f · INFERRED · support=LEFT_FIXED · phase=ACCEL · rootD=10px · lean=+8deg · lag=-5px
+
+
+
+
+
+               O
+
+            ---T---
+               |
+               |
+              |
+              |c
+            ..@...........   ......
+             / /          ...
+             /  /
+            /    /
+           /      /
+           /       ~
+_|_____|__*__|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|____
+
+
+
+
+causal: widening root spacing loads tangential demand into fixed left support
+
+K03 SHEAR LIMIT PROBE · ONES/1f · INFERRED · support=LEFT_FIXED_LIMIT · phase=SHEAR_PROBE · rootD=14px · lean=+13deg · lag=-8px
+
+
+
+
+
+                  O
+
+              ---T---
+                 |
+                 |
+                |
+                |c
+            ....@.........   ......
+               / /        ...
+              /   /
+             /     /
+            /       /
+           /         ~
+_|_____|__*__|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|____
+
+
+
+
+causal: last exact fixed-contact key before friction authority breaks
+
+K04 FRICTION BREAK · ONES/1f · INFERRED · support=LEFT_SLIDING · phase=SLIDE_BREAK · rootD=16px · lean=+18deg · lag=-12px
+
+
+
+
+
+                    O
+
+                 ---T---
+                    |
+                    |
+                   |
+                   |c
+            .......@......   ......
+                 // /     ...
+                /   /
+               /     /
+             //      /
+            /         ~
+_|_____|___=_|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|____
+
+
+
+
+causal: left sole remains touching yet drifts six pixels across fixed ground ruler
+
+K05 SLIDE DEBT GROWS · ONES/1f · INFERRED · support=LEFT_SLIDING · phase=SLIDE · rootD=19px · lean=+21deg · lag=-15px
+
+
+
+
+
+                       O
+
+                    ---T---
+                       |
+                       |
+                      |
+                      |c
+            ..........@...   ......
+                    // /  ...
+                   /   /
+                 //     /
+                /       /
+              //         ~
+_|_____|_____=_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|_____|____
+
+
+
+
+causal: root keeps accelerating while sliding contact loses positional authority
+
+K06 RIGHT TOE PROBE · ONES/1f · INFERRED · support=LEFT_SLIDING_PLUS_RIGHT_PROBE · phase=CATCH_PROBE · rootD=22px · lean=+20deg · lag=-16px
+
+
+
+
+
+                          O
+
+                       ---T---
+                          |
+                          |
+                         |
+                         |c
+            .............@   ......
+                       ///...
+                     //   /
+                   //     /
+                 //        /
+               //          /
+_|_____|_____|=____|_____|__?__|_____|_____|_____|_____|_____|_____|_____|_____|____
+
+
+
+
+causal: new foot touches before ownership; old foot still visibly sliding
+
+K07 RIGHT CATCH COMPRESSION · TWOS/2f · INFERRED · support=RIGHT_FIXED · phase=CATCH · rootD=17px · lean=+13deg · lag=-14px
+
+
+
+
+
+                            O
+
+
+                         ---T---
+                            |
+                            |
+                           |
+            .............. |c......
+                          /@.
+                        // /
+                     ///   /
+                   //       /
+                 //         /
+_|_____|_____|_~/__|_____|__*__|_____|_____|_____|_____|_____|_____|_____|_____|____
+
+
+
+
+causal: right foot becomes world-fixed and compresses under residual slide mismatch
+
+K08 ROOT OVERRUN · ONES/1f · INFERRED · support=RIGHT_FIXED · phase=OVERRUN · rootD=18px · lean=+7deg · lag=-10px
+
+
+
+
+
+                              O
+
+
+                           ---T---
+                              |
+                              |
+                              |
+            ..............   /c....
+                          .// /
+                        ///  /
+                      //     /
+                    //       /
+                  ~/        /
+_|_____|_____|_____|_____|__*__|_____|_____|_____|_____|_____|_____|_____|_____|____
+
+
+
+
+causal: surviving velocity carries root beyond the newly trusted right support
+
+K09 SHORT COUNTER-CORRECTION · TWOS/2f · INFERRED · support=RIGHT_FIXED · phase=CORRECT · rootD=10px · lean=-2deg · lag=-5px
+
+
+
+
+
+                              O
+
+                            ---T---
+                               |
+                               |
+                               |
+                               |
+            ..............   ..c...
+                          ...///
+                           // /
+                         //   /
+                       //    /
+                      ~      /
+_|_____|_____|_____|_____|__*__|_____|_____|_____|_____|_____|_____|_____|_____|____
+
+
+
+
+causal: shorter spacing and torso recoil pay the first correction
+
+K10 LEFT RECOVERY SWING · TWOS/2f · INFERRED · support=RIGHT_FIXED · phase=RECOVER_SWING · rootD=6px · lean=-6deg · lag=+2px
+
+
+
+
+                               O
+
+
+                             ---T---
+                                |
+                                |
+                                |
+                                |
+            ..............   ...c..
+                          ...  /
+                              //
+                              /
+                             /
+                            ~/
+_|_____|_____|_____|_____|__*__|_____|_____|_____|_____|_____|_____|_____|_____|____
+
+
+
+
+causal: left foot recovers late while head/torso lag crosses through
+
+K11 DISPLACED LEFT CATCH · TWOS/2f · INFERRED · support=BOTH_FIXED · phase=RECOVER_CATCH · rootD=5px · lean=-2deg · lag=+5px
+
+
+
+
+
+                                 O
+
+
+                              ---T---
+                                 |
+                                 |
+                                 |
+            ..............   ....c.
+                          ...   //
+                               //
+                               //
+                              / /
+                             / /
+_|_____|_____|_____|_____|__*__*_____|_____|_____|_____|_____|_____|_____|_____|____
+
+
+
+
+causal: left catch lands displaced, never returning to starting footprint
+
+K12 DEBT SETTLE · FOURS/4f · INFERRED · support=LEFT_FIXED · phase=SETTLE · rootD=4px · lean=+2deg · lag=+3px
+
+
+
+
+                                  O
+
+
+                               ---T---
+                                  |
+                                  |
+                                 |
+                                 |
+            ..............   ....c.
+                          ...   //
+                               //
+                               //
+                              / /
+                             / /
+_|_____|_____|_____|_____|__~__*_____|_____|_____|_____|_____|_____|_____|_____|____
+
+
+
+
+causal: small forward correction remains after support ownership rolls left
+
+K13 DISPLACED RECOVERY DEBT · FOURS/4f · INFERRED · support=LEFT_FIXED · phase=EXIT_DEBT · rootD=2px · lean=+1deg · lag=+1px
+
+
+
+
+                                  O
+
+
+                               ---T---
+                                  |
+                                  |
+                                  |
+                                  c
+            ..............   .....@
+                          ...     /
+                                 //
+                                 //
+                                / /
+                                / ~
+_|_____|_____|_____|_____|_____*_____|_____|_____|_____|_____|_____|_____|_____|____
+
+
+
+
+causal: final pose stays displaced with free right foot and unresolved forward debt
