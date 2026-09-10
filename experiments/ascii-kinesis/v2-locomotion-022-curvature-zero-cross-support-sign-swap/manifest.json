@@ -4,7 +4,7 @@
   "title": "ASCII Kinesis V2 Locomotion 022 — Curvature Zero-Cross / Support-Sign Swap",
   "slug": "v2-locomotion-022-curvature-zero-cross-support-sign-swap",
   "lane": "LOCOMOTION",
-  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_CHAT_DELIVERY",
+  "status": "PERSISTED_NOT_DELIVERED",
   "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
@@ -12,16 +12,130 @@
   "source_art_embedded": false,
   "backward_compatible": true,
   "single_self_contained_spa": true,
-  "lineage": {"revises": null, "negative_fixture": null, "source_change": "NOT_APPLICABLE_NEW_CONCEPT", "predecessor": "v2-locomotion-021-overhead-clearance-compression-release-runout", "predecessor_durable_readback_issue_comment": 5613814652, "one_successor_binding": true, "successor_collision": false},
-  "source": {"authority": "HOME_CENTER_COMMISSIONED_CAMPAIGN", "campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s", "evidence_artifact_file_id": "1m1AEz8Wi66rICM7_aQvqwJRTqKQ29g5VzIQPmfFOxTY", "tsr_asset_id": 566077, "identity": "The Duke — Mina the Hollower — PC / Computer — Non-Playable Characters", "whole_source_inspected": true, "whole_source_evidence": {"archive_bytes": 36359, "archive_sha256": "d4947e1821e24a9096417a596f974a2178790b49285c5335abb4f99a53959ce3", "archive_entries_inspected": 61, "run_family_count": 12, "run_heading_families": ["Run", "Run (Down)", "Run (Up)"], "run_phase_slots_per_heading": 4}, "observed": ["All 61 archive entries were inventoried and inspected in the commissioned Home Center evidence artifact.", "Run, Run (Down), and Run (Up) each contain four numbered phase slots, supporting separation of gait phase from heading label.", "Turn is a separate two-frame family; this proves an explicit turn state exists but does not prove traveling heading changes should reset into it.", "The static archive supplies no measured source-authentic display durations."], "unknown": ["Source-authentic exposure duration, gameplay cadence, root coordinates, support-force magnitudes, and curve timing are unknown.", "No source evidence establishes this authored S-curve curvature-zero-cross choreography."], "timing_authority": "UNKNOWN", "source_authentic_timing_observed": false, "authored_timing": "INFERRED / STREET_FIGHTER-CAPCOM", "source_role": "EVIDENCE_ONLY"},
-  "rights": {"commercial_source_art": "EVIDENCE_ONLY", "source_pixels_embedded": false, "source_palette_used": false, "source_costume_used": false, "source_contours_used": false, "source_layout_used": false, "source_tracing_used": false, "source_choreography_copied": false, "source_audio_used": false, "redistribution": false, "close_imitation": false, "output_description": "independent generic plan-view ASCII biped/root-support rig following an authored S-curve"},
-  "novelty": {"concept": "CURVATURE_ZERO_CROSS_SUPPORT_SIGN_SWAP", "new_causality": "A running root crosses one S-curve inflection while forward speed remains alive. Curve-A inward demand and COM bank unwind toward zero on continued alternating support; the opposite curvature sign appears only after the authored zero-curvature catch, then builds through subsequent catches. Gait phase never resets and the exit pays residual torso/yaw/bank lag while still traveling.", "not_reskin_of": ["rolling support manifold migration", "load release stride overrun", "cross-step lateral momentum bleed", "riser catch momentum redirect", "support-frame acceleration counterstep", "moving-frame exit yaw-brake fork", "overhead clearance compression release runout"], "failure_if": ["bank sign flips before curvature zero or without an earning support catch", "heading reverses by in-place pivot or phase reset", "root speed clamps at the inflection", "support ownership teleports instead of alternating catch/pass pairs", "the S path collapses into a straight endpoint tween", "entry and exit are identical idle poses", "torso/head instantly match root yaw through the sign swap with no secondary lag"]},
-  "timing": {"fps": 24, "total_frames": 27, "timing_system": "STREET_FIGHTER-CAPCOM", "provenance": "INFERRED", "classes": {"ONES": 1, "TWOS": 2, "FOURS": 4}, "playback_policy": "authored decisive causal keys with explicit ONES/TWOS exposure; no generic endpoint interpolation; no reverse interpolation"},
-  "authoritative_media": {"mime": "video/mp4", "codec": "h264", "pix_fmt": "yuv420p", "width": 480, "height": 270, "fps": 24, "frames": 27, "bytes": 12347, "sha256": "f693160ec7b613299f296c0b2aa6b1629658c02bcebc24e969b05a6a2e094046", "source": "embedded SPA media generated only from abstract authored rig/timing via build.py"},
-  "quality": {"actual_render_inspected": true, "tango": {"current_worker": true, "rounds": ["R0_REVISE_REQUIRED", "R1_PASS"], "pass": true, "final_render_sha256": "f693160ec7b613299f296c0b2aa6b1629658c02bcebc24e969b05a6a2e094046"}, "noodle_queen": {"current_worker": true, "after_tango": true, "taste": "PASS", "function": "PASS", "contempt": "PASS", "pass": true, "final_render_sha256": "f693160ec7b613299f296c0b2aa6b1629658c02bcebc24e969b05a6a2e094046"}},
-  "validator": {"path": "tools/test_ascii_kinesis_swarm_contract_v2.py", "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78", "candidate_isolated": "PASS", "repository_global": "UNCLAIMED_STANDARD_CHAT_CONNECTOR_BOUNDARY", "candidate_isolated_output": {"entries_checked": ["v2-locomotion-022-curvature-zero-cross-support-sign-swap"], "ok": true, "schema": "ascii-kinesis.swarm-contract-v2-test"}},
-  "repository": {"path": "experiments/ascii-kinesis/v2-locomotion-022-curvature-zero-cross-support-sign-swap/", "expected_file_count": 6, "expected_spa_count": 1, "post_write_readback": false, "exact_six_file_body": false},
-  "issue": {"number": 343, "pre_delivery_receipt": null, "pre_delivery_readback": false, "closure_receipt": null, "closure_readback": false},
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "predecessor": "v2-locomotion-021-overhead-clearance-compression-release-runout",
+    "predecessor_durable_readback_issue_comment": 5613814652,
+    "one_successor_binding": true,
+    "successor_collision": false
+  },
+  "source": {
+    "authority": "HOME_CENTER_COMMISSIONED_CAMPAIGN",
+    "campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "evidence_artifact_file_id": "1m1AEz8Wi66rICM7_aQvqwJRTqKQ29g5VzIQPmfFOxTY",
+    "tsr_asset_id": 566077,
+    "identity": "The Duke — Mina the Hollower — PC / Computer — Non-Playable Characters",
+    "whole_source_inspected": true,
+    "whole_source_evidence": {
+      "archive_bytes": 36359,
+      "archive_sha256": "d4947e1821e24a9096417a596f974a2178790b49285c5335abb4f99a53959ce3",
+      "archive_entries_inspected": 61,
+      "run_family_count": 12,
+      "run_heading_families": ["Run", "Run (Down)", "Run (Up)"],
+      "run_phase_slots_per_heading": 4
+    },
+    "timing_authority": "UNKNOWN",
+    "source_authentic_timing_observed": false,
+    "authored_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "source_role": "EVIDENCE_ONLY"
+  },
+  "rights": {
+    "commercial_source_art": "EVIDENCE_ONLY",
+    "source_pixels_embedded": false,
+    "source_palette_used": false,
+    "source_costume_used": false,
+    "source_contours_used": false,
+    "source_layout_used": false,
+    "source_tracing_used": false,
+    "source_choreography_copied": false,
+    "source_audio_used": false,
+    "redistribution": false,
+    "close_imitation": false,
+    "output_description": "independent generic plan-view ASCII biped/root-support rig following an authored S-curve"
+  },
+  "novelty": {
+    "concept": "CURVATURE_ZERO_CROSS_SUPPORT_SIGN_SWAP_INTRA_STANCE",
+    "new_causality": "One continuously world-fixed RIGHT stance spans the S-curve inflection: lateral demand is negative at K06, reaches zero at K07 with COM neutral, and reverses positive at K08 before unload; K09 LEFT catch only confirms the already-visible sign reversal. Forward travel and gait phase remain live.",
+    "not_reskin_of": [
+      "figure-eight curvature sign reversal / Locomotion014 opposite-sign-next-catch grammar",
+      "rolling support manifold migration",
+      "load release stride overrun",
+      "cross-step lateral momentum bleed",
+      "riser catch momentum redirect",
+      "support-frame acceleration counterstep",
+      "moving-frame exit yaw-brake fork",
+      "overhead clearance compression release runout"
+    ]
+  },
+  "timing": {
+    "fps": 24,
+    "total_frames": 28,
+    "timing_system": "STREET_FIGHTER-CAPCOM",
+    "provenance": "INFERRED",
+    "classes": {"ONES": 1, "TWOS": 2, "FOURS": 4},
+    "playback_policy": "authored decisive causal keys with explicit ONES/TWOS exposure; no generic endpoint interpolation; no reverse interpolation"
+  },
+  "authoritative_media": {
+    "mime": "video/mp4",
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 480,
+    "height": 270,
+    "fps": 24,
+    "frames": 28,
+    "bytes": 12761,
+    "sha256": "3c17599d08d3582cf6cafb7b5b646d598b49da75b9199831905027fa13b4d271",
+    "source": "embedded SPA media generated only from abstract authored rig/timing via build.py"
+  },
+  "quality": {
+    "actual_render_inspected": true,
+    "current_worker_run": "2026-09-10",
+    "tango": {
+      "current_worker": true,
+      "decision": "PASS",
+      "round": "R_CURRENT",
+      "final_render_sha256": "3c17599d08d3582cf6cafb7b5b646d598b49da75b9199831905027fa13b4d271",
+      "inspection": "Same world-fixed RIGHT support anchor persists across K06→K07→K08 while COM crosses negative→neutral→positive lateral demand; root translation remains live, K09 LEFT catch confirms rather than invents the sign reversal, spacing stays nonuniform, torso/head yaw lags, and recovery finishes displaced without idle reset."
+    },
+    "noodle_queen": {
+      "current_worker": true,
+      "after_tango": true,
+      "taste": "PASS",
+      "function": "PASS",
+      "contempt": "PASS",
+      "pass": true,
+      "final_render_sha256": "3c17599d08d3582cf6cafb7b5b646d598b49da75b9199831905027fa13b4d271",
+      "inspection": "The center of the S-turn has one specific causal idea: a single planted support carries lateral force demand through zero before the next footfall confirms it. The join remains loaded and asymmetric, then exits with secondary lag and displaced running debt."
+    }
+  },
+  "validator": {
+    "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS",
+    "repository_global": "UNCLAIMED_STANDARD_CHAT_CONNECTOR_BOUNDARY"
+  },
+  "repository": {
+    "path": "experiments/ascii-kinesis/v2-locomotion-022-curvature-zero-cross-support-sign-swap/",
+    "expected_file_count": 6,
+    "expected_spa_count": 1,
+    "post_write_readback": true,
+    "exact_six_file_body": true,
+    "stable_body_files": {
+      "build.py": "cb990fdb4e954924059a47a70a3e3b3bcf6a244e",
+      "contact-sheet.txt": "8c0aa88d56597ee6eb50d34cbc6024962627bc81",
+      "motion.json": "f8b95603bd4646c60342a8aee66fae8caf735db4",
+      "curvature-zero-cross-support-sign-swap.motion.html": "5d80230a868ce74e8d1a4ebcd644a14d5d6cbf42"
+    }
+  },
+  "issue": {
+    "number": 343,
+    "pre_delivery_receipt": null,
+    "pre_delivery_readback": false,
+    "closure_receipt": null,
+    "closure_readback": false
+  },
   "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_video": false, "ordered": false},
   "campaign": {"propagated": false, "readback": false},
   "DREW_ACCEPTED": false,
