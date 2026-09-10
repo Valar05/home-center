@@ -43,6 +43,20 @@ class RitsuContextRouterContract(unittest.TestCase):
         self.assertEqual(r.episode_id, EPISODE_ID)
         self.assertFalse(r.world_knowledge_allowed)
 
+    def test_natural_sentence_embeds_known_multiword_episode_alias(self) -> None:
+        r = self.router.resolve("Can we go back to Latin plays for a second?")
+        self.assertEqual(r.status, "MATCH")
+        self.assertEqual(r.episode_id, EPISODE_ID)
+        self.assertEqual(r.matched_cue, "latin plays")
+        self.assertEqual(r.provenance_tier, "accepted_summary")
+        self.assertTrue(any("dropped" in c for c in r.corrections))
+        self.assertFalse(r.world_knowledge_allowed)
+
+    def test_embedded_alias_matching_respects_token_boundaries(self) -> None:
+        r = self.router.resolve("latin playscape")
+        self.assertEqual(r.status, "NO_LOCAL_MATCH")
+        self.assertTrue(r.world_knowledge_allowed)
+
     def test_exact_wording_without_primary_is_continuity_gap_not_fabrication(self) -> None:
         r = self.router.resolve("Latin plays", exact_wording=True)
         self.assertEqual(r.status, "CONTINUITY_GAP")
@@ -170,6 +184,24 @@ class RitsuContextRouterContract(unittest.TestCase):
             ledger.write_text("\n".join(json.dumps(x) for x in records) + "\n", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "ambiguous deterministic alias"):
                 mod.RitsuContextRouter(policy, ledger)
+
+    def test_ambiguous_embedded_aliases_fail_closed_without_world_fallback(self) -> None:
+        policy = ROOT / "config" / "ritsu-os.v0.json"
+        records = [
+            {"record_type": "episode", "id": "a", "aliases": ["alpha cue"],
+             "summary_tier": "accepted_summary", "accepted_summary": "a"},
+            {"record_type": "episode", "id": "b", "aliases": ["beta cue"],
+             "summary_tier": "accepted_summary", "accepted_summary": "b"},
+        ]
+        with tempfile.TemporaryDirectory() as td:
+            ledger = Path(td) / "ledger.jsonl"
+            ledger.write_text("\n".join(json.dumps(x) for x in records) + "\n", encoding="utf-8")
+            router = mod.RitsuContextRouter(policy, ledger)
+            r = router.resolve("Can we compare alpha cue with beta cue?")
+            self.assertEqual(r.status, "AMBIGUOUS_LOCAL_MATCH")
+            self.assertEqual(r.candidate_episode_ids, ("a", "b"))
+            self.assertIsNone(r.content)
+            self.assertFalse(r.world_knowledge_allowed)
 
 
 if __name__ == "__main__":
