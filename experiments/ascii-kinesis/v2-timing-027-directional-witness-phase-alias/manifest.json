@@ -38,13 +38,16 @@
   "primitive": "DIRECTIONAL_WITNESS_KEY_FOR_SPARSE_PHASE_ALIAS",
   "quality": {
     "actual_media_decode": "PASS",
-    "noodle_queen": "PASS",
-    "tango": "PASS_AFTER_R0_REVISION_AND_FINAL_BUILDER_REINSPECTION",
-    "validator": "PASS_CANDIDATE_ISOLATED"
+    "actual_media_identity": "CURRENT_WORKER_BYTE_IDENTICAL_RECONSTRUCTION_PASS",
+    "noodle_queen": "PASS_CURRENT_WORKER_AFTER_TANGO",
+    "tango": "PASS_CURRENT_WORKER_EXACT_FINAL_RENDER",
+    "validator": "PASS_CURRENT_ENTRY_STRUCTURAL_PREDICATES; REPOSITORY_GLOBAL_NOT_CLAIMED_STANDARD_CHAT_BOUNDARY"
   },
   "repo": {
-    "persisted": false,
-    "readback": false
+    "persisted": true,
+    "readback": true,
+    "spa_blob": "9e7ae9a62ca65d986bd22b6e6aa3a84c6acd0724",
+    "spa_persistence_commit": "0843d3e59a6f52db43d9c96ec767798de5922049"
   },
   "source": {
     "asset_id": "185069",
@@ -62,7 +65,7 @@
     "whole_source_inspected": true
   },
   "source_art_embedded": false,
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "PERSISTED_READY_FOR_USER_SURFACE",
   "title": "Directional Witness / Sparse Phase Alias",
   "video_required": true,
   "video_source": "abstract_ascii_rig_only"
