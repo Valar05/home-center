@@ -9,11 +9,7 @@
   "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
   "successor_collision": false,
   "canonical_path": "experiments/ascii-kinesis/v2-airborne-034-midair-actuator-loss-passive-collapse-landing-debt/",
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "ascii_surface": "pre",
   "ligatures_disabled": true,
@@ -31,21 +27,14 @@
     "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
     "campaign_evidence_artifact": "13LNIYKD8DmWrc9trwiicS873bX-p-lku8QVNqdFk2Yc",
     "whole_source_inspected": true,
-    "observed_family_level": [
-      "deactivated/fixed-like states",
-      "walking",
-      "jumping/landing",
-      "dashing",
-      "multiple action/punch families",
-      "destroyed/disassembled/auxiliary material"
-    ],
+    "observed_family_level": ["deactivated/fixed-like states", "walking", "jumping/landing", "dashing", "multiple action/punch families", "destroyed/disassembled/auxiliary material"],
     "source_authentic_timing": "UNKNOWN",
     "decisive_compile_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
     "rights_firewall": "PASS"
   },
   "principle": {
     "code": "MID_AIR_ACTUATOR_LOSS_PASSIVE_COLLAPSE_LANDING_DEBT",
-    "novelty_note": "The decisive event is internal loss of joint/actuator authority while airborne. It changes local collision eligibility without external contact or a fake root impulse; passive landing then earns support before power restoration."
+    "novelty_note": "Internal joint/actuator authority is lost while unsupported; root remains ballistic while local slack changes collision eligibility, followed by passive knee-first landing, delayed foot support, torso overrun, under-load restoration, and displaced recovery."
   },
   "motion_dungeon": {
     "authored_keys": 14,
@@ -70,18 +59,8 @@
   },
   "quality": {
     "actual_render_inspected": true,
-    "tango": {
-      "status": "PASS",
-      "round": "R0",
-      "render_sha256": "b22fff22aaf80e740ab2859b4530c7fdf1d7d480bc39117121be4ad67cf07f54"
-    },
-    "noodle_queen": {
-      "status": "PASS",
-      "taste": "PASS",
-      "function": "PASS",
-      "contempt": "PASS",
-      "render_sha256": "b22fff22aaf80e740ab2859b4530c7fdf1d7d480bc39117121be4ad67cf07f54"
-    }
+    "tango": {"status": "PASS", "round": "R0", "render_sha256": "b22fff22aaf80e740ab2859b4530c7fdf1d7d480bc39117121be4ad67cf07f54"},
+    "noodle_queen": {"status": "PASS", "taste": "PASS", "function": "PASS", "contempt": "PASS", "render_sha256": "b22fff22aaf80e740ab2859b4530c7fdf1d7d480bc39117121be4ad67cf07f54"}
   },
   "contract": {
     "validator_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
@@ -90,20 +69,17 @@
     "repo_global": "UNCLAIMED_STANDARD_CHAT_BOUNDARY",
     "scope": "candidate-isolated; no repo-global shell suite claimed"
   },
-  "file_sha256": {
-    "build.py": "b706483a34f530d9fd1f29dbde17907eeb5ce42b36d644052d40cf94e37d71df",
-    "contact-sheet.txt": "e26f0c9ade2cc7608377942153ce1308b637d41710f28a8c739b64d6a4592bc2",
-    "motion.json": "44254c0d89a76974395ad97a9445fab06d7bcbbecfc5b95de74ab97d7845956b",
-    "midair-actuator-loss-passive-collapse-landing-debt.motion.html": "3fbe9582ea12f7fe155a139ade09cec3b07fb5e1546049eaa68b75cff27fc488"
+  "repo_readback": {
+    "build_blob": "23494d339306a79c7b46fa8c48f7cf394b2fef94",
+    "contact_blob": "4df261eef84a51cca3b0650d5c9a6ce9f91e9f1e",
+    "motion_blob": "c68f12794f5bf0e16601e0d0cdba376910f9ec05",
+    "spa_blob": "95c26a9118a29eeb3e0d3f53d64e5158a247c8ef",
+    "receipt_blob": null,
+    "exact_one_spa": true,
+    "expected_file_count": 6,
+    "state": "FIVE_FILES_PERSISTED_PENDING_RECEIPT"
   },
-  "expected_files": [
-    "build.py",
-    "contact-sheet.txt",
-    "manifest.json",
-    "motion.json",
-    "receipt.json",
-    "midair-actuator-loss-passive-collapse-landing-debt.motion.html"
-  ],
+  "expected_files": ["build.py", "contact-sheet.txt", "manifest.json", "motion.json", "receipt.json", "midair-actuator-loss-passive-collapse-landing-debt.motion.html"],
   "DREW_ACCEPTED": false,
   "next_authorized": "BLOCKED_UNTIL_AIRBORNE034_HEALTHY"
 }
