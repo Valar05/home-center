@@ -1,0 +1,365 @@
+ASCII KINESIS V2 — AIRBORNE035 — MOMENT-OF-INERTIA TUCK/RATE LANDING DEBT
+Legend: O=head P=pelvis o=hand !=foot @=weighted tool head ==rigid shaft _=ground  Facing/rightward travel =>
+Source art is NOT present. Every drawing below is an independent abstract ASCII rig key.
+
+A035-K0  GROUND LOAD / WIDE RADIUS  timing=FOURS  provenance=INFERRED
+support=BOTH_REAR_BIASED  contact=GROUND_FEET_ONLY  root=LOW COIL; ROOT HELD; TOOL MASS WIDE/REAR
+causal_role=ANTICIPATION_LOAD_AND_RADIUS_BANK
+
+
+
+
+
+
+
+
+
+
+
+
+
+     O
+     |
+  oo\\\
+====/ |\
+oo/   |
+      |
+     /P\\
+     /  \
+    //   \
+________________________________________________________________
+    /     \
+
+A035-K1  SUPPORT BREAK / ANGULAR IMPULSE SET  timing=ONES  provenance=INFERRED
+support=NONE  contact=NONE  root=GROUND SUPPORT RELEASED; BALLISTIC ROOT BEGINS
+causal_role=EARN_SUPPORT_BREAK_AND_INITIAL_ANGULAR_MOMENTUM
+
+
+
+
+
+
+
+
+
+
+   @=   o  O
+     ===o\\|
+    oo/==  \
+        //| \
+          |
+          |
+        //P\
+       /    \
+      /      \\
+     /        \
+     !        \
+              \!
+________________________________________________________________
+
+
+A035-K2  EXTENDED RISE / SLOW ROTATION  timing=TWOS  provenance=INFERRED
+support=NONE  contact=NONE  root=RISING BALLISTIC COM; WIDE TOOL RADIUS; ROTATION READS SLOW
+causal_role=ESTABLISH_EXTENDED_INERTIA_STATE
+
+
+           @=
+            ==
+            o==
+            //==o\
+             //= \O
+               / \\
+                 |\
+                | \
+          /////||
+        !//    P
+                \\
+                 \\
+                  \
+                  \\
+                   \
+                   !
+
+
+
+________________________________________________________________
+
+
+A035-K3  AUTHORED GATHER BRIDGE  timing=TWOS  provenance=INFERRED
+support=NONE  contact=NONE  root=STILL BALLISTIC; TOOL COM PULLED TOWARD BODY BEFORE RATE CHANGE
+causal_role=REAL_BRIDGE_KEY_RADIUS_REDUCTION
+
+
+                  !
+                   /         @
+                    /     /o =
+                    /    / oo=
+                    /  //   =
+                    //    |O=
+                     / |||  =o
+                     P|      o
+                     \  \\\\o
+                      \
+                      \\
+                       \
+                       \
+                       \
+                       !
+
+
+
+
+________________________________________________________________
+
+
+A035-K4  COMPACT APEX / RATE UP  timing=ONES  provenance=INFERRED
+support=NONE  contact=NONE  root=APEX; COMPACT MASS RADIUS; LARGE ORIENTATION CHANGE WITHOUT NEW ROOT IMPULSE
+causal_role=MOMENT_OF_INERTIA_RATE_INCREASE
+
+
+
+
+
+
+
+                            /
+                           P //
+                          \|| ////! 
+                          \ | /
+                         \  ||/
+                         \ \ |/
+                        \  \\| /
+                       !    \O=/
+                             \=o
+                             o==
+                               =
+                                @
+
+
+
+________________________________________________________________
+
+
+A035-K5  COMPACT EXIT / ROTATION SPENT  timing=ONES  provenance=INFERRED
+support=NONE  contact=NONE  root=DESCENT BEGINS; ROOT CONTINUES BALLISTIC; COMPACT RATE REMAINS HIGH
+causal_role=SPEND_FAST_ROTATION_BEFORE_OPEN
+
+
+
+
+
+
+                          !\
+                            \\
+                             \\\
+                            \  |P
+                           \\ || /
+                           \||  //
+                          =O|// /
+                         oo//   /
+                        ==      /
+                       @        /
+                                /!
+
+
+
+
+________________________________________________________________
+
+
+A035-K6  RE-EXTEND / ROTATION BRAKE  timing=TWOS  provenance=INFERRED
+support=NONE  contact=NONE  root=DESCENDING; TOOL MASS MOVES OUTWARD; ORIENTATION CHANGE PER FRAME REDUCES
+causal_role=MOMENT_OF_INERTIA_RATE_REDUCTION
+
+
+
+
+                                         !
+                                       \\\
+                                       \
+                                O\\\  \
+                              o\ ||   \
+                          @== o   ||| \
+                            ===  /  |P
+                              o=/   /
+                             oo/    /
+                                    /
+                                   //
+                                   /
+                                    /
+                                    !
+
+
+
+________________________________________________________________
+
+
+A035-K7  SEPARATED PRECONTACT / ALIGN  timing=TWOS  provenance=INFERRED
+support=NONE  contact=NONE  root=DESCENDING BALLISTIC COM; RIGHT TOE LOWEST; TOOL STILL WIDE
+causal_role=PRECONTACT_ORIENTATION_PREP
+
+
+
+
+
+
+
+                                   @
+                                   =  o\O
+                                    =oo\\\
+                                    ==  |\\
+                                   o/=   |
+                                   o /// |
+                                          |
+                                         /P\\
+                                         /   \\
+                                         /    \
+                                         /    \
+                                         /     !
+                                         /
+                                         /
+                                          !
+________________________________________________________________
+
+
+A035-K8  RIGHT TOE FIRST CONTACT  timing=ONES  provenance=INFERRED
+support=RIGHT_TOE  contact=RIGHT_TOE_GROUND  root=FIRST SUPPORT ACQUISITION; ROOT STILL MOVES DOWN/FORWARD
+causal_role=SUPPORT_SPECIFIC_FIRST_CATCH
+
+
+
+
+
+
+
+                                        @
+                                        =
+                                         = o O
+                                         =oo\\
+                                        o==  \\
+                                       oo/=/ ||\
+                                           // |
+                                              |
+                                              P\
+                                            // \\
+                                            /   \
+                                            /   \
+                                           /    \
+                                           /     \
+________________________________________________________________
+                                           !
+
+A035-K9  RIGHT-SIDE CRUSH / TOOL LAG  timing=FOURS  provenance=INFERRED
+support=RIGHT_FOOT  contact=RIGHT_FOOT_GROUND  root=UNILATERAL COMPRESSION; PELVIS DROPS; TOOL/TORSO CONTINUE PAST CATCH
+causal_role=FORCE_PAYMENT_AND_SECONDARY_LAG
+
+
+
+
+
+
+
+
+
+
+                                           @=
+                                            =
+                                             = oo O
+                                             == \\|
+                                           oo/=  |\
+                                              =//|\\
+                                                 |
+                                                 |
+                                               //P\
+                                              //  \
+                                             /    \
+                                            /     \
+________________________________________________________________
+                                                  \
+
+A035-K10  LEFT FOOT DELAYED CATCH  timing=TWOS  provenance=INFERRED
+support=BOTH_WIDE  contact=BOTH_FEET_GROUND  root=SECOND SUPPORT ARRIVES AFTER RIGHT-SIDE CRUSH; ROOT OVERRUN PERSISTS
+causal_role=DELAYED_SECOND_SUPPORT_AND_BRAKE_BASE
+
+
+
+
+
+
+
+
+
+
+                                              @
+                                               =   o O
+                                                =oo\\|
+                                              ooo==  \
+                                                  // |\
+                                                    ||\
+                                                    |
+                                                   /P\
+                                                  /  \
+                                                  /  \
+                                                 //  \
+                                                 /   \
+________________________________________________________________
+                                                 !   \
+
+A035-K11  TOOL / TORSO OVERSHOOT  timing=TWOS  provenance=INFERRED
+support=BOTH_WIDE  contact=BOTH_FEET_GROUND  root=FEET BRAKE; UPPER/TASK MASS CONTINUES; ROOT ADVANCES LESS THAN TOOL
+causal_role=OVERSHOOT_NOT_REVERSE_INTERPOLATION
+
+
+
+
+
+
+
+
+
+
+                                                @=       O
+                                                 ===ooo\
+                                                  oo== \\|
+                                                  o/ // \\
+                                                        | \
+                                                       |
+                                                     //P
+                                                     /  \
+                                                     /  \
+                                                    /   \
+                                                    /   \
+                                                   !/  \
+________________________________________________________________
+                                                       !
+
+A035-K12  COUNTERSETTLE / DISPLACED READY  timing=FOURS  provenance=INFERRED
+support=BOTH  contact=BOTH_FEET_GROUND  root=STABLE SUPPORT REACQUIRED AT DISPLACED ROOT; TOOL SETTLES LAST
+causal_role=DISPLACED_RECOVERY_DEBT_PAID
+
+
+
+
+
+
+
+
+
+
+                                                      oo O
+                                                 ======\\|
+                                                 @o////  \\
+                                                      // |\
+                                                         |
+                                                         |
+                                                       /P \
+                                                       /  \
+                                                       /  \
+                                                       /  \
+                                                       /  \
+                                                       /  \
+________________________________________________________________
+
+
+POCKET RULE: radius changes may change rotation RATE while external support/contact remains NONE; they do not mint a new root impulse.
+LANDING DEBT: right-toe catch -> unilateral crush -> delayed left-foot catch -> tool/torso overshoot -> displaced settle.
