@@ -1,0 +1,66 @@
+{
+  "DREW_ACCEPTED": false,
+  "current_worker_liveness": {
+    "github_persistence_readback": true,
+    "home_center_campaign_read": true
+  },
+  "delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_byte_identical_authoritative": false,
+    "part3_video": false
+  },
+  "entry": "v2-timing-026-noncommutative-recovery-order",
+  "issue_343": {
+    "pre_delivery_receipt_id": null,
+    "readback": false,
+    "verification_comment_id": null
+  },
+  "next_authorized": null,
+  "one_body": {
+    "collision": false,
+    "path": "experiments/ascii-kinesis/v2-timing-026-noncommutative-recovery-order/"
+  },
+  "quality": {
+    "actual_media_decode": "PASS",
+    "actual_media_sha256": "3f81392643f6f7706be1073c3f8c060b9ace79e914f1e992125baafaf9f535f5",
+    "candidate_isolated_validator": "PASS",
+    "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "repository_global_validator": "NOT_CLAIMED_STANDARD_CHAT_BOUNDARY",
+    "tango_rounds": [
+      {
+        "defect": "shaft length drift made withdrawal read as shrinkage",
+        "round": 0,
+        "status": "REVISE_REQUIRED"
+      },
+      {
+        "defect": "body/root consequence too timid relative to shaft",
+        "queen": "REVISE_REQUIRED",
+        "round": 1,
+        "status": "TANGO_PASS"
+      },
+      {
+        "queen": "PASS",
+        "round": 2,
+        "status": "PASS",
+        "tango": "PASS"
+      }
+    ]
+  },
+  "repo": {
+    "commit": null,
+    "files": {},
+    "persisted": false,
+    "readback": false
+  },
+  "schema": "ascii-kinesis.receipt-v2",
+  "source": {
+    "asset_id": "23976",
+    "campaign_evidence_file_id": "1BW6UzsUckanhIqsAIcO6mWhc7FNCHGCX7A5tsdfO1EU",
+    "source_pixels_in_output": false,
+    "timing_authority": false,
+    "timing_provenance": "INFERRED",
+    "whole_source_inspected": true
+  },
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE"
+}
