@@ -1,0 +1,170 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+import base64, hashlib, html, json, math, shutil, subprocess, tempfile
+from pathlib import Path
+from PIL import Image, ImageDraw, ImageFont
+
+HERE = Path(__file__).resolve().parent
+MOTION = HERE / "motion.json"
+CONTACT = HERE / "contact_sheet.txt"
+SPA = HERE / "deflection-grip-migration-recovery-debt.motion.html"
+TMP_MP4 = HERE / ".strikes019-render.mp4"
+FRAME_DIR = HERE / ".strikes019-frames"
+W, H = 72, 22
+TIMING = {"ONES":1,"TWOS":2,"FOURS":4}
+
+def line_chars(grid,p0,p1,ch="-"):
+    x0,y0=[int(round(v)) for v in p0]; x1,y1=[int(round(v)) for v in p1]
+    dx=abs(x1-x0); sx=1 if x0<x1 else -1
+    dy=-abs(y1-y0); sy=1 if y0<y1 else -1
+    err=dx+dy; x,y=x0,y0
+    while True:
+        if 0<=x<W and 0<=y<H and grid[y][x]==" ": grid[y][x]=ch
+        if x==x1 and y==y1: break
+        e2=2*err
+        if e2>=dy: err+=dy; x+=sx
+        if e2<=dx: err+=dx; y+=sy
+
+def put(g,p,ch):
+    x,y=[int(round(v)) for v in p]
+    if 0<=x<W and 0<=y<H: g[y][x]=ch
+
+def ascii_pose(key, rig=None, semantic=None):
+    r=rig or key["rig"]; sem=semantic or key
+    g=[[" "]*W for _ in range(H)]
+    for x in range(10,62): g[20][x]="_"
+    mid=((r["left_shoulder"][0]+r["right_shoulder"][0])/2,(r["left_shoulder"][1]+r["right_shoulder"][1])/2)
+    line_chars(g,mid,r["pelvis"],"|")
+    line_chars(g,r["left_shoulder"],r["left_hand"],"/")
+    line_chars(g,r["right_shoulder"],r["right_hand"],"\\")
+    line_chars(g,r["pelvis"],r["left_foot"],"/")
+    line_chars(g,r["pelvis"],r["right_foot"],"\\")
+    line_chars(g,r["left_shoulder"],r["right_shoulder"],"-")
+    line_chars(g,r["tool_butt"],r["tool_tip"],"=")
+    put(g,r["head"],"O"); put(g,r["pelvis"],"^")
+    for p in ("left_hand","right_hand","left_shoulder","right_shoulder"): put(g,r[p],"o")
+    put(g,r["left_foot"],"/"); put(g,r["right_foot"],"\\")
+    put(g,r["tool_butt"],"<"); put(g,r["tool_tip"],")")
+    if sem.get("contact_event"):
+        x,y=[int(round(v)) for v in r["tool_tip"]]
+        if x+1<W: g[y][x+1]="X"
+        for ox,oy,ch in [(2,-1,"<"),(3,-2,"<"),(4,-3,"^")]:
+            xx=x+ox; yy=y+oy
+            if 0<=xx<W and 0<=yy<H: g[yy][xx]=ch
+    elif sem.get("force_vector"):
+        x,y=[int(round(v)) for v in r["tool_tip"]]
+        for ox,oy,ch in [(2,-1,"<"),(3,-2,"^")]:
+            xx=x+ox; yy=y+oy
+            if 0<=xx<W and 0<=yy<H: g[yy][xx]=ch
+    return "\n".join("".join(row).rstrip() for row in g).rstrip()
+
+def build_contact(motion):
+    blocks=[]
+    for k in motion["keys"]:
+        blocks.append(
+            f"{k['key_id']} {k['name']} | {k['timing_class']} | {k['timing_provenance']} | support={k['support_contact']}\n"
+            f"role={k['causal_role']}\n"
+            f"{ascii_pose(k)}\n"
+            f"root_note={k['motion_arc_root_note']}\n"
+        )
+    return (
+        f"ASCII KINESIS V2 STRIKES019 — {motion['principle']}\n"
+        "Legend: O head | ^ pelvis/root | o joint/hand | = shaft | ) hooked head | X authored contact | _ ground\n"
+        "Source art is evidence-only and is not reproduced. All authored pose/timing/contact mechanics below are INFERRED / STREET_FIGHTER-CAPCOM.\n\n"
+        + "\n".join(blocks)
+    )
+
+def interp_rig(a,b,t):
+    out={}
+    for name,pa in a.items():
+        pb=b[name]
+        out[name]=[pa[0]+(pb[0]-pa[0])*t, pa[1]+(pb[1]-pa[1])*t]
+    return out
+
+def font(sz):
+    for name in ("DejaVuSansMono.ttf","/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"):
+        try: return ImageFont.truetype(name,sz)
+        except Exception: pass
+    return ImageFont.load_default()
+
+def render_frame(text, title, subtitle, index, total, out_path):
+    img=Image.new("RGB",(880,440),(12,12,14))
+    d=ImageDraw.Draw(img)
+    titlef=font(18); subf=font(12); bodyf=font(14)
+    d.text((22,18),title,font=titlef,fill=(240,240,240))
+    d.text((22,43),subtitle,font=subf,fill=(170,170,170))
+    y=72
+    for line in text.splitlines():
+        d.text((42,y),line,font=bodyf,fill=(235,235,235))
+        y+=15
+    d.text((735,414),f"{index+1:03d}/{total:03d}",font=subf,fill=(150,150,150))
+    img.save(out_path,compress_level=9)
+
+def compile_frames(motion):
+    frames=[]
+    keys=motion["keys"]
+    for i,k in enumerate(keys):
+        for _ in range(TIMING[k["timing_class"]]):
+            frames.append((k["rig"],k,k["key_id"],k["name"]))
+        if i+1<len(keys):
+            n=int(k.get("transition_frames_to_next",0))
+            nk=keys[i+1]
+            for step in range(1,n+1):
+                t=step/(n+1)
+                rig=interp_rig(k["rig"],nk["rig"],t)
+                # Semantic state stays source-owned until the destination authored key.
+                frames.append((rig,k,f"{k['key_id']}>{nk['key_id']}",f"{k['name']} -> {nk['name']}"))
+    return frames
+
+def render_mp4(motion):
+    if FRAME_DIR.exists(): shutil.rmtree(FRAME_DIR)
+    FRAME_DIR.mkdir()
+    frames=compile_frames(motion)
+    for i,(rig,sem,kid,name) in enumerate(frames):
+        text=ascii_pose(sem,rig=rig,semantic=sem)
+        subtitle=f"{kid} | {sem['timing_class']} {sem['timing_provenance']} | support={sem['support_contact']} | {sem['causal_role']}"
+        render_frame(text, name, subtitle, i, len(frames), FRAME_DIR/f"f{i:04d}.png")
+    cmd=[
+        "ffmpeg","-loglevel","error","-y","-framerate","24","-i",str(FRAME_DIR/"f%04d.png"),
+        "-an","-c:v","libx264","-pix_fmt","yuv420p","-profile:v","high","-level","4.0",
+        "-preset","veryslow","-crf","22","-g","120","-bf","2",
+        "-x264-params","scenecut=0:open_gop=0:nal-hrd=none",
+        "-map_metadata","-1","-fflags","+bitexact","-flags:v","+bitexact",
+        "-movflags","+faststart",str(TMP_MP4)
+    ]
+    subprocess.run(cmd,check=True)
+    shutil.rmtree(FRAME_DIR)
+    return frames
+
+def make_spa(motion, contact, media):
+    media64=base64.b64encode(media).decode("ascii")
+    json_text=json.dumps(motion,separators=(",",":"),ensure_ascii=True)
+    css="""body{margin:0;background:#0d0d0f;color:#eee;font-family:ui-monospace,Consolas,monospace}nav{position:sticky;top:0;background:#17171b;padding:12px;border-bottom:1px solid #444}button{font:inherit;margin-right:8px;padding:8px 14px;background:#222;color:#eee;border:1px solid #666}section{display:none;padding:18px}section.active{display:block}pre{font-variant-ligatures:none;white-space:pre;overflow:auto;line-height:1.12}video{display:block;max-width:100%;margin:auto;background:#000}"""
+    return f"""<!doctype html><html><head><meta charset="utf-8"><title>ASCII Kinesis V2 Strikes019</title><style>{css}</style></head><body>
+<nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
+<section id="ascii" class="active"><pre>{html.escape(contact)}</pre></section>
+<section id="json"><pre>{html.escape(json_text)}</pre></section>
+<section id="video"><video controls playsinline src="data:video/mp4;base64,{media64}"></video></section>
+<script>const bs=[...document.querySelectorAll('button[data-view]')];const ss=[...document.querySelectorAll('section')];bs.forEach(b=>b.onclick=()=>{{ss.forEach(s=>s.classList.toggle('active',s.id===b.dataset.view));}});</script>
+</body></html>"""
+
+def main():
+    motion=json.loads(MOTION.read_text(encoding="utf-8"))
+    contact=build_contact(motion)
+    CONTACT.write_text(contact,encoding="utf-8")
+    frames=render_mp4(motion)
+    media=TMP_MP4.read_bytes()
+    sha=hashlib.sha256(media).hexdigest()
+    motion["compile"]["frame_count"]=len(frames)
+    motion["compile"]["media_sha256"]=sha
+    motion["compile"]["media_bytes"]=len(media)
+    motion["compile"]["width"]=880
+    motion["compile"]["height"]=440
+    # Bind compiled identity back into persisted structured source.
+    MOTION.write_text(json.dumps(motion,separators=(",",":"),ensure_ascii=True),encoding="utf-8")
+    spa=make_spa(motion,contact,media)
+    SPA.write_text(spa,encoding="utf-8")
+    print(json.dumps({"media_sha256":sha,"media_bytes":len(media),"frames":len(frames),"spa_bytes":SPA.stat().st_size},sort_keys=True))
+
+if __name__=="__main__":
+    main()
