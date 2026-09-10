@@ -61,9 +61,7 @@
   },
   "repo": {
     "persisted": true, "repo_readback": true, "body_files_readback": 6, "spa_count": 1,
-    "pre_reconciliation_main_commit": "78fa92da42d6938d4411891f74ea9f17d444869b",
-    "reconciliation_manifest_commit": "1fe23ecdb268268ab981ce1504ce5060090d948e",
-    "pre_chat_receipt_commit": "757ce6e80b0946cc9231c84806f8b7ad8d87ee83",
+    "pre_chat_receipt_commit": "07aba83d2b90166e18f0b1bacedd354a374fcbc4",
     "body_blobs": {
       "build.py": "713a9d145cabb53ee945a18a57319583809d6663",
       "contact-sheet.txt": "5c358af1bd07525d0f80923d781a3fa9887b6fe9",
@@ -71,9 +69,19 @@
       "step-down-line-break-height-handoff.motion.html": "52a9057b11a1713b5318d9ba8cc94b9a24ccf280"
     }
   },
-  "issue": {"pre_chat_receipt": 5614995885, "readback": true},
-  "campaign": {"closure_propagated": false, "readback": false},
-  "chat_delivery": {"part1_ascii": false, "part2_json": false, "part3_video": false},
-  "status": "REPO_VERIFIED_PENDING_CHAT_DELIVERY",
-  "drew_accepted": false
+  "issue": {
+    "pre_chat_receipt": 5614995885,
+    "pre_chat_readback": true,
+    "user_surface_receipt": 5615015508,
+    "user_surface_readback": true
+  },
+  "campaign": {
+    "closure_propagated": true,
+    "readback": true,
+    "propagation_request_id": "ascii-kinesis-defense025-campaign-user-surfaced-20260910-run11"
+  },
+  "chat_delivery": {"part1_ascii": true, "part2_json": true, "part3_video": true},
+  "status": "HEALTHY_USER_SURFACED",
+  "drew_accepted": false,
+  "next_authorized_after_terminal_readback": "v2-defense-026"
 }
