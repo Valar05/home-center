@@ -3,15 +3,18 @@
   "ascii_literal_text": true,
   "backward_compatible": true,
   "delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_video": true,
+    "part3_byte_identical_authoritative": true
   },
   "entry": "v2-timing-027-directional-witness-phase-alias",
   "format_version": 2,
   "issue_343": {
     "pre_delivery_receipt_id": 5613776133,
-    "readback": true
+    "pre_delivery_readback": true,
+    "user_surface_closure_id": 5613792414,
+    "user_surface_readback": true
   },
   "lane": "timing",
   "lineage": {
@@ -29,12 +32,9 @@
     "sha256": "0d85e707f754c03ba7f2e50d873db0d740059207cb00d99b34bbe8dac1741b76",
     "width": 640
   },
+  "next_authorized": null,
   "pocket_rule": "WHEN SPARSE ORIENTATION SAMPLES COULD LIE ABOUT TURN DIRECTION, SPEND ONE AUTHORED WITNESS KEY AT THE AMBIGUOUS CROSSING. DO NOT TAX THE WHOLE CLIP.",
-  "primary_tabs": [
-    "ASCII",
-    "JSON",
-    "VIDEO"
-  ],
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "primitive": "DIRECTIONAL_WITNESS_KEY_FOR_SPARSE_PHASE_ALIAS",
   "quality": {
     "actual_media_decode": "PASS",
@@ -56,16 +56,13 @@
     "name": "Mario",
     "platform": "Game Boy Advance",
     "source_pixels_in_output": false,
-    "source_roles": [
-      "POSE_REFERENCE",
-      "CONTACT_REFERENCE"
-    ],
+    "source_roles": ["POSE_REFERENCE", "CONTACT_REFERENCE"],
     "timing_authority": false,
     "timing_provenance": "INFERRED",
     "whole_source_inspected": true
   },
   "source_art_embedded": false,
-  "status": "PERSISTED_READY_FOR_USER_SURFACE",
+  "status": "USER_SURFACED_PENDING_FINAL_DURABILITY",
   "title": "Directional Witness / Sparse Phase Alias",
   "video_required": true,
   "video_source": "abstract_ascii_rig_only"
