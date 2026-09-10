@@ -1,0 +1,383 @@
+ASCII KINESIS V2 STRIKES023 - DETACHED THREAT IMPACT / CLOCK FORK DEBT
+Legend: O head | @ pelvis/root | + hands | o knees/air foot | * active support | . light support | ? probe/precontact | # detached threat | X threat impact | | abstract target
+Principle: THE BODY FIRES THE THREAT AND STARTS TO LEAVE; THE HIT ARRIVES ON ANOTHER CLOCK. IMPACT CANNOT REWIND THE LAUNCHER.
+All decisive timing provenance: INFERRED / STREET_FIGHTER-CAPCOM. Source-authentic timing and hit-stop: UNKNOWN.
+Rights: independent abstract ASCII rig only; no source pixels, palette, costume, contours, layout, source choreography, audio, tracing, redistribution, or close imitation.
+
+K00 ASYMMETRIC_TRAVEL_READY
+
+
+
+
+
+
+                  O
+                  |
+                  |
+                  |
+                  |  \\\+ #
+              +///\\\
+                  |
+                  |
+                  @
+                 / \
+                /   \\
+               o      o
+              /        \\
+             /           \\
+            *              *
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=establish displaced traveling-ready silhouette with threat still hand-coupled
+support=BOTH_FEET_REAR_BIASED | contact=CLEAR | threat_state=HELD
+root_note=root has forward intent; no mannequin symmetry
+rear_foot=ACTIVE | front_foot=ACTIVE
+
+K01 REAR_COIL_LOAD
+
+
+
+
+
+
+
+
+                   O
+                   |    + #
+                   |  \\
+                  |  \
+                  |\\
+             +////\
+                  |
+                 |
+                 @\
+               //  \\\
+              o       \\o\\
+            //            \\.
+           *
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=rear support compresses and stores body drive before release
+support=REAR_FOOT_OWNS_ROOT_FRONT_LIGHT | contact=CLEAR | threat_state=HELD
+root_note=root drops/back; shoulders counter-rotate around loaded rear support
+rear_foot=ACTIVE | front_foot=LIGHT
+
+K02 PELVIS_DRIVE_PRE_RELEASE
+
+
+
+
+
+
+                         O
+                         |
+                         |
+                  +///  |   \\\+ #
+                      //\\\\
+                        |
+                        |
+                        @
+                       / \
+                     //   \
+                    /      \
+                   o        o\
+                  /           \\
+                //              \.
+               *
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=authored body-first bridge; pelvis commits before the threat leaves the hand
+support=REAR_FOOT_DRIVE_FRONT_LIGHT | contact=CLEAR | threat_state=HELD
+root_note=root surges forward/up while the throwing side opens
+rear_foot=ACTIVE | front_foot=LIGHT
+
+K03 RELEASE_JOIN
+
+
+
+
+
+                               O
+                               |
+                               |
+                       +///   |
+                           ///\\\\   >>>>#
+                              |   \\\+
+                              |
+                              @
+                             / \
+                            /   \
+                          //    \
+                         /       \
+                        o         o
+                      //           \\
+                    //               \.
+                  */
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=ONES | timing_provenance=INFERRED | causal_role=explicit custody fork: threat becomes free while launcher root is still committed
+support=REAR_FOOT_DRIVE_FRONT_LIGHT | contact=RELEASE | threat_state=FREE
+root_note=root continues forward; front hand opens behind newly detached threat
+rear_foot=ACTIVE | front_foot=LIGHT
+
+K04 BODY_OVERRUN_THREAT_LEADS
+
+
+
+
+
+
+
+                                     O
+                                     |
+                                     |
+                             +///   |        >>>>#
+                                 ///\
+                                    |\\
+                                   |   +
+                                   @
+                                 // \
+                                /    \
+                               /     \
+                             //       \
+                           /o          o\\
+                       ////               \\?
+                    *//
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=threat opens distance while launcher spends the end of its body commitment
+support=REAR_FOOT_STRETCH_FRONT_PROBE | contact=CLEAR | threat_state=TRAVEL
+root_note=root and head overrun release; front foot reaches for next support while threat leads
+rear_foot=ACTIVE | front_foot=PROBE
+
+K05 LAUNCHER_RECOIL_THREAT_TRAVEL
+
+
+
+
+
+
+
+
+                                      O
+                                      |
+                                      |              >>>>#
+                                      |
+                                      |
+                                  +///\
+                                     \|
+                                     \|
+                                    +/@
+                                 ////  \
+                              /o/       \
+                          ////          \
+                        ./               o\
+                                           \\*
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=launcher starts paying recoil/support debt while detached threat keeps advancing
+support=FRONT_FOOT_ACQUIRES_REAR_LIGHT | contact=CLEAR | threat_state=TRAVEL
+root_note=pelvis sinks over front catch; shoulders counter-rotate left while threat continues right
+rear_foot=LIGHT | front_foot=ACTIVE
+
+K06 THREAT_PRECONTACT_BODY_CATCH
+
+
+
+
+                                                                     |
+                                                                     |
+                                                                     |
+                                      O                              |
+                                      |                        >>>>? |
+                                      |                              |
+                                      |                              |
+                                      |                              |
+                                      \                              |
+                                     +|                              |
+                                    \  |                             |
+                                   + //@                             |
+                             o///o///   \
+                                         \
+                                          o\
+                                            \*
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=ONES | timing_provenance=INFERRED | causal_role=distinct threat precontact occurs after launcher has already changed support state
+support=FRONT_FOOT_OWNS_ROOT_REAR_AIR | contact=PRECONTACT | threat_state=PRECONTACT
+root_note=root moves back/down over front support; rear foot releases while threat enters final gap
+rear_foot=AIR | front_foot=ACTIVE
+
+K07 THREAT_CONTACT_BODY_UNFROZEN_A
+
+
+
+
+                                                                     |
+                                                                     |
+                                                                     |
+                                                                     |
+                                    O                                X
+                                    |                                |
+                                    |                                |
+                                     |                               |
+                                     |                               |
+                                     \                               |
+                                   \\|/+                             |
+                              o/  +   |                              |
+                                //   /@
+                                  o//  \\
+                                         o\
+                                           \\*
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=ONES | timing_provenance=INFERRED | causal_role=explicit detached-threat impact while launcher continues independent recovery
+support=FRONT_FOOT_OWNS_ROOT_REAR_AIR | contact=THREAT_HIT | threat_state=IMPACT
+root_note=threat contacts target; root continues left/down and arms keep counter-rotating
+rear_foot=AIR | front_foot=ACTIVE
+
+K08 THREAT_CONTACT_BODY_UNFROZEN_B
+
+
+
+
+                                                                     |
+                                                                     |
+                                                                     |
+                                                                     |
+                                  O                                  X
+                                  |                                  |
+                                  |                                  |
+                                   |                                 |
+                                   |                                 |
+                                 +\\////+                            |
+                                   |                                 |
+                                    |                                |
+                                    @
+                                  // \\
+                                ?o     o\\
+                                          \\\*
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=threat-local contact hold: threat stays pinned while launcher changes root, shoulder, and rear-leg state
+support=FRONT_FOOT_HARD_REAR_LEG_SEEK | contact=THREAT_HIT | threat_state=IMPACT
+root_note=same threat contact point; launcher root settles farther left/down and rear leg swings toward catch
+rear_foot=PROBE | front_foot=ACTIVE
+
+K09 THREAT_BREAK_BODY_OVERSHOOT
+
+
+
+
+                                                                     |
+                                                                     |
+                                                                     |
+                                 O                                   |
+                                 |                                   |
+                                 |                                   |~#~
+                                  |                                  |
+                                +\|                                  |
+                                  \//////+                           |
+                                  |                                  |
+                                   |                                 |
+                                   @                                 |
+                                  / \\
+                                 /    o\
+                                o       \\
+                               ?           \*
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=ONES | timing_provenance=INFERRED | causal_role=threat leaves contact/dissipates without sending the launcher backward; body keeps paying its own debt
+support=FRONT_FOOT_HARD_REAR_PROBE | contact=CLEAR | threat_state=DISSIPATE
+root_note=target clears; shoulders overshoot counter-rotation while rear foot nears ground
+rear_foot=PROBE | front_foot=ACTIVE
+
+K10 SHOULDER_LAG_COUNTERSWING
+
+
+
+
+
+
+
+
+                                  O
+                                  |
+                                  |
+                                  +|
+                                  \|
+                                   \///////+
+                                   |
+                                    |
+                                    @
+                                   / \
+                                  /   \
+                                 o     o\
+                                /        \\
+                               .           \*
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=secondary upper-body lag persists after threat clock has ended
+support=FRONT_FOOT_DOMINANT_REAR_TOUCH | contact=CLEAR | threat_state=ABSENT
+root_note=root begins restack but head/rear arm continue past it before returning
+rear_foot=LIGHT | front_foot=ACTIVE
+
+K11 REAR_SUPPORT_REACQUIRE
+
+
+
+
+
+
+
+                                     O
+                                     |
+                                     |
+                                    + |
+                                     \|
+                                      \///+
+                                      |
+                                      |
+                                      @
+                                     / \
+                                    /   \
+                                   o     o
+                                  /       \
+                                 /         \\
+                                *            *
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=late second support pays launcher recovery debt after detached impact is already over
+support=BOTH_FEET_FRONT_BIASED | contact=CLEAR | threat_state=ABSENT
+root_note=rear foot becomes trustworthy; root rises but remains displaced from K00
+rear_foot=ACTIVE | front_foot=ACTIVE
+
+K12 DISPLACED_READY
+
+
+
+
+
+
+
+                                        O
+                                        |
+                                        |
+                                        |
+                                        |  \\\+
+                                    +///\\\
+                                        |
+                                        |
+                                        @
+                                       / \
+                                      /   \\
+                                     o      o
+                                    /        \\
+                                   /           \\
+                                  *              *
+  _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _   _
+
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=recover to a new-address asymmetric ready state, not reverse-play the launch
+support=BOTH_FEET_DISPLACED | contact=CLEAR | threat_state=ABSENT
+root_note=root settles at a new address with residual forward-facing bias
+rear_foot=ACTIVE | front_foot=ACTIVE
