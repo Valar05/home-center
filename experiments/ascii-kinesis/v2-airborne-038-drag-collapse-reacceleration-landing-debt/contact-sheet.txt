@@ -1,0 +1,533 @@
+ASCII KINESIS V2 - AIRBORNE038
+Primitive: AIRBORNE_DRAG_AUTHORITY_COLLAPSE_REACCELERATION_LANDING_DEBT
+Experiment: v2-airborne-038-drag-collapse-reacceleration-landing-debt
+Source evidence: TSR 500827 / campaign artifact 1vTgZso5TSriX11FmZyBCDo65XfSCX5-0a36ffMbv6mQ
+Source timing: UNKNOWN | decisive timing: INFERRED / STREET_FIGHTER-CAPCOM
+Rights firewall: source pixels/art/audio absent; abstract ASCII rig only.
+Legend: O head | @ root | o joint | h hand | ^ support | ~ external drag surface | : tether
+
+A038-K0  ASYMMETRIC GROUND LOAD
+timing=FOURS provenance=INFERRED support=LEFT_FOOT,RIGHT_FOOT drag=STOWED
+causal_role=ANTICIPATION_LOAD_BEFORE_SUPPORT_BREAK
+root_note=GROUND SUPPORT; BODY PRELOADS ASYMMETRICALLY; EXTERNAL DRAG SURFACE STOWED
+               O
+                |
+               -|---o
+             -- |    \
+           o-   |     \
+          |     |      h
+          |     |
+         |      |
+         h      @
+               / |
+  V=ZERO      /  |
+             /    |
+  D:STOWED  o     |
+            |      |
+           |       o
+           |        \
+           |         \
+          |          \
+          |           \
+==========^===========^====
+
+A038-K1  SUPPORT BREAK / LAUNCH
+timing=ONES provenance=INFERRED support=NONE drag=STOWED
+causal_role=EARN_UNSUPPORTED_FLIGHT
+root_note=SUPPORT BREAK IS EXPLICIT; ROOT LAUNCHES UP-RIGHT; DRAG STILL STOWED
+                  O
+                 |
+                -|-
+             o-- | --
+            /    |   -o
+          //     |     \
+         h       |     \
+                 |      \
+                 @      \
+                / \      h
+   V=UP_RIGHT   /  \\
+               /     \
+   D:STOWED    /      o
+              o        \
+              |         \
+             |          \
+             |           \
+            |
+            |
+
+
+
+
+
+
+
+=============================
+
+A038-K2  RISING OPEN BODY
+timing=TWOS provenance=INFERRED support=NONE drag=STOWED
+causal_role=ESTABLISH_BALLISTIC_RISE_WITHOUT_EXTERNAL_DRAG
+root_note=BALLISTIC RISE; SUPPORT NONE; OPEN LIMBS ESTABLISH CLEAR FLIGHT SILHOUETTE
+                  O
+                 |
+               --|--
+        h---o--  |  --o
+                 |     \
+                 |      \\
+                 |        h
+                 |
+                 @
+                / \
+   V=UP_RIGHT  /   \\
+               /     \
+   D:STOWED   /       o
+             o         \
+            /           \
+          //             \
+         /
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+==============================
+
+A038-K3  APEX READ
+timing=FOURS provenance=INFERRED support=NONE drag=STOWED
+causal_role=HOLD_READABLE_APEX_WITH_SUPPORT_NONE
+root_note=APEX HOLD; SUPPORT NONE; NO FORCE OWNER CHANGE
+                 O
+                 |
+               --|-      -h
+           o---  | --  --
+          /      |   -o
+        //       |
+       h         |
+                 |
+                 @
+                / \
+   V=RIGHT_NEAR_ZERO_Y
+              /     \
+   D:STOWED  /       \
+            o         o
+           /           \
+         //             \\
+        /                 \
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+==============================
+
+A038-K4  DESCENT / DEPLOY PREP
+timing=TWOS provenance=INFERRED support=NONE drag=STOWED
+causal_role=ORGANIZE_BODY_BEFORE_DRAG_SURFACE_OPENS
+root_note=DESCENT BEGINS BEFORE DEPLOY; BODY PREP DOES NOT ALTER ROOT CONTINUITY
+          h     O
+           \     |       h
+           \   --|--   //
+            o--  |  --o
+                 |
+                 |
+                 |
+                 |
+                 @
+                / \
+   V=RIGHT_DOWN/  \
+               /   \
+   D:STOWED   /     \
+             o      \
+            /        o
+           /          \
+           /           \
+          /            \
+                        \
+
+
+
+
+
+
+
+
+
+
+
+
+
+=============================
+
+A038-K5  DRAG SURFACE DEPLOY
+timing=ONES provenance=INFERRED support=NONE drag=DEPLOYING
+causal_role=EXTERNAL_FORCE_SURFACE_OPENS_WITHOUT_NEW_ROOT_IMPULSE
+root_note=SURFACE OPENS WHILE ROOT CONTINUES DOWN; NO SECOND LAUNCH
+           ~~~~~~~~~~~~~
+           :           :
+           :           :
+           :           :
+            :   O     :
+          h :    |    :
+           \:  --|--  : -h
+            o--  |  --o-
+                 |
+                 |
+                 |
+                 |
+                 @
+                / \
+   V=RIGHT_DOWN/  \
+               /   \
+   D:DEPLOYING/     \
+             o      \
+             |       o
+            |         \
+            |          \
+           |            \
+           |
+
+
+
+
+
+
+
+
+
+
+
+=============================
+
+A038-K6  DRAG CAPTURE / HANG
+timing=FOURS provenance=INFERRED support=NONE drag=CAPTURED
+causal_role=EXTERNAL_DRAG_BECOMES_DOMINANT_DESCENT_SHAPER
+root_note=OPEN SURFACE CAPTURES AIR; ROOT DESCENT SPACING COMPRESSES; STILL SUPPORT NONE
+         /______________\
+       ~~~~~~~~~~~~~~~~~~~~
+         :               :
+          :             :
+          :             :
+           :           :
+           :     O     :
+          h:     |     :h
+           \:  --|--  :/
+            o--  |  --o
+                 |
+                 |
+                 |
+                 |
+                 @
+                / \
+   V=RIGHT_DOWN_SLOW
+               /   \
+   D:CAPTURED /     \
+             o       o
+             |       |
+            |         |
+            |         |
+           |           |
+           |           |
+
+
+
+
+
+
+
+
+
+
+==============================
+
+A038-K7  CONTROLLED DRAG DESCENT
+timing=FOURS provenance=INFERRED support=NONE drag=CAPTURED
+causal_role=PROVE_LOW_VERTICAL_SPACING_WHILE_SUPPORT_REMAINS_NONE
+root_note=CONTROLLED DESCENT WITH SMALLER Y STEP; BODY SWAYS LOCALLY UNDER SAME EXTERNAL FORCE OWNER
+        /______________\
+      ~~~~~~~~~~~~~~~~~~~~
+         :              :
+         :              :
+          :            :
+          :            :
+           :      O    : h
+           :     |     :/
+        h-- :  --|-   : /
+           -o--  | -- :/
+                 |   -o
+                 |
+                 |
+                 |
+                 @
+                / \
+   V=RIGHT_DOWN_SLOW
+              /    \
+   D:CAPTURED/      \
+            o       \
+           /         o
+          /           \
+          /            \
+         /             \
+                        \
+
+
+
+
+
+
+
+
+
+=============================
+
+A038-K8  ASYMMETRIC CANOPY COLLAPSE
+timing=TWOS provenance=INFERRED support=NONE drag=COLLAPSING
+causal_role=REDUCE_EXTERNAL_DRAG_AREA_WITHOUT_SUPPORT_CHANGE
+root_note=DRAG AREA COLLAPSES ASYMMETRICALLY; ROOT STILL DESCENDS; SUPPORT REMAINS NONE
+         ~~~~~~~~~~~
+            : \~ :
+            :     :
+            :      :
+             :     O:    h
+             :    / :    |
+             :  -/-  :  |
+            -o-- | ---: |
+         h--     |    -o
+                 |
+                 |
+                 |
+                 @
+                / \
+   V=RIGHT_DOWN_GAINING
+             /      \
+   D:COLLAPSING     \
+           /         \
+          /           o
+          /            \
+         /              \
+                        \
+                         \
+
+
+
+
+
+
+
+=============================
+
+A038-K9  DRAG AUTHORITY LOST
+timing=ONES provenance=INFERRED support=NONE drag=COLLAPSED
+causal_role=FORCE_OWNER_DROPS_OUT_WHILE_BODY_REMAINS_UNSUPPORTED
+root_note=EXTERNAL DRAG AUTHORITY IS EFFECTIVELY LOST; BODY IS STILL UNSUPPORTED; DOWNWARD SPACING INCREASES
+            ~~~
+             ~:
+             : ::  O
+             :   ::
+             :  -/-::     h
+             o-- | --:: //
+            /    |    -o
+           /     |
+          h      |
+                 |
+                 @
+                / \
+   V=RIGHT_DOWN_FASTER
+              /     \
+   D:COLLAPSED       \
+            /         \
+           /           o
+           /            \
+          /              \
+                         \
+                          \
+
+
+==============================
+
+A038-K10  REACCELERATED PRECONTACT
+timing=TWOS provenance=INFERRED support=NONE drag=COLLAPSED
+causal_role=LANDING_PREP_OCCURS_AFTER_FALL_RATE_HAS_INCREASED
+root_note=REACCELERATED FALL; RIGHT TOE LOW BUT CLEAR; LANDING PREP DOES NOT WAIT FOR ANY SURFACE RECOVERY
+           ~~~
+            ~:
+            : ::  O
+            :   ::
+            :  --|::
+            o--  | -::
+           /     |   -o
+          /      |     \\
+          /      |       h
+         h       |
+                 @
+                / \
+   V=RIGHT_DOWN_FAST
+             o      \
+   D:COLLAPSED       o-
+            /          --
+           /
+
+=============================
+
+A038-K11  RIGHT TOE CATCH
+timing=ONES provenance=INFERRED support=RIGHT_FOOT drag=COLLAPSED
+causal_role=FIRST_SUPPORT_ACQUISITION_ARRESTS_HIGHER_FALL_RATE_UNILATERALLY
+root_note=RIGHT TOE EARNS FIRST GROUND SUPPORT; HIGHER FALL RATE BEGINS UNILATERAL ARREST
+          ~~~
+           ~::
+           :  ::O
+           :    ::
+           :    -|::
+           : --- | -:o
+           o-    |    \\
+          /      |      h
+        //       |
+       h         |
+                 @
+               // \
+   V=RIGHT_DOWN_HIGH
+            o      \
+   D:COLLAPSED      o
+           /         \
+          /           \
+                       \
+=======================^====
+
+A038-K12  UNILATERAL CRUSH / CANOPY LAG
+timing=FOURS provenance=INFERRED support=RIGHT_FOOT drag=COLLAPSED
+causal_role=PAY_DRAG_LOSS_WITH_DEEP_RIGHT_SIDE_COMPRESSION_AND_SECONDARY_LAG
+root_note=RIGHT SUPPORT HOLDS; ROOT COMPRESSES DEEP; LEFT FOOT STILL NOT AUTHORITY; COLLAPSED DRAG RIG LAGS
+        ~~~
+         ~:
+         : ::
+         :   ::
+         :    O:
+          :    \::
+          :     -\::
+          : ---- | -o
+          o-     |   \
+         /       |    \
+        /        |     h
+       /         |
+      h        --@
+           o---   -o
+   V=RIGHT_SLOW_DOWN\
+          /          \
+   D:COLLAPSED        \
+======================^====
+
+A038-K13  LEFT FOOT CHASE / DUAL CATCH
+timing=TWOS provenance=INFERRED support=LEFT_FOOT,RIGHT_FOOT drag=COLLAPSED
+causal_role=DELAY_SECOND_SUPPORT_UNTIL_AFTER_PRIMARY_CRUSH
+root_note=LEFT FOOT FINALLY EARNS SUPPORT AFTER CRUSH; TWO-FOOT BASE BRAKES RESIDUAL TRAVEL
+       ~~~
+        ~::
+         : ::
+         :   ::O
+          :    :::
+          :    --\::
+           o---  | -:o
+          /      |    \
+         /       |     \
+        /        |      h
+       h         |
+                -@
+              --  \\
+   V=RIGHT_NEAR_STOPo
+           /         \
+   D:COLLAPSED        \
+          /            \
+==========^============^====
+
+A038-K14  REBOUND / TORSO OVERRUN
+timing=TWOS provenance=INFERRED support=LEFT_FOOT,RIGHT_FOOT drag=COLLAPSED
+causal_role=RELEASE_STORED_COMPRESSION_WITH_UPPER_BODY_OVERSHOOT
+root_note=ROOT REBOUNDS WHILE SUPPORT REMAINS; TORSO/RIGHT ARM OVERRUN FORWARD
+      ~~~
+       ~::         O
+         :::::    /
+           :: ::::-
+            h:o- |::::-
+                 |    ::o
+                 |       \
+                 |        \\
+                 |          h
+                 @
+                / \
+   V=UP_SMALL_RIGHT\
+              /     \
+   D:COLLAPSED       o
+            |         \
+            |          \
+           |           \
+           |            \
+===========^============^=======
+
+A038-K15  DISPLACED SETTLE / RIG LAG
+timing=TWOS provenance=INFERRED support=LEFT_FOOT,RIGHT_FOOT drag=COLLAPSED
+causal_role=DAMP_REBOUND_WITH_EXTERNAL_SURFACE_AND_ARM_LAG
+root_note=ROOT SETTLES FORWARD OF TAKEOFF; ARM AND COLLAPSED DRAG RIG LAG REMAIN
+      ~~~         O
+       ~::::     |
+         :::::::::::
+            :o-- |  :::o
+            /    |      \
+            /    |       \
+           h     |       \
+                 |        \
+                 @         h
+                / \
+   V=NEAR_ZERO//   \
+             o      \
+   D:COLLAPSED       o
+            |         \
+           |           \
+           |            \
+===========^============^======
+
+A038-K16  ACTION-READY OFFSET RESTACK
+timing=FOURS provenance=INFERRED support=LEFT_FOOT,RIGHT_FOOT drag=COLLAPSED
+causal_role=REENTER_READY_WITH_DISPLACEMENT_AND_DRAG_DEBT_VISIBLE
+root_note=ACTION-READY SUPPORT REBINDS AT DISPLACED ADDRESS; NO REVERSE-PLAY RESET
+       ~~~       O
+        ~::::    |
+          :: ::::::-
+            :o-- | :::o
+            /    |     \
+           /     |      \
+           /     |      \
+          h      |       h
+                 @
+                / \
+   V=ZERO      /   \
+              /     \
+   D:COLLAPSED       o
+            |         \
+            |          \
+           |           \
+           |            \
+===========^============^====
