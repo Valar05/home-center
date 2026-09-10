@@ -17,28 +17,37 @@ permissions:
 
 jobs:
   deterministic-contract:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64]
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - name: Compile candidate
-        run: python -m py_compile tools/ritsu_context_router.py tools/test_ritsu_context_router.py
-      - name: Run Ritsu continuity canaries
-        run: python tools/test_ritsu_context_router.py
-      - name: Smoke canonical cue
+      - name: Refuse the wrong execution body
+        shell: powershell
         run: |
-          python tools/ritsu_context_router.py "Latin plays" > /tmp/ritsu-latin.json
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          data = json.loads(Path('/tmp/ritsu-latin.json').read_text())
-          assert data['status'] == 'MATCH', data
-          assert data['episode_id'] == 'ritsu-latin-cassette-intercom-v1', data
-          assert data['provenance_tier'] == 'accepted_summary', data
-          assert data['world_knowledge_allowed'] is False, data
-          assert data['seek_primary'] is True, data
-          assert any('dropped' in item for item in data['corrections']), data
-          PY
+          if ($env:COMPUTERNAME -ine 'THECAULDRON') {
+            throw "Refusing Ritsu OS contract test on $env:COMPUTERNAME; expected THECAULDRON."
+          }
+          Write-Host "RITSU_TEST_BODY_OK computer=$env:COMPUTERNAME"
+      - name: Compile candidate
+        shell: powershell
+        run: |
+          python -m py_compile tools/ritsu_context_router.py tools/test_ritsu_context_router.py
+          if ($LASTEXITCODE -ne 0) { throw 'Ritsu candidate compilation failed.' }
+      - name: Run Ritsu continuity canaries
+        shell: powershell
+        run: |
+          python tools/test_ritsu_context_router.py
+          if ($LASTEXITCODE -ne 0) { throw 'Ritsu continuity canaries failed.' }
+      - name: Smoke canonical cue
+        shell: powershell
+        run: |
+          $payload = python tools/ritsu_context_router.py "Latin plays"
+          if ($LASTEXITCODE -ne 0) { throw 'Ritsu canonical cue smoke failed.' }
+          $data = $payload | ConvertFrom-Json
+          if ($data.status -ne 'MATCH') { throw "Expected MATCH; got $($data.status)" }
+          if ($data.episode_id -ne 'ritsu-latin-cassette-intercom-v1') { throw "Wrong episode: $($data.episode_id)" }
+          if ($data.provenance_tier -ne 'accepted_summary') { throw "Wrong provenance: $($data.provenance_tier)" }
+          if ($data.world_knowledge_allowed -ne $false) { throw 'World-knowledge hijack gate is open.' }
+          if ($data.seek_primary -ne $true) { throw 'Missing-primary obligation disappeared.' }
+          if (-not (($data.corrections -join ' ') -match 'dropped')) { throw 'AGAIN correction overlay is missing.' }
+          Write-Host $payload
