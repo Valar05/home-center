@@ -1,0 +1,293 @@
+ASCII KINESIS V2 CONTACT026 — CAPTIVE RELATIONSHIP / ZERO-CONTACT TOPOLOGY GATE
+Primitive: CAPTIVE_RELATIONSHIP_PERSISTS_THROUGH_ZERO_CONTACT
+Pocket rule: NO CONTACT DOES NOT MEAN FREE. The threaded endpoint can float inside the eyelet at zero contact/zero force while the captive relationship remains.
+Legend: O head | P root | x COM | o hand | > tool endpoint | @ geometric rim contact | C captive relationship | ! support | ? eligibility/probe
+Eyelet is an authored abstract constraint. Source art/pixels/palette/choreography never enter the output.
+
+C026-K00 READY_CLEAR [FOURS/INFERRED]
+REL=FREE CAPTURE=OUTSIDE CONTACT=OPEN FORCE=NONE N=0.00
+ROOT=[22, 21] COM_CONSEQUENCE=lean:-1 SUPPORT=BOTH CUSTODY=HANDS ROLE=READY_NEGATIVE_SPACE
+                                                              
+                                             /==^==\          
+                                             (     )          
+                                             (     )          
+                                             (     )          
+         O                                   (     )          
+         |                         ===>      (     )          
+          --               ========          (     )          
+         || -- -----o======                  (     )          
+          |   --o===                         \==v==/          
+         x  --                                                
+          |                                                   
+          P                                                   
+_____!_________!______________________________________________
+
+C026-K01 ALIGN_EYELET [TWOS/INFERRED]
+REL=ELIGIBLE CAPTURE=ALIGNED_OUTSIDE CONTACT=OPEN FORCE=NONE N=0.00
+ROOT=[22, 21] COM_CONSEQUENCE=lean:-2 SUPPORT=REAR_HEAVY CUSTODY=HANDS ROLE=ELIGIBILITY_BEFORE_ACQUISITION
+                                                              
+                                             /==^==\          
+                                             (     )          
+                                             (     )          
+                                             (     )          
+         O                               ===>(     ) ?        
+         |                        =======    (     )          
+          --                ======           (     )          
+         || -- ------o======                 (     )          
+         ||   ---o===                        \==v==/          
+         x  --                                                
+          |                                                   
+          P                                                   
+_____!________________________________________________________
+
+C026-K02 THREAD_ENDPOINT [ONES/INFERRED]
+REL=CAPTIVE CAPTURE=THREADED_ZERO_CONTACT CONTACT=GAP FORCE=NONE N=0.00
+ROOT=[23, 21] COM_CONSEQUENCE=lean:-1 SUPPORT=BOTH_BRACED CUSTODY=HANDS ROLE=TOPOLOGY_ACQUIRE_WITHOUT_FORCE
+                                                              
+                                             /==^==\          
+                                             (     )          
+                                             (     )          
+                                             (     )          
+          O                                  (   ====C        
+          |                             =========  )          
+           --                   ========     (     )          
+          || -- ------o=========             (     )          
+           |   ---o====                      \==v==/          
+          x  --                                               
+           |                                                  
+           P                                                  
+______!_________!_____________________________________________
+
+C026-K03 UPPER_RIM_ACQUIRE [ONES/INFERRED]
+REL=CAPTIVE CAPTURE=THREADED_CONTACT CONTACT=UPPER_RIM FORCE=EYELET_UPPER N=0.35
+ROOT=[22, 21] COM_CONSEQUENCE=lean:-2 SUPPORT=BOTH_BRACED CUSTODY=HANDS ROLE=CONTACT_ACQUIRE
+                                              <<              
+                                             /==@==\          
+                                             (     )  ==>     
+                                             (   =====        
+                                             ====  )          
+                                        =====(     ) C        
+         O                         =====     (     )          
+         |                    =====          (     )          
+          --              ====               (     )          
+         || -- ------=o===                   \==v==/          
+         x|    ---o==                                         
+          |                                                   
+          P                                                   
+_____!_________!______________________________________________
+
+C026-K04 UPPER_LOAD_MAX [TWOS/INFERRED]
+REL=CAPTIVE CAPTURE=THREADED_CONTACT CONTACT=UPPER_RIM FORCE=EYELET_UPPER N=1.00
+ROOT=[20, 22] COM_CONSEQUENCE=lean:-4 SUPPORT=REAR_HEAVY CUSTODY=HANDS ROLE=LOAD_ROOT_COM_COUNTERLEAN
+                                              <<              
+                                             /==@==\    ==>   
+                                             (     )====      
+                                             (  ====          
+                                            ====   )          
+                                        ==== (     ) C        
+                                    ====     (     )          
+                                ====         (     )          
+     O                      ====             (     )          
+      |                 ====                 \==v==/          
+       --       ----=o==                                      
+       |   ----                                               
+         --                                                   
+___!__________________________________________________________
+
+C026-K05 CENTER_GAP_OVERRUN [ONES/INFERRED]
+REL=CAPTIVE CAPTURE=THREADED_ZERO_CONTACT CONTACT=GAP FORCE=NONE N=0.00
+ROOT=[21, 21] COM_CONSEQUENCE=lean:-1 SUPPORT=BOTH CUSTODY=HANDS ROLE=ZERO_CONTACT_RELATIONSHIP_PERSISTS
+                                                              
+                                             /==^==\          
+                                             (     )          
+                                             (     )          
+                                             (     )          
+                                             (     ) C====>   
+        O                                  ==========         
+        |                        ==========  (     )          
+         --       ----o==========            (     )          
+        || -- ----o====                      \==v==/          
+        x|  ----                                              
+         |                                                    
+         P                                                    
+____!_________!_______________________________________________
+
+C026-K06 LOWER_RIM_CATCH [ONES/INFERRED]
+REL=CAPTIVE CAPTURE=THREADED_CONTACT CONTACT=LOWER_RIM FORCE=EYELET_LOWER N=0.45
+ROOT=[23, 21] COM_CONSEQUENCE=lean:1 SUPPORT=FRONT_CATCH CUSTODY=HANDS ROLE=OPPOSITE_CONTACT_CATCH
+                                                              
+                                             /==^==\          
+                                             (     )          
+                                             (     )          
+                                             (     )          
+                                             (     ) C        
+            O                                (     )          
+            |  -- ----o                      (     )          
+             --   o======================================>    
+            ||  --                           \==@==/          
+           |x| /                              <<              
+           |                                                  
+           P                                                  
+________________!_____________________________________________
+
+C026-K07 LOWER_LOAD_MAX [TWOS/INFERRED]
+REL=CAPTIVE CAPTURE=THREADED_CONTACT CONTACT=LOWER_RIM FORCE=EYELET_LOWER N=0.90
+ROOT=[26, 22] COM_CONSEQUENCE=lean:4 SUPPORT=FRONT_HEAVY CUSTODY=HANDS ROLE=OPPOSING_LOAD_ROOT_COM_REACTION
+                                                              
+                                             /==^==\          
+                                             (     )          
+                                             (     )          
+                                             (     )          
+                                             (     ) C        
+                        o                    (     )          
+                    o========                (     )          
+                 O  | /      ==================    )          
+                |  --                        \==@=======>     
+                 --|                          <<              
+               | ||                                           
+                                                              
+___________________!__________________________________________
+
+C026-K08 UNLOAD_CENTER [TWOS/INFERRED]
+REL=CAPTIVE CAPTURE=THREADED_ZERO_CONTACT CONTACT=GAP FORCE=NONE N=0.00
+ROOT=[25, 21] COM_CONSEQUENCE=lean:2 SUPPORT=BOTH CUSTODY=HANDS ROLE=UNLOAD_WITHOUT_RELEASE
+                                                              
+                                             /==^==\          
+                                             (     )          
+                                             (     )          
+                                             (     )          
+                                             (    ===C>       
+              O                           ======== )          
+              |                  =========   (     )          
+               --     --o========            (     )          
+              || ---o====                    \==v==/          
+              x| --                                           
+             |                                                
+             P                                                
+________!_________!___________________________________________
+
+C026-K09 WITHDRAW_NEAR_PLANE [TWOS/INFERRED]
+REL=CAPTIVE CAPTURE=ENDPOINT_STILL_THREADED CONTACT=GAP FORCE=NONE N=0.00
+ROOT=[24, 21] COM_CONSEQUENCE=lean:0 SUPPORT=BOTH CUSTODY=HANDS ROLE=WITHDRAWAL_BEFORE_RELEASE
+                                                              
+                                             /==^==\          
+                                             (     )          
+                                             (     )          
+                                             (     )          
+            O                                (====>) C        
+            |                         ========     )          
+             --               ========       (     )          
+            || -- ----o=======               (     )          
+            ||  --o===                       \==v==/          
+            x  -                                              
+            |                                                 
+            P                                                 
+_______!_________!____________________________________________
+
+C026-K10 ENDPOINT_ESCAPE [ONES/INFERRED]
+REL=FREE CAPTURE=ENDPOINT_CLEARED CONTACT=OPEN FORCE=NONE N=0.00
+ROOT=[24, 21] COM_CONSEQUENCE=lean:-1 SUPPORT=BOTH CUSTODY=HANDS ROLE=TOPOLOGY_RELEASE_REAL_GAP
+                                                              
+                                             /==^==\          
+                                             (     )          
+                                             (     )          
+                                             (     )          
+           O                            ===> (     )          
+           |                      ======     (     )          
+            --             =======           (     )          
+           || -- ----o=====                  (     )          
+            |  --o===                        \==v==/          
+           x  -                                               
+            |                                                 
+            P                                                 
+_______!_________!____________________________________________
+
+C026-K11 ARC_UP_LEFT [ONES/INFERRED]
+REL=FREE CAPTURE=FREE_ARC CONTACT=OPEN FORCE=NONE N=0.00
+ROOT=[25, 21] COM_CONSEQUENCE=lean:-2 SUPPORT=REAR_TO_DUAL CUSTODY=HANDS ROLE=AUTHORED_ESCAPE_BRIDGE_A
+                                    ====                      
+                                ====         /==^==\          
+                            ====             (     )          
+                        ====                 (     )          
+                    ==o=                     (     )          
+            O     o=-                        (     )          
+            |  --/-                          (     )          
+             -- |                            (     )          
+            ||  |                            (     )          
+            || /                             \==v==/          
+            x                                                 
+             |                                                
+             P                                                
+________!_____________________________________________________
+
+C026-K12 ARC_OVER_EYELET [ONES/INFERRED]
+REL=FREE CAPTURE=FREE_ARC CONTACT=OPEN FORCE=NONE N=0.00
+ROOT=[27, 20] COM_CONSEQUENCE=lean:1 SUPPORT=FRONT_PROBE CUSTODY=HANDS ROLE=AUTHORED_ESCAPE_BRIDGE_B
+                               ======                         
+                        o======              /==^==\          
+                    o===                     (     )          
+                    |  |                     (     )          
+                O  |  /                      (     )          
+                |  --                        (     )          
+                 --|                         (     )          
+                || |                         (     )          
+               | ||                          (     )          
+                x                            \==v==/          
+               |                                              
+               P                                              
+              / \                                             
+____________________?_________________________________________
+
+C026-K13 FREE_RIGHT_OVERSHOOT [TWOS/INFERRED]
+REL=FREE CAPTURE=ORDER_CHANGED_AFTER_RELEASE CONTACT=OPEN FORCE=NONE N=0.00
+ROOT=[29, 20] COM_CONSEQUENCE=lean:4 SUPPORT=FRONT_CATCH CUSTODY=HANDS ROLE=POST_RELEASE_OVERSHOOT
+                           o ===========                      
+                       o=====                /==^==\          
+                       |  |                  (     )          
+                       | |                   (     )          
+                    O |  |                   (     )          
+                   |  --                     (     )          
+                    --|                      (     )          
+                   || |                      (     )          
+                  | ||                       (     )          
+                    x                        \==v==/          
+                  |                                           
+                 P                                            
+                / \                                           
+______________________!_______________________________________
+
+C026-K14 COUNTER_CATCH [TWOS/INFERRED]
+REL=FREE CAPTURE=ORDER_CHANGED_AFTER_RELEASE CONTACT=OPEN FORCE=NONE N=0.00
+ROOT=[31, 21] COM_CONSEQUENCE=lean:-3 SUPPORT=FRONT_HEAVY CUSTODY=HANDS ROLE=COUNTER_OVERSHOOT_SECONDARY_LAG
+                                         ===========          
+                            o ===========    /==^==\          
+                        o=====               (     )          
+                       |  /                  (     )          
+                       | /                   (     )          
+                      | /                    (     )          
+                O     |/                     (     )          
+                 |  --                       (     )          
+                  -- |                       (     )          
+                 || |                        \==v==/          
+                 x| |                                         
+                   |                                          
+                   P                                          
+________________________!_____________________________________
+
+C026-K15 DISPLACED_SETTLE [FOURS/INFERRED]
+REL=FREE CAPTURE=DISPLACED_RECOVERY CONTACT=OPEN FORCE=NONE N=0.00
+ROOT=[28, 21] COM_CONSEQUENCE=lean:0 SUPPORT=BOTH_DISPLACED CUSTODY=HANDS ROLE=SETTLE_WITH_RECOVERY_DEBT
+                                            ========          
+                                   ========= /==^==\          
+                          o========          (     )          
+                      o====                  (     )          
+                     | --                    (     )          
+                O    |/                      (     )          
+                |  --                        (     )          
+                 -- |                        (     )          
+                || |                         (     )          
+                || |                         \==v==/          
+                x                                             
+                |                                             
+                P                                             
+___________!_________!________________________________________
