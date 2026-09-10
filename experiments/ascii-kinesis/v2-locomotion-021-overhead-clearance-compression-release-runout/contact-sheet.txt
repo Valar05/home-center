@@ -1,0 +1,371 @@
+ASCII KINESIS V2 · LOCOMOTION 021 · OVERHEAD CLEARANCE COMPRESSION / RELEASE RUNOUT
+legend: @ root/COM · * support owner · + probe · # overhead clearance underside · . fixed ground · O head
+source evidence: Samus Aran (Power Suit) / Metroid: Zero Mission / GBA / TSR asset 106418 / Home Center artifact 1H3ceHukijHxTRnsCuxsG1-ylAd-MQ5kmNM5z4Kon77U
+OBSERVED: commissioned static whole-sheet evidence separates repeated body organizations from detached component/configuration banks; it supplies pose-family evidence, not this choreography.
+UNKNOWN: source chronology/exposure/gameplay cadence; source page Animations (0). Authored cadence below is INFERRED / STREET_FIGHTER-CAPCOM.
+rights firewall: generic abstract rig only; no source pixels, palette, costume, contours, layout, tracing, choreography, audio, redistribution, or close imitation.
+thesis: compress root/COM before a low overhead constraint while fixed-ground travel continues; release only after exit, then pay surviving forward debt with one long free catch and shorter displaced corrections.
+
+K00 OPEN_APPROACH · FOURS/4f · INFERRED · support=LEFT_APPROACH · phase=APPROACH · rootΔ=0px
+
+
+
+
+
+
+
+            O
+
+          / T \          ##########################
+        o/  |  o
+            |
+           |
+           |
+           @
+         // \\
+        /     \
+        /     \
+        /      \
+        /      \
+:...:..._...:.._:...:...:...:...:...:...:...:...:...:...:...:...:...:...
+        *
+
+causal: ESTABLISH_FORWARD_TRAVEL_AT_FULL_HEIGHT
+
+K01 CLEARANCE_READ · TWOS/2f · INFERRED · support=RIGHT_NEW_CONTACT · phase=ANTICIPATION · rootΔ=22px
+
+
+
+
+
+
+
+
+                O
+                         ##########################
+              / T \\o
+             o  |
+                |
+               |
+               @
+              / \
+             /   \
+            /     \
+            /     \
+           /       \
+:...:...:.._:...:.._:...:...:...:...:...:...:...:...:...:...:...:...:...
+                   *
+
+causal: READ_OVERHEAD_CONSTRAINT_BEFORE_ENTRY
+
+K02 PREENTRY_COMPRESSION · TWOS/2f · INFERRED · support=RIGHT_FIXED · phase=DUCK_BEFORE_ZONE · rootΔ=26px
+
+
+
+
+
+
+
+
+
+                         ##########################
+                     O
+
+                   / T \
+                  /o |  \o
+                    |
+                    |
+                   @
+                 /\
+                 /\
+                /  \
+:...:...:...:..._.._:...:...:...:...:...:...:...:...:...:...:...:...:...
+                   *
+
+causal: LOWER_ROOT_COM_BEFORE_HEAD_CROSSES_CLEARANCE_EDGE
+
+K03 LOW_ENTRY_PROBE · TWOS/2f · INFERRED · support=RIGHT_FIXED · phase=LOW_ENTRY · rootΔ=24px
+
+
+
+
+
+
+
+
+
+                         ##########################
+
+
+                          O
+                       / T \
+                       / |  \
+                       /|   \
+                        o   o
+                      \@/
+                    \\   //
+                   \       /
+:...:...:...:...:.._:...:.._:...:...:...:...:...:...:...:...:...:...:...
+                   *       +
+
+causal: PROBE_NEXT_SUPPORT_ONLY_AFTER_PREENTRY_COMPRESSION
+
+K04 LOW_LEFT_OWNS · TWOS/2f · INFERRED · support=LEFT_LOW · phase=LOW_TRAVERSE_A · rootΔ=25px
+
+
+
+
+
+
+
+
+
+                         ##########################
+
+
+
+                              O
+                           / T \
+                           /|   \
+                           /o  o\
+                          \@
+                        \\/
+                        \  /
+:...:...:...:...:...:..._.._:...:...:...:...:...:...:...:...:...:...:...
+                           *
+
+causal: TRANSFER_SUPPORT_WITHOUT_SURRENDERING_LOW_CLEARANCE_SHAPE
+
+K05 LOW_RIGHT_SWING · TWOS/2f · INFERRED · support=LEFT_LOW · phase=LOW_TRAVERSE_B · rootΔ=28px
+
+
+
+
+
+
+
+
+
+                         ##########################
+
+
+                                   O
+
+                                / T \
+                               / |   \
+                                /o  o
+                               /@\
+                            ///   \\
+                           /        \
+:...:...:...:...:...:...:.._:...:..._...:...:...:...:...:...:...:...:...
+                           *
+
+causal: CONTINUE_FORWARD_MOMENTUM_WHILE_CLEARANCE_CONSTRAINS_ROOT_HEIGHT
+
+K06 LOW_RIGHT_PROBE · TWOS/2f · INFERRED · support=LEFT_LOW · phase=LOW_TRAVERSE_C · rootΔ=28px
+
+
+
+
+
+
+
+
+
+                         ##########################
+
+
+
+                                       O
+                                    / T \
+                                    / |  \
+                                    o|  o\
+                                  ///@\
+                              ////     \\
+                            //          \
+:...:...:...:...:...:...:.._:...:...:..._...:...:...:...:...:...:...:...
+                           *            +
+
+causal: EARN_NEXT_LOW SUPPORT BEFORE OWNERSHIP CHANGE
+
+K07 LOW_RIGHT_OWNS · TWOS/2f · INFERRED · support=RIGHT_LOW · phase=CLEARANCE_EXIT_APPROACH · rootΔ=30px
+
+
+
+
+
+
+
+
+
+                         ##########################
+
+
+                                            O
+                                         / T \
+                                        /  |  \
+                                        /o |  \
+                                          |  o
+                                         \@
+                                      /\\
+                                      / \
+:...:...:...:...:...:...:...:...:...:._._...:...:...:...:...:...:...:...
+                                        *
+
+causal: OWN_FINAL_LOW_SUPPORT_BEFORE_CLEARANCE_RELEASE
+
+K08 EXIT_RELEASE_PROBE · ONES/1f · INFERRED · support=RIGHT_LOW · phase=CLEARANCE_RELEASE · rootΔ=31px
+
+
+
+
+
+
+
+
+
+                         ##########################
+
+                                                 O
+                                              / T \
+                                             /  |  \
+                                             o  |  \
+                                               |  o
+                                             \\@//
+                                          \\\     ///
+                                         \           /
+                                         \           /
+:...:...:...:...:...:...:...:...:...:..._...:...:...:._.:...:...:...:...
+                                        *             +
+
+causal: CLEAR_HEAD_CONSTRAINT_BEFORE VERTICAL_RESTACK_AND_PROBE_LONG_EXIT_SUPPORT
+
+K09 LONG_EXIT_CATCH · ONES/1f · INFERRED · support=LEFT_EXIT · phase=RUNOUT_SPIKE · rootΔ=38px
+
+
+
+
+
+
+
+
+
+                         ##########################   O
+                                                    / T \
+                                                   o  | \
+                                                      |o\
+                                                     |
+                                                     |
+                                                   \\@
+                                                \\\   /
+                                                \      /
+                                               \       /
+                                               _      /
+:...:...:...:...:...:...:...:...:...:...:...:...:...:._.:...:...:...:...
+                                                      *
+
+causal: LET_FORWARD_VELOCITY_SURVIVE_CLEARANCE_RELEASE_INTO_LONG_FIRST_FREE_CATCH
+
+K10 RESTACK_OVERRUN · TWOS/2f · INFERRED · support=LEFT_EXIT · phase=VERTICAL_RESTACK_OVERRUN · rootΔ=25px
+
+
+
+
+
+
+
+
+
+                         ##########################       O
+                                                      /o/ T \
+                                                          |o\
+                                                          |
+                                                         |
+                                                         @
+                                                       // \\
+                                                      /     \
+                                                      /     \
+                                                      /      \
+                                                      /      \
+:...:...:...:...:...:...:...:...:...:...:...:...:...:._.:...:_..:...:...
+                                                      *
+
+causal: BEGIN_DELAYED_VERTICAL_RESTACK_WHILE_ROOT_OVERRUN_SURVIVES_EXIT_CATCH
+
+K11 SHORT_CORRECTION_PROBE · TWOS/2f · INFERRED · support=LEFT_EXIT · phase=CORRECTION_PROBE · rootΔ=15px
+
+
+
+
+
+
+
+                                                           O
+                                                         / T \
+                         ##########################     o  | \
+                                                           |o\
+                                                            |
+                                                            |
+                                                            @
+                                                           / \
+                                                         //  \
+                                                        /     \
+                                                       /      \
+                                                       /      \
+                                                      /       \
+:...:...:...:...:...:...:...:...:...:...:...:...:...:._.:...:._.:...:...
+                                                      *       +
+
+causal: FINISH_VERTICAL_RESTACK_DURING_SHORTER_CORRECTION_PROBE
+
+K12 CORRECTION_CATCH_SETTLE · TWOS/2f · INFERRED · support=RIGHT_CORRECTION · phase=SETTLE_OVERSHOOT · rootΔ=9px
+
+
+
+
+
+
+
+                                                             O
+
+                         ##########################        / T \
+                                                          o  |o\
+                                                             |
+                                                             |
+                                                             |
+                                                             @
+                                                           // \
+                                                          /    \
+                                                          /    \
+                                                          /   \
+                                                          /   \
+:...:...:...:...:...:...:...:...:...:...:...:...:...:...:._.:._.:...:...
+                                                              *
+
+causal: CATCH_RESIDUAL_FORWARD_AND_VERTICAL_DEBT_WITH_SHORTER_SUPPORT_AND_SETTLE_DROP
+
+K13 DISPLACED_RECOVERY · FOURS/4f · INFERRED · support=RIGHT_CORRECTION · phase=DISPLACED_RECOVERY · rootΔ=7px
+
+
+
+
+
+
+
+                                                              O
+
+                         ##########################         / T \
+                                                            o | o\
+                                                              |
+                                                              |
+                                                              @
+                                                             / \
+                                                             / \
+                                                            /   \
+                                                            /  \
+                                                           /   \
+                                                           /  \
+:...:...:...:...:...:...:...:...:...:...:...:...:...:...:.._:._.:...:...
+                                                              *
+
+causal: FINISH_ACTION_READY_AHEAD_OF_ENTRY_WITHOUT_IDLE_RESET
