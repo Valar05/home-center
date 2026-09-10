@@ -17,7 +17,7 @@ The repository already contains a phone-local `phone_shell` executor and the clo
 3. If Command Center is absent or disconnected, classify `chatgpt_phone_ingress_failure` and repair/reconnect that ingress before creating a manual Termux handoff.
 4. Before proposing a custom MCP reconnect, verify the current ChatGPT plan supports the required action class. Read/fetch-only MCP availability is not sufficient for `phone_shell` or any other write/modify action.
 5. Only an actual operator-only boundary or proven ingress unavailability after authorized recovery permits a manual command.
-6. Any surviving manual command must be in a fenced copy-pasteable block and must invoke a durable campaign/capability rather than a disposable diagnostic chain.
+6. Any surviving manual command must be in a fenced copy-pasteable command block and must invoke a durable campaign/capability rather than a disposable diagnostic chain.
 
 ## Current platform scar — 2026-08-13
 
@@ -26,6 +26,14 @@ OpenAI's current ChatGPT MCP documentation states that Pro users may connect cus
 Treat this as a ChatGPT product-surface capability boundary, not a missing Phone Hands capability. Re-check current official OpenAI documentation before relying on this scar later because plan capabilities can change.
 
 Do not silently substitute API-token execution, a different transport, GitHub as command transport, a visible phone UI, or Drew's hands unless the commission explicitly authorizes that boundary change.
+
+## Transient tool-registry scar — 2026-09-10
+
+A ChatGPT turn can transiently discover and advertise the Home Center `command_center_operation` tool and then reject the immediate direct invocation as `Resource not found`; a subsequent discovery can remove the Home Center namespace entirely. Treat this as `chatgpt_phone_ingress_failure`, not as phone-runtime failure, authorization revocation, Shizuku failure, or proof that Phone Hands is offline.
+
+If a Shizuku-independent rescue relay has already emitted a fresh local Home Center heartbeat, do not ask Drew to bootstrap it again merely because ChatGPT lost the Home Center tool. Preserve the rescue device identity and exact proof state. Repair or reacquire ChatGPT ingress first, then remotely list the rescue device and send one fresh `phone_shell` canary. A repeated phone bootstrap cannot repair a missing ChatGPT tool registry.
+
+Official OpenAI documentation checked on 2026-09-10 describes full custom MCP support as web-only and full write/modify MCP actions as unavailable to ordinary Pro custom-MCP use. Because observed product exposure may differ during rollouts, treat any write-capable custom Home Center tool that appears on a native mobile surface as callable only for the individual successful invocation, not as a durable platform guarantee. Re-check current official documentation whenever this boundary matters.
 
 ## Venice review requirement
 
@@ -36,7 +44,9 @@ This failure is a proven-organ bypass: the worker ignored an existing execution 
 ## Evidence states
 
 - Repository evidence proves `phone_shell` is implemented/allowed.
-- Command Center exposure proves the ChatGPT ingress is callable only when the connector/tool is actually present.
+- Command Center exposure proves the ChatGPT ingress is callable only when the connector/tool is actually present and a direct invocation succeeds.
+- Tool discovery alone does not prove callability; a discovery followed by `Resource not found` is a failed ingress probe.
 - MCP plan availability proves only the action classes the current ChatGPT plan can invoke; read/fetch MCP does not prove write-action callability.
-- A phone command receipt proves execution on `primary-phone`.
+- A rescue relay's local heartbeat proves that rescue process reached Home Center; it does not prove ChatGPT can enqueue to it.
+- A phone command receipt proves execution on the named phone device identity.
 - No other state may be rounded upward to phone execution.
