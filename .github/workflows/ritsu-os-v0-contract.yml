@@ -11,6 +11,8 @@ on:
       - tools/test_ritsu_context_router.py
       - tools/ritsu_primary_gate.py
       - tools/test_ritsu_primary_gate.py
+      - tools/ritsu_surface_gate.py
+      - tools/test_ritsu_surface_gate.py
       - .github/workflows/ritsu-os-v0-contract.yml
   workflow_dispatch:
 
@@ -33,7 +35,7 @@ jobs:
       - name: Compile candidate
         shell: powershell
         run: |
-          python -m py_compile tools/ritsu_context_router.py tools/test_ritsu_context_router.py tools/ritsu_primary_gate.py tools/test_ritsu_primary_gate.py
+          python -m py_compile tools/ritsu_context_router.py tools/test_ritsu_context_router.py tools/ritsu_primary_gate.py tools/test_ritsu_primary_gate.py tools/ritsu_surface_gate.py tools/test_ritsu_surface_gate.py
           if ($LASTEXITCODE -ne 0) { throw 'Ritsu candidate compilation failed.' }
       - name: Run Ritsu continuity canaries
         shell: powershell
@@ -45,6 +47,11 @@ jobs:
         run: |
           python tools/test_ritsu_primary_gate.py
           if ($LASTEXITCODE -ne 0) { throw 'Ritsu primary-evidence closure canaries failed.' }
+      - name: Run Ritsu-first surface canaries
+        shell: powershell
+        run: |
+          python tools/test_ritsu_surface_gate.py
+          if ($LASTEXITCODE -ne 0) { throw 'Ritsu-first surface canaries failed.' }
       - name: Smoke canonical cue
         shell: powershell
         run: |
@@ -69,4 +76,18 @@ jobs:
           if ($data.can_close_active_retrieval -ne $false) { throw 'Primary retrieval closed without complete primary evidence.' }
           if (-not ($data.missing -contains 'episode_primary_transcript')) { throw 'Episode primary gap disappeared.' }
           if (-not ($data.missing -contains 'correction_primary:latin-again-correction-v1')) { throw 'AGAIN primary gap disappeared.' }
+          Write-Host $payload
+      - name: Smoke Ritsu-first canonical surface
+        shell: powershell
+        run: |
+          $payload = python tools/ritsu_surface_gate.py "Latin plays"
+          if ($LASTEXITCODE -ne 0) { throw 'Ritsu-first canonical surface smoke failed.' }
+          $data = $payload | ConvertFrom-Json
+          if ($data.speaker -ne 'Ritsu') { throw "Wrong active surface: $($data.speaker)" }
+          if ($data.emit -ne $true) { throw 'Canonical Ritsu answer was suppressed.' }
+          if ($data.mode -ne 'answer') { throw "Wrong surface mode: $($data.mode)" }
+          if ($data.retrieval_narration_allowed -ne $false) { throw 'Retrieval narration leaked open.' }
+          if ($data.identity_explanation_allowed -ne $false) { throw 'Ritsu identity explanation leaked open.' }
+          if ($data.render_context.episode_id -ne 'ritsu-latin-cassette-intercom-v1') { throw 'Canonical episode did not reach Ritsu surface.' }
+          if (-not (($data.render_context.corrections -join ' ') -match 'dropped')) { throw 'AGAIN correction did not reach Ritsu surface.' }
           Write-Host $payload
