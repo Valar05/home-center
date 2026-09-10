@@ -1,0 +1,109 @@
+{
+  "format_version": 2,
+  "title": "ASCII Kinesis V2 Locomotion 020 — Moving-Frame Exit / Yaw-Brake Fork",
+  "slug": "v2-locomotion-020-moving-frame-exit-yaw-brake-fork",
+  "lane": "LOCOMOTION",
+  "status": "QUALITY_GATES_PASS_LOCAL_CANDIDATE",
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "predecessor": "v2-locomotion-019-support-frame-acceleration-counterstep",
+    "predecessor_durable_readback_issue_comment": 5611395990,
+    "one_successor_binding": true,
+    "successor_collision": false
+  },
+  "source": {
+    "authority": "HOME_CENTER_COMMISSIONED_CAMPAIGN",
+    "campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "evidence_artifact_file_id": "1BA2z9DYof9hEfdqYdt5SzUmMnkPe_uWpVpLfMXsB-vc",
+    "tsr_asset_id": 28829,
+    "identity": "Mowgli — The Jungle Book — Sega Genesis / 32X / SCD — Playable Characters",
+    "whole_source_inspected": true,
+    "observed": [
+      "Whole static sheet contains upright travel, low travel/crawl, airborne transitions, overhead/hand-supported traversal, and recovery/return anchors.",
+      "Upright travel repeatedly alternates dominant lower support while root/pelvis stays in a comparatively narrow vertical band.",
+      "The sheet establishes pose families and support contrasts but not source-authentic chronology or exposure duration.",
+      "TSR metadata reports PNG 1113×1665, 240.31 KB, uploader A.J. Nitro, Animated GIFs (0)."
+    ],
+    "timing_authority": "UNKNOWN",
+    "source_authentic_timing_observed": false,
+    "authored_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "source_role": "EVIDENCE_ONLY"
+  },
+  "rights": {
+    "commercial_source_art": "EVIDENCE_ONLY",
+    "source_pixels_embedded": false,
+    "source_palette_used": false,
+    "source_costume_used": false,
+    "source_contours_used": false,
+    "source_layout_used": false,
+    "source_tracing_used": false,
+    "source_choreography_copied": false,
+    "source_audio_used": false,
+    "redistribution": false,
+    "close_imitation": false,
+    "output_description": "generic abstract ASCII/humanoid rig and inferred support-frame locomotion test"
+  },
+  "novelty": {
+    "concept": "MOVING_FRAME_EXIT_YAW_BRAKE_FORK",
+    "new_causality": "A moving support frame is exited onto fixed ground while inherited world velocity must be braked before a separate support transfer can earn the heading change. Translational debt and yaw debt are separate causal joins.",
+    "not_reskin_of": [
+      "figure-eight curvature sign reversal",
+      "rolling support manifold migration",
+      "load release stride overrun",
+      "cross-step lateral momentum bleed",
+      "riser catch momentum redirect",
+      "support-frame acceleration counterstep"
+    ],
+    "failure_if": [
+      "fixed-ground probe becomes ownership immediately",
+      "world velocity clamps to zero at first fixed contact",
+      "yaw begins before translational brake is visibly earned",
+      "turn catch teleports support",
+      "root path is a straight endpoint tween",
+      "corrections have equal spacing",
+      "recovery resets to entry pose"
+    ]
+  },
+  "timing": {
+    "fps": 24,
+    "total_frames": 31,
+    "timing_system": "STREET_FIGHTER-CAPCOM",
+    "provenance": "INFERRED",
+    "classes": {
+      "ONES": 1,
+      "TWOS": 2,
+      "FOURS": 4
+    },
+    "playback_policy": "authored decisive poses with exposure holds; no endpoint interpolation; no reverse interpolation"
+  },
+  "rig": {
+    "viewport": [640,360],
+    "authoritative_video_viewport": [480,270],
+    "fixed_floor_reference_y": 238,
+    "moving_frame": {"x0":0,"x1":178,"top_y":238,"visual_velocity":"RIGHT","role":"OLD_SUPPORT_FRAME_ONLY"},
+    "turn_lane": {"entry":[178,238],"control":[258,238],"exit":[390,150],"role":"ABSTRACT_FIXED_GROUND_HEADING_GUIDE"},
+    "ascii_symbols": {"root_com":"@","support_owner":"*","probe":"+","moving_frame":"=","fixed_ground":".","head":"O"}
+  },
+  "keys": [
+    {"key_id":"K00","name":"OLD_FRAME_CARRY","timing_class":"FOURS","hold_frames":4,"root":[72,196],"torso_lean_deg":3,"yaw_deg":0,"head_lag_x":0,"left_hand_offset":[-20,8],"right_hand_offset":[22,4],"left_foot":[52,238],"right_foot":[91,238],"support":{"owner":"OLD_MOVING_BOTH","left":"PLANTED_OLD_MOVING","right":"PLANTED_OLD_MOVING"},"phase":"OLD_FRAME","root_spacing_px":0,"frame_spacing_px":0,"causal_role":"ESTABLISH_INHERITED_WORLD_VELOCITY","timing_provenance":"INFERRED","bridge_policy":"DECISIVE_KEY_EXPOSURE_ONLY","provenance":"INFERRED"},
+    {"key_id":"K01","name":"EXIT_PREP","timing_class":"TWOS","hold_frames":2,"root":[92,195],"torso_lean_deg":8,"yaw_deg":0,"head_lag_x":-1,"left_hand_offset":[-18,11],"right_hand_offset":[28,-2],"left_foot":[69,238],"right_foot":[121,238],"support":{"owner":"OLD_MOVING_TRAIL","left":"PLANTED_OLD_MOVING","right":"SWING"},"phase":"EXIT_PREP","root_spacing_px":20,"frame_spacing_px":20,"causal_role":"UNWEIGHT_LEAD_WITHOUT_SHEDDING_WORLD_SPEED","timing_provenance":"INFERRED","bridge_policy":"DECISIVE_KEY_EXPOSURE_ONLY","provenance":"INFERRED"},
+    {"key_id":"K02","name":"FIXED_PROBE","timing_class":"TWOS","hold_frames":2,"root":[118,193],"torso_lean_deg":12,"yaw_deg":0,"head_lag_x":-2,"left_hand_offset":[-15,12],"right_hand_offset":[30,0],"left_foot":[91,238],"right_foot":[179,238],"support":{"owner":"OLD_MOVING_TRAIL","left":"PLANTED_OLD_MOVING","right":"PROBE_NEW_FIXED"},"phase":"PROBE","root_spacing_px":26,"frame_spacing_px":26,"causal_role":"TOUCH_NEW_FRAME_WITHOUT_OWNERSHIP","timing_provenance":"INFERRED","bridge_policy":"DECISIVE_KEY_EXPOSURE_ONLY","provenance":"INFERRED"},
+    {"key_id":"K03","name":"DUAL_FRAME_JOIN","timing_class":"TWOS","hold_frames":2,"root":[145,192],"torso_lean_deg":16,"yaw_deg":0,"head_lag_x":-3,"left_hand_offset":[-11,13],"right_hand_offset":[28,3],"left_foot":[111,238],"right_foot":[179,238],"support":{"owner":"OLD_MOVING_PLUS_NEW_FIXED","left":"PLANTED_OLD_MOVING","right":"PLANTED_NEW_FIXED"},"phase":"DUAL_FRAME","root_spacing_px":27,"frame_spacing_px":27,"causal_role":"MAKE_REFERENCE_FRAME_EXCHANGE_A_DECISIVE_JOIN","timing_provenance":"INFERRED","bridge_policy":"DECISIVE_KEY_EXPOSURE_ONLY","provenance":"INFERRED"},
+    {"key_id":"K04","name":"NEW_FRAME_OWNS","timing_class":"ONES","hold_frames":1,"root":[177,190],"torso_lean_deg":20,"yaw_deg":0,"head_lag_x":-4,"left_hand_offset":[-8,12],"right_hand_offset":[23,8],"left_foot":[139,232],"right_foot":[179,238],"support":{"owner":"NEW_FIXED_RIGHT","left":"RELEASED_OLD","right":"PLANTED_NEW_FIXED"},"phase":"TRANSFER","root_spacing_px":32,"frame_spacing_px":32,"causal_role":"TRANSFER_SUPPORT_BEFORE_WORLD_VELOCITY_IS_SPENT","timing_provenance":"INFERRED","bridge_policy":"DECISIVE_KEY_EXPOSURE_ONLY","provenance":"INFERRED"},
+    {"key_id":"K05","name":"INHERITED_OVERRUN","timing_class":"ONES","hold_frames":1,"root":[211,188],"torso_lean_deg":24,"yaw_deg":0,"head_lag_x":-6,"left_hand_offset":[-8,12],"right_hand_offset":[16,13],"left_foot":[184,224],"right_foot":[179,238],"support":{"owner":"NEW_FIXED_RIGHT","left":"SWING","right":"PLANTED_NEW_FIXED"},"phase":"INHERITED_CARRY","root_spacing_px":34,"frame_spacing_px":34,"causal_role":"DISPLAY_WORLD_SPEED_RELATIVE_TO_FIXED_SUPPORT","timing_provenance":"INFERRED","bridge_policy":"DECISIVE_KEY_EXPOSURE_ONLY","provenance":"INFERRED"},
+    {"key_id":"K06","name":"BRAKE_COMPRESSION","timing_class":"TWOS","hold_frames":2,"root":[235,194],"torso_lean_deg":15,"yaw_deg":0,"head_lag_x":-7,"left_hand_offset":[-12,18],"right_hand_offset":[10,20],"left_foot":[224,229],"right_foot":[179,238],"support":{"owner":"NEW_FIXED_RIGHT","left":"SWING_LOW","right":"PLANTED_NEW_FIXED"},"phase":"BRAKE","root_spacing_px":24,"frame_spacing_px":24,"causal_role":"SPEND_TRANSLATIONAL_DEBT_BEFORE_YAW","timing_provenance":"INFERRED","bridge_policy":"DECISIVE_KEY_EXPOSURE_ONLY","provenance":"INFERRED"},
+    {"key_id":"K07","name":"YAW_PROBE","timing_class":"TWOS","hold_frames":2,"root":[247,190],"torso_lean_deg":10,"yaw_deg":18,"head_lag_x":-7,"left_hand_offset":[-16,18],"right_hand_offset":[7,23],"left_foot":[264,226],"right_foot":[179,238],"support":{"owner":"NEW_FIXED_RIGHT","left":"PROBE_TURN_ARC","right":"PLANTED_NEW_FIXED"},"phase":"YAW_PREP","root_spacing_px":12,"frame_spacing_px":15,"causal_role":"BEGIN_HEADING_CHANGE_ONLY_AFTER_BRAKE_JOIN","timing_provenance":"INFERRED","bridge_policy":"DECISIVE_KEY_EXPOSURE_ONLY","provenance":"INFERRED"},
+    {"key_id":"K08","name":"TURN_CATCH","timing_class":"TWOS","hold_frames":2,"root":[260,180],"torso_lean_deg":13,"yaw_deg":45,"head_lag_x":-6,"left_hand_offset":[-20,16],"right_hand_offset":[3,23],"left_foot":[265,222],"right_foot":[214,231],"support":{"owner":"TURN_ARC_LEFT","left":"PLANTED_TURN_CATCH","right":"RELEASING"},"phase":"YAW_CATCH","root_spacing_px":13,"frame_spacing_px":16,"causal_role":"EARN_CURVED_TRAVEL_WITH_SECOND_SUPPORT_TRANSFER","timing_provenance":"INFERRED","bridge_policy":"DECISIVE_KEY_EXPOSURE_ONLY","provenance":"INFERRED"},
+    {"key_id":"K09","name":"TANGENT_OVERRUN","timing_class":"ONES","hold_frames":1,"root":[276,166],"torso_lean_deg":18,"yaw_deg":65,"head_lag_x":-8,"left_hand_offset":[-23,13],"right_hand_offset":[-2,24],"left_foot":[265,222],"right_foot":[248,211],"support":{"owner":"TURN_ARC_LEFT","left":"PLANTED_TURN_CATCH","right":"SWING"},"phase":"TURN_OVERRUN","root_spacing_px":16,"frame_spacing_px":21,"causal_role":"LET_ROOT_PASS_CATCH_ALONG_NEW_TANGENT","timing_provenance":"INFERRED","bridge_policy":"DECISIVE_KEY_EXPOSURE_ONLY","provenance":"INFERRED"},
+    {"key_id":"K10","name":"CORRECTION_PROBE","timing_class":"TWOS","hold_frames":2,"root":[284,155],"torso_lean_deg":12,"yaw_deg":75,"head_lag_x":-8,"left_hand_offset":[-22,11],"right_hand_offset":[-7,22],"left_foot":[265,222],"right_foot":[297,195],"support":{"owner":"TURN_ARC_LEFT","left":"PLANTED_TURN_CATCH","right":"PROBE_CORRECTION"},"phase":"CORRECTION_PROBE","root_spacing_px":8,"frame_spacing_px":14,"causal_role":"PROBE_SHORTER_STEP_AFTER_TANGENT_OVERRUN","timing_provenance":"INFERRED","bridge_policy":"DECISIVE_KEY_EXPOSURE_ONLY","provenance":"INFERRED"},
+    {"key_id":"K11","name":"CORRECTION_CATCH","timing_class":"TWOS","hold_frames":2,"root":[290,147],"torso_lean_deg":7,"yaw_deg":82,"head_lag_x":-6,"left_hand_offset":[-18,10],"right_hand_offset":[-10,18],"left_foot":[279,208],"right_foot":[297,195],"support":{"owner":"NEW_HEADING_RIGHT","left":"RELEASING","right":"PLANTED_CORRECTION"},"phase":"CORRECTION_CATCH","root_spacing_px":6,"frame_spacing_px":10,"causal_role":"SHORTEN_RESIDUAL_TRAVEL_WITH_NEW_HEADING_SUPPORT","timing_provenance":"INFERRED","bridge_policy":"DECISIVE_KEY_EXPOSURE_ONLY","provenance":"INFERRED"},
+    {"key_id":"K12","name":"SETTLE_OVERSHOOT","timing_class":"FOURS","hold_frames":4,"root":[295,143],"torso_lean_deg":2,"yaw_deg":78,"head_lag_x":-4,"left_hand_offset":[-12,11],"right_hand_offset":[-13,14],"left_foot":[290,191],"right_foot":[297,195],"support":{"owner":"NEW_HEADING_RIGHT","left":"LIGHT_TOUCH","right":"PLANTED_CORRECTION"},"phase":"SETTLE","root_spacing_px":5,"frame_spacing_px":6,"causal_role":"COMPRESS_REMAINDER_WITH_SECONDARY_LAG","timing_provenance":"INFERRED","bridge_policy":"DECISIVE_KEY_EXPOSURE_ONLY","provenance":"INFERRED"},
+    {"key_id":"K13","name":"DISPLACED_RESTACK","timing_class":"FOURS","hold_frames":4,"root":[299,140],"torso_lean_deg":-2,"yaw_deg":72,"head_lag_x":-2,"left_hand_offset":[-9,9],"right_hand_offset":[-14,12],"left_foot":[309,186],"right_foot":[297,195],"support":{"owner":"NEW_HEADING_BOTH","left":"PLANTED_NEW_HEADING","right":"PLANTED_NEW_HEADING"},"phase":"DISPLACED_RECOVERY","root_spacing_px":4,"frame_spacing_px":5,"causal_role":"FINISH_ACTION_READY_WITHOUT_RETURNING_TO_ENTRY_POSE","timing_provenance":"INFERRED","bridge_policy":"DECISIVE_KEY_EXPOSURE_ONLY","provenance":"INFERRED"}
+  ],
+  "compatibility":{"backward_compatible":true,"validator_contract":"tools/test_ascii_kinesis_swarm_contract_v2.py","validator_blob_at_authoring":"7d9fc7608d54bca4a2cfbd36660c2d379e27fd78"},
+  "spa":{"primary_tabs":["ASCII","JSON","VIDEO"],"ascii_literal_text":true,"video_required":true,"video_source":"abstract_ascii_rig_only","source_art_embedded":false,"single_self_contained_spa":true,"embedded_video_mime":"video/mp4"},
+  "revision":{"body":"SAME_020","rounds":[{"round":"TANGO_R0","decision":"REVISE_REQUIRED","highest_value_visible_defect":"The post-brake heading change is too visually weak; K07-K13 mostly reads as a straight deceleration with shoulder foreshortening rather than an earned new travel vector.","concrete_correction":"Exaggerate the authored root/COM turn arc after K07, deepen yaw across K08-K11, keep K07 probe before K08 support ownership, and compress path spacing K10-K13 so the turn catch, tangent overrun, and displaced settle read as a second causal join rather than metadata.","mutated_keys":["K08","K09","K10","K11","K12","K13"]},{"round":"TANGO_R1","decision":"PASS","actual_render_sha256":"553057715e1a9e1018522b01fe60cc0687b64a924e6a3f0ad686eaeb786455ac","inspection":"Decoded H.264/yuv420p 480×270 @24fps, 31 frames. The moving-frame exit keeps inherited travel after fixed support ownership; K06 visibly compresses translation before K07 probe; K08 earns turn support, K09 overruns along the new tangent, and K10-K13 shorten into a displaced restack. No support teleport, straight-root endpoint tween, equal-spacing correction, reverse interpolation, or idle reset is visible."},{"round":"NOODLE_QUEEN_R1","decision":"PASS","actual_render_sha256":"553057715e1a9e1018522b01fe60cc0687b64a924e6a3f0ad686eaeb786455ac","gates":{"TASTE":"PASS","FUNCTION":"PASS","CONTEMPT":"PASS"},"inspection":"Same actual final render and complete specimen. The ugly long fixed-foot brake, delayed turn ownership, narrow yaw silhouette, tangent overrun, and compressed correction sequence form a specific causal locomotion sentence rather than generic gait."}],"mutation_policy":"Only a visible defect earns authored-key mutation."},
+  "media":{"codec":"h264","pixel_format":"yuv420p","width":480,"height":270,"fps":24,"frames":31,"bytes":6012,"sha256":"553057715e1a9e1018522b01fe60cc0687b64a924e6a3f0ad686eaeb786455ac","decode":"PASS","reconstruction":"DETERMINISTIC_FROM_ABSTRACT_RIG_AND_AUTHORED_TIMING"}
+}
