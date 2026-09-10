@@ -150,7 +150,7 @@ def main():
         for _ in range(int(k['hold_frames'])):
             draw_frame(k,idx,FRAMES/f'frame-{idx:04d}.png'); idx+=1
     assert idx==int(MOTION['timing']['total_frames'])
-    subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-framerate',str(FPS),'-i',str(FRAMES/'frame-%04d.png'),'-vf','scale=480:270:flags=neighbor','-c:v','libx264','-preset','veryslow','-crf','28','-pix_fmt','yuv420p','-movflags','+faststart','-metadata','creation_time=1970-01-01T00:00:00Z',str(MP4)],check=True)
+    subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-y','-framerate',str(FPS),'-i',str(FRAMES/'frame-%04d.png'),'-vf','scale=480:270:flags=neighbor','-c:v','libx264','-preset','veryslow','-crf','40','-pix_fmt','yuv420p','-movflags','+faststart','-metadata','creation_time=1970-01-01T00:00:00Z',str(MP4)],check=True)
     a=make_contact_sheet(); ASCII.write_text(a,encoding='utf-8')
     j=(HERE/'motion.json').read_text(encoding='utf-8')
     SPA.write_text(make_spa(a,j,MP4.read_bytes()),encoding='utf-8')
