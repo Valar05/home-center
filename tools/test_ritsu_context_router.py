@@ -58,6 +58,46 @@ class RitsuContextRouterContract(unittest.TestCase):
         self.assertEqual(r.episode_id, EPISODE_ID)
         self.assertTrue(any("dropped" in c for c in r.corrections))
 
+    def test_ritzu_again_binds_current_target_before_older_episode(self) -> None:
+        target = {
+            "target_id": "image-critique-42",
+            "target_type": "image_critique",
+            "owner": "Ritzu",
+        }
+        r = self.router.resolve(
+            "Ritzu again.",
+            working_state={"current_target": target, "last_episode_id": EPISODE_ID},
+        )
+        self.assertEqual(r.status, "BOUND_WORKING_TARGET")
+        self.assertEqual(r.route, "immediate_bind")
+        self.assertIsNone(r.episode_id)
+        self.assertEqual(r.bound_target, target)
+        self.assertFalse(r.world_knowledge_allowed)
+
+    def test_named_again_refuses_actor_mismatched_current_target(self) -> None:
+        r = self.router.resolve(
+            "Ritsu again.",
+            working_state={
+                "current_target": {
+                    "target_id": "repair-7",
+                    "target_type": "repair",
+                    "owner": "Tetsuya",
+                },
+                "last_episode_id": EPISODE_ID,
+            },
+        )
+        self.assertEqual(r.status, "NEEDS_WORKING_STATE")
+        self.assertIsNone(r.episode_id)
+        self.assertIsNone(r.bound_target)
+        self.assertFalse(r.world_knowledge_allowed)
+
+    def test_plain_again_can_bind_current_target_without_actor_guess(self) -> None:
+        target = {"target_id": "repair-7", "target_type": "repair", "owner": "Tetsuya"}
+        r = self.router.resolve("Again.", working_state={"current_target": target})
+        self.assertEqual(r.status, "BOUND_WORKING_TARGET")
+        self.assertEqual(r.bound_target, target)
+        self.assertFalse(r.world_knowledge_allowed)
+
     def test_again_without_working_state_refuses_to_guess(self) -> None:
         r = self.router.resolve("Again.")
         self.assertEqual(r.status, "NEEDS_WORKING_STATE")
