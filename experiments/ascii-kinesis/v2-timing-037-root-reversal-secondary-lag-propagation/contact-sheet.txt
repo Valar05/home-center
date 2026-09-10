@@ -1,0 +1,97 @@
+K00 RIGHT_TRAVEL | FOURS/4t | PROV=INFERRED | SUPPORT=LEFT_TO_RIGHT
+        ~~~~~~o
+              \
+               O                      >>>>
+              /|\
+             o-|-o
+               @
+              / \
+             *   +
+  ___________*___+____________________________________________________
+ STATE=ROOT_RIGHT_FAST | SECONDARY=TRAIL_LEFT | ROOT_X=+0.00
+------------------------------------------------------------------------------
+K01 BRAKE_LOAD | TWOS/2t | PROV=INFERRED | SUPPORT=RIGHT_PLANT_PENDING
+           ~~~~~o
+               /
+                 O                   >>>
+                /|\
+               o-|-o
+                 @_
+                /  \
+               +    *
+  _____________+____*_________________________________________________
+ STATE=ROOT_RIGHT_DECEL | SECONDARY=TRAIL_LEFT_STRETCHED | ROOT_X=+0.30
+------------------------------------------------------------------------------
+K02 BRAKE_PLANT | ONES/1t | PROV=INFERRED | SUPPORT=RIGHT_BRAKE
+                ~~o
+               /  \
+                   O                 >
+                  /|\
+                 o-|-o
+                   @__
+                  /   \
+                 +     *
+  _______________+_____*______________________________________________
+ STATE=ROOT_NEAR_ZERO | SECONDARY=SWEEP_CENTER | ROOT_X=+0.48
+------------------------------------------------------------------------------
+K03 ROOT_REVERSAL_EDGE | ONES/1t | PROV=INFERRED | SUPPORT=RIGHT_PIVOT
+                  o~~
+                 /   \
+               O                      <<
+              /|
+             o-|--o
+               \@
+              _/ \
+             *    +
+  ___________*____+___________________________________________________
+ STATE=ROOT_LEFT_ACCEL | SECONDARY=CROSSES_RIGHT | ROOT_X=+0.42
+------------------------------------------------------------------------------
+K04 SECONDARY_OVERRUN | TWOS/2t | PROV=INFERRED | SUPPORT=LEFT_CATCH
+          O                             <<<<
+           \
+        o---\o~~~~~~~~o
+             @
+            / \
+           *   +
+  _________*___+______________________________________________________
+ STATE=ROOT_LEFT_FAST | SECONDARY=OLD_MOMENTUM_RIGHT | ROOT_X=+0.18
+------------------------------------------------------------------------------
+K05 SECONDARY_CATCH | STREET_FIGHTER/CAPCOM/3t | PROV=INFERRED | SUPPORT=LEFT_DOMINANT
+       O                                <<<
+        \
+      o--\o~~~~~~~~~~o)
+          @__
+         /   \
+        *     +
+  ______*_____+_______________________________________________________
+ STATE=ROOT_LEFT_DECEL | SECONDARY=RIGHT_EXTREME_CATCH | ROOT_X=-0.10
+------------------------------------------------------------------------------
+K06 SECONDARY_SIGN_CHANGE | ONES/1t | PROV=INFERRED | SUPPORT=LEFT_TO_BOTH
+      O                                 <<
+     /|\
+    o-|-o~~~~~~~o
+      @_
+     / \
+    *   *
+  __*___*____________________________________________________________
+ STATE=ROOT_LEFT_CONTINUE | SECONDARY=VELOCITY_NOW_LEFT_POSITION_RIGHT | ROOT_X=-0.32
+------------------------------------------------------------------------------
+K07 NEW_TRAIL_ESTABLISHED | TWOS/2t | PROV=INFERRED | SUPPORT=BOTH_LEFT
+     O                                  <<
+    /|\
+   o-|-o~~~~~~
+     @
+    / \
+   *   *
+  _*___*_____________________________________________________________
+ STATE=ROOT_LEFT_BRAKE | SECONDARY=TRAIL_RIGHT_NEW_DIRECTION | ROOT_X=-0.48
+------------------------------------------------------------------------------
+K08 DISPLACED_SETTLE | FOURS/4t | PROV=INFERRED | SUPPORT=BOTH
+    O
+   /|\
+  o-|-o~~~~
+    @
+   / \
+  *   *
+  *___*______________________________________________________________
+ STATE=ROOT_LEFT_SETTLED_DISPLACED | SECONDARY=RIGHT_SETTLE | ROOT_X=-0.54
