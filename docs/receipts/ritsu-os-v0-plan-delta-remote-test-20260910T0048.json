@@ -1,0 +1,23 @@
+{
+  "schema": "ritsu-os.plan-delta.v0",
+  "scope": "isolated branch ritsu-os-v0 deterministic test execution only",
+  "trigger": "No existing push workflow runs for ritsu-os-v0 after source commits.",
+  "evidence": "GitHub actions runs query returned total_count=0 for branch ritsu-os-v0 event=push.",
+  "boundary": {
+    "allowed": "branch-only deterministic contract test with read-only repository permissions and no secrets",
+    "forbidden": "deployment, production promotion, device/runtime acceptance, or treating GitHub Actions as proof of deployed Ritsu continuity"
+  },
+  "five_pass_review": {
+    "target": "Execute the exact new router contract remotely rather than laundering a local preflight as proof.",
+    "antagonist": "Prevent broad CI, secret use, deployment side effects, or a green workflow being mislabeled deployed/accepted.",
+    "provenance": "Workflow result may prove only the tested commit on GitHub-hosted Python; it cannot prove primary Latin wording or live chat routing.",
+    "regression": "Path filters and branch filter isolate the workflow from default branches and existing organs.",
+    "compression": "One stdlib-only job runs py_compile and the single Ritsu contract file."
+  },
+  "safety_review": {
+    "risk": "low-risk reversible isolated-branch CI",
+    "deployment": false,
+    "venice": "prohibited by active manic-accessibility repository safety mode"
+  },
+  "directive": "PLAN_ALLOWED_LOW_RISK_ISOLATED_TEST_ONLY"
+}
