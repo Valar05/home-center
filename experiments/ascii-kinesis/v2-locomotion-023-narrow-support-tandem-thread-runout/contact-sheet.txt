@@ -1,0 +1,471 @@
+ASCII KINESIS V2 · LOCOMOTION 023 · NARROW SUPPORT / TANDEM THREAD / RUNOUT
+legend: @ root · c COM · * support owner · ~ swing foot · ! support→COM · O head · . root route · # support-corridor edge · > tangent
+source evidence: The Prince / Prince of Persia / Sega Genesis / TSR asset 36749 / Home Center artifact 18stTpX2ktEpoQgpU8lniX6ZMatYHRNv3vpS29mfbS7o
+OBSERVED: commissioned evidence inspected the entire 552×1104 static sheet as one corpus; grounded, airborne, compressed, recovery, and edge-contact families are present; source timing is not exposed.
+UNKNOWN: source chronology/exposure/root coordinates/support forces; no source evidence establishes this narrow-support choreography.
+authored timing: INFERRED / STREET_FIGHTER-CAPCOM. rights firewall: independent abstract rig only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio/redistribution/close imitation.
+thesis: COM centers before entering a collapsing support width; forward travel continues through tandem support threading; corridor release produces an overlong/wider first free catch, then shorter displaced corrections.
+
+K00 WIDE_ENTRY_LEFT_CATCH · TWOS/2f · INFERRED · support=LEFT · phase=WIDE_ENTRY · rootΔ=0px · width=46px · yaw=-4° · torso=-1°
+
+
+#############
+             #
+              ##                             ###################################
+                ##                          #
+                  ##                      ##
+                    ##                   #
+                      ##               ##
+                        ###############
+                  ......................
+         ~\\  ....                      ...........
+        \\....         #################
+     c\\..           ##                 ##
+     @---T> O      ##                     #
+     /     //    ##                        ##
+    /    //     #                            #
+    *         ##                              ##################################
+##############
+
+
+
+
+
+
+
+causal: establish forward travel on a wide left support before the support corridor begins to contract
+
+K01 LEFT_PASS_RIGHT_SEARCH · ONES/1f · INFERRED · support=LEFT_UNLOADING · phase=WIDTH_COLLAPSE_PREP · rootΔ=24.7px · width=40px · yaw=-2° · torso=-1°
+
+
+#############
+             #
+              ##                             ###################################
+                ##                          #
+                  ##                      ##
+                    ##                   #
+                      ##               ##
+                        ###############
+             \\   ......................
+           ~\ ....                      ...........
+        c\\...         #################
+       !@---T> O     ##                 ##
+     .!/      ///  ##                     #
+      /     //   ##                        ##
+     /          #                            #
+    *         ##                              ##################################
+##############
+
+
+
+
+
+
+
+causal: keep the old wide support fixed while COM begins moving toward the future narrow centerline
+
+K02 RIGHT_CATCH_COLLAPSE · TWOS/2f · INFERRED · support=RIGHT · phase=WIDTH_COLLAPSE_CATCH · rootΔ=28.2px · width=31px · yaw=+0° · torso=-2°
+
+
+#############
+             #
+              ##                             ###################################
+                ##                          #
+                  ##                      ##
+                    ##                   #
+                      ##               ##
+                        ###############
+                \\......................
+           *c ....\\                    ...........
+          ..@---T> O   #################
+       ...   /       ##                 ##
+     ..       / /  ##                     #
+               ~ //                        ##
+                #                            #
+              ##                              ##################################
+##############
+
+
+
+
+
+
+
+causal: right catch narrows the support polygon and accepts forward momentum without stopping it
+
+K03 RIGHT_PASS_CENTER_COM · TWOS/2f · INFERRED · support=RIGHT_UNLOADING · phase=CENTER_BEFORE_ENTRY · rootΔ=28.6px · width=25px · yaw=+1° · torso=-1°
+
+
+#############
+             #
+              ##                             ###################################
+                ##                          #
+                  ##                      ##
+                    ##                   #
+                      ##               ##
+                    \\  ###############
+              !!c ~...\\................
+           *\\\\@---T> O                ...........
+          ....         #################
+       ...          /##                 ##
+     ..            ##//                   #
+                 ##                        ##
+                #                            #
+              ##                              ##################################
+##############
+
+
+
+
+
+
+
+causal: center COM before either foot claims the narrow support lane; the root keeps advancing
+
+K04 LEFT_CATCH_LANE_MOUTH · TWOS/2f · INFERRED · support=LEFT · phase=LANE_MOUTH · rootΔ=25.3px · width=20px · yaw=+1° · torso=+0°
+
+
+#############
+             #
+              ##                             ###################################
+                ##                          #
+                  ##                      ##
+                    ##  \\               #
+                      #\               ##
+                     ~  ###############
+                  .c--|T..O.............
+              .... /  -->///            ...........
+          ....    *    //###############
+       ...           ##                 ##
+     ..            ##                     #
+                 ##                        ##
+                #                            #
+              ##                              ##################################
+##############
+
+
+
+
+
+
+
+causal: left catch claims the narrowing lane only after COM has already been centered
+
+K05 LEFT_PASS_THREAD_TRAIL · TWOS/2f · INFERRED · support=LEFT_UNLOADING · phase=TRAIL_THREAD · rootΔ=24.0px · width=15px · yaw=+0° · torso=+1°
+
+
+#############
+             #
+              ##                             ###################################
+                ##                          #
+                  ##                      ##
+                    ##      \\           #
+                      ##   \           ##
+                        #~#############
+                  ..../c--->..O.........
+              ....  //       //         ...........
+          ....    */   ####//###########
+       ...           ##                 ##
+     ..            ##                     #
+                 ##                        ##
+                #                            #
+              ##                              ##################################
+##############
+
+
+
+
+
+
+
+causal: thread the trailing right foot inside the narrow corridor while the left anchor stays fixed
+
+K06 RIGHT_TANDEM_CATCH · TWOS/2f · INFERRED · support=RIGHT · phase=NARROW_TANDEM_A · rootΔ=22.0px · width=11px · yaw=+0° · torso=+1°
+
+
+#############
+             #
+              ##                             ###################################
+                ##                          #
+                  ##                      ##
+                    ##                   #
+                      ##      \        ##
+                        #######\\######
+                  ........c-~->..O......
+              ....       *              ...........
+          ....         #######/#########
+       ...           ##        /        ##
+     ..            ##           /         #
+                 ##                        ##
+                #                            #
+              ##                              ##################################
+##############
+
+
+
+
+
+
+
+causal: right foot catches nearly on centerline, collapsing ordinary stance width into tandem support
+
+K07 RIGHT_PASS_LEFT_THREAD · ONES/1f · INFERRED · support=RIGHT_UNLOADING · phase=NARROW_THREAD_A · rootΔ=18.0px · width=10px · yaw=+0° · torso=+2°
+
+
+#############
+             #
+              ##                             ###################################
+                ##                          #
+                  ##                      ##
+                    ##                   #
+                      ##        \      ##
+                        ######~##\\####
+                  .........\c---T>.\\...
+              ....       *\        O    ...........
+          ....         #################
+       ...           ##         /       ##
+     ..            ##            //       #
+                 ##                        ##
+                #                            #
+              ##                              ##################################
+##############
+
+
+
+
+
+
+
+causal: left foot threads past the planted right without widening the support corridor or pausing root travel
+
+K08 LEFT_TANDEM_CATCH · TWOS/2f · INFERRED · support=LEFT · phase=NARROW_TANDEM_B · rootΔ=17.0px · width=10px · yaw=+0° · torso=+2°
+
+
+#############
+             #
+              ##                             ###################################
+                ##                          #
+                  ##                      ##
+                    ##              \\   #
+                      ##           \   ##
+                        ######*########
+                  ............c---->....
+              ....              ~     O ...........
+          ....         #############//##
+       ...           ##            /    ##
+     ..            ##                     #
+                 ##                        ##
+                #                            #
+              ##                              ##################################
+##############
+
+
+
+
+
+
+
+causal: left catch takes ownership in the same narrow lane; support progression continues asymmetrically rather than freezing into a crouch or shuffle
+
+K09 LEFT_PASS_RIGHT_THREAD · TWOS/2f · INFERRED · support=LEFT_UNLOADING · phase=NARROW_THREAD_B · rootΔ=16.0px · width=10px · yaw=+0° · torso=+1°
+
+
+#############
+             #
+              ##                             ###################################
+                ##                          #
+                  ##                      ##
+                    ##                \\ #
+                      ##             \ ##
+                        ######*/#######
+                  ............../c--->..O
+              ....                ~    //..........
+          ....         ##############//#
+       ...           ##                 ##
+     ..            ##                     #
+                 ##                        ##
+                #                            #
+              ##                              ##################################
+##############
+
+
+
+
+
+
+
+causal: pay the narrow-lane constraint with a shorter forward step while preserving motion phase and fixed support truth
+
+K10 RIGHT_TANDEM_CATCH_EXIT_PREP · TWOS/2f · INFERRED · support=RIGHT · phase=EXIT_PREP · rootΔ=17.0px · width=11px · yaw=+1° · torso=+0°
+
+
+#############
+             #
+              ##                             ###################################
+                ##                          #
+                  ##                      ##
+                    ##                   #
+                      ##               \\
+                        #############~#  \\
+                  .................c---T> O
+              ....                 *    ...........
+          ....         ################/
+       ...           ##                 /#
+     ..            ##                    /#
+                 ##                        ##
+                #                            #
+              ##                              ##################################
+##############
+
+
+
+
+
+
+
+causal: right catch owns the last constrained step while COM begins to drift toward the free exit side
+
+K11 RIGHT_PASS_FREE_PROBE · ONES/1f · INFERRED · support=RIGHT_UNLOADING · phase=EXIT_PROBE · rootΔ=19.0px · width=14px · yaw=+2° · torso=+0°
+
+
+#############
+             #
+              ##                             ###################################
+                ##                          #
+                  ##                      ##
+                    ##                   #
+                      ##               ## \\
+                        ############### ~   \\
+                  ...................\@--->  O
+              ....                 *\!c ...........
+          ....         #################  /
+       ...           ##                 ## /
+     ..            ##                     # /
+                 ##                        ##
+                #                            #
+              ##                              ##################################
+##############
+
+
+
+
+
+
+
+causal: probe beyond the lane mouth before releasing the final constrained support; forward velocity survives the width release
+
+K12 LEFT_FREE_CATCH_OVERRUN · TWOS/2f · INFERRED · support=LEFT · phase=FREE_OVERRUN · rootΔ=31.3px · width=29px · yaw=+6° · torso=+0°
+
+
+#############
+             #
+              ##                             ###################################
+                ##                          #
+                  ##                      ##
+                    ##                   #
+                      ##               ##      \\
+                        ###############      ~\
+                  ......................   \\
+              ....                      ..@---T>.O.
+          ....         #################  c     //
+       ...           ##                 ##/   //
+     ..            ##                     *
+                 ##                        ##
+                #                            #
+              ##                              ##################################
+##############
+
+
+
+
+
+
+
+causal: first free catch lands deliberately overlong and laterally wider because the narrow-lane cadence releases while forward velocity is still live
+
+K13 LEFT_PASS_RECOIL_WIDE · TWOS/2f · INFERRED · support=LEFT_UNLOADING · phase=WIDTH_REBOUND · rootΔ=24.3px · width=31px · yaw=+5° · torso=+2°
+
+
+#############
+             #
+              ##                             ###################################
+                ##                          #
+                  ##                      ##
+                    ##                   #
+                      ##               ##          \
+                        ###############            \
+                  ......................       \~ \
+              ....                      .....@--...
+          ....         #################    /c |-T>  O
+       ...           ##                 ## /!      ///
+     ..            ##                     *      //
+                 ##                        ##
+                #                            #
+              ##                              ##################################
+##############
+
+
+
+
+
+
+
+causal: torso lags while the stance reopens; root correction is shorter than the first free overrun
+
+K14 RIGHT_CORRECTION_CATCH · TWOS/2f · INFERRED · support=RIGHT · phase=CORRECTION_CATCH · rootΔ=20.4px · width=29px · yaw=+2° · torso=+3°
+
+
+#############
+             #
+              ##                             ###################################
+                ##                          #
+                  ##                      ##
+                    ##                   #
+                      ##               ##
+                        ###############           ~ \\
+                  ......................         /    \\
+              ....                      ........c---T> O
+          ....         #################        \
+       ...           ##                 ##      *   /
+     ..            ##                     #          //
+                 ##                        ##
+                #                            #
+              ##                              ##################################
+##############
+
+
+
+
+
+
+
+causal: right correction catch shortens forward spacing and arrests the lateral width rebound without snapping back to center
+
+K15 RIGHT_PASS_DISPLACED_SETTLE · FOURS/3f · INFERRED · support=RIGHT_UNLOADING · phase=DISPLACED_SETTLE · rootΔ=16.1px · width=27px · yaw=+1° · torso=+2°
+
+
+#############
+             #
+              ##                             ###################################
+                ##                          #
+                  ##                      ##
+                    ##                   #
+                      ##               ##
+                        ###############             ~  \\
+                  ......................           /     \\
+              ....                      ..........c---T>  O
+          ....         #################         \
+       ...           ##                 ##      *     /
+     ..            ##                     #            //
+                 ##                        ##
+                #                            #
+              ##                              ##################################
+##############
+
+
+
+
+
+
+
+causal: finish on a shorter displaced correction with residual torso lag and live next-step debt rather than an idle reset
