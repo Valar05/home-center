@@ -113,6 +113,7 @@ _____*_________________________P________________________________________________
 
 
 causal: compress and drive COM forward through the left-foot plus fixed-pole support triangle while root travel stays live
+
 K04 ROOT_PASSES_INTO_POLE_ARC · TWOS/2f · INFERRED · support=POLE+LEFT_UNLOADING · pole=PLANTED_FIXED · phase=PIVOT_PASS_A · rootΔ=28.0px · lean=-28° · lag=+5°
 
 
@@ -120,12 +121,12 @@ K04 ROOT_PASSES_INTO_POLE_ARC · TWOS/2f · INFERRED · support=POLE+LEFT_UNLOAD
 
 
 
-               /O
-                //
-                  --
+              /O
+               //
+                 --
                 T-/
                  |---
-      ..          |   /        .........            ...
+      ..         |   /        .........            ...
         ......    |  c//......         ............
               ..../@..  /
                ///  //   //
@@ -267,7 +268,7 @@ K09 LEFT_FREE_CATCH_OVERRUN · TWOS/2f · INFERRED · support=LEFT · pole=AIRBO
                                      /     /
                                    //       /
                                  //         /
-________________________________~____________*___________________________________
+________________________________~____________*______________________________________
 
 
 
@@ -294,7 +295,7 @@ K10 LEFT_BRAKE_COMPRESSION · TWOS/2f · INFERRED · support=LEFT · pole=AIRBOR
                                              /   /
                                              /    /
                                              /     ~
-_____________________________________________*______________________________________
+_____________________________________________*_________________________________________
 
 
 
@@ -348,7 +349,7 @@ K12 RIGHT_PASS_LEFT_CORRECTION_PROBE · TWOS/2f · INFERRED · support=RIGHT+LEF
                                                   //
                                                   / /
                                                   / ~
-__________________________________________________*_________________________________
+__________________________________________________*____________________________________
 
 
 
