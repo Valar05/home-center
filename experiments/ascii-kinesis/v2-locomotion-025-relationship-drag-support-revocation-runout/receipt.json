@@ -1,0 +1,128 @@
+{
+  "schema": "ascii-kinesis.v2-receipt",
+  "format_version": 2,
+  "lane": "LOCOMOTION",
+  "slug": "v2-locomotion-025-relationship-drag-support-revocation-runout",
+  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_CHAT_DELIVERY",
+  "current_worker_date": "2026-09-10",
+  "preflight": {
+    "home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "home_center_campaign_read": true,
+    "github_repo": "Valar05/home-center",
+    "github_authenticated_persistence_readback": true
+  },
+  "governing_reads": {
+    "reset_issue_comment": 5576901079,
+    "predecessor_terminal_issue_comment": 5622347443,
+    "latest_manager_reconciliation": 5623189740,
+    "latest_manager_race_addendum": 5623229411,
+    "skill_blob": "acf628496e472f47f5c4daca1ae43deadd5f93f1",
+    "contract_blob": "a011337ab324f1b2a585d76bc3668b42d81a6a0d",
+    "validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78"
+  },
+  "repair_oldest_first": {
+    "unresolved_locomotion_debt_discovered": false,
+    "evidence": "Issue #343 manager reconciliation states Locomotion006 repair closed by Locomotion013 and pre-reset Locomotion repair debt is exhausted."
+  },
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "predecessor": "v2-locomotion-024-pole-plant-third-support-runout",
+    "predecessor_durable_readback_issue_comment": 5622347443,
+    "one_successor_binding": true,
+    "successor_collision": false,
+    "repair_oldest_first_debt_discovered": false,
+    "repair_debt_evidence": "Issue #343 manager reconciliation records pre-reset Locomotion debt exhausted by Locomotion013."
+  },
+  "source": {
+    "authority": "HOME_CENTER_COMMISSIONED_CAMPAIGN",
+    "campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "evidence_artifact_file_id": "1icTndAfTH5fge6tCAL35HzU9X7dsKVzRa0ah_n6gwWk",
+    "tsr_asset_id": 30327,
+    "identity": "Billy & Jimmy — Double Dragon II: The Revenge — NES — Playable Characters",
+    "whole_source_inspected": true,
+    "timing_authority": "UNKNOWN",
+    "authored_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "source_role": "EVIDENCE_ONLY",
+    "source_pixels_embedded": false,
+    "source_audio_used": false
+  },
+  "authoritative_media": {
+    "mime": "video/mp4",
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 480,
+    "height": 270,
+    "fps": 24,
+    "frames": 29,
+    "bytes": 19925,
+    "sha256": "71100e1d815da571bbc8c180d87366af845f5c30dc78e2439af1fae6257c07bf",
+    "current_worker_byte_identical_reconstruction": true,
+    "decode_render_inspected": true
+  },
+  "quality": {
+    "actual_render_inspected": true,
+    "current_worker_run": "2026-09-10",
+    "tango": {
+      "current_worker": true,
+      "decision": "PASS",
+      "round": "R1",
+      "final_render_sha256": "71100e1d815da571bbc8c180d87366af845f5c30dc78e2439af1fae6257c07bf",
+      "prior_round": "R0 REVISE_REQUIRED: post-release silhouette overlap obscured independent clocks",
+      "inspection": "R1: partner support remains fixed through initial relationship loading, is authored through unload/revocation before shared travel, relationship frame is explicitly retired after co-movement, carrier K10 is the largest post-release spacing event, and K11-K13 shorten while partner remains visibly separated on an independent lag clock."
+    },
+    "noodle_queen": {
+      "current_worker": true,
+      "after_tango": true,
+      "taste": "PASS",
+      "function": "PASS",
+      "contempt": "PASS",
+      "pass": true,
+      "final_render_sha256": "71100e1d815da571bbc8c180d87366af845f5c30dc78e2439af1fae6257c07bf"
+    }
+  },
+  "validator": {
+    "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS_EXIT_0",
+    "repository_global": "UNCLAIMED_STANDARD_CHAT_CONNECTOR_BOUNDARY"
+  },
+  "repository": {
+    "path": "experiments/ascii-kinesis/v2-locomotion-025-relationship-drag-support-revocation-runout/",
+    "expected_file_count": 6,
+    "expected_spa_count": 1,
+    "post_write_readback": false,
+    "exact_six_file_body": false,
+    "stable_body_files": {
+      "build.py": "308fe1f3e264211833a976c01bce1a47702aaa55",
+      "contact-sheet.txt": "b3f7cd5a848658b10143e722b70625bb6cbb99ee",
+      "motion.json": "e7916a0a3832ec8bb3f4d13d26d84b2b7b8cff03",
+      "relationship-drag-support-revocation-runout.motion.html": "9662c5ff41ef5831a091b74ddd0d1e94a3a3dd55"
+    },
+    "final_readback": false
+  },
+  "issue": {
+    "number": 343,
+    "pre_delivery_receipt": null,
+    "pre_delivery_readback": false,
+    "user_surface_closure": null,
+    "terminal_durable_readback": null
+  },
+  "campaign": {
+    "propagated": false,
+    "readback": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part1_blob": "b3f7cd5a848658b10143e722b70625bb6cbb99ee",
+    "part2_json": false,
+    "part2_blob": "e7916a0a3832ec8bb3f4d13d26d84b2b7b8cff03",
+    "part3_video": false,
+    "ordered": false,
+    "video_byte_identical": false,
+    "video_sha256": "71100e1d815da571bbc8c180d87366af845f5c30dc78e2439af1fae6257c07bf"
+  },
+  "DREW_ACCEPTED": false,
+  "next_authorized": null
+}
