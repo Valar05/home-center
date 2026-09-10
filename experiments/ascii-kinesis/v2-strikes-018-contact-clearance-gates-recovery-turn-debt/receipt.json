@@ -2,14 +2,14 @@
   "schema": "ascii-kinesis.receipt-v2",
   "specimen": "STRIKES018",
   "slug": "contact-clearance-gates-recovery-turn-debt",
-  "status": "REPO_VERIFIED_READY_FOR_USER_SURFACE",
+  "status": "HEALTHY_USER_SURFACED",
   "one_body_rule": "BIND_THIS_018_UNTIL_HEALTHY",
-  "strikes019_forbidden": true,
+  "strikes019_forbidden": false,
   "preflight": {
     "home_center_campaign_read": "PASS_CURRENT_WORKER",
     "github_current_main_inventory": "PASS_CURRENT_WORKER",
     "campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
-    "inventory_result": "NO_V2_STRIKES_018_BODY_DIRECT_CURRENT_MAIN_READBACK"
+    "inventory_result": "ONE_CANONICAL_V2_STRIKES_018_BODY_DIRECT_CURRENT_MAIN_READBACK"
   },
   "source": {
     "authority": "HOME_CENTER_COMMISSIONED_CAMPAIGN",
@@ -45,32 +45,32 @@
     "frame_count": 49,
     "bytes": 11090,
     "sha256": "d0ed3ffdf16f8829b81cbc996172ebbf559869063c2159d0504033b9aac183a1",
-    "decode": "PASS_CURRENT_WORKER"
+    "decode": "PASS_CURRENT_WORKER_REINSPECTED"
   },
   "quality": {
     "tango": {
       "status": "PASS",
-      "round": "R0_CURRENT_WORKER_ACTUAL_RENDER",
+      "round": "R0_CURRENT_RUN_ACTUAL_RENDER_REINSPECTION",
       "actual_render_sha256": "d0ed3ffdf16f8829b81cbc996172ebbf559869063c2159d0504033b9aac183a1",
-      "judgment": "K04-K06 pin contact while root compresses; K07-K08 pay axial clearance before K09 root rebase; K10-K14 preserve overshoot, support catch, shaft lag and displaced settle."
+      "judgment": "Fresh actual-render reinspection: K04-K06 visibly pin contact while root/body compress; K07-K08 withdraw axially while root stays overrun; K09 alone begins rebase/turn after clearance; K10-K14 preserve crossbody overshoot, support catch, shaft lag and displaced settle. No authored mutation required."
     },
     "noodle_queen": {
       "status": "PASS",
       "actual_render_sha256": "d0ed3ffdf16f8829b81cbc996172ebbf559869063c2159d0504033b9aac183a1",
-      "taste": "PASS — pinned contact, axial withdrawal, delayed rebase are distinct memorable silhouettes.",
-      "function": "PASS — clearance visibly gates root turn and support/shaft debt is paid afterward.",
-      "contempt": "PASS — not metadata-only clearance or generic polearm waving."
+      "taste": "PASS — pinned contact, axial withdrawal and delayed rebase remain three distinct memorable silhouettes.",
+      "function": "PASS — clearance visibly gates the recovery turn; support and shaft debt are paid only afterward.",
+      "contempt": "PASS — not metadata-only clearance, endpoint recovery, or generic polearm waving."
     }
   },
   "contract": {
-    "official_v2": "PASS_CANDIDATE_ISOLATED_CURRENT_MAIN_SCRIPT",
+    "official_v2": "PASS_CANDIDATE_ISOLATED_CURRENT_MAIN_SCRIPT_AND_CURRENT_CONTENT_RECHECK",
     "script_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
     "boundary": "Standard Chat exposes connector read/write but not authenticated full-repository checkout execution; candidate-isolated structural validation is the callable boundary, and GitHub connector readback is persistence authority."
   },
   "repo": {
     "persistence": "PASS_CURRENT_MAIN",
     "readback": "PASS_EXACT_SIX_FILES_ONE_SPA",
-    "final_readback": "PENDING_USER_SURFACE",
+    "final_readback": "PASS_CURRENT_MAIN_EXACT_AFTER_USER_SURFACE",
     "build_blob": "0d3ed91618d09e525d06c0d8aff2144bc2ecd704",
     "contact_blob": "def19bf3262ef1b65b14dba649758c49275a5298",
     "motion_blob": "42bb98b872bc816a9314f0f91fdd9f313a478b06",
@@ -79,16 +79,16 @@
   "issue": {
     "pre_chat_receipt": 5612696010,
     "pre_chat_readback": true,
-    "user_surface_closure": null,
-    "user_surface_readback": false,
-    "final_readback_addendum": null
+    "user_surface_closure": 5613300654,
+    "user_surface_readback": true,
+    "final_readback_addendum": 5613303906
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_visible_video": false,
-    "ordered": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_visible_video": true,
+    "ordered": true
   },
   "DREW_ACCEPTED": false,
-  "next_authorized": null
+  "next_authorized": "v2-strikes-019"
 }
