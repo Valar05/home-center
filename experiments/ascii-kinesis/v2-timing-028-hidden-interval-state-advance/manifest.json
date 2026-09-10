@@ -3,18 +3,18 @@
   "ascii_literal_text": true,
   "backward_compatible": true,
   "delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_byte_identical_authoritative": false,
-    "part3_video": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_byte_identical_authoritative": true,
+    "part3_video": true
   },
   "entry": "v2-timing-028-hidden-interval-state-advance",
   "format_version": 2,
   "issue_343": {
     "pre_delivery_readback": true,
     "pre_delivery_receipt_id": 5615001401,
-    "user_surface_closure_id": null,
-    "user_surface_readback": false
+    "user_surface_closure_id": 5615027773,
+    "user_surface_readback": true
   },
   "lane": "timing",
   "lineage": {
@@ -32,7 +32,7 @@
     "sha256": "3d4352dbbdd9a2faab2cadeac790b8ae4a0cdffefb8474cd62dfa724fab58330",
     "width": 520
   },
-  "next_authorized": null,
+  "next_authorized": "v2-timing-029",
   "pocket_rule": "OCCLUSION HIDES EVIDENCE, NOT TIME. ADVANCE THE HIDDEN CHANNEL; REVEAL ITS CONSEQUENCE, DON'T REPLAY ITS LAST VISIBLE POSE.",
   "primary_tabs": [
     "ASCII",
@@ -69,7 +69,7 @@
     "whole_source_inspected": true
   },
   "source_art_embedded": false,
-  "status": "PERSISTED_READY_FOR_USER_SURFACE",
+  "status": "HEALTHY_USER_SURFACED",
   "title": "Hidden Interval State Advance",
   "video_required": true,
   "video_source": "abstract_ascii_rig_only"
