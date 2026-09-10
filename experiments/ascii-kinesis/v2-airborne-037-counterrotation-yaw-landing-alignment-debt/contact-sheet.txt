@@ -1,94 +1,139 @@
-ASCII KINESIS V2 — AIRBORNE037
+ASCII KINESIS V2 - AIRBORNE037
 PRIMITIVE: AIRBORNE_COUNTERROTATION_YAW_LANDING_ALIGNMENT_DEBT
-SOURCE ART: NONE — independently authored abstract ASCII rig
+SOURCE ART: NONE - abstract ASCII rig only
+READ ORDER: coiled axis bank -> support break -> unsupported upper/lower counterrotation -> apex orientation split -> landing-axis lock -> separated precontact -> right-toe yaw brake -> torsional crush -> delayed trail-foot catch -> rebound counterswing -> displaced restack
 LAW: FACING MAY CHANGE IN AIR WITHOUT ROOT DIRECTION CHANGING; SUPPORT MUST PAY HEADING/VELOCITY MISALIGNMENT.
-READ: axis bank -> support break -> unsupported counterrotation -> apex split -> lower-axis lock -> right-toe yaw brake -> torsional crush -> delayed left-foot catch -> rebound counterswing -> displaced restack
-LEGEND: O head | @ root | o joint | h hand | ^ trusted support | x unsupported foot
 
-A037-K0  COILED AXIS BANK  FOURS/INFERRED
+A037-K0  COILED AXIS BANK  FOURS / INFERRED
 ROLE: ANTICIPATION_LOAD_WITH_OPPOSED_TWIST
-SUPPORT: LEFT_FOOT,RIGHT_FOOT | UPPER_YAW=-12° | LOWER_YAW=+8° | V=ZERO
+SUPPORT: LEFT_FOOT,RIGHT_FOOT | UPPER_YAW: -12 | LOWER_YAW: +8 | V=ZERO
 ROOT: GROUND SUPPORT; SHOULDERS BANK LEFT WHILE PELVIS/FEET PRELOAD RIGHT; ROOT DOES NOT YET TRAVEL
 
+   U<
 
 
 
+                 O
+                  |    h
+                --|-  /
+             o--  | -o
+            /     |
+            /     |
+           /      |
+           /      |
+          h       @
+   L>            / \
+                /  \
+   V=ZERO      /    \
+              o      \
+             |       \
+             |        o
+            |          |
+            |          |
+           |            |
+===========^============^=======================================================================================
 
-
-
-
-
-          O    -h
-      o----\--o
-     /     |
-    /      |
-   h      -@
-       o--  --
-      /       -o
-     /          \
-====^============^================================
-
-A037-K1  SUPPORT BREAK / AXIS RELEASE  ONES/INFERRED
+A037-K1  SUPPORT BREAK / AXIS RELEASE  ONES / INFERRED
 ROLE: EARN_UNSUPPORTED_FLIGHT_BEFORE_REORIENTATION
-SUPPORT: NONE | UPPER_YAW=-4° | LOWER_YAW=+4° | V=UP_RIGHT
+SUPPORT: NONE | UPPER_YAW: -4 | LOWER_YAW: +4 | V=UP_RIGHT
 ROOT: BOTH FEET CLEAR; ROOT LAUNCHES UP-RIGHT; NO AIR SUPPORT
 
+         U=
+
+
+
+                        O
+                        |
+                       -|-
+                    o-- | --o-
+                   /    |     --h
+                  /     |
+                  /     |
+                 h      |
+                        @
+         L=            / \
+                      /   \
+         V=UP_RIGHT   /    \
+                     /      o
+                    o        \
+                   /         \
+                   /          \
+                  /           \
+                  /            \
+                 /
 
 
 
 
 
-          O
-         -|-
-     -o-- | --o---h
-   h-     |
-          @
-        -- --
-      o-     -o
-    //         \\
-   x             x
+================================================================================================================
 
-
-==================================================
-
-A037-K2  RISING COUNTERROTATION ONSET  TWOS/INFERRED
+A037-K2  RISING COUNTERROTATION ONSET  TWOS / INFERRED
 ROLE: BEGIN_INTERNAL_UPPER_LOWER_COUNTERROTATION
-SUPPORT: NONE | UPPER_YAW=-18° | LOWER_YAW=+18° | V=UP_RIGHT
+SUPPORT: NONE | UPPER_YAW: -18 | LOWER_YAW: +18 | V=UP_RIGHT
 ROOT: BALLISTIC RISE CONTINUES; UPPER BODY SWEEPS LEFT AS LOWER BODY SWEEPS RIGHT; ROOT VELOCITY UNCHANGED
 
+                U<
 
 
 
-             -O-
-   h-----o---  |-o
-               |  \
-               @   h
-              | \\
-              o   \\
-               \    o--
-               \       --x
-                x
+                              O
+                               |
+                             --|
+                       --o---  |-o
+                   h---        | |
+                               |  |
+                               |  |
+                               |   |
+                               @   h
+                L>             |\
+                              |  \
+                V=UP_RIGHT    |   \
+                              o   \
+                              |    \
+                               |    o-
+                               |      --
+                               |        --
+                                |
+                                |
 
 
 
 
 
-==================================================
 
-A037-K3  CROSS-BODY RATE PEAK  ONES/INFERRED
+
+
+
+================================================================================================================
+
+A037-K3  CROSS-BODY RATE PEAK  ONES / INFERRED
 ROLE: AMPLIFY_COUNTERROTATION_WITHOUT_ROOT_REDIRECTION
-SUPPORT: NONE | UPPER_YAW=-32° | LOWER_YAW=+34° | V=UP_RIGHT
+SUPPORT: NONE | UPPER_YAW: -32 | LOWER_YAW: +34 | V=UP_RIGHT
 ROOT: UNSUPPORTED RISE; SHOULDER AXIS AND LANDING-GEAR AXIS OPPOSE; NO EXTERNAL TORQUE OR ROOT KICK INVENTED
 
-                O
-               ----
-        ---o---   |o
-   h----          ||
-                  @|
-                   h---
-                    \  -o--
-                     \\    ---x
-                       x
+                        U<
+
+
+
+                                     O
+                                      \
+                                    ---\
+                               -o---   |o
+                             --        ||
+                          ---          ||
+                        h-             ||
+                                       ||
+                                       @|
+                        L>             ||
+                                        h\
+                        V=UP_RIGHT      o \\
+                                         \  \
+                                         \   o--
+                                          \     ----
+                                           \
+                                           \
+                                            \
 
 
 
@@ -96,21 +141,45 @@ ROOT: UNSUPPORTED RISE; SHOULDER AXIS AND LANDING-GEAR AXIS OPPOSE; NO EXTERNAL 
 
 
 
-==================================================
 
-A037-K4  APEX / MAX AXIS DISAGREEMENT  FOURS/INFERRED
+
+
+
+
+
+
+
+
+
+
+================================================================================================================
+
+A037-K4  APEX / MAX AXIS DISAGREEMENT  FOURS / INFERRED
 ROLE: READABLE_APEX_HOLD_WITH_INTERNAL_ORIENTATION_SPLIT
-SUPPORT: NONE | UPPER_YAW=-40° | LOWER_YAW=+46° | V=RIGHT_NEAR_ZERO_Y
+SUPPORT: NONE | UPPER_YAW: -40 | LOWER_YAW: +46 | V=RIGHT_NEAR_ZERO_Y
 ROOT: APEX HOLD; ROOT ARC REMAINS BALLISTIC; LOWER BODY HAS ROTATED TOWARD LANDING AXIS WHILE TORSO COUNTERWEIGHTS
-                O
-               ----
-   h-------o---   |o
-                  ||
-                  @|
-                   ho---
-                     \\ -o-----x
-                       \\
-                         x
+
+                                 U<
+
+
+
+                                              O
+                                               \
+                                             ---\
+                                      ---o---   |o
+                                 h----          ||
+                                                ||
+                                                ||
+                                                ||
+                                                @|
+                                 L>              |\
+                                                 | \
+                                 V=RIGHT_NEAR_ZERO_Y\
+                                                   \ \\
+                                                    \  o------
+                                                     \
+                                                      \
+                                                       \
 
 
 
@@ -119,205 +188,299 @@ ROOT: APEX HOLD; ROOT ARC REMAINS BALLISTIC; LOWER BODY HAS ROTATED TOWARD LANDI
 
 
 
-==================================================
 
-A037-K5  DESCENT / LOWER AXIS LOCK  TWOS/INFERRED
+
+
+
+
+
+
+
+
+
+
+================================================================================================================
+
+A037-K5  DESCENT / LOWER AXIS LOCK  TWOS / INFERRED
 ROLE: HOLD_LANDING_GEAR_ALIGNMENT_WHILE_UPPER_BODY_LAGS
-SUPPORT: NONE | UPPER_YAW=-30° | LOWER_YAW=+34° | V=RIGHT_DOWN
+SUPPORT: NONE | UPPER_YAW: -30 | LOWER_YAW: +34 | V=RIGHT_DOWN
 ROOT: DESCENT BEGINS; FEET KEEP NEW LANDING AXIS; ARMS/TORSO STILL COUNTERROTATED; ROOT PATH DOES NOT FOLLOW FACING
 
-
-              O
-        -o-----\-o
-     ---       |  |
-   h-          @  |
-                \- |
-                 o-h
-                  \ -o--
-                   \    ---x
-                    x
+                                          U<
 
 
 
+                                                        O
+                                                         |
+                                                       --|
+                                                   o---  |-o
+                                                 //      | |
+                                                /        |  |
+                                              //         |  |
+                                             h           |  |
+                                                         @  |
+                                          L>              |  |
+                                                          |\ |
+                                          V=RIGHT_DOWN     |\h
+                                                           o \
+                                                            | \
+                                                            |  o
+                                                             |  --
+                                                             |    --
+                                                              |     --
+                                                              |
 
 
 
-==================================================
 
-A037-K6  PRECONTACT / RIGHT TOE LOW  TWOS/INFERRED
+
+
+
+
+
+
+
+
+
+
+
+================================================================================================================
+
+A037-K6  PRECONTACT / RIGHT TOE LOW  TWOS / INFERRED
 ROLE: SEPARATED_PRECONTACT_WITH_HEADING_VELOCITY_MISALIGNMENT
-SUPPORT: NONE | UPPER_YAW=-22° | LOWER_YAW=+22° | V=RIGHT_DOWN
+SUPPORT: NONE | UPPER_YAW: -22 | LOWER_YAW: +22 | V=RIGHT_DOWN
 ROOT: RIGHT TOE LOWEST BUT STILL CLEAR; ROOT VELOCITY REMAINS RIGHT-DOWN; LANDING AXIS IS ROTATED RELATIVE TO TRAVEL
 
+                                                  U<
 
 
 
+                                                                O
+                                                                 |
+                                                               --|
+                                                           o---  |-o
+                                                          /      |  |
+                                                         /       |  |
+                                                        /        |   |
+                                                       /         |   |
+                                                      h          @    |
+                                                  L>             |\   h
+                                                                | \
+                                                  V=RIGHT_DOWN  |  \
+                                                                o   \
+                                                                |    \
+                                                                |    \
+                                                               |      o
+                                                               |      |
+                                                               |       |
+                                                               |       |
+                                                                       |
+                                                                        |
+                                                                        |
+                                                                        |
+                                                                         |
+                                                                         |
 
-             O
-            --\
-       -o---  |-o
-     --       |  \\
-   h-         @    h
-             | \\
-             o   \\
-             |     o
-            |       \
-            x        \
-                     \
-                      x
-==================================================
+================================================================================================================
 
-A037-K7  RIGHT TOE CATCH / YAW BRAKE  ONES/INFERRED
+A037-K7  RIGHT TOE CATCH / YAW BRAKE  ONES / INFERRED
 ROLE: FIRST_SUPPORT_ACQUISITION_CONVERTS_MISALIGNMENT_TO_TORSION
-SUPPORT: RIGHT_FOOT | UPPER_YAW=-18° | LOWER_YAW=+14° | V=RIGHT_DOWN
+SUPPORT: RIGHT_FOOT | UPPER_YAW: -18 | LOWER_YAW: +14 | V=RIGHT_DOWN
 ROOT: RIGHT TOE EARNS SUPPORT AT GROUND; ROOT STILL DRIFTS RIGHT/DOWN; CONTACT BEGINS YAW BRAKE INSTEAD OF TELEPORTING FACING
 
+                                                      U<
 
 
 
+                                                                    O
+                                                                     |
+                                                                   --|
+                                                               o---  |-o
+                                                              /      |  |
+                                                             /       |  |
+                                                            /        |   |
+                                                           /         |   |
+                                                          h          @    |
+                                                      L>            | \   h
+                                                                    | \
+                                                      V=RIGHT_DOWN |   \
+                                                                   o    \
+                                                                   |    \
+                                                                  |      o
+                                                                  |       |
+                                                                  |       |
+                                                                  |        |
+                                                                 |         |
+                                                                 |          |
+============================================================================^===================================
 
-
-
-             O
-        o-----\-o
-      //      |  \
-    //        |   \
-   h          @    h
-             / --
-            o    -o
-           /       \
-           /        \
-==========x==========^============================
-
-A037-K8  TORSIONAL CRUSH / TORSO OVERRUN  FOURS/INFERRED
+A037-K8  TORSIONAL CRUSH / TORSO OVERRUN  FOURS / INFERRED
 ROLE: PAY_CONTACT_FORCE_WITH_UNILATERAL_COMPRESSION_AND_UPPER_LAG
-SUPPORT: RIGHT_FOOT | UPPER_YAW=-34° | LOWER_YAW=+8° | V=RIGHT_SLOW_DOWN
+SUPPORT: RIGHT_FOOT | UPPER_YAW: -34 | LOWER_YAW: +8 | V=RIGHT_SLOW_DOWN
 ROOT: RIGHT KNEE COMPRESSES; PELVIS YAW BRAKES UNDER SUPPORT; TORSO/ARMS OVERRUN COUNTER-LEFT; LEFT FOOT STILL UNTRUSTED
 
+                                                         U<
 
 
 
+                                                                     O
+                                                                      \\
+                                                                     ---\
+                                                                o----   o
+                                                               /        |
+                                                              /         |
+                                                            //          |
+                                                           /            ||
+                                                          /             @|
+                                                         L>            / |
+                                                                      /  |\
+                                                         V=RIGHT_SLOW_DOWN\
+                                                                     o     o
+                                                                    /       \
+                                                                   /        \
+                                                                   /         \
+                                                                  /          \
+==============================================================================^=================================
 
-
-
-
-               O-
-               ----
-         -o----   o
-       --         |
-     --           @|
-   h-           // h\
-               o     o
-             //       \\
-============x===========^=========================
-
-A037-K9  TRAIL FOOT CHASE / ROOT OVERSTEP  TWOS/INFERRED
+A037-K9  TRAIL FOOT CHASE / ROOT OVERSTEP  TWOS / INFERRED
 ROLE: DELAY_SECOND_SUPPORT_WHILE_ROOT_CONTINUES_PAST_FIRST_CATCH
-SUPPORT: RIGHT_FOOT | UPPER_YAW=-26° | LOWER_YAW=+4° | V=RIGHT_SLOW
+SUPPORT: RIGHT_FOOT | UPPER_YAW: -26 | LOWER_YAW: +4 | V=RIGHT_SLOW
 ROOT: ROOT OVERRUN CONTINUES; LEFT FOOT CHASES NEW BASE; RIGHT SUPPORT REMAINS SOLE AUTHORITY
 
+                                                            U<
 
 
 
+                                                                         O
+                                                                          \
+                                                                        ---\
+                                                                    o---   |o
+                                                                   /       ||
+                                                                  /        | |
+                                                                //         | |
+                                                               /           | |
+                                                              h            @ |
+                                                            L=            / | |
+                                                                         /  | h
+                                                            V=RIGHT_SLOW/    |
+                                                                       o     o
+                                                                      /       \
+                                                                     /         \
+                                                                    /          \
+================================================================================^===============================
 
-
-
-
-
-
-              O
-         o-------o
-       --       | \
-     --         | \
-   h-          -@  h
-            o--  -o
-          //       \\
-=========x===========^============================
-
-A037-K10  LEFT FOOT CATCH / DUAL BRAKE  ONES/INFERRED
+A037-K10  LEFT FOOT CATCH / DUAL BRAKE  ONES / INFERRED
 ROLE: SECOND_SUPPORT_ACQUISITION_CLOSES_BASE_WITH_RESIDUAL_TORSION
-SUPPORT: LEFT_FOOT,RIGHT_FOOT | UPPER_YAW=-16° | LOWER_YAW=+0° | V=RIGHT_NEAR_STOP
+SUPPORT: LEFT_FOOT,RIGHT_FOOT | UPPER_YAW: -16 | LOWER_YAW: +0 | V=RIGHT_NEAR_STOP
 ROOT: LEFT FOOT FINALLY EARNS SUPPORT; TWO-FOOT BASE BRAKES TRANSLATION; UPPER BODY STILL OWES COUNTERSWING
 
+                                                              U<
 
 
 
+                                                                            O
+                                                                             |
+                                                                           --|
+                                                                       o---  |-o
+                                                                      /      | |
+                                                                     /       |  |
+                                                                    /        |  |
+                                                                   h         |   |
+                                                                             @   |
+                                                              L=            / \   |
+                                                                           /   \  h
+                                                              V=RIGHT_NEAR_STOP\
+                                                                         o      o
+                                                                        /        \
+                                                                        /        \
+                                                                       /          \
+                                                                       /          \
+======================================================================^============^============================
 
-
-
-
-            O
-           --\
-       o---  |-o
-     --      |  \
-   h-        @   \
-           -- \\  h
-         o-     o
-       //        \\
-======^============^==============================
-
-A037-K11  REBOUND COUNTERSWING  TWOS/INFERRED
+A037-K11  REBOUND COUNTERSWING  TWOS / INFERRED
 ROLE: RELEASE_STORED_TORSION_WITH_SECONDARY_UPPER_BODY_LAG
-SUPPORT: LEFT_FOOT,RIGHT_FOOT | UPPER_YAW=+14° | LOWER_YAW=-4° | V=UP_SMALL_RIGHT
+SUPPORT: LEFT_FOOT,RIGHT_FOOT | UPPER_YAW: +14 | LOWER_YAW: -4 | V=UP_SMALL_RIGHT
 ROOT: ROOT REBOUNDS SLIGHTLY; SHOULDERS SWING PAST NEUTRAL OPPOSITE THE CRUSH; FEET KEEP SUPPORT
 
+                                                                U>
 
 
 
+                                                                                 O
+                                                                                /
+                                                                               /--
+                                                                             o-|  ---o
+                                                                            h  |      \\
+                                                                               |        \
+                                                                               |         \\
+                                                                               |           h
+                                                                               @
+                                                                L=            / \
+                                                                             /   \
+                                                                V=UP_SMALL_RIGHT \
+                                                                            /     \
+                                                                           o       o
+                                                                          |         |
+                                                                          |         |
+                                                                         |           |
+                                                                         |           |
+                                                                        |             |
+========================================================================^=============^=========================
 
-
-
-
-          --O
-       ho-|  ---o-
-          |       ---
-          @          -h
-        -- --
-      o-     -o
-     /         \
-    /           \
-===^=============^================================
-
-A037-K12  DISPLACED SETTLE / ARM LAG  TWOS/INFERRED
+A037-K12  DISPLACED SETTLE / ARM LAG  TWOS / INFERRED
 ROLE: DAMP_REBOUND_WITH_ASYMMETRIC_RECOVERY_DEBT
-SUPPORT: LEFT_FOOT,RIGHT_FOOT | UPPER_YAW=+6° | LOWER_YAW=+0° | V=NEAR_ZERO
+SUPPORT: LEFT_FOOT,RIGHT_FOOT | UPPER_YAW: +6 | LOWER_YAW: +0 | V=NEAR_ZERO
 ROOT: ROOT SETTLES FORWARD OF TAKEOFF; RIGHT ARM STILL LAGS; STANCE REMAINS ASYMMETRIC
 
+                                                                 U>
 
 
 
+                                                                                 O
+                                                                                |
+                                                                               -|--
+                                                                             o- |  --o
+                                                                            /   |     \
+                                                                            /   |      \
+                                                                           h    |       \
+                                                                                |       \
+                                                                                @        \
+                                                                 L=            / \        h
+                                                                              /   \
+                                                                 V=NEAR_ZERO /    \
+                                                                            o      \
+                                                                           |        o
+                                                                           |         \
+                                                                          |          \
+                                                                          |           \
+                                                                         |            \
+=========================================================================^=============^========================
 
-
-
-
-           O
-       o--/----o
-      /   |     \\
-     h    |       \\
-         -@         h
-      o--  --
-     /       -o
-    /          \\
-===^=============^================================
-
-A037-K13  ACTION-READY OFFSET RESTACK  FOURS/INFERRED
+A037-K13  ACTION-READY OFFSET RESTACK  FOURS / INFERRED
 ROLE: REENTER_READY_WITH_DISPLACEMENT_PRESERVED
-SUPPORT: LEFT_FOOT,RIGHT_FOOT | UPPER_YAW=+0° | LOWER_YAW=+0° | V=ZERO
+SUPPORT: LEFT_FOOT,RIGHT_FOOT | UPPER_YAW: +0 | LOWER_YAW: +0 | V=ZERO
 ROOT: SUPPORT AND ORIENTATION REBIND; ROOT REMAINS DISPLACED; RECOVERY DOES NOT REVERSE THE JUMP TO ITS START
 
+                                                                  U=
 
 
 
-
-
-
-
-          O
-      o---|---o
-    //    |    --
-   h      |      -h
-         -@-
-      o--   --o
-     /         \
-    /           \
-===^=============^================================
+                                                                                 O
+                                                                                 |
+                                                                                -|-
+                                                                             o-- | --o
+                                                                            /    |    \
+                                                                           /     |     \
+                                                                           /     |      \
+                                                                          h      |       h
+                                                                                 @
+                                                                  L=            / \
+                                                                               /   \
+                                                                  V=ZERO      /     \
+                                                                             o       o
+                                                                            |         |
+                                                                            |         |
+                                                                           |           |
+                                                                           |           |
+                                                                          |             |
+==========================================================================^=============^=======================
