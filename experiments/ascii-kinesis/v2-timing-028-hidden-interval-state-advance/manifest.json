@@ -1,0 +1,76 @@
+{
+  "DREW_ACCEPTED": false,
+  "ascii_literal_text": true,
+  "backward_compatible": true,
+  "delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_byte_identical_authoritative": false,
+    "part3_video": false
+  },
+  "entry": "v2-timing-028-hidden-interval-state-advance",
+  "format_version": 2,
+  "issue_343": {
+    "pre_delivery_readback": false,
+    "pre_delivery_receipt_id": null,
+    "user_surface_closure_id": null,
+    "user_surface_readback": false
+  },
+  "lane": "timing",
+  "lineage": {
+    "negative_fixture": null,
+    "revises": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT"
+  },
+  "media": {
+    "bytes": 28290,
+    "codec": "h264",
+    "fps": 24,
+    "frames": 20,
+    "height": 320,
+    "pix_fmt": "yuv420p",
+    "sha256": "42e167274bd0304b154e07cd09fd2348501b6695d500f9493fd4fc79e48b0d1d",
+    "width": 720
+  },
+  "next_authorized": null,
+  "pocket_rule": "OCCLUSION HIDES EVIDENCE, NOT TIME. ADVANCE THE HIDDEN CHANNEL; REVEAL ITS CONSEQUENCE, DON'T REPLAY ITS LAST VISIBLE POSE.",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "primitive": "HIDDEN_INTERVAL_STATE_ADVANCE",
+  "quality": {
+    "actual_media_decode": "PASS",
+    "actual_media_identity": "CURRENT_WORKER_DETERMINISTIC_RECONSTRUCTION_PASS",
+    "noodle_queen": "PASS_CURRENT_WORKER_AFTER_TANGO",
+    "tango": "PASS_CURRENT_WORKER_R1_AFTER_SAME_BODY_CORRECTION",
+    "validator": "PASS_CANDIDATE_ISOLATED_OFFICIAL_BLOB_7d9fc7608d54bca4a2cfbd36660c2d379e27fd78; REPOSITORY_GLOBAL_NOT_CLAIMED_STANDARD_CHAT_BOUNDARY"
+  },
+  "repo": {
+    "persisted": false,
+    "readback": false,
+    "spa_blob": null,
+    "spa_persistence_commit": null
+  },
+  "source": {
+    "asset_id": "255871",
+    "campaign_evidence_file_id": "1jHICZp08ScMRjXlFCM1-uBbGP0IUkwETERBzQPoCseo",
+    "game": "Legend of Heroes",
+    "name": "Spear",
+    "platform": "Arcade",
+    "source_pixels_in_output": false,
+    "source_roles": [
+      "POSE_REFERENCE",
+      "CONTACT_REFERENCE"
+    ],
+    "timing_authority": false,
+    "timing_provenance": "INFERRED",
+    "whole_source_inspected": true
+  },
+  "source_art_embedded": false,
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "title": "Hidden Interval State Advance",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only"
+}
