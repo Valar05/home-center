@@ -65,6 +65,7 @@ K02 POLE_PLANT_ACQUIRED · ONES/1f · INFERRED · support=LEFT+POLE · pole=PLAN
 
 
 
+
        / O
         //
           T-
@@ -92,6 +93,7 @@ K03 TRIPOD_LOAD_COM_FORWARD · TWOS/2f · INFERRED · support=LEFT+POLE · pole=
 
 
 
+
           /O
            //
              T-
@@ -111,19 +113,19 @@ _____*_________________________P________________________________________________
 
 
 causal: compress and drive COM forward through the left-foot plus fixed-pole support triangle while root travel stays live
-
 K04 ROOT_PASSES_INTO_POLE_ARC · TWOS/2f · INFERRED · support=POLE+LEFT_UNLOADING · pole=PLANTED_FIXED · phase=PIVOT_PASS_A · rootΔ=28.0px · lean=-28° · lag=+5°
 
 
 
 
 
-              /O
-               //
-                 --
+
+               /O
+                //
+                  --
                 T-/
                  |---
-      ..         |   /        .........            ...
+      ..          |   /        .........            ...
         ......    |  c//......         ............
               ..../@..  /
                ///  //   //
@@ -166,6 +168,7 @@ ____________________~__________P________________________________________________
 causal: let the fixed pole temporarily dominate support while both feet migrate forward; the body passes the anchor instead of teleporting it
 
 K06 RIGHT_CATCH_BEFORE_RELEASE · TWOS/2f · INFERRED · support=RIGHT+POLE · pole=PLANTED_FIXED · phase=RIGHT_CATCH · rootΔ=29.6px · lean=-18° · lag=+12°
+
 
 
                              /
@@ -264,7 +267,7 @@ K09 LEFT_FREE_CATCH_OVERRUN · TWOS/2f · INFERRED · support=LEFT · pole=AIRBO
                                      /     /
                                    //       /
                                  //         /
-________________________________~____________*______________________________________
+________________________________~____________*___________________________________
 
 
 
@@ -273,6 +276,7 @@ ________________________________~____________*__________________________________
 causal: first free catch lands deliberately overlong after pole release while the torso and pole remain late
 
 K10 LEFT_BRAKE_COMPRESSION · TWOS/2f · INFERRED · support=LEFT · pole=AIRBORNE · phase=BRAKE_COMPRESSION · rootΔ=26.0px · lean=+9° · lag=+24°
+
 
 
 
@@ -302,6 +306,7 @@ K11 RIGHT_COUNTERSTEP_CATCH · TWOS/2f · INFERRED · support=RIGHT · pole=AIRB
 
 
 
+
                                                  O
 
                                                           //
@@ -325,6 +330,7 @@ _____________________________________________~____*_____________________________
 causal: short counterstep changes support ownership to catch remaining translational mismatch without becoming a gait loop
 
 K12 RIGHT_PASS_LEFT_CORRECTION_PROBE · TWOS/2f · INFERRED · support=RIGHT+LEFT_PROBE · pole=AIRBORNE · phase=CORRECTION_PROBE · rootΔ=14.3px · lean=+4° · lag=+13°
+
 
 
 
@@ -354,6 +360,7 @@ K13 LEFT_CORRECTION_CATCH · TWOS/2f · INFERRED · support=LEFT · pole=AIRBORN
 
 
 
+
                                                     O        /
                                                            //
                                                     T-----/
@@ -377,6 +384,7 @@ _____________________________________________________*__________________________
 causal: final trusted left correction is smaller than the counterstep and arrests root debt without returning to the original stance
 
 K14 DISPLACED_TOOL_LAG_SETTLE · FOURS/4f · INFERRED · support=LEFT_UNLOADING · pole=AIRBORNE · phase=DISPLACED_SETTLE · rootΔ=8.2px · lean=-1° · lag=+4°
+
 
 
                                                      O       /
