@@ -25,11 +25,17 @@
   "quality": {
     "actual_media_decode": "PASS",
     "actual_media_sha256": "0d85e707f754c03ba7f2e50d873db0d740059207cb00d99b34bbe8dac1741b76",
-    "candidate_isolated_validator": "PASS",
+    "actual_media_bytes": 16895,
+    "actual_media_frames": 19,
+    "actual_media_dimensions": "640x280",
+    "current_worker_reconstruction": "BYTE_IDENTICAL_PASS",
     "fresh_current_worker_noodle_queen": "PASS",
     "fresh_current_worker_tango": "PASS",
     "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated_validator": "PASS_RECORDED_CANDIDATE; CURRENT_ENTRY_PREDICATES_RECONFIRMED",
     "repository_global_validator": "NOT_CLAIMED_STANDARD_CHAT_BOUNDARY",
+    "current_worker_tango_visible_read": "K01 coil and left support load visibly prepare the turn; K02 release lifts; one-tick K03 cross-body witness resolves the sparse directional alias; K04 back-quadrant COM travel and K05 right-catch compression own the consequence; K06 crosses wrap without reset; K07 brake and K08 displaced restack preserve recovery debt.",
+    "current_worker_queen_judgment": "PASS TASTE+FUNCTION+CONTEMPT: one witness key solves the ambiguity without taxing the clip; body/support geometry, not the pointer alone, now carries direction and consequence.",
     "tango_rounds": [
       {
         "correction": "same-body K01-K07 root/support geometry deepened: visible left coil, release lift, cross-body witness torsion, back-quadrant COM travel, right-catch compression, wrap carry, and two-support brake",
@@ -38,33 +44,31 @@
         "status": "REVISE_REQUIRED"
       },
       {
-        "reject_checks": {
-          "DEAD_HOLD": false,
-          "DIRECTION_BY_SHORTEST_PATH": false,
-          "EQUAL_SPACING": false,
-          "GLOBAL_FRAME_INFLATION": false,
-          "METADATA_ONLY_DIRECTION": false,
-          "PHASE_RESET": false,
-          "RETURN_TO_IDLE": false,
-          "REVERSE_PLAYBACK": false,
-          "SHEET_ORDER_AS_TIMELINE": false
-        },
         "round": 1,
-        "status": "PASS",
-        "visible_read": "coil and support ownership now carry turn preparation; one-tick K03 cross-body witness makes the 95→305 degree ambiguous jump direction legible; K04 travel and K05 right-catch compression visibly own the consequence; K06 crosses phase wrap without body reset; K07 brake and K08 displaced restack pay recovery debt"
+        "status": "PASS"
       },
       {
         "round": 2,
-        "status": "PASS",
-        "visible_read": "current builder-native 640x280 render preserves the revised embodied sequence: K01 coil, K02 release lift, K03 cross-body directional witness, K04 COM travel, K05 right-catch compression, K06 wrap continuation, K07 brake and K08 displaced restack remain legible; no new visible defect"
+        "status": "PASS"
+      },
+      {
+        "round": 3,
+        "status": "PASS_CURRENT_WORKER_BYTE_IDENTICAL_RECONSTRUCTION"
       }
     ]
   },
   "repo": {
-    "commit": null,
-    "files": {},
-    "persisted": false,
-    "readback": false
+    "commit": "7561a12333a3fc455821edc8484f1bdeb63e2662",
+    "files": {
+      "build.py": "3c39f6906f99994d9068cb380fcbc1ce828fc0fb",
+      "contact-sheet.txt": "f9e60216d4b48719e5037af1409b9f02879bdf50",
+      "directional-witness-phase-alias.motion.html": "9e7ae9a62ca65d986bd22b6e6aa3a84c6acd0724",
+      "manifest.json": "ab39f4fbae7c891bb7e083ccde488db3ce325186",
+      "motion.json": "317c3b1d25638ebc229f515eed3aada85e18661a"
+    },
+    "persisted": true,
+    "readback": true,
+    "spa_persistence_commit": "0843d3e59a6f52db43d9c96ec767798de5922049"
   },
   "schema": "ascii-kinesis.receipt-v2",
   "source": {
@@ -79,5 +83,5 @@
     "timing_provenance": "INFERRED",
     "whole_source_inspected": true
   },
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE"
+  "status": "PERSISTED_READY_FOR_USER_SURFACE"
 }
