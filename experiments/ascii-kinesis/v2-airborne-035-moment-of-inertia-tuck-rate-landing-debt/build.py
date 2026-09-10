@@ -139,7 +139,7 @@ def encode_video(frames):
     with tempfile.TemporaryDirectory() as td:
         td=Path(td)
         for i,im in enumerate(frames): im.save(td/f'f{i:04d}.png',compress_level=9)
-        cmd=['ffmpeg','-y','-loglevel','error','-framerate',str(FPS),'-i',str(td/'f%04d.png'),'-an','-c:v','libx264','-preset','veryslow','-crf','35','-pix_fmt','yuv420p','-movflags','+faststart','-map_metadata','-1','-fflags','+bitexact','-flags:v','+bitexact',str(VIDEO)]
+        cmd=['ffmpeg','-y','-loglevel','error','-framerate',str(FPS),'-i',str(td/'f%04d.png'),'-an','-c:v','libx264','-preset','veryslow','-crf','44','-pix_fmt','yuv420p','-movflags','+faststart','-map_metadata','-1','-fflags','+bitexact','-flags:v','+bitexact',str(VIDEO)]
         subprocess.run(cmd,check=True)
 
 def build_video(m):
