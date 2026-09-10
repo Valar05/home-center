@@ -4,7 +4,7 @@
   "title": "ASCII Kinesis V2 Locomotion 025 — Downhill Brake / Gravity Respend / Catch Runout",
   "slug": "v2-locomotion-025-downhill-brake-gravity-respend-runout",
   "lane": "LOCOMOTION",
-  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_ISSUE_CHAT",
+  "status": "COLLISION_RECONCILED_QUALITY_PASS_PENDING_REPO_READBACK",
   "primary_tabs": [
     "ASCII",
     "JSON",
@@ -17,15 +17,63 @@
   "backward_compatible": true,
   "single_self_contained_spa": true,
   "lineage": {
+    "kind": "NEW_CONCEPT",
     "revises": null,
     "negative_fixture": null,
     "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
     "predecessor": "v2-locomotion-024-pole-plant-third-support-runout",
     "predecessor_durable_readback_issue_comment": 5622347443,
     "one_successor_binding": true,
-    "successor_collision": false,
+    "successor_collision": true,
+    "collision_class": "SUCCESSOR_COLLISION_RESOLVED_BY_EXACT_CREATION_CHRONOLOGY",
+    "collision_count": 6,
+    "canonical_creation": {
+      "path": "v2-locomotion-025-downhill-brake-gravity-respend-runout",
+      "first_commit": "c17adf4bce27b808abc36e34b8c8054e06d51507",
+      "first_created_at": "2026-09-10T17:43:41Z",
+      "classification": "CANONICAL_EARLIEST"
+    },
+    "collided_bodies": [
+      {
+        "path": "v2-locomotion-025-downhill-brake-gravity-respend-runout",
+        "first_commit": "c17adf4bce27b808abc36e34b8c8054e06d51507",
+        "first_created_at": "2026-09-10T17:43:41Z",
+        "classification": "CANONICAL_EARLIEST"
+      },
+      {
+        "path": "v2-locomotion-025-headwind-load-collapse-propulsion-surge-catch",
+        "first_commit": "f2750243bcb7cdcd0ff5580e411be8271640348f",
+        "first_created_at": "2026-09-10T18:26:43Z",
+        "classification": "NON_AUTHORITATIVE_SUCCESSOR_CHURN"
+      },
+      {
+        "path": "v2-locomotion-025-buoyancy-surrender-bank-catch-runout",
+        "first_commit": "5e73c5143423d9fb5520dc40425a2e41324f5ea4",
+        "first_created_at": "2026-09-10T18:44:32Z",
+        "classification": "NON_AUTHORITATIVE_SUCCESSOR_CHURN"
+      },
+      {
+        "path": "v2-locomotion-025-relationship-drag-support-revocation-runout",
+        "first_commit": "c766c8f2a9873825b804eeb67ffe747183155978",
+        "first_created_at": "2026-09-10T19:22:54Z",
+        "classification": "NON_AUTHORITATIVE_SUCCESSOR_CHURN"
+      },
+      {
+        "path": "v2-locomotion-025-low-obstacle-split-support-trailing-clearance-runout",
+        "first_commit": "b6bde892e7dce8a97d4e740353451be5bd48701d",
+        "first_created_at": "2026-09-10T19:51:40Z",
+        "classification": "NON_AUTHORITATIVE_SUCCESSOR_CHURN"
+      },
+      {
+        "path": "v2-locomotion-025-friction-break-slide-catch-runout",
+        "first_commit": "433040c9ccfd02bfba7fcf5753dc72cdd808bd22",
+        "first_created_at": "2026-09-10T20:21:13Z",
+        "classification": "NON_AUTHORITATIVE_SUCCESSOR_CHURN"
+      }
+    ],
+    "numbering_frozen_until_terminal_closure": true,
     "repair_oldest_first_debt_discovered": false,
-    "repair_queue_basis": "Post-reset Locomotion repair debt was already exhausted before fresh-concept Locomotion015/016 and later canonical fresh concepts; current direct main contains no Locomotion025 body."
+    "repair_queue_basis": "Pre-reset Locomotion repair debt was durably exhausted by canonical Locomotion013 closure 5597272086. Historical Drew-rejected specimens remain negative fixtures and are not promoted by machine closure."
   },
   "source": {
     "authority": "HOME_CENTER_COMMISSIONED_CAMPAIGN",
@@ -54,7 +102,7 @@
   },
   "novelty": {
     "concept": "DOWNHILL_BRAKE_GRAVITY_RESPEND_CATCH_RUNOUT",
-    "new_causality": "World-fixed brake catches are trustworthy yet do not terminate downhill travel. Each catch compresses and shortens root spacing, then unloading allows the external downhill field to re-spend momentum before the next support transfer. Repeated re-spend produces a later overlong free catch, after which corrections shorten and recovery remains displaced."
+    "new_causality": "World-fixed brake catches remain trustworthy while downhill demand repeatedly re-spends momentum after each unload, culminating in an overlong free catch and shorter displaced corrections."
   },
   "timing": {
     "fps": 24,
@@ -70,8 +118,8 @@
     "height": 270,
     "fps": 24,
     "frames": 26,
-    "bytes": 12211,
-    "sha256": "9548a1d7e984e0d0987499b16f96c541929d8715b004ee971ee2c42a953ff8f4",
+    "bytes": 5431,
+    "sha256": "838295e49c420cb088bfec36800febb88538c6e12f2bdf00194c56ff74b81a70",
     "current_worker_byte_identical_reconstruction": true,
     "decode_render_inspected": true,
     "source": "embedded SPA media generated only from abstract authored rig/timing"
@@ -83,8 +131,8 @@
       "current_worker": true,
       "decision": "PASS",
       "round": "R0",
-      "final_render_sha256": "9548a1d7e984e0d0987499b16f96c541929d8715b004ee971ee2c42a953ff8f4",
-      "inspection": "All 26 decoded frames and 13 authored states inspected. Fixed brake feet remain stationary across compression/overrun; root spacing visibly contracts under braking and re-expands after unload; the later 16px free catch is the longest; torso counter-lean and arm overshoot lag the root before shorter displaced correction."
+      "final_render_sha256": "838295e49c420cb088bfec36800febb88538c6e12f2bdf00194c56ff74b81a70",
+      "inspection": "Fresh inspection of all 26 decoded frames and the current full specimen: K03/K04 and K06/K07 preserve visibly world-fixed brake supports while root/COM pass and compress; root spacing is nonuniform; repeated unloads re-expand travel; K09 is the overlong free catch; K10-K12 pay runout with compression, secondary lag, shorter correction, and displaced recovery."
     },
     "noodle_queen": {
       "current_worker": true,
@@ -93,13 +141,14 @@
       "function": "PASS",
       "contempt": "PASS",
       "pass": true,
-      "final_render_sha256": "9548a1d7e984e0d0987499b16f96c541929d8715b004ee971ee2c42a953ff8f4"
+      "final_render_sha256": "838295e49c420cb088bfec36800febb88538c6e12f2bdf00194c56ff74b81a70",
+      "inspection": "Fresh same-render/full-specimen judgment: the friction-catch → compression → field-respend sentence is specific and mechanically readable rather than generic gait; support ownership, overshoot, lag, and displaced settle survive at acceptance scale."
     }
   },
   "validator": {
     "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-    "candidate_isolated": "PASS_EXIT_0",
+    "candidate_isolated": "PASS_STRUCTURAL_PREDICATES",
     "repository_global": "UNCLAIMED_STANDARD_CHAT_CONNECTOR_BOUNDARY"
   },
   "repository": {
@@ -109,10 +158,10 @@
     "post_write_readback": false,
     "exact_six_file_body": false,
     "stable_body_files": {
-      "build.py": "49eb89caea948a88aca5b7fc319e31a263b5ae83",
+      "build.py": "f0c40588cce5a4fbf99476510ab399836b540bfe",
       "contact-sheet.txt": "eaf174fdc707b425a50e01eb2045fb5b3e7b7d09",
-      "motion.json": "dcfbe75ab6f61b34e974bf78f2cf07e164820775",
-      "downhill-brake-gravity-respend-runout.motion.html": "87e8c353edda685acb8a948f74edf21985bdac58"
+      "motion.json": "e511692834b49ecffbf70e5b8953d8fcdda01be8",
+      "downhill-brake-gravity-respend-runout.motion.html": "5a4af43ceee1c7e894ee7e9a66b0fbf4312e003c"
     },
     "final_readback": false
   },
@@ -134,11 +183,11 @@
     "part1_ascii": false,
     "part1_blob": "eaf174fdc707b425a50e01eb2045fb5b3e7b7d09",
     "part2_json": false,
-    "part2_blob": "dcfbe75ab6f61b34e974bf78f2cf07e164820775",
+    "part2_blob": "e511692834b49ecffbf70e5b8953d8fcdda01be8",
     "part3_video": false,
     "ordered": false,
     "video_byte_identical": false,
-    "video_sha256": "9548a1d7e984e0d0987499b16f96c541929d8715b004ee971ee2c42a953ff8f4"
+    "video_sha256": "838295e49c420cb088bfec36800febb88538c6e12f2bdf00194c56ff74b81a70"
   },
   "DREW_ACCEPTED": false,
   "next_authorized": null
