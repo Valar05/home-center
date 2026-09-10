@@ -1,0 +1,179 @@
+ASCII KINESIS V2 DEFENSE024 — DEFLECTED THREAT / CLOCK FORK
+SOURCE EVIDENCE: commissioned Home Center campaign evidence 1PSEuJ3-KtMaQ8zkFgULnF0KlBa-ytjX6fFiuTamZPCI; TSR asset 55723 Holly Wood — Final Fight — SNES; static 671x388 PNG; Animated GIFs (0).
+SOURCE ROLE: STYLE_REFERENCE only. OBSERVED source fact transferred: coupled-vs-separated object/body readability. Source-authentic timing UNKNOWN.
+AUTHORED PRINCIPLE: PRECONTACT SHUNT -> BRIEF DEFLECTION CONTACT -> THREAT CLOCK FORKS -> BODY PAYS TORSION/SUPPORT DEBT -> COMPRESSED REPLANT -> COUNTERTORQUE -> LATE GUARD REBIND.
+TIMING: every decisive compile timing class INFERRED / STREET_FIGHTER-CAPCOM. ONES/TWOS/FOURS are exposure classes, never seconds.
+LEGEND: # full support | ^ forefoot | : toe-light | x unsupported | @ pelvis | + hand | X authored contact | dotted line + arrow = independent threat clock.
+RIGHTS: independent abstract ASCII rig only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio.
+
+D024-K00 ASYM_READY / DEBT_FREE                                          D024-K01 EARLY_READ / COUNTER-BRACE
+FOURS/INFERRED SUP=L#+R# CONTACT=OFF                                     FOURS/INFERRED SUP=L#+R# CONTACT=OFF
+THREAT=FAR_INCOMING / THREAT_CLOCK_OWNED                                 THREAT=CLOSING_INCOMING / THREAT_CLOCK_OWNED
+ROOT=BILATERAL                                                           ROOT=BILATERAL_LEFT_BIASED
+
+
+
+
+
+                         O                                                                       O
+                         |                                                                       |
+                         |                                                                       |
+                        -o-                                                                     -o
+                      o- | -o                                                                 o- |--
+                     /   |   \\                                                               |  |  -o---o----+
+                     /   |     o-                                 <..                        |   |                             <..............
+                    o-   |       -+                                                          |   |
+                      -+ |                                                                   o---+
+                         |                                                                       |
+                         |                                                                       |
+                         |                                                                       |
+                         @                                                                       |
+                        / \                                                                      @
+                       /   \                                                                    / \
+                       /    \                                                                  /   \\
+                      /      o                                                                 /     \
+                     o        \                                                               /       o
+                    |         \                                                              o         \
+                    |          \                                                             |         \
+                   |           \                                                            |           \
+                   |            \                                                           |            \
+                  |             \                                                          |             \
+________________==#==__________==#==_________________________________    ________________==#==__________==#==_________________________________
+
+D024-K02 PRECONTACT_SHUNT / LINE_BEATEN                                  D024-K03 DEFLECTION_CONTACT / CLOCK FORK
+TWOS/INFERRED SUP=L#+R# CONTACT=OFF                                      ONES/INFERRED SUP=L#+R^ CONTACT=ON@61,12
+THREAT=PRECONTACT / INCOMING_LINE                                        THREAT=CONTACT / INCOMING_CLOCK_JOIN
+ROOT=BILATERAL_LEFT_BIASED                                               ROOT=LEFT_FULL_RIGHT_FOREFOOT
+
+
+
+
+
+
+                       O                                                                       O
+                       |                                                                       |
+                       |                                                                       |
+                      -o-                                                                     -o-
+                    o- | --o--       ---+                                                   o- | --o-----o------X.......
+                    |  |      ---o---       <................                                | |                        ........
+                     | |                                                                     | |
+                     o----+                                                                   ||
+                       |                                                                      o----+
+                       |                                                                       |
+                       |                                                                       |
+                       |                                                                       |
+                       |                                                                       |
+                       @                                                                       @
+                      / \                                                                     / \
+                     /   \\                                                                  /   \\
+                    /      \                                                                 /     \
+                   o        o                                                               o       o
+                   |         \                                                              |        \
+                   |          \                                                             |         \
+                  |            \                                                           |           \\
+                  |             \                                                          |             \
+________________==#==__________==#==_________________________________    ________________==#==____________^^^_________________________________
+
+D024-K04 THREAT_FORKS / BODY_OVERSHOOTS                                  D024-K05 THREAT_LEADS / BODY_RECOIL_LAGS
+ONES/INFERRED SUP=L#+R: CONTACT=OFF                                      TWOS/INFERRED SUP=L#+Rx CONTACT=OFF
+THREAT=REDIRECTED_FREE / THREAT_CLOCK_SPLIT                              THREAT=FREE_TRAVEL / THREAT_CLOCK_LEADS
+ROOT=LEFT_DOMINANT                                                       ROOT=LEFT_SINGLE
+
+
+
+                                                                                                                                 .>
+                                                                                                                               ..
+                                                                                                                             ..
+                                               >                                                                          ...
+                                             ..                                                                         ..
+                     O                 --+ ..                                                O                        ..
+                     |             ----  ..                                                  |               --+    ..
+                     |       ---o--     .                                                    |           ----
+                    -o---o---                                                               -o-     ---o-
+                  o- |                                                                    o- | --o--
+                   \ |                                                                     \ |
+                    \|                                                                      \|
+                    \|                                                                      \|
+                     o----+                                                                  o--
+                     |                                                                       |  --+
+                     |                                                                       |
+                     |                                                                       |
+                     |                                                                       |
+                     @                                                                       @-
+                    / --                                                                    /  --
+                   /    --                                                                 /     --
+                   /      -o                                                               /       -o
+                  o         \                                                             o          \
+                  |          \                                                            |           \
+                  |           \\                                                           |           \\
+                  |             \                                                          |             \
+________________==#==____________o_:_________________________________    ________________==#==____________x___________________________________
+
+D024-K06 COUNTERTORQUE / FREE-LEG CATCH PREP                             D024-K07 COMPRESSED_REPLANT / THREAT EXIT
+TWOS/INFERRED SUP=L#+Rx CONTACT=OFF                                      ONES/INFERRED SUP=L#+R^ CONTACT=OFF
+THREAT=EXITING / INDEPENDENT_THREAT                                      THREAT=EXITED_FRAME / CLOCK_CONTINUES_OFFRIG
+ROOT=LEFT_SINGLE_COUNTERTORQUE                                           ROOT=LEFT_FULL_RIGHT_FOREFOOT
+
+                                                                   .>
+                                                               ....
+                                                            ...
+                                                        ....
+                                                      ..
+
+
+                    O                                                                         O
+                    |                                                                         |
+                     |                                                                         |
+                    -o-                                                                       -o-
+                  o- | --o--                                                                o- | --o-
+                   \ |      --o--                                                            \ |     --
+                    \ |          --+                                                          \ |      -o
+                     o----+                                                                    o----+    --
+                      |                                                                         |          -+
+                      |                                                                         |
+                       |                                                                        |
+                       |                                                                         |
+                       @                                                                         |
+                      / \\                                                                       @
+                     /    \                                                                     / \\
+                    /      \\                                                                  /    \
+                   o         o                                                                /      \\
+                   |          --                                                             o         o
+                   |            --                                                          |           \
+                  |               -x                                                        |            \\
+                  |                                                                        |               \
+________________==#==________________________________________________    ________________==#==______________^^^_______________________________
+
+D024-K08 REBASE / ARM BRAKE LATE                                         D024-K09 LATE_GUARD_REBIND / DISPLACED READY
+TWOS/INFERRED SUP=L#+R# CONTACT=OFF                                      FOURS/INFERRED SUP=L#+R# CONTACT=OFF
+THREAT=OFFRIG                                                            THREAT=OFFRIG
+ROOT=BILATERAL_REBASE                                                    ROOT=BILATERAL_SHIFTED
+
+
+
+
+
+
+                      O                                                                         O
+                      |                                                                         |
+                       |                                                                        |
+                      -o-                                                                      -o-
+                    o- | --o                                                                 o- | --o
+                     \ |    \                                                                 \ |    \\
+                     \  |    \\                                                                o---+   o-
+                      o----+   o                                                                 |       -+
+                        |       \\                                                               |
+                        |         +                                                              |
+                         |                                                                       |
+                         |                                                                       @
+                         @                                                                      / \
+                        / \                                                                    /   \\
+                       /   \\                                                                  /     \
+                      /      \                                                                /       o
+                     o        o                                                              o         \
+                    |          \                                                             |          \
+                    |           \                                                           |            \
+                   |             \                                                          |            \
+                   |             \                                                          |             \
+                  |               \                                                        |               \
+________________==#==____________==#==_______________________________    ________________==#==____________==#==_______________________________
