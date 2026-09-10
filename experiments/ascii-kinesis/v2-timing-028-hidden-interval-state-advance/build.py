@@ -43,7 +43,7 @@ try:
             n+=1
     if n!=int(MOTION["compile"]["frame_count"]):
         raise SystemExit(f"frame count mismatch: {n}")
-    subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate",str(MOTION["compile"]["fps"]),"-i",str(frames/"frame_%04d.png"),"-c:v","libx264","-pix_fmt","yuv420p","-movflags","+faststart","-crf","35","-map_metadata","-1",str(OUT_MP4)],check=True)
+    subprocess.run(["ffmpeg","-y","-loglevel","error","-framerate",str(MOTION["compile"]["fps"]),"-i",str(frames/"frame_%04d.png"),"-c:v","libx264","-pix_fmt","yuv420p","-movflags","+faststart","-crf","38","-map_metadata","-1",str(OUT_MP4)],check=True)
 finally:
     shutil.rmtree(frames,ignore_errors=True)
 
