@@ -11,8 +11,8 @@
   "entry": "v2-timing-028-hidden-interval-state-advance",
   "format_version": 2,
   "issue_343": {
-    "pre_delivery_readback": false,
-    "pre_delivery_receipt_id": null,
+    "pre_delivery_readback": true,
+    "pre_delivery_receipt_id": 5615001401,
     "user_surface_closure_id": null,
     "user_surface_readback": false
   },
