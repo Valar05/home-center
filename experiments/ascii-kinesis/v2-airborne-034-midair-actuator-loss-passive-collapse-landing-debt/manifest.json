@@ -1,0 +1,109 @@
+{
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "format_version": 2,
+  "experiment_id": "v2-airborne-034-midair-actuator-loss-passive-collapse-landing-debt",
+  "lane": "airborne",
+  "concept_type": "fresh-concept",
+  "revises": null,
+  "negative_fixture": null,
+  "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+  "successor_collision": false,
+  "canonical_path": "experiments/ascii-kinesis/v2-airborne-034-midair-actuator-loss-passive-collapse-landing-debt/",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "ascii_literal_text": true,
+  "ascii_surface": "pre",
+  "ligatures_disabled": true,
+  "whitespace_preserved": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": "133611",
+    "title": "Ride Armor",
+    "game": "Mega Man X",
+    "platform": "SNES",
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "campaign_evidence_artifact": "13LNIYKD8DmWrc9trwiicS873bX-p-lku8QVNqdFk2Yc",
+    "whole_source_inspected": true,
+    "observed_family_level": [
+      "deactivated/fixed-like states",
+      "walking",
+      "jumping/landing",
+      "dashing",
+      "multiple action/punch families",
+      "destroyed/disassembled/auxiliary material"
+    ],
+    "source_authentic_timing": "UNKNOWN",
+    "decisive_compile_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "rights_firewall": "PASS"
+  },
+  "principle": {
+    "code": "MID_AIR_ACTUATOR_LOSS_PASSIVE_COLLAPSE_LANDING_DEBT",
+    "novelty_note": "The decisive event is internal loss of joint/actuator authority while airborne. It changes local collision eligibility without external contact or a fake root impulse; passive landing then earns support before power restoration."
+  },
+  "motion_dungeon": {
+    "authored_keys": 14,
+    "explicit_holds": true,
+    "deterministic_connective_motion": true,
+    "support_contact_actuator_fail_closed": true,
+    "ascii_only_frame_render": true,
+    "fps": 24,
+    "frames": 61
+  },
+  "media": {
+    "authoritative": "embedded_mp4_in_spa",
+    "codec": "H.264",
+    "pixel_format": "yuv420p",
+    "width": 792,
+    "height": 502,
+    "fps": 24,
+    "frames": 61,
+    "bytes": 14944,
+    "sha256": "b22fff22aaf80e740ab2859b4530c7fdf1d7d480bc39117121be4ad67cf07f54",
+    "decode": "PASS_FULL_FFMPEG_CURRENT_WORKER"
+  },
+  "quality": {
+    "actual_render_inspected": true,
+    "tango": {
+      "status": "PASS",
+      "round": "R0",
+      "render_sha256": "b22fff22aaf80e740ab2859b4530c7fdf1d7d480bc39117121be4ad67cf07f54"
+    },
+    "noodle_queen": {
+      "status": "PASS",
+      "taste": "PASS",
+      "function": "PASS",
+      "contempt": "PASS",
+      "render_sha256": "b22fff22aaf80e740ab2859b4530c7fdf1d7d480bc39117121be4ad67cf07f54"
+    }
+  },
+  "contract": {
+    "validator_path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS_EXACT_FETCHED_VALIDATOR_SOURCE_BLOB_7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "repo_global": "UNCLAIMED_STANDARD_CHAT_BOUNDARY",
+    "scope": "candidate-isolated; no repo-global shell suite claimed"
+  },
+  "file_sha256": {
+    "build.py": "b706483a34f530d9fd1f29dbde17907eeb5ce42b36d644052d40cf94e37d71df",
+    "contact-sheet.txt": "e26f0c9ade2cc7608377942153ce1308b637d41710f28a8c739b64d6a4592bc2",
+    "motion.json": "44254c0d89a76974395ad97a9445fab06d7bcbbecfc5b95de74ab97d7845956b",
+    "midair-actuator-loss-passive-collapse-landing-debt.motion.html": "3fbe9582ea12f7fe155a139ade09cec3b07fb5e1546049eaa68b75cff27fc488"
+  },
+  "expected_files": [
+    "build.py",
+    "contact-sheet.txt",
+    "manifest.json",
+    "motion.json",
+    "receipt.json",
+    "midair-actuator-loss-passive-collapse-landing-debt.motion.html"
+  ],
+  "DREW_ACCEPTED": false,
+  "next_authorized": "BLOCKED_UNTIL_AIRBORNE034_HEALTHY"
+}
