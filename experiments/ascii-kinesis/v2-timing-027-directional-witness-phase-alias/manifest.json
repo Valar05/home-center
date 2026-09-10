@@ -1,0 +1,69 @@
+{
+  "DREW_ACCEPTED": false,
+  "ascii_literal_text": true,
+  "backward_compatible": true,
+  "delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false
+  },
+  "entry": "v2-timing-027-directional-witness-phase-alias",
+  "format_version": 2,
+  "issue_343": {
+    "pre_delivery_receipt_id": null,
+    "readback": false
+  },
+  "lane": "timing",
+  "lineage": {
+    "negative_fixture": null,
+    "revises": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT"
+  },
+  "media": {
+    "bytes": 24269,
+    "codec": "h264",
+    "fps": 24,
+    "frames": 19,
+    "height": 360,
+    "pix_fmt": "yuv420p",
+    "sha256": "b26b315cee8599695edf891fb9874db3589c76204f915205888c25f5dc5f50de",
+    "width": 900
+  },
+  "pocket_rule": "WHEN SPARSE ORIENTATION SAMPLES COULD LIE ABOUT TURN DIRECTION, SPEND ONE AUTHORED WITNESS KEY AT THE AMBIGUOUS CROSSING. DO NOT TAX THE WHOLE CLIP.",
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "primitive": "DIRECTIONAL_WITNESS_KEY_FOR_SPARSE_PHASE_ALIAS",
+  "quality": {
+    "actual_media_decode": "PASS",
+    "noodle_queen": "PASS",
+    "tango": "PASS_AFTER_R0_REVISION",
+    "validator": "PASS_CANDIDATE_ISOLATED"
+  },
+  "repo": {
+    "persisted": false,
+    "readback": false
+  },
+  "source": {
+    "asset_id": "185069",
+    "campaign_evidence_file_id": "1vV3cT1mRbRIT-jZY1kbnbQLX_JzHaZ1zmIHaPhMUaQs",
+    "game": "Mario Kart XXL (Tech Demo)",
+    "name": "Mario",
+    "platform": "Game Boy Advance",
+    "source_pixels_in_output": false,
+    "source_roles": [
+      "POSE_REFERENCE",
+      "CONTACT_REFERENCE"
+    ],
+    "timing_authority": false,
+    "timing_provenance": "INFERRED",
+    "whole_source_inspected": true
+  },
+  "source_art_embedded": false,
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "title": "Directional Witness / Sparse Phase Alias",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only"
+}
