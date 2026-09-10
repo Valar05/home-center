@@ -1,0 +1,100 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "specimen": "v2-defense-024-glance-line-arc-reentry",
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "current_worker_liveness": {
+    "home_center_campaign_read": true,
+    "github_persistence_readback": true,
+    "verdict": "PASS_HOME_CENTER_PLUS_GITHUB"
+  },
+  "inventory_before_creation": {
+    "defense024_candidates": 0,
+    "successor_collision": false,
+    "source": "fresh current-main GitHub search + manager reconciliation"
+  },
+  "source": {
+    "provider": "The Spriters Resource",
+    "asset_id": 566077,
+    "asset_name": "The Duke",
+    "game": "Mina the Hollower",
+    "platform": "PC / Computer",
+    "role": "STYLE_REFERENCE",
+    "evidence_artifact": "1m1AEz8Wi66rICM7_aQvqwJRTqKQ29g5VzIQPmfFOxTY",
+    "whole_source": {
+      "bytes": 36359,
+      "sha256": "d4947e1821e24a9096417a596f974a2178790b49285c5335abb4f99a53959ce3",
+      "entries_inspected": 61
+    },
+    "source_authentic_timing": "UNKNOWN",
+    "compile_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "rights_firewall": "PASS"
+  },
+  "media": {
+    "path": "glance-line-arc-reentry.mp4",
+    "embedded_in_spa": true,
+    "authoritative_sha256": "7ae8aba34d7b9476da779782202db380c26d6b4a1634e02dde17a71618c184ec",
+    "bytes": 18366,
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 800,
+    "height": 450,
+    "fps": 24,
+    "frames": 41,
+    "duration_seconds": 1.708333,
+    "decode_verified": true
+  },
+  "tango": [
+    {
+      "round": "R0",
+      "verdict": "REVISE_REQUIRED",
+      "defect": "Unsupported swing feet were drawn on the floor as x marks, so support alternation was metadata rather than visible mechanics.",
+      "correction": "Lift unsupported swing feet in K03/K04/K06 and replace instantaneous support swaps with authored catch-overlap-release states at K05/K07/K08."
+    },
+    {
+      "round": "R1",
+      "verdict": "PASS",
+      "basis": "Actual rebuilt render shows contact release before travel authority changes, visibly lifted free feet, earned catch overlap, three support-driven heading edits, counter-yaw, late guard reopen, and residual asymmetry."
+    }
+  ],
+  "noodle_queen": {
+    "verdict": "PASS",
+    "taste": "specific asymmetrical guard-to-run silhouette progression",
+    "function": "glance contact ends before the three-catch grounded arc; support changes visibly own the root",
+    "contempt": "no mannequin reset, support-label theater, or generic reverse interpolation"
+  },
+  "validator": {
+    "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS",
+    "execution_output": {
+      "entries_checked": [
+        "v2-defense-024-glance-line-arc-reentry"
+      ],
+      "ok": true
+    }
+  },
+  "repo": {
+    "persisted": false,
+    "repo_readback": false,
+    "exact_files": {},
+    "body_files_readback": 0,
+    "spa_count": 0
+  },
+  "issue": {
+    "pre_chat_receipt": null,
+    "pre_chat_readback": false,
+    "final_receipt": null,
+    "final_readback": false
+  },
+  "campaign": {
+    "closure_propagated": false,
+    "closure_readback": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false,
+    "ordered": false
+  },
+  "drew_accepted": false
+}
