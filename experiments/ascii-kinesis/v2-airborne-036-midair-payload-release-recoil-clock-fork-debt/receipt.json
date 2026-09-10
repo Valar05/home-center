@@ -1,0 +1,67 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "experiment_id": "v2-airborne-036-midair-payload-release-recoil-clock-fork-debt",
+  "status": "QUALITY_GATES_PASS_PENDING_REPO_READBACK_AND_CHAT_DELIVERY",
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "successor_collision": false,
+    "one_body_binding": true
+  },
+  "source": {
+    "asset_id": "55723",
+    "campaign_evidence_artifact": "1PSEuJ3-KtMaQ8zkFgULnF0KlBa-ytjX6fFiuTamZPCI",
+    "source_authentic_timing": "UNKNOWN",
+    "decisive_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "rights_firewall": true
+  },
+  "repo": {
+    "path": "experiments/ascii-kinesis/v2-airborne-036-midair-payload-release-recoil-clock-fork-debt/",
+    "persisted": false,
+    "final_readback": false,
+    "exact_one_spa": false,
+    "six_file_readback": false,
+    "manifest_write_commit": "f225752a5290557154a224c7d87713419cc74f87",
+    "issue_343_receipt": null,
+    "issue_343_readback": false
+  },
+  "media": {
+    "codec": "H.264",
+    "pixel_format": "yuv420p",
+    "width": 768,
+    "height": 432,
+    "fps": 24,
+    "frames": 70,
+    "bytes": 36756,
+    "sha256": "61df0130dc412f99e29ef9514880c43ec5cba32af812203bfefe2a0539dcccc1",
+    "decode": "PASS",
+    "fresh_current_worker_reconstruction": "PASS_FROM_EXACT_CURRENT_MAIN_MOTION_AND_BUILD",
+    "source": "abstract_ascii_rig_only"
+  },
+  "quality": {
+    "actual_render_inspected_current_worker": true,
+    "tango": "PASS_CURRENT_WORKER_ACTUAL_RENDER",
+    "noodle_queen": "PASS_CURRENT_WORKER_SAME_ACTUAL_RENDER_TASTE_FUNCTION_CONTEMPT",
+    "post_pass_choreography_churn": false
+  },
+  "contract": {
+    "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+    "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated_boundary": "STANDARD_CHAT_NO_REPO_CHECKOUT",
+    "structural_predicates": "PASS_BY_AUTHENTICATED_DIRECT_CURRENT_MAIN_EVALUATION",
+    "repo_global_shell_suite_claimed": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_visible_video": false,
+    "ordered_together": false
+  },
+  "campaign": {
+    "closure_propagated": false,
+    "final_readback": false
+  },
+  "DREW_ACCEPTED": false,
+  "next_authorized": null
+}
