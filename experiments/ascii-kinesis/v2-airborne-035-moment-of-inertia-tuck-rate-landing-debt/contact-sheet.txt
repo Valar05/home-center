@@ -124,7 +124,7 @@ causal_role=MOMENT_OF_INERTIA_RATE_INCREASE
 
                             /
                            P //
-                          \|| ////! 
+                          \|| ////!
                           \ | /
                          \  ||/
                          \ \ |/
