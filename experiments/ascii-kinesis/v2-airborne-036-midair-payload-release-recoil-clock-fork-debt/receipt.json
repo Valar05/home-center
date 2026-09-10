@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-airborne-036-midair-payload-release-recoil-clock-fork-debt",
-  "status": "QUALITY_GATES_PASS_PENDING_REPO_READBACK_AND_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "lineage": {
     "revises": null,
     "negative_fixture": null,
@@ -18,13 +18,21 @@
   },
   "repo": {
     "path": "experiments/ascii-kinesis/v2-airborne-036-midair-payload-release-recoil-clock-fork-debt/",
-    "persisted": false,
-    "final_readback": false,
-    "exact_one_spa": false,
-    "six_file_readback": false,
+    "persisted": true,
+    "final_readback": true,
+    "exact_one_spa": true,
+    "six_file_readback": true,
+    "build_blob": "dc87a294fa352beb704b50fe12d4b896eef0952d",
+    "contact_blob": "6f6b1a39a1171faed2bb728e2acdc8432def4eec",
+    "manifest_blob": "b6a3c8967218b5d1387d15f52393a74eee968629",
+    "motion_blob": "d2ef8ba1a5bafc15b4d1fcf8baa5c64d10774b8f",
+    "spa_blob": "7bc6677ad84644cf0f355798d6aadac798f8ea3d",
     "manifest_write_commit": "f225752a5290557154a224c7d87713419cc74f87",
-    "issue_343_receipt": null,
-    "issue_343_readback": false
+    "pre_delivery_receipt_write_commit": "78fa92da42d6938d4411891f74ea9f17d444869b",
+    "issue_343_pre_delivery_receipt": 5614942569,
+    "issue_343_pre_delivery_readback": true,
+    "issue_343_reporting_chat_receipt": 5614986745,
+    "issue_343_reporting_chat_readback": true
   },
   "media": {
     "codec": "H.264",
@@ -53,15 +61,16 @@
     "repo_global_shell_suite_claimed": false
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_visible_video": false,
-    "ordered_together": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_visible_video": true,
+    "ordered_together": true
   },
   "campaign": {
-    "closure_propagated": false,
-    "final_readback": false
+    "closure_checkpoint_propagated": true,
+    "closure_checkpoint_readback": true,
+    "document_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s"
   },
   "DREW_ACCEPTED": false,
-  "next_authorized": null
+  "next_authorized": "v2-airborne-037"
 }
