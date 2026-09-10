@@ -4,7 +4,7 @@
   "lane": "defense",
   "specimen": "v2-defense-024-glance-line-arc-reentry",
   "title": "GLANCE LINE / ARC REENTRY",
-  "status": "REPO_VERIFIED_PENDING_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
@@ -24,10 +24,11 @@
       "canonical_first_commit": "4358ee29df2a4704593d547ecff8b9d2f927a301",
       "canonical_active_at": "2026-09-10T03:49:18Z",
       "canonical_pre_chat_receipt": 5612750391,
+      "canonical_user_surface_receipt": 5613360696,
       "later_path": "experiments/ascii-kinesis/v2-defense-024-deflected-threat-clock-fork/",
       "later_first_commit": "dac7944f5a55958d3a0793794d5d4126d6130cb2",
       "later_started_at": "2026-09-10T04:14:57Z",
-      "later_disposition": "NON_AUTHORITATIVE_SUCCESSOR_CHURN_PRESERVED",
+      "later_disposition": "NON_AUTHORITATIVE_SUCCESSOR_CHURN_PRESERVED_UNCHANGED",
       "authority": "issue_343_swarm_manager_reconciliation_5613059541"
     }
   },
@@ -94,7 +95,7 @@
     "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
     "candidate_isolated": "PASS",
-    "boundary": "Current Standard Chat connector can read the exact validator and canonical candidate but does not expose an authorized repository-global checkout executor; repository-global execution is not claimed."
+    "boundary": "Current Standard Chat connector read the exact validator and unchanged canonical candidate. No authorized repository-global checkout executor was exposed, so repository-global execution is not claimed."
   },
   "repo": {
     "persisted": true,
@@ -112,13 +113,22 @@
   "issue": {
     "pre_chat_receipt": 5612750391,
     "pre_chat_readback": true,
-    "manager_reconciliation": 5613059541
+    "manager_reconciliation": 5613059541,
+    "user_surface_receipt": 5613360696,
+    "user_surface_readback": true
+  },
+  "campaign": {
+    "closure_propagated": true,
+    "closure_readback": true,
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s"
   },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false,
-    "ordered": false
+    "part1_ascii": true,
+    "part2_json": true,
+    "part3_video": true,
+    "ordered": true,
+    "video_byte_identical": true
   },
-  "drew_accepted": false
+  "drew_accepted": false,
+  "next_authorized": "v2-defense-025"
 }
