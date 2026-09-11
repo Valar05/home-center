@@ -29,7 +29,7 @@ final class OperatorIngressQueue {
     private static final String PREFS = "home_center_operator_ingress_queue_v1";
     private static final String KEY_QUEUE = "queue_json";
     private static final String KEY_INFLIGHT = "inflight_json";
-    private static final String KEY_DRAFT = "draft_text";
+    private static final String KEY_DRAFT_PREFIX = "draft_text:";
 
     static final class Item {
         final String id;
@@ -86,35 +86,37 @@ final class OperatorIngressQueue {
 
     synchronized Item enqueue(String exactText, String conversationId, String source) {
         if (exactText == null || exactText.trim().isEmpty()) return null;
+        String ownerConversation = conversationId == null ? "" : conversationId;
         List<Item> items = readQueue();
         int occupied = items.size() + (readInflight() == null ? 0 : 1);
         if (occupied >= MAX_ITEMS) return null;
         Item item = new Item(
                 UUID.randomUUID().toString(),
                 exactText,
-                conversationId == null ? "" : conversationId,
+                ownerConversation,
                 source == null ? "" : source,
                 System.currentTimeMillis());
         items.add(item);
         requireCommit(
                 prefs.edit()
                         .putString(KEY_QUEUE, encode(items))
-                        .remove(KEY_DRAFT)
+                        .remove(draftKey(ownerConversation))
                         .commit(),
                 "enqueue");
         return item;
     }
 
-    synchronized String draft() {
-        String value = prefs.getString(KEY_DRAFT, "");
+    synchronized String draft(String conversationId) {
+        String value = prefs.getString(draftKey(conversationId), "");
         return value == null ? "" : value;
     }
 
-    synchronized void saveDraft(String exactText) {
+    synchronized void saveDraft(String exactText, String conversationId) {
         String value = exactText == null ? "" : exactText;
+        String key = draftKey(conversationId);
         SharedPreferences.Editor editor = prefs.edit();
-        if (value.isEmpty()) editor.remove(KEY_DRAFT);
-        else editor.putString(KEY_DRAFT, value);
+        if (value.isEmpty()) editor.remove(key);
+        else editor.putString(key, value);
         requireCommit(editor.commit(), "save_draft");
     }
 
@@ -223,6 +225,11 @@ final class OperatorIngressQueue {
         } catch (Exception ex) {
             throw new IllegalStateException("operator ingress in-flight state is unreadable", ex);
         }
+    }
+
+    private static String draftKey(String conversationId) {
+        String owner = conversationId == null ? "" : conversationId.trim();
+        return KEY_DRAFT_PREFIX + (owner.isEmpty() ? "_unbound" : owner);
     }
 
     private static void requireCommit(boolean committed, String operation) {
