@@ -1,0 +1,359 @@
+ASCII KINESIS V2 · LOCOMOTION 026 · STAIR DROP / MIXED-HEIGHT CATCH / RUNOUT
+legend: @ root · c COM · * trusted support · ? probe · ~ free foot · upper/lower tread explicitly drawn
+source evidence: Bullwinkle / The Adventures of Rocky and Bullwinkle and Friends / NES / TSR 81106 / Home Center 1zQGdJx7uIqTnvJlHp2NfydUu_EDDNvt01tCAlQvlYQ8
+OBSERVED: whole static sheet exposes Charge, Idle, Using Stairs, Walking; Using Stairs is distinct from level Walking; Animated GIFs (0).
+UNKNOWN: source-authentic stair direction, chronology, exposures, root displacement, tread height, contact frame, timing.
+INFERRED / STREET_FIGHTER-CAPCOM: all decisive geometry, support authority, spacing and timing. Evidence-only rights firewall; no source pixels/audio/tracing/close imitation.
+collision authority: canonical first creation 5e2e42f8298e6c96d7ea0501bc18622a28000602; later ladder-dismount 026 is preserved NON_AUTHORITATIVE_SUCCESSOR_CHURN.
+thesis: lower contact must earn authority before root height drops; horizontal momentum survives the height transaction into an overlong first bottom catch and shorter debt-paying corrections.
+
+K00 UPPER_APPROACH · FOURS/4f · INFERRED · support=LEFT · phase=APPROACH · rootΔ=0px · lean=-6° · armLag=-10°
+
+
+    O
+
+   -T-----
+ -- |
+    |
+     |
+     @
+     /
+     c/
+     //
+    /  /
+    /  /
+ ___*___~____|
+             |
+             |
+             _______________________________________________________________________
+
+
+
+
+
+
+causal: establish upper-tread ownership and forward intent before the height discontinuity
+
+K01 EDGE_READ · TWOS/2f · INFERRED · support=LEFT · phase=READ · rootΔ=12px · lean=-10° · armLag=-16°
+
+
+     O
+
+     -T----
+  --- |
+      |
+       |
+       @
+       /
+      /c/
+      / /
+     /   /
+     /   /
+ ___*_____/__|
+          /  |
+           ? |
+             _______________________________________________________________________
+
+
+
+
+
+
+causal: upper support keeps the root high while the free foot searches downward
+
+K02 LOWER_PROBE · ONES/1f · INFERRED · support=LEFT · phase=PROBE · rootΔ=12px · lean=+8° · armLag=-22°
+
+
+          O
+            ---
+        -T--
+      -- |
+         |
+         |
+         @
+        / /
+       / c/
+       /   /
+      /    /
+     /      /
+ ___*_______/|
+             /
+             /
+             _?_____________________________________________________________________
+
+
+
+
+
+
+causal: lower contact appears at the new height but does not yet own the root
+
+K03 MIXED_HEIGHT_ACQUIRE · TWOS/2f · INFERRED · support=BOTH_MIXED · phase=ACQUIRE · rootΔ=7px · lean=-4° · armLag=+10°
+
+
+         O
+
+     ----T--
+         |  ---
+         |
+          |
+          @
+         //
+        / c/
+       /   /
+      /     /
+     /      /
+ ___*________/
+             /
+             |/
+             _*_____________________________________________________________________
+
+
+
+
+
+
+causal: both supports are trustworthy at different heights; root remains high to prove acquisition precedes descent
+
+K04 LOWER_DOMINANCE · TWOS/2f · INFERRED · support=RIGHT · phase=DROP · rootΔ=7px · lean=+10° · armLag=+18°
+
+
+
+            O
+
+        ----T-
+            | ---
+            |
+           |
+           @
+          //
+         / c/
+        /   /
+       /    /
+ _____*______/
+             /
+             |/
+             _*_____________________________________________________________________
+
+
+
+
+
+
+causal: lower support takes root ownership and the COM begins the quantized descent while upper support still lags
+
+K05 ROOT_DROP_COMPRESSION · ONES/1f · INFERRED · support=RIGHT · phase=DROP · rootΔ=6px · lean=-18° · armLag=+30°
+
+
+
+
+
+        O
+      ---
+         -T
+          |--
+           | -
+           |
+            @
+           //
+           /c/
+ _________/__/
+         ~   /
+             |/
+             _*_____________________________________________________________________
+
+
+
+
+
+
+causal: root and COM fall around the fixed lower support only after authority is earned; torso and arms overrun the vertical impulse
+
+K06 UPPER_RELEASE_LATE · TWOS/2f · INFERRED · support=RIGHT · phase=RELEASE · rootΔ=8px · lean=-12° · armLag=+24°
+
+
+
+
+
+           O
+
+        --
+          -T-
+           | ---
+            |
+            |
+             @
+             /
+ ___________/c
+            /|/
+           ~ |/
+             _*_____________________________________________________________________
+
+
+
+
+
+
+causal: the trailing upper foot releases late; forward travel survives instead of resetting at the step
+
+K07 LOWER_SUPPORT_OVERRUN · TWOS/2f · INFERRED · support=RIGHT · phase=OVERRUN · rootΔ=14px · lean=+12° · armLag=+8°
+
+
+
+
+
+
+                 O
+
+            ----T-
+                | ---
+                |
+               |
+               @
+               /
+ ____________| c/
+             |/ /
+             |/  /
+             _*__?__________________________________________________________________
+
+
+
+
+
+
+causal: root passes beyond the fixed right support while the left foot reaches forward for the first free lower-level catch
+
+K08 LONG_LEFT_BOTTOM_CATCH · ONES/1f · INFERRED · support=LEFT · phase=RUNOUT · rootΔ=17px · lean=-14° · armLag=+28°
+
+
+
+
+
+
+               O
+            ---
+               -T
+                |--
+                |  --
+                 |
+                 @
+                 /
+ ____________|  //c
+             |  / /
+             | /  /
+             __~__*_________________________________________________________________
+
+
+
+
+
+
+causal: surviving horizontal debt produces the longest lower-level catch; left support must own before correction
+
+K09 BOTTOM_ABSORB · TWOS/2f · INFERRED · support=LEFT · phase=ABSORB · rootΔ=9px · lean=-19° · armLag=+34°
+
+
+
+
+
+
+
+               O
+             --
+               -T
+                |--
+                 | --
+                 |
+                  @
+ ____________|    //
+             |    /c
+             |    / /
+             _____*__~______________________________________________________________
+
+
+
+
+
+
+causal: left support stays world-fixed while root/COM compress and upper-body lag overshoots
+
+K10 SHORT_RIGHT_CORRECTION · TWOS/2f · INFERRED · support=RIGHT · phase=CORRECT · rootΔ=7px · lean=-8° · armLag=+18°
+
+
+
+
+
+
+                  O
+
+               ----T
+                   |--
+                   |  --
+                    |
+                    @
+                    /
+ ____________|      /
+             |      c/
+             |       /
+             ________*______________________________________________________________
+
+
+
+
+
+
+causal: a shorter opposite-foot catch pays remaining travel debt without returning to gait symmetry
+
+K11 REBOUND_SECONDARY_LAG · TWOS/2f · INFERRED · support=RIGHT · phase=RECOVER · rootΔ=7px · lean=+5° · armLag=-14°
+
+
+
+
+
+
+                     O
+
+                    -T----
+                 --- |
+                     |
+                     |
+                     @
+                     /
+ ____________|       c
+             |       //
+             |       //
+             ________*~_____________________________________________________________
+
+
+
+
+
+
+causal: root restacks while arms lag behind the rebound and support prepares to hand off
+
+K12 DISPLACED_SETTLE · FOURS/4f · INFERRED · support=BOTH_LOWER · phase=SETTLE · rootΔ=6px · lean=+0° · armLag=-4°
+
+
+
+
+
+
+                     O
+
+                    -T-----
+                  -- |
+                     |
+                     |
+                     @
+                     /
+ ____________|       /c
+             |       //
+             |       //
+             ________**_____________________________________________________________
+
+
+
+
+
+
+causal: settle remains displaced down-course on the lower level; no idle reset or reverse interpolation
