@@ -69,6 +69,7 @@ public final class HomeCenterApplication extends Application {
         private EditText input;
         private Button queueButton;
         private String queueFault = startupQueueFault;
+        private String panelConversationId = "";
         private String dispatchedItemId = "";
         private long dispatchedAtElapsedMs = 0L;
         private boolean dispatchedSawBusy = false;
@@ -196,11 +197,8 @@ public final class HomeCenterApplication extends Application {
             input.setImeOptions(EditorInfo.IME_ACTION_SEND);
             input.setMinimumHeight(dp(activity, 48));
             input.setContentDescription("Queue another Home Center message without interrupting current work");
-            String restoredDraft = ingressQueue.draft(currentConversationId());
-            if (!restoredDraft.isEmpty()) {
-                input.setText(restoredDraft);
-                input.setSelection(input.length());
-            }
+            panelConversationId = currentConversationId();
+            restoreDraftForPanelConversation();
             row.addView(input, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
             queueButton = new Button(activity);
@@ -238,13 +236,36 @@ public final class HomeCenterApplication extends Application {
 
         private void persistDraftBeforePanelRemoval() {
             if (input == null) return;
+            persistCurrentPanelDraft();
+        }
+
+        private void persistCurrentPanelDraft() {
+            if (input == null) return;
             String exact = input.getText() == null ? "" : input.getText().toString();
             try {
-                ingressQueue.saveDraft(exact, currentConversationId());
+                ingressQueue.saveDraft(exact, panelConversationId);
             } catch (IllegalStateException ex) {
                 queueFault = queueFaultText(ex);
                 android.util.Log.e("HomeCenterQueue", "queue draft persistence failed closed", ex);
             }
+        }
+
+        private void restoreDraftForPanelConversation() {
+            if (input == null) return;
+            String restoredDraft = ingressQueue.draft(panelConversationId);
+            input.setText(restoredDraft);
+            input.setSelection(input.length());
+        }
+
+        private void rebindDraftIfConversationChanged() {
+            if (input == null) return;
+            String current = currentConversationId();
+            if (current.equals(panelConversationId)) return;
+            persistCurrentPanelDraft();
+            if (!queueFault.isEmpty()) return;
+            panelConversationId = current;
+            restoreDraftForPanelConversation();
+            android.util.Log.i("HomeCenterQueue", "queue draft rebound to conversation " + panelConversationId);
         }
 
         private void removePanel() {
@@ -254,6 +275,7 @@ public final class HomeCenterApplication extends Application {
             status = null;
             input = null;
             queueButton = null;
+            panelConversationId = "";
         }
 
         private void enqueueFromPanel() {
@@ -272,7 +294,7 @@ public final class HomeCenterApplication extends Application {
             try {
                 item = ingressQueue.enqueue(
                         exact,
-                        currentConversationId(),
+                        panelConversationId,
                         "operator_ingress_queue");
             } catch (IllegalStateException ex) {
                 queueFault = queueFaultText(ex);
@@ -302,6 +324,7 @@ public final class HomeCenterApplication extends Application {
 
         private void tick() throws Exception {
             if (active == null || panel == null || !seamResolved) return;
+            rebindDraftIfConversationChanged();
             if (!queueFault.isEmpty()) {
                 showQueueFault();
                 return;
