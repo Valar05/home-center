@@ -1,0 +1,204 @@
+{
+  "format_version": 2,
+  "schema": "ascii-kinesis.v2-motion",
+  "title": "ASCII Kinesis V2 Contact028 — Locked Constraint Lag / Release Gate",
+  "slug": "v2-contact-028-locked-constraint-lag-release-gate",
+  "lane": "contact",
+  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "predecessor_terminal_issue": 5625978524
+  },
+  "primitive": "LOCKED_CONSTRAINT_TRANSFER_WITH_PARTNER_LAG_RELEASE_GATE",
+  "source": {
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "evidence_artifact_id": "198sAnIYicWJ9Kw7vFA25m-WhtNrybj9DUAXNTC3PGMc",
+    "source_identity": "Zangief — Super Street Fighter II: The New Challengers — Sega Genesis",
+    "tsr_asset_id": 232259,
+    "roles": [
+      "POSE_REFERENCE",
+      "CONTACT_TOPOLOGY_REFERENCE"
+    ],
+    "timing_authority": false,
+    "source_authentic_timing": "UNKNOWN",
+    "whole_source_evidence_read": true,
+    "rights_firewall": "PASS_NO_SOURCE_PIXELS_AUDIO",
+    "observed": [
+      "full fighter state corpus includes travel, compact/load, contact/grab, consequence and recovery families",
+      "contact-capable poses preserve readable support before upper-body commitment",
+      "source commentary identifies a grab family and walk-tile reuse",
+      "source does not provide a complete opponent performance or source-authentic exposure durations"
+    ],
+    "inferred": [
+      "generic partner/load center and all partner motion",
+      "constraint-lag transfer, force ownership, support consequences, root/COM choreography",
+      "all timing classes and authored bridge keys"
+    ],
+    "unknown": [
+      "opponent-specific pose",
+      "exact source grip target",
+      "exact shared-center trajectory",
+      "source-authentic cadence"
+    ]
+  },
+  "rig": {
+    "grid": {
+      "width": 68,
+      "height": 25,
+      "floor_y": 21
+    },
+    "actors": {
+      "A": "generic independent ASCII biped",
+      "B": "generic contacted mass/partner-center proxy; pose intentionally unspecified by source"
+    },
+    "legend": {
+      "O": "head",
+      "P": "root",
+      "x": "COM",
+      "*": "active contact",
+      "!": "trusted foot",
+      "~": "unloaded/probe foot",
+      "#": "partner/load body",
+      "B": "partner/load center",
+      "=": "constraint span"
+    }
+  },
+  "direction_profile": {
+    "law": "Contact topology stays LOCKED while A spends support and advances root; B lags, then catches up. Release occurs only after A has begun arrest/recovery, so post-release separation is inertial consequence rather than endpoint teleport.",
+    "spacing": "nonuniform authored root/object spacing; drive is compressed, lag is held, catch-up accelerates, release separates, recovery remains displaced",
+    "asymmetry": "A counterleans against rightward transfer; rear support owns load, front support catches; partner proxy trails then overshoots",
+    "bridges": [
+      "K02",
+      "K06",
+      "K07",
+      "K09",
+      "K11",
+      "K13"
+    ],
+    "recovery": "displaced; no return to starting root"
+  },
+  "compile": {
+    "fps": 24,
+    "canvas": [
+      660,
+      360
+    ],
+    "video_codec": "h264",
+    "pix_fmt": "yuv420p",
+    "source": "abstract_ascii_rig_only",
+    "audio": false,
+    "source_pixels": false,
+    "media_sha256": "f03d6dfeb54d620433d772f2e0819528d8fbd01a2d54c1b249baf841d239d055",
+    "media_bytes": 14254,
+    "frames": 35,
+    "actual_decode": "PASS_CURRENT_WORKER_ACTUAL_RENDER"
+  },
+  "keys": [
+    {
+      "key_id": "K00",
+      "name": "READY_READ",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED",
+      "a_root": [15,16], "a_lean": -3, "a_rear_foot": [10,21], "a_front_foot": [20,21], "a_hand_1": [22,11], "a_hand_2": [20,12], "b_center": [48,11],
+      "contact_count": 0, "relationship": "NONE", "load": 0.0,
+      "causal_role": "Stable base; read range before claim.", "bridge_key": false, "support_contact": "BOTH_TRUSTED", "motion_arc_root_note": "Stable base; read range before claim."
+    },
+    {
+      "key_id": "K01", "name": "RANGE_CLAIM", "timing_class": "TWOS", "timing_provenance": "INFERRED",
+      "a_root": [18,16], "a_lean": 2, "a_rear_foot": [12,21], "a_front_foot": [23,21], "a_hand_1": [28,11], "a_hand_2": [25,12], "b_center": [48,11],
+      "contact_count": 0, "relationship": "NONE", "load": 0.0, "causal_role": "Root advances while both supports remain trustworthy.", "bridge_key": false, "support_contact": "BOTH_TRUSTED", "motion_arc_root_note": "Root advances while both supports remain trustworthy."
+    },
+    {
+      "key_id": "K02", "name": "SINK_PRELOAD", "timing_class": "TWOS", "timing_provenance": "INFERRED",
+      "a_root": [20,18], "a_lean": 5, "a_rear_foot": [13,21], "a_front_foot": [25,21], "a_hand_1": [33,11], "a_hand_2": [29,13], "b_center": [48,11],
+      "contact_count": 0, "relationship": "ELIGIBLE", "load": 0.15, "causal_role": "Authored bridge: COM lowers and rear leg loads before acquisition.", "bridge_key": true, "support_contact": "BOTH_TRUSTED", "motion_arc_root_note": "Authored bridge: COM lowers and rear leg loads before acquisition."
+    },
+    {
+      "key_id": "K03", "name": "ACQUIRE_ONE", "timing_class": "ONES", "timing_provenance": "INFERRED",
+      "a_root": [22,17], "a_lean": 7, "a_rear_foot": [14,21], "a_front_foot": [27,21], "a_hand_1": [43,11], "a_hand_2": [37,13], "b_center": [48,11],
+      "contact_count": 1, "relationship": "ONE_ANCHOR", "load": 0.25, "causal_role": "First distal anchor lands before major root transfer.", "bridge_key": false, "support_contact": "BOTH_TRUSTED", "motion_arc_root_note": "First distal anchor lands before major root transfer."
+    },
+    {
+      "key_id": "K04", "name": "LOCK_TWO", "timing_class": "FOURS", "timing_provenance": "INFERRED",
+      "a_root": [23,17], "a_lean": 6, "a_rear_foot": [14,21], "a_front_foot": [28,21], "a_hand_1": [43,10], "a_hand_2": [43,12], "b_center": [48,11],
+      "contact_count": 2, "relationship": "LOCKED", "load": 0.4, "causal_role": "Second anchor creates locked relationship; base widens and root centers.", "bridge_key": false, "support_contact": "BOTH_TRUSTED", "motion_arc_root_note": "Second anchor creates locked relationship; base widens and root centers."
+    },
+    {
+      "key_id": "K05", "name": "LOAD_COUNTERLEAN", "timing_class": "TWOS", "timing_provenance": "INFERRED",
+      "a_root": [21,18], "a_lean": -10, "a_rear_foot": [13,21], "a_front_foot": [29,21], "a_hand_1": [43,10], "a_hand_2": [43,12], "b_center": [48,11],
+      "contact_count": 2, "relationship": "LOCKED", "load": 0.7, "causal_role": "A shifts COM behind the contact line; rear support becomes dominant.", "bridge_key": false, "support_contact": "REAR_DOMINANT_FRONT_LIGHT", "motion_arc_root_note": "A shifts COM behind the contact line; rear support becomes dominant."
+    },
+    {
+      "key_id": "K06", "name": "DRIVE_BRIDGE_A", "timing_class": "ONES", "timing_provenance": "INFERRED",
+      "a_root": [24,16], "a_lean": 7, "a_rear_foot": [15,21], "a_front_foot": [30,21], "a_hand_1": [44,10], "a_hand_2": [44,12], "b_center": [49,11],
+      "contact_count": 2, "relationship": "LOCKED", "load": 0.82, "causal_role": "Bridge: rear leg drives root right while partner center barely yields.", "bridge_key": true, "support_contact": "REAR_DOMINANT_FRONT_LIGHT", "motion_arc_root_note": "Bridge: rear leg drives root right while partner center barely yields."
+    },
+    {
+      "key_id": "K07", "name": "DRIVE_BRIDGE_B", "timing_class": "ONES", "timing_provenance": "INFERRED",
+      "a_root": [27,15], "a_lean": 11, "a_rear_foot": [18,21], "a_front_foot": [31,21], "a_hand_1": [45,10], "a_hand_2": [45,12], "b_center": [50,11],
+      "contact_count": 2, "relationship": "LOCKED", "load": 0.92, "causal_role": "Bridge: torso and root pass through support; front foot begins catch.", "bridge_key": true, "support_contact": "REAR_DOMINANT_FRONT_LIGHT", "motion_arc_root_note": "Bridge: torso and root pass through support; front foot begins catch."
+    },
+    {
+      "key_id": "K08", "name": "PARTNER_LAG_HOLD", "timing_class": "TWOS", "timing_provenance": "INFERRED",
+      "a_root": [29,15], "a_lean": 12, "a_rear_foot": [20,21], "a_front_foot": [33,21], "a_hand_1": [46,10], "a_hand_2": [46,12], "b_center": [50,11],
+      "contact_count": 2, "relationship": "LOCKED", "load": 1.0, "causal_role": "A has moved materially farther than B; arms and support show stored transfer debt.", "bridge_key": false, "support_contact": "REAR_DOMINANT_FRONT_LIGHT", "motion_arc_root_note": "A has moved materially farther than B; arms and support show stored transfer debt."
+    },
+    {
+      "key_id": "K09", "name": "CATCHUP_ACCEL", "timing_class": "ONES", "timing_provenance": "INFERRED",
+      "a_root": [31,15], "a_lean": 7, "a_rear_foot": [22,21], "a_front_foot": [35,21], "a_hand_1": [49,10], "a_hand_2": [49,12], "b_center": [53,11],
+      "contact_count": 2, "relationship": "LOCKED", "load": 0.86, "causal_role": "Bridge: partner center catches up while A shortens stride into arrest.", "bridge_key": true, "support_contact": "FRONT_CATCH_REAR_BRAKE", "motion_arc_root_note": "Bridge: partner center catches up while A shortens stride into arrest."
+    },
+    {
+      "key_id": "K10", "name": "TRANSFER_OVERSHOOT", "timing_class": "TWOS", "timing_provenance": "INFERRED",
+      "a_root": [32,16], "a_lean": -8, "a_rear_foot": [23,21], "a_front_foot": [36,21], "a_hand_1": [50,10], "a_hand_2": [50,12], "b_center": [55,11],
+      "contact_count": 2, "relationship": "LOCKED", "load": 0.58, "causal_role": "B overshoots transfer target as A counterleans and front support catches.", "bridge_key": false, "support_contact": "FRONT_CATCH_REAR_BRAKE", "motion_arc_root_note": "B overshoots transfer target as A counterleans and front support catches."
+    },
+    {
+      "key_id": "K11", "name": "RELEASE_GATE", "timing_class": "TWOS", "timing_provenance": "INFERRED",
+      "a_root": [32,16], "a_lean": -11, "a_rear_foot": [24,21], "a_front_foot": [36,21], "a_hand_1": [50,10], "a_hand_2": [52,12], "b_center": [56,11],
+      "contact_count": 1, "relationship": "ONE_ANCHOR_RELEASE_GATE", "load": 0.28, "causal_role": "Authored bridge: one anchor drops only after A begins arrest; custody remains constrained.", "bridge_key": true, "support_contact": "FRONT_CATCH_REAR_BRAKE", "motion_arc_root_note": "Authored bridge: one anchor drops only after A begins arrest; custody remains constrained."
+    },
+    {
+      "key_id": "K12", "name": "RELEASE_EVENT", "timing_class": "ONES", "timing_provenance": "INFERRED",
+      "a_root": [31,16], "a_lean": -12, "a_rear_foot": [24,21], "a_front_foot": [35,21], "a_hand_1": [48,11], "a_hand_2": [46,13], "b_center": [59,11],
+      "contact_count": 0, "relationship": "RELEASED", "load": 0.0, "causal_role": "Constraint destroyed; B continues right while A recoils left against planted support.", "bridge_key": false, "support_contact": "FRONT_CATCH_REAR_BRAKE", "motion_arc_root_note": "Constraint destroyed; B continues right while A recoils left against planted support."
+    },
+    {
+      "key_id": "K13", "name": "RECOIL_SETTLE", "timing_class": "TWOS", "timing_provenance": "INFERRED",
+      "a_root": [30,17], "a_lean": -8, "a_rear_foot": [23,21], "a_front_foot": [34,21], "a_hand_1": [44,12], "a_hand_2": [42,13], "b_center": [62,11],
+      "contact_count": 0, "relationship": "SEPARATED", "load": 0.0, "causal_role": "Bridge: secondary arm lag follows release; COM settles over a displaced base.", "bridge_key": true, "support_contact": "BOTH_RECOVERING", "motion_arc_root_note": "Bridge: secondary arm lag follows release; COM settles over a displaced base."
+    },
+    {
+      "key_id": "K14", "name": "DISPLACED_RECOVERY", "timing_class": "FOURS", "timing_provenance": "INFERRED",
+      "a_root": [30,16], "a_lean": -3, "a_rear_foot": [24,21], "a_front_foot": [35,21], "a_hand_1": [39,12], "a_hand_2": [37,13], "b_center": [64,11],
+      "contact_count": 0, "relationship": "SEPARATED", "load": 0.0, "causal_role": "Recovery pays debt without rewinding to the starting root.", "bridge_key": false, "support_contact": "BOTH_TRUSTED", "motion_arc_root_note": "Recovery pays debt without rewinding to the starting root."
+    },
+    {
+      "key_id": "K15", "name": "READY_DISPLACED", "timing_class": "FOURS", "timing_provenance": "INFERRED",
+      "a_root": [31,16], "a_lean": 0, "a_rear_foot": [25,21], "a_front_foot": [36,21], "a_hand_1": [38,12], "a_hand_2": [37,13], "b_center": [64,11],
+      "contact_count": 0, "relationship": "SEPARATED", "load": 0.0, "causal_role": "Stable re-entry at a new location; original range is not restored.", "bridge_key": false, "support_contact": "BOTH_TRUSTED", "motion_arc_root_note": "Stable re-entry at a new location; original range is not restored."
+    }
+  ],
+  "quality_history": [
+    {
+      "gate": "TANGO", "round": "R0", "verdict": "REVISE_REQUIRED",
+      "highest_value_visible_defect": "The contacted mass moved, but A's torso still read too upright across the locked drive; the arms risked becoming telescoping metadata carriers instead of a support-to-COM transfer.",
+      "same_body_correction": "Increase authored torso/head counterlean and drive lean, deepen preload/load root compression, preserve nonuniform B lag/catch-up, and keep release displaced."
+    },
+    {
+      "gate": "TANGO", "round": "R1", "verdict": "PASS",
+      "basis": "current-worker inspection of the actual deterministic 35-frame render/contact sequence after R0 same-body correction",
+      "visible_findings": ["support-to-COM causality reads before and through locked transfer","B visibly lags while A spends root/support, then catches up before release","nonuniform spacing and authored bridge keys avoid straight endpoint interpolation","counterlean, catch, one-anchor release gate, recoil and displaced recovery are visibly distinct"],
+      "media_sha256": "f03d6dfeb54d620433d772f2e0819528d8fbd01a2d54c1b249baf841d239d055"
+    },
+    {
+      "gate": "NOODLE_QUEEN", "verdict": "PASS_TASTE_FUNCTION_CONTEMPT",
+      "basis": "same final actual render/full specimen after Tango R1 PASS",
+      "visible_findings": ["specific attitude from extreme drive/counterlean silhouettes rather than metadata","relationship topology is readable from constraint/contact geometry","the mass never teleports during lock and release has visible inertial consequence","recovery remains displaced instead of returning to idle"],
+      "media_sha256": "f03d6dfeb54d620433d772f2e0819528d8fbd01a2d54c1b249baf841d239d055"
+    }
+  ],
+  "current_worker_gates": {"tango":"PASS_R1_CURRENT_WORKER_ACTUAL_RENDER","noodle_queen":"PASS_TASTE_FUNCTION_CONTEMPT_SAME_RENDER","drew_accepted":false}
+}
