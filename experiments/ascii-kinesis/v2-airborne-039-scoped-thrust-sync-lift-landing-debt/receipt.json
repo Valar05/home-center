@@ -1,7 +1,7 @@
 {
   "format_version": 2,
   "experiment_id": "v2-airborne-039-scoped-thrust-sync-lift-landing-debt",
-  "status": "PERSISTED_NOT_DELIVERED",
+  "status": "HEALTHY_USER_SURFACED",
   "primitive": "SCOPED_THRUST_SYNC_LIFT_LANDING_DEBT",
   "lineage": {
     "revises": null,
@@ -24,11 +24,10 @@
     "persisted": true,
     "exact_one_spa": true,
     "six_file_readback": true,
-    "final_readback": false,
-    "git_blobs": {
+    "final_readback": true,
+    "immutable_git_blobs": {
       "build_motion.py": "d212c7e555c27b04de31006dea3e141a9cea8497",
       "contact-sheet.txt": "1f7acc097cc2da3cb8072340dae1c4e47d8bb7d1",
-      "manifest.json": "73ef762f1da42a40316c1571c47b1726e52f382d",
       "motion.json": "a5c0f58e13df998d2d6d55735f66f62f19448852",
       "scoped-thrust-sync-lift-landing-debt.motion.html": "9872ccfddefa833c73fae4cb9bd50ce63f311ef0"
     }
@@ -54,6 +53,7 @@
     "bytes": 14257,
     "sha256": "dda4e0506c007e0e636123e018ebfb120b3e121feb3c2e0f862f86b9c52a6727",
     "decode": "PASS",
+    "byte_identical_visible_chat_delivery": true,
     "deterministic_non_authoritative_presentation": true
   },
   "quality": {
@@ -94,24 +94,27 @@
     "manager_correction": 5627477737,
     "airborne038_final_durable_readback": 5619856681,
     "airborne039_validator_gate_checkpoint": 5627033927,
-    "pre_delivery_receipt": null,
-    "pre_delivery_readback": false,
-    "reporting_chat_closure": null,
+    "pre_delivery_receipt": 5627641051,
+    "pre_delivery_readback": true,
+    "reporting_chat_closure": 5627702464,
+    "reporting_chat_readback": true,
     "terminal_durable_readback": null
   },
   "campaign": {
     "file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
     "preflight_read": true,
-    "pre_delivery_checkpoint": false,
+    "pre_delivery_checkpoint": true,
+    "reporting_chat_checkpoint": true,
     "final_closure": false,
     "final_readback": false
   },
   "chat_delivery": {
-    "part1_complete_persisted_ascii": false,
-    "part2_actual_persisted_json": false,
-    "part3_actual_visible_authoritative_video": false,
-    "ordered_complete": false
+    "part1_complete_persisted_ascii": true,
+    "part2_actual_persisted_json": true,
+    "part3_actual_visible_video": true,
+    "part3_video_sha256": "dda4e0506c007e0e636123e018ebfb120b3e121feb3c2e0f862f86b9c52a6727",
+    "ordered_complete": true
   },
   "drew_accepted": false,
-  "next_authorized": null
+  "next_authorized": "v2-airborne-040"
 }
