@@ -17,51 +17,49 @@ clearance=rear and front return volumes both open
 
 
 
-
-                                                     :
-                                                      :
-                        O                             :
-                        |                              :
-                        |                              :
-                        |          ====J                :
-                        |  ========                      :
-                   ========                              :
-              <====     |                                 :
-                         |                                :
-                         \\                                :
-                       //  \\
-                     o/      \o
-                    /          \
-                   /            \
-                   /             \
-  ________________#_______________#_______________________________________
+                          O
+                          |                          :
+                          |                           :
+                          |                           :
+                          |            ====J           :
+                      r///\\\==========                :
+                    =========                           :
+               <====       |                             :
+                           \\                            :
+                          /  \\                           :
+                         /     \\                         :
+                        o        \o                        :
+                       /           \
+                      /             \
+                     /               \
+                    #                 #
+  ________________________________________________________________________
 
 K01 COIL_WITH_RETURN_RESERVE — timing=FOURS — provenance=INFERRED
 role=ANTICIPATION / RETURN RESERVE | support=rear owns load; front light | contact=NONE
 root_arc=pelvis drops rearward and away before shaft commits
-tool_arc=hands compress+ tool butt travels back farther than head
+tool_arc=hands compress; tool butt travels back farther than head
 clearance=rear corridor deliberately reserved for later recovery
 
 
 
 
-                                                     :
-                                                      :
-                                                      :
-                   O                                   :
-                   |                                   :
-                   |                                    :
-                    |         ==J                        :
-                    |  \======                           :
-                r//=====                                  :
-             ====== |                                     :
-          <==        |                                     :
-                     \\\\
-                   //    \\\o
-                  o          \
-                 /            \\
-                 /              \
-  ______________#________________.________________________________________
+                    O                                :
+                    |                                 :
+                     |                                :
+                     |            ===J                 :
+                      | \\f=======                     :
+                  r//======                             :
+              ======= |                                  :
+          <===         |                                 :
+                       \                                  :
+                      / \\                                :
+                     /    \\                               :
+                    o       \o
+                   /          \\
+                 //             \\
+                #                 \.
+  ________________________________________________________________________
 
 K02 ROOT_COMMIT_BRIDGE — timing=TWOS — provenance=INFERRED
 role=AUTHORED BRIDGE / DIRECTIONAL COMMIT | support=rear drive feeds arriving front brace | contact=NONE
@@ -71,24 +69,23 @@ clearance=old rear reserve is partially spent by commitment
 
 
 
-
-                                                     :
-                                                      :
-                           O                          :
-                           |                           :
-                           |                           :
-                           |             ===J           :
-                           |  \\\f=======                :
-                      r///========                       :
-                   ======= |                              :
-               <===        |                              :
-                           \\                              :
-                         //  \\\
-                       o/       \o
-                     //           \
-                    /              \
-                  //                \
-  _______________#___________________#____________________________________
+                             O
+                             |                       :
+                             |                        :
+                              |                       :
+                              |  \\f        =====J     :
+                         r////\\\===========           :
+                       ==========                       :
+                 <=====       |                          :
+                              \\                         :
+                             /  \\                        :
+                            /     \\\                     :
+                           o         \o                    :
+                          /            \
+                        //              \\
+                       /                  \
+                      #                    #
+  ________________________________________________________________________
 
 K03 PRECONTACT_REACH — timing=ONES — provenance=INFERRED
 role=PRECONTACT / COMMITMENT | support=both; rear still driving | contact=NONE
@@ -98,24 +95,23 @@ clearance=contact has not occurred; return corridor remains provisional
 
 
 
-
-                                                     :
-                                 O                    :
-                                 |                    :
-                                 |                     :
-                                |                      :
-                                |   \\\f        ====J   :
-                          r/////\\\\    ========         :
-                                ========                 :
-                        ========|                         :
-                    <===        \\                        :
-                               /  \\\                      :
-                             //      \o
-                            o          \
-                          //            \
-                        //              \
-                      //                 \
-  __________________#/____________________#_______________________________
+                                   O
+                                   |                 :
+                                   |                  :
+                                    |                 :
+                                    |  \\\f            :
+                               r////\\\        =======J:
+                               ================         :
+                       <=======     |                    :
+                                    \\                   :
+                                   /  \\\                 :
+                                  /      \\\              :
+                                 o          \o             :
+                               //             \
+                              /                \\
+                            //                   \
+                           #                      #
+  _______________________________________________________________________
 
 K04 DEFLECTION_CONTACT — timing=ONES — provenance=INFERRED
 role=CONTACT INSTANT / HIT-STOP IMPLICATION | support=front braces while rear drive still arrives | contact=DEFLECTOR
@@ -125,79 +121,75 @@ clearance=contact creates a rotational constraint, not an endpoint stop
 
 
 
-
-                                                     :
-                                    O                 :
-                                    |                 :
-                                    |                  :
-                                    |                  :
-                                    |  \\\f         ====X
-                             r//////\\\     ========     :
-                                    ========             :
-                            ========                      :
-                       <====       \\                     :
-                                  /  \\\                   :
-                                //      \o
-                              /o          \
-                            //             \
-                          //               \
-                        //                  \
-  ____________________#/_____________________#____________________________
+                                          O
+                                      |              :
+                                      |               :
+                                      |               :
+                                      |                :
+                                  r///\\\\\\\f         :
+                                      |  ===============X
+                          <==============                :
+                                       \\                :
+                                      /  \\\              :
+                                     /      \\\           :
+                                    o          \o          :
+                                  //             \
+                                 /                \\
+                               //                   \
+                              #                      #
+  ________________________________________________________________________
 
 K05 PINNED_ROTATION_ROOT_OVERRUN — timing=TWOS — provenance=INFERRED
 role=IMPACT CONSEQUENCE / TORQUE CATCH | support=front owns brace; rear unloads | contact=DEFLECTOR_HOLD
 root_arc=pelvis overruns forward/down while front leg compresses
 tool_arc=tool head slides up-left along deflector and shaft rotates counterclockwise around the hands
-clearance=the old axial return lane is now wrong because the hook has been externally rotated
+clearance=old axial return lane is now wrong because the hook has been externally rotated
 
 
 
 
-                                                     :
-                                                      :
-                                        O             :
-                                        |             =X
-                                        |         ==== :
-                                        |  \f ====      :
-                                        |\====           :
-                                r/////====               :
-                                  ====  |                 :
-                              ====     |                  :
-                            <=         \\                  :
-                                      /  \\\
-                                   //      \o
-                              /o          \
-                            //             \
-                          //               \
-                        //                  \
-  ____________________#/_____________________#_________________________
+                                        O            :
+                                        |             :
+                                        |            =X
+                                        |         ===  :
+                                        |      ===     :
+                                        \\\\===         :
+                                      //|===             :
+                                    r/===|               :
+                                   ===   \\               :
+                                ===     /  \\\\           :
+                              <=      //       \\o         :
+                                    /o            \
+                                  //               \
+                                //                  \
+                              ./                     #
+  ________________________________________________________________________
 
 K06 RELEASE_WRONG_SIDE — timing=ONES — provenance=INFERRED
 role=DISENGAGE / ROTATIONAL OVERRUN | support=front primary; rear nearly unloaded | contact=NONE
 root_arc=root reaches its deepest forward overrun after contact releases
-tool_arc=shaft continues across the upper body for one beat; distal head is high and rearward of its outgoing line
-clearance=immediate reverse rotation would sweep the hook through forbidden body/deflector volume
+tool_arc=shaft continues across upper body for one beat; distal head remains high and rearward of outgoing line
+clearance=immediate reverse rotation would sweep hook through forbidden body/deflector volume
 
 
-
-
-                                                 J   :
-                                               ==     :
-                                              =       :
-                                         O  ==         :
-                                         | =           :
-                                         ==             :
-                                       ==  f             :
-                                      = |\\              :
-                                  r/==//\                 :
-                                   =    |                 :
-                                 ==     |                  :
-                                <       \\
-                                      //  \\\
-                                   /o/       \o
-                                ///            \
-                             ///                \
-  _________________________./____________________#________________________
+                                                J
+                                              ==
+                                             =       :
+                                         O  =         :
+                                         |==          :
+                                         =             :
+                                       == f            :
+                                      =   \             :
+                                    ==  //\              :
+                                   =r///  |              :
+                                  =       |               :
+                                ==        \\              :
+                               <        //  \\\\           :
+                                   //        \\o
+                                    /o             \
+                                ////                \\
+                              ./                      #
+  ________________________________________________________________________
 
 K07 CORRIDOR_STEP_LAUNCH — timing=TWOS — provenance=INFERRED
 role=AUTHORED BRIDGE / CORRIDOR STEP LAUNCH | support=front support alone catches root while rear foot leaves | contact=NONE
@@ -206,52 +198,50 @@ tool_arc=hands freeze tool orientation while base moves underneath it
 clearance=rear foot launches to buy physical space before tool withdrawal
 
 
-
-
-                                               J     :
-                                             ==       :
-                                            =         :
-                                      O   ==           :
-                                      |  =             :
-                                      |==               :
-                                      =                  :
-                                    ==|\f                :
-                               r///=//\                   :
-                                 ==   |                   :
-                                =    |                     :
-                              ==     \\
-                             <^//  //  \\\\
-                                 /o        \o
-                                             \
-                                              \\
-  ______________________________________________#_________________________
+                                                J
+                                              ==
+                                             =       :
+                                      O    ==         :
+                                      |  ==           :
+                                      | =              :
+                                      ==f              :
+                                     =|\                :
+                                   ==/\                  :
+                                 ==// |                  :
+                                =      |                  :
+                              ==      /\\                 :
+                             <      //   \\\\              :
+                                  //         \\o
+                              //o/              \\
+                           ^//                    \\
+                                                    #
+  ________________________________________________________________________
 
 K08 CORRIDOR_STEP_CATCH — timing=TWOS — provenance=INFERRED
 role=SUPPORT HANDOFF / RETURN CORRIDOR PURCHASE | support=rear lands wide and reclaims load; front remains brace | contact=NONE
 root_arc=new rear support lands farther back and root follows into widened base
 tool_arc=tool orientation remains substantially deflected; no cheap rotational reset
-clearance=new negative space now exists behind/below the hook
+clearance=new negative space now exists behind/below hook
 
 
-
-
-                                             J       :
-                                           ==         :
-                                          =           :
-                                  O     ==             :
-                                  |   ==               :
-                                  |  =                  :
-                                  |==                    :
-                                  = \f                   :
-                            r///==\\                      :
-                              ==  |                       :
-                             =    |                        :
-                           ==     \\
-                          <     //  \\\\
-                              /o        \o
-                           ///            \\
-                        ///                 \\
-  ____________________#/______________________\#__________________________
+                                              J
+                                            ==
+                                  O       ==         :
+                                  |     ==            :
+                                  |   ==              :
+                                  | ==f                :
+                                  ==\                  :
+                                ==\                     :
+                              ==/ |                      :
+                            ==     |                     :
+                          ==       \\                     :
+                         <       //  \\\                  :
+                               //       \\\\               :
+                            /o/             \o\
+                          //                   \\
+                        //                       \\
+                      #/                           \#
+  ________________________________________________________________________
 
 K09 AXIAL_WITHDRAW_AFTER_CLEARANCE — timing=TWOS — provenance=INFERRED
 role=RECOVERY CLEARANCE / AXIAL WITHDRAWAL | support=rear dominant; front lightens | contact=NONE
@@ -262,23 +252,22 @@ clearance=hook head clears the synthetic deflector/body envelope along proven ax
 
 
 
-                                                     :
-                                         J            :
-                                O      ==             :
-                                |    ==                :
-                                |   =                  :
-                                | ==                    :
-                                ==\f                     :
-                           r//==\\                       :
-                             =  |                         :
-                           ==    |                        :
-                         ==      \\                        :
-                        <      //  \\\\
-                              o        \o
-                            //           \\
-                          //               \
-                        //                  \\
-  ____________________#/______________________.___________________________
+                                 O        J          :
+                                 |      ==            :
+                                 |    ==              :
+                                  | ==                 :
+                                  ==f                  :
+                                ==\                     :
+                             r==  |                      :
+                            ==    |                      :
+                          ==      \\                      :
+                        ==      //  \\\                   :
+                       <      //       \\\\                :
+                            o/             \o\
+                          //                  \\
+                        //                      \\
+                      #/                          \.
+  ________________________________________________________________________
 
 K10 ROTATE_ONLY_AFTER_CLEAR — timing=TWOS — provenance=INFERRED
 role=LATE ROTATION / TOOL RECLAIM | support=rear dominant with front searching | contact=NONE
@@ -289,23 +278,22 @@ clearance=rotation spends newly purchased corridor, not the blocked outgoing cor
 
 
 
-                                                     :
-                                                      :
-                              O                       :
-                              |                        :
-                              |      =J                :
-                              |   ===                   :
-                              |===                       :
-                         r//===\                         :
-                         ===  |                           :
-                      ===      |                          :
-                    <=         \\                          :
-                             //  \\\\
-                            o        \o
-                          //           \\
-                        //               \
-                      //                  \\
-  ___________________#______________________._____________________________
+                               O                     :
+                               |                      :
+                               |                      :
+                                |                      :
+                                | \\f     ==J          :
+                              //\\    ====              :
+                           r//  |=====                   :
+                            =====                        :
+                        ====    \\                        :
+                     <==      //  \\\\                    :
+                            //        \\\\                 :
+                           o              \o\
+                         //                  \\
+                       //                      \\
+                     #/                          \.
+  ________________________________________________________________________
 
 K11 REGRIP_OVERSHOOT — timing=TWOS — provenance=INFERRED
 role=RECOIL OVERSHOOT / REGRIP | support=rear catches recoil; front light | contact=NONE
@@ -317,22 +305,21 @@ clearance=tool and torso do not arrive together, exposing displaced recovery deb
 
 
                                                      :
-                                                      :
-                                                      :
-                            O                          :
+                            O                         :
+                            |                         :
                             |                          :
-                            |                           :
-                            |                            :
-                            |\f                          :
-                      r/////\                             :
-                            |====J                        :
-                     ========|                             :
-                 <===        \\
-                           //  \\\\
-                          o        \o\
-                        //            \\
-                      //                \\
-  __________________#/____________________\.______________________________
+                            |     \f                   :
+                            | \\\\                      :
+                       r////\\                           :
+                <============                            :
+                            |============J                :
+                            \\\\                          :
+                           /    \\\\\\                     :
+                         //           \\\o\
+                        o                  \\
+                      //                     \\\
+                    #/                          \.
+  ________________________________________________________________________
 
 K12 SECONDARY_HAND_LAG_CATCH — timing=TWOS — provenance=INFERRED
 role=SECONDARY LAG / CATCH | support=dual support restored; rear still primary | contact=NONE
@@ -343,23 +330,22 @@ clearance=secondary hand/tool lag pays after root brake rather than mirroring at
 
 
 
-                                                     :
-                                                      :
-                              O                       :
-                              |                        :
-                              |                        :
-                              |                         :
-                              |\f                        :
-                        r/////\                          :
-                              |  =====J                   :
-                       ==========                         :
-                  <====        \\                          :
-                             //  \\\\
-                            o        \o
-                          //           \\
-                        //               \
-                      //                  \\
-  __________________#/______________________#_____________________________
+                               O                     :
+                               |                      :
+                               |                      :
+                               |                       :
+                               |   \\\f                :
+                             //\\\\    ======J          :
+                         ==============                  :
+                  <======      |                         :
+                               \\                         :
+                             //  \\\\                     :
+                           //        \\\\                  :
+                          o              \\o\
+                        //                   \\
+                      //                       \\
+                    #/                           \#
+  ________________________________________________________________________
 
 K13 DISPLACED_READY — timing=FOURS — provenance=INFERRED
 role=RECOVERY COMPLETE / DISPLACED READY | support=dual support in wider rear-shifted base | contact=NONE
@@ -369,21 +355,20 @@ clearance=recovery ends with purchased space still visible in stance geometry
 
 
 
-
-                                                     :
-                                                      :
-                                O                     :
-                                |                      :
-                                |                      :
-                                |                       :
-                                |\f    ===J              :
-                         r/////========                  :
-                       ======== |                         :
-                   <===         |                         :
-                                \\                         :
-                              //  \\\\
-                             o        \o
-                           //           \\
-                         //               \
-                       //                  \\
-  ___________________#/______________________#____________________________
+                              O
+                              |                      :
+                              |                       :
+                              |                       :
+                              |           =====J       :
+                        r/////\\==========             :
+                      ==========                        :
+                 <====        |                          :
+                              \\\                        :
+                            //   \\\\                     :
+                          //         \\\\                 :
+                         o               \\o               :
+                        /                   \\
+                      //                      \\
+                     /                          \\
+                    #                             \#
+  ________________________________________________________________________
