@@ -11,20 +11,20 @@
   "backward_compatible": true,
   "lineage": {"revises":null,"negative_fixture":null,"source_change":"NOT_APPLICABLE_NEW_CONCEPT","successor_collision":false,"one_body_binding":true},
   "source": {"provider":"The Spriters Resource","asset_id":33735,"character":"Dixie Kong","game":"Donkey Kong Country 2","platform":"Game Boy Advance","commissioned_evidence_artifact_id":"1FVCu-OOy4fvhMpNUMJtiF7yobfKqcfJ3OXWELI6rHkw","source_authentic_timing":"UNKNOWN","timing_authority":false,"rights_firewall":true},
-  "current_worker_quality": {"tango_round":"R1","tango":"PASS","visible_defect_repaired":"PRECONTACT_PHASE_SEIZE_DRIFT","queen":{"taste":"PASS","function":"PASS","contempt":"PASS"},"same_final_specimen":true},
+  "current_worker_quality": {"tango_round":"R2","tango":"PASS","visible_defect_repaired":"BUILDER_MEDIA_IDENTITY_DRIFT","prior_visible_defect_repaired":"PRECONTACT_PHASE_SEIZE_DRIFT","queen":{"taste":"PASS","function":"PASS","contempt":"PASS"},"same_final_specimen":true,"note":"Fresh current-worker inspection of the exact 88-frame authoritative render earned no choreography mutation. Builder delivery encoding was restored to the already-persisted valid SPA identity only."},
   "media": {
     "authoritative":{"codec":"h264","pix_fmt":"yuv420p","width":800,"height":448,"fps":24,"frames":88,"bytes":48185,"sha256":"a0aeca6b4762d86041adc77337999291a8da8a2958ed17792026d0146e80de65","decode":"PASS"},
     "spa_delivery":{"codec":"h264","pix_fmt":"yuv420p","width":384,"height":216,"fps":24,"frames":88,"bytes":13790,"sha256":"a835a7a09638ad8b4cabd06a233bb7cbabfae7a9061194d9f05705b9a6a99b37","decode":"PASS","relationship":"deterministic presentation encoding of the same authored frames"}
   },
   "repo": {
-    "build_blob":"bc3603e924b158bbe2822ca18f5e1a2dd9cd8209",
+    "build_blob":"e970b4504ee79c465509785645d7dd7ccfef17f7",
     "contact_blob":"97583e9b830b8e86b7b13bdcb5ea8f350da83534",
     "motion_blob":"624ed7255093449f5033495f97df61acd1d8a2ca",
     "spa_blob":"4204155f223999220d3458468a2b9c1378d53b4d",
     "persisted":true,"exact_one_spa":true,"six_file_readback":true,"final_readback":false
   },
-  "validator": {"official_blob":"7d9fc7608d54bca4a2cfbd36660c2d379e27fd78","candidate_isolated":"PASS","boundary":"Standard Chat candidate directory; repository-global checkout/shell suite unclaimed"},
-  "issue": {"pre_delivery_comment":5628742185,"reporting_comment":null,"terminal_comment":null},
-  "campaign": {"pre_delivery_checkpoint":true,"pre_delivery_request_id":"ascii-kinesis-airborne040-pre-delivery-campaign-20260910-2154","final_self_binding":false},
+  "validator": {"official_blob":"7d9fc7608d54bca4a2cfbd36660c2d379e27fd78","candidate_isolated":"PASS","boundary":"Standard Chat candidate directory exact-predicate evaluation; repository-global checkout/shell suite unclaimed"},
+  "issue": {"pre_delivery_comment":5628742185,"current_worker_correction_comment":null,"reporting_comment":null,"terminal_comment":null},
+  "campaign": {"pre_delivery_checkpoint":true,"pre_delivery_request_id":"ascii-kinesis-airborne040-pre-delivery-campaign-20260910-2154","current_worker_correction_checkpoint":false,"final_self_binding":false},
   "delivery": {"part1_ascii":false,"part2_json":false,"part3_video":false,"drew_accepted":false}
 }
