@@ -1,0 +1,16 @@
+{
+  "schema": "ascii-kinesis.receipt-v2",
+  "entry": "v2-airborne-042-moving-support-capture-frame-handoff-debt",
+  "status": "PERSISTED_NOT_DELIVERED",
+  "preflight": {"home_center_campaign": true, "authenticated_github": true},
+  "repair_oldest_first": {"pre_reset_airborne_001_through_006_debt_cleared": true, "closures": {"001":"008","002":"011","003":"012","004":"013","005":"014","006":"015"}},
+  "collision": {"airborne042_count_at_creation": 0, "successor_collision": false},
+  "source": {"home_center_evidence_id":"10EpvkQbXYEmFwRYFyr5dADthh45jr-1Zt50oI06e4FM","tsr_asset":205456,"title":"Rider","game":"3D Stunt Rider","platform":"Amstrad CPC","whole_source_read":true,"source_timing":"UNKNOWN","timing_authority":false,"decisive_timing":"INFERRED / STREET_FIGHTER-CAPCOM","rights_firewall":"PASS"},
+  "quality": {"tango":"R0_PASS_CURRENT_WORKER_ACTUAL_RENDER","tango_highest_value_defect":"NONE_AT_ACCEPTANCE_SCALE","noodle_queen":"PASS_TASTE_FUNCTION_CONTEMPT_SAME_RENDER","drew_accepted":false},
+  "authoritative_media": {"sha256":"7187c47d5a5f82f8dabf30f3cd6db30f8acb0a3d2790a1116eae91b468771ef7","bytes":39295,"codec":"H.264/yuv420p","width":800,"height":448,"fps":24,"frames":45,"full_decode":true},
+  "spa_media": {"sha256":"e9b42f115541794aae0aa07740d2a3bed4bc84c14452634a20d5831741a2202c","bytes":4562,"codec":"H.264/yuv420p","width":240,"height":134,"fps":24,"frames":45,"full_decode":true,"derived_from_same_authored_frames":true},
+  "validator": {"source_blob":"7d9fc7608d54bca4a2cfbd36660c2d379e27fd78","candidate_isolated_exact_predicates":"PASS","repo_global_shell_suite":"UNCLAIMED_STANDARD_CHAT_BOUNDARY"},
+  "repo": {"exact_six_files":true,"exact_one_spa":true,"final_main_readback":false},
+  "reporting_chat": {"part1_ascii":false,"part2_json":false,"part3_visible_video":false},
+  "next_authorized": null
+}
