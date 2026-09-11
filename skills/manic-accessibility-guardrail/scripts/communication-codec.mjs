@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
-export const CODEC_VERSION = 'fortress-online.communication-codec.v2';
+export const CODEC_VERSION = 'fortress-online.communication-codec.v3';
 
 export const POLICIES = Object.freeze({
   COMPACT_POINTER: 'COMPACT_POINTER',
@@ -14,6 +14,8 @@ export const POLICIES = Object.freeze({
   PRESERVE_DIEGETIC_FRAME: 'PRESERVE_DIEGETIC_FRAME',
   PRESERVE_NONHUMAN_RELATIONAL_SEMANTICS: 'PRESERVE_NONHUMAN_RELATIONAL_SEMANTICS',
   SUPPORT_WITHOUT_DEPENDENCE_INFERENCE: 'SUPPORT_WITHOUT_DEPENDENCE_INFERENCE',
+  PRESERVE_AMBIGUITY_ADVANCE_SHARED_CORE: 'PRESERVE_AMBIGUITY_ADVANCE_SHARED_CORE',
+  PRESERVE_AMBIGUITY_HOLD: 'PRESERVE_AMBIGUITY_HOLD',
 });
 
 function fail(message) { throw new Error(message); }
@@ -31,7 +33,7 @@ export function runCommunicationCodec(raw = {}) {
     'reversibleProbeAvailable','readbackAvailable','voiceToTextLikely','namedEntityAmbiguity',
     'contextSupportsAlternate','literalReadingEvidence','thirdPartyPerspective','userAdoptedThirdPartyFrame',
     'explicitlyFramedPlay','nonhumanFunctionalRelationalLanguage','supportSystemLanguage',
-    'concreteDisplacementEvidence'
+    'concreteDisplacementEvidence','intentionalAmbiguity','sharedActionCoreAvailable'
   ]);
   for (const key of Object.keys(raw)) if (!allowed.has(key)) fail(`Unknown codec field: ${key}`);
 
@@ -60,6 +62,8 @@ export function runCommunicationCodec(raw = {}) {
     nonhumanFunctionalRelationalLanguage: bool(raw.nonhumanFunctionalRelationalLanguage, false, 'nonhumanFunctionalRelationalLanguage'),
     supportSystemLanguage: bool(raw.supportSystemLanguage, false, 'supportSystemLanguage'),
     concreteDisplacementEvidence: bool(raw.concreteDisplacementEvidence, false, 'concreteDisplacementEvidence'),
+    intentionalAmbiguity: bool(raw.intentionalAmbiguity, false, 'intentionalAmbiguity'),
+    sharedActionCoreAvailable: bool(raw.sharedActionCoreAvailable, false, 'sharedActionCoreAvailable'),
   };
 
   let policy;
@@ -88,7 +92,13 @@ export function runCommunicationCodec(raw = {}) {
     reasons.push('New vocabulary is permitted only because existing vocabulary is insufficient.');
   } else if (x.consequentialAmbiguity) {
     policy = POLICIES.ASK_OR_REVERSIBLE_PROBE;
-    reasons.push('Ambiguity can change a consequential action; compression has failed at this boundary.');
+    reasons.push('Ambiguity can change a consequential action; preservation does not authorize guessing at this boundary.');
+  } else if (x.intentionalAmbiguity && x.sharedActionCoreAvailable) {
+    policy = POLICIES.PRESERVE_AMBIGUITY_ADVANCE_SHARED_CORE;
+    reasons.push('The ambiguity is carrying information, while a non-consequential action core is common to the live interpretations; keep the alternatives open and advance only that shared core.');
+  } else if (x.intentionalAmbiguity) {
+    policy = POLICIES.PRESERVE_AMBIGUITY_HOLD;
+    reasons.push('The ambiguity is carrying information and no shared action core is established; preserve it without manufacturing clarification debt.');
   } else if (x.observedSemanticMismatch) {
     policy = POLICIES.MINIMAL_GROUNDING;
     reasons.push('Observed behavior shows incomplete shared expansion; add only the missing semantic delta.');
@@ -107,9 +117,13 @@ export function runCommunicationCodec(raw = {}) {
     ? 'RETRIEVE_OR_CLARIFY_BEFORE_CAUSAL_CLAIM'
     : x.consequentialAmbiguity
       ? (x.reversibleProbeAvailable ? 'REVERSIBLE_PROBE_OR_ASK' : 'ASK')
-      : x.observedSemanticMismatch
-        ? (x.readbackAvailable ? 'READBACK_OR_OBSERVE' : 'OBSERVE')
-        : 'OBSERVE_NORMAL_BEHAVIOR';
+      : policy === POLICIES.PRESERVE_AMBIGUITY_ADVANCE_SHARED_CORE
+        ? 'OBSERVE_SHARED_CORE_WITHOUT_COLLAPSE'
+        : policy === POLICIES.PRESERVE_AMBIGUITY_HOLD
+          ? 'PRESERVE_UNRESOLVED'
+          : x.observedSemanticMismatch
+            ? (x.readbackAvailable ? 'READBACK_OR_OBSERVE' : 'OBSERVE')
+            : 'OBSERVE_NORMAL_BEHAVIOR';
 
   return Object.freeze({
     schema: CODEC_VERSION,
@@ -119,6 +133,7 @@ export function runCommunicationCodec(raw = {}) {
     verification,
     stopRule: 'STOP_WHEN_MEANING_LANDS',
     correctionRule: 'CORRECTION_STOPS_INVENTION',
+    repairRule: 'CORRECTION_MUST_CHANGE_LATER_BEHAVIOR_BEFORE_CLAIMING_LEARNING',
     causalClaimRule: 'NO_CAUSAL_HISTORY_FROM_UNRESOLVED_ATOM',
     perspectiveRule: 'THIRD_PARTY_FRAME_STAYS_ATTRIBUTED_UNLESS_USER_ADOPTS_IT',
     playRule: 'EXPLICIT_PLAY_REMAINS_DIEGETIC_UNLESS_USER_MAKES_A_LITERAL_REAL_WORLD_CLAIM',
@@ -126,6 +141,10 @@ export function runCommunicationCodec(raw = {}) {
     proofRule: 'BEHAVIOR_OR_RECEIPT_NOT_FLUENCY',
     inventionRule: 'REUSE_EXISTING_ENGINEERING_VOCABULARY_BEFORE_COINING',
     publicMeaningRule: 'PRIVATE_COMPRESSION_IS_NOT_UNIVERSAL_SEMANTICS',
+    decompressionRule: 'INFER_CANDIDATES_WITHOUT_FOSSILIZING_ONE',
+    ambiguityRule: 'PRESERVE_ALTERNATIVES_AND_ADVANCE_ONLY_SHARED_REVERSIBLE_CORE',
+    humanLoadRule: 'NONCONSEQUENTIAL_AMBIGUITY_IS_NOT_AUTOMATIC_CLARIFICATION_DEBT',
+    queueRule: 'QUEUED_TEXT_PRESERVES_ORDER_NOT_AUTHORITY',
     reasons,
   });
 }
