@@ -1,7 +1,7 @@
 {
   "format_version": 2,
   "experiment_id": "v2-airborne-041-internal-mass-deploy-com-conservation-landing-debt",
-  "status": "PERSISTED_READY_FOR_USER_SURFACE",
+  "status": "HEALTHY_USER_SURFACED",
   "current_worker": {
     "preflight": {
       "home_center_campaign": "PASS_FRESH",
@@ -25,7 +25,8 @@
       "function": "PASS",
       "contempt": "PASS",
       "bound_to_same_final_render": true
-    }
+    },
+    "post_pass_choreography_mutation": false
   },
   "source": {
     "evidence_artifact_id": "1H3ceHukijHxTRnsCuxsG1-ylAd-MQ5kmNM5z4Kon77U",
@@ -40,10 +41,11 @@
     "contact-sheet.txt": "10a6676a219ca084b5def5ee5744bdee64ecd4ae",
     "motion.json": "f8e6193182bbf4ec081abbe451951072e8cce18d",
     "internal-mass-deploy-com-conservation-landing-debt.motion.html": "b935f2998caefeb3ba6d77f6c111c90bc140efaa",
-    "manifest.json": "79c9ce277f85156e24ef2f84ec5956a8847d88d0",
+    "manifest.json": "6f086546cc8c3b8c74ee98f63a1e32eff4ee5398",
     "exact_six_files": true,
     "exact_one_spa": true,
-    "post_write_readback": "PASS"
+    "post_write_readback": "PASS",
+    "final_readback": true
   },
   "spa": {
     "exact_one_spa": true,
@@ -68,11 +70,23 @@
     "candidate_isolated_predicates": "PASS",
     "repository_global_checkout_suite": "UNCLAIMED_STANDARD_CHAT_BOUNDARY"
   },
+  "issue_343": {
+    "pre_delivery_receipt": 5631974210,
+    "reporting_chat_closure": 5632198594,
+    "reporting_chat_closure_readback": true
+  },
+  "campaign": {
+    "reporting_checkpoint_request_id": "ascii-kinesis-airborne041-reporting-chat-closure-20260911-0911z",
+    "terminal_self_binding_request_id": "ascii-kinesis-airborne041-final-self-binding-20260911-0913z",
+    "reporting_checkpoint": true,
+    "terminal_self_binding": true
+  },
   "delivery": {
-    "PART1_ASCII": false,
-    "PART2_JSON": false,
-    "PART3_VISIBLE_AUTHORITATIVE_VIDEO": false
+    "PART1_ASCII": true,
+    "PART2_JSON": true,
+    "PART3_VISIBLE_AUTHORITATIVE_VIDEO": true,
+    "ordered": true
   },
   "DREW_ACCEPTED": false,
-  "next_authorized": null
+  "next_authorized": "v2-airborne-042"
 }
