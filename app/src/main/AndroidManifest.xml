@@ -17,6 +17,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 
     <application
+        android:name=".HomeCenterApplication"
         android:allowBackup="true"
         android:label="Home Center"
         android:networkSecurityConfig="@xml/network_security_config"
