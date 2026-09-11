@@ -1,0 +1,269 @@
+ASCII KINESIS V2 AIRBORNE042 — SIDE SUPPORT TORQUE BORROW / VERTICAL DEBT
+legend: o head | + pelvis x hand _ foot * earned contact | side wall
+source timing UNKNOWN; all decisive timing INFERRED / STREET_FIGHTER-CAPCOM
+
+K00 CANTED_LOAD  timing=FOURS  support=BOTH_FEET_GROUND  side=NONE
+
+
+                                                          |
+                                                          |
+              o                                           |
+              | -x                                        |
+           // |                                           |
+          /   +                                           |
+         x/  / \                                          |
+                                                          |
+           //   \\                                        |
+          /      \                                        |
+          /      \\                                       |
+         *        *                                       |
+______________________________________________________________
+
+causal=STORE_ASYMMETRIC_LAUNCH_FORCE  root=[16.0, 36.0]  torso_deg=-13
+
+K01 LAST_SUPPORT_RELEASE  timing=ONES  support=LEFT_LAST_FOOT  side=NONE
+
+
+                                                          |
+                 o   -x                                   |
+              x-- | -                                     |
+                  |                                       |
+                  +                                       |
+                 / \                                      |
+                                                          |
+               //    \                                    |
+               /      _                                   |
+               /                                          |
+              //                                          |
+              *                                           |
+______________________________________________________________
+
+causal=RELINQUISH_GROUND_AUTHORITY  root=[22.0, 31.5]  torso_deg=-18
+
+K02 FREE_RISE  timing=TWOS  support=NONE  side=NONE
+
+
+                        o                                 |
+                      - | -                               |
+                   x--  |  --x                            |
+                        +                                 |
+                       / \                                |
+                                                          |
+                     /     \                              |
+                    _       _                             |
+                                                          |
+                                                          |
+                                                          |
+                                                          |
+______________________________________________________________
+
+causal=ESTABLISH_UNSUPPORTED_ARC  root=[31.0, 23.0]  torso_deg=-8
+
+K03 APEX_OPEN  timing=FOURS  support=NONE  side=NONE
+
+
+                              o                           |
+                            - | -                         |
+                         x--  |  --x                      |
+                              +                           |
+                             / \                          |
+                                                          |
+                           /     \                        |
+                          _       _                       |
+                                                          |
+                                                          |
+                                                          |
+                                                          |
+______________________________________________________________
+
+causal=READ_APEX_WITHOUT_EXTRA_IMPULSE  root=[40.0, 18.0]  torso_deg=10
+
+K04 DESCENT_SIDE_SEEK  timing=TWOS  support=NONE  side=NONE
+
+
+                                        o                 |
+                                     - | ------x          |
+                                  x--  |                  |
+                                       +                  |
+                                      / \                 |
+                                                          |
+                                    /     \               |
+                                   _       _              |
+                                                          |
+                                                          |
+                                                          |
+                                                          |
+______________________________________________________________
+
+causal=SEEK_ROTATIONAL_AUTHORITY_WHILE_FALLING  root=[54.0, 21.5]  torso_deg=22
+
+K05 RIGHT_SIDE_TORQUE_CONTACT  timing=ONES  support=SIDE_RIGHT_TORQUE_ONLY  side=RIGHT_NEW
+
+
+                                              o           |
+                                           - | ----------*|
+                                        x--  |            |
+                                             +            |
+                                            / \           |
+                                                          |
+                                          /     \         |
+                                         _       _        |
+                                                          |
+                                                          |
+                                                          |
+                                                          |
+______________________________________________________________
+
+causal=BORROW_ROTATION_WITHOUT_VERTICAL_RESET  root=[63.0, 26.0]  torso_deg=25
+
+K06 TORQUE_BORROW_HOLD  timing=FOURS  support=SIDE_RIGHT_TORQUE_ONLY  side=RIGHT_HELD
+
+
+                                                          |
+                                              o           |
+                                           -- | ---------*|
+                                         x-   |           |
+                                              +           |
+                                             / \          |
+                                                          |
+                                           /     \        |
+                                          _       _       |
+                                                          |
+                                                          |
+                                                          |
+______________________________________________________________
+
+causal=PAY_ORIENTATION_WITH_CONTINUING_FALL  root=[64.0, 29.0]  torso_deg=2
+
+K07 SIDE_RELEASE_OVERSHOOT  timing=ONES  support=NONE  side=RIGHT_RELEASED
+
+
+                                                          |
+                                            o             |
+                                           / | --         |
+                                          // |   --x      |
+                                        //   +            |
+                                       x/   / \           |
+                                                          |
+                                          /     \         |
+                                         _       _        |
+                                                          |
+                                                          |
+                                                          |
+______________________________________________________________
+
+causal=RELEASE_SIDE_AUTHORITY_BEFORE_GROUND  root=[62.5, 31.2]  torso_deg=-16
+
+K08 LEFT_PRECONTACT  timing=TWOS  support=NONE  side=NONE
+
+
+                                                          |
+                                                          |
+                                          o               |
+                                         - | -            |
+                                      x--  |  --x         |
+                                           +              |
+                                          / \             |
+                                              -_          |
+                                        /                 |
+                                        /                 |
+                                       _                  |
+                                                          |
+______________________________________________________________
+
+causal=SEPARATE_PRECONTACT_FROM_CATCH  root=[60.0, 33.7]  torso_deg=-22
+
+K09 LEFT_FIRST_CATCH  timing=ONES  support=LEFT_GROUND_NEW  side=NONE
+
+
+                                                          |
+                                                          |
+                                        o                 |
+                                       - | -              |
+                                    x--  |  --x           |
+                                         +                |
+                                        / \               |
+                                            -             |
+                                      //    -_            |
+                                      /                   |
+                                     //                   |
+                                     *                    |
+______________________________________________________________
+
+causal=EARN_FIRST_GROUND_AUTHORITY  root=[57.5, 35.7]  torso_deg=-18
+
+K10 LEFT_CRUSH_TORSO_SPILL  timing=FOURS  support=LEFT_GROUND_HELD  side=NONE
+
+
+                                                          |
+                                                          |
+                                       o                  |
+                                      -|  -               |
+                                   x-- ||  --x            |
+                                        +                 |
+                                       / \                |
+                                           -              |
+                                     //    -_             |
+                                     /                    |
+                                    //                    |
+                                    *                     |
+______________________________________________________________
+
+causal=IMPACT_OVERSHOOT_WITH_DELAYED_RIGHT_SUPPORT  root=[56.0, 36.2]  torso_deg=-31
+
+K11 RIGHT_SUPPORT_JOINS  timing=TWOS  support=BOTH_FEET_GROUND  side=NONE
+
+
+                                                          |
+                                                          |
+                                       o                  |
+                                     - | -                |
+                                  x--  |  --x             |
+                                       +                  |
+                                      / \                 |
+                                                          |
+                                    //   \\               |
+                                    /     \               |
+                                   //     \\              |
+                                   *       *              |
+______________________________________________________________
+
+causal=CLOSE_SUPPORT_AFTER_FIRST_CATCH  root=[54.0, 35.4]  torso_deg=-12
+
+K12 REBOUND_COUNTERSWING  timing=TWOS  support=BOTH_FEET_GROUND  side=NONE
+
+
+                                                          |
+                                                          |
+                                      o                   |
+                                    - | -                 |
+                                 x--  |  --x              |
+                                      +                   |
+                                     / \                  |
+                                                          |
+                                   //   \\                |
+                                   /     \                |
+                                  //     \\               |
+                                  *       *               |
+______________________________________________________________
+
+causal=PAY_LAG_AND_OPPOSITE_OVERSHOOT  root=[52.0, 34.1]  torso_deg=12
+
+K13 DISPLACED_SETTLE  timing=FOURS  support=BOTH_FEET_GROUND  side=NONE
+
+
+                                                          |
+                                                          |
+                                    o                     |
+                                  - | -                   |
+                               x--  |  --x                |
+                                    +                     |
+                                   / \                    |
+                                                          |
+                                 //   \\                  |
+                                 /     \                  |
+                                //     \\                 |
+                                *       *                 |
+______________________________________________________________
+
+causal=RESTORE_ELIGIBILITY_WITHOUT_IDLE_RESET  root=[50.0, 35.8]  torso_deg=4
