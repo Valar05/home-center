@@ -1,0 +1,80 @@
+K00 OLD_FRAME_CARRY | FOURS/4t | PROV=INFERRED | SUPPORT=OLD_MOVING_BOTH
+      O
+     /|\
+      @  >>>>
+     / \
+    *   *
+====*===*=====>                    ________________________________
+ OLD MOVING FRAME                  FIXED FRAME
+------------------------------------------------------------------------------
+K01 EXIT_PREP | TWOS/2t | PROV=INFERRED | SUPPORT=OLD_MOVING_REAR
+        O
+       /|\
+      / @  >>>>
+     / / \
+    * /   \__
+====*=========>>                  _________________________________
+ OLD OWNER                         FIXED AHEAD
+------------------------------------------------------------------------------
+K02 PROBE_ONLY | ONES/1t | PROV=INFERRED | SUPPORT=OLD_OWNER_NEW_PROBE
+          O
+         /|\
+        / @  >>>>
+       / / \
+      * /   \:
+======*=======>                 ___:_______________________________
+ OLD OWNER                       PROBE != OWNER
+------------------------------------------------------------------------------
+K03 DUAL_FRAME_JOIN | ONES/1t | PROV=INFERRED | SUPPORT=OLD_PLUS_NEW
+            O
+           /|\
+          / @  >>>>
+         / / \
+        * /   *
+========*=====>                ___*________________________________
+ OLD OWNER                           NEW OWNER
+------------------------------------------------------------------------------
+K04 OWNERSHIP_TRANSFER | ONES/1t | PROV=INFERRED | SUPPORT=NEW_FIXED_SINGLE
+              O
+             /|\
+            / @  >>>>
+           / / \
+          o /   *
+==========o====>              _____*_______________________________
+ OLD RELEASED                       NEW OWNS; ROOT STILL MOVES
+------------------------------------------------------------------------------
+K05 INHERITED_OVERTRAVEL | TWOS/2t | PROV=INFERRED | SUPPORT=NEW_FIXED_SINGLE
+                   O
+              ____/|\
+             /     @  >>>
+        ____/     / \
+       o          /  *
+===========>        _*_____________________________________________
+ OLD FRAME LEFT      FIXED OWNER; REAR LIMB STILL TRAILS
+------------------------------------------------------------------------------
+K06 BRAKE_ABSORB | ONES/1t | PROV=INFERRED | SUPPORT=NEW_FIXED_SINGLE
+                    O_
+                  _/| \
+                _/  @__  >
+               /   /   \
+              o   /     *
+====================_____ *________________________________________
+                     FIXED OWNER; PELVIS SINK + COUNTERLEAN
+------------------------------------------------------------------------------
+K07 SECOND_CATCH_SETTLE | TWOS/2t | PROV=INFERRED | SUPPORT=NEW_FIXED_BOTH
+                     O
+                    /|\
+                   / @  >
+                  / / \
+                 *     *
+=================|_____*___*_______________________________________
+                  FIXED BOTH; REMAINING TRAVEL SHORTENS
+------------------------------------------------------------------------------
+K08 DISPLACED_RESTACK | FOURS/4t | PROV=INFERRED | SUPPORT=NEW_FIXED_STABLE
+                       O
+                      /|\
+                       @
+                      / \
+                     *   *
+=====================|___*___*_____________________________________
+                     FIXED FRAME; STABLE LOCAL ZERO, DISPLACED
