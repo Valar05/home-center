@@ -1,0 +1,17 @@
+{
+  "ascii_literal_text": true,
+  "backward_compatible": true,
+  "entry": "v2-airborne-042-moving-support-capture-frame-handoff-debt",
+  "files_expected": ["build_motion.py","contact-sheet.txt","manifest.json","motion.json","receipt.json","moving-support-capture-frame-handoff-debt.motion.html"],
+  "format_version": 2,
+  "lineage": {"negative_fixture": null, "revises": null, "source_change": "NOT_APPLICABLE_NEW_CONCEPT"},
+  "media": {"bytes":39295,"codec":"H.264/yuv420p","decode":true,"fps":24,"frames":45,"height":448,"sha256":"7187c47d5a5f82f8dabf30f3cd6db30f8acb0a3d2790a1116eae91b468771ef7","width":800},
+  "primary_tabs": ["ASCII","JSON","VIDEO"],
+  "quality": {"drew_accepted":false,"noodle_queen":"PASS_TASTE_FUNCTION_CONTEMPT_SAME_RENDER","tango":"R0_PASS_CURRENT_WORKER_ACTUAL_RENDER"},
+  "source": {"game":"3D Stunt Rider","home_center_evidence_id":"10EpvkQbXYEmFwRYFyr5dADthh45jr-1Zt50oI06e4FM","platform":"Amstrad CPC","rights_firewall":"PASS","roles":["MOVING_REFERENCE_FRAME_RELATIONSHIP_EVIDENCE","RELATIONSHIP_BREAK_STATE_REFERENCE"],"source_timing":"UNKNOWN","timing_authority":false,"title":"Rider","tsr_asset":205456},
+  "source_art_embedded": false,
+  "status": "PERSISTED_NOT_DELIVERED",
+  "validator": {"candidate_isolated":"PENDING_FINAL_PERSISTENCE","source_blob":"7d9fc7608d54bca4a2cfbd36660c2d379e27fd78"},
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only"
+}
