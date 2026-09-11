@@ -35,13 +35,25 @@ import java.lang.reflect.Method;
  */
 public final class HomeCenterApplication extends Application {
     private OperatorIngressQueue ingressQueue;
+    private volatile String startupQueueFault = "";
 
     @Override
     public void onCreate() {
         super.onCreate();
         ingressQueue = new OperatorIngressQueue(this);
-        ingressQueue.recoverInflight();
+        try {
+            ingressQueue.recoverInflight();
+        } catch (IllegalStateException ex) {
+            startupQueueFault = queueFaultText(ex);
+            android.util.Log.e("HomeCenterQueue", "startup queue recovery failed closed", ex);
+        }
         registerActivityLifecycleCallbacks(new QueueBridge());
+    }
+
+    private static String queueFaultText(Throwable error) {
+        String message = error == null || error.getMessage() == null ? "" : error.getMessage().trim();
+        if (message.isEmpty()) return "stored queue state needs recovery";
+        return message.length() > 180 ? message.substring(0, 177) + "..." : message;
     }
 
     private final class QueueBridge implements ActivityLifecycleCallbacks {
@@ -54,6 +66,7 @@ public final class HomeCenterApplication extends Application {
         private TextView status;
         private EditText input;
         private Button queueButton;
+        private String queueFault = startupQueueFault;
 
         private Field busyField;
         private Field pendingConfirmationField;
@@ -70,7 +83,9 @@ public final class HomeCenterApplication extends Application {
                 try {
                     tick();
                 } catch (Exception ex) {
-                    android.util.Log.w("HomeCenterQueue", "queue tick failed", ex);
+                    queueFault = queueFaultText(ex);
+                    android.util.Log.w("HomeCenterQueue", "queue tick failed closed", ex);
+                    showQueueFault();
                 }
                 if (active != null) main.postDelayed(this, POLL_MS);
             }
@@ -206,6 +221,7 @@ public final class HomeCenterApplication extends Application {
                     Gravity.BOTTOM);
             params.setMargins(dp(activity, 8), dp(activity, 8), dp(activity, 8), dp(activity, 8));
             host.addView(panel, params);
+            if (!queueFault.isEmpty()) showQueueFault();
         }
 
         private void removePanel() {
@@ -224,26 +240,49 @@ public final class HomeCenterApplication extends Application {
                 Toast.makeText(active, "Type a queued message first.", Toast.LENGTH_SHORT).show();
                 return;
             }
-            OperatorIngressQueue.Item item = ingressQueue.enqueue(
-                    exact,
-                    currentConversationId(),
-                    "operator_ingress_queue");
+            if (!queueFault.isEmpty()) {
+                Toast.makeText(active, "Queue unavailable. Your text is still in the composer.", Toast.LENGTH_LONG).show();
+                showQueueFault();
+                return;
+            }
+            final OperatorIngressQueue.Item item;
+            try {
+                item = ingressQueue.enqueue(
+                        exact,
+                        currentConversationId(),
+                        "operator_ingress_queue");
+            } catch (IllegalStateException ex) {
+                queueFault = queueFaultText(ex);
+                android.util.Log.e("HomeCenterQueue", "enqueue failed closed", ex);
+                Toast.makeText(active, "Queue unavailable. Your text is still in the composer.", Toast.LENGTH_LONG).show();
+                showQueueFault();
+                return;
+            }
             if (item == null) {
-                Toast.makeText(active, "Queue is full. Nothing was dropped.", Toast.LENGTH_LONG).show();
+                Toast.makeText(active, "Queue is full. Your text is still in the composer.", Toast.LENGTH_LONG).show();
                 return;
             }
             input.setText("");
-            Toast.makeText(active, "Queued. Current work continues.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(active, "Queued durably. Current work continues.", Toast.LENGTH_SHORT).show();
             boolean busy = true;
             try {
                 busy = busyField.getBoolean(active);
             } catch (Exception ignored) {
             }
-            refreshStatus(busy, hasBarrier(), ingressQueue.size());
+            try {
+                refreshStatus(busy, hasBarrier(), ingressQueue.size());
+            } catch (IllegalStateException ex) {
+                queueFault = queueFaultText(ex);
+                showQueueFault();
+            }
         }
 
         private void tick() throws Exception {
             if (active == null || panel == null || !seamResolved) return;
+            if (!queueFault.isEmpty()) {
+                showQueueFault();
+                return;
+            }
             boolean busy = busyField.getBoolean(active);
             boolean barrier = hasBarrier();
             int queued = ingressQueue.size();
@@ -267,12 +306,31 @@ public final class HomeCenterApplication extends Application {
             if (dispatch == null) return;
             try {
                 submitMessageMethod.invoke(active, dispatch.text, false);
+            } catch (Exception ex) {
+                try {
+                    ingressQueue.retryInflight(dispatch.id);
+                } catch (IllegalStateException persistenceError) {
+                    queueFault = queueFaultText(persistenceError);
+                    android.util.Log.e("HomeCenterQueue", "failed to restore rejected queued dispatch", persistenceError);
+                }
+                android.util.Log.e("HomeCenterQueue", "queued dispatch failed; item preserved in-flight or restored", ex);
+                Toast.makeText(active, "Queued message dispatch failed. The message remains preserved.", Toast.LENGTH_LONG).show();
+                if (!queueFault.isEmpty()) showQueueFault();
+                return;
+            }
+
+            try {
                 ingressQueue.completeDispatch(dispatch.id);
                 android.util.Log.i("HomeCenterQueue", "dispatched queued item " + dispatch.id);
-            } catch (Exception ex) {
-                ingressQueue.retryInflight(dispatch.id);
-                android.util.Log.e("HomeCenterQueue", "queued dispatch failed; item restored", ex);
-                Toast.makeText(active, "Queued message preserved after dispatch failure.", Toast.LENGTH_LONG).show();
+            } catch (IllegalStateException ex) {
+                // submitMessage() returned normally, so do not re-dispatch immediately. The durable in-flight
+                // slot remains the recovery source of truth and may conservatively replay after restart.
+                queueFault = queueFaultText(ex);
+                android.util.Log.e("HomeCenterQueue", "queued dispatch acknowledged by chat but persistence acknowledgement failed", ex);
+                Toast.makeText(active,
+                        "Message submitted, but queue acknowledgement failed. Recovery may replay it.",
+                        Toast.LENGTH_LONG).show();
+                showQueueFault();
             }
         }
 
@@ -317,6 +375,13 @@ public final class HomeCenterApplication extends Application {
                 text = "Queue is open";
             }
             setStatusText(text);
+        }
+
+        private void showQueueFault() {
+            if (panel == null) return;
+            panel.setVisibility(View.VISIBLE);
+            if (queueButton != null) queueButton.setEnabled(false);
+            setStatusText("Queue paused • stored input needs recovery • " + queueFault);
         }
 
         private void setStatusText(String text) {
