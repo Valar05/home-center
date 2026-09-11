@@ -5,6 +5,7 @@ import android.app.Application;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.graphics.Color;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -58,6 +59,7 @@ public final class HomeCenterApplication extends Application {
 
     private final class QueueBridge implements ActivityLifecycleCallbacks {
         private static final long POLL_MS = 300L;
+        private static final long MIN_LOCAL_SETTLE_MS = 1200L;
         private final Handler main = new Handler(Looper.getMainLooper());
 
         private Activity active;
@@ -67,6 +69,9 @@ public final class HomeCenterApplication extends Application {
         private EditText input;
         private Button queueButton;
         private String queueFault = startupQueueFault;
+        private String dispatchedItemId = "";
+        private long dispatchedAtElapsedMs = 0L;
+        private boolean dispatchedSawBusy = false;
 
         private Field busyField;
         private Field pendingConfirmationField;
@@ -286,9 +291,17 @@ public final class HomeCenterApplication extends Application {
             boolean busy = busyField.getBoolean(active);
             boolean barrier = hasBarrier();
             int queued = ingressQueue.size();
-            boolean shouldShow = busy || barrier || queued > 0;
+            boolean awaitingDispatchAck = !dispatchedItemId.isEmpty();
+            boolean shouldShow = busy || barrier || queued > 0 || awaitingDispatchAck;
             panel.setVisibility(shouldShow ? View.VISIBLE : View.GONE);
             if (!shouldShow) return;
+
+            if (awaitingDispatchAck) {
+                if (busy) dispatchedSawBusy = true;
+                refreshDispatchStatus(busy, barrier, queued);
+                if (acknowledgeDispatchedItemIfSettled(busy, barrier)) return;
+                return;
+            }
 
             refreshStatus(busy, barrier, queued);
             if (busy || barrier || queued <= 0) return;
@@ -304,11 +317,19 @@ public final class HomeCenterApplication extends Application {
 
             OperatorIngressQueue.Item dispatch = ingressQueue.beginDispatch();
             if (dispatch == null) return;
+            dispatchedItemId = dispatch.id;
+            dispatchedAtElapsedMs = SystemClock.elapsedRealtime();
+            dispatchedSawBusy = false;
             try {
                 submitMessageMethod.invoke(active, dispatch.text, false);
+                dispatchedSawBusy = busyField.getBoolean(active);
+                setStatusText(dispatchedSawBusy
+                        ? "Queued message submitted • current turn active"
+                        : "Queued message submitted • settling local receipt");
             } catch (Exception ex) {
                 try {
                     ingressQueue.retryInflight(dispatch.id);
+                    clearDispatchTracking();
                 } catch (IllegalStateException persistenceError) {
                     queueFault = queueFaultText(persistenceError);
                     android.util.Log.e("HomeCenterQueue", "failed to restore rejected queued dispatch", persistenceError);
@@ -316,22 +337,37 @@ public final class HomeCenterApplication extends Application {
                 android.util.Log.e("HomeCenterQueue", "queued dispatch failed; item preserved in-flight or restored", ex);
                 Toast.makeText(active, "Queued message dispatch failed. The message remains preserved.", Toast.LENGTH_LONG).show();
                 if (!queueFault.isEmpty()) showQueueFault();
-                return;
             }
+        }
 
+        private boolean acknowledgeDispatchedItemIfSettled(boolean busy, boolean barrier) {
+            if (dispatchedItemId.isEmpty()) return false;
+            if (busy || barrier) return false;
+            long ageMs = Math.max(0L, SystemClock.elapsedRealtime() - dispatchedAtElapsedMs);
+            if (!dispatchedSawBusy && ageMs < MIN_LOCAL_SETTLE_MS) return false;
             try {
-                ingressQueue.completeDispatch(dispatch.id);
-                android.util.Log.i("HomeCenterQueue", "dispatched queued item " + dispatch.id);
+                ingressQueue.completeDispatch(dispatchedItemId);
+                android.util.Log.i("HomeCenterQueue", "settled queued item " + dispatchedItemId
+                        + " sawBusy=" + dispatchedSawBusy + " ageMs=" + ageMs);
+                clearDispatchTracking();
+                return true;
             } catch (IllegalStateException ex) {
-                // submitMessage() returned normally, so do not re-dispatch immediately. The durable in-flight
-                // slot remains the recovery source of truth and may conservatively replay after restart.
+                // The submitted chat turn has settled, but the queue acknowledgement did not. Keep the
+                // durable in-flight record and stop dispatching. Process recovery may conservatively replay it.
                 queueFault = queueFaultText(ex);
-                android.util.Log.e("HomeCenterQueue", "queued dispatch acknowledged by chat but persistence acknowledgement failed", ex);
+                android.util.Log.e("HomeCenterQueue", "settled queued dispatch could not be acknowledged", ex);
                 Toast.makeText(active,
-                        "Message submitted, but queue acknowledgement failed. Recovery may replay it.",
+                        "Message settled, but queue acknowledgement failed. Recovery may replay it.",
                         Toast.LENGTH_LONG).show();
                 showQueueFault();
+                return false;
             }
+        }
+
+        private void clearDispatchTracking() {
+            dispatchedItemId = "";
+            dispatchedAtElapsedMs = 0L;
+            dispatchedSawBusy = false;
         }
 
         private boolean hasBarrier() {
@@ -375,6 +411,19 @@ public final class HomeCenterApplication extends Application {
                 text = "Queue is open";
             }
             setStatusText(text);
+        }
+
+        private void refreshDispatchStatus(boolean busy, boolean barrier, int queued) {
+            if (busy) {
+                setStatusText("Submitted queued message • current turn active"
+                        + (queued > 0 ? " • waiting behind it " + queued : ""));
+            } else if (barrier) {
+                setStatusText("Submitted queued message • waiting at confirmation gate"
+                        + (queued > 0 ? " • waiting behind it " + queued : ""));
+            } else {
+                setStatusText("Submitted queued message • settling durable handoff"
+                        + (queued > 0 ? " • waiting behind it " + queued : ""));
+            }
         }
 
         private void showQueueFault() {
