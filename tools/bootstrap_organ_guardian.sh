@@ -33,9 +33,31 @@ actual_active_sha="$(sha256sum "$ACTIVE" | awk '{print $1}')"
 python3 "$ACTIVE" selftest | tee "$STATE/active-selftest.json" | grep -q '"ok": true' || die 'active Organ v3 selftest failed'
 
 cd "$ORGAN"
-git fetch --quiet origin master || die 'cannot refresh origin/master'
-[ "$(git rev-parse HEAD)" = "$(git rev-parse origin/master)" ] || die 'local Organ HEAD differs from origin/master; refusing to mix histories'
-[ -z "$(git status --porcelain -- change-ui tests/test_change_ui.py .organ-state)" ] || die 'Organ bootstrap-owned paths are already dirty'
+[ -z "$(git status --porcelain -- change-ui tests/test_change_ui.py)" ] || die 'Organ bootstrap-owned paths are already dirty'
+
+# Reconcile only the safe case automatically: local behind with no unique local commits.
+# Local-ahead/diverged history is preserved and used as the phone bootstrap base; it is never reset or force-pushed.
+SYNCABLE=0
+REMOTE_BASE=''
+if git fetch --quiet origin master; then
+  LOCAL_HEAD="$(git rev-parse HEAD)"
+  REMOTE_HEAD="$(git rev-parse origin/master)"
+  counts="$(git rev-list --left-right --count HEAD...origin/master)"
+  LOCAL_AHEAD="${counts%%[[:space:]]*}"
+  REMOTE_AHEAD="${counts##*[[:space:]]}"
+  if [ "$LOCAL_AHEAD" = 0 ] && [ "$REMOTE_AHEAD" -gt 0 ]; then
+    git merge --ff-only origin/master || die 'safe fast-forward to origin/master failed'
+    LOCAL_HEAD="$(git rev-parse HEAD)"
+  fi
+  REMOTE_BASE="$(git rev-parse origin/master)"
+  if [ "$(git rev-parse HEAD)" = "$REMOTE_BASE" ]; then
+    SYNCABLE=1
+  fi
+  printf '{"local_head":"%s","origin_master":"%s","local_ahead":%s,"remote_ahead":%s,"syncable":%s}\n' \
+    "$(git rev-parse HEAD)" "$REMOTE_BASE" "$LOCAL_AHEAD" "$REMOTE_AHEAD" "$SYNCABLE" > "$STATE/git-reconciliation.json"
+else
+  printf '{"syncable":0,"state":"FETCH_UNAVAILABLE"}\n' > "$STATE/git-reconciliation.json"
+fi
 
 # The generated shell currently validates blocked v4 instead of the verified active slot.
 # Repair exactly that one bootstrap defect through active v3's own sealed mission/apply path.
@@ -91,10 +113,10 @@ python3 -c "from pathlib import Path; compile(Path('change-ui').read_text(),'cha
 python3 "$ACTIVE" selftest | grep -q '"ok": true' || die 'active slot failed after bootstrap repair'
 git diff --check || die 'bootstrap repair has whitespace errors'
 
-git add -- change-ui .organ-state
+# Commit only the exact bootstrap code mutation. Runtime receipts remain runtime evidence, not swept into source history.
+git add -- change-ui
 if ! git diff --cached --quiet; then
   git -c user.name='Organ Bootstrap' -c user.email='organ-bootstrap@localhost' commit -m 'bootstrap: validate active Organ slot' >/dev/null
-  git push origin HEAD:master || die 'bootstrap repair committed but could not be pushed'
 fi
 
 # Do not trample another live Organ commission.
@@ -109,11 +131,11 @@ if p.is_file():
 PY
 
 REQUEST=$(cat <<'EOF'
-Change exactly change-ui and tests/test_change_ui.py. Build Guardian admission controller v1 as a resident deterministic Organ boundary. This is not a mania detector and not a conversational safety prompt. It consumes typed machine facts and must be impossible to authorize by metaphor, sentiment, persuasion, or free-form AI prose. Add a strict typed guardian action contract and deterministic decisions ALLOW, REQUIRE_PHYSICAL, REQUIRE_SCREENSHOT, COOLDOWN, or DENY. High-impact classes include external communication, purchase/spending, destructive deletion, account/security changes, permission changes, substance-sensitive actions, irreversible actions, and unknown external side effects. Low-impact reversible local work may remain ALLOW. Physical approval must be a device-local artifact, never synthesized from chat text, and must bind to the exact canonical action hash, target, mandatory before-screenshot SHA-256, nonce, and expiry. Missing, stale, corrupt, overly broad, replayed, or mismatched approval must fail closed. Important/high-impact screen actions require a real BEFORE screenshot before approval and a real AFTER screenshot before successful receipt; screenshot capture failure must fail closed. Use local device mechanisms only; rish/Shizuku may be used narrowly for Android screenshot privilege when required, but must not become authority. Store runtime guardian state owner-private under Termux internal storage, not shared storage. Add machine-readable guardian status/check entry points suitable for future ChatGPT/Home Center callers while keeping AI text non-authoritative. Add regression tests proving identical typed facts produce identical decisions regardless of surrounding metaphor, that plain yes/go ahead text cannot create physical approval, that approval cannot be replayed for another target/action/screenshot, and that missing evidence fails closed. Preserve the blocked v4 authority-key rotation; do not fabricate or weaken its key requirement. When done, existing Organ behavior must still pass its project-native tests and the Guardian contract tests must pass.
+Change exactly change-ui and tests/test_change_ui.py. Build Guardian admission controller v1 as a resident deterministic Organ boundary. This is not a mania detector and not a conversational safety prompt. It consumes typed machine facts and must be impossible to authorize by metaphor, sentiment, persuasion, or free-form AI prose. Add a strict typed guardian action contract and deterministic decisions ALLOW, REQUIRE_PHYSICAL, REQUIRE_SCREENSHOT, COOLDOWN, or DENY. High-impact classes include external communication, purchase/spending, destructive deletion, account/security changes, permission changes, substance-sensitive actions, irreversible actions, and unknown external side effects. Low-impact reversible local work may remain ALLOW. Physical approval must be a device-local artifact, never synthesized from chat text, and must bind to the exact canonical action hash, target, mandatory before-screenshot SHA-256, nonce, and expiry. Missing, stale, corrupt, overly broad, replayed, or mismatched approval must fail closed. Important/high-impact screen actions require a real BEFORE screenshot before approval and a real AFTER screenshot before successful receipt; screenshot capture failure must fail closed. Use local device mechanisms only; rish/Shizuku may be used narrowly for Android screenshot privilege when required, but must not become authority. Store runtime guardian state owner-private under Termux internal storage, not shared storage. Add machine-readable --guardian-status and --guardian-selftest entry points for future ChatGPT/Home Center callers while keeping AI text non-authoritative. --guardian-status must emit one JSON object with schema organ-guardian-status-v1 and ok=true only when the deterministic Guardian runtime is ready. --guardian-selftest must execute deterministic negative controls for prose authorization, replay, target/action/screenshot mismatch, missing evidence, expiry, and identical-facts determinism, and emit one JSON object with schema organ-guardian-selftest-v1 and ok=true only when all controls pass. Add regression tests proving identical typed facts produce identical decisions regardless of surrounding metaphor, that plain yes/go ahead text cannot create physical approval, that approval cannot be replayed for another target/action/screenshot, and that missing evidence fails closed. Preserve the blocked v4 authority-key rotation; do not fabricate or weaken its key requirement. When done, existing Organ behavior must still pass its project-native tests and the Guardian contract tests must pass.
 EOF
 )
 CLARIFICATION=$(cat <<'EOF'
-All existing Organ planning, confirmation, memory, image, web, supervisor, recovery, promotion, and fail-closed behavior must remain unchanged unless an operation explicitly enters the new typed Guardian boundary. Keep the verified active v3 slot as bootstrap authority and do not promote, rewrite, bypass, or weaken candidate v4. Guardian decisions come only from typed action facts plus local device evidence. Free-form prose, character roleplay, emotional state, model confidence, and inferred mania are never permission inputs. No cloud dependency and no parallel agent framework.
+All existing Organ planning, confirmation, memory, image, web, supervisor, recovery, promotion, and fail-closed behavior must remain unchanged unless an operation explicitly enters the new typed Guardian boundary. Keep the verified active v3 slot as bootstrap authority and do not promote, rewrite, bypass, or weaken candidate v4. Guardian decisions come only from typed action facts plus local device evidence. Free-form prose, character roleplay, emotional state, model confidence, and inferred mania are never permission inputs. No cloud dependency and no parallel agent framework. Success is visible when --guardian-status and --guardian-selftest both return ok=true on this phone after promotion.
 EOF
 )
 
@@ -126,20 +148,25 @@ JOB="$(cat "$ORGAN/.organ-runtime/latest-change-job" 2>/dev/null || true)"
 
 cat > "$WATCHER" <<'PY'
 #!/usr/bin/env python3
-import json, os, subprocess, sys, time
+import json, subprocess, sys, time
 from pathlib import Path
-repo=Path(sys.argv[1]); job=sys.argv[2]
+repo=Path(sys.argv[1]); job=sys.argv[2]; syncable=sys.argv[3]=='1'; remote_base=sys.argv[4]
 record_path=repo/'.organ-runtime'/'change-jobs'/(job+'.json')
 state_dir=Path.home()/'.local/state'/'organ-guardian-bootstrap'
 result_path=state_dir/'durable-result.json'
 terminal={'BLOCKED_HUMAN_REQUIRED','BLOCKED_MALFORMED_RESULT','BLOCKED_HOST_UNREACHABLE','CHECKPOINTED','FAILED','CANCELLED','BLOCKED','REJECT'}
 def notify(title,content):
-    if subprocess.run(['sh','-lc','command -v termux-notification >/dev/null 2>&1']).returncode==0:
-        subprocess.run(['termux-notification','--id','organ-guardian-bootstrap','--title',title,'--content',content],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    subprocess.run(['termux-notification','--id','organ-guardian-bootstrap','--title',title,'--content',content],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 def finish(obj,code):
     state_dir.mkdir(parents=True,exist_ok=True)
     result_path.write_text(json.dumps(obj,indent=2,sort_keys=True)+'\n')
     raise SystemExit(code)
+def json_cmd(*argv):
+    p=subprocess.run(list(argv),cwd=repo,text=True,capture_output=True,timeout=120)
+    if p.returncode: raise RuntimeError((p.stderr or p.stdout)[-2000:] or 'command failed')
+    value=json.loads(p.stdout.strip())
+    if value.get('ok') is not True: raise RuntimeError(json.dumps(value,sort_keys=True))
+    return value
 for _ in range(12*60*60//5):
     try:r=json.loads(record_path.read_text())
     except Exception:
@@ -149,19 +176,26 @@ for _ in range(12*60*60//5):
         candidate=r.get('candidate_commit','')
         if not candidate:
             notify('Organ Guardian BLOCKED','promoted record lacks candidate commit');finish({'ok':False,'state':'BLOCKED_NO_COMMIT','job':job},2)
-        fetch=subprocess.run(['git','fetch','--quiet','origin','master'],cwd=repo,text=True,capture_output=True)
-        if fetch.returncode:
-            notify('Organ Guardian BLOCKED','cannot refresh origin/master');finish({'ok':False,'state':'BLOCKED_FETCH','job':job,'error':fetch.stderr[-1000:]},2)
-        head=subprocess.run(['git','rev-parse','HEAD'],cwd=repo,text=True,capture_output=True,check=True).stdout.strip()
-        if head!=candidate:
-            notify('Organ Guardian BLOCKED','local HEAD moved after promotion');finish({'ok':False,'state':'BLOCKED_LOCAL_MOVED','job':job,'candidate':candidate,'head':head},2)
-        anc=subprocess.run(['git','merge-base','--is-ancestor','origin/master',candidate],cwd=repo)
-        if anc.returncode:
-            notify('Organ Guardian BLOCKED','origin/master advanced; no force push attempted');finish({'ok':False,'state':'BLOCKED_REMOTE_ADVANCED','job':job,'candidate':candidate},2)
-        push=subprocess.run(['git','push','origin',candidate+':refs/heads/master'],cwd=repo,text=True,capture_output=True)
-        if push.returncode:
-            notify('Organ Guardian BLOCKED','verified candidate could not be pushed');finish({'ok':False,'state':'BLOCKED_PUSH','job':job,'candidate':candidate,'error':push.stderr[-1000:]},2)
-        obj={'ok':True,'state':'DURABLE','job':job,'commit':candidate}
+        try:
+            status=json_cmd('python3','change-ui','--guardian-status')
+            selftest=json_cmd('python3','change-ui','--guardian-selftest')
+        except Exception as exc:
+            notify('Organ Guardian BLOCKED','runtime acceptance failed')
+            finish({'ok':False,'state':'BLOCKED_RUNTIME_ACCEPTANCE','job':job,'commit':candidate,'error':str(exc)},2)
+        remote_state='NOT_REQUESTED_DIVERGED_BASE'
+        if syncable:
+            fetch=subprocess.run(['git','fetch','--quiet','origin','master'],cwd=repo,text=True,capture_output=True)
+            if fetch.returncode==0:
+                current_remote=subprocess.run(['git','rev-parse','origin/master'],cwd=repo,text=True,capture_output=True,check=True).stdout.strip()
+                if current_remote==remote_base:
+                    push=subprocess.run(['git','push','origin',candidate+':refs/heads/master'],cwd=repo,text=True,capture_output=True)
+                    remote_state='SYNCED_MASTER' if push.returncode==0 else 'PUSH_FAILED'
+                else:
+                    remote_state='REMOTE_ADVANCED_NO_FORCE_PUSH'
+            else:
+                remote_state='FETCH_FAILED'
+        obj={'ok':True,'state':'PHONE_DURABLE','job':job,'commit':candidate,'guardian_status':status,'guardian_selftest':selftest,'remote_state':remote_state}
+        notify('Organ Guardian READY','Phone runtime accepted. '+remote_state)
         finish(obj,0)
     if state in terminal:
         notify('Organ Guardian '+state,job)
@@ -171,7 +205,7 @@ notify('Organ Guardian BLOCKED','watcher timeout')
 finish({'ok':False,'state':'WATCH_TIMEOUT','job':job},2)
 PY
 chmod 700 "$WATCHER"
-nohup python3 "$WATCHER" "$ORGAN" "$JOB" >"$STATE/watcher.log" 2>&1 </dev/null &
+nohup python3 "$WATCHER" "$ORGAN" "$JOB" "$SYNCABLE" "$REMOTE_BASE" >"$STATE/watcher.log" 2>&1 </dev/null &
 
 for _ in $(seq 1 20); do
   record="$ORGAN/.organ-runtime/change-jobs/$JOB.json"
