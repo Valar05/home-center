@@ -3,7 +3,7 @@
   "format_version": 2,
   "entry": "v2-contact-028-locked-constraint-lag-release-gate",
   "lane": "contact",
-  "status": "USER_SURFACED_PENDING_TERMINAL_DURABILITY",
+  "status": "HEALTHY_USER_SURFACED",
   "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
@@ -20,9 +20,9 @@
   "media": {"codec": "h264", "pix_fmt": "yuv420p", "width": 660, "height": 360, "fps": 24, "frames": 35, "bytes": 14254, "sha256": "f03d6dfeb54d620433d772f2e0819528d8fbd01a2d54c1b249baf841d239d055", "decode": "PASS_CURRENT_WORKER_ACTUAL_RENDER"},
   "quality": {"tango": "PASS_R1_CURRENT_WORKER_ACTUAL_RENDER", "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_SAME_RENDER", "drew_accepted": false},
   "validator": {"path": "tools/test_ascii_kinesis_swarm_contract_v2.py", "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78", "candidate_isolated": "PASS"},
-  "repo": {"persisted": true, "readback": true, "exact_six_files": true, "exact_one_spa": true, "final_readback": false, "content_blobs": {"build.py": "f298fe1497b0ce88a93ff60e42d1d2dd0177f6cb", "contact-sheet.txt": "5ffc68f7c464157c19d0f4279cfacc19ab2530f2", "motion.json": "b9df39869a44e042c52a7e4795384069ba0da307", "locked-constraint-lag-release-gate.motion.html": "7a86621840ed9b70ba0b1a283fcdd85ef4b12e79"}},
-  "issue": {"pre_delivery": 5628746410, "user_surface": null, "terminal": null},
-  "campaign": {"closure": false, "readback": false},
+  "repo": {"persisted": true, "readback": true, "exact_six_files": true, "exact_one_spa": true, "final_readback": true, "content_blobs": {"build.py": "f298fe1497b0ce88a93ff60e42d1d2dd0177f6cb", "contact-sheet.txt": "5ffc68f7c464157c19d0f4279cfacc19ab2530f2", "motion.json": "b9df39869a44e042c52a7e4795384069ba0da307", "locked-constraint-lag-release-gate.motion.html": "7a86621840ed9b70ba0b1a283fcdd85ef4b12e79"}},
+  "issue": {"pre_delivery": 5628746410, "user_surface": 5628758543, "terminal": 5628942709},
+  "campaign": {"closure": true, "readback": true},
   "chat": {"part1": true, "part2": true, "part3": true, "ordered_complete": true},
-  "next_authorized": null
+  "next_authorized": "v2-contact-029"
 }
