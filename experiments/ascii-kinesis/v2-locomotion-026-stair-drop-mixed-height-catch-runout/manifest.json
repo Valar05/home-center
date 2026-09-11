@@ -61,7 +61,7 @@
   "validator": {
     "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-    "candidate_isolated": "PENDING_POSTWRITE_CSS_RECONCILIATION",
+    "candidate_isolated": "PASS",
     "repository_global": "UNCLAIMED_STANDARD_CHAT_CONNECTOR_BOUNDARY"
   },
   "DREW_ACCEPTED": false,
