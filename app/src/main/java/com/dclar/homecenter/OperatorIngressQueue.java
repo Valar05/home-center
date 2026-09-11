@@ -17,6 +17,10 @@ import java.util.UUID;
  * The queue is transport only. Enqueueing text is not permission to execute it concurrently,
  * does not bypass confirmation gates, and does not reinterpret the text. The ordinary chat
  * submission path receives the exact queued text later, one item at a time.
+ *
+ * Persistence is fail-closed: no method reports a durable state transition when the synchronous
+ * SharedPreferences commit failed, and malformed stored queue state is surfaced rather than
+ * silently overwritten as an empty queue.
  */
 final class OperatorIngressQueue {
     static final String SCHEMA = "home-center.operator-ingress-queue.v1";
@@ -57,6 +61,8 @@ final class OperatorIngressQueue {
 
         static Item fromJson(JSONObject json) {
             if (json == null) return null;
+            String schema = json.optString("schema", SCHEMA).trim();
+            if (!schema.isEmpty() && !SCHEMA.equals(schema)) return null;
             String id = json.optString("id", "").trim();
             String text = json.optString("text", "");
             if (id.isEmpty() || text.trim().isEmpty()) return null;
@@ -88,7 +94,9 @@ final class OperatorIngressQueue {
                 source == null ? "" : source,
                 System.currentTimeMillis());
         items.add(item);
-        writeQueue(items);
+        requireCommit(
+                prefs.edit().putString(KEY_QUEUE, encode(items)).commit(),
+                "enqueue");
         return item;
     }
 
@@ -110,18 +118,20 @@ final class OperatorIngressQueue {
         List<Item> items = readQueue();
         if (items.isEmpty()) return null;
         Item item = items.remove(0);
-        boolean ok = prefs.edit()
-                .putString(KEY_QUEUE, encode(items))
-                .putString(KEY_INFLIGHT, item.toJson().toString())
-                .commit();
-        return ok ? item : null;
+        requireCommit(
+                prefs.edit()
+                        .putString(KEY_QUEUE, encode(items))
+                        .putString(KEY_INFLIGHT, item.toJson().toString())
+                        .commit(),
+                "begin_dispatch");
+        return item;
     }
 
     synchronized void completeDispatch(String id) {
         Item inflight = readInflight();
         if (inflight == null) return;
         if (id != null && !id.isEmpty() && !id.equals(inflight.id)) return;
-        prefs.edit().remove(KEY_INFLIGHT).commit();
+        requireCommit(prefs.edit().remove(KEY_INFLIGHT).commit(), "complete_dispatch");
     }
 
     synchronized void retryInflight(String id) {
@@ -130,10 +140,12 @@ final class OperatorIngressQueue {
         if (id != null && !id.isEmpty() && !id.equals(inflight.id)) return;
         List<Item> items = readQueue();
         if (!containsId(items, inflight.id)) items.add(0, inflight);
-        prefs.edit()
-                .putString(KEY_QUEUE, encode(items))
-                .remove(KEY_INFLIGHT)
-                .commit();
+        requireCommit(
+                prefs.edit()
+                        .putString(KEY_QUEUE, encode(items))
+                        .remove(KEY_INFLIGHT)
+                        .commit(),
+                "retry_inflight");
     }
 
     synchronized void recoverInflight() {
@@ -141,10 +153,12 @@ final class OperatorIngressQueue {
         if (inflight == null) return;
         List<Item> items = readQueue();
         if (!containsId(items, inflight.id)) items.add(0, inflight);
-        prefs.edit()
-                .putString(KEY_QUEUE, encode(items))
-                .remove(KEY_INFLIGHT)
-                .commit();
+        requireCommit(
+                prefs.edit()
+                        .putString(KEY_QUEUE, encode(items))
+                        .remove(KEY_INFLIGHT)
+                        .commit(),
+                "recover_inflight");
     }
 
     private List<Item> readQueue() {
@@ -153,28 +167,48 @@ final class OperatorIngressQueue {
         if (raw == null || raw.trim().isEmpty()) return out;
         try {
             JSONArray array = new JSONArray(raw);
-            for (int i = 0; i < array.length(); i++) {
-                Item item = Item.fromJson(array.optJSONObject(i));
-                if (item != null && !containsId(out, item.id)) out.add(item);
-                if (out.size() >= MAX_ITEMS) break;
+            if (array.length() > MAX_ITEMS) {
+                throw new IllegalStateException("operator ingress queue exceeds capacity");
             }
-        } catch (Exception ignored) {
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject encoded = array.optJSONObject(i);
+                Item item = Item.fromJson(encoded);
+                if (item == null) {
+                    throw new IllegalStateException("operator ingress queue contains an invalid item at index " + i);
+                }
+                if (containsId(out, item.id)) {
+                    throw new IllegalStateException("operator ingress queue contains duplicate id " + item.id);
+                }
+                out.add(item);
+            }
+            return out;
+        } catch (IllegalStateException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new IllegalStateException("operator ingress queue state is unreadable", ex);
         }
-        return out;
     }
 
     private Item readInflight() {
         String raw = prefs.getString(KEY_INFLIGHT, "");
         if (raw == null || raw.trim().isEmpty()) return null;
         try {
-            return Item.fromJson(new JSONObject(raw));
-        } catch (Exception ignored) {
-            return null;
+            Item item = Item.fromJson(new JSONObject(raw));
+            if (item == null) {
+                throw new IllegalStateException("operator ingress in-flight state is invalid");
+            }
+            return item;
+        } catch (IllegalStateException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new IllegalStateException("operator ingress in-flight state is unreadable", ex);
         }
     }
 
-    private void writeQueue(List<Item> items) {
-        prefs.edit().putString(KEY_QUEUE, encode(items)).commit();
+    private static void requireCommit(boolean committed, String operation) {
+        if (!committed) {
+            throw new IllegalStateException("operator ingress persistence failed during " + operation);
+        }
     }
 
     private String encode(List<Item> items) {
