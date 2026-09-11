@@ -155,6 +155,7 @@ public final class HomeCenterApplication extends Application {
             status = new TextView(activity);
             status.setTextColor(Color.WHITE);
             status.setTextSize(12f);
+            status.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
             status.setText("Current work continues. Queue another message.");
             panel.addView(status, new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -171,12 +172,14 @@ public final class HomeCenterApplication extends Application {
             input.setTextColor(Color.WHITE);
             input.setHintTextColor(Color.LTGRAY);
             input.setImeOptions(EditorInfo.IME_ACTION_SEND);
+            input.setMinimumHeight(dp(activity, 48));
             input.setContentDescription("Queue another Home Center message without interrupting current work");
             row.addView(input, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
             queueButton = new Button(activity);
             queueButton.setText("Queue");
             queueButton.setAllCaps(false);
+            queueButton.setMinimumHeight(dp(activity, 48));
             queueButton.setContentDescription("Queue message");
             LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -224,14 +227,19 @@ public final class HomeCenterApplication extends Application {
             OperatorIngressQueue.Item item = ingressQueue.enqueue(
                     exact,
                     currentConversationId(),
-                    "busy_turn_interrupt");
+                    "operator_ingress_queue");
             if (item == null) {
                 Toast.makeText(active, "Queue is full. Nothing was dropped.", Toast.LENGTH_LONG).show();
                 return;
             }
             input.setText("");
             Toast.makeText(active, "Queued. Current work continues.", Toast.LENGTH_SHORT).show();
-            refreshStatus(true, hasBarrier(), ingressQueue.size());
+            boolean busy = true;
+            try {
+                busy = busyField.getBoolean(active);
+            } catch (Exception ignored) {
+            }
+            refreshStatus(busy, hasBarrier(), ingressQueue.size());
         }
 
         private void tick() throws Exception {
@@ -251,8 +259,7 @@ public final class HomeCenterApplication extends Application {
             if (!head.conversationId.isEmpty()
                     && !currentConversation.isEmpty()
                     && !head.conversationId.equals(currentConversation)) {
-                status.setText("Queued " + queued + " for another conversation. Return there to continue.");
-                status.setContentDescription(status.getText());
+                setStatusText("Queued " + queued + " for another conversation. Return there to continue.");
                 return;
             }
 
@@ -309,8 +316,16 @@ public final class HomeCenterApplication extends Application {
             } else {
                 text = "Queue is open";
             }
-            status.setText(text);
-            status.setContentDescription(text);
+            setStatusText(text);
+        }
+
+        private void setStatusText(String text) {
+            if (status == null) return;
+            String safe = text == null ? "" : text;
+            CharSequence current = status.getText();
+            if (current != null && safe.contentEquals(current)) return;
+            status.setText(safe);
+            status.setContentDescription(safe);
         }
 
         private int dp(Activity activity, int value) {
