@@ -1,0 +1,372 @@
+ASCII KINESIS V2 · LOCOMOTION 026 · LADDER DISMOUNT / TRANSLATING SUPPORT CAPTURE / RUNOUT
+legend: @ root · c COM · * authoritative support · ? low-confidence probe/touch · ~ free endpoint · . authored root route · |/= stationary ladder · _=> translating platform
+source evidence: Bullwinkle / The Adventures of Rocky and Bullwinkle and Friends / NES / TSR asset 81106 / Home Center artifact 1zQGdJx7uIqTnvJlHp2NfydUu_EDDNvt01tCAlQvlYQ8
+OBSERVED: whole static sheet exposes Charge, Idle, Using Stairs, Walking; these distinguish rest, level travel, high-commitment travel, and discrete-height locomotion. Animated GIFs (0).
+INFERRED CAMPAIGN HANDLE: commissioned evidence promotes ladder dismount onto a moving platform, requiring hands/rungs to transfer support authority to translating foot support without a freefall gap.
+UNKNOWN: source-authentic chronology/exposures/stair direction/root displacement/contact frames/platform motion/source timing. Source grants NO timing authority.
+authored timing: INFERRED / STREET_FIGHTER-CAPCOM. rights firewall: independent abstract ASCII rig only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio/redistribution/close imitation.
+thesis: translating foot support becomes trustworthy before final ladder release; last-hand pivot delays velocity inheritance; release produces an overlong deck catch, shorter correction, and displaced deck-relative settle.
+
+K00 LADDER_LOAD · FOURS/4f · INFERRED · owner=HANDS_LADDER+LEFT_FOOT_RUNG · phase=LADDER · rootΔ=0px · deckX=154 · deckV=6
+
+       |===|
+       |   |
+       |===|
+       |   |
+       |   |O
+       |===|*
+       | *--T
+       |===||
+       |   ||
+       |   | |
+       |===| |
+       |   | @.
+       |===| / .
+       |   |/c  ......
+       |===|/ /       ...
+       |   /  /          .....         ....
+       |   /  *               ...   ...
+       |==*|                     ...
+       |   |
+       |   | _________________________ >
+
+
+
+
+causal: establish stationary ladder ownership while the receiving platform passes below with no body commitment
+
+K01 PLATFORM_READ · FOURS/4f · INFERRED · owner=HANDS_LADDER+LEFT_FOOT_RUNG · phase=READ · rootΔ=2px · deckX=162 · deckV=8
+
+       |===|
+       |   |
+       |===|
+       |   |
+       |   |
+       |===|*  O
+       | *-- -
+       |===|--T
+       |   |  |
+       |   |  |
+       |===| |
+       |   | @.
+       |===| //.
+       |   |/ / ......
+       |===|/ c/      ...
+       |   /    /        .....         ....
+       |   /     /            ...   ...
+       |==*|     /               ...
+       |   |      ?
+       |   |  __________________________ >
+
+
+
+
+causal: free right foot searches for the translating deck while hands and left rung foot keep the root out of freefall
+
+K02 RIGHT_PLATFORM_TOUCH · TWOS/2f · INFERRED · owner=HANDS_LADDER+LEFT_FOOT_RUNG · phase=PROBE · rootΔ=3px · deckX=172 · deckV=10
+
+       |===|
+       |   |
+       |===|
+       |   |
+       |   |
+       |===|*    O
+       | *-| --
+       |===-----
+       |   |   -T
+       |   |   |
+       |===|   |
+       |   | .@
+       |===| / /
+       |   | /  /.....
+       |===|/  c /    ...
+       |   /      //     .....         ....
+       |   /        /         ...   ...
+       |==*|         /           ...
+       |   |          /
+       |   |    _______?__________________ >
+
+
+
+
+causal: right foot touches the moving platform but does not yet own root translation; ladder support remains authoritative
+
+K03 RIGHT_PLATFORM_CAPTURE · ONES/1f · INFERRED · owner=MIXED_LADDER+RIGHT_PLATFORM · phase=CAPTURE · rootΔ=7px · deckX=182 · deckV=10
+
+       |===|
+       |   |
+       |===|
+       |   |
+       |   |
+       |===|*-
+       | *--  --   O
+       |===|------
+       |   |    --T
+       |   |     |
+       |===|     |
+       |   | .. |
+       |===|   @
+       |   |  / //....
+       |===| /    /   ...
+       |   |/   c  //    .....         ....
+       |   /         /        ...   ...
+       |==*|          /          ...
+       |   |           //
+       |   |       ______*__________________ >
+
+
+
+
+causal: right foot earns translating support at a stable platform-relative anchor while ladder contacts still prevent a support gap
+
+K04 LOWER_HAND_RELEASE · ONES/1f · INFERRED · owner=LEFT_HAND_LADDER+RIGHT_PLATFORM · phase=TRANSFER · rootΔ=9px · deckX=192 · deckV=10
+
+       |===|
+       |   |
+       |===|
+       |   |
+       |   |
+       |===|
+       | *-|
+       |===----       O
+       |   |  ~----
+       |   |      --T
+       |===|       |
+       |   | ..    |
+       |===|   .  |
+       |   |    .@....
+       |===|   // //  ...
+       |   | //    c//   .....         ....
+       |   |~         /       ...   ...
+       |===|           //        ...
+       |   |             //
+       |   |         ______*__________________ >
+
+
+
+
+causal: lower ladder contacts release only after platform support owns; root begins to inherit deck translation around one surviving hand
+
+K05 LAST_HAND_PIVOT · TWOS/2f · INFERRED · owner=LEFT_HAND_LADDER+RIGHT_PLATFORM · phase=TRANSFER · rootΔ=11px · deckX=204 · deckV=12
+
+       |===|
+       |   |
+       |===|
+       |   |
+       |   |
+       |===|
+       | *-|
+       |===----
+       |   |   ---       O
+       |   |     ~----
+       |===|         --T
+       |   | ..       |
+       |===|   .     |
+       |   |    ....@.
+       |===|       / //..
+       |   |     //    //.....         ....
+       |   |    /    c   /    ...   ...
+       |===|   ~          //     ...
+       |   |                //
+       |   |           _______*__________________>
+
+
+
+
+causal: body/root passes down-right around the last stationary hand while the captured right foot rides the accelerating deck
+
+K06 HAND_RELEASE_VELOCITY_INHERIT · ONES/1f · INFERRED · owner=RIGHT_PLATFORM · phase=RELEASE · rootΔ=16px · deckX=218 · deckV=14
+
+       |===|
+       |   |
+       |===|
+       |   |
+       |   |
+       |===|
+       |   |
+       |===|
+       |   |~---
+       |   |    --------     O
+       |===|        ~------T
+       |   | ..           |
+       |===|   .         |
+       |   |    ......  |
+       |===|          .@/
+       |   |          /  //...         ....
+       |   |         /  c  // ...   ...
+       |===|        /        //  ...
+       |   |       ~           //
+       |   |              _______*__________________>
+
+
+
+
+causal: final rung support releases after platform capture, exposing delayed horizontal velocity inheritance instead of a freefall gap
+
+K07 DECK_PULL_OVERRUN · ONES/1f · INFERRED · owner=RIGHT_PLATFORM · phase=RUNOUT · rootΔ=20px · deckX=234 · deckV=16
+
+       |===|
+       |   |
+       |===|
+       |   |
+       |   |
+       |===|
+       |   |
+       |===|
+       |   |
+       |   |    ~---           O
+       |===|        -------
+       |   | ..         ~-----T
+       |===|   .             |
+       |   |    ......       |
+       |===|          ...   |
+       |   |             ..@/.         ....
+       |   |               / //..   ...
+       |===|              /  c //...
+       |   |              ?      //
+       |   |                 ______/*__________________ >
+
+
+
+
+causal: translating support pulls the root farther than the torso can immediately restack; left foot chases a first catch
+
+K08 OVERLONG_LEFT_CATCH · TWOS/2f · INFERRED · owner=BOTH_PLATFORM_LEFT_DOMINANT · phase=CATCH · rootΔ=23px · deckX=250 · deckV=16
+
+       |===|
+       |   |
+       |===|
+       |   |
+       |   |
+       |===|
+       |   |
+       |===|
+       |   |
+       |   |
+       |===|                O
+       |   | ..       ~----
+       |===|   .           --~T
+       |   |    ......        |
+       |===|          ...      |
+       |   |             ..... |       ....
+       |   |                  ..@/  ...
+       |===|                     .//
+       |   |                     c  //
+       |   |                     _____/*__________________ >
+
+
+
+
+causal: surviving inherited deck velocity forces an overlong first free catch; left support must acquire before right can unload
+
+K09 CATCH_COMPRESSION · TWOS/2f · INFERRED · owner=LEFT_PLATFORM · phase=ABSORB · rootΔ=11px · deckX=266 · deckV=16
+
+       |===|
+       |   |
+       |===|
+       |   |
+       |   |
+       |===|
+       |   |
+       |===|
+       |   |
+       |   |
+       |===|
+       |   | ..               O
+       |===|   .
+       |   |    ......    ~----T
+       |===|          ...       ~
+       |   |             .....  |      ....
+       |   |                  ...|  ...
+       |===|                     .@//
+       |   |                        /////
+       |   |                       c____/~*___________________>
+
+
+
+
+causal: left platform support survives COM passage while root compresses and arms continue their delayed swing
+
+K10 SHORT_RIGHT_CORRECTION · TWOS/2f · INFERRED · owner=RIGHT_PLATFORM · phase=CORRECTION · rootΔ=15px · deckX=282 · deckV=16
+
+       |===|
+       |   |
+       |===|
+       |   |
+       |   |
+       |===|
+       |   |
+       |===|
+       |   |
+       |   |
+       |===|                        O
+       |   | ..
+       |===|   .                 ---T
+       |   |    ......       ~--- ~-|
+       |===|          ...           |
+       |   |             .....       | ....
+       |   |                  ...   .@/
+       |===|                     ...   ///
+       |   |                          c  ///
+       |   |                           ____~/*___________________ >
+
+
+
+
+causal: shorter opposite-foot correction catches closer to the root, trimming deck-relative debt while preserving platform travel
+
+K11 DISPLACED_RESTACK · FOURS/4f · INFERRED · owner=BOTH_PLATFORM · phase=SETTLE · rootΔ=12px · deckX=298 · deckV=16
+
+       |===|
+       |   |
+       |===|
+       |   |
+       |   |
+       |===|
+       |   |
+       |===|
+       |   |
+       |   |                            O
+       |===|
+       |   | ..                        -T
+       |===|   .                   -~-- |
+       |   |    ......          ~--     |
+       |===|          ...               |
+       |   |             .....         .@/.
+       |   |                  ...   ...  ///
+       |===|                     ...      ////
+       |   |                             c  / //
+       |   |                               __*__*___________________ >
+
+
+
+
+causal: second authored correction brings COM visibly back between deck supports while upper-body lag continues to settle
+
+K12 PLATFORM_RIDE_SETTLE · FOURS/4f · INFERRED · owner=BOTH_PLATFORM · phase=SETTLE · rootΔ=10px · deckX=314 · deckV=16
+
+       |===|
+       |   |
+       |===|
+       |   |
+       |   |
+       |===|
+       |   |
+       |===|
+       |   |
+       |   |                              O
+       |===|
+       |   | ..                        ---T
+       |===|   .                  ~---~-- |
+       |   |    ......                    |
+       |===|          ...                 |
+       |   |             .....         ...@/
+       |   |                  ...   ...    ///
+       |===|                     ...       c ///
+       |   |                                  ////
+       |   |                                  __*_/*____________________>
+
+
+
+
+causal: final deck-relative stillness is displaced but structurally restacked, with both planted feet translating in stable deck-relative anchors
