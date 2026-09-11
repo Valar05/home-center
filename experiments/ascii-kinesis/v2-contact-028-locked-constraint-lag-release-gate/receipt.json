@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.v2-receipt",
   "entry": "v2-contact-028-locked-constraint-lag-release-gate",
-  "status": "QUALITY_GATES_PASS_CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "REPO_PERSISTED_READY_FOR_USER_SURFACE",
   "current_worker_liveness": {
     "home_center_campaign_exact_read": true,
     "github_authenticated_persistence_readback": true,
@@ -21,10 +21,7 @@
     "evidence_artifact_id": "198sAnIYicWJ9Kw7vFA25m-WhtNrybj9DUAXNTC3PGMc",
     "tsr_asset_id": 232259,
     "identity": "Zangief — Super Street Fighter II: The New Challengers — Sega Genesis",
-    "roles": [
-      "POSE_REFERENCE",
-      "CONTACT_TOPOLOGY_REFERENCE"
-    ],
+    "roles": ["POSE_REFERENCE", "CONTACT_TOPOLOGY_REFERENCE"],
     "timing_authority": false,
     "source_authentic_timing": "UNKNOWN",
     "whole_source_evidence_read": true,
@@ -57,28 +54,28 @@
     "candidate_isolated": "PASS"
   },
   "repo": {
-    "persisted": false,
-    "readback": false,
-    "exact_six_files": false,
-    "exact_one_spa": false,
-    "final_readback": false
+    "persisted": true,
+    "readback": true,
+    "exact_six_files": true,
+    "exact_one_spa": true,
+    "final_readback": false,
+    "content_blobs": {
+      "build.py": "f298fe1497b0ce88a93ff60e42d1d2dd0177f6cb",
+      "contact-sheet.txt": "3a39cbaed4d8fe49edf23d5a56e078c50c624e4f",
+      "motion.json": "b9df39869a44e042c52a7e4795384069ba0da307",
+      "locked-constraint-lag-release-gate.motion.html": "7a86621840ed9b70ba0b1a283fcdd85ef4b12e79"
+    }
   },
   "issue": {
     "pre_delivery": false,
     "pre_delivery_id": null,
     "user_surface": false,
-    "terminal": false
+    "user_surface_id": null,
+    "terminal": false,
+    "terminal_id": null
   },
-  "campaign": {
-    "closure": false,
-    "readback": false
-  },
-  "chat": {
-    "part1": false,
-    "part2": false,
-    "part3": false,
-    "ordered_complete": false
-  },
+  "campaign": {"closure": false, "readback": false},
+  "chat": {"part1": false, "part2": false, "part3": false, "ordered_complete": false},
   "historical_law": "PRE_RESET_DREW_REJECTED_V2_REMAIN_REVISE_REQUIRED_LOW_EFFORT_NEGATIVE_FIXTURES",
   "next_authorized": null
 }
