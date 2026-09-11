@@ -1,7 +1,7 @@
 # Fortress Online Atomic Communication Codec
 
 Status: active contract
-Schema: `fortress-online.communication-codec.v3`
+Schema: `fortress-online.communication-codec.v2`
 Executable: `scripts/communication-codec.mjs`
 
 ## Purpose
