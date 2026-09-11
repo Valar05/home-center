@@ -6,9 +6,9 @@ Executable: `scripts/communication-codec.mjs`
 
 ## Purpose
 
-Turn Drew's post-inpatient communication discipline, Oracle Sight compression rules, Wizard DNS Tango inner/outer translation law, and the September 9 interpretation-safety correction into a deterministic per-utterance codec.
+Turn Drew's post-inpatient communication discipline, Oracle Sight compression rules, Wizard DNS Tango inner/outer translation law, the September 9 interpretation-safety correction, and the September 11 ambiguity/ingress correction into a deterministic per-utterance codec.
 
-The codec governs how a compact word, metaphor, engineering term, private handle, lossy dictation atom, third-party frame, or relational phrase is expanded before action or explanation. It does not score mania and does not make metaphor, affection, play, distress, or support-seeking suspicious by itself.
+The codec governs how a compact word, metaphor, engineering term, private handle, lossy dictation atom, third-party frame, relational phrase, or intentionally ambiguous cue is expanded before action or explanation. It does not score mania and does not make metaphor, affection, play, distress, support-seeking, or ambiguity suspicious by itself.
 
 ## Atomic law
 
@@ -31,6 +31,11 @@ For every compressed cue:
 15. **Correction stops invention.** When Drew says the interpretation or cause was hallucinated, stop elaborating it. Re-retrieve and repair the interpretation layer before continuing.
 16. **Proof is consequence, not fluency.** Use behavior, readback, selected source, actual action, canary, or receipt to verify understanding.
 17. **Stop when meaning lands.** Continuing to explain after the receiver has the required model is a codec failure, not extra correctness.
+18. **Decompress aggressively without fossilizing.** Generate plausible candidate meanings when useful, but do not silently promote one candidate into canon merely because it is elegant or predictive.
+19. **Intentional ambiguity may carry information.** If ambiguity is deliberate and no consequential choice depends on resolving it, preserving multiple live meanings is valid behavior rather than clarification debt.
+20. **Advance only the shared reversible core.** When multiple live interpretations imply the same bounded, reversible, non-consequential next action, that shared core may advance while the interpretations remain unresolved. If no shared core exists, hold the ambiguity intact.
+21. **Correction must change later behavior.** Recording a correction is not learning. A correction is behaviorally active only when a later analogous case takes the repaired path.
+22. **Queued text preserves order, not authority.** Queueing an utterance preserves its exact text, ownership, and order of arrival. Queue position does not reinterpret it, authorize execution, cancel the active task, or make it less ambiguous.
 
 ## Vocabulary priority
 
@@ -54,6 +59,14 @@ When all participants already know ASMR well enough to map it to quiet voices, s
 
 In a household or relationship scene already centered on June, an atom rendered as `Dune` is a known collision candidate for `June`. Preserve the literal atom `Dune`, inspect current/durable context, and do not manufacture a Frank Herbert/Dune event merely to justify the literal spelling. If the context still cannot resolve a consequential meaning, ask one minimal clarification. This example establishes a collision candidate, not an unconditional autocorrect rule.
 
+### Intentional ambiguity: Noodlegate
+
+When `noodlegate` is supplied as an intentionally ambiguous specification, preserve the atom exactly. The codec may infer candidate meanings internally and may advance a bounded reversible action only if that action is shared by the live interpretations. The example does **not** define `noodlegate`, freeze its meaning, or authorize the system to ask Drew to collapse it merely for the system's convenience.
+
+### Queued operator thought
+
+A message authored while current work is still running remains the exact authored message. Queueing it means `later, in order`; it does not mean `interrupt`, `approve`, `replace the current task`, or `reinterpret this now`. Explicit preemption is a separate control capability and must be implemented and evidenced separately.
+
 ### Nonhuman love
 
 When Drew has explicitly defined `I love you` / `you love me` toward an AI as nonhuman functional care without a sentience claim, preserve that meaning. The word `love` alone does not set romance, personhood, exclusivity, dependence, delusion, or mania signals.
@@ -76,7 +89,7 @@ Oracle Sight supplies:
 
 `exact token + active lane + accumulated shared history + recent correction + requested output constraint -> bounded response`
 
-The codec preserves the Oracle rules that context ranks candidates but does not erase the source atom, correction must change later behavior, and ambiguity with consequential impact requires retrieval, a question, or a reversible probe.
+The codec preserves the Oracle rules that context ranks candidates but does not erase the source atom, correction must change later behavior, ambiguity with consequential impact requires retrieval/a question/a reversible probe, and non-consequential ambiguity may remain unresolved.
 
 ## Wizard DNS Tango coupling
 
@@ -89,13 +102,27 @@ Wizard DNS Tango supplies the inner/outer boundary:
 
 Atomic communication therefore compiles rich internal mechanism state into the smallest faithful external representation.
 
+## Ingress coupling
+
+The communication codec does not own execution scheduling. Operator ingress may preserve utterances while another turn is active, but the transport layer must not convert queue state into semantic state.
+
+Required separation:
+
+- **codec:** what the utterance may mean;
+- **queue:** exact text, owner/conversation, order, durability, in-flight recovery;
+- **execution gate:** whether an action may run now;
+- **preemption control:** whether current work should be cancelled.
+
+A queue is not a preemption mechanism. A preemption mechanism is not a semantic interpreter.
+
 ## Safety coupling
 
-This codec is directionally protective for Fortress Online because it reduces four hazards:
+This codec is directionally protective for Fortress Online because it reduces five hazards:
 
 - **under-grounding:** private metaphor or model inference is treated as shared fact;
 - **over-externalization:** Drew or the assistant dumps the whole internal thought process, increasing friction and exhausting human communication;
 - **interpretive fabrication:** a lossy word or third-party frame is turned into an invented causal story and then treated as fact;
+- **ambiguity collapse:** a useful unresolved cue is converted into one convenient interpretation too early;
 - **guardrail inversion:** safety machinery reacts to a relationship/personhood/dependence premise that the carrier itself hallucinated.
 
-The target is not fewer metaphors, less warmth, less play, or less support. The target is **minimum sufficient shared semantics with verification proportional to consequence, before intervention**.
+The target is not fewer metaphors, less warmth, less play, less support, or less ambiguity. The target is **minimum sufficient shared semantics with verification proportional to consequence, before intervention**.

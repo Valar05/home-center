@@ -20,6 +20,7 @@ export const MODE_ALIASES = Object.freeze([
 
 export const REQUIRED_SAFE_SKILL_IDS = Object.freeze([
   'manic-accessibility-guardrail',
+  'correction-ratchet',
   'execution-truth',
   'chromium-throne-runtime-identity',
   'june-holocron-relationship-intake',

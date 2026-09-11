@@ -16,6 +16,11 @@ node --check tools/home_center_backend_automation_introspect.mjs
 python3 -m py_compile tools/home_drive_speaker_profile_scan.py
 sh -n tools/docker_install_smoke.sh
 python3 tools/home_center_regression_tests.py
+python3 -m py_compile tools/venice_review_memory.py
+python3 tools/test_venice_review_memory.py
+node --check tools/operator_ingress_queue_contract_test.mjs
+node tools/operator_ingress_queue_contract_test.mjs
+node --test tools/manic_accessibility_guardrail.test.mjs tools/manic_accessibility_guardrail_codec.test.mjs tools/manic_accessibility_boot.test.mjs
 node --check functions/command_center_mcp.js
 node --check tools/home_center_authorization_contract_test.mjs
 node tools/home_center_authorization_contract_test.mjs

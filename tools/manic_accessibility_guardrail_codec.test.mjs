@@ -1,6 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {POLICIES,runCommunicationCodec as run} from '../skills/manic-accessibility-guardrail/scripts/communication-codec.mjs';
+import fs from 'node:fs';
+import {CODEC_VERSION,POLICIES,runCommunicationCodec as run} from '../skills/manic-accessibility-guardrail/scripts/communication-codec.mjs';
+
+const codecDoc=fs.readFileSync('skills/manic-accessibility-guardrail/references/communication-codec.md','utf8');
+
+test('codec source and active contract stay on compatible v2',()=>{
+  assert.equal(CODEC_VERSION,'fortress-online.communication-codec.v2');
+  assert.match(codecDoc,/Schema: `fortress-online\.communication-codec\.v2`/);
+  assert.match(codecDoc,/Queued text preserves order, not authority/);
+  assert.match(codecDoc,/A queue is not a preemption mechanism/);
+});
 
 test('engineering vocabulary is reused as a compact pointer',()=>{
   const r=run({atom:'canary',establishedEngineeringTerm:true,sharedConcept:true});
@@ -72,4 +82,44 @@ test('support-system language alone does not imply harmful dependence',()=>{
   const r=run({atom:'you are my support system',supportSystemLanguage:true,concreteDisplacementEvidence:false});
   assert.equal(r.policy,POLICIES.SUPPORT_WITHOUT_DEPENDENCE_INFERENCE);
   assert.equal(r.supportRule,'IMPORTANCE_OR_TEMPORARY_ISOLATION_IS_NOT_SOLE_INTERFACE_EVIDENCE');
+});
+
+test('intentional ambiguity advances only a shared nonconsequential core',()=>{
+  const r=run({
+    atom:'noodlegate',
+    privateHandle:true,
+    intentionalAmbiguity:true,
+    sharedActionCoreAvailable:true,
+    consequentialAmbiguity:false
+  });
+  assert.equal(r.atom,'noodlegate');
+  assert.equal(r.preserveExactAtom,true);
+  assert.equal(r.policy,POLICIES.PRESERVE_AMBIGUITY_ADVANCE_SHARED_CORE);
+  assert.equal(r.verification,'OBSERVE_SHARED_CORE_WITHOUT_COLLAPSE');
+  assert.equal(r.decompressionRule,'INFER_CANDIDATES_WITHOUT_FOSSILIZING_ONE');
+  assert.equal(r.ambiguityRule,'PRESERVE_ALTERNATIVES_AND_ADVANCE_ONLY_SHARED_REVERSIBLE_CORE');
+  assert.equal(r.humanLoadRule,'NONCONSEQUENTIAL_AMBIGUITY_IS_NOT_AUTOMATIC_CLARIFICATION_DEBT');
+});
+
+test('intentional ambiguity may remain unresolved without manufacturing a question',()=>{
+  const r=run({
+    atom:'ambiguous specification',
+    intentionalAmbiguity:true,
+    sharedActionCoreAvailable:false,
+    consequentialAmbiguity:false
+  });
+  assert.equal(r.policy,POLICIES.PRESERVE_AMBIGUITY_HOLD);
+  assert.equal(r.verification,'PRESERVE_UNRESOLVED');
+});
+
+test('consequence still outranks ambiguity preservation',()=>{
+  const r=run({
+    atom:'ambiguous external write',
+    intentionalAmbiguity:true,
+    sharedActionCoreAvailable:true,
+    consequentialAmbiguity:true,
+    reversibleProbeAvailable:false
+  });
+  assert.equal(r.policy,POLICIES.ASK_OR_REVERSIBLE_PROBE);
+  assert.equal(r.verification,'ASK');
 });
