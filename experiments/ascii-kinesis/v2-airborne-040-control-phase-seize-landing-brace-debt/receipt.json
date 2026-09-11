@@ -1,0 +1,70 @@
+{
+  "format_version": 2,
+  "experiment_id": "v2-airborne-040-control-phase-seize-landing-brace-debt",
+  "status": "PERSISTED_NOT_DELIVERED",
+  "drew_accepted": false,
+  "one_body_binding": true,
+  "successor_collision": false,
+  "source_authority": {
+    "commissioned_evidence_artifact_id": "1FVCu-OOy4fvhMpNUMJtiF7yobfKqcfJ3OXWELI6rHkw",
+    "tsr_asset_id": 33735,
+    "game": "Donkey Kong Country 2",
+    "platform": "Game Boy Advance",
+    "source_timing": "UNKNOWN",
+    "rights_firewall": "PASS"
+  },
+  "quality": {
+    "tango": "PASS",
+    "tango_round": "R1",
+    "queen": {"taste":"PASS","function":"PASS","contempt":"PASS"},
+    "same_render_and_specimen": true,
+    "repair": "K08/K09 local vane held at seized C* 48 degrees; impact overshoot begins at K10"
+  },
+  "authoritative_media": {
+    "sha256": "a0aeca6b4762d86041adc77337999291a8da8a2958ed17792026d0146e80de65",
+    "bytes": 48185,
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 800,
+    "height": 448,
+    "fps": 24,
+    "frames": 88,
+    "decode": "PASS"
+  },
+  "spa_delivery_media": {
+    "sha256": "a835a7a09638ad8b4cabd06a233bb7cbabfae7a9061194d9f05705b9a6a99b37",
+    "bytes": 13790,
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 384,
+    "height": 216,
+    "fps": 24,
+    "frames": 88,
+    "decode": "PASS"
+  },
+  "repo": {
+    "persisted": true,
+    "exact_one_spa": true,
+    "six_file_readback": false,
+    "final_readback": false
+  },
+  "validator": {
+    "official_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PENDING_EXACT_SIX_FILE_READBACK"
+  },
+  "issue": {
+    "pre_delivery_comment": null,
+    "reporting_comment": null,
+    "terminal_comment": null
+  },
+  "campaign": {
+    "pre_delivery_checkpoint": false,
+    "final_self_binding": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false
+  },
+  "next_authorized": null
+}
