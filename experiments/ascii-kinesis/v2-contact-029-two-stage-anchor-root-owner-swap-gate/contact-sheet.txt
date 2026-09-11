@@ -1,0 +1,410 @@
+ASCII KINESIS V2 CONTACT029 — TWO-STAGE ANCHOR / ROOT-OWNER SWAP GATE
+Primitive: TWO_STAGE_ANCHOR_ROOT_OWNER_SWAP_RELEASE_GATE
+Pocket rule: root ownership may not become SHARED until TWO_ANCHORS is visibly established; final freedom is illegal until the two-anchor relationship has stepped back through ONE_ANCHOR and the actor is already braking.
+Legend: O head | P root | x COM | o free hand | * contact | # partner mass | B center | = active constraint | ! trusted/load foot | ~ light/probe foot | > load/direction witness | . COM-support load path
+Source: Zangief / Super Street Fighter II: The New Challengers / Sega Genesis / TSR asset 232259 / Home Center evidence 198sAnIYicWJ9Kw7vFA25m-WhtNrybj9DUAXNTC3PGMc
+Rights firewall: evidence only. No source pixels/audio/palette/contours/layout/choreography; partner proxy and compiled movement are independent worker-authored abstractions.
+Timing authority: source-authentic timing UNKNOWN. Every ONES/TWOS/FOURS exposure below is INFERRED.
+
+K00 OFFSET_READY [FOURS/INFERRED] bridge=false
+REL=NONE CONTACTS=0 ROOT_OWNER=A LOAD=0.00 SUPPORT=BOTH_TRUSTED
+A_ROOT=[14, 16] B_CENTER=[45, 11] ROLE=Stable asymmetric base reads range; partner center is independent and still.
+
+
+
+
+
+
+           O
+            |  --
+             --   --                      #######
+            |--     --                    #    >#
+             | -      o                   #  B  #
+            x    --                       #     #
+             |     -o                     #######
+              |
+              |
+              P
+             / \
+            /   \
+           |     \
+           |      \
+          /        \
+ ________!__________!____________________________________________________
+
+
+
+
+K01 RANGE_CLAIM [TWOS/INFERRED] bridge=false
+REL=NONE CONTACTS=0 ROOT_OWNER=A LOAD=0.05 SUPPORT=BOTH_TRUSTED
+A_ROOT=[18, 16] B_CENTER=[45, 11] ROLE=Root advances farther than the hands; contact remains visibly absent.
+
+
+
+
+
+
+                   O
+                   |  -- -
+                    --    --              #######
+                   |--      -o            #    >#
+                   |  -                   #  B  #
+                   x    --                #     #
+                   |      -o              #######
+                  |
+                  |
+                  P
+                 / \
+                /   \
+              --     \
+             /        \
+            /          \
+ __________!____________!________________________________________________
+
+
+
+
+K02 SINK_ELIGIBLE [FOURS/INFERRED] bridge=true
+REL=ELIGIBLE CONTACTS=0 ROOT_OWNER=A LOAD=0.20 SUPPORT=REAR_LOADED_FRONT_TRUSTED
+A_ROOT=[21, 18] B_CENTER=[45, 11] ROLE=Authored preload: COM sinks behind reach, rear support loads, first anchor becomes eligible before acquisition.
+
+
+
+
+
+
+                                                  >
+
+                         O                #######
+                        |  --- -----o     #    >#
+                         --               #  B  #
+                        |--               #     #
+                       |    -             #######
+                       x     --o
+                      |
+                      |
+                     |
+                    -P
+                  --  --
+                --      --
+              --          --
+ ___________!_______________!____________________________________________
+
+
+
+
+K03 ACQUIRE_SINGLE [TWOS/INFERRED] bridge=false
+REL=ONE_ANCHOR CONTACTS=1 ROOT_OWNER=A LOAD=0.32 SUPPORT=REAR_LOADED_FRONT_TRUSTED
+A_ROOT=[24, 17] B_CENTER=[45, 11] ROLE=First distal anchor lands inside committed reach; second hand remains conspicuously free.
+
+
+
+
+
+
+                                                  >
+                             O
+                            |   --- -     #######
+                             ---     ---- #    >#
+                           | --          -*  B  #
+                           |              #     #
+                           x    --        #######
+                         |        -o
+                         |
+                        |
+                        P
+                      -- --
+                    --     \
+                  --        \
+                --           --
+ _____________!________________!_________________________________________
+
+
+
+
+K04 SINGLE_ANCHOR_DRAG [TWOS/INFERRED] bridge=true
+REL=ONE_ANCHOR CONTACTS=1 ROOT_OWNER=A LOAD=0.48 SUPPORT=REAR_DOMINANT_FRONT_LIGHT
+A_ROOT=[28, 16] B_CENTER=[46, 11] ROLE=A drives through rear support while one anchor tows B only slightly; ownership remains A.
+
+
+
+
+
+
+                                   O               >>
+                                  | --
+                                  --   --  #######
+                                | --     --#    >#
+                                |          *  B  #
+                                x    --    #     #
+                              | .      o   #######
+                             |  .
+                             |   .
+                            P    .
+                          -- \   .
+                        --    \  .
+                      --       \ .
+                    --          \ .
+                  --             \.
+ ________________~________________!______________________________________
+
+
+
+
+K05 SECOND_ANCHOR_SET [FOURS/INFERRED] bridge=false
+REL=TWO_ANCHORS CONTACTS=2 ROOT_OWNER=SHARED LOAD=0.72 SUPPORT=REAR_DOMINANT_FRONT_PLANT
+A_ROOT=[30, 17] B_CENTER=[47, 11] ROLE=Second anchor closes the graph; root sinks under the contact line and ownership becomes shared.
+
+
+
+
+
+
+                                                    >>>
+                                 O
+                                |  --- --   #######
+                                 --      ---*    >#
+                                | ---       *  B  #
+                               |     - -----*     #
+                                x           #######
+                               |.
+                              |  .
+                              |  .
+                             -P   .
+                           --  \  .
+                         --     \  .
+                      ---        --.
+                    --             \.
+ _________________~_________________!____________________________________
+
+
+
+
+K06 OWNER_SWAP_BRIDGE [ONES/INFERRED] bridge=true
+REL=LOCKED CONTACTS=2 ROOT_OWNER=SHARED LOAD=0.90 SUPPORT=FRONT_TAKING_REAR_DRIVE
+A_ROOT=[33, 16] B_CENTER=[48, 11] ROLE=Bridge: rear drive shortens while front plant takes load; B begins moving because the two-anchor graph is now load-bearing.
+
+
+
+
+
+
+                                       O             >>>>
+                                      |--
+                                      -   -- #######
+                                     |--    -*    >#
+                                    |   - -  *  B  #
+                                     x     --*     #
+                                   | .       #######
+                                  |  .
+                                  |  .
+                                 P   .
+                               -- \   .
+                             --    \  .
+                           --       | .
+                         --         | .
+                       --            \.
+ ____________________~________________!__________________________________
+
+
+
+
+K07 SHARED_TURN [ONES/INFERRED] bridge=true
+REL=LOCKED CONTACTS=2 ROOT_OWNER=SHARED LOAD=1.00 SUPPORT=FRONT_DOMINANT_REAR_LIGHT
+A_ROOT=[36, 15] B_CENTER=[51, 11] ROLE=Shared-center transfer compresses spacing; A torso outruns pelvis while B lags one authored beat.
+
+
+
+
+
+                                           O
+                                          |-            >>>>
+                                          -  \
+                                        | --  --#######
+                                        |       *    >#
+                                        x    -- *  B  #
+                                      | .      -*     #
+                                     |  .       #######
+                                     |  .
+                                    P   .
+                                  -- |  .
+                                --   |   .
+                               /      \  .
+                             --        \ .
+                           --           |.
+                         --             |.
+ _______________________~________________!_______________________________
+
+
+
+
+K08 BRAKE_BEFORE_RELEASE [TWOS/INFERRED] bridge=false
+REL=LOCKED CONTACTS=2 ROOT_OWNER=SHARED LOAD=0.88 SUPPORT=FRONT_BRAKE_REAR_LIGHT
+A_ROOT=[38, 16] B_CENTER=[53, 11] ROLE=A begins visible arrest and counterlean while both anchors remain. Release is not an endpoint shortcut.
+
+
+
+
+
+
+                                   O                      >>>>
+                                    |   --- -
+                                     ---     ---- #######
+                                    | ----       -*    >#
+                                     |    - ---   *  B  #
+                                    x          ---*     #
+                                     |            #######
+                                     .|
+                                      |
+                                      P.
+                                    -- \.
+                                  --    \
+                                --       |
+                              --         |.
+                            --            \
+ __________________________~_______________!_____________________________
+
+
+
+
+K09 DROP_SECOND_KEEP_FIRST [TWOS/INFERRED] bridge=true
+REL=ONE_ANCHOR CONTACTS=1 ROOT_OWNER=A LOAD=0.66 SUPPORT=FRONT_BRAKE_REAR_RECOVER
+A_ROOT=[38, 17] B_CENTER=[54, 11] ROLE=One anchor deliberately releases but custody persists through the first anchor; root ownership returns to A.
+
+
+
+
+
+
+                                                           >>>
+                                  O
+                                   |   ---- -      #######
+                                    ---      ----  #    >#
+                                   | --          --*  B  #
+                                    |  - -         #     #
+                                   x      ---      #######
+                                    .|       -o
+                                     |
+                                      |
+                                     -P.
+                                   --  \.
+                                 --     \.
+                               --        --
+                             --            \
+ __________________________~________________!____________________________
+
+
+
+
+K10 ONE_ANCHOR_OVERSHOOT [TWOS/INFERRED] bridge=false
+REL=ONE_ANCHOR CONTACTS=1 ROOT_OWNER=A LOAD=0.42 SUPPORT=FRONT_BRAKE_REAR_PROBE
+A_ROOT=[37, 18] B_CENTER=[56, 11] ROLE=B overshoots while the remaining anchor stretches; A recoils and rear support searches behind.
+
+
+
+
+
+
+                                                             >>
+
+                               O                     #######
+                                |     ----- ----     #    >#
+                                  ----          -----*  B  #
+                                 | ---               #     #
+                                  |   - -            #######
+                                 x       ---
+                                   |        -o
+                                    |
+                                    |
+                                    -P
+                                 ---  --
+                               --       \
+                            ---          --
+ _________________________~________________!_____________________________
+
+
+
+
+K11 FINAL_RELEASE_FORK [ONES/INFERRED] bridge=true
+REL=RELEASED CONTACTS=0 ROOT_OWNER=FREE LOAD=0.18 SUPPORT=FRONT_BRAKE_REAR_PROBE
+A_ROOT=[35, 18] B_CENTER=[58, 11] ROLE=Final anchor breaks only after arrest is obvious; B continues inertially while A moves opposite.
+
+
+
+
+
+
+                                                               >
+
+                               O                       #######
+                                |    ---- ----         #    >#
+                                 ----         ----o    #  B  #
+                                | ---                  #     #
+                                 |   - -               #######
+                                x       ---
+                                  |        -o
+                                  |
+                                   |
+                                  -P
+                               ---  --
+                             --       --
+                          ---           --
+ _______________________~_________________!______________________________
+
+
+
+
+K12 CATCH_SECONDARY_LAG [TWOS/INFERRED] bridge=false
+REL=NONE CONTACTS=0 ROOT_OWNER=FREE LOAD=0.08 SUPPORT=BOTH_RECOVERING
+A_ROOT=[33, 17] B_CENTER=[60, 11] ROLE=A catches displaced recovery; arms and torso trail the root while B remains separated.
+
+
+
+
+
+
+
+                               O
+                                |   --- -                #######
+                                 ---     ----            #    >#
+                                | --         -o          #  B  #
+                                |   - -                  #     #
+                                x      --                #######
+                                |        -o
+                                 |
+                                 |
+                                -P
+                              --  --
+                            --      \
+                          --         \
+                        --            --
+ _____________________!_________________!________________________________
+
+
+
+
+K13 DISPLACED_SETTLE [FOURS/INFERRED] bridge=false
+REL=NONE CONTACTS=0 ROOT_OWNER=FREE LOAD=0.00 SUPPORT=BOTH_TRUSTED
+A_ROOT=[34, 16] B_CENTER=[60, 11] ROLE=Settle remains displaced from K00; base is re-established without idle reset.
+
+
+
+
+
+
+                                  O
+                                  |  --
+                                   --   --               #######
+                                  |--     --             #    >#
+                                  |  -      -o           #  B  #
+                                  x    --                #     #
+                                  |      -o              #######
+                                  |
+                                  |
+                                  P
+                                -- \
+                              --    \
+                            --       --
+                          --           \
+                        --              \
+ ______________________!_________________!_______________________________
