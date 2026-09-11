@@ -16,14 +16,18 @@ assembly={'state': 'STOWED', 'extension': 0.08, 'boom_deg': -8, 'clock': 'READY'
 clock_ownership={'SYSTEM_COM_ROOT': 'SUPPORT_DEPENDENT', 'ASSEMBLY_CLOCK': 'READY', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
 
 
-   o
-   |
-  \|--x---#@
-   C+
-  / \
- /   \
-*     *
+
+
+           o
+        -- | --
+       x-  |  -x--#@
+           +
+          / \
+
+        /     \
+       *       *
 __________________________________________________________
+
 
 ==============================================================================================================
 K01 :: SUPPORT BREAK / MASS STILL COMPACT
@@ -34,14 +38,18 @@ assembly={'state': 'STOWED', 'extension': 0.08, 'boom_deg': -4, 'clock': 'READY'
 clock_ownership={'SYSTEM_COM_ROOT': 'PRESERVE_BALLISTIC_PHASE', 'ASSEMBLY_CLOCK': 'READY', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
 
 
-     o
-     |
- x---|---x--#@
-     C+
-    / \
-   /   \
-  _     _
+
+             o
+           - | -
+         x-  |  -x--#@
+             +
+            / \
+
+          /     \
+         _       _
+
 __________________________________________________________
+
 
 ==============================================================================================================
 K02 :: ASCENT / DEPLOY UNLOCK
@@ -52,14 +60,19 @@ assembly={'state': 'UNLOCKING', 'extension': 0.18, 'boom_deg': -2, 'clock': 'DEP
 clock_ownership={'SYSTEM_COM_ROOT': 'PRESERVE_BALLISTIC_PHASE', 'ASSEMBLY_CLOCK': 'DEPLOYING', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
 
 
-        o
-        |
-    x---|---x---#@
-        C+
-       / \
-      /   \
-     _     _
+                o
+              - | -
+            x-- | --x---#@
+                +
+               / \
+
+             /     \
+            _       _
+
+
+
 __________________________________________________________
+
 
 ==============================================================================================================
 K03 :: ASCENT / OUTBOARD MASS GROWS
@@ -69,15 +82,20 @@ system_com_root=[31, 14] | body_offset_x=-2.8 | force=BALLISTIC_ASCENT_WITH_INTE
 assembly={'state': 'DEPLOYING', 'extension': 0.42, 'boom_deg': 2, 'clock': 'DEPLOYING', 'timing_provenance': 'INFERRED'}
 clock_ownership={'SYSTEM_COM_ROOT': 'PRESERVE_BALLISTIC_PHASE', 'ASSEMBLY_CLOCK': 'DEPLOYING', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
 
+                   o
+                -- | --
+              x-   |   -x-----#@
+                   +C
+                  / \
 
-           o
-           |
-      x----|----x----#-@
-           C+
-          / \
-         /   \
-        _     _
+                /     \
+               _       _
+
+
+
+
 __________________________________________________________
+
 
 ==============================================================================================================
 K04 :: APEX / DEPLOYMENT CROSSES HALF
@@ -87,15 +105,20 @@ system_com_root=[42, 11.5] | body_offset_x=-5.2 | force=BALLISTIC_APEX_COM_CONSE
 assembly={'state': 'DEPLOYING', 'extension': 0.68, 'boom_deg': 7, 'clock': 'DEPLOYING', 'timing_provenance': 'INFERRED'}
 clock_ownership={'SYSTEM_COM_ROOT': 'PRESERVE_BALLISTIC_PHASE', 'ASSEMBLY_CLOCK': 'DEPLOYING', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
 
+                     o
+                   -- | --
+                 x-   |   -x------#-@
+                      + C
+                     / \
 
-              o
-              |
-         x----|----x------#---@
-              C+
-             / \
-            /   \
-           _     _
+                   /     \
+                  _       _
+
+
+
+
 __________________________________________________________
+
 
 ==============================================================================================================
 K05 :: DESCENT / FULL OUTBOARD DEPLOY
@@ -105,15 +128,20 @@ system_com_root=[52, 13.2] | body_offset_x=-7.8 | force=GRAVITY_DESCENT_INTERNAL
 assembly={'state': 'FULLY_DEPLOYED', 'extension': 1.0, 'boom_deg': 10, 'clock': 'LOCKED_OUTBOARD', 'timing_provenance': 'INFERRED'}
 clock_ownership={'SYSTEM_COM_ROOT': 'PRESERVE_BALLISTIC_PHASE', 'ASSEMBLY_CLOCK': 'LOCKED_OUTBOARD', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
 
+                        o
+                      -- | --
+                    x-   |   -x-----    #
+                         +  C       ------@
+                        / \
 
-                 o
-                 |
-            x----|----x---------#--@
-                 C+
-                / \
-               /   \
-              _     _
+                      /     \
+                     _       _
+
+
+
+
 __________________________________________________________
+
 
 ==============================================================================================================
 K06 :: DESCENT / BODY COUNTERBALANCE HOLDS
@@ -124,14 +152,18 @@ assembly={'state': 'FULLY_DEPLOYED', 'extension': 1.0, 'boom_deg': 8, 'clock': '
 clock_ownership={'SYSTEM_COM_ROOT': 'PRESERVE_BALLISTIC_PHASE', 'ASSEMBLY_CLOCK': 'LOCKED_OUTBOARD', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
 
 
-                    o
-                    |
-               x----|----x---------#--@
-                    C+
-                   / \
-                  /   \
-                 _     _
+                           o
+                          - | -
+                       x--  |  --x---------#-@
+                            +  C
+                           / \
+
+                         /     \
+                        _       _
+
+
 __________________________________________________________
+
 
 ==============================================================================================================
 K07 :: LANDING PREP / LEFT BODY BIAS
@@ -142,14 +174,19 @@ assembly={'state': 'FULLY_DEPLOYED', 'extension': 0.98, 'boom_deg': 5, 'clock': 
 clock_ownership={'SYSTEM_COM_ROOT': 'PRESERVE_BALLISTIC_PHASE', 'ASSEMBLY_CLOCK': 'LOCKED_OUTBOARD', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
 
 
-                       o
-                       |
-                  x----|----x---------#--@
-                       C+
-                      / \
-                     /   \
-                    _     _
+
+                              o
+                            -- | --
+                           x-  |  -x---------#-@
+                               +  C
+                              / \
+
+                            /     \
+                           _       _
+
+
 __________________________________________________________
+
 
 ==============================================================================================================
 K08 :: SEPARATED LEFT PRECONTACT / BOOM STILL OUT
@@ -160,14 +197,19 @@ assembly={'state': 'FULLY_DEPLOYED', 'extension': 0.96, 'boom_deg': 2, 'clock': 
 clock_ownership={'SYSTEM_COM_ROOT': 'PRESERVE_BALLISTIC_PHASE', 'ASSEMBLY_CLOCK': 'LOCKED_OUTBOARD', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
 
 
-                          o
-                          |
-                     x----|----x--------#---@
-                          C+
-                         / \
-                        /   \
-                       _     _
+
+
+                                 o
+                                - | -
+                              x-- | --x---------#-@
+                                  +  C
+                                 / \
+                                     -_
+                               /
+                              _
+
 __________________________________________________________
+
 
 ==============================================================================================================
 K09 :: LEFT CATCH / INTERNAL MASS STILL LATE
@@ -178,14 +220,18 @@ assembly={'state': 'FULLY_DEPLOYED', 'extension': 0.94, 'boom_deg': 0, 'clock': 
 clock_ownership={'SYSTEM_COM_ROOT': 'SUPPORT_DEPENDENT', 'ASSEMBLY_CLOCK': 'IMPACT_LAG', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
 
 
-                            o
-                            |
-                       x----|----x--------#---@
-                            C+
-                           / \
-                          /   \
-                         *     _
+
+
+                                    o
+                                  -- | --
+                                 x-  |  -x--------#-@
+                                     + C
+                                    / \
+                                        -_
+                                  /
+                                 *
 __________________________________________________________
+
 
 ==============================================================================================================
 K10 :: UNILATERAL CRUSH / BOOM OVERSHOOTS
@@ -196,14 +242,18 @@ assembly={'state': 'IMPACT_OVERSHOOT', 'extension': 1.08, 'boom_deg': 4, 'clock'
 clock_ownership={'SYSTEM_COM_ROOT': 'SUPPORT_DEPENDENT', 'ASSEMBLY_CLOCK': 'IMPACT_DRIVEN', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
 
 
-                             o
-                             |
-                        x----|----x----------#---@
-                             C+
-                            / \
-                           /   \
-                          *     _
+
+
+                                    o
+                                  -- | --
+                                 x-  |  -x----------#-@
+                                     +  C
+                                    / \
+                                        -_
+                                  /
+                                 *
 __________________________________________________________
+
 
 ==============================================================================================================
 K11 :: RIGHT CATCH / BRAKE WIDENS
@@ -214,14 +264,18 @@ assembly={'state': 'RETRACT_START', 'extension': 0.93, 'boom_deg': -4, 'clock': 
 clock_ownership={'SYSTEM_COM_ROOT': 'SUPPORT_DEPENDENT', 'ASSEMBLY_CLOCK': 'RECOVERY', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
 
 
-                              o
-                              |
-                         x----|----x--------#---@
-                              C+
-                             / \
-                            /   \
-                           *     *
+
+
+                                       o
+                                    -- | --
+                                   x-  |  -x--------#-@
+                                       + C
+                                      / \
+
+                                    /     \
+                                   *       *
 __________________________________________________________
+
 
 ==============================================================================================================
 K12 :: REBOUND / MASS RETRACTS
@@ -232,14 +286,18 @@ assembly={'state': 'RETRACTING', 'extension': 0.68, 'boom_deg': -10, 'clock': 'R
 clock_ownership={'SYSTEM_COM_ROOT': 'SUPPORT_DEPENDENT', 'ASSEMBLY_CLOCK': 'RECOVERY', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
 
 
-                               o
-                               |
-                          x----|----x------#---@
-                               C+
-                              / \
-                             /   \
-                            *     *
+
+
+                                        o
+                                      - | -
+                                    x-  |  -x------#-@
+                                        +C
+                                       / \
+
+                                     /     \
+                                    *       *
 __________________________________________________________
+
 
 ==============================================================================================================
 K13 :: COUNTERSWING / SECONDARY LAG
@@ -250,14 +308,18 @@ assembly={'state': 'RETRACTING', 'extension': 0.42, 'boom_deg': -16, 'clock': 'R
 clock_ownership={'SYSTEM_COM_ROOT': 'SUPPORT_DEPENDENT', 'ASSEMBLY_CLOCK': 'RECOVERY', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
 
 
-                                o
-                                |
-                           x----|----x----#--@
-                                C+
-                               / \
-                              /   \
-                             *     *
+
+
+                                          o
+                                        - | -
+                                      x-  |  -x-----#@
+                                          +
+                                         / \
+
+                                       /     \
+                                      *       *
 __________________________________________________________
+
 
 ==============================================================================================================
 K14 :: DISPLACED SETTLE / ALMOST STOWED
@@ -268,14 +330,18 @@ assembly={'state': 'NEAR_STOW', 'extension': 0.22, 'boom_deg': -7, 'clock': 'REC
 clock_ownership={'SYSTEM_COM_ROOT': 'SUPPORT_DEPENDENT', 'ASSEMBLY_CLOCK': 'RECOVERING', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
 
 
-                                  o
-                                  |
-                             x----|----x--#-@
-                                  C+
-                                 / \
-                                /   \
-                               *     *
+
+
+                                           o
+                                        -- | --
+                                       x-  |  -x---#@
+                                           +
+                                          / \
+
+                                        /     \
+                                       *       *
 __________________________________________________________
+
 
 ==============================================================================================================
 K15 :: FINAL SUPPORT / STOW LAG REMAINS
@@ -286,11 +352,14 @@ assembly={'state': 'STOW_LAG', 'extension': 0.12, 'boom_deg': -4, 'clock': 'NEW_
 clock_ownership={'SYSTEM_COM_ROOT': 'SUPPORT_DEPENDENT', 'ASSEMBLY_CLOCK': 'NEW_REST_PHASE', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
 
 
-                                  o
-                                  |
-                             x----|----x-#@
-                                  C+
-                                 / \
-                                /   \
-                               *     *
+
+
+                                           o
+                                        -- | --
+                                       x-  |  -x--#@
+                                           +
+                                          / \
+
+                                        /     \
+                                       *       *
 __________________________________________________________
