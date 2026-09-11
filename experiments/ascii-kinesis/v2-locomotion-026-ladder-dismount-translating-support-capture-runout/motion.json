@@ -1,0 +1,85 @@
+{
+  "schema": "ascii-kinesis.motion.v2",
+  "specimen": "v2-locomotion-026-ladder-dismount-translating-support-capture-runout",
+  "title": "LADDER DISMOUNT / TRANSLATING SUPPORT CAPTURE / RUNOUT",
+  "lane": "locomotion",
+  "status": "QUALITY_GATES_PASS_LOCAL_CANDIDATE",
+  "lineage": {
+    "kind": "NEW_CONCEPT",
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "predecessor_terminal_issue_comment": 5625985128
+  },
+  "source": {
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "evidence_id": "1zQGdJx7uIqTnvJlHp2NfydUu_EDDNvt01tCAlQvlYQ8",
+    "tsr_asset": 81106,
+    "identity": "Bullwinkle — The Adventures of Rocky and Bullwinkle and Friends — NES — Playable Characters",
+    "role": "EVIDENCE_ONLY",
+    "whole_source_inspected": true,
+    "observed": [
+      "whole static sheet exposes four labeled families: Charge, Idle, Using Stairs, Walking",
+      "the family contrast distinguishes level travel, high-commitment level travel, rest/read state, and discrete-height locomotion",
+      "asset page reports a static PNG and Animated GIFs (0)"
+    ],
+    "inferred": [
+      "campaign evidence models stairs as support-height handoff rather than a tilted walk cycle",
+      "campaign evidence promotes NEXT_SCENE_HANDLE ladder dismount onto a moving platform: support authority transfers from hands/rungs to translating foot support without a freefall gap",
+      "the authored 026 sequence realizes that promoted handle with an abstract generic rig and independent timing"
+    ],
+    "unknown": [
+      "source-authentic chronology",
+      "source-authentic exposure counts",
+      "source-authentic stair direction",
+      "exact root displacement",
+      "exact contact frames",
+      "exact platform motion",
+      "source timing"
+    ],
+    "timing_authority": "NONE",
+    "rights_firewall": {
+      "source_pixels_in_output": false,
+      "source_audio_in_output": false,
+      "tracing": false,
+      "close_imitation": false,
+      "source_palette": false,
+      "source_costume": false,
+      "source_layout": false,
+      "source_choreography": false
+    }
+  },
+  "principle": "MOVING-SUPPORT CAPTURE IS A SUPPORT-TOPOLOGY TRANSFER: FEET MUST EARN TRANSLATING OWNERSHIP BEFORE THE FINAL LADDER CONTACT RELEASES.",
+  "quality_thesis": "The root begins stationary on ladder support, a foot captures a moving deck at a stable deck-relative anchor, ladder ownership peels away asymmetrically without a support gap, the last hand becomes a pivot while translation is inherited, then released velocity creates an overlong first deck catch followed by shorter corrections and delayed upper-body settle.",
+  "novelty": {
+    "concept": "LADDER_DISMOUNT_TRANSLATING_SUPPORT_CAPTURE_RUNOUT",
+    "new_causality": "Unlike Locomotion020's moving-frame EXIT, 026 performs the opposite support-topology problem without reverse interpolation: a stationary vertical support hands the body into a translating horizontal support through mixed hand+foot ownership, last-hand pivot, velocity inheritance, and displaced deck-relative recovery."
+  },
+  "rig": {
+    "viewport": [480,270],
+    "ladder": {"x":76,"top":70,"bottom":228,"rung_spacing":20},
+    "platform": {"y":232,"width":118,"height":9,"x_is_authored_per_key":true},
+    "root":"@","com":"c","head":"O","left_foot":"L","right_foot":"R","left_hand":"l","right_hand":"r","secondary":"arms","abstract_ascii_rig_only":true
+  },
+  "timing": {"fps":24,"total_frames":30,"policy":"STREET_FIGHTER-CAPCOM","provenance":"INFERRED"},
+  "keys": [
+    {"key_id":"K00","name":"LADDER_LOAD","root":[96,160],"com":[98,181],"left_hand":[78,126],"right_hand":[91,118],"left_foot":[81,211],"right_foot":[101,203],"platform_x":154,"platform_v":6,"support":{"owner":"HANDS_LADDER+LEFT_FOOT_RUNG","left_hand":"RUNG_FIXED","right_hand":"RUNG_FIXED","left_foot":"RUNG_FIXED","right_foot":"RUNG_FIXED"},"torso_lean_deg":-5,"arm_lag_deg":-6,"root_spacing_px":0,"timing_class":"FOURS","hold_frames":4,"phase":"LADDER","causal_role":"establish stationary ladder ownership while the receiving platform passes below with no body commitment","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K01","name":"PLATFORM_READ","root":[98,164],"com":[101,185],"left_hand":[78,126],"right_hand":[91,118],"left_foot":[81,211],"right_foot":[119,220],"platform_x":162,"platform_v":8,"support":{"owner":"HANDS_LADDER+LEFT_FOOT_RUNG","left_hand":"RUNG_FIXED","right_hand":"RUNG_FIXED","left_foot":"RUNG_FIXED","right_foot":"PLATFORM_PROBE"},"torso_lean_deg":9,"arm_lag_deg":-14,"root_spacing_px":2,"timing_class":"FOURS","hold_frames":4,"phase":"READ","causal_role":"free right foot searches for the translating deck while hands and left rung foot keep the root out of freefall","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K02","name":"RIGHT_PLATFORM_TOUCH","root":[101,168],"com":[105,189],"left_hand":[78,126],"right_hand":[91,118],"left_foot":[81,211],"right_foot":[144,229],"platform_x":172,"platform_v":10,"support":{"owner":"HANDS_LADDER+LEFT_FOOT_RUNG","left_hand":"RUNG_FIXED","right_hand":"RUNG_FIXED","left_foot":"RUNG_FIXED","right_foot":"PLATFORM_TOUCH_LOW_CONF"},"torso_lean_deg":15,"arm_lag_deg":-22,"root_spacing_px":3,"timing_class":"TWOS","hold_frames":2,"phase":"PROBE","causal_role":"right foot touches the moving platform but does not yet own root translation; ladder support remains authoritative","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K03","name":"RIGHT_PLATFORM_CAPTURE","root":[108,174],"com":[113,195],"left_hand":[78,126],"right_hand":[91,118],"left_foot":[81,211],"right_foot":[154,229],"platform_x":182,"platform_v":10,"support":{"owner":"MIXED_LADDER+RIGHT_PLATFORM","left_hand":"RUNG_FIXED","right_hand":"RUNG_FIXED","left_foot":"RUNG_UNLOADING","right_foot":"PLATFORM_PLANTED"},"torso_lean_deg":20,"arm_lag_deg":-25,"root_spacing_px":7,"timing_class":"ONES","hold_frames":1,"phase":"CAPTURE","causal_role":"right foot earns translating support at a stable platform-relative anchor while ladder contacts still prevent a support gap","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K04","name":"LOWER_HAND_RELEASE","root":[117,177],"com":[123,198],"left_hand":[78,126],"right_hand":[101,139],"left_foot":[91,209],"right_foot":[164,229],"platform_x":192,"platform_v":10,"support":{"owner":"LEFT_HAND_LADDER+RIGHT_PLATFORM","left_hand":"RUNG_FIXED","right_hand":"FREE","left_foot":"FREE","right_foot":"PLATFORM_PLANTED"},"torso_lean_deg":25,"arm_lag_deg":-12,"root_spacing_px":9,"timing_class":"ONES","hold_frames":1,"phase":"TRANSFER","causal_role":"lower ladder contacts release only after platform support owns; root begins to inherit deck translation around one surviving hand","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K05","name":"LAST_HAND_PIVOT","root":[128,182],"com":[134,203],"left_hand":[78,126],"right_hand":[116,150],"left_foot":[108,212],"right_foot":[176,229],"platform_x":204,"platform_v":12,"support":{"owner":"LEFT_HAND_LADDER+RIGHT_PLATFORM","left_hand":"RUNG_FIXED","right_hand":"FREE","left_foot":"FREE","right_foot":"PLATFORM_PLANTED"},"torso_lean_deg":30,"arm_lag_deg":6,"root_spacing_px":11,"timing_class":"TWOS","hold_frames":2,"phase":"TRANSFER","causal_role":"body/root passes down-right around the last stationary hand while the captured right foot rides the accelerating deck","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K06","name":"HAND_RELEASE_VELOCITY_INHERIT","root":[144,188],"com":[151,209],"left_hand":[91,135],"right_hand":[130,157],"left_foot":[127,220],"right_foot":[190,229],"platform_x":218,"platform_v":14,"support":{"owner":"RIGHT_PLATFORM","left_hand":"FREE","right_hand":"FREE","left_foot":"FREE","right_foot":"PLATFORM_PLANTED"},"torso_lean_deg":34,"arm_lag_deg":20,"root_spacing_px":16,"timing_class":"ONES","hold_frames":1,"phase":"RELEASE","causal_role":"final rung support releases after platform capture, exposing delayed horizontal velocity inheritance instead of a freefall gap","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K07","name":"DECK_PULL_OVERRUN","root":[164,196],"com":[171,217],"left_hand":[112,151],"right_hand":[151,166],"left_foot":[159,226],"right_foot":[206,229],"platform_x":234,"platform_v":16,"support":{"owner":"RIGHT_PLATFORM","left_hand":"FREE","right_hand":"FREE","left_foot":"PLATFORM_PROBE","right_foot":"PLATFORM_PLANTED"},"torso_lean_deg":22,"arm_lag_deg":31,"root_spacing_px":20,"timing_class":"ONES","hold_frames":1,"phase":"RUNOUT","causal_role":"translating support pulls the root farther than the torso can immediately restack; left foot chases a first catch","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K08","name":"OVERLONG_LEFT_CATCH","root":[187,202],"com":[193,223],"left_hand":[139,165],"right_hand":[172,176],"left_foot":[221,229],"right_foot":[222,229],"platform_x":250,"platform_v":16,"support":{"owner":"BOTH_PLATFORM_LEFT_DOMINANT","left_hand":"FREE","right_hand":"FREE","left_foot":"PLATFORM_PLANTED","right_foot":"PLATFORM_UNLOADING"},"torso_lean_deg":-18,"arm_lag_deg":38,"root_spacing_px":23,"timing_class":"TWOS","hold_frames":2,"phase":"CATCH","causal_role":"surviving inherited deck velocity forces an overlong first free catch; left support must acquire before right can unload","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K09","name":"CATCH_COMPRESSION","root":[198,211],"com":[202,232],"left_hand":[160,180],"right_hand":[186,187],"left_foot":[237,229],"right_foot":[230,229],"platform_x":266,"platform_v":16,"support":{"owner":"LEFT_PLATFORM","left_hand":"FREE","right_hand":"FREE","left_foot":"PLATFORM_PLANTED","right_foot":"FREE"},"torso_lean_deg":-25,"arm_lag_deg":44,"root_spacing_px":11,"timing_class":"TWOS","hold_frames":2,"phase":"ABSORB","causal_role":"left platform support survives COM passage while root compresses and arms continue their delayed swing","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K10","name":"SHORT_RIGHT_CORRECTION","root":[213,205],"com":[217,226],"left_hand":[175,183],"right_hand":[198,184],"left_foot":[239,229],"right_foot":[248,229],"platform_x":282,"platform_v":16,"support":{"owner":"RIGHT_PLATFORM","left_hand":"FREE","right_hand":"FREE","left_foot":"FREE","right_foot":"PLATFORM_PLANTED"},"torso_lean_deg":-8,"arm_lag_deg":25,"root_spacing_px":15,"timing_class":"TWOS","hold_frames":2,"phase":"CORRECTION","causal_role":"shorter opposite-foot correction catches closer to the root, trimming deck-relative debt while preserving platform travel","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K11","name":"DISPLACED_RESTACK","root":[225,199],"com":[229,220],"left_hand":[188,178],"right_hand":[208,176],"left_foot":[248,229],"right_foot":[264,229],"platform_x":298,"platform_v":16,"support":{"owner":"BOTH_PLATFORM","left_hand":"FREE","right_hand":"FREE","left_foot":"PLATFORM_PLANTED","right_foot":"PLATFORM_PLANTED"},"torso_lean_deg":3,"arm_lag_deg":12,"root_spacing_px":12,"timing_class":"FOURS","hold_frames":4,"phase":"SETTLE","causal_role":"second authored correction brings COM visibly back between deck supports while upper-body lag continues to settle","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"},
+    {"key_id":"K12","name":"PLATFORM_RIDE_SETTLE","root":[235,197],"com":[239,218],"left_hand":[199,176],"right_hand":[218,174],"left_foot":[264,229],"right_foot":[280,229],"platform_x":314,"platform_v":16,"support":{"owner":"BOTH_PLATFORM","left_hand":"FREE","right_hand":"FREE","left_foot":"PLATFORM_PLANTED","right_foot":"PLATFORM_PLANTED"},"torso_lean_deg":1,"arm_lag_deg":4,"root_spacing_px":10,"timing_class":"FOURS","hold_frames":4,"phase":"SETTLE","causal_role":"final deck-relative stillness is displaced but structurally restacked, with both planted feet translating in stable deck-relative anchors","timing_provenance":"INFERRED","sequence_policy":"STREET_FIGHTER-CAPCOM"}
+  ],
+  "quality_history": [
+    {"round":"R0","reviewer":"TANGO","decision":"REVISE_REQUIRED","actual_render_sha256":"328c54513ab586df0ef9490642e10fbcf87e8fe5f88f48b541399dea1ce2a0fc","defect":"K10-K12 recovery remained visibly over-stretched: planted feet outran root/COM so the settle read as a dragged mannequin rather than paid capture debt.","correction":"Advance K10-K12 root/COM onto the moving support, re-author shorter deck-relative foot anchors, and preserve decreasing 15→12→10 px root spacing plus delayed arm settle."},
+    {"round":"R1","reviewer":"TANGO","decision":"PASS","actual_render_sha256":"a6457c050f6a6dd2344dad2c53d84e0deee4e90d387a3a170ec9fdb0a95830a0","basis":"Actual corrected render inspected: stationary ladder ownership transfers through mixed right-platform capture and last-hand pivot without a support gap; the platform visibly pulls the released root into an overlong first catch; K10→K12 recovery brings COM/root back over translating support with 15→12→10 px corrective debt and delayed arm settle."},
+    {"round":"R1","reviewer":"NOODLE_QUEEN","decision":"TASTE+FUNCTION+CONTEMPT PASS","actual_render_sha256":"a6457c050f6a6dd2344dad2c53d84e0deee4e90d387a3a170ec9fdb0a95830a0","basis":"Same actual final render/full specimen. Taste: memorable inbound support-topology transfer rather than generic gait. Function: deck-relative support anchors, last-hand pivot, inherited translation, overlong catch, shorter corrections, and delayed settle are visible and mechanically coherent. Contempt: the result cannot be reproduced by merely linearly connecting endpoint poses because decisive mixed-ownership and recovery keys carry causal load."}
+  ]
+}
