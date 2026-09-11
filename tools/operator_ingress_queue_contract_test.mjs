@@ -59,18 +59,24 @@ assert.match(application, /Queued durably\. Current work continues\./);
 assert.match(application, /startup queue recovery failed closed/);
 assert.match(application, /queueButton\.setEnabled\(false\)/);
 
-// A not-yet-queued thought survives the exact app-switch maneuver that motivated this repair,
-// and the draft stays attached to its owning conversation rather than leaking into another thread.
+// A not-yet-queued thought survives app switches and stays attached to its owning conversation,
+// including an in-activity conversation switch that does not fire lifecycle pause/resume.
 assert.match(queue, /private static final String KEY_DRAFT_PREFIX = "draft_text:";/);
 assert.match(queue, /synchronized String draft\(String conversationId\)/);
 assert.match(queue, /synchronized void saveDraft\(String exactText, String conversationId\)/);
 assert.match(queue, /remove\(draftKey\(ownerConversation\)\)[\s\S]*\.commit\(\)/);
 assert.match(queue, /return KEY_DRAFT_PREFIX \+ \(owner\.isEmpty\(\) \? "_unbound" : owner\);/);
-assert.match(application, /String restoredDraft = ingressQueue\.draft\(currentConversationId\(\)\);/);
-assert.match(application, /input\.setText\(restoredDraft\);/);
+assert.match(application, /private String panelConversationId = "";/);
+assert.match(application, /panelConversationId = currentConversationId\(\);/);
+assert.match(application, /String restoredDraft = ingressQueue\.draft\(panelConversationId\);/);
 assert.match(application, /persistDraftBeforePanelRemoval\(\);/);
-assert.match(application, /ingressQueue\.saveDraft\(exact, currentConversationId\(\)\);/);
+assert.match(application, /ingressQueue\.saveDraft\(exact, panelConversationId\);/);
+assert.match(application, /rebindDraftIfConversationChanged\(\);/);
+assert.match(application, /if \(current\.equals\(panelConversationId\)\) return;/);
+assert.match(application, /panelConversationId = current;/);
+assert.match(application, /queue draft rebound to conversation/);
 assert.match(application, /queue draft persistence failed closed/);
+assert.match(application, /exact,[\s\S]*panelConversationId,[\s\S]*"operator_ingress_queue"/);
 
 // A queued thought must not mutate the currently running turn. It waits for busy and barriers.
 assert.match(application, /if \(busy \|\| barrier \|\| queued <= 0\) return;/);
