@@ -91,7 +91,7 @@ def draw_frame(m, joints, kid, name, support, idx, total):
 
 def make_spa(m, ascii_text, mp4):
     b64=base64.b64encode(mp4).decode("ascii")
-    motion_text=json.dumps(m,indent=2,ensure_ascii=False)
+    motion_text=json.dumps(m,separators=(",",":"),ensure_ascii=False)
     page=f"""<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ASCII Kinesis Strikes 028 — Axial Thrust Recovery Reset Repair</title>
 <style>:root{{color-scheme:dark}}body{{margin:0;background:#0f1013;color:#eee;font-family:system-ui}}
@@ -117,13 +117,13 @@ def main():
     for i,(j,kid,name,support,t) in enumerate(frames):
         draw_frame(m,j,kid,name,support,i,len(frames)).save(FRAMES/f"f{i:04d}.png")
     cmd=["ffmpeg","-y","-loglevel","error","-framerate",str(FPS),"-i",str(FRAMES/"f%04d.png"),
-         "-c:v","libx264","-pix_fmt","yuv420p","-preset","veryslow","-crf","30","-movflags","+faststart",str(MP4)]
+         "-c:v","libx264","-pix_fmt","yuv420p","-preset","veryslow","-crf","38","-movflags","+faststart",str(MP4)]
     subprocess.run(cmd,check=True)
     raw=MP4.read_bytes()
     m["media"]={"codec":"h264/yuv420p","width":W,"height":H,"fps":FPS,"frame_count":len(frames),
                 "bytes":len(raw),"sha256":hashlib.sha256(raw).hexdigest(),
                 "video_required":True,"video_source":"abstract_ascii_rig_only","embedded_in_spa":True}
-    MOTION.write_text(json.dumps(m,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+    MOTION.write_text(json.dumps(m,separators=(",",":"),ensure_ascii=False)+"\n",encoding="utf-8")
     SPA.write_text(make_spa(m,ascii_text,raw),encoding="utf-8")
     print(json.dumps(m["media"],sort_keys=True))
 if __name__=="__main__":
