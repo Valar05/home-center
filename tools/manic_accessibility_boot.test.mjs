@@ -13,7 +13,7 @@ import {
 } from './manic_accessibility_boot.mjs';
 import {ACTION_POLICIES, GUARDRAILS} from './manic_accessibility_guardrail.mjs';
 
-test('safety boot loads curated skills plus binding Home Center Drive routing', () => {
+test('safety boot loads curated skills plus correction ratchet and binding Home Center Drive routing', () => {
   const capsule = buildSafetyBootCapsule();
   assert.equal(capsule.kind, BOOT_VERSION);
   assert.equal(capsule.mode, 'manic-accessibility');
@@ -21,12 +21,16 @@ test('safety boot loads curated skills plus binding Home Center Drive routing', 
     capsule.loadedSkills.slice(0, REQUIRED_SAFE_SKILL_IDS.length).map((skill) => skill.id),
     REQUIRED_SAFE_SKILL_IDS,
   );
+  assert.ok(REQUIRED_SAFE_SKILL_IDS.includes('correction-ratchet'));
   assert.equal(capsule.loadedSkills[REQUIRED_SAFE_SKILL_IDS.length].id, 'home-center-drive-source-routing');
   assert.equal(capsule.homeCenterDrivePrimary, true);
   assert.equal(capsule.judgmentJarRegistryFileId, '1UixBuLJRw-x5BoMGx81YXRpuN66iZhGGJoz40Iqx48Q');
   assert.match(capsule.bootPrompt, /Home Center Drive is a requested evidence lane/i);
   assert.match(capsule.bootPrompt, /START HERE — Judgment Jar Registry/);
   assert.match(capsule.bootPrompt, /ChatGPT Library.*not substitutes/is);
+  assert.match(capsule.bootPrompt, /A correction must purchase future leverage/);
+  assert.match(capsule.bootPrompt, /consume stored precedent first/);
+  assert.match(capsule.bootPrompt, /preserve ambiguity/i);
   assert.ok(capsule.loadedSkills.every((skill) => !/^venice(?:-|$)/i.test(skill.id)));
   assert.doesNotMatch(capsule.bootPrompt, /--- SAFETY SKILL venice-/i);
   assert.doesNotMatch(capsule.bootPrompt, /Every ChatGPT worker must use Venice/i);
