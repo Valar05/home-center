@@ -1,13 +1,69 @@
 {
   "schema": "ascii-kinesis.manifest.v2",
+  "format_version": 2,
   "specimen": "v2-locomotion-026-stair-drop-mixed-height-catch-runout",
   "lane": "LOCOMOTION",
   "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_ISSUE_CHAT",
-  "binding": {"one_body":false,"collision":true,"canonical_path":"experiments/ascii-kinesis/v2-locomotion-026-stair-drop-mixed-height-catch-runout/","first_creation_commit":"5e2e42f8298e6c96d7ea0501bc18622a28000602","collision_issue_comment":5627862485,"quarantined":["experiments/ascii-kinesis/v2-locomotion-026-ladder-dismount-translating-support-capture-runout/"]},
-  "source": {"campaign_id":"1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s","evidence_id":"1zQGdJx7uIqTnvJlHp2NfydUu_EDDNvt01tCAlQvlYQ8","tsr_asset":81106,"identity":"Bullwinkle — The Adventures of Rocky and Bullwinkle and Friends — NES — Playable Characters","role":"EVIDENCE_ONLY","whole_source_inspected":true,"observed":["whole static sheet exposes four labeled animation families: Charge, Idle, Using Stairs, Walking","Using Stairs is authored as a distinct state family from ordinary level Walking","source page reports a static PNG and Animated GIFs (0), so no source-authentic playback cadence was measured"],"inferred":["single step-down support-height discontinuity","mixed-height dual-support handoff before root descent","horizontal momentum surviving the vertical support-height transaction","all decisive key geometry, spacing, support-confidence states and timing"],"unknown":["source-authentic stair direction","source-authentic frame chronology","source-authentic exposure counts","exact source root displacement","exact tread height","exact contact frame","source timing"],"timing_authority":"NONE","rights_firewall":{"source_pixels_in_output":false,"source_audio_in_output":false,"tracing":false,"close_imitation":false,"source_palette":false,"source_costume":false,"source_layout":false,"source_choreography":false}},
-  "media": {"codec":"h264","pix_fmt":"yuv420p","width":480,"height":270,"fps":24,"frames":27,"bytes":5218,"sha256":"94f98ad4c5569489a9fd51a7ea700919d38507cde773a798f1cb7dc1de48490a"},
-  "quality": {"tango":"PASS_CURRENT_WORKER","noodle_queen":"PASS_CURRENT_WORKER","same_render_sha256":"94f98ad4c5569489a9fd51a7ea700919d38507cde773a798f1cb7dc1de48490a"},
-  "spa": {"views":["ASCII","JSON","VIDEO"],"embedded_mp4":true,"source_pixels":false},
+  "primary_tabs": ["ASCII", "JSON", "VIDEO"],
+  "ascii_literal_text": true,
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "source_art_embedded": false,
+  "backward_compatible": true,
+  "binding": {
+    "one_body": false,
+    "collision": true,
+    "canonical_path": "experiments/ascii-kinesis/v2-locomotion-026-stair-drop-mixed-height-catch-runout/",
+    "first_creation_commit": "5e2e42f8298e6c96d7ea0501bc18622a28000602",
+    "collision_issue_comment": 5627862485,
+    "quarantined": ["experiments/ascii-kinesis/v2-locomotion-026-ladder-dismount-translating-support-capture-runout/"]
+  },
+  "source": {
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "evidence_id": "1zQGdJx7uIqTnvJlHp2NfydUu_EDDNvt01tCAlQvlYQ8",
+    "tsr_asset": 81106,
+    "identity": "Bullwinkle — The Adventures of Rocky and Bullwinkle and Friends — NES — Playable Characters",
+    "role": "EVIDENCE_ONLY",
+    "whole_source_inspected": true,
+    "timing_authority": "NONE",
+    "timing_provenance": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "rights_firewall": {
+      "source_pixels_in_output": false,
+      "source_audio_in_output": false,
+      "tracing": false,
+      "close_imitation": false,
+      "source_palette": false,
+      "source_costume": false,
+      "source_layout": false,
+      "source_choreography": false
+    }
+  },
+  "media": {
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 480,
+    "height": 270,
+    "fps": 24,
+    "frames": 27,
+    "bytes": 5218,
+    "sha256": "94f98ad4c5569489a9fd51a7ea700919d38507cde773a798f1cb7dc1de48490a"
+  },
+  "quality": {
+    "tango": "PASS_CURRENT_RUN_FRESH_BYTE_IDENTICAL_RENDER",
+    "noodle_queen": "PASS_CURRENT_RUN_SAME_RENDER",
+    "same_render_sha256": "94f98ad4c5569489a9fd51a7ea700919d38507cde773a798f1cb7dc1de48490a"
+  },
+  "spa": {
+    "views": ["ASCII", "JSON", "VIDEO"],
+    "embedded_mp4": true,
+    "source_pixels": false
+  },
+  "validator": {
+    "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PENDING_POSTWRITE_CSS_RECONCILIATION",
+    "repository_global": "UNCLAIMED_STANDARD_CHAT_CONNECTOR_BOUNDARY"
+  },
   "DREW_ACCEPTED": false,
   "next_authorized": null
 }
