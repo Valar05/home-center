@@ -54,6 +54,29 @@ def prevention_rule(category: str, finding: str) -> str:
     return rules.get(category, f"Prevent recurrence of this reviewed failure: {finding}")
 
 
+def recovery_rule(category: str, class_occurrence: int) -> str:
+    """Describe how a repeated failure is allowed to cost the human less, not more."""
+    n = max(1, int(class_occurrence or 1))
+    if n == 1:
+        return (
+            "Apply the repair and preserve enough structured precedent that a later analogous failure can be "
+            "corrected from the smallest new delta rather than a full restatement."
+        )
+    if category == "correction_regression":
+        return (
+            "RECURRENCE_RATCHET: load the prior correction before asking for anything; never require Drew to "
+            "restate the earlier correction or evidence. Accept the smallest available new delta, including a "
+            "word, screenshot, example, gesture-description, or behavioral contradiction. When more than one "
+            "recovery surface is available, prefer a different lower-burden surface from the one that previously "
+            "failed. Preserve unresolved ambiguity unless consequence requires resolution."
+        )
+    return (
+        "RECURRENCE_RATCHET: prior precedent is mandatory input. Repair from stored evidence plus the smallest "
+        "new delta; do not send the operator through the same explanatory load path merely because it is easy "
+        "for the worker. Prefer behavior/readback/canary evidence over another prose re-teach when available."
+    )
+
+
 def regression_target(category: str) -> str:
     return f"future worker test/contract rejects recurrence category={category} before Venice allows the relevant gate"
 
@@ -89,7 +112,9 @@ def render_memory(repo: str | None = None, limit: int = MAX_PROMPT_ENTRIES) -> s
     for e in entries:
         lines.append(
             f"- [{e.get('category','review_finding')}] occurrence={e.get('occurrence',1)} "
-            f"finding={e.get('finding','')} rule={e.get('rule','')} regression={e.get('regressionTarget','')}"
+            f"classOccurrence={e.get('classOccurrence',e.get('occurrence',1))} "
+            f"finding={e.get('finding','')} rule={e.get('rule','')} "
+            f"recovery={e.get('recoveryRule','')} regression={e.get('regressionTarget','')}"
         )
     return "\n".join(lines)
 
@@ -104,10 +129,16 @@ def persist_review(receipt: dict) -> list[dict]:
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     prior = _read_entries()
     counts: dict[str, int] = {}
+    category_counts: dict[str, int] = {}
     for e in prior:
         fp = str(e.get("fingerprint") or "")
         if fp:
             counts[fp] = max(counts.get(fp, 0), int(e.get("occurrence") or 1))
+        category = str(e.get("category") or "review_finding")
+        category_counts[category] = max(
+            category_counts.get(category, 0),
+            int(e.get("classOccurrence") or 0),
+        )
     created = []
     for finding in findings:
         category = classify_finding(finding)
@@ -115,8 +146,10 @@ def persist_review(receipt: dict) -> list[dict]:
         fp = hashlib.sha256(f"{category}\0{finding.lower().strip()}".encode("utf-8")).hexdigest()
         occurrence = counts.get(fp, 0) + 1
         counts[fp] = occurrence
+        class_occurrence = category_counts.get(category, 0) + 1
+        category_counts[category] = class_occurrence
         entry = {
-            "schema": "venice-review-memory-v1",
+            "schema": "venice-review-memory-v2",
             "createdAtEpoch": int(time.time()),
             "repo": receipt.get("repo"),
             "baseCommit": receipt.get("baseCommit"),
@@ -129,16 +162,19 @@ def persist_review(receipt: dict) -> list[dict]:
             "observation": finding,
             "inference": "This finding is reusable reviewer precedent, not proof that future tasks share the same state.",
             "rule": rule,
+            "recoveryRule": recovery_rule(category, class_occurrence),
             "regressionTarget": regression_target(category),
             "judgmentJarApplied": receipt.get("judgmentJarApplied") or [],
+            "correctionRoute": str(receipt.get("correctionRoute") or "unspecified"),
             "fingerprint": fp,
             "occurrence": occurrence,
+            "classOccurrence": class_occurrence,
         }
         with MEMORY_PATH.open("a", encoding="utf-8") as f:
             f.write(json.dumps(entry, ensure_ascii=False, sort_keys=True) + "\n")
         created.append(entry)
     projection = {
-        "schema": "venice-review-memory-latest-v1",
+        "schema": "venice-review-memory-latest-v2",
         "updatedAtEpoch": int(time.time()),
         "entries": load_memory(str(receipt.get("repo") or ""), MAX_PROMPT_ENTRIES),
     }
