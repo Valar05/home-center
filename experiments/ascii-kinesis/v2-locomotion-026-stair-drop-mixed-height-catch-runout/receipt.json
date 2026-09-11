@@ -1,15 +1,68 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "specimen": "v2-locomotion-026-stair-drop-mixed-height-catch-runout",
-  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_ISSUE_CHAT",
-  "binding": {"one_body":false,"collision":true,"canonical_path":"experiments/ascii-kinesis/v2-locomotion-026-stair-drop-mixed-height-catch-runout/","first_creation_commit":"5e2e42f8298e6c96d7ea0501bc18622a28000602","collision_issue_comment":5627862485,"quarantined":["experiments/ascii-kinesis/v2-locomotion-026-ladder-dismount-translating-support-capture-runout/"]},
-  "media": {"codec":"h264","pix_fmt":"yuv420p","width":480,"height":270,"fps":24,"frames":27,"bytes":5218,"sha256":"94f98ad4c5569489a9fd51a7ea700919d38507cde773a798f1cb7dc1de48490a"},
-  "quality": {"tango":"PASS_CURRENT_WORKER","noodle_queen":"PASS_CURRENT_WORKER","same_render_sha256":"94f98ad4c5569489a9fd51a7ea700919d38507cde773a798f1cb7dc1de48490a"},
-  "repo_post_write_readback": false,
-  "exact_six_files_one_spa": false,
+  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_CHAT_DELIVERY",
+  "current_worker_liveness": {
+    "home_center_campaign": true,
+    "github_persistence_readback": true
+  },
+  "binding": {
+    "one_body": false,
+    "collision": true,
+    "canonical_path": "experiments/ascii-kinesis/v2-locomotion-026-stair-drop-mixed-height-catch-runout/",
+    "first_creation_commit": "5e2e42f8298e6c96d7ea0501bc18622a28000602",
+    "collision_issue_comment": 5627862485,
+    "quarantined": ["experiments/ascii-kinesis/v2-locomotion-026-ladder-dismount-translating-support-capture-runout/"]
+  },
+  "source": {
+    "campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "evidence_id": "1zQGdJx7uIqTnvJlHp2NfydUu_EDDNvt01tCAlQvlYQ8",
+    "tsr_asset": 81106,
+    "whole_source_inspected_current_run": true,
+    "timing_authority": "NONE",
+    "timing_provenance": "INFERRED / STREET_FIGHTER-CAPCOM"
+  },
+  "media": {
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 480,
+    "height": 270,
+    "fps": 24,
+    "frames": 27,
+    "bytes": 5218,
+    "sha256": "94f98ad4c5569489a9fd51a7ea700919d38507cde773a798f1cb7dc1de48490a",
+    "byte_identical_reconstruction": true,
+    "decode_render": "PASS"
+  },
+  "quality": {
+    "tango": "PASS_CURRENT_RUN_FRESH_ACTUAL_RENDER",
+    "noodle_queen": "PASS_CURRENT_RUN_SAME_ACTUAL_RENDER",
+    "same_render_sha256": "94f98ad4c5569489a9fd51a7ea700919d38507cde773a798f1cb7dc1de48490a"
+  },
+  "validator": {
+    "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS",
+    "repository_global": "UNCLAIMED_STANDARD_CHAT_CONNECTOR_BOUNDARY"
+  },
+  "repo_post_write_readback": true,
+  "exact_six_files_one_spa": true,
+  "repo_inventory_before_this_receipt_write": {
+    "build.py": "edbf554e2ef6053ed2b7c243ee36ba608e028093",
+    "contact-sheet.txt": "5415b225c0cf3bf18a78e80898623dd3b17bdfa7",
+    "manifest.json": "42bc422b77534bf5fb992828b2149b48b8fc6447",
+    "motion.json": "c4343476b360d63fa0ec60f19b996d192e46afa1",
+    "receipt.json": "724967948b74ed693705f72f21113e51251c2dd3",
+    "stair-drop-mixed-height-catch-runout.motion.html": "00ce01da37a15e029d456e1f66c7f61c472967fb"
+  },
   "issue_receipt": null,
   "campaign_readback": false,
-  "chat_delivery": {"part1_ascii":false,"part2_json":false,"part3_video":false,"ordered":false},
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_video": false,
+    "ordered": false
+  },
   "DREW_ACCEPTED": false,
   "next_authorized": null
 }
