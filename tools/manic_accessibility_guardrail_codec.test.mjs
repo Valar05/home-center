@@ -1,6 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {POLICIES,runCommunicationCodec as run} from '../skills/manic-accessibility-guardrail/scripts/communication-codec.mjs';
+import fs from 'node:fs';
+import {CODEC_VERSION,POLICIES,runCommunicationCodec as run} from '../skills/manic-accessibility-guardrail/scripts/communication-codec.mjs';
+
+const codecDoc=fs.readFileSync('skills/manic-accessibility-guardrail/references/communication-codec.md','utf8');
+
+test('codec source and active contract agree on v3',()=>{
+  assert.equal(CODEC_VERSION,'fortress-online.communication-codec.v3');
+  assert.match(codecDoc,/Schema: `fortress-online\.communication-codec\.v3`/);
+  assert.match(codecDoc,/Queued text preserves order, not authority/);
+  assert.match(codecDoc,/A queue is not a preemption mechanism/);
+});
 
 test('engineering vocabulary is reused as a compact pointer',()=>{
   const r=run({atom:'canary',establishedEngineeringTerm:true,sharedConcept:true});
