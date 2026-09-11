@@ -1,0 +1,102 @@
+K00 READY_BANK | FOURS/4t | PROV=INFERRED | SUPPORT=BOTH
+                         O
+                        /|\
+                  [T]--o | o
+                        \|/
+                         @
+                        / \
+                       o   o
+                      /     \
+  ___________________*_______*____________________________________
+ ROOT=+0.00,+0.00  PRELOAD=0  TASK=COMPACT  COMMIT=NO
+------------------------------------------------------------------------------
+K01 LOAD_READ | TWOS/2t | PROV=INFERRED | SUPPORT=REAR_BIASED
+                       O
+                      /|\
+                [T]===o  \
+                     /|   o
+                    / @
+                   / / \
+                  o o   o
+                   /     \
+  ________________*_______+_______________________________________
+ ROOT=+0.06,-0.08  PRELOAD=1  TASK=WITHDRAWING  COMMIT=NO
+------------------------------------------------------------------------------
+K02 DEEP_PRELOAD | FOURS/4t | PROV=INFERRED | SUPPORT=REAR_DOMINANT
+                    O
+                   /|\
+             [T]===o \
+                  /|  \
+                 / @__o
+                / / \
+               o o   o
+                /     \
+  ______________*_______+_________________________________________
+ ROOT=+0.12,-0.18  PRELOAD=3  TASK=COILED  COMMIT=NO
+------------------------------------------------------------------------------
+K03 NEAR_COMMIT | ONES/1t | PROV=INFERRED | SUPPORT=REAR_TO_FRONT
+                         O
+                        /|
+                 [T]===o |____o  >
+                       \ |   /
+                        \@--/
+                        / \
+                       o   o
+  _____________________+___*______________________________________
+ ROOT=+0.26,-0.10  PRELOAD=3  TASK=ARMED  COMMIT=NOT_YET
+------------------------------------------------------------------------------
+K04 VETO_KILLS_TASK_NOT_LOAD | ONES/1t | PROV=INFERRED | SUPPORT=FRONT_DOMINANT
+                           O
+                          /|\
+                         / | o
+                        /  |  \[T]
+                       /   @   v
+                      o   / \
+                         o   o
+  _______________________+___*____________________________________
+ ROOT=+0.34,-0.04  PRELOAD=3  TASK=VETOED_DOWN  BODY_DEBT=UNPAID
+------------------------------------------------------------------------------
+K05 SAFE_DUMP_BRIDGE | ONES/1t | PROV=INFERRED | SUPPORT=FRONT
+                              O
+                             /|
+                            / |\
+                           o  | \[T]
+                              @  v
+                            _/ \
+                           o    o
+  _________________________+____*_________________________________
+ ROOT=+0.60,+0.08  PRELOAD=2  TASK=FOLDED_SAFE  DUMP=VISIBLE
+------------------------------------------------------------------------------
+K06 INERTIAL_OVERTRAVEL | TWOS/2t | PROV=INFERRED | SUPPORT=FRONT
+                                 O
+                                /|
+                       [T]-----o |\
+                              \ | \
+                               \@__o
+                                / \
+                               o   o
+  _____________________________+___*_______________________________
+ ROOT=+0.84,+0.14  PRELOAD=1  TASK=LAGS_BEHIND  OVERTRAVEL=YES
+------------------------------------------------------------------------------
+K07 SECONDARY_CATCH | TWOS/2t | PROV=INFERRED | SUPPORT=FRONT_TO_BOTH
+                                  O
+                                 /|\
+                          [T]---o | o
+                               \ |/
+                                \@
+                                / \
+                               o   o
+  _____________________________+___*_______________________________
+ ROOT=+0.93,+0.05  PRELOAD=0.4  TASK=CATCHING_UP  CATCH=YES
+------------------------------------------------------------------------------
+K08 DISPLACED_RESTACK | FOURS/4t | PROV=INFERRED | SUPPORT=BOTH
+                                   O
+                                  /|\
+                             [T]--o | o
+                                  \|/
+                                   @
+                                  / \
+                                 o   o
+                                /     \
+  _____________________________*_______*___________________________
+ ROOT=+0.96,+0.00  PRELOAD=0  TASK=CONTROLLED  READY=DISPLACED
