@@ -29,6 +29,7 @@ final class OperatorIngressQueue {
     private static final String PREFS = "home_center_operator_ingress_queue_v1";
     private static final String KEY_QUEUE = "queue_json";
     private static final String KEY_INFLIGHT = "inflight_json";
+    private static final String KEY_DRAFT = "draft_text";
 
     static final class Item {
         final String id;
@@ -96,9 +97,25 @@ final class OperatorIngressQueue {
                 System.currentTimeMillis());
         items.add(item);
         requireCommit(
-                prefs.edit().putString(KEY_QUEUE, encode(items)).commit(),
+                prefs.edit()
+                        .putString(KEY_QUEUE, encode(items))
+                        .remove(KEY_DRAFT)
+                        .commit(),
                 "enqueue");
         return item;
+    }
+
+    synchronized String draft() {
+        String value = prefs.getString(KEY_DRAFT, "");
+        return value == null ? "" : value;
+    }
+
+    synchronized void saveDraft(String exactText) {
+        String value = exactText == null ? "" : exactText;
+        SharedPreferences.Editor editor = prefs.edit();
+        if (value.isEmpty()) editor.remove(KEY_DRAFT);
+        else editor.putString(KEY_DRAFT, value);
+        requireCommit(editor.commit(), "save_draft");
     }
 
     synchronized int size() {
