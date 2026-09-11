@@ -86,7 +86,8 @@ final class OperatorIngressQueue {
     synchronized Item enqueue(String exactText, String conversationId, String source) {
         if (exactText == null || exactText.trim().isEmpty()) return null;
         List<Item> items = readQueue();
-        if (items.size() >= MAX_ITEMS) return null;
+        int occupied = items.size() + (readInflight() == null ? 0 : 1);
+        if (occupied >= MAX_ITEMS) return null;
         Item item = new Item(
                 UUID.randomUUID().toString(),
                 exactText,
@@ -138,27 +139,29 @@ final class OperatorIngressQueue {
         Item inflight = readInflight();
         if (inflight == null) return;
         if (id != null && !id.isEmpty() && !id.equals(inflight.id)) return;
-        List<Item> items = readQueue();
-        if (!containsId(items, inflight.id)) items.add(0, inflight);
-        requireCommit(
-                prefs.edit()
-                        .putString(KEY_QUEUE, encode(items))
-                        .remove(KEY_INFLIGHT)
-                        .commit(),
-                "retry_inflight");
+        restoreInflightToHead(inflight, "retry_inflight");
     }
 
     synchronized void recoverInflight() {
         Item inflight = readInflight();
         if (inflight == null) return;
+        restoreInflightToHead(inflight, "recover_inflight");
+    }
+
+    private void restoreInflightToHead(Item inflight, String operation) {
         List<Item> items = readQueue();
-        if (!containsId(items, inflight.id)) items.add(0, inflight);
+        if (!containsId(items, inflight.id)) {
+            if (items.size() >= MAX_ITEMS) {
+                throw new IllegalStateException("operator ingress cannot restore in-flight item: queue is at capacity");
+            }
+            items.add(0, inflight);
+        }
         requireCommit(
                 prefs.edit()
                         .putString(KEY_QUEUE, encode(items))
                         .remove(KEY_INFLIGHT)
                         .commit(),
-                "recover_inflight");
+                operation);
     }
 
     private List<Item> readQueue() {
