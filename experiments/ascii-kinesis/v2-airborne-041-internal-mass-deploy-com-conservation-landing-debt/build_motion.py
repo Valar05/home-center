@@ -133,20 +133,21 @@ def grid_segment(g,a,b):
     ax,ay=a; bx,by=b; n=max(2,int(max(abs(bx-ax),abs(by-ay))*1.5)); ch=segment_char(bx-ax,by-ay)
     for i in range(1,n): t=i/n; put(g,round(ax+(bx-ax)*t),round(ay+(by-ay)*t),ch)
 
-def ascii_frame(k,w=110,h=43):
-    g=[[' ']*w for _ in range(h)]; gy=39
+def ascii_frame(k,w=58,h=15):
+    g=[[' ']*w for _ in range(h)]; gy=13
     for x in range(w): g[gy][x]='_'
-    cx=max(14,min(w-15,int(k['root'][0]))); ry=max(6,min(gy-8,int(k['root'][1]*0.78))); body=cx+round(float(k.get('body_offset_x',0))*0.65)
-    head=(body,ry-5); neck=(body,ry-3); pelvis=(body,ry); handL=(body-5,ry-1); handR=(body+5,ry-1); kneeL=(body-2,ry+2); kneeR=(body+2,ry+2); footL=(body-4,ry+5); footR=(body+4,ry+5)
+    rx=max(9,min(w-15,8+round(float(k['root'][0])*0.38))); ry=max(4,min(8,4+round((float(k['root'][1])-11.5)*0.18)))
+    body=rx+round(float(k.get('body_offset_x',0))*0.35); head=(body+round(float(k.get('lean',0))*0.18),ry-3); neck=(body,ry-2); pelvis=(body,ry)
+    handL=(body-4,ry-1); handR=(body+4,ry-1); kneeL=(body-2,ry+2); kneeR=(body+2,ry+2); footL=(body-4,ry+4); footR=(body+4,ry+4)
     pose=k['pose']
-    if pose in ('load_stowed','settle','final_displaced'): footL=(body-5,gy-1); footR=(body+5,gy-1)
-    if pose=='left_precontact': footL=(body-5,gy-2); footR=(body+5,gy-3)
-    if pose in ('left_catch','left_crush'): footL=(body-5,gy-1); footR=(body+5,gy-2)
-    if pose in ('both_catch','rebound','counterswing'): footL=(body-5,gy-1); footR=(body+5,gy-1)
-    put(g,cx,ry,'C'); put(g,*head,'o'); put(g,*neck,'|'); put(g,*pelvis,'+')
-    for a,b in [(neck,pelvis),((body-1,ry-3),handL),((body+1,ry-3),handR),(pelvis,kneeL),(kneeL,footL),(pelvis,kneeR),(kneeR,footR)]: grid_segment(g,a,b)
+    if pose in ('load_stowed','settle','final_displaced','both_catch','rebound','counterswing'): footL=(body-4,gy-1); footR=(body+4,gy-1)
+    elif pose=='left_precontact': footL=(body-4,gy-2); footR=(body+4,gy-4)
+    elif pose in ('left_catch','left_crush'): footL=(body-4,gy-1); footR=(body+4,gy-3)
+    if pose in ('deploy_mid','deploy_apex','full_deploy','counterbalance'): handL=(body-5,ry-1); handR=(body+5,ry-1)
+    put(g,rx,ry,'C'); put(g,*head,'o'); put(g,*neck,'|'); put(g,*pelvis,'+')
+    for a,b in [(neck,pelvis),((body-1,ry-2),handL),((body+1,ry-2),handR),(pelvis,kneeL),(kneeL,footL),(pelvis,kneeR),(kneeR,footR)]: grid_segment(g,a,b)
     put(g,*handL,'x'); put(g,*handR,'x'); put(g,*footL,'_'); put(g,*footR,'_')
-    ext=float(k['assembly']['extension']); angle=math.radians(float(k['assembly']['boom_deg'])); ln=4+round(ext*13); tip=(round(handR[0]+math.cos(angle)*ln),round(handR[1]+math.sin(angle)*ln*0.4)); mass=(round(handR[0]+math.cos(angle)*ln*0.82),round(handR[1]+math.sin(angle)*ln*0.4*0.82)); grid_segment(g,handR,tip); put(g,*mass,'#'); put(g,*tip,'@')
+    ext=float(k['assembly']['extension']); angle=math.radians(float(k['assembly']['boom_deg'])); ln=3+round(ext*9); tip=(round(handR[0]+math.cos(angle)*ln),round(handR[1]+math.sin(angle)*ln*0.25)); mass=(round(handR[0]+math.cos(angle)*ln*0.82),round(handR[1]+math.sin(angle)*ln*0.25*0.82)); grid_segment(g,handR,tip); put(g,*mass,'#'); put(g,*tip,'@')
     sc=k['support_contact']
     if sc=='BOTH_FEET_GROUND': put(g,footL[0],gy-1,'*'); put(g,footR[0],gy-1,'*')
     elif 'LEFT' in sc: put(g,footL[0],gy-1,'*')
