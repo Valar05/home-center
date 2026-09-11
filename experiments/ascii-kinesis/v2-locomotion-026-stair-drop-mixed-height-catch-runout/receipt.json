@@ -1,0 +1,15 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "specimen": "v2-locomotion-026-stair-drop-mixed-height-catch-runout",
+  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_ISSUE_CHAT",
+  "binding": {"one_body":false,"collision":true,"canonical_path":"experiments/ascii-kinesis/v2-locomotion-026-stair-drop-mixed-height-catch-runout/","first_creation_commit":"5e2e42f8298e6c96d7ea0501bc18622a28000602","collision_issue_comment":5627862485,"quarantined":["experiments/ascii-kinesis/v2-locomotion-026-ladder-dismount-translating-support-capture-runout/"]},
+  "media": {"codec":"h264","pix_fmt":"yuv420p","width":480,"height":270,"fps":24,"frames":27,"bytes":5218,"sha256":"94f98ad4c5569489a9fd51a7ea700919d38507cde773a798f1cb7dc1de48490a"},
+  "quality": {"tango":"PASS_CURRENT_WORKER","noodle_queen":"PASS_CURRENT_WORKER","same_render_sha256":"94f98ad4c5569489a9fd51a7ea700919d38507cde773a798f1cb7dc1de48490a"},
+  "repo_post_write_readback": false,
+  "exact_six_files_one_spa": false,
+  "issue_receipt": null,
+  "campaign_readback": false,
+  "chat_delivery": {"part1_ascii":false,"part2_json":false,"part3_video":false,"ordered":false},
+  "DREW_ACCEPTED": false,
+  "next_authorized": null
+}
