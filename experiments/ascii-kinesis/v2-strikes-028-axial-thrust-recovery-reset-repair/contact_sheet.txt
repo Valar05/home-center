@@ -1,0 +1,345 @@
+ASCII KINESIS V2 STRIKES 028 — AXIAL THRUST RECOVERY RESET REPAIR
+RESET: issue #343 comment 5634613836
+REVISES: experiments/ascii-kinesis/v2-strikes-001-axial-thrust-recovery/
+NEGATIVE_FIXTURE: experiments/ascii-kinesis/v2-strikes-001-axial-thrust-recovery/
+SOURCE: STRIKES PASS 008 — VERIFIED | TSR 5791 | Eric Lecarde | Castlevania: Bloodlines | Sega Genesis
+EVIDENCE: 1PbN0Qjo5BbvdFJk1BX79BxPHXCsiij-8FwbhbMPyB5k
+RIGHTS: EVIDENCE ONLY; NO SOURCE PIXELS/PALETTE/CONTOURS/LAYOUT/TRACING/CHOREOGRAPHY/AUDIO
+SOURCE TIMING: UNKNOWN | AUTHORED TIMING: INFERRED / STREET_FIGHTER-CAPCOM
+THESIS: ROOT BUYS THE LINE; TOOL OUTRUNS IT; RECOVERY PAYS PROXIMAL BEFORE DISTAL.
+
+[K0] READY_SCAR | FOURS | INFERRED | hold=4f
+support=BOTH_FEET_BRACED_REAR_BIASED
+role=readable baseline already carrying slight forward/tool debt; deliberately not symmetric
+root_arc=pelvis is aft of chest, rear foot is farther behind than front foot is ahead; shaft is shallow and does not bisect the body
+
+                                          :
+                                          :
+                   O                      :
+                   *                      :
+                    *                     :
+                  *****                   :
+                **  *  **  ====>          :
+                  *@*@*====               :
+             [==== *                      :
+                   +                      :
+                 ** **                    :
+                *     **                  :
+              **        **                :
+            _*            *_              :
+                                          :
+                                          :
+..................................................
+
+
+[K1] HEEL_BITE | FOURS | INFERRED | hold=4f
+support=REAR_HEEL_ANCHOR_FRONT_FOOT_LIGHT
+role=anticipation begins in support and pelvis before the weapon is allowed to commit
+root_arc=rear heel stays; pelvis drops and retreats; front knee softens; shaft retracts enough to reopen front negative space
+
+                                          :
+                                          :
+                                          :
+                  O                       :
+                  *                       :
+                 *****                    :
+               **  *  **                  :
+              **  *  ** ====>             :
+              ==**@=@===                  :
+         [====   *                        :
+                 +*                       :
+                *  ***                    :
+              **      ***                 :
+            _*           **_              :
+                                          :
+                                          :
+..................................................
+
+
+[K2] COIL_TWIST | TWOS | INFERRED | hold=2f
+support=REAR_FOOT_DOMINANT_FRONT_HEEL_UNWEIGHTED
+role=asymmetric coil stores axial launch and torso counter-rotation
+root_arc=pelvis retreats again while chest rotates less; rear hand takes the butt; front heel is unweighted rather than teleported
+
+                                          :
+                                          :
+                                          :
+                 O                        :
+                 *                        :
+                 ***                      :
+               ***  *                     :
+             ** *   **===>                :
+            ****@=@*==                    :
+          =====*                          :
+       [==     +*                         :
+              *  ****                     :
+             *       ***                  :
+            _           **_               :
+                                          :
+                                          :
+..................................................
+
+
+[K3] TOE_FLOAT_BRIDGE | TWOS | INFERRED | hold=2f
+support=REAR_FOOT_SINGLE_SUPPORT_FRONT_TOE_FLOAT
+role=authored support bridge buys launch clearance instead of sliding both feet
+root_arc=front foot lifts one row and tucks; rear support remains planted; root is lowest and farthest back while shaft stays withheld
+
+                                          :
+                                          :
+                                          :
+                O                         :
+                *                         :
+                 ***                      :
+               ***  *                     :
+             **  *  *                     :
+            **  *   **==>                 :
+              *@*@**=                     :
+         ======*                          :
+      [==      +**                        :
+             **   ******_                 :
+            _                             :
+                                          :
+                                          :
+..................................................
+
+
+[K4] FRONT_CATCH | ONES | INFERRED | hold=1f
+support=REAR_FOOT_DRIVE_FRONT_FOOT_NEW_PLANT
+role=front support catches farther forward before upper-body release; the step earns the coming thrust
+root_arc=front foot plants at a new x while pelvis begins to rise/advance; shaft still compressed
+
+                                          :
+                                          :
+                                          :
+                  O                       :
+                  *                       :
+                   ***                    :
+                 ***  *                   :
+               ** *   **==>               :
+              ***@*@**=                   :
+           ======*                        :
+        [==      +***                     :
+                *    *****                :
+              **          ***             :
+            _*               *_           :
+                                          :
+                                          :
+..................................................
+
+
+[K5] ROOT_RELEASE | ONES | INFERRED | hold=1f
+support=REAR_FOOT_DRIVE_FRONT_FOOT_BRACE
+role=root starts the strike; tool remains measurably late
+root_arc=pelvis and chest advance before the tip; rear leg lengthens while both hands remain near torso
+
+                                          :
+                                          :
+                                          :
+                     O                    :
+                     *                    :
+                      ***                 :
+                    **   **=>             :
+                   * *==**                :
+                  ***@ @                  :
+              ====  *                     :
+           [==     +***                   :
+                  *    ****               :
+               ***         **             :
+            _**              *_           :
+                                          :
+                                          :
+..................................................
+
+
+[K6] SHAFT_RELEASE | ONES | INFERRED | hold=1f
+support=REAR_FOOT_DRIVE_FRONT_FOOT_BRACE
+role=hands and shaft finally overtake the root; directional commitment becomes undeniable
+root_arc=pelvis advances modestly; chest opens; front hand shoots forward; tool tip outruns root by a large margin
+
+                                          :
+                                          :
+                        O                 :
+                        *                 :
+                         ****             :
+                       ***   **   ==>     :
+                       **    =@===        :
+                       ***@==             :
+                  =====*                  :
+               [==    +*                  :
+                    **  ***               :
+                  **       **             :
+              ****           *            :
+            _*                _           :
+                                          :
+                                          :
+..................................................
+
+
+[K7] PRECONTACT | ONES | INFERRED | hold=1f
+support=REAR_FOOT_DRIVE_FRONT_FOOT_HARD_BRACE
+role=last free-flight frame separates fast travel from the authored contact instant
+root_arc=tool approaches the plane but has not touched it; front knee closes and chest forms a wedge behind the hands
+
+                                          :
+                                          :
+                          O               :
+                          *               :
+                           ****           :
+                         ***   ***    ==> :
+                         ****@  @=====    :
+                         *======          :
+                    ====*=                :
+                 [==   +*                 :
+                      *  **               :
+                   ***     **             :
+               ****          *            :
+            _**               _           :
+                                          :
+                                          :
+..................................................
+
+
+[K8] CONTACT_PIN | ONES | INFERRED | hold=3f
+support=REAR_FOOT_DRIVE_FRONT_FOOT_HARD_BRACE
+role=authored contact instant plus hit-stop implication; tip pins while body compresses behind it
+root_arc=tip reaches abstract impact plane; pelvis advances one cell while chest compresses; contact is not the farthest body reach
+
+                                          :
+                                          :
+                                          :
+                           O              :
+                           *              :
+                            *******    ===X
+                          **     @=====   :
+                          ****@==         :
+                     =====*               :
+                  [==    *                :
+                        +*                :
+                      **  ***             :
+                 *****       *            :
+            _****             _           :
+                                          :
+                                          :
+..................................................
+
+
+[K9] BODY_OVERRUN | TWOS | INFERRED | hold=2f
+support=FRONT_FOOT_CATCH_REAR_HEEL_PEEL
+role=contact releases into consequence: body overruns the weapon line while rear support begins to leave
+root_arc=tip barely advances and dips while pelvis/chest continue; rear heel peels toward catch; shaft angle changes under consequence
+
+                                          :
+                                          :
+                                          :
+                             O            :
+                             *            :
+                              ****        :
+                            **    **    ==:>
+                            **  ==@=====  :
+                         ===*=**@         :
+                     [===  *              :
+                          +*              :
+                         *  **            :
+                    *****     *           :
+               _****          _           :
+                                          :
+                                          :
+..................................................
+
+
+[K10] PROXIMAL_BRAKE | TWOS | INFERRED | hold=2f
+support=FRONT_FOOT_PRIMARY_REAR_FOOT_AIRBORNE_CATCHING
+role=pelvis brakes first; chest and hand pair are still paying forward momentum
+root_arc=pelvis almost stops; chest advances; rear foot is visibly in transit rather than snapping home; shaft begins shortening
+
+                                          :
+                                          :
+                                          :
+                              O           :
+                              *           :
+                               ****       :
+                             ***   **     :
+                             **    * ===> :
+                            ****@==@=     :
+                         ==*===           :
+                      [== +*              :
+                         *  **            :
+                   _******    *           :
+                              _           :
+                                          :
+                                          :
+..................................................
+
+
+[K11] DISTAL_SNAPBACK | ONES | INFERRED | hold=1f
+support=FRONT_FOOT_PRIMARY_REAR_FOOT_NEW_CATCH
+role=distal tool recoil happens after proximal brake; hands fold before the root is allowed to retreat
+root_arc=rear foot catches forward of its original plant; pelvis barely moves; tool tip retracts hard and rear hand lags
+
+                                          :
+                                          :
+                                          :
+                              O           :
+                              *           :
+                              ***         :
+                            *** *         :
+                           * *  *=>       :
+                          **@=@*          :
+                      =====*              :
+                   [==    +*              :
+                         *  **            :
+                        **    *           :
+                     _**      _           :
+                                          :
+                                          :
+..................................................
+
+
+[K12] COUNTERSWING_OVERSHOOT | TWOS | INFERRED | hold=2f
+support=BOTH_FEET_REGAINING_FRONT_BIASED
+role=recovery overshoots past compactness; shaft butt and rear hand lag while torso counter-rotates
+root_arc=pelvis retreats slightly but chest rotates back farther; tool becomes more compact than final stance, creating visible overshoot
+
+                                          :
+                                          :
+                                          :
+                            O             :
+                            *             :
+                           *              :
+                         *****            :
+                       **  *  *           :
+                         *@  =*>          :
+                        ==*=@*            :
+                    ==== +*               :
+                 [==    *  **             :
+                       *     *            :
+                     _*       _           :
+                                          :
+                                          :
+..................................................
+
+
+[K13] SETTLE_DEBT | FOURS | INFERRED | hold=4f
+support=BOTH_FEET_BRACED_FRONT_BIASED
+role=settle without reset; readiness returns with displaced feet/root and a changed tool corridor
+root_arc=new stance remains forward and narrower at rear; pelvis is nine cells ahead of opening ready; tool axis stays lower and shorter
+
+                                          :
+                                          :
+                                          :
+                          O               :
+                          *               :
+                        *****             :
+                       *  *  **           :
+                       ** *  * ==>        :
+                         *@=@==           :
+                    =====+                :
+                 [==    * **              :
+                       *    *             :
+                      *      **           :
+                     _         _          :
+                                          :
+                                          :
+..................................................
+
