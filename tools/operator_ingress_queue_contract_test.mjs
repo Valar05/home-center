@@ -7,6 +7,7 @@ const manifest = read('app/src/main/AndroidManifest.xml');
 const application = read('app/src/main/java/com/dclar/homecenter/HomeCenterApplication.java');
 const queue = read('app/src/main/java/com/dclar/homecenter/OperatorIngressQueue.java');
 const main = read('app/src/main/java/com/dclar/homecenter/MainActivity.java');
+const gradle = read('app/build.gradle');
 
 // The queue must actually be installed into the Android process, not merely exist as dead source.
 assert.match(manifest, /android:name="\.HomeCenterApplication"/);
@@ -28,6 +29,9 @@ assert.match(main, /private volatile JSONObject pendingToolConfirmation;/);
 assert.match(main, /private String pendingAgentTurnAfterGoogleReconnect = "";/);
 assert.match(main, /private String activeConversationId = "";/);
 assert.match(main, /private void submitMessage\(String\s+\w+,\s*boolean\s+\w+\)/);
+
+// Reflection is a compatibility seam, so release name minification may not silently invalidate it.
+assert.doesNotMatch(gradle, /minifyEnabled\s+true/);
 
 // Ingress is transport, not interpretation. Preserve exact authored text and FIFO order.
 assert.match(queue, /new Item\([\s\S]*exactText,[\s\S]*conversationId/);
@@ -69,12 +73,26 @@ assert.match(queue, /void recoverInflight\(\)/);
 const restoreToHeadCount = (queue.match(/items\.add\(0, inflight\);/g) || []).length;
 assert.ok(restoreToHeadCount >= 2, 'retry and process recovery must both restore in-flight input to the head');
 assert.match(application, /ingressQueue\.retryInflight\(dispatch\.id\);/);
-assert.match(application, /ingressQueue\.completeDispatch\(dispatch\.id\);/);
 
-// If chat accepted dispatch but acknowledgement persistence fails, do not immediately resend.
-assert.match(application, /Message submitted, but queue acknowledgement failed\. Recovery may replay it\./);
-assert.match(application, /do not re-dispatch immediately/);
+// Submission acceptance is not queue acknowledgement. Retain the durable in-flight copy until
+// the submitted turn settles, or until a local turn has had a bounded persistence settle window.
+assert.match(application, /private static final long MIN_LOCAL_SETTLE_MS = 1200L;/);
+assert.match(application, /private String dispatchedItemId = "";/);
+assert.match(application, /dispatchedItemId = dispatch\.id;/);
+assert.match(application, /dispatchedSawBusy = busyField\.getBoolean\(active\);/);
+assert.match(application, /acknowledgeDispatchedItemIfSettled\(busy, barrier\)/);
+assert.match(application, /if \(busy \|\| barrier\) return false;/);
+assert.match(application, /if \(!dispatchedSawBusy && ageMs < MIN_LOCAL_SETTLE_MS\) return false;/);
+assert.match(application, /ingressQueue\.completeDispatch\(dispatchedItemId\);/);
+assert.doesNotMatch(application, /submitMessageMethod\.invoke\(active, dispatch\.text, false\);\s*ingressQueue\.completeDispatch/);
+assert.match(application, /Message settled, but queue acknowledgement failed\. Recovery may replay it\./);
+assert.match(application, /Process recovery may conservatively replay it/);
 assert.match(application, /failed to restore rejected queued dispatch/);
+
+// MainActivity records the user turn before it starts the asynchronous network turn. The queue's
+// delayed acknowledgement therefore keeps its own durable copy through the dangerous interval.
+assert.match(main, /appendUserMessage\(clean, fromVoice\);[\s\S]*recordTranscriptTurn\("user", clean\);[\s\S]*sendAgentTurn\(clean\);/);
+assert.match(main, /private void recordTranscriptTurn\(String role, String text\)[\s\S]*persistChatHistory\(\);/);
 
 // Semantic invariant learned from the failure: queue != interrupt.
 assert.doesNotMatch(application, /busy_turn_interrupt/);
