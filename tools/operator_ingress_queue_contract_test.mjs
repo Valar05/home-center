@@ -59,6 +59,17 @@ assert.match(application, /Queued durably\. Current work continues\./);
 assert.match(application, /startup queue recovery failed closed/);
 assert.match(application, /queueButton\.setEnabled\(false\)/);
 
+// A not-yet-queued thought survives the exact app-switch maneuver that motivated this repair.
+assert.match(queue, /private static final String KEY_DRAFT = "draft_text";/);
+assert.match(queue, /synchronized String draft\(\)/);
+assert.match(queue, /synchronized void saveDraft\(String exactText\)/);
+assert.match(queue, /remove\(KEY_DRAFT\)[\s\S]*\.commit\(\)/);
+assert.match(application, /String restoredDraft = ingressQueue\.draft\(\);/);
+assert.match(application, /input\.setText\(restoredDraft\);/);
+assert.match(application, /persistDraftBeforePanelRemoval\(\);/);
+assert.match(application, /ingressQueue\.saveDraft\(exact\);/);
+assert.match(application, /queue draft persistence failed closed/);
+
 // A queued thought must not mutate the currently running turn. It waits for busy and barriers.
 assert.match(application, /if \(busy \|\| barrier \|\| queued <= 0\) return;/);
 assert.doesNotMatch(application, /busyField\.set/);
