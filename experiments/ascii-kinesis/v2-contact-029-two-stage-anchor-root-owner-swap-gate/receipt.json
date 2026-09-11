@@ -1,12 +1,26 @@
 {
   "schema": "ascii-kinesis.contact-receipt-v2",
   "entry": "v2-contact-029-two-stage-anchor-root-owner-swap-gate",
-  "status": "CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "status": "REPO_PERSISTED_READY_FOR_USER_SURFACE",
   "drew_accepted": false,
   "preflight": {
     "home_center": true,
     "github": true,
     "current_worker": true
+  },
+  "current_worker_liveness": {
+    "home_center_campaign_exact_read": true,
+    "github_authenticated_persistence_readback": true,
+    "preflight": "PASS"
+  },
+  "ownership": {
+    "one_body": true,
+    "collision": "NONE",
+    "new_concept": true,
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "contact030_forbidden": true
   },
   "source": {
     "campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
@@ -38,31 +52,45 @@
     "frames": 33,
     "bytes": 20781,
     "sha256": "173c2f009c933a4a48057c156fb7e3589afeefdd4f56306c5cfb2c967c7a7874",
-    "decode": "PASS_CURRENT_WORKER_ACTUAL_RENDER"
+    "decode": "PASS_CURRENT_WORKER_FRESH_RECONSTRUCTION"
   },
   "quality": {
-    "tango": "PASS_R1_CURRENT_WORKER_ACTUAL_RENDER",
-    "tango_r0": "REVISE_REQUIRED_TELESCOPING_ACQUISITION_ARM_SPAN",
-    "tango_r0_correction": "SAME_BODY_CLOSE_RANGE_BEFORE_ACQUISITION_SHORTEN_CONTACT_REACH_PRESERVE_ROOT_SUPPORT_CAUSALITY",
-    "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_SAME_RENDER",
+    "tango_history": [
+      "R0 REVISE_REQUIRED_TELESCOPING_ACQUISITION_ARM_SPAN",
+      "same-body correction CLOSE_RANGE_BEFORE_ACQUISITION + SHORTEN_CONTACT_REACH + PRESERVE_ROOT_SUPPORT_CAUSALITY",
+      "R1 PASS on authoritative candidate render",
+      "fresh current-worker exact reconstruction revalidation PASS, no new visible defect"
+    ],
+    "tango": "PASS_R1_CURRENT_WORKER_FRESH_RECONSTRUCTION_SAME_ACTUAL_RENDER",
+    "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_CURRENT_WORKER_FRESH_REVALIDATION_SAME_RENDER",
+    "same_actual_render": true,
     "drew_accepted": false
   },
   "validator": {
     "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
     "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-    "candidate_isolated": "PASS_CURRENT_WORKER"
+    "candidate_isolated": "PASS_CURRENT_WORKER_EXACT_PREDICATE_EVALUATION"
   },
   "repo": {
-    "persisted": false,
-    "readback": false,
-    "exact_six_files": false,
-    "exact_one_spa": false,
-    "final_readback": false
+    "persisted": true,
+    "readback": true,
+    "exact_six_files": true,
+    "exact_one_spa": true,
+    "final_readback": false,
+    "content_blobs": {
+      "build.py": "b61472306034a1d068ee50d5ccd29a071e12472a",
+      "contact-sheet.txt": "fb3b48d0863e675cadf1af5fd3323e111c4e52af",
+      "motion.json": "e11a068185ef448c318d21e2c50e351b2b109c5b",
+      "two-stage-anchor-root-owner-swap-gate.motion.html": "1c3b833821657749fa8cafa5bc4b9e89a26813a0"
+    }
   },
   "issue": {
-    "pre_delivery": null,
-    "user_surface": null,
-    "terminal": null
+    "pre_delivery": false,
+    "pre_delivery_id": null,
+    "user_surface": false,
+    "user_surface_id": null,
+    "terminal": false,
+    "terminal_id": null
   },
   "campaign": {
     "closure": false,
@@ -78,8 +106,12 @@
   "contact030_forbidden": true,
   "actual_render_reinspection": {
     "decode": "PASS",
-    "tango_recursive": "R0_REVISE_REQUIRED_THEN_R1_PASS",
-    "queen_after_tango": "PASS_SAME_RENDER",
-    "media_sha256": "173c2f009c933a4a48057c156fb7e3589afeefdd4f56306c5cfb2c967c7a7874"
-  }
+    "ffprobe": "PASS_H264_YUV420P_720X400_24FPS_33_FRAMES",
+    "media_sha256": "173c2f009c933a4a48057c156fb7e3589afeefdd4f56306c5cfb2c967c7a7874",
+    "reconstructed_media_bytes": 20781,
+    "reconstruction_identity": "EXACT_SHA_MATCH_AUTHENTICATED_CURRENT_MAIN_DECLARATION",
+    "tango_recursive": "R1_FRESH_REVALIDATION_PASS_NO_NEW_DEFECT",
+    "queen_after_tango": "PASS_SAME_RENDER"
+  },
+  "next_authorized": null
 }
