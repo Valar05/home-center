@@ -5,7 +5,6 @@ Authority: Drew Clarke
 Campaign: `22 ASCII KINESIS — Spriters Resource Sheet Mining — 2026-09-07`
 Campaign ID: `1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s`
 Correction surface: `Valar05/home-center#343`
-Current global taste reset: issue #343 comment `5627433251` (2026-09-10 19:21 CDT)
 
 ## Consolidation boundary
 
@@ -27,13 +26,9 @@ Research volume, scheduler activity, Drive prose, hashes, schemas, and green tes
 
 ## Negative-fixture reset
 
-The binding reset is issue #343 comment `5627433251`, which supersedes the older reset boundary at comment `5576901079`.
+All ASCII Kinesis V2 animations predating the taste correction recorded on issue #343 comment `5576901079` are `REVISE_REQUIRED_LOW_EFFORT`.
 
-Every ASCII Kinesis V2 animation specimen that existed before comment `5627433251` is `REVISE_REQUIRED_LOW_EFFORT`, including specimens previously recorded as machine `HEALTHY_USER_SURFACED`, repo-verified, delivered, or Tango/Noodle-Queen-passed. Those facts remain historical machine evidence only and do not make a positive taste baseline or imply `DREW_ACCEPTED`.
-
-Each animation lane restarts its ordered rejection-debt queue at the oldest V2 specimen in that lane. A repair successor created before this reset is itself a negative fixture and does not clear the newly reset debt merely because it revised an older predecessor.
-
-Negative fixtures remain historical evidence, not taste baselines. Negative/quarantined visual material cannot train positive style.
+They remain historical evidence, not taste baselines. Negative/quarantined visual material cannot train positive style.
 
 ## Repair-oldest-first queue
 
