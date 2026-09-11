@@ -1,7 +1,7 @@
 {
   "format_version": 2,
   "experiment_id": "v2-airborne-040-control-phase-seize-landing-brace-debt",
-  "status": "PERSISTED_NOT_DELIVERED",
+  "status": "HEALTHY_USER_SURFACED",
   "drew_accepted": false,
   "one_body_binding": true,
   "successor_collision": false,
@@ -9,10 +9,10 @@
   "quality": {"tango":"PASS","tango_round":"R2","queen":{"taste":"PASS","function":"PASS","contempt":"PASS"},"same_render_and_specimen":true,"prior_repair":"K08/K09 local vane held at seized C* 48 degrees; impact overshoot begins at K10","current_repair":"BUILDER_MEDIA_IDENTITY_DRIFT: builder delivery encode restored to 384x216 CRF36, reproducing the already-persisted SPA delivery bytes; motion/choreography/source unchanged"},
   "authoritative_media": {"sha256":"a0aeca6b4762d86041adc77337999291a8da8a2958ed17792026d0146e80de65","bytes":48185,"codec":"h264","pix_fmt":"yuv420p","width":800,"height":448,"fps":24,"frames":88,"decode":"PASS"},
   "spa_delivery_media": {"sha256":"a835a7a09638ad8b4cabd06a233bb7cbabfae7a9061194d9f05705b9a6a99b37","bytes":13790,"codec":"h264","pix_fmt":"yuv420p","width":384,"height":216,"fps":24,"frames":88,"decode":"PASS"},
-  "repo": {"persisted":true,"exact_one_spa":true,"six_file_readback":true,"final_readback":false,"build_blob":"e970b4504ee79c465509785645d7dd7ccfef17f7","contact_blob":"97583e9b830b8e86b7b13bdcb5ea8f350da83534","motion_blob":"624ed7255093449f5033495f97df61acd1d8a2ca","spa_blob":"4204155f223999220d3458468a2b9c1378d53b4d"},
+  "repo": {"persisted":true,"exact_one_spa":true,"six_file_readback":true,"final_readback":true,"build_blob":"e970b4504ee79c465509785645d7dd7ccfef17f7","contact_blob":"97583e9b830b8e86b7b13bdcb5ea8f350da83534","motion_blob":"624ed7255093449f5033495f97df61acd1d8a2ca","spa_blob":"4204155f223999220d3458468a2b9c1378d53b4d"},
   "validator": {"official_blob":"7d9fc7608d54bca4a2cfbd36660c2d379e27fd78","candidate_isolated":"PASS","boundary":"Standard Chat candidate directory exact-predicate evaluation; repository-global checkout/shell suite unclaimed"},
-  "issue": {"pre_delivery_comment":5628742185,"current_worker_correction_comment":null,"reporting_comment":null,"terminal_comment":null},
-  "campaign": {"pre_delivery_checkpoint":true,"pre_delivery_request_id":"ascii-kinesis-airborne040-pre-delivery-campaign-20260910-2154","current_worker_correction_checkpoint":false,"final_self_binding":false},
-  "chat_delivery": {"part1_ascii":false,"part2_json":false,"part3_video":false},
-  "next_authorized": null
+  "issue": {"pre_delivery_comment":5628742185,"current_worker_correction_comment":5629128523,"reporting_comment":5629151251,"terminal_comment":5629161748},
+  "campaign": {"pre_delivery_checkpoint":true,"pre_delivery_request_id":"ascii-kinesis-airborne040-pre-delivery-campaign-20260910-2154","current_worker_correction_checkpoint":true,"current_worker_correction_request_id":"ascii-kinesis-airborne040-current-worker-correction-20260910-2236","reporting_checkpoint":true,"reporting_request_id":"ascii-kinesis-airborne040-reporting-chat-closure-20260910-2236","terminal_anchor":true,"terminal_anchor_request_id":"ascii-kinesis-airborne040-terminal-anchor-20260910-2236","final_self_binding":true},
+  "chat_delivery": {"part1_ascii":true,"part2_json":true,"part3_video":true},
+  "next_authorized": "v2-airborne-041"
 }
