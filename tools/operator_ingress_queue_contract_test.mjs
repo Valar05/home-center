@@ -39,9 +39,13 @@ assert.match(queue, /items\.add\(item\);/);
 assert.match(queue, /Item item = items\.remove\(0\);/);
 assert.doesNotMatch(queue, /exactText\.trim\(\).*new Item/);
 
-// Capacity and persistence both fail closed. "Queued" must mean durably queued.
+// Capacity and persistence both fail closed. Waiting + in-flight is one bounded ownership pool.
 assert.match(queue, /static final int MAX_ITEMS = 64;/);
-assert.match(queue, /if \(items\.size\(\) >= MAX_ITEMS\) return null;/);
+assert.match(queue, /int occupied = items\.size\(\) \+ \(readInflight\(\) == null \? 0 : 1\);/);
+assert.match(queue, /if \(occupied >= MAX_ITEMS\) return null;/);
+assert.match(queue, /operator ingress cannot restore in-flight item: queue is at capacity/);
+assert.match(queue, /restoreInflightToHead\(inflight, "retry_inflight"\)/);
+assert.match(queue, /restoreInflightToHead\(inflight, "recover_inflight"\)/);
 assert.match(queue, /requireCommit\(/);
 assert.match(queue, /operator ingress persistence failed during/);
 assert.match(queue, /operator ingress queue state is unreadable/);
@@ -70,8 +74,7 @@ assert.match(application, /Return there to continue\./);
 assert.match(queue, /putString\(KEY_INFLIGHT, item\.toJson\(\)\.toString\(\)\)/);
 assert.match(queue, /void retryInflight\(String id\)/);
 assert.match(queue, /void recoverInflight\(\)/);
-const restoreToHeadCount = (queue.match(/items\.add\(0, inflight\);/g) || []).length;
-assert.ok(restoreToHeadCount >= 2, 'retry and process recovery must both restore in-flight input to the head');
+assert.match(queue, /items\.add\(0, inflight\);/);
 assert.match(application, /ingressQueue\.retryInflight\(dispatch\.id\);/);
 
 // Submission acceptance is not queue acknowledgement. Retain the durable in-flight copy until
