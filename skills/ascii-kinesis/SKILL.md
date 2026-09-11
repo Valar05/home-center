@@ -31,9 +31,13 @@ Technical success is not taste acceptance. Drew's visible judgment outranks hash
 
 ## Current taste reset
 
-All ASCII Kinesis V2 animations predating the user taste correction recorded on `Valar05/home-center#343` comment `5576901079` are `REVISE_REQUIRED_LOW_EFFORT` negative fixtures.
+The current binding taste reset is `Valar05/home-center#343` comment `5627433251` (2026-09-10 19:21 CDT). It supersedes the older reset boundary recorded at comment `5576901079`.
 
-They remain evidence, never positive taste baselines. Rejected or quarantined imagery may not donate silhouette, proportions, palette, motifs, prop shape, or presentation language to a successor.
+Every ASCII Kinesis V2 animation specimen that existed before comment `5627433251` is `REVISE_REQUIRED_LOW_EFFORT` negative taste evidence, including specimens previously recorded as machine `HEALTHY_USER_SURFACED`, repo-verified, delivered, or Tango/Noodle-Queen-passed. Those machine facts remain historical evidence only; they do not survive the new taste reset as positive baselines and never imply `DREW_ACCEPTED`.
+
+Each animation lane therefore restarts its rejection-debt queue at the oldest V2 specimen in that lane. A pre-reset repair successor is itself a negative fixture under this reset and cannot clear the newly reset debt merely because it revised an older specimen.
+
+Negative fixtures remain readable evidence, never positive taste baselines. Rejected or quarantined imagery may not donate silhouette, proportions, palette, motifs, prop shape, or presentation language to a successor.
 
 ## Repair-oldest-first
 
