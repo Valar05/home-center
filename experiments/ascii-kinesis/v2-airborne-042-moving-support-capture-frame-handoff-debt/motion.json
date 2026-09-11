@@ -22,10 +22,10 @@
   "lineage": {"negative_fixture": null, "revises": null, "source_change": "NOT_APPLICABLE_NEW_CONCEPT"},
   "media": {"bytes":39295,"codec":"H.264/yuv420p","fps":24,"frames":45,"height":448,"sha256":"7187c47d5a5f82f8dabf30f3cd6db30f8acb0a3d2790a1116eae91b468771ef7","video_source":"abstract_ascii_rig_only","width":800},
   "primitive": "AIRBORNE_MOVING_SUPPORT_CAPTURE_FRAME_HANDOFF_DEBT",
-  "quality": {"drew_accepted":false,"noodle_queen":"BLOCKED_UNTIL_TANGO_PASS","tango":"PENDING_CURRENT_WORKER_ACTUAL_RENDER_JUDGMENT"},
+  "quality": {"drew_accepted":false,"noodle_queen":"PASS_TASTE_FUNCTION_CONTEMPT_SAME_RENDER","tango":"R0_PASS_CURRENT_WORKER_ACTUAL_RENDER","tango_highest_value_defect":"NONE_AT_ACCEPTANCE_SCALE"},
   "schema": "ascii-kinesis.motion-v2",
   "source": {"game":"3D Stunt Rider","home_center_evidence_id":"10EpvkQbXYEmFwRYFyr5dADthh45jr-1Zt50oI06e4FM","platform":"Amstrad CPC","rights":"EVIDENCE_ONLY_NO_SOURCE_PIXELS_AUDIO_PALETTE_CONTOURS_LAYOUT_TRACING_CHOREOGRAPHY_CLOSE_IMITATION","roles":["MOVING_REFERENCE_FRAME_RELATIONSHIP_EVIDENCE","RELATIONSHIP_BREAK_STATE_REFERENCE"],"source_timing":"UNKNOWN","timing_authority":false,"title":"Rider","tsr_asset":205456},
-  "status": "QUALITY_REVIEW_PENDING_REPO_PERSISTENCE_AND_CHAT_DELIVERY",
+  "status": "QUALITY_GATES_PASS_PENDING_REPO_PERSISTENCE_AND_CHAT_DELIVERY",
   "thesis": "WORLD PARENT MOTION DOES NOT REKEY THE AIRBORNE BODY; EARNED CONTACT CREATES THE FRAME JOIN, THEN INHERITED SUPPORT VELOCITY BECOMES LANDING DEBT.",
   "timing_policy": "STREET_FIGHTER/CAPCOM"
 }
