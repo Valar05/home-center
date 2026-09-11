@@ -1,898 +1,344 @@
-ASCII KINESIS V2 - AIRBORNE040
+ASCII KINESIS V2 — AIRBORNE040
 LOCAL_CONTROL_PHASE_SEIZE_LANDING_BRACE_DEBT
-SOURCE EVIDENCE: TSR asset 33735 - Dixie Kong - Donkey Kong Country 2 - Game Boy Advance - commissioned evidence 1FVCu-OOy4fvhMpNUMJtiF7yobfKqcfJ3OXWELI6rHkw
-SOURCE TIMING: UNKNOWN. ALL DECISIVE COMPILE TIMING BELOW: INFERRED / STREET_FIGHTER-CAPCOM.
-RIGHTS: source evidence only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio/close imitation.
-CONTROL LAW: generic hinged vane cycles A -> B -> C locally while BODY_ROOT/SUPPORT_CLOCK continue independently.
-SEIZE LAW: local control is arrested off-neutral at C* before contact; root descent continues; C* becomes landing-brace authority instead of resetting.
-LANDING LAW: separated precontact -> unilateral right catch -> impact overshoot -> delayed left support -> counterswing -> displaced final rest.
+SOURCE EVIDENCE: TSR asset 33735 — Dixie Kong — Donkey Kong Country 2 — Game Boy Advance — commissioned evidence 1FVCu-OOy4fvhMpNUMJtiF7yobfKqcfJ3OXWELI6rHkw
+SOURCE TIMING: UNKNOWN | DECISIVE COMPILE TIMING: INFERRED / STREET_FIGHTER-CAPCOM
+RIGHTS: evidence only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio/close imitation.
+READING: root position is stated numerically above each normalized silhouette panel; vane +/@ shows the local control clock.
 
-========================================================================================================
-K00 :: ASYMMETRIC LOAD / VANE NEUTRAL
-timing_class=FOURS | timing_provenance=INFERRED | causal_role=ANTICIPATION_LOAD
-support_contact=BOTH_FEET_GROUND | eligibility=SUPPORTED
-root=[8, 32] | force=GROUND_REACTION_LOAD
-local_control={'phase': 'N', 'pivot_deg': 0, 'state': 'NEUTRAL', 'clock': 'READY', 'timing_provenance': 'INFERRED'}
-clock_ownership={'BODY_ROOT': 'PRESERVE_PHASE', 'LOCAL_CONTROL': 'READY', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
+========================================================================
+K00  ASYMMETRIC LOAD / VANE NEUTRAL
+ROOT=[8, 32]  FORCE=GROUND_REACTION_LOAD
+SUPPORT=BOTH_FEET_GROUND  ELIGIBILITY=SUPPORTED
+LOCAL=N @ 0°  STATE=NEUTRAL  CLOCK=READY
+TIMING=FOURS / INFERRED  ROLE=ANTICIPATION_LOAD
 
 
 
 
 
 
+           o
+          - | -
+        x--+----@N
+            +
+           / \
+
+        */     \*
+_________________________
+
+
+========================================================================
+K01  SUPPORT BREAK / LAUNCH
+ROOT=[13, 26]  FORCE=LAUNCH_IMPULSE
+SUPPORT=NONE  ELIGIBILITY=SUPPORT_REVOKED
+LOCAL=A @ -38°  STATE=CYCLE_A  CLOCK=RUNNING
+TIMING=ONES / INFERRED  ROLE=EARNED_SUPPORT_BREAK
+
+
+
+
+         x-  o/@A
+          - ///-x
+           +/
+            +
+           / \
+
+         /     \
+        _       _
+
+_________________________
+
+
+========================================================================
+K02  ASCENT / CONTROL PHASE B
+ROOT=[21, 18]  FORCE=BALLISTIC_ASCENT
+SUPPORT=NONE  ELIGIBILITY=UNSUPPORTED
+LOCAL=B @ 7°  STATE=CYCLE_B  CLOCK=RUNNING
+TIMING=TWOS / INFERRED  ROLE=LOCAL_CONTROL_CYCLE_SAMPLE_B
+
+
+         x- o
+          - | --x
+           +----@B
+            +
+           / \
+
+         /     \
+        _       _
+
+
+_________________________
+
+
+========================================================================
+K03  APEX / CONTROL PHASE C
+ROOT=[30, 12]  FORCE=BALLISTIC_APEX
+SUPPORT=NONE  ELIGIBILITY=UNSUPPORTED
+LOCAL=C @ 52°  STATE=CYCLE_C  CLOCK=RUNNING
+TIMING=FOURS / INFERRED  ROLE=ROOT_APEX_WITH_LOCAL_CLOCK_CONTINUITY
+
+           o
+       x--- | ---x
+           +|
+            \\
+           / \@C
+
+         /     \
+        _       _
+
+
+
+_________________________
+
+
+========================================================================
+K04  DESCENT / CONTROL PHASE A
+ROOT=[39, 14]  FORCE=GRAVITY_DESCENT
+SUPPORT=NONE  ELIGIBILITY=UNSUPPORTED
+LOCAL=A @ -35°  STATE=CYCLE_A  CLOCK=RUNNING
+TIMING=TWOS / INFERRED  ROLE=DESCENT_CONTROL_SAMPLE_A
+
+             o/@A
+          / ///-x
+          /+/
+        x/  +
+           / \
+
+         /     \
+        _       _
+
+
+
+_________________________
+
+
+========================================================================
+K05  DESCENT / CONTROL PHASE B
+ROOT=[48, 17]  FORCE=GRAVITY_DESCENT
+SUPPORT=NONE  ELIGIBILITY=UNSUPPORTED
+LOCAL=B @ 8°  STATE=CYCLE_B  CLOCK=RUNNING
+TIMING=ONES / INFERRED  ROLE=DESCENT_CONTROL_SAMPLE_B
+
+
+           o
+        x-- |
+           +----@B
+            +   x
+           / \
+
+         /     \
+        _       _
+
+
+_________________________
+
+
+========================================================================
+K06  DESCENT / CONTROL PHASE C
+ROOT=[56, 21]  FORCE=GRAVITY_DESCENT
+SUPPORT=NONE  ELIGIBILITY=UNSUPPORTED
+LOCAL=C @ 54°  STATE=CYCLE_C  CLOCK=RUNNING
+TIMING=TWOS / INFERRED  ROLE=DESCENT_CONTROL_SAMPLE_C
+
+
+
+         x-  o
+          - | --
+           +|   -x
+            \\
+           / \@C
+
+         /     \
+        _       _
+
+_________________________
+
+
+========================================================================
+K07  PHASE SEIZE / OFF-NEUTRAL HOLD
+ROOT=[64, 25]  FORCE=GRAVITY_DESCENT
+SUPPORT=NONE  ELIGIBILITY=UNSUPPORTED
+LOCAL=C* @ 48°  STATE=SEIZED_OFF_NEUTRAL  CLOCK=SEIZED
+TIMING=ONES / INFERRED  ROLE=LOCAL_CLOCK_ARREST_WITH_ROOT_CONTINUITY
+
+
+
+
+          x  o
+            |
+           +\ \\
+            \   x
+           / \@!
+
+         /     \
+        _       _
+
+_________________________
+
+
+========================================================================
+K08  BRACE TRANSFER / ROOT STILL FALLS
+ROOT=[71, 29]  FORCE=GRAVITY_DESCENT_WITH_POSTURE_REORGANIZATION
+SUPPORT=NONE  ELIGIBILITY=UNSUPPORTED
+LOCAL=C* @ 48°  STATE=BRACE_AUTHORITY  CLOCK=SEIZED_TO_BRACE
+TIMING=TWOS / INFERRED  ROLE=SEIZED_PHASE_HANDOFF_TO_LANDING_BRACE
+
+
+
+
+              o
+            |
+          /+| \
+          / \\\
+         x / \@!
+
+         /     \
+        _       _
+_________________________
+
+
+========================================================================
+K09  SEPARATED PRECONTACT / RIGHT LEADS
+ROOT=[77, 32.3]  FORCE=GRAVITY_DESCENT
+SUPPORT=NONE  ELIGIBILITY=RIGHT_TOE_SEPARATED_PRECONTACT
+LOCAL=C* @ 48°  STATE=BRACE_AUTHORITY  CLOCK=BRACE_HOLD
+TIMING=ONES / INFERRED  ROLE=LANDING_ELIGIBILITY_FROM_SEIZED_PHASE_DEBT
 
 
 
 
 
-       o
-       |
-       +--------@N
-      /|\
-     //| \
-    // |  \
-    /  |   \
-   /   |    \
-  /    |     \
- /     |      \
-/      |       \
-       +
-      / \
-     /   \
-    /     \
-   /       \
-  /         \
- /           \
-/             \
+              o
+            |
+          /+\ \
+          / \ \
+         x / \@!
+        _-     -
+               -_
+_________________________
+
+
+========================================================================
+K10  RIGHT CATCH / PHASE-DEBT CRUSH
+ROOT=[81, 34]  FORCE=RIGHT_SUPPORT_IMPACT_BRAKE
+SUPPORT=RIGHT_TOE_ONLY  ELIGIBILITY=RIGHT_SUPPORT_ACQUIRED
+LOCAL=C* @ 69°  STATE=IMPACT_OVERSHOOT  CLOCK=IMPACT_DRIVEN
+TIMING=ONES / INFERRED  ROLE=FIRST_SUPPORT_AND_CONTROLLER_OVERSHOOT
+
+
+
+
+
+               o
+            |
+          /+| \
+          / \ \
+         x /\\ x
+        _-   @!
+               \*
+_________________________
+
+
+========================================================================
+K11  RIGHT SUPPORT HOLDS / TORSO OVERRUN
+ROOT=[84, 34.4]  FORCE=UNILATERAL_COMPRESSION
+SUPPORT=RIGHT_FOOT_DOMINANT  ELIGIBILITY=LEFT_NOT_ELIGIBLE
+LOCAL=C* @ 76°  STATE=OVERSHOOT_HELD  CLOCK=IMPACT_DRIVEN
+TIMING=TWOS / INFERRED  ROLE=IMPACT_FORCE_PAYMENT
 
 
 
 
 
 
+               o
+            |
+          /+| \
+          /|| \
+        _x /|\ x
+         -  @! -*
+_______________-_________
+
+
+========================================================================
+K12  LEFT CATCH / BRAKE WIDENS
+ROOT=[86, 34]  FORCE=BILATERAL_BRAKE
+SUPPORT=BOTH_FEET_GROUND  ELIGIBILITY=SECOND_SUPPORT_ACQUIRED
+LOCAL=C* @ 58°  STATE=COUNTERRETURN  CLOCK=RECOVERY
+TIMING=TWOS / INFERRED  ROLE=DELAYED_SECOND_SUPPORT
 
 
 
-   *         *
-________________________________________________________________________________________________________
-
-========================================================================================================
-K01 :: SUPPORT BREAK / LAUNCH
-timing_class=ONES | timing_provenance=INFERRED | causal_role=EARNED_SUPPORT_BREAK
-support_contact=NONE | eligibility=SUPPORT_REVOKED
-root=[13, 26] | force=LAUNCH_IMPULSE
-local_control={'phase': 'A', 'pivot_deg': -38, 'state': 'CYCLE_A', 'clock': 'RUNNING', 'timing_provenance': 'INFERRED'}
-clock_ownership={'BODY_ROOT': 'PRESERVE_PHASE', 'LOCAL_CONTROL': 'RUNNING', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
 
 
+             o
+            |
+          /+| \
+          / \ \
+         x /\\ x
+              @!
+        */     \*
+_________________________
+
+
+========================================================================
+K13  REBOUND / VANE COUNTERSWING
+ROOT=[88, 32.5]  FORCE=GROUND_REBOUND
+SUPPORT=BOTH_FEET_GROUND  ELIGIBILITY=SUPPORTED
+LOCAL=C* @ -18°  STATE=COUNTERSWING  CLOCK=RECOVERY
+TIMING=TWOS / INFERRED  ROLE=OVERSHOOT_REVERSAL_AND_SECONDARY_LAG
 
 
 
 
+
+           o  x
+        x-- | --@!
+           +--
+            +
+           / \
+
+        */     \*
+_________________________
+
+
+========================================================================
+K14  DISPLACED SETTLE / LAG REMAINS
+ROOT=[90, 33.4]  FORCE=GROUND_SETTLE
+SUPPORT=BOTH_FEET_GROUND  ELIGIBILITY=SUPPORTED
+LOCAL=N @ 22°  STATE=SETTLE_LAG  CLOCK=RECOVERING
+TIMING=FOURS / INFERRED  ROLE=DISPLACED_RECOVERY_DEBT
+
+
+
+
+
+           o
+          - | -
+        x--+----x
+            + --@N
+           / \
+
+        */     \*
+_________________________
+
+
+========================================================================
+K15  FINAL SUPPORT / NEW REST PHASE
+ROOT=[91, 34]  FORCE=STATIC_SUPPORT
+SUPPORT=BOTH_FEET_GROUND  ELIGIBILITY=SUPPORTED
+LOCAL=N @ 8°  STATE=NEW_REST  CLOCK=NEW_REST_PHASE
+TIMING=FOURS / INFERRED  ROLE=DISPLACED_FINAL_NOT_IDLE_RESET
 
 
 
 
 
             o
-            |
-            +       @A
-           /|\    //
-          / | \ //
-         /  | //\
-        /   |//  \
-       /   /+    \
-      /   / |     \
-     /   /  |      \
-    /   /   |       \
-   /   /    |        \
-  /   /     |         \
- /   /      |          \
-/   /       |           \
-   /        |            \
-  /         |             \
- /          |              \
-/           +
+          - | -
+        x--+----@N
+            +
            / \
-          /   \
-         /     \
-        /       \
-       /         \
-      /           \
-     /             \
-    /               \
-   /                 \
 
-
-
-
-
-________________________________________________________________________________________________________
-
-========================================================================================================
-K02 :: ASCENT / CONTROL PHASE B
-timing_class=TWOS | timing_provenance=INFERRED | causal_role=LOCAL_CONTROL_CYCLE_SAMPLE_B
-support_contact=NONE | eligibility=UNSUPPORTED
-root=[21, 18] | force=BALLISTIC_ASCENT
-local_control={'phase': 'B', 'pivot_deg': 7, 'state': 'CYCLE_B', 'clock': 'RUNNING', 'timing_provenance': 'INFERRED'}
-clock_ownership={'BODY_ROOT': 'PRESERVE_PHASE', 'LOCAL_CONTROL': 'RUNNING', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
-
-
-
-
-
-
-
-
-         x
-          \
-           \
-                    o
-                    |
-                    +---------@B
-                   /|\
-                  / | \
-                 /  |  \
-                /   |   \
-               /    |    \
-              /     |     \
-             /      |      \
-            /       |       \
-           /        |        \
-          /         |         \
-         /          |          \
-        /           |           \
-       /            |            \
-      /             +             \
-     /             / \
-    /             /   \
-   /             /     \
-  /             /       \
- /             /         \
-/             /           \
-             /             \
-            /               \
-
-
-
-
-________________________________________________________________________________________________________
-
-========================================================================================================
-K03 :: APEX / CONTROL PHASE C
-timing_class=FOURS | timing_provenance=INFERRED | causal_role=ROOT_APEX_WITH_LOCAL_CLOCK_CONTINUITY
-support_contact=NONE | eligibility=UNSUPPORTED
-root=[30, 12] | force=BALLISTIC_APEX
-local_control={'phase': 'C', 'pivot_deg': 52, 'state': 'CYCLE_C', 'clock': 'RUNNING', 'timing_provenance': 'INFERRED'}
-clock_ownership={'BODY_ROOT': 'PRESERVE_PHASE', 'LOCAL_CONTROL': 'RUNNING', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
-
-
-
-
-
-
-
-
-
-
-                             o
-                             |
-                             +
-                            /|\
-                           / | \
-                          /  |  \
-                         /   |   \
-                        /    |    \
-                       /     |     \
-                      /      |      \
-                     /       |       \
-                    /        |        \
-                   /         |         \
-                  /          |          \
-                 /           |           \
-                /            +             \
-               /            / \             \
-              /            /   \             \
-             /            /     \             \
-            /            /       \             \
-           /            /         \             \
-          /            /           \             \
-         /            /             \             \
-        /            /               \             \
-       /            /                 \             \
-      /            /                   \             \
-     /            /                     \             \
-    /            /                       \             \
-   /            /                         \             \
-  /            /                           \             \
- /            /                             \             \
-/            /                               \             \
-                        \
-                         \
-                          \
-                           \
-                            +\\
-                               \
-                                \
-                                 \
-                                  @C
-________________________________________________________________________________________________________
-
-========================================================================================================
-K04 :: DESCENT / CONTROL PHASE A
-timing_class=TWOS | timing_provenance=INFERRED | causal_role=DESCENT_CONTROL_SAMPLE_A
-support_contact=NONE | eligibility=UNSUPPORTED
-root=[39, 14] | force=GRAVITY_DESCENT
-local_control={'phase': 'A', 'pivot_deg': -35, 'state': 'CYCLE_A', 'clock': 'RUNNING', 'timing_provenance': 'INFERRED'}
-clock_ownership={'BODY_ROOT': 'PRESERVE_PHASE', 'LOCAL_CONTROL': 'RUNNING', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
-
-
-
-
-
-
-
-                                      o
-                                      |
-                                      +        @A
-                                     /|\     //
-                                    / | \  //
-                                   /  |  \//
-                                  /   |  //\
-                                 /   /+//  \
-                                /   / |     \
-                               /   /  |      \
-                              /   /   |       \
-                             /   /    |        \
-                            /   /     |         \
-                           /   /      |          \
-                          /   /       |           \
-                         /   /        |            \
-                        /   /         |             \
-                       /   /          |              \
-                      /   /           +               \
-                     /   /           / \               \
-                    /   /           /   \               \
-                   /   /           /     \               \
-                  /   /           /       \               \
-                 /   /           /         \               \
-                /   /           /           \               \
-               /   /           /             \               \
-              /   /           /               \               \
-             /   /           /                 \               \
-            /   /           /                   \               \
-           /   /           /                     \               \
-          /   /           /                       \               \
-         /   /           /                         \               \
-        /   /           /                           \               \
-       /   /           /                             \               \
-      /   /           /                               \               \
-     /   /           /                                 \               \
-________________________________________________________________________________________________________
-
-========================================================================================================
-K05 :: DESCENT / CONTROL PHASE B
-timing_class=ONES | timing_provenance=INFERRED | causal_role=DESCENT_CONTROL_SAMPLE_B
-support_contact=NONE | eligibility=UNSUPPORTED
-root=[48, 17] | force=GRAVITY_DESCENT
-local_control={'phase': 'B', 'pivot_deg': 8, 'state': 'CYCLE_B', 'clock': 'RUNNING', 'timing_provenance': 'INFERRED'}
-clock_ownership={'BODY_ROOT': 'PRESERVE_PHASE', 'LOCAL_CONTROL': 'RUNNING', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
-
-
-
-
-
-
-
-
-
-                                               o
-                                               |
-                                               +---------@B
-                                              /|\
-                                             / | \
-                                            /  |  \
-                                           /   |   \
-                                          /    |    \
-                                         /     |     \
-                                        /      |      \
-                                       /       |       \
-                                      /        |        \
-                                     /         |         \
-                                    /          |          \
-                                   /           |           \
-                                  /            +            \
-                                 /            / \            \
-                                /            /   \            \
-                               /            /     \            \
-                              /            /       \            \
-                             /            /         \            \
-                            /            /           \            \
-                           /            /             \            \
-                          /            /               \            \
-                         /            /                 \            \
-                        /            /                   \            \
-                       /            /                     \            \
-                      /            /                       \            \
-                     /            /                         \            \
-                    /            /                           \            \
-                   /            /                             \            \
-                  /            /                               \            \
-                 /            /                                 \            \
-________________________________________________________________________________________________________
-
-========================================================================================================
-K06 :: DESCENT / CONTROL PHASE C
-timing_class=TWOS | timing_provenance=INFERRED | causal_role=DESCENT_CONTROL_SAMPLE_C
-support_contact=NONE | eligibility=UNSUPPORTED
-root=[56, 21] | force=GRAVITY_DESCENT
-local_control={'phase': 'C', 'pivot_deg': 54, 'state': 'CYCLE_C', 'clock': 'RUNNING', 'timing_provenance': 'INFERRED'}
-clock_ownership={'BODY_ROOT': 'PRESERVE_PHASE', 'LOCAL_CONTROL': 'RUNNING', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
-
-
-
-
-
-
-
-
-
-
-                                                       o
-                                                       |
-                                                       +
-                                                      /|\
-                                                     / | \
-                                                    /  |  \
-                                                   /   |   \
-                                                  /    |    \
-                                                 /     |     \
-                                                /      |      \
-                                               /       |       \
-                                              /        |        \
-                                             /         |         \
-                                            /          |          \
-                                           /           |           \
-                                          /            +            \
-                                         /            / \            \
-                                        /            /   \            \
-                                       /            /     \            \
-                                      /            /       \            \
-                                     /            /         \            \
-                                    /            /           \            \
-                                   /            /             \            \
-                                  /            /               \            \
-                                 /            /                 \            \
-                                /            /                   \            \
-                               /            /                     \            \
-                              /            /                       \            \
-                             /            /                         \            \
-                            /            /                           \            \
-                           /            /                             \            \
-                          /            /                               \            \
-                         /            /                                 \            \
-                                                  \
-                                                   \
-                                                    \
-                                                     \
-                                                      +\\
-                                                         \
-                                                          @C
-________________________________________________________________________________________________________
-
-========================================================================================================
-K07 :: PHASE SEIZE / OFF-NEUTRAL HOLD
-timing_class=ONES | timing_provenance=INFERRED | causal_role=LOCAL_CLOCK_ARREST_WITH_ROOT_CONTINUITY
-support_contact=NONE | eligibility=UNSUPPORTED
-root=[64, 25] | force=GRAVITY_DESCENT
-local_control={'phase': 'C*', 'pivot_deg': 48, 'state': 'SEIZED_OFF_NEUTRAL', 'clock': 'SEIZED', 'timing_provenance': 'INFERRED'}
-clock_ownership={'BODY_ROOT': 'PRESERVE_PHASE', 'LOCAL_CONTROL': 'SEIZED', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
-
-
-
-
-
-
-
-
-
-
-                                                               o
-                                                               |
-                                                               +
-                                                              /|\
-                                                             / | \
-                                                            /  |  \
-                                                           /   |   \
-                                                          /    |    \
-                                                         /     |     \
-                                                        /      |      \
-                                                       /       |       \
-                                                      /        |        \
-                                                     /         |         \
-                                                    /          |          \
-                                                   /           |           \
-                                                  /            +            \
-                                                 /            / \            \
-                                                /            /   \            \
-                                               /            /     \            \
-                                              /            /       \            \
-                                             /            /         \            \
-                                            /            /           \            \
-                                           /            /             \            \
-                                          /            /               \            \
-                                         /            /                 \            \
-                                        /            /                   \            \
-                                       /            /                     \            \
-                                      /            /                       \            \
-                                     /            /                         \            \
-                                    /            /                           \            \
-                                   /            /                             \            \
-                                  /            /                               \            \
-                                 /            /                                 \            \
-                                                          \
-                                                           \
-                                                            \
-                                                             \
-                                                              +\\
-                                                                 \
-                                                                  @!
-________________________________________________________________________________________________________
-
-========================================================================================================
-K08 :: BRACE TRANSFER / ROOT STILL FALLS
-timing_class=TWOS | timing_provenance=INFERRED | causal_role=SEIZED_PHASE_HANDOFF_TO_LANDING_BRACE
-support_contact=NONE | eligibility=UNSUPPORTED
-root=[71, 29] | force=GRAVITY_DESCENT_WITH_POSTURE_REORGANIZATION
-local_control={'phase': 'C*', 'pivot_deg': 48, 'state': 'BRACE_AUTHORITY', 'clock': 'SEIZED_TO_BRACE', 'timing_provenance': 'INFERRED'}
-clock_ownership={'BODY_ROOT': 'PRESERVE_PHASE', 'LOCAL_CONTROL': 'SEIZED_TO_BRACE', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
-
-
-
-
-
-
-
-
-
-
-                                                                      o
-                                                                      |
-                                                                      +
-                                                                     /|\
-                                                                    / | \
-                                                                   /  |  \
-                                                                  /   |   \
-                                                                 /    |    \
-                                                                /     |     \
-                                                               /      |      \
-                                                              /       |       \
-                                                             /        |        \
-                                                            /         |         \
-                                                           /          |          \
-                                                          /           |           \
-                                                         /            +            \
-                                                        /            / \            \
-                                                       /            /   \            \
-                                                      /            /     \            \
-                                                     /            /       \            \
-                                                    /            /         \            \
-                                                   /            /           \            \
-                                                  /            /             \            \
-                                                 /            /               \            \
-                                                /            /                 \            \
-                                               /            /                   \            \
-                                              /            /                     \            \
-                                             /            /                       \            \
-                                            /            /                         \            \
-                                           /            /                           \            \
-                                          /            /                             \            \
-                                         /            /                               \            \
-                                        /            /                                 \            \
-                                                                 \
-                                                                  \
-                                                                   \
-                                                                    \
-                                                                     +\\
-                                                                        \
-                                                                         @!
-________________________________________________________________________________________________________
-
-========================================================================================================
-K09 :: SEPARATED PRECONTACT / RIGHT LEADS
-timing_class=ONES | timing_provenance=INFERRED | causal_role=LANDING_ELIGIBILITY_FROM_SEIZED_PHASE_DEBT
-support_contact=NONE | eligibility=RIGHT_TOE_SEPARATED_PRECONTACT
-root=[77, 32.3] | force=GRAVITY_DESCENT
-local_control={'phase': 'C*', 'pivot_deg': 48, 'state': 'BRACE_AUTHORITY', 'clock': 'BRACE_HOLD', 'timing_provenance': 'INFERRED'}
-clock_ownership={'BODY_ROOT': 'PRESERVE_PHASE', 'LOCAL_CONTROL': 'BRACE_HOLD', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
-
-
-
-
-
-
-
-
-
-
-                                                                            o
-                                                                            |
-                                                                            +
-                                                                           /|\
-                                                                          / | \
-                                                                         /  |  \
-                                                                        /   |   \
-                                                                       /    |    \
-                                                                      /     |     \
-                                                                     /      |      \
-                                                                    /       |       \
-                                                                   /        |        \
-                                                                  /         |         \
-                                                                 /          |          \
-                                                                /           |           \
-                                                               /            +            \
-                                                              /            / \            \
-                                                             /            /   \            \
-                                                            /            /     \            \
-                                                           /            /       \            \
-                                                          /            /         \            \
-                                                         /            /           \            \
-                                                        /            /             \            \
-                                                       /            /               \            \
-                                                      /            /                 \            \
-                                                     /            /                   \            \
-                                                    /            /                     \            \
-                                                   /            /                       \            \
-                                                  /            /                         \            \
-                                                 /            /                           \            \
-                                                /            /                             \            \
-                                               /            /                               \            \
-                                              /            /                                 \            \
-                                                                       \
-                                                                        \
-                                                                         \
-                                                                          \
-                                                                           +\\
-                                                                              \
-                                                                               @!
-________________________________________________________________________________________________________
-
-========================================================================================================
-K10 :: RIGHT CATCH / PHASE-DEBT CRUSH
-timing_class=ONES | timing_provenance=INFERRED | causal_role=FIRST_SUPPORT_AND_CONTROLLER_OVERSHOOT
-support_contact=RIGHT_TOE_ONLY | eligibility=RIGHT_SUPPORT_ACQUIRED
-root=[81, 34] | force=RIGHT_SUPPORT_IMPACT_BRAKE
-local_control={'phase': 'C*', 'pivot_deg': 69, 'state': 'IMPACT_OVERSHOOT', 'clock': 'IMPACT_DRIVEN', 'timing_provenance': 'INFERRED'}
-clock_ownership={'BODY_ROOT': 'PRESERVE_PHASE', 'LOCAL_CONTROL': 'IMPACT_DRIVEN', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
-
-
-
-
-
-
-
-
-
-
-                                                                                o
-                                                                                |
-                                                                                +
-                                                                               /|\
-                                                                              / | \
-                                                                             /  |  \
-                                                                            /   |   \
-                                                                           /    |    \
-                                                                          /     |     \
-                                                                         /      |      \
-                                                                        /       |       \
-                                                                       /        |        \
-                                                                      /         |         \
-                                                                     /          |          \
-                                                                    /           |           \
-                                                                   /            +            \
-                                                                  /            / \            \
-                                                                 /            /   \            \
-                                                                /            /     \            \
-                                                               /            /       \            \
-                                                              /            /         \            \
-                                                             /            /           \            \
-                                                            /            /             \            \
-                                                           /            /               \            \
-                                                          /            /                 \            \
-                                                         /            /                   \            \
-                                                        /            /                     \            \
-                                                       /            /                       \            \
-                                                      /            /                         \            \
-                                                     /            /                           \            \
-                                                    /            /                             \            \
-                                                   /            /                               \            \
-                                                  /            /                                 \            \
-                                                                         \
-                                                                          \
-                                                                           \
-                                                                            +
-                                                                            |
-                                                                             \
-                                                                              \
-                                                                               @!
-                                                                                      *
-________________________________________________________________________________________________________
-
-========================================================================================================
-K11 :: RIGHT SUPPORT HOLDS / TORSO OVERRUN
-timing_class=TWOS | timing_provenance=INFERRED | causal_role=IMPACT_FORCE_PAYMENT
-support_contact=RIGHT_FOOT_DOMINANT | eligibility=LEFT_NOT_ELIGIBLE
-root=[84, 34.4] | force=UNILATERAL_COMPRESSION
-local_control={'phase': 'C*', 'pivot_deg': 76, 'state': 'OVERSHOOT_HELD', 'clock': 'IMPACT_DRIVEN', 'timing_provenance': 'INFERRED'}
-clock_ownership={'BODY_ROOT': 'PRESERVE_PHASE', 'LOCAL_CONTROL': 'IMPACT_DRIVEN', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
-
-
-
-
-
-
-
-
-
-
-                                                                                   o
-                                                                                   |
-                                                                                   +
-                                                                                  /|\
-                                                                                 / | \
-                                                                                /  |  \
-                                                                               /   |   \
-                                                                              /    |    \
-                                                                             /     |     \
-                                                                            /      |      \
-                                                                           /       |       \
-                                                                          /        |        \
-                                                                         /         |         \
-                                                                        /          |          \
-                                                                       /           |           \
-                                                                      /            +            \
-                                                                     /            / \            \
-                                                                    /            /   \            \
-                                                                   /            /     \            \
-                                                                  /            /       \            \
-                                                                 /            /         \            \
-                                                                /            /           \            \
-                                                               /            /             \            \
-                                                              /            /               \            \
-                                                             /            /                 \            \
-                                                            /            /                   \            \
-                                                           /            /                     \            \
-                                                          /            /                       \            \
-                                                         /            /                         \            \
-                                                        /            /                           \            \
-                                                       /            /                             \            \
-                                                      /            /                               \            \
-                                                     /            /                                 \            \
-                                                                            \
-                                                                             \
-                                                                              +
-                                                                              |
-                                                                               \
-                                                                                \
-                                                                                 @!
-                                                                                         *
-________________________________________________________________________________________________________
-
-========================================================================================================
-K12 :: LEFT CATCH / BRAKE WIDENS
-timing_class=TWOS | timing_provenance=INFERRED | causal_role=DELAYED_SECOND_SUPPORT
-support_contact=BOTH_FEET_GROUND | eligibility=SECOND_SUPPORT_ACQUIRED
-root=[86, 34] | force=BILATERAL_BRAKE
-local_control={'phase': 'C*', 'pivot_deg': 58, 'state': 'COUNTERRETURN', 'clock': 'RECOVERY', 'timing_provenance': 'INFERRED'}
-clock_ownership={'BODY_ROOT': 'PRESERVE_PHASE', 'LOCAL_CONTROL': 'RECOVERY', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
-
-
-
-
-
-
-
-
-
-
-                                                                                     o
-                                                                                     |
-                                                                                     +
-                                                                                    /|\
-                                                                                   / | \
-                                                                                  /  |  \
-                                                                                 /   |   \
-                                                                                /    |    \
-                                                                               /     |     \
-                                                                              /      |      \
-                                                                             /       |       \
-                                                                            /        |        \
-                                                                           /         |         \
-                                                                          /          |          \
-                                                                         /           |           \
-                                                                        /            +            \
-                                                                       /            / \            \
-                                                                      /            /   \            \
-                                                                     /            /     \            \
-                                                                    /            /       \            \
-                                                                   /            /         \            \
-                                                                  /            /           \            \
-                                                                 /            /             \            \
-                                                                /            /               \            \
-                                                               /            /                 \            \
-                                                              /            /                   \            \
-                                                             /            /                     \            \
-                                                            /            /                       \            \
-                                                           /            /                         \            \
-                                                          /            /                           \            \
-                                                         /            /                             \            \
-                                                        /            /                               \            \
-                                                       /            /                                 \            \
-                                                                            \
-                                                                             \
-                                                                              \
-                                                                               \
-                                                                                +\\
-                                                                                   \
-                                                                                    @!
-                                                                                 *         *
-________________________________________________________________________________________________________
-
-========================================================================================================
-K13 :: REBOUND / VANE COUNTERSWING
-timing_class=TWOS | timing_provenance=INFERRED | causal_role=OVERSHOOT_REVERSAL_AND_SECONDARY_LAG
-support_contact=BOTH_FEET_GROUND | eligibility=SUPPORTED
-root=[88, 32.5] | force=GROUND_REBOUND
-local_control={'phase': 'C*', 'pivot_deg': -18, 'state': 'COUNTERSWING', 'clock': 'RECOVERY', 'timing_provenance': 'INFERRED'}
-clock_ownership={'BODY_ROOT': 'PRESERVE_PHASE', 'LOCAL_CONTROL': 'RECOVERY', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
-
-
-
-
-
-
-
-
-
-
-                                                                                       o
-                                                                                       |
-                                                                             @!      //+
-                                                                               \\  // /|\
-                                                                                 +/  / | \
-                                                                                    /  |  \
-                                                                                   /   |   \
-                                                                                  /    |    \
-                                                                                 /     |     \
-                                                                                /      |      \
-                                                                               /       |       \
-                                                                              /        |        \
-                                                                             /         |         \
-                                                                            /          |          \
-                                                                           /           |           \
-                                                                          /            +            \
-                                                                         /            / \            \
-                                                                        /            /   \            \
-                                                                       /            /     \            \
-                                                                      /            /       \            \
-                                                                     /            /         \            \
-                                                                    /            /           \            \
-                                                                   /            /             \            \
-                                                                  /            /               \            \
-                                                                 /            /                 \            \
-                                                                /            /                   \            \
-                                                               /            /                     \            \
-                                                              /            /                       \            \
-                                                             /            /                         \            \
-                                                            /            /                           \            \
-                                                           /            /                             \            \
-                                                          /            /                               \            \
-                                                         /            /                                 \            \
-                                                                                   *         *
-________________________________________________________________________________________________________
-
-========================================================================================================
-K14 :: DISPLACED SETTLE / LAG REMAINS
-timing_class=FOURS | timing_provenance=INFERRED | causal_role=DISPLACED_RECOVERY_DEBT
-support_contact=BOTH_FEET_GROUND | eligibility=SUPPORTED
-root=[90, 33.4] | force=GROUND_SETTLE
-local_control={'phase': 'N', 'pivot_deg': 22, 'state': 'SETTLE_LAG', 'clock': 'RECOVERING', 'timing_provenance': 'INFERRED'}
-clock_ownership={'BODY_ROOT': 'PRESERVE_PHASE', 'LOCAL_CONTROL': 'RECOVERING', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
-
-
-
-
-
-
-
-
-
-
-                                                                                         o
-                                                                                         |
-                                                                                         +-------@N
-                                                                                        /|\
-                                                                                       / | \
-                                                                                      /  |  \
-                                                                                     /   |   \
-                                                                                    /    |    \
-                                                                                   /     |     \
-                                                                                  /      |      \
-                                                                                 /       |       \
-                                                                                /        |        \
-                                                                               /         |         \
-                                                                              /          |          \
-                                                                             /           |           \
-                                                                            /            +            \
-                                                                           /            / \            \
-                                                                          /            /   \            \
-                                                                         /            /     \            \
-                                                                        /            /       \            \
-                                                                       /            /         \            \
-                                                                      /            /           \            \
-                                                                     /            /             \            \
-                                                                    /            /               \            \
-                                                                   /            /                 \            \
-                                                                  /            /                   \            \
-                                                                 /            /                     \            \
-                                                                /            /                       \            \
-                                                               /            /                         \            \
-                                                              /            /                           \            \
-                                                             /            /                             \            \
-                                                            /            /                               \            \
-                                                           /            /                                 \            \
-                                                                                     *         *
-________________________________________________________________________________________________________
-
-========================================================================================================
-K15 :: FINAL SUPPORT / NEW REST PHASE
-timing_class=FOURS | timing_provenance=INFERRED | causal_role=DISPLACED_FINAL_NOT_IDLE_RESET
-support_contact=BOTH_FEET_GROUND | eligibility=SUPPORTED
-root=[91, 34] | force=STATIC_SUPPORT
-local_control={'phase': 'N', 'pivot_deg': 8, 'state': 'NEW_REST', 'clock': 'NEW_REST_PHASE', 'timing_provenance': 'INFERRED'}
-clock_ownership={'BODY_ROOT': 'PRESERVE_PHASE', 'LOCAL_CONTROL': 'NEW_REST_PHASE', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
-
-
-
-
-
-
-
-
-
-
-                                                                                          o
-                                                                                          |
-                                                                                          +---------@N
-                                                                                         /|\
-                                                                                        / | \
-                                                                                       /  |  \
-                                                                                      /   |   \
-                                                                                     /    |    \
-                                                                                    /     |     \
-                                                                                   /      |      \
-                                                                                  /       |       \
-                                                                                 /        |        \
-                                                                                /         |         \
-                                                                               /          |          \
-                                                                              /           |           \
-                                                                             /            +            \
-                                                                            /            / \            \
-                                                                           /            /   \            \
-                                                                          /            /     \            \
-                                                                         /            /       \            \
-                                                                        /            /         \            \
-                                                                       /            /           \            \
-                                                                      /            /             \            \
-                                                                     /            /               \            \
-                                                                    /            /                 \            \
-                                                                   /            /                   \            \
-                                                                  /            /                     \            \
-                                                                 /            /                       \            \
-                                                                /            /                         \            \
-                                                               /            /                           \            \
-                                                              /            /                             \            \
-                                                             /            /                               \            \
-                                                            /            /                                 \            \
-                                                                                      *         *
-________________________________________________________________________________________________________
+        */     \*
+_________________________
