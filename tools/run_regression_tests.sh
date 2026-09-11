@@ -16,6 +16,8 @@ node --check tools/home_center_backend_automation_introspect.mjs
 python3 -m py_compile tools/home_drive_speaker_profile_scan.py
 sh -n tools/docker_install_smoke.sh
 python3 tools/home_center_regression_tests.py
+python3 -m py_compile tools/venice_review_memory.py
+python3 tools/test_venice_review_memory.py
 node --check tools/operator_ingress_queue_contract_test.mjs
 node tools/operator_ingress_queue_contract_test.mjs
 node --check functions/command_center_mcp.js
