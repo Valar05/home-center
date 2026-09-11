@@ -84,6 +84,27 @@ with tempfile.TemporaryDirectory() as td:
         planned = dict(receipt, directive="PLAN_ALLOWED", verdict="PASS", findings=[])
         assert memory.persist_review(planned) == []
         assert len(memory.MEMORY_PATH.read_text(encoding="utf-8").splitlines()) == 4
+
+        # Legacy v1 entries had only exact occurrence. Their existing recurrence count must seed
+        # the new broader class counter instead of resetting history at upgrade time.
+        legacy = {
+            "schema": "venice-review-memory-v1",
+            "repo": "/repo",
+            "category": "code_review_omission",
+            "finding": "legacy code review omission",
+            "fingerprint": "legacy-code-review",
+            "occurrence": 4,
+        }
+        with memory.MEMORY_PATH.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(legacy, sort_keys=True) + "\n")
+        migrated = memory.persist_review(dict(
+            receipt,
+            findings=["code review regression test coverage missing"],
+            correctionRoute="contract-test",
+        ))[0]
+        assert migrated["category"] == "code_review_omission"
+        assert migrated["classOccurrence"] == 5
+        assert "RECURRENCE_RATCHET" in migrated["recoveryRule"]
     finally:
         memory.STATE_DIR, memory.MEMORY_PATH, memory.LATEST_PATH = old_state, old_memory, old_latest
 
