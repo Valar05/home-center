@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
-export const CODEC_VERSION = 'fortress-online.communication-codec.v3';
+export const CODEC_VERSION = 'fortress-online.communication-codec.v2';
 
 export const POLICIES = Object.freeze({
   COMPACT_POINTER: 'COMPACT_POINTER',
