@@ -3,7 +3,7 @@
   "format_version": 2,
   "specimen": "v2-locomotion-026-stair-drop-mixed-height-catch-runout",
   "lane": "LOCOMOTION",
-  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_ISSUE_CHAT",
+  "status": "HEALTHY_USER_SURFACED",
   "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
@@ -64,6 +64,27 @@
     "candidate_isolated": "PASS",
     "repository_global": "UNCLAIMED_STANDARD_CHAT_CONNECTOR_BOUNDARY"
   },
+  "delivery": {
+    "part1_ascii": true,
+    "ascii_blob": "5415b225c0cf3bf18a78e80898623dd3b17bdfa7",
+    "part2_json": true,
+    "json_blob": "c4343476b360d63fa0ec60f19b996d192e46afa1",
+    "part3_video": true,
+    "video_sha256": "94f98ad4c5569489a9fd51a7ea700919d38507cde773a798f1cb7dc1de48490a",
+    "ordered": true
+  },
+  "issue": {
+    "pre_delivery": 5628196623,
+    "pre_delivery_readback": true,
+    "user_surface": 5628221130,
+    "user_surface_readback": true
+  },
+  "campaign": {
+    "predelivery_marker": "ASCII_KINESIS_LOCOMOTION_026_PREDELIVERY_20260910",
+    "predelivery_readback": true,
+    "user_surface_marker": "ASCII_KINESIS_LOCOMOTION_026_USER_SURFACE_20260910",
+    "user_surface_readback": true
+  },
   "DREW_ACCEPTED": false,
-  "next_authorized": null
+  "next_authorized": "v2-locomotion-027"
 }
