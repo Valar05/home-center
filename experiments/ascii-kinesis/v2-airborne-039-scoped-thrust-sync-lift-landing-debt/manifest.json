@@ -72,8 +72,8 @@
     "build_motion.py": "d212c7e555c27b04de31006dea3e141a9cea8497",
     "contact-sheet.txt": "1f7acc097cc2da3cb8072340dae1c4e47d8bb7d1",
     "motion.json": "a5c0f58e13df998d2d6d55735f66f62f19448852",
-    "scoped-thrust-sync-lift-landing-debt.motion.html": "622f687cf620a7b236c1c8bd829ef71553493a44",
-    "receipt.json": null
+    "scoped-thrust-sync-lift-landing-debt.motion.html": "9872ccfddefa833c73fae4cb9bd50ce63f311ef0",
+    "receipt.json": "7a207968a56dd2bc1b81e5cf2f17da95d274182d"
   },
   "artifact_sha256": {
     "build_motion.py": "b9bbe271ef7780f9bb2b15c1ca97c6e85048ecffa589b549d5ea854da982316a",
@@ -100,14 +100,28 @@
   },
   "contract": {
     "official_validator_blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-    "candidate_isolated": "PENDING_FINAL_RECHECK",
-    "standard_chat_boundary": "No repo-global checkout or shell-suite claim."
+    "candidate_isolated": "PASS_BY_EXACT_PREDICATE_EVALUATION_FROM_AUTHENTICATED_REMOTE_READBACK",
+    "data_view_order": ["ascii", "json", "video"],
+    "standard_chat_boundary": "Official validator source reread and exact candidate predicates evaluated against authenticated remote files. No repo-global checkout or shell-suite claim."
   },
+  "corrections": [
+    {
+      "class": "OFFICIAL_V2_VALIDATOR_FAIL_CURRENT_SPA_DATA_VIEW_MISSING",
+      "scope": "SAME_BODY_SPA_SERIALIZATION_ONLY",
+      "commit": "de7c6ee7fb41dd3d8aa079e17f4335d49a21f6d6",
+      "old_spa_blob": "622f687cf620a7b236c1c8bd829ef71553493a44",
+      "new_spa_blob": "9872ccfddefa833c73fae4cb9bd50ce63f311ef0",
+      "motion_changed": false,
+      "builder_changed": false,
+      "media_payload_changed": false,
+      "source_or_lineage_changed": false
+    }
+  ],
   "persistence": {
     "status": "PERSISTED_NOT_DELIVERED",
     "repo_persisted": true,
     "exact_one_spa": true,
-    "six_file_readback": false,
+    "six_file_readback": true,
     "final_readback": false,
     "issue_pre_delivery_receipt": false,
     "campaign_pre_delivery_checkpoint": false,
