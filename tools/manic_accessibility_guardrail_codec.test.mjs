@@ -5,9 +5,9 @@ import {CODEC_VERSION,POLICIES,runCommunicationCodec as run} from '../skills/man
 
 const codecDoc=fs.readFileSync('skills/manic-accessibility-guardrail/references/communication-codec.md','utf8');
 
-test('codec source and active contract agree on v3',()=>{
-  assert.equal(CODEC_VERSION,'fortress-online.communication-codec.v3');
-  assert.match(codecDoc,/Schema: `fortress-online\.communication-codec\.v3`/);
+test('codec source and active contract stay on compatible v2',()=>{
+  assert.equal(CODEC_VERSION,'fortress-online.communication-codec.v2');
+  assert.match(codecDoc,/Schema: `fortress-online\.communication-codec\.v2`/);
   assert.match(codecDoc,/Queued text preserves order, not authority/);
   assert.match(codecDoc,/A queue is not a preemption mechanism/);
 });
