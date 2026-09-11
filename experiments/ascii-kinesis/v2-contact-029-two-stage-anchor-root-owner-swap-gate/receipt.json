@@ -1,0 +1,85 @@
+{
+  "schema": "ascii-kinesis.contact-receipt-v2",
+  "entry": "v2-contact-029-two-stage-anchor-root-owner-swap-gate",
+  "status": "CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "drew_accepted": false,
+  "preflight": {
+    "home_center": true,
+    "github": true,
+    "current_worker": true
+  },
+  "source": {
+    "campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "evidence_artifact_id": "198sAnIYicWJ9Kw7vFA25m-WhtNrybj9DUAXNTC3PGMc",
+    "tsr_asset_id": 232259,
+    "identity": "Zangief — Super Street Fighter II: The New Challengers — Sega Genesis",
+    "roles": [
+      "POSE_REFERENCE",
+      "CONTACT_TOPOLOGY_REFERENCE"
+    ],
+    "timing_authority": false,
+    "source_authentic_timing": "UNKNOWN",
+    "whole_source_evidence_read": true,
+    "rights_firewall": "PASS_NO_SOURCE_PIXELS_AUDIO"
+  },
+  "lineage": {
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "predecessor_terminal_issue": 5628942709
+  },
+  "primitive": "TWO_STAGE_ANCHOR_ROOT_OWNER_SWAP_RELEASE_GATE",
+  "media": {
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 720,
+    "height": 400,
+    "fps": 24,
+    "frames": 33,
+    "bytes": 20781,
+    "sha256": "173c2f009c933a4a48057c156fb7e3589afeefdd4f56306c5cfb2c967c7a7874",
+    "decode": "PASS_CURRENT_WORKER_ACTUAL_RENDER"
+  },
+  "quality": {
+    "tango": "PASS_R1_CURRENT_WORKER_ACTUAL_RENDER",
+    "tango_r0": "REVISE_REQUIRED_TELESCOPING_ACQUISITION_ARM_SPAN",
+    "tango_r0_correction": "SAME_BODY_CLOSE_RANGE_BEFORE_ACQUISITION_SHORTEN_CONTACT_REACH_PRESERVE_ROOT_SUPPORT_CAUSALITY",
+    "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_SAME_RENDER",
+    "drew_accepted": false
+  },
+  "validator": {
+    "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS_CURRENT_WORKER"
+  },
+  "repo": {
+    "persisted": false,
+    "readback": false,
+    "exact_six_files": false,
+    "exact_one_spa": false,
+    "final_readback": false
+  },
+  "issue": {
+    "pre_delivery": null,
+    "user_surface": null,
+    "terminal": null
+  },
+  "campaign": {
+    "closure": false,
+    "readback": false
+  },
+  "chat": {
+    "part1": false,
+    "part2": false,
+    "part3": false,
+    "ordered_complete": false
+  },
+  "historical_negative_fixture_law": "ALL_DREW_REJECTED_PRE_5576901079_REMAIN_REVISE_REQUIRED_LOW_EFFORT",
+  "contact030_forbidden": true,
+  "actual_render_reinspection": {
+    "decode": "PASS",
+    "tango_recursive": "R0_REVISE_REQUIRED_THEN_R1_PASS",
+    "queen_after_tango": "PASS_SAME_RENDER",
+    "media_sha256": "173c2f009c933a4a48057c156fb7e3589afeefdd4f56306c5cfb2c967c7a7874"
+  }
+}
