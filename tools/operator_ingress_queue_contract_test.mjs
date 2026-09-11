@@ -35,10 +35,21 @@ assert.match(queue, /items\.add\(item\);/);
 assert.match(queue, /Item item = items\.remove\(0\);/);
 assert.doesNotMatch(queue, /exactText\.trim\(\).*new Item/);
 
-// Capacity must fail closed rather than silently dropping an older or newer thought.
+// Capacity and persistence both fail closed. "Queued" must mean durably queued.
 assert.match(queue, /static final int MAX_ITEMS = 64;/);
 assert.match(queue, /if \(items\.size\(\) >= MAX_ITEMS\) return null;/);
-assert.match(application, /Queue is full\. Nothing was dropped\./);
+assert.match(queue, /requireCommit\(/);
+assert.match(queue, /operator ingress persistence failed during/);
+assert.match(queue, /operator ingress queue state is unreadable/);
+assert.match(queue, /operator ingress queue contains an invalid item at index/);
+assert.match(queue, /operator ingress queue contains duplicate id/);
+assert.match(queue, /operator ingress in-flight state is unreadable/);
+assert.doesNotMatch(queue, /private void writeQueue/);
+assert.match(application, /Queue is full\. Your text is still in the composer\./);
+assert.match(application, /Queue unavailable\. Your text is still in the composer\./);
+assert.match(application, /Queued durably\. Current work continues\./);
+assert.match(application, /startup queue recovery failed closed/);
+assert.match(application, /queueButton\.setEnabled\(false\)/);
 
 // A queued thought must not mutate the currently running turn. It waits for busy and barriers.
 assert.match(application, /if \(busy \|\| barrier \|\| queued <= 0\) return;/);
@@ -60,16 +71,22 @@ assert.ok(restoreToHeadCount >= 2, 'retry and process recovery must both restore
 assert.match(application, /ingressQueue\.retryInflight\(dispatch\.id\);/);
 assert.match(application, /ingressQueue\.completeDispatch\(dispatch\.id\);/);
 
+// If chat accepted dispatch but acknowledgement persistence fails, do not immediately resend.
+assert.match(application, /Message submitted, but queue acknowledgement failed\. Recovery may replay it\./);
+assert.match(application, /do not re-dispatch immediately/);
+assert.match(application, /failed to restore rejected queued dispatch/);
+
 // Semantic invariant learned from the failure: queue != interrupt.
 assert.doesNotMatch(application, /busy_turn_interrupt/);
 assert.match(application, /"operator_ingress_queue"/);
 assert.match(application, /Queue without interrupting/);
 assert.match(application, /Current work continues/);
 
-// Accessibility is part of the feature, not garnish.
+// Accessibility is part of the feature, not garnish; unchanged liveness text is not re-announced every poll.
 assert.match(application, /setAccessibilityLiveRegion\(View\.ACCESSIBILITY_LIVE_REGION_POLITE\)/);
 assert.match(application, /setContentDescription\("Queue another Home Center message without interrupting current work"\)/);
 assert.match(application, /queueButton\.setMinimumHeight\(dp\(activity, 48\)\)/);
 assert.match(application, /input\.setMinimumHeight\(dp\(activity, 48\)\)/);
+assert.match(application, /safe\.contentEquals\(current\)/);
 
 console.log('operator ingress queue contract: OK');
