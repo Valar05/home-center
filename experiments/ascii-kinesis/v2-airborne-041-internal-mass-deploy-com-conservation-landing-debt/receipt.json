@@ -40,7 +40,10 @@
     "contact-sheet.txt": "10a6676a219ca084b5def5ee5744bdee64ecd4ae",
     "motion.json": "f8e6193182bbf4ec081abbe451951072e8cce18d",
     "internal-mass-deploy-com-conservation-landing-debt.motion.html": "b935f2998caefeb3ba6d77f6c111c90bc140efaa",
-    "manifest.json": "7f42d8995a2e482119e5501030c4b14ee9891542"
+    "manifest.json": "79c9ce277f85156e24ef2f84ec5956a8847d88d0",
+    "exact_six_files": true,
+    "exact_one_spa": true,
+    "post_write_readback": "PASS"
   },
   "spa": {
     "exact_one_spa": true,
