@@ -265,8 +265,8 @@ def main():
     contact=make_contact(m); CONTACT.write_text(contact,encoding='utf-8')
     frames=compile_frames(m)
     encode_mp4(frames,MP4,W,H,28)
-    delivery_frames=[im.resize((640,358),Image.Resampling.LANCZOS) for im in frames]
-    encode_mp4(delivery_frames,DELIVERY,640,358,30)
+    delivery_frames=[im.resize((384,216),Image.Resampling.LANCZOS) for im in frames]
+    encode_mp4(delivery_frames,DELIVERY,384,216,36)
     media=MP4.read_bytes(); delivery=DELIVERY.read_bytes()
     SPA.write_text(make_spa(contact,m,delivery),encoding='utf-8')
     print(json.dumps({
