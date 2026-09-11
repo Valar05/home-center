@@ -3,7 +3,7 @@
   "format_version": 2,
   "entry": "v2-contact-029-two-stage-anchor-root-owner-swap-gate",
   "lane": "contact",
-  "status": "USER_SURFACED_PENDING_TERMINAL_DURABILITY",
+  "status": "HEALTHY_USER_SURFACED",
   "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
@@ -20,9 +20,9 @@
   "media": {"codec": "h264", "pix_fmt": "yuv420p", "width": 720, "height": 400, "fps": 24, "frames": 33, "bytes": 20781, "sha256": "173c2f009c933a4a48057c156fb7e3589afeefdd4f56306c5cfb2c967c7a7874", "decode": "PASS_CURRENT_WORKER_FRESH_RECONSTRUCTION"},
   "quality": {"tango": "PASS_R1_CURRENT_WORKER_FRESH_RECONSTRUCTION_SAME_ACTUAL_RENDER", "tango_r0": "REVISE_REQUIRED_TELESCOPING_ACQUISITION_ARM_SPAN", "tango_r0_correction": "SAME_BODY_CLOSE_RANGE_BEFORE_ACQUISITION_SHORTEN_CONTACT_REACH_PRESERVE_ROOT_SUPPORT_CAUSALITY", "fresh_revalidation": "PASS_NO_NEW_VISIBLE_DEFECT_SAME_MEDIA_SHA", "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_CURRENT_WORKER_FRESH_REVALIDATION_SAME_RENDER", "drew_accepted": false},
   "validator": {"path": "tools/test_ascii_kinesis_swarm_contract_v2.py", "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78", "candidate_isolated": "PASS_CURRENT_WORKER_EXACT_PREDICATE_EVALUATION"},
-  "repo": {"persisted": true, "readback": true, "exact_six_files": true, "exact_one_spa": true, "final_readback": false, "content_blobs": {"build.py": "b61472306034a1d068ee50d5ccd29a071e12472a", "contact-sheet.txt": "fb3b48d0863e675cadf1af5fd3323e111c4e52af", "motion.json": "e11a068185ef448c318d21e2c50e351b2b109c5b", "two-stage-anchor-root-owner-swap-gate.motion.html": "1c3b833821657749fa8cafa5bc4b9e89a26813a0"}},
-  "issue": {"pre_delivery": 5632687639, "user_surface": 5632717341, "terminal": null},
-  "campaign": {"closure": false, "readback": false},
+  "repo": {"persisted": true, "readback": true, "exact_six_files": true, "exact_one_spa": true, "final_readback": true, "content_blobs": {"build.py": "b61472306034a1d068ee50d5ccd29a071e12472a", "contact-sheet.txt": "fb3b48d0863e675cadf1af5fd3323e111c4e52af", "motion.json": "e11a068185ef448c318d21e2c50e351b2b109c5b", "two-stage-anchor-root-owner-swap-gate.motion.html": "1c3b833821657749fa8cafa5bc4b9e89a26813a0"}},
+  "issue": {"pre_delivery": 5632687639, "user_surface": 5632717341, "terminal": 5632729815},
+  "campaign": {"closure": true, "readback": true},
   "chat": {"part1": true, "part2": true, "part3": true, "ordered_complete": true},
-  "next_authorized": null
+  "next_authorized": "v2-contact-030"
 }
