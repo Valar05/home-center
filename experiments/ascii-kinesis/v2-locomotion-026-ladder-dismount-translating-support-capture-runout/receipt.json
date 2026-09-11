@@ -1,0 +1,111 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "specimen": "v2-locomotion-026-ladder-dismount-translating-support-capture-runout",
+  "lane": "LOCOMOTION",
+  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_ISSUE_CHAT",
+  "preflight": {
+    "home_center_campaign_fresh_read": true,
+    "home_center_campaign_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
+    "authenticated_github_repo_fresh_read": true,
+    "repo": "Valar05/home-center",
+    "controlling_reset": 5576901079,
+    "manager_correction": 5627477737,
+    "void_false_reset": 5627433251
+  },
+  "binding": {
+    "one_body": true,
+    "collision": false,
+    "canonical_path": "experiments/ascii-kinesis/v2-locomotion-026-ladder-dismount-translating-support-capture-runout/",
+    "first_creation_commit": "b51c89d45d59a7f05ab16989e3176c933e9d4cd1",
+    "first_created_at": "2026-09-11T00:44:19Z",
+    "repair_oldest_first_debt_discovered": false,
+    "historical_drew_rejected_fixtures_remain_negative": true
+  },
+  "lineage": {
+    "kind": "NEW_CONCEPT",
+    "revises": null,
+    "negative_fixture": null,
+    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
+    "predecessor": "v2-locomotion-025-downhill-brake-gravity-respend-runout",
+    "predecessor_terminal_issue_comment": 5625985128
+  },
+  "source": {
+    "authority": "HOME_CENTER_COMMISSIONED_CAMPAIGN",
+    "evidence_artifact_file_id": "1zQGdJx7uIqTnvJlHp2NfydUu_EDDNvt01tCAlQvlYQ8",
+    "tsr_asset_id": 81106,
+    "identity": "Bullwinkle — The Adventures of Rocky and Bullwinkle and Friends — NES — Playable Characters",
+    "whole_source_inspected": true,
+    "timing_authority": "UNKNOWN",
+    "authored_timing": "INFERRED / STREET_FIGHTER-CAPCOM",
+    "source_role": "EVIDENCE_ONLY",
+    "source_pixels_or_audio_in_output": false
+  },
+  "authoritative_media": {
+    "mime": "video/mp4",
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "width": 480,
+    "height": 270,
+    "fps": 24,
+    "frames": 30,
+    "bytes": 10627,
+    "sha256": "a6457c050f6a6dd2344dad2c53d84e0deee4e90d387a3a170ec9fdb0a95830a0",
+    "byte_identical_reconstruction": true,
+    "decode_render_pass": true
+  },
+  "quality": {
+    "tango": {
+      "round_0": {
+        "decision": "REVISE_REQUIRED",
+        "render_sha256": "328c54513ab586df0ef9490642e10fbcf87e8fe5f88f48b541399dea1ce2a0fc",
+        "defect": "K10-K12 recovery over-stretched; planted feet outran root/COM and read as dragged mannequin.",
+        "same_body_correction": "Advance K10-K12 root/COM onto moving support, shorten deck-relative anchors, preserve 15->12->10 root-spacing debt and delayed arm settle."
+      },
+      "round_1": {
+        "decision": "PASS",
+        "current_worker": true,
+        "render_sha256": "a6457c050f6a6dd2344dad2c53d84e0deee4e90d387a3a170ec9fdb0a95830a0"
+      }
+    },
+    "noodle_queen": {
+      "decision": "TASTE+FUNCTION+CONTEMPT PASS",
+      "current_worker": true,
+      "after_tango": true,
+      "same_final_actual_render": true,
+      "render_sha256": "a6457c050f6a6dd2344dad2c53d84e0deee4e90d387a3a170ec9fdb0a95830a0"
+    }
+  },
+  "validator": {
+    "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
+    "candidate_isolated": "PASS_STRUCTURAL_PREDICATES",
+    "repository_global": "UNCLAIMED_STANDARD_CHAT_CONNECTOR_BOUNDARY"
+  },
+  "repository": {
+    "expected_file_count": 6,
+    "expected_spa_count": 1,
+    "post_write_readback": false,
+    "exact_six_file_body": false,
+    "blobs": {
+      "build.py": "41df6b2b53e4fae5e15a0f8f29a4042972cf8635",
+      "contact-sheet.txt": "25db83379d0671020cbb5a27be7445070e55bd6a",
+      "motion.json": "b145a87eeb25e86ecddecd252b8d9be7ac0c2a53",
+      "ladder-dismount-translating-support-capture-runout.motion.html": "4d6df18088e878780b62438c49f82940598cb95b"
+    }
+  },
+  "issue": {
+    "pre_delivery_receipt": null,
+    "readback": false
+  },
+  "campaign": {
+    "pre_delivery_marker": null,
+    "readback": false
+  },
+  "chat_delivery": {
+    "part1_ascii": false,
+    "part2_json": false,
+    "part3_visible_video": false
+  },
+  "DREW_ACCEPTED": false,
+  "next_authorized": null
+}
