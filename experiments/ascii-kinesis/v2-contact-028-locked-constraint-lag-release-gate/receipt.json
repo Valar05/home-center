@@ -2,20 +2,8 @@
   "schema": "ascii-kinesis.v2-receipt",
   "entry": "v2-contact-028-locked-constraint-lag-release-gate",
   "status": "REPO_PERSISTED_READY_FOR_USER_SURFACE",
-  "current_worker_liveness": {
-    "home_center_campaign_exact_read": true,
-    "github_authenticated_persistence_readback": true,
-    "preflight": "PASS"
-  },
-  "ownership": {
-    "one_body": true,
-    "collision": "NONE",
-    "new_concept": true,
-    "revises": null,
-    "negative_fixture": null,
-    "source_change": "NOT_APPLICABLE_NEW_CONCEPT",
-    "contact029_forbidden": true
-  },
+  "current_worker_liveness": {"home_center_campaign_exact_read": true, "github_authenticated_persistence_readback": true, "preflight": "PASS"},
+  "ownership": {"one_body": true, "collision": "NONE", "new_concept": true, "revises": null, "negative_fixture": null, "source_change": "NOT_APPLICABLE_NEW_CONCEPT", "contact029_forbidden": true},
   "source": {
     "campaign_file_id": "1T7IqYS_fl064gzoCYCZmzNARviyAJoGEloOZcFpba4s",
     "evidence_artifact_id": "198sAnIYicWJ9Kw7vFA25m-WhtNrybj9DUAXNTC3PGMc",
@@ -27,32 +15,15 @@
     "whole_source_evidence_read": true,
     "rights_firewall": "PASS_NO_SOURCE_PIXELS_AUDIO"
   },
-  "media": {
-    "codec": "h264",
-    "pix_fmt": "yuv420p",
-    "width": 660,
-    "height": 360,
-    "fps": 24,
-    "frames": 35,
-    "bytes": 14254,
-    "sha256": "f03d6dfeb54d620433d772f2e0819528d8fbd01a2d54c1b249baf841d239d055",
-    "decode": "PASS_CURRENT_WORKER_ACTUAL_RENDER"
-  },
+  "media": {"codec": "h264", "pix_fmt": "yuv420p", "width": 660, "height": 360, "fps": 24, "frames": 35, "bytes": 14254, "sha256": "f03d6dfeb54d620433d772f2e0819528d8fbd01a2d54c1b249baf841d239d055", "decode": "PASS_CURRENT_WORKER_ACTUAL_RENDER"},
   "quality": {
-    "tango_history": [
-      "R0 REVISE_REQUIRED: torso too upright / arms risked telescoping metadata carriers",
-      "R1 PASS_CURRENT_WORKER_ACTUAL_RENDER after same-body stronger counterlean/compression"
-    ],
+    "tango_history": ["R0 REVISE_REQUIRED: torso too upright / arms risked telescoping metadata carriers", "R1 PASS_CURRENT_WORKER_ACTUAL_RENDER after same-body stronger counterlean/compression"],
     "tango": "PASS_R1_CURRENT_WORKER_ACTUAL_RENDER",
     "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_SAME_RENDER",
     "same_actual_render": true,
     "drew_accepted": false
   },
-  "validator": {
-    "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
-    "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78",
-    "candidate_isolated": "PASS"
-  },
+  "validator": {"path": "tools/test_ascii_kinesis_swarm_contract_v2.py", "blob": "7d9fc7608d54bca4a2cfbd36660c2d379e27fd78", "candidate_isolated": "PASS"},
   "repo": {
     "persisted": true,
     "readback": true,
@@ -61,19 +32,12 @@
     "final_readback": false,
     "content_blobs": {
       "build.py": "f298fe1497b0ce88a93ff60e42d1d2dd0177f6cb",
-      "contact-sheet.txt": "3a39cbaed4d8fe49edf23d5a56e078c50c624e4f",
+      "contact-sheet.txt": "5ffc68f7c464157c19d0f4279cfacc19ab2530f2",
       "motion.json": "b9df39869a44e042c52a7e4795384069ba0da307",
       "locked-constraint-lag-release-gate.motion.html": "7a86621840ed9b70ba0b1a283fcdd85ef4b12e79"
     }
   },
-  "issue": {
-    "pre_delivery": false,
-    "pre_delivery_id": null,
-    "user_surface": false,
-    "user_surface_id": null,
-    "terminal": false,
-    "terminal_id": null
-  },
+  "issue": {"pre_delivery": false, "pre_delivery_id": null, "user_surface": false, "user_surface_id": null, "terminal": false, "terminal_id": null},
   "campaign": {"closure": false, "readback": false},
   "chat": {"part1": false, "part2": false, "part3": false, "ordered_complete": false},
   "historical_law": "PRE_RESET_DREW_REJECTED_V2_REMAIN_REVISE_REQUIRED_LOW_EFFORT_NEGATIVE_FIXTURES",
