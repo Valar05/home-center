@@ -1,0 +1,451 @@
+ASCII KINESIS V2 CONTACT028 — LOCKED CONSTRAINT LAG / RELEASE GATE
+Primitive: LOCKED_CONSTRAINT_TRANSFER_WITH_PARTNER_LAG_RELEASE_GATE
+Pocket rule: while contact is LOCKED, the actor may spend support and lead the transfer but the contacted mass cannot teleport. Lag becomes visible debt; catch-up happens before the one-anchor release gate; release destroys the constraint only after arrest begins.
+Legend: O head | P root | x COM | o hand | * contact | # contacted mass | B center proxy | = active constraint | ! trusted foot | ~ light/probe foot | > supplementary load witness
+Source: Zangief / Super Street Fighter II: The New Challengers / Sega Genesis / TSR asset 232259 / Home Center evidence 198sAnIYicWJ9Kw7vFA25m-WhtNrybj9DUAXNTC3PGMc
+Rights: no source pixels/audio/palette/contours/layout/choreography. Partner proxy and all compiled motion are independent worker-authored inference.
+
+K00 READY_READ [FOURS/INFERRED] bridge=false
+REL=NONE CONTACTS=0 LOAD=0.00 SUPPORT=BOTH_TRUSTED A_ROOT=[15, 16] B_CENTER=[48, 11]
+ROLE=Stable base; read range before claim.
+
+
+
+
+
+
+            O
+             | --
+              -   --                         #######
+             |--    --                       #     #
+              |  -    o                      #  B  #
+              x   --o                        #     #
+              |                              #######
+               |
+               |
+               P
+              / \
+             /   \
+            /     \
+           /       \
+ _________!_________!______________________________________________
+
+
+
+
+K01 RANGE_CLAIM [TWOS/INFERRED] bridge=false
+REL=NONE CONTACTS=0 LOAD=0.00 SUPPORT=BOTH_TRUSTED A_ROOT=[18, 16] B_CENTER=[48, 11]
+ROLE=Root advances while both supports remain trustworthy.
+
+
+
+
+
+
+                   O
+                   | --
+                    -   --                   #######
+                   |--    --                 #     #
+                   |   -    o                #  B  #
+                   x    -o                   #     #
+                   |                         #######
+                  |
+                  |
+                  P
+                 / \
+                /   \
+              --     \
+             /        \
+ ___________!__________!___________________________________________
+
+
+
+
+K02 SINK_PRELOAD [TWOS/INFERRED] bridge=true
+REL=ELIGIBLE CONTACTS=0 LOAD=0.15 SUPPORT=BOTH_TRUSTED A_ROOT=[20, 18] B_CENTER=[48, 11]
+ROLE=Authored bridge: COM lowers and rear leg loads before acquisition.
+
+
+
+
+
+
+
+                                                     >
+                        O                    #######
+                       |  -- --              #     #
+                        --     --o           #  B  #
+                       |--                   #     #
+                      |    --o               #######
+                      x
+                     |
+                     |
+                    |
+                   -P
+                 --  --
+               --      --
+ ____________!___________!_________________________________________
+
+
+
+
+K03 ACQUIRE_ONE [ONES/INFERRED] bridge=false
+REL=ONE_ANCHOR CONTACTS=1 LOAD=0.25 SUPPORT=BOTH_TRUSTED A_ROOT=[22, 17] B_CENTER=[48, 11]
+ROLE=First distal anchor lands before major root transfer.
+
+
+
+
+
+
+
+                           O                         >
+                          |   ---- --        #######
+                           ---       ----    #     #
+                         |  --           --*=*  B  #
+                         |    - --           #     #
+                         x        ---o       #######
+                       |
+                       |
+                      |
+                      P
+                    -- \
+                  --    --
+                --        \
+ _____________!____________!_______________________________________
+
+
+
+
+K04 LOCK_TWO [FOURS/INFERRED] bridge=false
+REL=LOCKED CONTACTS=2 LOAD=0.40 SUPPORT=BOTH_TRUSTED A_ROOT=[23, 17] B_CENTER=[48, 11]
+ROLE=Second anchor creates locked relationship; base widens and root centers.
+
+
+
+
+
+
+
+                           O                         >>
+                          |   ---- ----      #######
+                           ---         ----* #     #
+                          | ----            =*  B  #
+                         |      -- --------*=*     #
+                          x                  #######
+                        |
+                        |
+                       |
+                      -P
+                    --  \
+                  --     --
+                --         \
+ _____________!_____________!______________________________________
+
+
+
+
+K05 LOAD_COUNTERLEAN [TWOS/INFERRED] bridge=false
+REL=LOCKED CONTACTS=2 LOAD=0.70 SUPPORT=REAR_DOMINANT_FRONT_LIGHT A_ROOT=[21, 18] B_CENTER=[48, 11]
+ROLE=A shifts COM behind the contact line; rear support becomes dominant.
+
+
+
+
+
+
+
+                                                     >>>
+              O                              #######
+               |       ------ -------------* #     #
+                 ------                     =*  B  #
+                 |  ------          -------*=*     #
+                 |        --- ------         #######
+                x
+                   |
+                    |
+                    |
+                    -P-
+                  --   --
+               ---       ---
+ ____________!_______________~_____________________________________
+
+
+
+
+K06 DRIVE_BRIDGE_A [ONES/INFERRED] bridge=true
+REL=LOCKED CONTACTS=2 LOAD=0.82 SUPPORT=REAR_DOMINANT_FRONT_LIGHT A_ROOT=[24, 16] B_CENTER=[49, 11]
+ROLE=Bridge: rear leg drives root right while partner center barely yields.
+
+
+
+
+
+
+                             O
+                            |   ---- -                >>>
+                             ---      ----    #######
+                           |  ----        --* #     #
+                           |      -- ---     =*  B  #
+                           x            ----*=*     #
+                         |                    #######
+                         |
+                        |
+                        P
+                      -- \
+                    --    \
+                  --       --
+                --           \
+ ______________!______________~____________________________________
+
+
+
+
+K07 DRIVE_BRIDGE_B [ONES/INFERRED] bridge=true
+REL=LOCKED CONTACTS=2 LOAD=0.92 SUPPORT=REAR_DOMINANT_FRONT_LIGHT A_ROOT=[27, 15] B_CENTER=[50, 11]
+ROLE=Bridge: torso and root pass through support; front foot begins catch.
+
+
+
+
+
+                                   O
+                                  | ---
+                                  --    --             >>>>
+                                |  ---    --   #######
+                               |      - -   -* #     #
+                                x        ---  =*  B  #
+                             |              -*=*     #
+                            |                  #######
+                            |
+                           P
+                         -- |
+                        /   |
+                      --     \
+                     /        |
+                   --         |
+ _________________!____________~___________________________________
+
+
+
+
+K08 PARTNER_LAG_HOLD [TWOS/INFERRED] bridge=false
+REL=LOCKED CONTACTS=2 LOAD=1.00 SUPPORT=REAR_DOMINANT_FRONT_LIGHT A_ROOT=[29, 15] B_CENTER=[50, 11]
+ROLE=A has moved materially farther than B; arms and support show stored transfer debt.
+
+
+
+
+
+                                   O
+                                    | --
+                                    --   --            >>>>
+                                  |  --    --  #######
+                                  |    - -   -*#     #
+                                   x      ---  *  B  #
+                                |            -**     #
+                               |               #######
+                              |
+                             P
+                           -- |
+                          /   |
+                        --     \
+                       /        |
+                     --         |
+ ___________________!____________~_________________________________
+
+
+
+
+K09 CATCHUP_ACCEL [ONES/INFERRED] bridge=true
+REL=LOCKED CONTACTS=2 LOAD=0.86 SUPPORT=FRONT_CATCH_REAR_BRAKE A_ROOT=[31, 15] B_CENTER=[53, 11]
+ROLE=Bridge: partner center catches up while A shortens stride into arrest.
+
+
+
+
+
+                                    O
+                                   |   --- -
+                                    ---     --            >>>
+                                  |  ----     --  #######
+                                  |      - -    -*#     #
+                                  x         ----  *  B  #
+                                |               -**     #
+                                |                 #######
+                               |
+                               P
+                             -- |
+                            /   |
+                          --     \
+                         /        |
+                       --         |
+ _____________________~____________!_______________________________
+
+
+
+
+K10 TRANSFER_OVERSHOOT [TWOS/INFERRED] bridge=false
+REL=LOCKED CONTACTS=2 LOAD=0.58 SUPPORT=FRONT_CATCH_REAR_BRAKE A_ROOT=[32, 16] B_CENTER=[55, 11]
+ROLE=B overshoots transfer target as A counterleans and front support catches.
+
+
+
+
+
+
+                          O
+                           |      ----- --                  >>
+                             -----        ------    #######
+                             | ------           --* #     #
+                             |       -- -----      =*  B  #
+                            x                -----*=*     #
+                               |                    #######
+                               |
+                                |
+                                P
+                              -- \
+                            --    |
+                          --      |
+                        --         \
+ ______________________~____________!______________________________
+
+
+
+
+K11 RELEASE_GATE [TWOS/INFERRED] bridge=true
+REL=ONE_ANCHOR_RELEASE_GATE CONTACTS=1 LOAD=0.28 SUPPORT=FRONT_CATCH_REAR_BRAKE A_ROOT=[32, 16] B_CENTER=[56, 11]
+ROLE=Authored bridge: one anchor drops only after A begins arrest; custody remains constrained.
+
+
+
+
+
+
+                        O
+                         |      ------ --                    >
+                           -----         ------      #######
+                           |  ------           ---*= #     #
+                            |       --- ------      =*  B  #
+                           x                  ------o#     #
+                              |                      #######
+                               |
+                               |
+                                P
+                              -- \
+                             /    |
+                           --     |
+                         --        \
+ _______________________~___________!______________________________
+
+
+
+
+K12 RELEASE_EVENT [ONES/INFERRED] bridge=false
+REL=RELEASED CONTACTS=0 LOAD=0.00 SUPPORT=FRONT_CATCH_REAR_BRAKE A_ROOT=[31, 16] B_CENTER=[59, 11]
+ROLE=Constraint destroyed; B continues right while A recoils left against planted support.
+
+
+
+
+
+
+                       O
+                        |      ----- -
+                          -----       ----              #######
+                          | -----         ----          #     #
+                          |      -- --        --o       #  B  #
+                         x            ------            #     #
+                            |               --o         #######
+                             |
+                              |
+                               P
+                             -- \
+                            /    |
+                           /     |
+                         --       \
+ _______________________~__________!_______________________________
+
+
+
+
+K13 RECOIL_SETTLE [TWOS/INFERRED] bridge=true
+REL=SEPARATED CONTACTS=0 LOAD=0.00 SUPPORT=BOTH_RECOVERING A_ROOT=[30, 17] B_CENTER=[62, 11]
+ROLE=Bridge: secondary arm lag follows release; COM settles over a displaced base.
+
+
+
+
+
+
+
+                        O
+                         |     ---- -                      #######
+                           ----      ---                   #     #
+                           |----        ---                #  B  #
+                           |    -- ---     -o              #     #
+                          x           ----o                #######
+                             |
+                             |
+                              |
+                              P
+                            -- \
+                          --    \
+                        --       \
+ ______________________!__________!________________________________
+
+
+
+
+K14 DISPLACED_RECOVERY [FOURS/INFERRED] bridge=false
+REL=SEPARATED CONTACTS=0 LOAD=0.00 SUPPORT=BOTH_TRUSTED A_ROOT=[30, 16] B_CENTER=[64, 11]
+ROLE=Recovery pays debt without rewinding to the starting root.
+
+
+
+
+
+
+                           O
+                            |  --
+                             --   --                         #######
+                            |--     \                        #     #
+                             | - -   --                      #  B  #
+                             x    --   o                     #     #
+                             |      -o                       #######
+                              |
+                              |
+                              P
+                             / \
+                            /   \
+                          --     \
+                         /        \
+ _______________________!__________!_______________________________
+
+
+
+
+K15 READY_DISPLACED [FOURS/INFERRED] bridge=false
+REL=SEPARATED CONTACTS=0 LOAD=0.00 SUPPORT=BOTH_TRUSTED A_ROOT=[31, 16] B_CENTER=[64, 11]
+ROLE=Stable re-entry at a new location; original range is not restored.
+
+
+
+
+
+
+                               O
+                               | -
+                                -  \                         #######
+                               |--  \                        #     #
+                               |     \                       #  B  #
+                               x   -- o                      #     #
+                               |     o                       #######
+                               |
+                               |
+                               P
+                              / \
+                             /   \
+                           --     \
+                          /        \
+ ________________________!__________!______________________________
