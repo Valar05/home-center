@@ -2,7 +2,7 @@
   "format_version": 2,
   "experiment_id": "v2-airborne-041-internal-mass-deploy-com-conservation-landing-debt",
   "primitive": "AIRBORNE_INTERNAL_MASS_DEPLOY_COM_CONSERVATION_LANDING_DEBT",
-  "status": "PERSISTED_READY_FOR_USER_SURFACE",
+  "status": "HEALTHY_USER_SURFACED",
   "primary_tabs": ["ASCII", "JSON", "VIDEO"],
   "ascii_literal_text": true,
   "video_required": true,
@@ -69,6 +69,8 @@
       "function": "PASS",
       "contempt": "PASS"
     },
+    "bound_to_same_final_render": true,
+    "post_pass_choreography_mutation": false,
     "judgment": "Fresh byte-identical reconstruction and visible inspection confirm one continuous unsupported system-COM arc, opposite body countershift during rightward internal-mass deployment, left-biased precontact, earned unilateral left catch, impact-driven assembly overshoot, delayed right support, retraction counterswing, secondary lag, and displaced settle."
   },
   "validator": {
@@ -79,13 +81,26 @@
   "repo": {
     "exact_one_spa": true,
     "six_file_readback": true,
-    "final_readback": false
+    "final_readback": true,
+    "persisted": true
+  },
+  "issue_343": {
+    "pre_delivery_receipt": 5631974210,
+    "reporting_chat_closure": 5632198594,
+    "reporting_chat_closure_readback": true
+  },
+  "campaign": {
+    "reporting_checkpoint_request_id": "ascii-kinesis-airborne041-reporting-chat-closure-20260911-0911z",
+    "terminal_self_binding_request_id": "ascii-kinesis-airborne041-final-self-binding-20260911-0913z",
+    "reporting_checkpoint": true,
+    "terminal_self_binding": true
   },
   "reporting_delivery": {
-    "PART1_ASCII": false,
-    "PART2_JSON": false,
-    "PART3_VISIBLE_AUTHORITATIVE_VIDEO": false
+    "PART1_ASCII": true,
+    "PART2_JSON": true,
+    "PART3_VISIBLE_AUTHORITATIVE_VIDEO": true,
+    "ordered": true
   },
   "DREW_ACCEPTED": false,
-  "next_authorized": null
+  "next_authorized": "v2-airborne-042"
 }
