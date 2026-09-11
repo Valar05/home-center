@@ -31,20 +31,25 @@ Technical success is not taste acceptance. Drew's visible judgment outranks hash
 
 ## Current taste reset
 
-All ASCII Kinesis V2 animations predating the user taste correction recorded on `Valar05/home-center#343` comment `5576901079` are `REVISE_REQUIRED_LOW_EFFORT` negative fixtures.
+The current authoritative taste reset is `Valar05/home-center#343` comment `5634613836`. It supersedes earlier reset bookkeeping such as `5576901079` for current manager and worker judgments.
 
-They remain evidence, never positive taste baselines. Rejected or quarantined imagery may not donate silhouette, proportions, palette, motifs, prop shape, or presentation language to a successor.
+Every ASCII Kinesis V2 specimen that existed before comment `5634613836` is `REVISE_REQUIRED_LOW_EFFORT` negative-fixture evidence. This includes specimens whose persisted bookkeeping says `HEALTHY_USER_SURFACED`, whose Tango/Noodle Queen or validator records passed, whose repository package is complete, or whose three-part chat delivery completed.
+
+Those records remain historical technical evidence only. They grant no positive taste-baseline authority, training authority, or lane-advancement authority. Rejected or quarantined imagery may not donate silhouette, proportions, palette, motifs, prop shape, or presentation language to a repair successor.
 
 ## Repair-oldest-first
 
 For each ASCII Kinesis lane:
 
-1. Repair the oldest unrepaired negative fixture before fresh mining.
-2. Preserve the rejected predecessor unchanged.
-3. Create exactly one successor with `revises` and `negative_fixture` metadata.
-4. Keep the same source/evidence family unless the correction explicitly says `CHANGE SOURCE`.
-5. Mutate that same successor until HEALTHY; successor churn is failure.
-6. Advance the lane only after that successor is HEALTHY.
+1. Build the rejection-debt queue from every V2 specimen that predates reset comment `5634613836`, using authenticated GitHub creation history rather than assuming number order alone.
+2. Repair the oldest unresolved negative fixture before any fresh mining or new-concept advancement.
+3. Preserve the rejected predecessor unchanged.
+4. Create exactly one **post-reset repair successor** with explicit `revises` and `negative_fixture` metadata. Creating that one successor is repair work, not permission for novelty churn.
+5. Keep the predecessor's same source/evidence family unless Drew explicitly says `CHANGE SOURCE`.
+6. Mutate that same repair successor until the actual visible render passes recursive Tango and then Noodle Queen, and the exact three-part delivery plus durability gates pass. Successor churn is failure.
+7. After one predecessor is repaired, move to the next-oldest unresolved pre-reset negative fixture. Fresh source mining/new-concept advancement remains frozen until the lane's entire pre-reset rejection-debt queue is cleared.
+
+Pre-reset in-progress bodies are also negative fixtures. Preserve them at their current historical state; do not keep finishing them merely because they were active before the reset. Pending old completion/acquisition commands may not be duplicated or treated as advancement authority.
 
 ## Current-worker liveness
 
@@ -185,7 +190,7 @@ Generalized learnings belong in `docs/ASCII_KINESIS_GENERALIZED_LEARNINGS.md` an
 
 ## Chat delivery
 
-Accepted ASCII specimens are surfaced in the reporting chat as:
+Accepted ASCII repair successors are surfaced in the reporting chat as:
 
 **PART 1 — ASCII** — complete literal aligned contact sheet.  
 **PART 2 — JSON** — actual structured reconstruction/direction/provenance payload.  
@@ -195,11 +200,12 @@ A hash, link, screenshot, thumbnail, repo path, or claim that video exists is no
 
 ## HEALTHY gate
 
-HEALTHY requires all applicable items:
+For a **post-reset repair successor**, HEALTHY requires all applicable items:
 
 - required-connector liveness passed;
 - correct repair queue ownership;
-- predecessor preserved and one successor active;
+- predecessor preserved and exactly one repair successor active;
+- explicit `revises` and `negative_fixture` linkage;
 - repo specimen exists;
 - exact `ASCII | JSON | VIDEO` SPA exists;
 - literal ASCII is readable;
@@ -213,7 +219,7 @@ HEALTHY requires all applicable items:
 - chat shows ASCII, JSON, and VIDEO together;
 - historical artifacts remain readable.
 
-Human `DREW_ACCEPTED` remains separate and cannot be inferred.
+A pre-reset specimen's historical machine `HEALTHY` string does not clear rejection debt under reset `5634613836`. Human `DREW_ACCEPTED` remains separate and cannot be inferred.
 
 ## Canonical failures
 
@@ -222,6 +228,7 @@ Preserve at minimum:
 - `CHAT_EXHAUSTED_NO_REQUIRED_CONNECTOR`
 - `REVISE_REQUIRED_LOW_EFFORT`
 - `SUCCESSOR_CHURN`
+- `OUT_OF_ORDER_REPAIR`
 - `ASCII_RASTERIZED`
 - `JSON_MISSING`
 - `VIDEO_MISSING`
@@ -256,6 +263,6 @@ Do not create a parallel control plane to avoid fixing stale law.
 
 `NEXT_SYSTEM_HANDLE: terminal-native ASCII animation/game engine`
 
-Parked until repeated HEALTHY specimens prove reusable engine primitives.
+Parked until repeated post-reset repair successors survive the full quality and delivery gates strongly enough to justify extraction.
 
 Local scratch is construction only and never completion proof.
