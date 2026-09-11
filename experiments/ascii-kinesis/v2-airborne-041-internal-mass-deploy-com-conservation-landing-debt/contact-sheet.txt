@@ -1,0 +1,296 @@
+ASCII KINESIS V2 - AIRBORNE041
+AIRBORNE_INTERNAL_MASS_DEPLOY_COM_CONSERVATION_LANDING_DEBT
+SOURCE EVIDENCE: TSR asset 106418 - Samus Aran (Power Suit) - Metroid: Zero Mission - Game Boy Advance - commissioned evidence 1H3ceHukijHxTRnsCuxsG1-ylAd-MQ5kmNM5z4Kon77U
+SOURCE TIMING: UNKNOWN. ALL DECISIVE COMPILE TIMING: INFERRED / STREET_FIGHTER-CAPCOM.
+RIGHTS: source evidence only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio/close imitation.
+AIRBORNE LAW: deployment is INTERNAL redistribution. Whole-system COM marker C keeps one unsupported ballistic arc. Body/pelvis + countershifts opposite the deployed # mass; deployment never invents external root redirection.
+LANDING LAW: outboard mass debt survives into descent -> separated LEFT precontact -> LEFT first support -> impact mass overshoot -> delayed RIGHT support -> retract/rebound -> counterswing -> displaced rest.
+LEGEND: C=whole-system COM/root, +=pelvis/body root, x=hands, #=deployed internal mass, @=assembly tip, *=earned support.
+
+==============================================================================================================
+K00 :: ASYMMETRIC LOAD / ASSEMBLY STOWED
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=ANTICIPATION_LOAD_WITH_COMPACT_MASS
+support_contact=BOTH_FEET_GROUND | eligibility=SUPPORTED
+system_com_root=[8, 33.4] | body_offset_x=0.0 | force=GROUND_REACTION_LOAD
+assembly={'state': 'STOWED', 'extension': 0.08, 'boom_deg': -8, 'clock': 'READY', 'timing_provenance': 'INFERRED'}
+clock_ownership={'SYSTEM_COM_ROOT': 'SUPPORT_DEPENDENT', 'ASSEMBLY_CLOCK': 'READY', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
+
+
+   o
+   |
+  \|--x---#@
+   C+
+  / \
+ /   \
+*     *
+__________________________________________________________
+
+==============================================================================================================
+K01 :: SUPPORT BREAK / MASS STILL COMPACT
+timing_class=ONES | timing_provenance=INFERRED | causal_role=EARNED_SUPPORT_BREAK
+support_contact=NONE | eligibility=SUPPORT_REVOKED
+system_com_root=[13, 27] | body_offset_x=0.0 | force=LAUNCH_IMPULSE
+assembly={'state': 'STOWED', 'extension': 0.08, 'boom_deg': -4, 'clock': 'READY', 'timing_provenance': 'INFERRED'}
+clock_ownership={'SYSTEM_COM_ROOT': 'PRESERVE_BALLISTIC_PHASE', 'ASSEMBLY_CLOCK': 'READY', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
+
+
+     o
+     |
+ x---|---x--#@
+     C+
+    / \
+   /   \
+  _     _
+__________________________________________________________
+
+==============================================================================================================
+K02 :: ASCENT / DEPLOY UNLOCK
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=CAUSAL_COMPONENT_TRANSITION_BEGINS
+support_contact=NONE | eligibility=UNSUPPORTED
+system_com_root=[21, 19] | body_offset_x=-0.8 | force=BALLISTIC_ASCENT
+assembly={'state': 'UNLOCKING', 'extension': 0.18, 'boom_deg': -2, 'clock': 'DEPLOYING', 'timing_provenance': 'INFERRED'}
+clock_ownership={'SYSTEM_COM_ROOT': 'PRESERVE_BALLISTIC_PHASE', 'ASSEMBLY_CLOCK': 'DEPLOYING', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
+
+
+        o
+        |
+    x---|---x---#@
+        C+
+       / \
+      /   \
+     _     _
+__________________________________________________________
+
+==============================================================================================================
+K03 :: ASCENT / OUTBOARD MASS GROWS
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=BODY_COUNTERSHIFTS_OPPOSITE_INTERNAL_MASS
+support_contact=NONE | eligibility=UNSUPPORTED
+system_com_root=[31, 14] | body_offset_x=-2.8 | force=BALLISTIC_ASCENT_WITH_INTERNAL_MASS_REDISTRIBUTION
+assembly={'state': 'DEPLOYING', 'extension': 0.42, 'boom_deg': 2, 'clock': 'DEPLOYING', 'timing_provenance': 'INFERRED'}
+clock_ownership={'SYSTEM_COM_ROOT': 'PRESERVE_BALLISTIC_PHASE', 'ASSEMBLY_CLOCK': 'DEPLOYING', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
+
+
+           o
+           |
+      x----|----x----#-@
+           C+
+          / \
+         /   \
+        _     _
+__________________________________________________________
+
+==============================================================================================================
+K04 :: APEX / DEPLOYMENT CROSSES HALF
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=SYSTEM_COM_ARC_STAYS_CONTINUOUS_WHILE_BODY_SHIFTS
+support_contact=NONE | eligibility=UNSUPPORTED
+system_com_root=[42, 11.5] | body_offset_x=-5.2 | force=BALLISTIC_APEX_COM_CONSERVED
+assembly={'state': 'DEPLOYING', 'extension': 0.68, 'boom_deg': 7, 'clock': 'DEPLOYING', 'timing_provenance': 'INFERRED'}
+clock_ownership={'SYSTEM_COM_ROOT': 'PRESERVE_BALLISTIC_PHASE', 'ASSEMBLY_CLOCK': 'DEPLOYING', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
+
+
+              o
+              |
+         x----|----x------#---@
+              C+
+             / \
+            /   \
+           _     _
+__________________________________________________________
+
+==============================================================================================================
+K05 :: DESCENT / FULL OUTBOARD DEPLOY
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=MAXIMUM_INTERNAL_MASS_OFFSET
+support_contact=NONE | eligibility=UNSUPPORTED
+system_com_root=[52, 13.2] | body_offset_x=-7.8 | force=GRAVITY_DESCENT_INTERNAL_COM_BALANCE
+assembly={'state': 'FULLY_DEPLOYED', 'extension': 1.0, 'boom_deg': 10, 'clock': 'LOCKED_OUTBOARD', 'timing_provenance': 'INFERRED'}
+clock_ownership={'SYSTEM_COM_ROOT': 'PRESERVE_BALLISTIC_PHASE', 'ASSEMBLY_CLOCK': 'LOCKED_OUTBOARD', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
+
+
+                 o
+                 |
+            x----|----x---------#--@
+                 C+
+                / \
+               /   \
+              _     _
+__________________________________________________________
+
+==============================================================================================================
+K06 :: DESCENT / BODY COUNTERBALANCE HOLDS
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=INTERNAL_MASS_DEBT_PERSISTS_WITHOUT_MAGIC_SUPPORT
+support_contact=NONE | eligibility=UNSUPPORTED
+system_com_root=[61, 17.2] | body_offset_x=-8.6 | force=GRAVITY_DESCENT_NO_EXTERNAL_REDIRECTION
+assembly={'state': 'FULLY_DEPLOYED', 'extension': 1.0, 'boom_deg': 8, 'clock': 'LOCKED_OUTBOARD', 'timing_provenance': 'INFERRED'}
+clock_ownership={'SYSTEM_COM_ROOT': 'PRESERVE_BALLISTIC_PHASE', 'ASSEMBLY_CLOCK': 'LOCKED_OUTBOARD', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
+
+
+                    o
+                    |
+               x----|----x---------#--@
+                    C+
+                   / \
+                  /   \
+                 _     _
+__________________________________________________________
+
+==============================================================================================================
+K07 :: LANDING PREP / LEFT BODY BIAS
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=LANDING_GEOMETRY_REORGANIZES_AROUND_INTERNAL_MASS_DEBT
+support_contact=NONE | eligibility=UNSUPPORTED
+system_com_root=[69, 22.5] | body_offset_x=-8.0 | force=GRAVITY_DESCENT_LANDING_PREP_INHERITS_MASS_OFFSET
+assembly={'state': 'FULLY_DEPLOYED', 'extension': 0.98, 'boom_deg': 5, 'clock': 'LOCKED_OUTBOARD', 'timing_provenance': 'INFERRED'}
+clock_ownership={'SYSTEM_COM_ROOT': 'PRESERVE_BALLISTIC_PHASE', 'ASSEMBLY_CLOCK': 'LOCKED_OUTBOARD', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
+
+
+                       o
+                       |
+                  x----|----x---------#--@
+                       C+
+                      / \
+                     /   \
+                    _     _
+__________________________________________________________
+
+==============================================================================================================
+K08 :: SEPARATED LEFT PRECONTACT / BOOM STILL OUT
+timing_class=ONES | timing_provenance=INFERRED | causal_role=PRECONTACT_EARNED_BY_BODY_SIDE_BIAS
+support_contact=NONE | eligibility=LEFT_TOE_SEPARATED_PRECONTACT
+system_com_root=[76, 28.4] | body_offset_x=-7.3 | force=GRAVITY_DESCENT
+assembly={'state': 'FULLY_DEPLOYED', 'extension': 0.96, 'boom_deg': 2, 'clock': 'LOCKED_OUTBOARD', 'timing_provenance': 'INFERRED'}
+clock_ownership={'SYSTEM_COM_ROOT': 'PRESERVE_BALLISTIC_PHASE', 'ASSEMBLY_CLOCK': 'LOCKED_OUTBOARD', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
+
+
+                          o
+                          |
+                     x----|----x--------#---@
+                          C+
+                         / \
+                        /   \
+                       _     _
+__________________________________________________________
+
+==============================================================================================================
+K09 :: LEFT CATCH / INTERNAL MASS STILL LATE
+timing_class=ONES | timing_provenance=INFERRED | causal_role=FIRST_SUPPORT_ACQUIRED_WITH_OUTBOARD_MASS_DEBT
+support_contact=LEFT_TOE_ONLY | eligibility=LEFT_SUPPORT_ACQUIRED
+system_com_root=[81, 33.0] | body_offset_x=-6.8 | force=LEFT_SUPPORT_IMPACT_BRAKE
+assembly={'state': 'FULLY_DEPLOYED', 'extension': 0.94, 'boom_deg': 0, 'clock': 'IMPACT_LAG', 'timing_provenance': 'INFERRED'}
+clock_ownership={'SYSTEM_COM_ROOT': 'SUPPORT_DEPENDENT', 'ASSEMBLY_CLOCK': 'IMPACT_LAG', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
+
+
+                            o
+                            |
+                       x----|----x--------#---@
+                            C+
+                           / \
+                          /   \
+                         *     _
+__________________________________________________________
+
+==============================================================================================================
+K10 :: UNILATERAL CRUSH / BOOM OVERSHOOTS
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=IMPACT_PAYS_MASS_DEPLOYMENT_DEBT
+support_contact=LEFT_FOOT_DOMINANT | eligibility=RIGHT_NOT_ELIGIBLE
+system_com_root=[84, 34.3] | body_offset_x=-8.7 | force=UNILATERAL_COMPRESSION_WITH_ASSEMBLY_INERTIA
+assembly={'state': 'IMPACT_OVERSHOOT', 'extension': 1.08, 'boom_deg': 4, 'clock': 'IMPACT_DRIVEN', 'timing_provenance': 'INFERRED'}
+clock_ownership={'SYSTEM_COM_ROOT': 'SUPPORT_DEPENDENT', 'ASSEMBLY_CLOCK': 'IMPACT_DRIVEN', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
+
+
+                             o
+                             |
+                        x----|----x----------#---@
+                             C+
+                            / \
+                           /   \
+                          *     _
+__________________________________________________________
+
+==============================================================================================================
+K11 :: RIGHT CATCH / BRAKE WIDENS
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=DELAYED_SECOND_SUPPORT_OPENS_RETRACTION
+support_contact=BOTH_FEET_GROUND | eligibility=SECOND_SUPPORT_ACQUIRED
+system_com_root=[86, 34.1] | body_offset_x=-5.4 | force=BILATERAL_BRAKE
+assembly={'state': 'RETRACT_START', 'extension': 0.93, 'boom_deg': -4, 'clock': 'RECOVERY', 'timing_provenance': 'INFERRED'}
+clock_ownership={'SYSTEM_COM_ROOT': 'SUPPORT_DEPENDENT', 'ASSEMBLY_CLOCK': 'RECOVERY', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
+
+
+                              o
+                              |
+                         x----|----x--------#---@
+                              C+
+                             / \
+                            /   \
+                           *     *
+__________________________________________________________
+
+==============================================================================================================
+K12 :: REBOUND / MASS RETRACTS
+timing_class=TWOS | timing_provenance=INFERRED | causal_role=BODY_OVERSHOOTS_OPPOSITE_RETRACTING_MASS
+support_contact=BOTH_FEET_GROUND | eligibility=SUPPORTED
+system_com_root=[88, 32.6] | body_offset_x=-2.8 | force=GROUND_REBOUND_WITH_INTERNAL_COUNTERMOTION
+assembly={'state': 'RETRACTING', 'extension': 0.68, 'boom_deg': -10, 'clock': 'RECOVERY', 'timing_provenance': 'INFERRED'}
+clock_ownership={'SYSTEM_COM_ROOT': 'SUPPORT_DEPENDENT', 'ASSEMBLY_CLOCK': 'RECOVERY', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
+
+
+                               o
+                               |
+                          x----|----x------#---@
+                               C+
+                              / \
+                             /   \
+                            *     *
+__________________________________________________________
+
+==============================================================================================================
+K13 :: COUNTERSWING / SECONDARY LAG
+timing_class=ONES | timing_provenance=INFERRED | causal_role=SECONDARY_LAG_AFTER_RETRACTION
+support_contact=BOTH_FEET_GROUND | eligibility=SUPPORTED
+system_com_root=[89.5, 32.3] | body_offset_x=-0.8 | force=SUPPORTED_INTERNAL_MASS_RECOVERY
+assembly={'state': 'RETRACTING', 'extension': 0.42, 'boom_deg': -16, 'clock': 'RECOVERY', 'timing_provenance': 'INFERRED'}
+clock_ownership={'SYSTEM_COM_ROOT': 'SUPPORT_DEPENDENT', 'ASSEMBLY_CLOCK': 'RECOVERY', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
+
+
+                                o
+                                |
+                           x----|----x----#--@
+                                C+
+                               / \
+                              /   \
+                             *     *
+__________________________________________________________
+
+==============================================================================================================
+K14 :: DISPLACED SETTLE / ALMOST STOWED
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=DISPLACED_RECOVERY_DEBT_WITH_TOOL_LAG
+support_contact=BOTH_FEET_GROUND | eligibility=SUPPORTED
+system_com_root=[91, 33.3] | body_offset_x=0.6 | force=GROUND_SETTLE
+assembly={'state': 'NEAR_STOW', 'extension': 0.22, 'boom_deg': -7, 'clock': 'RECOVERING', 'timing_provenance': 'INFERRED'}
+clock_ownership={'SYSTEM_COM_ROOT': 'SUPPORT_DEPENDENT', 'ASSEMBLY_CLOCK': 'RECOVERING', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
+
+
+                                  o
+                                  |
+                             x----|----x--#-@
+                                  C+
+                                 / \
+                                /   \
+                               *     *
+__________________________________________________________
+
+==============================================================================================================
+K15 :: FINAL SUPPORT / STOW LAG REMAINS
+timing_class=FOURS | timing_provenance=INFERRED | causal_role=NEW_DISPLACED_REST_NOT_IDLE_RESET
+support_contact=BOTH_FEET_GROUND | eligibility=SUPPORTED
+system_com_root=[92.5, 34.0] | body_offset_x=0.0 | force=STATIC_SUPPORT
+assembly={'state': 'STOW_LAG', 'extension': 0.12, 'boom_deg': -4, 'clock': 'NEW_REST_PHASE', 'timing_provenance': 'INFERRED'}
+clock_ownership={'SYSTEM_COM_ROOT': 'SUPPORT_DEPENDENT', 'ASSEMBLY_CLOCK': 'NEW_REST_PHASE', 'SUPPORT_CLOCK': 'PRESERVE_PHASE'}
+
+
+                                  o
+                                  |
+                             x----|----x-#@
+                                  C+
+                                 / \
+                                /   \
+                               *     *
+__________________________________________________________
