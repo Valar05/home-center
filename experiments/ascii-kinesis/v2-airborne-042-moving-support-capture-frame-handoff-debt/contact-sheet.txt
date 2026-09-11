@@ -1,0 +1,125 @@
+A042-K00  READY_SKEW  [FOURS / INFERRED]  FIXED_LAUNCH_PAD_BOTH
+      O        
+     /|\       
+      +        
+     / \       
+  ____|____    
+ FIXED LAUNCH  
+role: establish_fixed_launch_and_independent_moving_target
+
+A042-K01  ASYM_LOAD  [FOURS / INFERRED]  FIXED_LAUNCH_PAD_BOTH
+      O        
+     /|\       
+      +        
+     / \       
+  ____|____    
+ FIXED LAUNCH  
+role: load_without_target_frame_join
+
+A042-K02  SUPPORT_BREAK  [ONES / INFERRED]  AIRBORNE_NONE
+        O      
+      _/|\     
+        +      
+       / \     
+     ==|=|==>> 
+ MOVING FRAME  
+role: single_launch_support_break
+
+A042-K03  RISE_DRIVE  [TWOS / INFERRED]  AIRBORNE_NONE
+       O       
+      /|\      
+       +       
+      / \      
+    ====>>     
+ MOVING FRAME  
+role: ballistic_rise_platform_moves_independently
+
+A042-K04  APEX_CROSS  [TWOS / INFERRED]  AIRBORNE_NONE
+       O       
+      /|\      
+       +       
+      / \      
+    ====>>     
+ MOVING FRAME  
+role: single_apex_no_parent_join
+
+A042-K05  DESCENT_TRACK  [TWOS / INFERRED]  AIRBORNE_NONE
+       O       
+      /|\      
+       +       
+      / \      
+    ====>>     
+ MOVING FRAME  
+role: unsupported_descent_target_frame_advances
+
+A042-K06  LEFT_PRECONTACT  [TWOS / INFERRED]  PRECONTACT_LEFT_AIM
+        O      
+       /|_     
+      _+       
+        \__   
+      ====>>   
+ MOVING FRAME  
+role: separated_precontact_aim_no_support_yet
+
+A042-K07  LEFT_CAPTURE_JOIN  [ONES / INFERRED]  MOVING_PLATFORM_LEFT_ONLY
+       O       
+      /|       
+     _+        
+       \      
+      _/====>> 
+ MOVING FRAME  
+role: first_earned_parent_child_join
+
+A042-K08  INHERIT_SHEAR  [ONES / INFERRED]  MOVING_PLATFORM_LEFT_ONLY
+       O       
+      /|       
+     _+        
+       \      
+      _/====>> 
+ MOVING FRAME  
+role: platform_velocity_inherited_body_lags_local_frame
+
+A042-K09  IMPACT_COMPRESSION  [FOURS / INFERRED]  MOVING_PLATFORM_LEFT_ONLY
+       O       
+      /|       
+     _+        
+       \      
+      _/====>> 
+ MOVING FRAME  
+role: first_support_pays_capture_impulse
+
+A042-K10  RIGHT_SUPPORT_JOIN  [ONES / INFERRED]  MOVING_PLATFORM_BOTH
+        O      
+      _/|\     
+        +      
+       / \     
+     ==|=|==>> 
+ MOVING FRAME  
+role: delayed_second_support_join
+
+A042-K11  COUNTERLEAN  [TWOS / INFERRED]  MOVING_PLATFORM_BOTH
+        O      
+      _/|\     
+        +      
+       / \     
+     ==|=|==>> 
+ MOVING FRAME  
+role: counterlean_spends_inherited_frame_velocity_debt
+
+A042-K12  DISTAL_LAG  [TWOS / INFERRED]  MOVING_PLATFORM_BOTH
+        O      
+      _/|\     
+        +      
+       / \     
+     ==|=|==>> 
+ MOVING FRAME  
+role: secondary_lag_after_root_restacks
+
+A042-K13  DISPLACED_SETTLE  [FOURS / INFERRED]  MOVING_PLATFORM_BOTH
+        O      
+      _/|\     
+        +      
+       / \     
+     ==|=|==>> 
+ MOVING FRAME  
+role: stable_in_new_reference_frame_not_idle_reset
