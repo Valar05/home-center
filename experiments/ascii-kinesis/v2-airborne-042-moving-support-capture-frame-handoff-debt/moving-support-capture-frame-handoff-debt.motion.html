@@ -1,0 +1,143 @@
+<!doctype html><meta charset="utf-8"><title>ASCII Kinesis Airborne042</title>
+<style>body{margin:0;background:#0a0c0e;color:#eee;font-family:system-ui}nav{position:sticky;top:0;background:#15191d;padding:10px}button{margin-right:8px}section{display:none;padding:14px}section.active{display:block}pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none;white-space:pre;overflow:auto}video{max-width:100%;background:#000}</style>
+<nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
+<section id="ascii" class="active"><pre>A042-K00  READY_SKEW  [FOURS / INFERRED]  FIXED_LAUNCH_PAD_BOTH
+      O        
+     /|\       
+      +        
+     / \       
+  ____|____    
+ FIXED LAUNCH  
+role: establish_fixed_launch_and_independent_moving_target
+
+A042-K01  ASYM_LOAD  [FOURS / INFERRED]  FIXED_LAUNCH_PAD_BOTH
+      O        
+     /|\       
+      +        
+     / \       
+  ____|____    
+ FIXED LAUNCH  
+role: load_without_target_frame_join
+
+A042-K02  SUPPORT_BREAK  [ONES / INFERRED]  AIRBORNE_NONE
+        O      
+      _/|\     
+        +      
+       / \     
+     ==|=|==&gt;&gt; 
+ MOVING FRAME  
+role: single_launch_support_break
+
+A042-K03  RISE_DRIVE  [TWOS / INFERRED]  AIRBORNE_NONE
+       O       
+      /|\      
+       +       
+      / \      
+    ====&gt;&gt;     
+ MOVING FRAME  
+role: ballistic_rise_platform_moves_independently
+
+A042-K04  APEX_CROSS  [TWOS / INFERRED]  AIRBORNE_NONE
+       O       
+      /|\      
+       +       
+      / \      
+    ====&gt;&gt;     
+ MOVING FRAME  
+role: single_apex_no_parent_join
+
+A042-K05  DESCENT_TRACK  [TWOS / INFERRED]  AIRBORNE_NONE
+       O       
+      /|\      
+       +       
+      / \      
+    ====&gt;&gt;     
+ MOVING FRAME  
+role: unsupported_descent_target_frame_advances
+
+A042-K06  LEFT_PRECONTACT  [TWOS / INFERRED]  PRECONTACT_LEFT_AIM
+        O      
+       /|_     
+      _+       
+        \__   
+      ====&gt;&gt;   
+ MOVING FRAME  
+role: separated_precontact_aim_no_support_yet
+
+A042-K07  LEFT_CAPTURE_JOIN  [ONES / INFERRED]  MOVING_PLATFORM_LEFT_ONLY
+       O       
+      /|       
+     _+        
+       \      
+      _/====&gt;&gt; 
+ MOVING FRAME  
+role: first_earned_parent_child_join
+
+A042-K08  INHERIT_SHEAR  [ONES / INFERRED]  MOVING_PLATFORM_LEFT_ONLY
+       O       
+      /|       
+     _+        
+       \      
+      _/====&gt;&gt; 
+ MOVING FRAME  
+role: platform_velocity_inherited_body_lags_local_frame
+
+A042-K09  IMPACT_COMPRESSION  [FOURS / INFERRED]  MOVING_PLATFORM_LEFT_ONLY
+       O       
+      /|       
+     _+        
+       \      
+      _/====&gt;&gt; 
+ MOVING FRAME  
+role: first_support_pays_capture_impulse
+
+A042-K10  RIGHT_SUPPORT_JOIN  [ONES / INFERRED]  MOVING_PLATFORM_BOTH
+        O      
+      _/|\     
+        +      
+       / \     
+     ==|=|==&gt;&gt; 
+ MOVING FRAME  
+role: delayed_second_support_join
+
+A042-K11  COUNTERLEAN  [TWOS / INFERRED]  MOVING_PLATFORM_BOTH
+        O      
+      _/|\     
+        +      
+       / \     
+     ==|=|==&gt;&gt; 
+ MOVING FRAME  
+role: counterlean_spends_inherited_frame_velocity_debt
+
+A042-K12  DISTAL_LAG  [TWOS / INFERRED]  MOVING_PLATFORM_BOTH
+        O      
+      _/|\     
+        +      
+       / \     
+     ==|=|==&gt;&gt; 
+ MOVING FRAME  
+role: secondary_lag_after_root_restacks
+
+A042-K13  DISPLACED_SETTLE  [FOURS / INFERRED]  MOVING_PLATFORM_BOTH
+        O      
+      _/|\     
+        +      
+       / \     
+     ==|=|==&gt;&gt; 
+ MOVING FRAME  
+role: stable_in_new_reference_frame_not_idle_reset
+</pre></section>
+<section id="json"><pre>{
+  &quot;authoritative_media&quot;: {&quot;bytes&quot;:39295,&quot;codec&quot;:&quot;H.264/yuv420p&quot;,&quot;fps&quot;:24,&quot;frames&quot;:45,&quot;height&quot;:448,&quot;sha256&quot;:&quot;7187c47d5a5f82f8dabf30f3cd6db30f8acb0a3d2790a1116eae91b468771ef7&quot;,&quot;width&quot;:800},
+  &quot;embedded_presentation&quot;: {&quot;bytes&quot;:4562,&quot;codec&quot;:&quot;H.264/yuv420p&quot;,&quot;derived_from_same_authored_frames&quot;:true,&quot;fps&quot;:24,&quot;frames&quot;:45,&quot;height&quot;:134,&quot;sha256&quot;:&quot;e9b42f115541794aae0aa07740d2a3bed4bc84c14452634a20d5831741a2202c&quot;,&quot;width&quot;:240},
+  &quot;entry&quot;:&quot;v2-airborne-042-moving-support-capture-frame-handoff-debt&quot;,
+  &quot;format_version&quot;:2,
+  &quot;lineage&quot;:{&quot;negative_fixture&quot;:null,&quot;revises&quot;:null,&quot;source_change&quot;:&quot;NOT_APPLICABLE_NEW_CONCEPT&quot;},
+  &quot;primitive&quot;:&quot;AIRBORNE_MOVING_SUPPORT_CAPTURE_FRAME_HANDOFF_DEBT&quot;,
+  &quot;quality&quot;:{&quot;drew_accepted&quot;:false,&quot;noodle_queen&quot;:&quot;PASS_TASTE_FUNCTION_CONTEMPT_SAME_RENDER&quot;,&quot;tango&quot;:&quot;R0_PASS_CURRENT_WORKER_ACTUAL_RENDER&quot;},
+  &quot;rig&quot;:{&quot;bridge_policy&quot;:&quot;geometry-only within unchanged contact/support topology&quot;,&quot;channels&quot;:[&quot;BODY_ROOT&quot;,&quot;LIMB_LOCAL&quot;,&quot;MOVING_FRAME_ROOT&quot;,&quot;SUPPORT_CLOCK&quot;]},
+  &quot;source&quot;:{&quot;game&quot;:&quot;3D Stunt Rider&quot;,&quot;home_center_evidence_id&quot;:&quot;10EpvkQbXYEmFwRYFyr5dADthh45jr-1Zt50oI06e4FM&quot;,&quot;platform&quot;:&quot;Amstrad CPC&quot;,&quot;rights_firewall&quot;:&quot;PASS&quot;,&quot;roles&quot;:[&quot;MOVING_REFERENCE_FRAME_RELATIONSHIP_EVIDENCE&quot;,&quot;RELATIONSHIP_BREAK_STATE_REFERENCE&quot;],&quot;source_timing&quot;:&quot;UNKNOWN&quot;,&quot;timing_authority&quot;:false,&quot;title&quot;:&quot;Rider&quot;,&quot;tsr_asset&quot;:205456},
+  &quot;timing&quot;:{&quot;classes&quot;:[&quot;ONES&quot;,&quot;TWOS&quot;,&quot;FOURS&quot;],&quot;decisive_key_count&quot;:14,&quot;policy&quot;:&quot;STREET_FIGHTER/CAPCOM&quot;,&quot;provenance&quot;:&quot;INFERRED&quot;}
+}</pre></section>
+<section id="video"><video controls loop playsinline src="data:video/mp4;base64,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"></video><p>Self-contained H.264 presentation generated solely from the abstract rig + authored timing. Embedded SHA-256 e9b42f115541794aae0aa07740d2a3bed4bc84c14452634a20d5831741a2202c; authoritative render SHA-256 7187c47d5a5f82f8dabf30f3cd6db30f8acb0a3d2790a1116eae91b468771ef7.</p></section>
+<script>const b=[...document.querySelectorAll('[data-view]')],s=[...document.querySelectorAll('section')];b.forEach(x=>x.onclick=()=>{s.forEach(y=>y.classList.toggle('active',y.id===x.dataset.view))});</script>
