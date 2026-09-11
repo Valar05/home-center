@@ -1,7 +1,7 @@
 {
   "schema": "ascii-kinesis.receipt.v2",
   "specimen": "v2-locomotion-026-stair-drop-mixed-height-catch-runout",
-  "status": "QUALITY_GATES_PASS_REPO_PERSIST_PENDING_CHAT_DELIVERY",
+  "status": "HEALTHY_USER_SURFACED",
   "current_worker_liveness": {
     "home_center_campaign": true,
     "github_persistence_readback": true
@@ -50,21 +50,32 @@
   "repo_inventory_before_this_receipt_write": {
     "build.py": "edbf554e2ef6053ed2b7c243ee36ba608e028093",
     "contact-sheet.txt": "5415b225c0cf3bf18a78e80898623dd3b17bdfa7",
-    "manifest.json": "42bc422b77534bf5fb992828b2149b48b8fc6447",
+    "manifest.json": "940d6ee25752a85ec9204702fa5fa3609025510f",
     "motion.json": "c4343476b360d63fa0ec60f19b996d192e46afa1",
-    "receipt.json": "8f7058e4b231c6fedf2c30fa97e317fc24ac13b3",
+    "receipt.json": "6be43a19e63ca783e034d670fd048b9d3039739f",
     "stair-drop-mixed-height-catch-runout.motion.html": "00ce01da37a15e029d456e1f66c7f61c472967fb"
   },
-  "issue_receipt": 5628196623,
-  "issue_receipt_readback": true,
-  "campaign_predelivery_marker": "ASCII_KINESIS_LOCOMOTION_026_PREDELIVERY_20260910",
-  "campaign_readback": true,
+  "issue": {
+    "pre_delivery": 5628196623,
+    "pre_delivery_readback": true,
+    "user_surface": 5628221130,
+    "user_surface_readback": true
+  },
+  "campaign": {
+    "predelivery_marker": "ASCII_KINESIS_LOCOMOTION_026_PREDELIVERY_20260910",
+    "predelivery_readback": true,
+    "user_surface_marker": "ASCII_KINESIS_LOCOMOTION_026_USER_SURFACE_20260910",
+    "user_surface_readback": true
+  },
   "chat_delivery": {
-    "part1_ascii": false,
-    "part2_json": false,
-    "part3_video": false,
-    "ordered": false
+    "part1_ascii": true,
+    "ascii_blob": "5415b225c0cf3bf18a78e80898623dd3b17bdfa7",
+    "part2_json": true,
+    "json_blob": "c4343476b360d63fa0ec60f19b996d192e46afa1",
+    "part3_video": true,
+    "video_sha256": "94f98ad4c5569489a9fd51a7ea700919d38507cde773a798f1cb7dc1de48490a",
+    "ordered": true
   },
   "DREW_ACCEPTED": false,
-  "next_authorized": null
+  "next_authorized": "v2-locomotion-027"
 }
