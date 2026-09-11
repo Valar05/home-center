@@ -34,7 +34,7 @@ assert.match(main, /private void submitMessage\(String\s+\w+,\s*boolean\s+\w+\)/
 assert.doesNotMatch(gradle, /minifyEnabled\s+true/);
 
 // Ingress is transport, not interpretation. Preserve exact authored text and FIFO order.
-assert.match(queue, /new Item\([\s\S]*exactText,[\s\S]*conversationId/);
+assert.match(queue, /new Item\([\s\S]*exactText,[\s\S]*ownerConversation/);
 assert.match(queue, /items\.add\(item\);/);
 assert.match(queue, /Item item = items\.remove\(0\);/);
 assert.doesNotMatch(queue, /exactText\.trim\(\).*new Item/);
@@ -59,15 +59,17 @@ assert.match(application, /Queued durably\. Current work continues\./);
 assert.match(application, /startup queue recovery failed closed/);
 assert.match(application, /queueButton\.setEnabled\(false\)/);
 
-// A not-yet-queued thought survives the exact app-switch maneuver that motivated this repair.
-assert.match(queue, /private static final String KEY_DRAFT = "draft_text";/);
-assert.match(queue, /synchronized String draft\(\)/);
-assert.match(queue, /synchronized void saveDraft\(String exactText\)/);
-assert.match(queue, /remove\(KEY_DRAFT\)[\s\S]*\.commit\(\)/);
-assert.match(application, /String restoredDraft = ingressQueue\.draft\(\);/);
+// A not-yet-queued thought survives the exact app-switch maneuver that motivated this repair,
+// and the draft stays attached to its owning conversation rather than leaking into another thread.
+assert.match(queue, /private static final String KEY_DRAFT_PREFIX = "draft_text:";/);
+assert.match(queue, /synchronized String draft\(String conversationId\)/);
+assert.match(queue, /synchronized void saveDraft\(String exactText, String conversationId\)/);
+assert.match(queue, /remove\(draftKey\(ownerConversation\)\)[\s\S]*\.commit\(\)/);
+assert.match(queue, /return KEY_DRAFT_PREFIX \+ \(owner\.isEmpty\(\) \? "_unbound" : owner\);/);
+assert.match(application, /String restoredDraft = ingressQueue\.draft\(currentConversationId\(\)\);/);
 assert.match(application, /input\.setText\(restoredDraft\);/);
 assert.match(application, /persistDraftBeforePanelRemoval\(\);/);
-assert.match(application, /ingressQueue\.saveDraft\(exact\);/);
+assert.match(application, /ingressQueue\.saveDraft\(exact, currentConversationId\(\)\);/);
 assert.match(application, /queue draft persistence failed closed/);
 
 // A queued thought must not mutate the currently running turn. It waits for busy and barriers.
