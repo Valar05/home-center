@@ -11,8 +11,8 @@
   "spa_delivery_media": {"sha256":"a835a7a09638ad8b4cabd06a233bb7cbabfae7a9061194d9f05705b9a6a99b37","bytes":13790,"codec":"h264","pix_fmt":"yuv420p","width":384,"height":216,"fps":24,"frames":88,"decode":"PASS"},
   "repo": {"persisted":true,"exact_one_spa":true,"six_file_readback":true,"final_readback":false,"build_blob":"bc3603e924b158bbe2822ca18f5e1a2dd9cd8209","contact_blob":"97583e9b830b8e86b7b13bdcb5ea8f350da83534","motion_blob":"624ed7255093449f5033495f97df61acd1d8a2ca","spa_blob":"4204155f223999220d3458468a2b9c1378d53b4d"},
   "validator": {"official_blob":"7d9fc7608d54bca4a2cfbd36660c2d379e27fd78","candidate_isolated":"PASS","boundary":"Standard Chat candidate directory; repository-global checkout/shell suite unclaimed"},
-  "issue": {"pre_delivery_comment":null,"reporting_comment":null,"terminal_comment":null},
-  "campaign": {"pre_delivery_checkpoint":false,"final_self_binding":false},
+  "issue": {"pre_delivery_comment":5628742185,"reporting_comment":null,"terminal_comment":null},
+  "campaign": {"pre_delivery_checkpoint":true,"pre_delivery_request_id":"ascii-kinesis-airborne040-pre-delivery-campaign-20260910-2154","final_self_binding":false},
   "chat_delivery": {"part1_ascii":false,"part2_json":false,"part3_video":false},
   "next_authorized": null
 }
