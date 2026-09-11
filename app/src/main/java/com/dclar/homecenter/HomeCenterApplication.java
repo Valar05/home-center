@@ -109,6 +109,7 @@ public final class HomeCenterApplication extends Application {
         @Override
         public void onActivityPaused(Activity activity) {
             if (activity != active) return;
+            persistDraftBeforePanelRemoval();
             main.removeCallbacks(pulse);
             removePanel();
             active = null;
@@ -117,6 +118,7 @@ public final class HomeCenterApplication extends Application {
         @Override
         public void onActivityDestroyed(Activity activity) {
             if (activity != active) return;
+            persistDraftBeforePanelRemoval();
             main.removeCallbacks(pulse);
             removePanel();
             active = null;
@@ -194,6 +196,11 @@ public final class HomeCenterApplication extends Application {
             input.setImeOptions(EditorInfo.IME_ACTION_SEND);
             input.setMinimumHeight(dp(activity, 48));
             input.setContentDescription("Queue another Home Center message without interrupting current work");
+            String restoredDraft = ingressQueue.draft();
+            if (!restoredDraft.isEmpty()) {
+                input.setText(restoredDraft);
+                input.setSelection(input.length());
+            }
             row.addView(input, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
             queueButton = new Button(activity);
@@ -227,6 +234,17 @@ public final class HomeCenterApplication extends Application {
             params.setMargins(dp(activity, 8), dp(activity, 8), dp(activity, 8), dp(activity, 8));
             host.addView(panel, params);
             if (!queueFault.isEmpty()) showQueueFault();
+        }
+
+        private void persistDraftBeforePanelRemoval() {
+            if (input == null) return;
+            String exact = input.getText() == null ? "" : input.getText().toString();
+            try {
+                ingressQueue.saveDraft(exact);
+            } catch (IllegalStateException ex) {
+                queueFault = queueFaultText(ex);
+                android.util.Log.e("HomeCenterQueue", "queue draft persistence failed closed", ex);
+            }
         }
 
         private void removePanel() {
