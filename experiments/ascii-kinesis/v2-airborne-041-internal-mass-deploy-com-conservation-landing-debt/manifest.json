@@ -78,7 +78,7 @@
   },
   "repo": {
     "exact_one_spa": true,
-    "six_file_readback": false,
+    "six_file_readback": true,
     "final_readback": false
   },
   "reporting_delivery": {
