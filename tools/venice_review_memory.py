@@ -149,7 +149,7 @@ def persist_review(receipt: dict) -> list[dict]:
         class_occurrence = category_counts.get(category, 0) + 1
         category_counts[category] = class_occurrence
         entry = {
-            "schema": "venice-review-memory-v2",
+            "schema": "venice-review-memory-v1",
             "createdAtEpoch": int(time.time()),
             "repo": receipt.get("repo"),
             "baseCommit": receipt.get("baseCommit"),
@@ -174,7 +174,7 @@ def persist_review(receipt: dict) -> list[dict]:
             f.write(json.dumps(entry, ensure_ascii=False, sort_keys=True) + "\n")
         created.append(entry)
     projection = {
-        "schema": "venice-review-memory-latest-v2",
+        "schema": "venice-review-memory-latest-v1",
         "updatedAtEpoch": int(time.time()),
         "entries": load_memory(str(receipt.get("repo") or ""), MAX_PROMPT_ENTRIES),
     }
