@@ -217,10 +217,11 @@ def ascii_frame(k,w=104,h=42):
     return '\n'.join(''.join(r).rstrip() for r in g)
 
 def make_contact(m):
+    src=m['source']
     parts=[
       'ASCII KINESIS V2 - AIRBORNE040',
       'LOCAL_CONTROL_PHASE_SEIZE_LANDING_BRACE_DEBT',
-      'SOURCE EVIDENCE: TSR asset 52290 - Dixie Kong - Donkey Kong Country 3 - SNES - commissioned evidence 1FVCu-OOy4fvhMpNUMJtiF7yobfKqcfJ3OXWELI6rHkw',
+      f"SOURCE EVIDENCE: TSR asset {src['asset_id']} - {src['character']} - {src['game']} - {src['platform']} - commissioned evidence {src['evidence_artifact_id']}",
       'SOURCE TIMING: UNKNOWN. ALL DECISIVE COMPILE TIMING BELOW: INFERRED / STREET_FIGHTER-CAPCOM.',
       'RIGHTS: source evidence only; no source pixels/palette/costume/contours/layout/tracing/choreography/audio/close imitation.',
       'CONTROL LAW: generic hinged vane cycles A -> B -> C locally while BODY_ROOT/SUPPORT_CLOCK continue independently.',
