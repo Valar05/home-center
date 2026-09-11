@@ -137,7 +137,7 @@ def persist_review(receipt: dict) -> list[dict]:
         category = str(e.get("category") or "review_finding")
         category_counts[category] = max(
             category_counts.get(category, 0),
-            int(e.get("classOccurrence") or 0),
+            int(e.get("classOccurrence") or e.get("occurrence") or 1),
         )
     created = []
     for finding in findings:
