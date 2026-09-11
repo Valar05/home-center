@@ -20,28 +20,34 @@ If old text/history conflicts with Motion Direction on source-video timing or un
 
 ## Mission
 
-The campaign produces playable, inspectable, repository-backed ASCII animation specimens whose actual media survives human-facing review and is surfaced in the reporting chat.
+The campaign produces playable, inspectable, repository-backed ASCII animation repair successors whose actual media survives human-facing review and is surfaced in the reporting chat.
 
 Research volume, scheduler activity, Drive prose, hashes, schemas, and green tests are supporting evidence only.
 
 ## Negative-fixture reset
 
-All ASCII Kinesis V2 animations predating the taste correction recorded on issue #343 comment `5576901079` are `REVISE_REQUIRED_LOW_EFFORT`.
+The current authoritative taste-reset boundary is issue #343 comment `5634613836`, superseding older reset bookkeeping such as `5576901079` for current manager and worker judgments.
 
-They remain historical evidence, not taste baselines. Negative/quarantined visual material cannot train positive style.
+Every ASCII Kinesis V2 specimen that existed before comment `5634613836` is `REVISE_REQUIRED_LOW_EFFORT` negative-fixture evidence, including specimens with historical machine `HEALTHY_USER_SURFACED`, Tango/Noodle Queen PASS, validator PASS, exact package completion, or prior three-part chat delivery.
+
+Those technical records remain readable historical evidence only. They are not positive taste baselines, may not train future taste, and may not authorize fresh source mining or lane advancement.
 
 ## Repair-oldest-first queue
 
-Each lane owns an ordered rejection-debt queue.
+Each lane owns an ordered rejection-debt queue built from **all** V2 specimens predating reset comment `5634613836`.
 
-1. Repair the oldest rejected predecessor before fresh source mining.
-2. Preserve the predecessor unchanged.
-3. Create exactly one successor with `revises` + `negative_fixture` metadata.
-4. Keep the same source/evidence family unless the correction explicitly says `CHANGE SOURCE`.
-5. Mutate that successor until HEALTHY; do not mint another to evade failure.
-6. Advance only after HEALTHY.
+1. Establish oldest unresolved predecessor from authenticated GitHub creation history; do not trust numbering alone when collisions or churn exist.
+2. Repair that oldest rejected predecessor before fresh source mining or new-concept advancement.
+3. Preserve the predecessor unchanged.
+4. Create exactly one **post-reset repair successor** with explicit `revises` + `negative_fixture` metadata. That one successor is repair work, not fresh-concept permission.
+5. Keep the same source/evidence family unless Drew explicitly says `CHANGE SOURCE`.
+6. Mutate that same repair successor until the inherited Tango, Noodle Queen, three-part delivery, and durability gates pass; do not mint another to evade failure.
+7. Then clear only that predecessor's debt and move to the next-oldest unresolved pre-reset negative fixture.
+8. Fresh source mining/new-concept advancement stays frozen until the lane's entire pre-reset rejection-debt queue is cleared.
 
-`SUCCESSOR_CHURN` blocks completion.
+Pre-reset in-progress bodies are negative fixtures too. Preserve them at their current historical state; do not keep finishing them merely because they were active before the reset. Pending old completion/acquisition commands may not be duplicated or treated as advancement authority.
+
+`SUCCESSOR_CHURN` and `OUT_OF_ORDER_REPAIR` block completion.
 
 ## Current-worker connector preflight
 
@@ -58,17 +64,17 @@ That is a worker-liveness failure, not permission to substitute Library, web, ca
 
 ## Atomic repository output
 
-A successful new/repair run owns one directory:
+A successful post-reset repair run owns one successor directory:
 
 `experiments/ascii-kinesis/v2-<lane>-<NNN>-<slug>/`
 
-The rejected predecessor is never overwritten. Once a repair successor exists, all further fixes mutate that same successor until HEALTHY.
+The rejected predecessor is never overwritten. Once a repair successor exists, all further fixes mutate that same successor until the inherited HEALTHY gate is satisfied. Do not use a second successor as a retry.
 
 ## Output and quality
 
 The exact `ASCII | JSON | VIDEO` SPA, source-role/timing rules, Motion Dungeon ASCII compile, Tango recursive review, Noodle Queen gate, source-art firewall, media identity, chat-visible delivery, and HEALTHY criteria are inherited from `skills/ascii-kinesis/SKILL.md` rather than copied here.
 
-Campaign workers may not weaken those laws.
+Campaign workers may not weaken those laws. Historical technical PASS records on a pre-reset specimen never transfer to its repair successor.
 
 ## Video-motion lane correction
 
@@ -93,11 +99,13 @@ This correction supersedes older campaign language that treated measured photogr
 - `video-motion` — real-world pose/contact reference and explicitly authorized timing studies
 - `swarm-gate` — manager/supervision only unless explicitly reassigned
 
-One lane's failure does not stall unrelated lanes.
+One lane's failure does not stall unrelated lanes, but no lane may skip its own rejection debt.
 
 ## Fresh mining after debt clears
 
-For a fresh sprite-sheet mining pass:
+Fresh mining is forbidden while any pre-`5634613836` rejection debt remains in that lane.
+
+Only after the lane queue is empty may a fresh sprite-sheet mining pass:
 
 1. read campaign state and issue #343;
 2. select one entire appropriate source sheet;
@@ -108,25 +116,29 @@ For a fresh sprite-sheet mining pass:
 7. author independent ASCII motion source;
 8. ship the repository specimen required by ASCII Kinesis.
 
-For repair, keep the predecessor's source/evidence family unless the correction explicitly changes it.
+For repair, keep the predecessor's source/evidence family unless Drew explicitly changes it.
 
 ## Reporting-chat delivery
 
-The swarm manager must verify that the active successor's `ASCII -> JSON -> VIDEO` are visibly delivered together according to the ASCII Kinesis skill.
+The swarm manager must verify that the active **post-reset repair successor's** `ASCII -> JSON -> VIDEO` are visibly delivered together according to the ASCII Kinesis skill.
 
 Repository persistence alone is `PERSISTED_NOT_DELIVERED` until the visible delivery surface is satisfied.
 
 ## Campaign HEALTHY
 
-In addition to the inherited ASCII Kinesis HEALTHY gate, campaign completion requires:
+In addition to the inherited ASCII Kinesis HEALTHY gate, a repair successor can clear one rejection-debt entry only when:
 
-- correct lane/rejection-debt ownership;
-- campaign state and issue #343 identify the active successor;
-- affected worker prompt uses current law;
+- reset `5634613836` and correct lane/rejection-debt ownership were freshly read;
+- the predecessor remains preserved;
+- exactly one post-reset repair successor is active for that predecessor;
+- `revises` and `negative_fixture` identify that predecessor;
+- campaign state and issue #343 identify the active repair successor;
+- the affected worker prompt uses current law;
 - exact GitHub path/commit is read back;
-- old negative fixtures remain readable.
+- old negative fixtures remain readable;
+- the exact three-part reporting-chat surface is complete.
 
-`DREW_ACCEPTED` remains distinct from machine HEALTHY.
+A pre-reset specimen's historical machine HEALTHY string does not clear debt under reset `5634613836`. `DREW_ACCEPTED` remains distinct and cannot be inferred.
 
 ## Campaign failure states
 
@@ -162,4 +174,4 @@ Historical V1/V2 artifacts remain readable. Git history preserves superseded doc
 
 `NEXT_SYSTEM_HANDLE: terminal-native ASCII animation/game engine`
 
-Parked until repeated HEALTHY specimens prove reusable engine primitives.
+Parked until repeated **post-reset repair successors** survive the full quality and delivery gates strongly enough to justify extraction.
