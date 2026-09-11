@@ -196,7 +196,7 @@ public final class HomeCenterApplication extends Application {
             input.setImeOptions(EditorInfo.IME_ACTION_SEND);
             input.setMinimumHeight(dp(activity, 48));
             input.setContentDescription("Queue another Home Center message without interrupting current work");
-            String restoredDraft = ingressQueue.draft();
+            String restoredDraft = ingressQueue.draft(currentConversationId());
             if (!restoredDraft.isEmpty()) {
                 input.setText(restoredDraft);
                 input.setSelection(input.length());
@@ -240,7 +240,7 @@ public final class HomeCenterApplication extends Application {
             if (input == null) return;
             String exact = input.getText() == null ? "" : input.getText().toString();
             try {
-                ingressQueue.saveDraft(exact);
+                ingressQueue.saveDraft(exact, currentConversationId());
             } catch (IllegalStateException ex) {
                 queueFault = queueFaultText(ex);
                 android.util.Log.e("HomeCenterQueue", "queue draft persistence failed closed", ex);
