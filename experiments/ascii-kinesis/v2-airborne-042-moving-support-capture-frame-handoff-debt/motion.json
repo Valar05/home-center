@@ -1,0 +1,31 @@
+{
+  "bridge_policy": "geometry-only interpolation only while contact/support topology is unchanged; topology joins hard-cut at authored keys",
+  "entry": "v2-airborne-042-moving-support-capture-frame-handoff-debt",
+  "format_version": 2,
+  "fps": 24,
+  "keys": [
+    {"arm":10,"causal_role":"establish_fixed_launch_and_independent_moving_target","contact":"FIXED_LAUNCH_PAD_BOTH","key_id":"A042-K00","label":"READY_SKEW","lean":-8,"legL":[-18,58],"legR":[20,58],"platform_v":18,"platform_x":430,"support":["L","R"],"timing_class":"FOURS","timing_provenance":"INFERRED","x":120,"y":330},
+    {"arm":-18,"causal_role":"load_without_target_frame_join","contact":"FIXED_LAUNCH_PAD_BOTH","key_id":"A042-K01","label":"ASYM_LOAD","lean":-15,"legL":[-24,48],"legR":[16,48],"platform_v":18,"platform_x":448,"support":["L","R"],"timing_class":"FOURS","timing_provenance":"INFERRED","x":124,"y":342},
+    {"arm":28,"causal_role":"single_launch_support_break","contact":"AIRBORNE_NONE","key_id":"A042-K02","label":"SUPPORT_BREAK","lean":8,"legL":[-22,48],"legR":[24,46],"platform_v":18,"platform_x":466,"support":[],"timing_class":"ONES","timing_provenance":"INFERRED","x":148,"y":304},
+    {"arm":38,"causal_role":"ballistic_rise_platform_moves_independently","contact":"AIRBORNE_NONE","key_id":"A042-K03","label":"RISE_DRIVE","lean":12,"legL":[-14,50],"legR":[28,38],"platform_v":18,"platform_x":484,"support":[],"timing_class":"TWOS","timing_provenance":"INFERRED","x":215,"y":246},
+    {"arm":15,"causal_role":"single_apex_no_parent_join","contact":"AIRBORNE_NONE","key_id":"A042-K04","label":"APEX_CROSS","lean":4,"legL":[-26,40],"legR":[28,42],"platform_v":18,"platform_x":502,"support":[],"timing_class":"TWOS","timing_provenance":"INFERRED","x":304,"y":216},
+    {"arm":-12,"causal_role":"unsupported_descent_target_frame_advances","contact":"AIRBORNE_NONE","key_id":"A042-K05","label":"DESCENT_TRACK","lean":-3,"legL":[-18,46],"legR":[26,44],"platform_v":18,"platform_x":520,"support":[],"timing_class":"TWOS","timing_provenance":"INFERRED","x":394,"y":232},
+    {"arm":-24,"causal_role":"separated_precontact_aim_no_support_yet","contact":"PRECONTACT_LEFT_AIM","key_id":"A042-K06","label":"LEFT_PRECONTACT","lean":-12,"legL":[28,72],"legR":[-2,50],"platform_v":18,"platform_x":538,"support":[],"timing_class":"TWOS","timing_provenance":"INFERRED","x":478,"y":278},
+    {"arm":-34,"causal_role":"first_earned_parent_child_join","contact":"MOVING_PLATFORM_LEFT_ONLY","key_id":"A042-K07","label":"LEFT_CAPTURE_JOIN","lean":-20,"legL":[46,59],"legR":[-10,48],"platform_v":18,"platform_x":556,"support":["L"],"timing_class":"ONES","timing_provenance":"INFERRED","x":510,"y":291},
+    {"arm":-38,"causal_role":"platform_velocity_inherited_body_lags_local_frame","contact":"MOVING_PLATFORM_LEFT_ONLY","key_id":"A042-K08","label":"INHERIT_SHEAR","lean":-30,"legL":[44,45],"legR":[-6,38],"platform_v":18,"platform_x":574,"support":["L"],"timing_class":"ONES","timing_provenance":"INFERRED","x":530,"y":305},
+    {"arm":-18,"causal_role":"first_support_pays_capture_impulse","contact":"MOVING_PLATFORM_LEFT_ONLY","key_id":"A042-K09","label":"IMPACT_COMPRESSION","lean":-27,"legL":[44,30],"legR":[6,26],"platform_v":18,"platform_x":592,"support":["L"],"timing_class":"FOURS","timing_provenance":"INFERRED","x":548,"y":320},
+    {"arm":8,"causal_role":"delayed_second_support_join","contact":"MOVING_PLATFORM_BOTH","key_id":"A042-K10","label":"RIGHT_SUPPORT_JOIN","lean":-10,"legL":[34,32],"legR":[54,32],"platform_v":18,"platform_x":610,"support":["L","R"],"timing_class":"ONES","timing_provenance":"INFERRED","x":576,"y":318},
+    {"arm":30,"causal_role":"counterlean_spends_inherited_frame_velocity_debt","contact":"MOVING_PLATFORM_BOTH","key_id":"A042-K11","label":"COUNTERLEAN","lean":18,"legL":[18,44],"legR":[52,44],"platform_v":18,"platform_x":628,"support":["L","R"],"timing_class":"TWOS","timing_provenance":"INFERRED","x":610,"y":306},
+    {"arm":-5,"causal_role":"secondary_lag_after_root_restacks","contact":"MOVING_PLATFORM_BOTH","key_id":"A042-K12","label":"DISTAL_LAG","lean":9,"legL":[10,38],"legR":[48,38],"platform_v":18,"platform_x":646,"support":["L","R"],"timing_class":"TWOS","timing_provenance":"INFERRED","x":638,"y":312},
+    {"arm":4,"causal_role":"stable_in_new_reference_frame_not_idle_reset","contact":"MOVING_PLATFORM_BOTH","key_id":"A042-K13","label":"DISPLACED_SETTLE","lean":3,"legL":[4,34],"legR":[44,34],"platform_v":18,"platform_x":664,"support":["L","R"],"timing_class":"FOURS","timing_provenance":"INFERRED","x":662,"y":316}
+  ],
+  "lineage": {"negative_fixture": null, "revises": null, "source_change": "NOT_APPLICABLE_NEW_CONCEPT"},
+  "media": {"bytes":39295,"codec":"H.264/yuv420p","fps":24,"frames":45,"height":448,"sha256":"7187c47d5a5f82f8dabf30f3cd6db30f8acb0a3d2790a1116eae91b468771ef7","video_source":"abstract_ascii_rig_only","width":800},
+  "primitive": "AIRBORNE_MOVING_SUPPORT_CAPTURE_FRAME_HANDOFF_DEBT",
+  "quality": {"drew_accepted":false,"noodle_queen":"BLOCKED_UNTIL_TANGO_PASS","tango":"PENDING_CURRENT_WORKER_ACTUAL_RENDER_JUDGMENT"},
+  "schema": "ascii-kinesis.motion-v2",
+  "source": {"game":"3D Stunt Rider","home_center_evidence_id":"10EpvkQbXYEmFwRYFyr5dADthh45jr-1Zt50oI06e4FM","platform":"Amstrad CPC","rights":"EVIDENCE_ONLY_NO_SOURCE_PIXELS_AUDIO_PALETTE_CONTOURS_LAYOUT_TRACING_CHOREOGRAPHY_CLOSE_IMITATION","roles":["MOVING_REFERENCE_FRAME_RELATIONSHIP_EVIDENCE","RELATIONSHIP_BREAK_STATE_REFERENCE"],"source_timing":"UNKNOWN","timing_authority":false,"title":"Rider","tsr_asset":205456},
+  "status": "QUALITY_REVIEW_PENDING_REPO_PERSISTENCE_AND_CHAT_DELIVERY",
+  "thesis": "WORLD PARENT MOTION DOES NOT REKEY THE AIRBORNE BODY; EARNED CONTACT CREATES THE FRAME JOIN, THEN INHERITED SUPPORT VELOCITY BECOMES LANDING DEBT.",
+  "timing_policy": "STREET_FIGHTER/CAPCOM"
+}
