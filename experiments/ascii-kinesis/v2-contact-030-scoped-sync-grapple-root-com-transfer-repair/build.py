@@ -104,7 +104,9 @@ def build_video(m,tmp):
     return i,out
 
 def make_spa(motion_text,sheet,video_bytes,experiment_id):
-    video=base64.b64encode(video_bytes).decode("ascii")
+    import gzip
+    enc=lambda s: base64.b64encode(gzip.compress(s.encode("utf-8"),compresslevel=9,mtime=0)).decode("ascii")
+    ascii_payload=enc(sheet); json_payload=enc(motion_text); video=base64.b64encode(video_bytes).decode("ascii")
     return f"""<!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{html.escape(experiment_id)}</title>
@@ -117,10 +119,13 @@ pre{{white-space:pre;overflow:auto;font-family:ui-monospace,SFMono-Regular,Conso
 video{{display:block;width:min(100%,800px);height:auto;background:#000}}
 </style></head><body>
 <nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
-<section id="ascii" class="active"><pre>{html.escape(sheet)}</pre></section>
-<section id="json"><pre>{html.escape(motion_text)}</pre></section>
+<section id="ascii" class="active"><pre id="ascii-pre"></pre></section>
+<section id="json"><pre id="json-pre"></pre></section>
 <section id="video"><video controls autoplay muted loop playsinline src="data:video/mp4;base64,{video}"></video></section>
 <script>
+const A="{ascii_payload}",J="{json_payload}";
+async function inflate64(s){{const u=Uint8Array.from(atob(s),c=>c.charCodeAt(0));return new TextDecoder().decode(await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream("gzip"))).arrayBuffer())}}
+(async()=>{{document.getElementById("ascii-pre").textContent=await inflate64(A);document.getElementById("json-pre").textContent=await inflate64(J)}})();
 for(const b of document.querySelectorAll("button[data-view]")) b.onclick=()=>{{
  for(const s of document.querySelectorAll("section")) s.classList.toggle("active",s.id===b.dataset.view);
 }};
