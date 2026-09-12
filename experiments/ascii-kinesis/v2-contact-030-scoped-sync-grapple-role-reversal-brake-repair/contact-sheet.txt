@@ -75,6 +75,7 @@ ROOT/ARC: distance is already close before hands extend; negative space narrows 
 
 
 
+
                                                        O B
 
                                   A O               h///\
@@ -98,6 +99,8 @@ ROOT/ARC: contact occurs at compact reach; no root teleport and no full ownershi
  R03 FIRST_ANCHOR_SUPPORT_STAYS_SPLIT  A>B  CONTACT=ONE_ANCHOR
 
   FORCE A > B
+
+
 
 
 
@@ -131,6 +134,8 @@ ROOT/ARC: R sits between roots and above support line; both bodies visibly lean 
 
 
 
+
+
                                                    O B
                                        A O
                                                   //\\\\h
@@ -154,6 +159,8 @@ ROOT/ARC: B root drops and enters before authority changes; A rear support narro
  R05 INSIDE_STEP_ROLE_REVERSAL_LOAD  A=B_TO_B>A  CONTACT=LOCKED
 
   FORCE B <~ R ~> A
+
+
 
 
 
@@ -187,6 +194,7 @@ ROOT/ARC: B is visibly low and planted under-left of R before the swap; A is alr
 
 
 
+
                                                      A O
                                                        \
                                                      /\ \h
@@ -211,6 +219,7 @@ ROOT/ARC: contact retires discretely; A keeps moving right/up then descends whil
  R07 RELEASE_AND_BRAKE  B||A  CONTACT=OFF
 
   FORCE A ~>>>>    B <~
+
 
 
 
@@ -246,6 +255,7 @@ ROOT/ARC: A pelvis has passed the release corridor while far hand/foot lag; B al
 
 
 
+
                                                                    A O
                                                               h///
                                         O B                       ///\
@@ -267,6 +277,8 @@ CAUSAL_ROLE: catch A on a new support location and settle both bodies without re
 ROOT/ARC: final roots and spacing remain displaced from R00; secondary limbs settle after roots.
 
  R09 CATCH_AND_SETTLE_DISPLACED  A||B  CONTACT=OFF
+
+
 
 
 
