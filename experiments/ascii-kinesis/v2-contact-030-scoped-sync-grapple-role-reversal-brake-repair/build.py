@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import base64, hashlib, html, json, math, shutil, subprocess, sys
+import base64, gzip, hashlib, html, json, math, shutil, subprocess, sys
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
@@ -159,13 +159,16 @@ def build_video(frames_dir, out_mp4):
     subprocess.run([
         "ffmpeg", "-y", "-v", "error", "-framerate", str(FPS),
         "-i", str(frames_dir / "frame-%03d.png"),
-        "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "25",
+        "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "35",
         "-preset", "veryfast", "-movflags", "+faststart", str(out_mp4)
     ], check=True)
 
 def build_spa(mp4_bytes):
-    motion_text = (HERE / "motion.json").read_text(encoding="utf-8")
+    motion_bytes = (HERE / "motion.json").read_bytes()
+    ascii_bytes = (HERE / "contact-sheet.txt").read_bytes()
     video64 = base64.b64encode(mp4_bytes).decode("ascii")
+    ascii64 = base64.b64encode(gzip.compress(ascii_bytes, compresslevel=9, mtime=0)).decode("ascii")
+    motion64 = base64.b64encode(gzip.compress(motion_bytes, compresslevel=9, mtime=0)).decode("ascii")
     css = """
     :root{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#0b0d0f;color:#eef1ec}
     body{margin:0;padding:16px}nav{display:flex;gap:8px;position:sticky;top:0;background:#0b0d0f;padding-bottom:12px}
@@ -176,12 +179,15 @@ def build_spa(mp4_bytes):
     """
     return f"""<!doctype html><html><head><meta charset="utf-8"><title>{html.escape(ENTRY)}</title><style>{css}</style></head>
 <body><nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
-<section data-panel="ascii" class="active"><pre>{html.escape(ASCII_TEXT)}</pre></section>
-<section data-panel="json"><pre>{html.escape(motion_text)}</pre></section>
+<section data-panel="ascii" class="active"><pre id="ascii"></pre></section>
+<section data-panel="json"><pre id="json"></pre></section>
 <section data-panel="video"><video controls autoplay loop muted playsinline src="data:video/mp4;base64,{video64}"></video></section>
 <script>
 const buttons=[...document.querySelectorAll('[data-view]')],panels=[...document.querySelectorAll('[data-panel]')];
 buttons.forEach(b=>b.onclick=()=>{{panels.forEach(p=>p.classList.toggle('active',p.dataset.panel===b.dataset.view));}});
+const u8=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function ungzip(s){{const ds=new DecompressionStream('gzip');const ab=await new Response(new Blob([u8(s)]).stream().pipeThrough(ds)).arrayBuffer();return new TextDecoder().decode(ab);}}
+Promise.all([ungzip('{ascii64}'),ungzip('{motion64}')]).then(([a,j])=>{{document.getElementById('ascii').textContent=a;document.getElementById('json').textContent=j;}});
 </script></body></html>"""
 
 def main():
