@@ -1,161 +1,104 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import base64, hashlib, html, json, subprocess, tempfile
-from PIL import Image, ImageDraw
+import base64,gzip,hashlib,html,json,subprocess,tempfile
+from PIL import Image,ImageDraw
+R=Path(__file__).resolve().parent;M=R/'motion.json';S=R/'contact-sheet.txt';P=R/'scoped-sync-grapple-root-com-transfer-repair.motion.html';V=R/'.motion.mp4'
+W,H,F=80,24,21
 
-ROOT=Path(__file__).resolve().parent
-MOTION=ROOT/"motion.json"
-SHEET=ROOT/"contact-sheet.txt"
-SPA=ROOT/"scoped-sync-grapple-root-com-transfer-repair.motion.html"
-LOCAL_MP4=ROOT/".motion.mp4"
-GRID_W,GRID_H=80,24
+def put(g,p,c):
+ if p is None:return
+ x,y=map(lambda z:int(round(z)),p)
+ if 0<=x<W and 0<=y<H:g[y][x]=c
 
-SEG={
- "A":[((0,1),(0.5,0)),((0.5,0),(1,1)),((.22,.58),(.78,.58))],
- "B":[((0,0),(0,1)),((0,0),(.65,0)),((.65,0),(1,.25)),((1,.25),(.65,.5)),((0,.5),(.65,.5)),((.65,.5),(1,.75)),((1,.75),(.65,1)),((.65,1),(0,1))],
- "a":[((.2,.45),(.5,.2)),((.5,.2),(.8,.45)),((.8,.45),(.5,.72)),((.5,.72),(.2,.45))],
- "b":[((.15,0),(.15,1)),((.15,.45),(.65,.3)),((.65,.3),(.9,.55)),((.9,.55),(.65,.82)),((.65,.82),(.15,.7))],
- "L":[((.1,0),(.1,1)),((.1,1),(.9,1))],
- "R":[((.1,0),(.1,1)),((.1,0),(.7,0)),((.7,0),(.9,.25)),((.9,.25),(.7,.5)),((.7,.5),(.1,.5)),((.5,.5),(.95,1))]
-}
+def line(g,a,b,c=None):
+ x0,y0=map(lambda z:int(round(z)),a);x1,y1=map(lambda z:int(round(z)),b);dx=abs(x1-x0);sx=1 if x0<x1 else -1;dy=-abs(y1-y0);sy=1 if y0<y1 else -1;e=dx+dy
+ if c is None:c='-' if abs(x1-x0)>abs(y1-y0)*1.7 else ('|' if abs(y1-y0)>abs(x1-x0)*1.7 else ('\\' if (x1-x0)*(y1-y0)>0 else '/'))
+ while 1:
+  if 0<=x0<W and 0<=y0<H and g[y0][x0]==' ':g[y0][x0]=c
+  if x0==x1 and y0==y1:break
+  q=2*e
+  if q>=dy:e+=dy;x0+=sx
+  if q<=dx:e+=dx;y0+=sy
 
+def body(g,p,l):
+ for a,b in [('shoulder_l','shoulder_r'),('shoulder_l','pelvis'),('shoulder_r','pelvis'),('shoulder_l','hand_l'),('shoulder_r','hand_r'),('pelvis','foot_l'),('pelvis','foot_r')]:line(g,p[a],p[b])
+ n=[(p['shoulder_l'][0]+p['shoulder_r'][0])/2,(p['shoulder_l'][1]+p['shoulder_r'][1])/2];line(g,n,p['head'],'|');put(g,p['head'],l);put(g,p['pelvis'],l.lower())
+ for j in ('hand_l','hand_r','shoulder_l','shoulder_r'):put(g,p[j],'+')
+ put(g,p['foot_l'],'L');put(g,p['foot_r'],'R')
+
+def support(g,p,s):
+ put(g,[p['foot_l'][0],F-1],'^' if 'L!' in s else ('.' if 'L.' in s else ' '))
+ put(g,[p['foot_r'][0],F-1],'^' if 'R!' in s else ('.' if 'R.' in s else ' '))
+
+def frame(k):
+ g=[[' ']*W for _ in range(H)]
+ for x in range(W):g[F][x]='_'
+ body(g,k['A'],'A');body(g,k['B'],'B');support(g,k['A'],k['support_A']);support(g,k['B'],k['support_B'])
+ if k.get('force_axis'):line(g,k['force_axis'][0],k['force_axis'][1],':')
+ if k.get('relationship_center') is not None:put(g,k['relationship_center'],'X')
+ for a in k.get('anchors',[]):put(g,a,'*')
+ for a in k.get('arrows',[]):line(g,a['from'],a['to'],a.get('ch',':'));put(g,a['to'],a.get('tip','>'))
+ return '\n'.join(''.join(r).rstrip() for r in g)
+
+def crop(t):
+ rs=t.splitlines();ys=[i for i,r in enumerate(rs) if r.strip()]
+ if not ys:return ''
+ lo,hi=min(ys),max(ys);block=rs[lo:hi+1]
+ bodyrows=[r for r in block if r.strip() and set(r.strip())!={'_'}]
+ xs=[]
+ for r in bodyrows:
+  for i,c in enumerate(r):
+   if c!=' ':xs.append(i)
+ x0=max(0,min(xs)-2);x1=min(W,max(xs)+3)
+ return '\n'.join(r[x0:x1].rstrip() for r in block)
+
+def sheet(m):
+ s=m['source'];r=m['revision'];o=[m['experiment_id'],m['primitive'],f"RESET={m['reset_issue_comment']} | CHRONOLOGY={m['chronology_bind_issue_comment']} | CHURN_REBIND={m['successor_churn_rebind_issue_comment']}",f"REVISES={r['revises']} | NEGATIVE_FIXTURE={r['negative_fixture']} | SOURCE_CHANGE=false",f"QUARANTINED_LATER_CHURN={r['later_churn_quarantined']}",f"SOURCE=TSR asset {s['asset_id']} | {s['name']} | {s['game']} | {s['platform']}",f"EVIDENCE=Home Center {s['evidence_document_id']} | raw_sha256={s['raw_sha256']}",'SOURCE_TIMING=UNKNOWN | timing_authority=false | roles=POSE_REFERENCE + CONTACT_TOPOLOGY_REFERENCE','RIGHTS=evidence only; no source pixels/palette/costume/exact silhouette/choreography/tracing/redistribution.','LEGEND=A/B heads, a/b roots, +=joint, L/R feet, ^=trusted/braking, .=light/released, *=anchor, X=relationship center, :=force/arc.','CAUSAL='+m['direction']['sentence'],'']
+ for k in m['keys']:o+=['='*72,f"{k['key_id']} {k['name']} | {k['timing_class']} | hold={k['hold_frames']} | {k['timing_provenance']}",f"CONTACT={k['contact_state']} | CUSTODY={k['custody']} | ROOT_OWNER={k['root_owner']}",f"SUPPORT_A={k['support_A']} | SUPPORT_B={k['support_B']}",f"ROLE={k['causal_role']}",f"ARC={k['motion_arc_root_note']}",crop(frame(k)),'']
+ return '\n'.join(o).rstrip()+'\n'
+
+SEG={'A':[((0,1),(.5,0)),((.5,0),(1,1)),((.22,.58),(.78,.58))],'B':[((0,0),(0,1)),((0,0),(.65,0)),((.65,0),(1,.25)),((1,.25),(.65,.5)),((0,.5),(.65,.5)),((.65,.5),(1,.75)),((1,.75),(.65,1)),((.65,1),(0,1))],'a':[((.2,.45),(.5,.2)),((.5,.2),(.8,.45)),((.8,.45),(.5,.72)),((.5,.72),(.2,.45))],'b':[((.15,0),(.15,1)),((.15,.45),(.65,.3)),((.65,.3),(.9,.55)),((.9,.55),(.65,.82)),((.65,.82),(.15,.7))],'L':[((.1,0),(.1,1)),((.1,1),(.9,1))],'R':[((.1,0),(.1,1)),((.1,0),(.7,0)),((.7,0),(.9,.25)),((.9,.25),(.7,.5)),((.7,.5),(.1,.5)),((.5,.5),(.95,1))]}
 def glyph(d,c,x,y,cw,ch):
-    p=lambda u,v:(x+2+u*(cw-4),y+2+v*(ch-4))
-    col=(245,245,245); w=2
-    if c==" ": return
-    if c=="_": d.line((*p(0,1),*p(1,1)),fill=col,width=w)
-    elif c=="-": d.line((*p(0,.5),*p(1,.5)),fill=col,width=w)
-    elif c=="|": d.line((*p(.5,0),*p(.5,1)),fill=col,width=w)
-    elif c=="/": d.line((*p(0,1),*p(1,0)),fill=col,width=w)
-    elif c=="\\": d.line((*p(0,0),*p(1,1)),fill=col,width=w)
-    elif c==":":
-        d.ellipse((x+cw//2-1,y+ch//3-1,x+cw//2+1,y+ch//3+1),fill=col)
-        d.ellipse((x+cw//2-1,y+2*ch//3-1,x+cw//2+1,y+2*ch//3+1),fill=col)
-    elif c==".":
-        d.ellipse((x+cw//2-1,y+ch-4,x+cw//2+1,y+ch-2),fill=col)
-    elif c=="+":
-        d.line((*p(0,.5),*p(1,.5)),fill=col,width=w); d.line((*p(.5,0),*p(.5,1)),fill=col,width=w)
-    elif c in "*X":
-        d.line((*p(0,0),*p(1,1)),fill=col,width=w); d.line((*p(0,1),*p(1,0)),fill=col,width=w)
-        if c=="*": d.line((*p(.5,0),*p(.5,1)),fill=col,width=1)
-    elif c=="^":
-        d.line((*p(0,1),*p(.5,0)),fill=col,width=w); d.line((*p(.5,0),*p(1,1)),fill=col,width=w)
-    elif c==">":
-        d.line((*p(0,0),*p(1,.5)),fill=col,width=w); d.line((*p(1,.5),*p(0,1)),fill=col,width=w)
-    elif c=="<":
-        d.line((*p(1,0),*p(0,.5)),fill=col,width=w); d.line((*p(0,.5),*p(1,1)),fill=col,width=w)
-    elif c=="v":
-        d.line((*p(0,0),*p(.5,1)),fill=col,width=w); d.line((*p(.5,1),*p(1,0)),fill=col,width=w)
-    elif c in SEG:
-        for aa,bb in SEG[c]: d.line((*p(*aa),*p(*bb)),fill=col,width=w)
+ p=lambda u,v:(x+2+u*(cw-4),y+2+v*(ch-4));q=(245,245,245);w=2
+ if c==' ':return
+ if c=='_':d.line((*p(0,1),*p(1,1)),fill=q,width=w)
+ elif c=='-':d.line((*p(0,.5),*p(1,.5)),fill=q,width=w)
+ elif c=='|':d.line((*p(.5,0),*p(.5,1)),fill=q,width=w)
+ elif c=='/':d.line((*p(0,1),*p(1,0)),fill=q,width=w)
+ elif c=='\\':d.line((*p(0,0),*p(1,1)),fill=q,width=w)
+ elif c==':':d.ellipse((x+cw//2-1,y+ch//3-1,x+cw//2+1,y+ch//3+1),fill=q);d.ellipse((x+cw//2-1,y+2*ch//3-1,x+cw//2+1,y+2*ch//3+1),fill=q)
+ elif c=='.':d.ellipse((x+cw//2-1,y+ch-4,x+cw//2+1,y+ch-2),fill=q)
+ elif c=='+':d.line((*p(0,.5),*p(1,.5)),fill=q,width=w);d.line((*p(.5,0),*p(.5,1)),fill=q,width=w)
+ elif c in '*X':d.line((*p(0,0),*p(1,1)),fill=q,width=w);d.line((*p(0,1),*p(1,0)),fill=q,width=w)
+ elif c=='^':d.line((*p(0,1),*p(.5,0)),fill=q,width=w);d.line((*p(.5,0),*p(1,1)),fill=q,width=w)
+ elif c=='>':d.line((*p(0,0),*p(1,.5)),fill=q,width=w);d.line((*p(1,.5),*p(0,1)),fill=q,width=w)
+ elif c=='<':d.line((*p(1,0),*p(0,.5)),fill=q,width=w);d.line((*p(0,.5),*p(1,1)),fill=q,width=w)
+ elif c=='v':d.line((*p(0,0),*p(.5,1)),fill=q,width=w);d.line((*p(.5,1),*p(1,0)),fill=q,width=w)
+ elif c in SEG:
+  for a,b in SEG[c]:d.line((*p(*a),*p(*b)),fill=q,width=w)
 
-def raster(text,width,height):
-    im=Image.new("RGB",(width,height),(7,7,7)); d=ImageDraw.Draw(im)
-    cw=width//GRID_W; ch=height//GRID_H
-    for r,line in enumerate(text.splitlines()[:GRID_H]):
-        for col,c in enumerate(line[:GRID_W]): glyph(d,c,col*cw,r*ch,cw,ch)
-    return im
+def raster(t,w,h):
+ im=Image.new('RGB',(w,h),(7,7,7));d=ImageDraw.Draw(im);cw=w//W;ch=h//H
+ for y,r in enumerate(t.splitlines()[:H]):
+  for x,c in enumerate(r[:W]):glyph(d,c,x*cw,y*ch,cw,ch)
+ return im
 
-def make_sheet(m):
-    s=m["source"]; r=m["revision"]
-    out=[
-        m["experiment_id"],
-        m["primitive"],
-        f"RESET: issue #343 comment {m['reset_issue_comment']}",
-        f"CHRONOLOGY: {m['chronology_bind_issue_comment']} | SUCCESSOR_CHURN_REBIND: {m['successor_churn_rebind_issue_comment']}",
-        f"REVISION: revises={r['revises']} | negative_fixture={r['negative_fixture']} | source_change=false",
-        f"QUARANTINED LATER CHURN: {r['later_churn_quarantined']}",
-        f"SOURCE: TSR asset {s['asset_id']} | {s['name']} | {s['game']} | {s['platform']}",
-        f"SOURCE EVIDENCE: Home Center {s['evidence_document_id']} | raw_sha256={s['raw_sha256']}",
-        "SOURCE TIMING: UNKNOWN | timing_authority=false | roles=POSE_REFERENCE + CONTACT_TOPOLOGY_REFERENCE",
-        "RIGHTS: evidence only; no source pixels/palette/costume/exact silhouette/choreography/tracing/redistribution.",
-        "ASCII LEGEND: A/B=heads, a/b=pelvis roots, +=joint, L/R=feet, ^=trusted/braking support, .=light/released support, *=anchor, X=relationship center, :=force/arc.",
-        f"AUTHORED CAUSAL SENTENCE: {m['direction']['sentence']}",
-        "TIMING: every hold_frames value is authored/inferred; no source-authentic duration is claimed.",
-        ""
-    ]
-    for k in m["keys"]:
-        out += [
-            "="*80,
-            f"{k['key_id']} {k['name']} | {k['timing_class']} | hold_frames={k['hold_frames']} | timing={k['timing_provenance']}",
-            f"CONTACT={k['contact_state']} | CUSTODY={k['custody']} | ROOT_OWNER={k['root_owner']}",
-            f"SUPPORT_A={k['support_A']} | SUPPORT_B={k['support_B']}",
-            f"ROLE: {k['causal_role']}",
-            f"ARC: {k['motion_arc_root_note']}",
-            k["ascii"],
-            ""
-        ]
-    return "\n".join(out).rstrip()+"\n"
+def video(m,tmp):
+ fd=tmp/'frames';fd.mkdir();i=0;c=m['compile']
+ for k in m['keys']:
+  im=raster(frame(k),c['width'],c['height'])
+  for _ in range(k['hold_frames']):im.save(fd/f'{i:04d}.png');i+=1
+ p=tmp/'motion.mp4';subprocess.run(['ffmpeg','-y','-loglevel','error','-framerate',str(c['fps']),'-i',str(fd/'%04d.png'),'-c:v','libx264','-preset','veryslow','-crf','30','-pix_fmt','yuv420p','-movflags','+faststart','-metadata','encoder=ascii-kinesis-v2',str(p)],check=True);return i,p
 
-def build_video(m,tmp):
-    cfg=m["compile"]; fd=tmp/"frames"; fd.mkdir()
-    i=0
-    for k in m["keys"]:
-        im=raster(k["ascii"],cfg["width"],cfg["height"])
-        for _ in range(int(k["hold_frames"])):
-            im.save(fd/f"{i:04d}.png")
-            i+=1
-    out=tmp/"motion.mp4"
-    subprocess.run([
-        "ffmpeg","-y","-loglevel","error","-framerate",str(cfg["fps"]),
-        "-i",str(fd/"%04d.png"),"-c:v","libx264","-preset","veryslow","-crf","30",
-        "-pix_fmt","yuv420p","-movflags","+faststart","-metadata","encoder=ascii-kinesis-v2",str(out)
-    ],check=True)
-    return i,out
+def spa(j,a,v,e):
+ z=lambda s:base64.b64encode(gzip.compress(s.encode(),9,mtime=0)).decode();b=base64.b64encode(v).decode()
+ return '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+html.escape(e)+'</title><style>body{background:#090909;color:#eee;font-family:system-ui;margin:0}nav{padding:10px;position:sticky;top:0;background:#111}button{margin-right:8px}section{display:none;padding:12px}section.on{display:block}pre{white-space:pre;overflow:auto;font-family:ui-monospace,Consolas,monospace;font-variant-ligatures:none}video{width:min(100%,800px)}</style><nav><button data-v="a">ASCII</button><button data-v="j">JSON</button><button data-v="v">VIDEO</button></nav><section id="a" class="on"><pre></pre></section><section id="j"><pre></pre></section><section id="v"><video controls autoplay muted loop playsinline src="data:video/mp4;base64,'+b+'"></video></section><script>const A="'+z(a)+'",J="'+z(j)+'";async function d(s){let u=Uint8Array.from(atob(s),c=>c.charCodeAt(0));return new TextDecoder().decode(await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream("gzip"))).arrayBuffer())}(async()=>{a.querySelector("pre").textContent=await d(A);j.querySelector("pre").textContent=await d(J)})();document.querySelectorAll("button").forEach(b=>b.onclick=()=>document.querySelectorAll("section").forEach(s=>s.classList.toggle("on",s.id===b.dataset.v)))</script>'
 
-def make_spa(motion_text,sheet,video_bytes,experiment_id):
-    import gzip
-    enc=lambda s: base64.b64encode(gzip.compress(s.encode("utf-8"),compresslevel=9,mtime=0)).decode("ascii")
-    ascii_payload=enc(sheet); json_payload=enc(motion_text); video=base64.b64encode(video_bytes).decode("ascii")
-    return f"""<!doctype html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{html.escape(experiment_id)}</title>
-<style>
-*{{box-sizing:border-box}} body{{margin:0;background:#090909;color:#eee;font-family:system-ui}}
-nav{{position:sticky;top:0;z-index:2;background:#111;padding:10px;display:flex;gap:8px;border-bottom:1px solid #333}}
-button{{padding:8px 14px;background:#1b1b1b;color:#eee;border:1px solid #555;border-radius:5px}}
-section{{display:none;padding:12px}} section.active{{display:block}}
-pre{{white-space:pre;overflow:auto;font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;font-variant-ligatures:none;line-height:1.12}}
-video{{display:block;width:min(100%,800px);height:auto;background:#000}}
-</style></head><body>
-<nav><button data-view="ascii">ASCII</button><button data-view="json">JSON</button><button data-view="video">VIDEO</button></nav>
-<section id="ascii" class="active"><pre id="ascii-pre"></pre></section>
-<section id="json"><pre id="json-pre"></pre></section>
-<section id="video"><video controls autoplay muted loop playsinline src="data:video/mp4;base64,{video}"></video></section>
-<script>
-const A="{ascii_payload}",J="{json_payload}";
-async function inflate64(s){{const u=Uint8Array.from(atob(s),c=>c.charCodeAt(0));return new TextDecoder().decode(await new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream("gzip"))).arrayBuffer())}}
-(async()=>{{document.getElementById("ascii-pre").textContent=await inflate64(A);document.getElementById("json-pre").textContent=await inflate64(J)}})();
-for(const b of document.querySelectorAll("button[data-view]")) b.onclick=()=>{{
- for(const s of document.querySelectorAll("section")) s.classList.toggle("active",s.id===b.dataset.view);
-}};
-</script></body></html>
-"""
-
-def sha256(b): return hashlib.sha256(b).hexdigest()
-
+def sh(b):return hashlib.sha256(b).hexdigest()
 def main():
-    m=json.loads(MOTION.read_text())
-    motion_text=json.dumps(m,indent=2,sort_keys=True)+"\n"
-    if MOTION.read_text()!=motion_text:
-        raise SystemExit("motion.json is not canonical pretty JSON")
-    sheet=make_sheet(m)
-    with tempfile.TemporaryDirectory() as td:
-        count,mp4=build_video(m,Path(td)); raw=mp4.read_bytes()
-    expected=m["compile"]
-    if count!=expected["frames_total"]: raise SystemExit(f"frame count {count} != {expected['frames_total']}")
-    if sha256(raw)!=expected["media_sha256"]: raise SystemExit("media SHA mismatch")
-    if len(raw)!=expected["media_bytes"]: raise SystemExit("media byte count mismatch")
-    SHEET.write_text(sheet)
-    LOCAL_MP4.write_bytes(raw)
-    SPA.write_text(make_spa(motion_text,sheet,raw,m["experiment_id"]))
-    print(json.dumps({
-        "frames":count,
-        "media_bytes":len(raw),
-        "media_sha256":sha256(raw),
-        "motion_sha256":sha256(motion_text.encode()),
-        "contact_sheet_sha256":sha256(sheet.encode()),
-        "spa_sha256":sha256(SPA.read_bytes())
-    },sort_keys=True))
-
-if __name__=="__main__": main()
+ m=json.loads(M.read_text());j=json.dumps(m,separators=(',',':'),sort_keys=True)+'\n';a=sheet(m)
+ with tempfile.TemporaryDirectory() as td:n,p=video(m,Path(td));v=p.read_bytes()
+ c=m['compile'];assert n==c['frames_total'] and len(v)==c['media_bytes'] and sh(v)==c['media_sha256']
+ S.write_text(a);V.write_bytes(v);P.write_text(spa(j,a,v,m['experiment_id']))
+ print(json.dumps({'frames':n,'media_sha256':sh(v),'media_bytes':len(v),'motion_sha256':sh(j.encode()),'sheet_sha256':sh(a.encode()),'spa_sha256':sh(P.read_bytes())},sort_keys=True))
+if __name__=='__main__':main()
