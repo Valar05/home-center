@@ -1,0 +1,347 @@
+v2-contact-030-scoped-sync-grapple-root-com-transfer-repair
+SCOPED_SYNC_GRAPPLE_ROOT_COM_TRANSFER_REPAIR
+REVISION: revises=experiments/ascii-kinesis/v2-contact-001-scoped-sync-grapple/ | negative_fixture=experiments/ascii-kinesis/v2-contact-001-scoped-sync-grapple/ | reset=5634613836
+SOURCE: TSR asset 30327 | Billy & Jimmy | Double Dragon II: The Revenge | NES | raw_sha256=4bc16d9c88b58d6ad6d727b285f373c4caa1957b2762aebf44476a2f77f3e33c
+SOURCE EVIDENCE: Home Center 1icTndAfTH5fge6tCAL35HzU9X7dsKVzRa0ah_n6gwWk | whole_sheet_inspected=true | source_timing=UNKNOWN | timing_authority=false
+RIGHTS: evidence only; independent abstract ASCII rig; no source pixels/palette/costume/exact silhouette/choreography/tracing/redistribution.
+LEGEND: A/B heads, a/b pelvis roots, +=joint, L/R=feet, ^=trusted/braking support, .=light/releasing support, *=inter-body anchor, X=relationship center, :=force axis.
+VISIBLE CAUSAL SENTENCE: separation -> root-led close -> precontact coil -> first anchor -> second-anchor lock -> shared-center load -> counterload -> authored root-owner swap -> transfer while contact lives -> hard release -> partner lag/carrier recoil -> overshoot/brake -> displaced settle.
+====================================================================================================
+C030-K0 SEPARATE_READ | FOURS / INFERRED
+CONTACT=NONE | CUSTODY=INDEPENDENT | ROOT_OWNER=NONE | SUPPORT_A=BOTH_TRUSTED | SUPPORT_B=BOTH_TRUSTED
+ROLE: Establish independent balance and broad negative space before approach.
+ARC: Neither root owes the other motion yet.
+       A                                            B
+       |                                            |
+       |                                            |
+     +---+                                        +---+
+    /|   |\                                      /|   |\
+   /  | |  \\                                   /  | |  \
+   /  | |    +                                 +   | |   \
+  +   | |                                          | |    +
+       |                                            |
+       a                                            b
+       |                                            |
+      | |                                          | |
+      | |                                          | |
+      |  |                                         |  |
+     |   |                                        |   |
+     |    |                                       |    |
+     |    |                                       |    |
+    |      |                                     |      |
+    L      R                                     L      R
+_____________________________________________________________
+====================================================================================================
+C030-K1 A_APPROACHES_B_READS | TWOS / INFERRED
+CONTACT=NONE | CUSTODY=INDEPENDENT | ROOT_OWNER=NONE | SUPPORT_A=LEFT_DRIVE_RIGHT_TRUSTED | SUPPORT_B=BOTH_TRUSTED
+ROLE: Close range by root travel, not arm extension.
+ARC: A pelvis advances six cells while reaching hand stays near torso.
+       A                                  B
+       |                                  |
+       |                                  |
+     +---+-                             +---+
+    /|   | --                          /|   |\
+   /  | |    -+                      //  | |  \\
+   /  | |                           +    | |    \
+  +   | |                                | |     +
+       |                                  |
+       a                                  b
+       ||                                 |
+      | |                                | |
+      |  |                               | |
+      |  |                               |  |
+     |    |                             |   |
+     |    |                             |    |
+     |     |                            |    |
+    |      |                           |      |
+    L       R                          L      R
+    ^       ^
+___________________________________________________
+====================================================================================================
+C030-K2 B_BRACES_RANGE_CLOSES | TWOS / INFERRED
+CONTACT=NONE | CUSTODY=INDEPENDENT | ROOT_OWNER=NONE | SUPPORT_A=RIGHT_TRUSTED_LEFT_DRIVE | SUPPORT_B=LEFT_TRUSTED_RIGHT_BRAKE
+ROLE: B authors a brace while A earns contact range through COM travel.
+ARC: Negative space narrows at the roots before hands can meet.
+       A                       B
+       |                       |
+       |                       |
+     +---+--                 +---+
+    /|   |  --+            --|   |\
+   /  | |                +-   | |  \\
+   /  | |                     | |    \
+  +   | |                     | |     +
+       |                       |
+       a                       b
+       ||                     ||
+      | |                     | |
+      |  |                   |  |
+     |   |                   |   |
+     |    |                 |    |
+     |    |                 |    |
+    |      |               |      |
+    L      R               L      R
+           ^               ^      ^
+_______________________________________
+====================================================================================================
+C030-K3 PRECLOSE_COIL_GAP | ONES / INFERRED
+CONTACT=NONE | CUSTODY=INDEPENDENT | ROOT_OWNER=NONE | SUPPORT_A=RIGHT_TRUSTED_LEFT_LIGHT | SUPPORT_B=LEFT_TRUSTED_RIGHT_LIGHT
+ROLE: Anticipation: both roots compress with a one-cell visible precontact gap.
+ARC: Hands approach only after pelvises enter close range.
+       A              B
+       |              |
+       |              |
+     +---+--       -+---+
+    /|   |  --+ +-- |   |\
+   /  | |            | |  \\
+   /  | |            | |    \
+  +   | |            | |     +
+       |              |
+       a              b
+       |              |
+      | |            | |
+      | |            | |
+     |   |          |   |
+     |   |          |   |
+    |     |        |     |
+    L     R        L     R
+    .     ^        ^     .
+______________________________
+====================================================================================================
+C030-K4 FIRST_ANCHOR_WRIST | TWOS / INFERRED
+CONTACT=ONE_ANCHOR | CUSTODY=A_WRIST_TO_B_WRIST | ROOT_OWNER=A_INITIATES | SUPPORT_A=RIGHT_TRUSTED_LEFT_LIGHT | SUPPORT_B=LEFT_TRUSTED_RIGHT_TRUSTED
+ROLE: First touch is explicit but does not yet steal B root/support.
+ARC: A acquires wrist at compact range; B remains rooted.
+       A           B
+       |           |
+       |           |
+     +---+--    -+---+
+    /|   |  --*- |   |\
+   /  | |     X   | |  \\
+   /  | |         | |    \
+  +   | |         | |     +
+       |           |
+       a ::::::::::b
+       |           |
+      | |         | |
+      | |         | |
+     |   |       |   |
+     |   |       |   |
+    |     |     |     |
+    L     R     L     R
+    .     ^     ^     ^
+___________________________
+====================================================================================================
+C030-K5 SECOND_ANCHOR_RELATIONSHIP_LOCK | FOURS / INFERRED
+CONTACT=TWO_ANCHORS_LOCKED | CUSTODY=SHARED_CONSTRAINT | ROOT_OWNER=A_INITIATES | SUPPORT_A=RIGHT_TRUSTED_LEFT_LIGHT | SUPPORT_B=LEFT_TRUSTED_RIGHT_TRUSTED
+ROLE: Second anchor locks an explicit relationship frame after close-range earning.
+ARC: The bodies become one constrained system without collapsing silhouette asymmetry.
+       A         B
+       |         |
+       |         |
+     +---+--*  +---+
+    /|   |  --*|   |\
+   /  | |       | |  \\
+   /  | |       | |    \
+  +   | |       | |     +
+       |      X  |
+       a:::::::::b
+       |         |
+      | |       | |
+      | |       | |
+     |   |     |   |
+     |   |     |   |
+    |     |   |     |
+    L     R   L     R
+    .     ^   ^     ^
+_________________________
+====================================================================================================
+C030-K6 A_LOADS_SHARED_CENTER | TWOS / INFERRED
+CONTACT=TWO_ANCHORS_LOCKED | CUSTODY=SHARED_CONSTRAINT | ROOT_OWNER=A_INITIATES | SUPPORT_A=LEFT_RELEASING_RIGHT_TRUSTED | SUPPORT_B=LEFT_TRUSTED_RIGHT_BRAKE
+ROLE: A loads the shared center; support consequence becomes visible at A rear foot.
+ARC: A COM drops and moves under R; B shoulder lags.
+                  B
+        A         |
+        |         |
+        |       +---+
+      +---+--* ||   |\
+     /|   |  --* | |  \\
+    /  | |       | |    \
+   +   | |       | |     +
+       | |    X   |
+        |       ::b
+        a   ::::  |
+       / |::     | |
+       / |       | |
+      /   |     |   |
+     /    |     |   |
+     /     |   |     |
+    L      R   L     R
+    .      ^   ^     ^
+__________________________
+====================================================================================================
+C030-K7 B_COUNTERLOADS_RELATIONSHIP | ONES / INFERRED
+CONTACT=TWO_ANCHORS_LOCKED | CUSTODY=SHARED_CONSTRAINT | ROOT_OWNER=CONTESTED | SUPPORT_A=RIGHT_TRUSTED_LEFT_RELEASE | SUPPORT_B=LEFT_TRUSTED_RIGHT_DRIVE
+ROLE: B counters through a planted left foot; the ownership contest is visible before swap.
+ARC: R migrates one cell toward B while A left support peels.
+        A         B
+        |         |
+        |         |
+      +---+--*  +---+
+     /|   |  --*|   |\
+    /  | |       | |  \\
+    /  | |       | |    \
+   +   | |       | |     +
+        |      X  |
+        a:::::    b
+       / |    :::|:\
+       / |       |  \
+      /   |     |    \
+     /    |     |    \
+     /     |   |      \
+    L      R   L       R
+    .      ^   ^
+____________________________
+====================================================================================================
+C030-K8 ROOT_OWNER_SWAP_TO_B | ONES / INFERRED
+CONTACT=TWO_ANCHORS_LOCKED | CUSTODY=B_OWNS_SHARED_CENTER | ROOT_OWNER=B | SUPPORT_A=RIGHT_RELEASING_LEFT_LIGHT | SUPPORT_B=LEFT_TRUSTED_RIGHT_DRIVE
+ROLE: Decisive authored key: B drops its root under R and becomes root owner while contact remains live.
+ARC: A near foot visibly unweights; B support carries the system.
+        A
+        |         B
+        |         |
+      +---+--     |
+     /|   |  *-*+---+
+    /  | |      |   |\
+    /  | |       | |  \\
+   +   | |       | |    \
+        |        | |     +
+        a::      X|
+       / \ :::::: b
+       / \       /:\
+      /   \      /  \
+     /    \     /    \
+     /     R    /     \
+    L          L       R
+    .      .   ^
+____________________________
+====================================================================================================
+C030-K9 B_TRANSFERS_A_WITH_CONTACT_LIVE | ONES / INFERRED
+CONTACT=TWO_ANCHORS_LOCKED | CUSTODY=B_OWNS_SHARED_CENTER | ROOT_OWNER=B | SUPPORT_A=NO_TRUSTED_AIRBORNE_EDGE | SUPPORT_B=LEFT_TRUSTED_RIGHT_BRAKE
+ROLE: Transfer occurs while both anchors are still live so A trajectory has an authored cause.
+ARC: A root accelerates left/up as B root remains planted.
+       A
+       |
+       |
+     +---+---        B
+   // \  |   -*-*    |
+  +   \  |       \\  |
+       \|          +---+
+       \|          |   |\\
+       :a:          | |   \\
+       / \:::::   X | |     +
+       / \     ::::  |
+      /   \        ::b
+     /     \        / \
+     /     \        /  \
+    L       R      /    \
+                   /     \
+                  L       R
+                  ^       ^
+_______________________________
+====================================================================================================
+C030-K10 RELEASE_TOPOLOGY_BREAK | ONES / INFERRED
+CONTACT=NONE | CUSTODY=INDEPENDENT_AFTER_RELEASE | ROOT_OWNER=B | SUPPORT_A=NO_TRUSTED_AIRBORNE_EDGE | SUPPORT_B=LEFT_TRUSTED_RIGHT_BRAKE
+ROLE: Release is a hard topology change: anchors and R disappear at one authored key.
+ARC: A keeps transferred velocity; B begins recoil only after release.
+       A
+       |
+       |
+    -+---+--
+ +--  \  |  ---+           B
+      \  |                 |
+       \|                  |
+       \|            +---+---+
+        a                |   |\\
+       / \                | |   \\
+       / \                | |     +
+      /   \                |
+     /     \               b
+     /     \              / \
+    L       R             /  \
+                         /    \
+                         /     \
+                        L       R
+                        ^       ^
+_____________________________________
+====================================================================================================
+C030-K11 PARTNER_LAG_CARRIER_RECOIL | TWOS / INFERRED
+CONTACT=NONE | CUSTODY=INDEPENDENT_AFTER_RELEASE | ROOT_OWNER=NONE | SUPPORT_A=NO_TRUSTED_AIRBORNE_EDGE | SUPPORT_B=LEFT_TRUSTED_RIGHT_RELEASE
+ROLE: A continues on a faster independent clock while B pays recoil debt.
+ARC: Separated silhouettes widen; B upper body trails its root.
+       A
+       |
+       |
+     +---+-----+                    B
+   -- \  |                          |
+ +-   \  |                          |
+       \|                         +---+-
+       \|                       --|   | --
+        a                     +-   | |    -+
+       / \                         | |
+       / \                          |
+      /   \                         b
+     /     \                       | \
+     /     \                       |  \
+    L       R                     |   \
+                                  |    \
+                                 |      R
+                                 L
+                                 ^      .
+_____________________________________________
+====================================================================================================
+C030-K12 B_OVERSHOOT_BRAKE | ONES / INFERRED
+CONTACT=NONE | CUSTODY=INDEPENDENT_AFTER_RELEASE | ROOT_OWNER=NONE | SUPPORT_A=LEFT_LIGHT_RIGHT_BRAKE | SUPPORT_B=RIGHT_TRUSTED_LEFT_BRAKE
+ROLE: Carrier recoil overshoots its eventual rest; A still drifts with secondary lag.
+ARC: B root overruns right while right support catches; shoulders remain behind.
+       A
+       |                                   B
+       |                                   |
+     +---+-----+                           |
+   // \  |                               +---+--
+  +   \  |                              /|  |   --+
+       \|                              / |  |
+       \|                             /   ||
+        a                            +    ||
+       / \                                |
+       / \                                b
+      /   \                              / \
+     /     \                            /  \
+     /     \                            /   \
+    L       R                          /     \
+                                      L      \
+                                              R
+    .       ^                                 ^
+___________________________________________________
+====================================================================================================
+C030-K13 DISPLACED_SETTLE | FOURS / INFERRED
+CONTACT=NONE | CUSTODY=INDEPENDENT_AFTER_RELEASE | ROOT_OWNER=NONE | SUPPORT_A=LEFT_TRUSTED_RIGHT_LIGHT | SUPPORT_B=RIGHT_TRUSTED_LEFT_LIGHT
+ROLE: Settle is displaced from both starting poses; no idle reset.
+ARC: B returns two cells from overshoot, upper body settles later; A rests far from start.
+       A                                   B
+       |                                   |
+       |                                   |
+     +---+-----+                         +---+-
+   // \  |                              /|   | --
+  +   \  |                             /  | |    -+
+       \|                             +   | |
+       \|                                 | |
+        a                                  |
+       | \                                 b
+       | \                                / \
+      |   \                              /  \
+      |    \                             /   \
+     |     \                            /     \
+     |      R                          L      \
+    L                                          R
+    ^       .                          .       ^
+____________________________________________________
