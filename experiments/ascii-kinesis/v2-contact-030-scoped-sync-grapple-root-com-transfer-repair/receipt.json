@@ -1,0 +1,86 @@
+{
+  "chronology_bind_issue_comment": 5644669228,
+  "created_utc": "2026-09-12T11:47:20.085427+00:00",
+  "drew_accepted": false,
+  "experiment_id": "v2-contact-030-scoped-sync-grapple-root-com-transfer-repair",
+  "lane": "contact",
+  "manager_propagation_issue_comment": 5645488470,
+  "media": {
+    "bytes": 22146,
+    "codec": "h264",
+    "decode": "PASS_CURRENT_WORKER_RECONSTRUCTION",
+    "fps": 24,
+    "frames": 48,
+    "height": 432,
+    "pix_fmt": "yuv420p",
+    "sha256": "5eb2870aee87c66d372f8a8a4381776b9b22eeb2370044277e6a4bb7267b2deb",
+    "source": "abstract ASCII rig + authored hold_frames only",
+    "width": 800
+  },
+  "negative_fixture": "experiments/ascii-kinesis/v2-contact-001-scoped-sync-grapple/",
+  "official_validator": {
+    "current_main": "NOT_CALLABLE_CURRENT_MAIN_404",
+    "path": "tools/validate_ascii_kinesis_v2.py",
+    "result": "NOT_RUN_NOT_CALLABLE"
+  },
+  "package": {
+    "authoritative_spa": "scoped-sync-grapple-root-com-transfer-repair.motion.html",
+    "contact_sha256": "8c604d31fdd4a6e9e2eef2878b955293bedffd15ea6645b34a26e1d35aeb1aaa",
+    "motion_sha256": "215d672f1f668602cf3859d5625973f232a6a13a3f97a1f68206d82bb58d022c",
+    "required_files": [
+      "build.py",
+      "contact-sheet.txt",
+      "manifest.json",
+      "motion.json",
+      "receipt.json",
+      "scoped-sync-grapple-root-com-transfer-repair.motion.html"
+    ],
+    "spa_sha256": "b75de016e52d69ae82b0fe4aa34e60d3c298f1298f5635281c2b705276045acc"
+  },
+  "persistence": {
+    "chat_part1_ascii": false,
+    "chat_part2_json": false,
+    "chat_part3_visible_video": false,
+    "exact_one_spa": false,
+    "exact_six_files": false,
+    "home_center_pre_delivery_readback": false,
+    "home_center_terminal_binding": false,
+    "home_center_terminal_readback": false,
+    "issue_pre_delivery_comment": null,
+    "issue_pre_delivery_readback": false,
+    "issue_terminal_comment": null,
+    "issue_user_surface_comment": null,
+    "repo_persisted": false,
+    "repo_readback": false
+  },
+  "predecessor": "experiments/ascii-kinesis/v2-contact-001-scoped-sync-grapple/",
+  "predecessor_preserved": true,
+  "quality": {
+    "noodle_queen": {
+      "judgment": "PASS after current-worker Tango on the same reconstructed render: the pair visibly argues over load ownership, B earns the takeover underneath the shared center, A leaves while custody is live, release is decisive, and the aftermath remains displaced rather than laundering itself back to idle.",
+      "render_media_sha256": "5eb2870aee87c66d372f8a8a4381776b9b22eeb2370044277e6a4bb7267b2deb",
+      "status": "PASS_TASTE_FUNCTION_CONTEMPT_SAME_R3_RENDER"
+    },
+    "tango": {
+      "judgment": "Fresh current-worker inspection of all 17 authored visible ASCII states covering the complete 48-frame hold-only sequence: close range is earned by root travel before acquisition; first and second anchors are distinct; A load -> B counterload -> B root-owner swap is visible in body level/support before transfer; A departs while both anchors remain live; release is a hard authored topology break; unequal post-release clocks continue through overshoot, displaced catch, rebound, secondary lag, settle, and displaced rest. No telescoping acquisition, endpoint-only contact, mannequin symmetry, semantic tween across topology, support/contact teleport, bodyless relationship motion, reverse interpolation, synchronized idle reset, generic bridge, or metadata-only ownership is visible.",
+      "render_media_sha256": "5eb2870aee87c66d372f8a8a4381776b9b22eeb2370044277e6a4bb7267b2deb",
+      "status": "PASS_R3_CURRENT_WORKER_RECONSTRUCTED_ACTUAL_RENDER"
+    }
+  },
+  "quarantined_later_churn": "experiments/ascii-kinesis/v2-contact-030-scoped-sync-grapple-role-reversal-brake-repair/",
+  "reset_issue_comment": 5634613836,
+  "revises": "experiments/ascii-kinesis/v2-contact-001-scoped-sync-grapple/",
+  "schema": "ascii-kinesis.receipt.v2",
+  "source": {
+    "asset_id": 30327,
+    "evidence_document_id": "1icTndAfTH5fge6tCAL35HzU9X7dsKVzRa0ah_n6gwWk",
+    "raw_sha256": "4bc16d9c88b58d6ad6d727b285f373c4caa1957b2762aebf44476a2f77f3e33c",
+    "rights_firewall": "PASS_EVIDENCE_ONLY_NO_SOURCE_PIXELS_PALETTE_COSTUME_EXACT_SILHOUETTE_CHOREOGRAPHY_TRACING_REDISTRIBUTION",
+    "source_timing": "UNKNOWN",
+    "timing_authority": false,
+    "whole_source_read_current_worker": true
+  },
+  "source_change": false,
+  "status": "CANDIDATE_READY_FOR_REPO_PERSISTENCE",
+  "successor_churn_rebind_issue_comment": 5645387490
+}
