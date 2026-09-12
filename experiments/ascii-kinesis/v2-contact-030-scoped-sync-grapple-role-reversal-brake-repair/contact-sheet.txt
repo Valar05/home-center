@@ -1,0 +1,290 @@
+ASCII KINESIS V2 CONTACT REPAIR — v2-contact-030-scoped-sync-grapple-role-reversal-brake-repair
+REVISES / NEGATIVE_FIXTURE: experiments/ascii-kinesis/v2-contact-001-scoped-sync-grapple/
+RESET: issue #343 comment 5634613836
+SOURCE EVIDENCE: Home Center 1icTndAfTH5fge6tCAL35HzU9X7dsKVzRa0ah_n6gwWk / TSR asset 30327
+RIGHTS: abstract relationship/contact principles only; no source pixels, palette, costume, exact silhouette, choreography, tracing, or redistribution.
+TIMING: source UNKNOWN; all key timing INFERRED. FOURS/TWOS/ONES are authored exposure classes, not seconds.
+
+LEGEND: A/B generic bodies | O head | @ root | h hand | ^ support | r latent relationship frame | R locked frame | * live constraint | R// retired frame
+
+========================================================================================
+R00  SEPARATE_DISPLACED_READ  HOLD=4  FOURS  PROVENANCE=INFERRED
+CAUSAL_ROLE: establish independent support and unequal readiness before contact
+ROOT/ARC: A front shoulder leads while B keeps more negative space; roots are intentionally not mirrored.
+
+ R00 SEPARATE_DISPLACED_READ  A||B  CONTACT=OFF
+
+
+
+
+
+
+
+                    A O                                           O B
+
+                  h////\\h                                     h//\\
+                       \                                         /  \\h
+                       \                                         /
+                      \                                           /
+                      @                                           @
+                     / \                                         / \
+                     / \                                         / \
+                    /   \                                       /   \
+                    /   \                                       /   \
+                   ^     ^                                     ^     ^
+    . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+ A_SUPPORT=LEFT_BIASED   B_SUPPORT=RIGHT_BIASED
+
+========================================================================================
+R01  EARN_RANGE_PUSH_STEP  HOLD=2  TWOS  PROVENANCE=INFERRED
+CAUSAL_ROLE: close range through planted rear-leg drive without stealing partner support
+ROOT/ARC: A root advances on a shallow rising arc; arms remain compact instead of telescoping.
+
+ R01 EARN_RANGE_PUSH_STEP  A>B_PREP  CONTACT=OFF
+
+  FORCE A ~> B
+
+
+
+
+
+                            A O                             O B
+                            h/
+                              /\             r           h///\\
+                               \\h                          /  \\h
+                              \                             /
+                              \                              /
+                             @                               @
+                            /\                              / \
+                            / \                             / \
+                           /  \                            /   \
+                           /   \                           /   \
+                          ^    ^                          ^     ^
+    . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+ A_SUPPORT=RIGHT_DRIVES_LEFT_RECEIVES   B_SUPPORT=RIGHT_BIASED
+
+========================================================================================
+R02  COMPRESSION_BEFORE_TOUCH  HOLD=3  TWOS  PROVENANCE=INFERRED
+CAUSAL_ROLE: compress both silhouettes and lower A COM before first touch
+ROOT/ARC: distance is already close before hands extend; negative space narrows at root level.
+
+ R02 COMPRESSION_BEFORE_TOUCH  A>B_PREP  CONTACT=OFF
+
+
+
+
+
+
+                                                       O B
+
+                                  A O               h///\
+                                  h/         r         / \\h
+                                    /\\h               /
+                                    \                   /
+                                    \                   @
+                                   @                   / \
+                                  / \                  / \
+                                 /  \                 /   \
+                                 /   \                /   \
+                                ^    ^               ^     ^
+    . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+ A_SUPPORT=LEFT_BRAKE_RIGHT_TRAIL   B_SUPPORT=RIGHT_BRACE
+
+========================================================================================
+R03  FIRST_ANCHOR_SUPPORT_STAYS_SPLIT  HOLD=4  FOURS  PROVENANCE=INFERRED
+CAUSAL_ROLE: make one compact inter-body anchor explicit while B still owns support/root
+ROOT/ARC: contact occurs at compact reach; no root teleport and no full ownership at touch.
+
+ R03 FIRST_ANCHOR_SUPPORT_STAYS_SPLIT  A>B  CONTACT=ONE_ANCHOR
+
+  FORCE A > B
+
+
+
+
+
+                                      A O           O B
+
+                                     h///\\\      ///\\\\h
+                                         \  \\r///  /
+                                        \           /
+                                        \            /
+                                       @             @
+                                      /\            / \
+                                      / \           / \
+                                     /  \          /   \
+                                     /   \         /   \
+                                    ^    ^        ^     ^
+    . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+ A_SUPPORT=LEFT+RIGHT   B_SUPPORT=LEFT+RIGHT
+
+========================================================================================
+R04  LOCK_SHARED_FRAME  HOLD=5  FOURS  PROVENANCE=INFERRED
+CAUSAL_ROLE: lock a visible relationship frame and compress force through both support chains
+ROOT/ARC: R sits between roots and above support line; both bodies visibly lean into constraint.
+
+ R04 LOCK_SHARED_FRAME  A=B_INITIATIVE_A  CONTACT=LOCKED
+
+  FORCE A > R < B
+
+
+
+
+
+                                                   O B
+                                       A O
+                                                  //\\\\h
+                                      h///\\    // /
+                                          \ \*R*   /
+                                         \          /
+                                         \          @
+                                        @          / \
+                                       / \         / \
+                                      /  \        /   \
+                                      /   \       /   \
+                                     ^    ^      ^     ^
+    . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+ A_SUPPORT=LEFT_DOMINANT   B_SUPPORT=RIGHT_DOMINANT
+
+========================================================================================
+R05  INSIDE_STEP_ROLE_REVERSAL_LOAD  HOLD=3  TWOS  PROVENANCE=INFERRED
+CAUSAL_ROLE: B steps under the shared frame, lowering root and beginning custody reversal without breaking contact
+ROOT/ARC: B root drops and enters before authority changes; A rear support narrows.
+
+ R05 INSIDE_STEP_ROLE_REVERSAL_LOAD  A=B_TO_B>A  CONTACT=LOCKED
+
+  FORCE B <~ R ~> A
+
+
+
+
+
+                                         A O
+
+                                        h//\    O B
+                                           \\     \\\h
+                                           \\  /\\
+                                          \ *R* /
+                                          @     /
+                                         /\      @
+                                         / \    / \
+                                        /  \   /  \
+                                        /   \ /    \
+                                       ^    ^^     ^
+    . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+ A_SUPPORT=RIGHT_THINNING   B_SUPPORT=LEFT_PLANTED_INSIDE
+
+========================================================================================
+R06  AUTHORITY_SWAP_TRANSFER  HOLD=2  ONES  PROVENANCE=INFERRED
+CAUSAL_ROLE: make the owner swap visible at an authored key while contact remains live
+ROOT/ARC: B is visibly low and planted under-left of R before the swap; A is already displaced up/right around the live anchor.
+
+ R06 AUTHORITY_SWAP_TRANSFER  B>A  CONTACT=LOCKED_TRANSFER
+
+  FORCE B => R => A
+
+
+
+
+
+                                                     A O
+                                                       \
+                                                     /\ \h
+                                           O B     //\
+                                          h      // @
+                                           /\\\*R*  /\
+                                            /       / \
+                                            /      /  \
+                                             @     /   \
+                                            / \    /    ^
+                                           /  \    ^
+                                          /    \
+                                         ^     ^
+    . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+ A_SUPPORT=ONE_FOOT_LIGHT   B_SUPPORT=LEFT_PLANTED_RIGHT_BRACE
+
+========================================================================================
+R07  RELEASE_AND_BRAKE  HOLD=2  ONES  PROVENANCE=INFERRED
+CAUSAL_ROLE: retire the relationship frame at a discrete key while B brakes and A keeps transferred momentum
+ROOT/ARC: contact retires discretely; A keeps moving right/up then descends while B brakes left, preserving post-release inequality.
+
+ R07 RELEASE_AND_BRAKE  B||A  CONTACT=OFF
+
+  FORCE A ~>>>>    B <~
+
+
+
+
+
+                                                            A O
+
+                                                            //\\
+                                         O B           h////\\  \
+                                        h/\\\\\h           @    \
+                                         /      R//        /\    h
+                                          /               /  \
+                                          /               /  \
+                                           @              /   \
+                                          / \            /     ^
+                                         /   \           ^
+                                        /    \
+                                       ^      ^
+    . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+ A_SUPPORT=AIRBORNE_DEBT   B_SUPPORT=LEFT_BRAKE
+
+========================================================================================
+R08  DISPLACED_OVERSHOOT_SECONDARY_LAG  HOLD=3  TWOS  PROVENANCE=INFERRED
+CAUSAL_ROLE: pay transfer debt with A overshoot and delayed limb recovery while B recoils independently
+ROOT/ARC: A pelvis has passed the release corridor while far hand/foot lag; B already starts settle.
+
+ R08 DISPLACED_OVERSHOOT_SECONDARY_LAG  A||B  CONTACT=OFF
+
+  FORCE A ~>>>
+
+
+
+
+
+
+                                                                   A O
+                                                              h///
+                                        O B                       ///\
+                                       h//\\\\h                     \ \
+                                         /                         \   \
+                                         /                        @    \
+                                          /                       /\    h
+                                          @                      / \
+                                         / \                     /  \
+                                        /   \                   /    \
+                                        /   \                   ^    \
+                                       ^     ^                        ^
+    . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+ A_SUPPORT=RIGHT_SEARCHING   B_SUPPORT=LEFT+RIGHT_RECOVER
+
+========================================================================================
+R09  CATCH_AND_SETTLE_DISPLACED  HOLD=5  FOURS  PROVENANCE=INFERRED
+CAUSAL_ROLE: catch A on a new support location and settle both bodies without returning to idle symmetry
+ROOT/ARC: final roots and spacing remain displaced from R00; secondary limbs settle after roots.
+
+ R09 CATCH_AND_SETTLE_DISPLACED  A||B  CONTACT=OFF
+
+
+
+
+
+
+
+
+                                           O B                  A O
+                                                                   \h
+                                         h//\\                h///\
+                                           /  \\h                 \
+                                           /                      \
+                                            /                    \
+                                            @                    @
+                                           / \                  / \
+                                          /   \                /   \
+                                          /   \                /   \
+                                         ^     ^              ^     ^
+    . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+ A_SUPPORT=RIGHT_CATCH_LEFT_SETTLE   B_SUPPORT=LEFT_BIASED
