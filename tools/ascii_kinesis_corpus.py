@@ -497,15 +497,12 @@ def load_index(path: Path) -> list[dict[str, Any]]:
 
 
 def query_records(repo_root: Path, index_arg: str | None) -> list[dict[str, Any]]:
-    """Prefer a persisted index, but stay useful before the first build."""
+    """Read current specimens by default; use a persisted snapshot only explicitly."""
     if index_arg:
         index = Path(index_arg)
         if not index.is_absolute():
             index = repo_root / index
         return load_index(index)
-    default = repo_root / DEFAULT_OUT / "motion_source_refs.jsonl"
-    if default.exists():
-        return load_index(default)
     records, _ = build_corpus(repo_root)
     return records
 
