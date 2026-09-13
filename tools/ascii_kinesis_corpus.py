@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Build and query a compact, source-backed ASCII Kinesis motion corpus.
+"""Compact, source-backed retrieval for the ASCII Kinesis V2 specimen corpus.
 
-The corpus intentionally keeps rendered specimens authoritative. It indexes only
-small deterministic observations and explicit authored metadata so agents can
-retrieve a few records without loading full ASCII animations into context.
+Raw/rendered specimens remain authoritative. This tool indexes only deterministic
+facts and semantic strings already authored in committed manifest/motion JSON.
+It never loads raw ASCII/video bodies into the compact index.
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any, Iterable
 
-SCHEMA = "ascii-kinesis.motion-corpus.v1"
+CORPUS_SCHEMA = "ascii-kinesis.motion-corpus.v1"
 RECORD_SCHEMA = "ascii-kinesis.motion-source-ref.v1"
 MANIFEST_SCHEMA = "ascii-kinesis.swarm-manifest.v2"
 DEFAULT_SOURCE = Path("experiments/ascii-kinesis")
@@ -28,7 +28,7 @@ class CorpusError(RuntimeError):
     pass
 
 
-def _json(path: Path) -> dict[str, Any]:
+def read_object(path: Path) -> dict[str, Any]:
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError as exc:
@@ -40,7 +40,7 @@ def _json(path: Path) -> dict[str, Any]:
     return value
 
 
-def _sha256(path: Path) -> str:
+def sha256(path: Path) -> str:
     h = hashlib.sha256()
     with path.open("rb") as stream:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
@@ -48,225 +48,229 @@ def _sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def _string(value: Any) -> str | None:
-    return value if isinstance(value, str) and value.strip() else None
+def text(value: Any) -> str | None:
+    return value.strip() if isinstance(value, str) and value.strip() else None
 
 
-def _number(value: Any) -> int | float | None:
-    if isinstance(value, bool):
-        return None
-    return value if isinstance(value, (int, float)) else None
+def number(value: Any) -> int | float | None:
+    return value if isinstance(value, (int, float)) and not isinstance(value, bool) else None
 
 
-def _list_of_strings(value: Any) -> list[str]:
-    if not isinstance(value, list):
-        return []
-    return [v for v in value if isinstance(v, str) and v.strip()]
+def uniq(values: Iterable[str | None]) -> list[str]:
+    out: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        if value and value not in seen:
+            seen.add(value)
+            out.append(value)
+    return out
 
 
-def _explicit_role(manifest: dict[str, Any], motion: dict[str, Any]) -> str | None:
-    candidate = manifest.get("candidate")
-    if isinstance(candidate, dict):
-        role = _string(candidate.get("role"))
-        if role:
-            return role
-    for field in ("candidate_role", "role", "source_role"):
-        role = _string(manifest.get(field))
-        if role:
-            return role
-    for field in ("candidate_role", "role", "source_role"):
-        role = _string(motion.get(field))
-        if role:
-            return role
+def first_text(*values: Any) -> str | None:
+    for value in values:
+        found = text(value)
+        if found:
+            return found
     return None
 
 
-def _explicit_motion_name(manifest: dict[str, Any], motion: dict[str, Any]) -> str | None:
-    for field in ("motion_name", "title", "name"):
-        value = _string(motion.get(field))
-        if value:
-            return value
-    for field in ("motion_name", "title"):
-        value = _string(manifest.get(field))
-        if value:
-            return value
-    return None
-
-
-def _fps(manifest: dict[str, Any], motion: dict[str, Any]) -> int | float | None:
-    for source in (motion, manifest):
-        value = _number(source.get("fps"))
-        if value is not None:
-            return value
-    md = manifest.get("motion_dungeon")
-    if isinstance(md, dict):
-        value = _number(md.get("fps"))
-        if value is not None:
-            return value
-    compile_block = motion.get("compile")
-    if isinstance(compile_block, dict):
-        value = _number(compile_block.get("fps"))
-        if value is not None:
-            return value
-    return None
-
-
-def _key_rows(motion: dict[str, Any]) -> list[dict[str, Any]]:
+def rows(motion: dict[str, Any]) -> list[dict[str, Any]]:
     for field in ("keys", "keyframes", "semantic_keys", "poses"):
         value = motion.get(field)
         if isinstance(value, list):
-            return [row for row in value if isinstance(row, dict)]
+            return [item for item in value if isinstance(item, dict)]
     return []
 
 
-def _key_names(rows: Iterable[dict[str, Any]]) -> list[str]:
-    names: list[str] = []
-    for row in rows:
-        for field in ("key", "name", "label", "id", "pose"):
-            value = _string(row.get(field))
-            if value:
-                names.append(value)
-                break
-    return names
-
-
-def _event_rows(motion: dict[str, Any]) -> list[dict[str, Any]]:
+def events(motion: dict[str, Any]) -> list[dict[str, Any]]:
     value = motion.get("events")
-    if not isinstance(value, list):
-        return []
-    return [row for row in value if isinstance(row, dict)]
+    return [item for item in value if isinstance(item, dict)] if isinstance(value, list) else []
 
 
-def _event_names(rows: Iterable[dict[str, Any]]) -> list[str]:
-    names: list[str] = []
-    for row in rows:
-        for field in ("event", "name", "label", "type", "kind"):
-            value = _string(row.get(field))
-            if value:
-                names.append(value)
-                break
-    return names
+def row_strings(items: Iterable[dict[str, Any]], fields: tuple[str, ...]) -> list[str]:
+    found: list[str] = []
+    for item in items:
+        found.append(first_text(*(item.get(field) for field in fields)))
+    return uniq(found)
 
 
-def _support_states(rows: Iterable[dict[str, Any]]) -> list[str]:
-    values: list[str] = []
-    seen: set[str] = set()
-    for row in rows:
-        support = row.get("support")
-        if isinstance(support, str):
-            candidates = [support]
-        elif isinstance(support, list):
-            candidates = [item for item in support if isinstance(item, str)]
-        elif isinstance(support, dict):
-            candidates = [
-                f"{key}:{value}"
-                for key, value in sorted(support.items())
-                if isinstance(value, (str, int, float, bool))
-            ]
-        else:
-            candidates = []
-        for item in candidates:
-            if item and item not in seen:
-                seen.add(item)
-                values.append(item)
-    return values
+def support_states(key_rows: Iterable[dict[str, Any]]) -> list[str]:
+    found: list[str] = []
+    for row in key_rows:
+        direct = row.get("support")
+        if isinstance(direct, str):
+            found.append(f"support:{direct}")
+        elif isinstance(direct, list):
+            found.extend(f"support:{v}" for v in direct if isinstance(v, str))
+        elif isinstance(direct, dict):
+            found.extend(
+                f"support.{k}:{v}"
+                for k, v in sorted(direct.items())
+                if isinstance(v, (str, int, float, bool))
+            )
+        # Modern V2 rigs often put support under actor blocks such as A/B.
+        for key, value in sorted(row.items()):
+            if not isinstance(value, dict):
+                continue
+            nested = value.get("support")
+            if isinstance(nested, str) and nested:
+                found.append(f"{key}:{nested}")
+    return uniq(found)
 
 
-def _duration(rows: list[dict[str, Any]]) -> int | float | None:
+def duration_seconds(
+    key_rows: list[dict[str, Any]], motion: dict[str, Any]
+) -> int | float | None:
+    compile_block = motion.get("compile")
+    if isinstance(compile_block, dict):
+        duration = number(compile_block.get("duration_seconds"))
+        if duration is not None:
+            return duration
     times: list[float] = []
-    for row in rows:
+    for row in key_rows:
         for field in ("t", "time", "time_seconds", "seconds"):
-            value = _number(row.get(field))
+            value = number(row.get(field))
             if value is not None:
                 times.append(float(value))
                 break
-    if len(times) < 2:
-        return None
-    return round(max(times) - min(times), 6)
+    return round(max(times) - min(times), 6) if len(times) >= 2 else None
 
 
-def _explicit_terms(
-    manifest: dict[str, Any],
-    motion: dict[str, Any],
-    key_names: list[str],
-    event_names: list[str],
-) -> list[str]:
-    terms: list[str] = []
-    candidates: list[Any] = [
-        manifest.get("lane"),
-        _explicit_role(manifest, motion),
-        _explicit_motion_name(manifest, motion),
+def fps(manifest: dict[str, Any], motion: dict[str, Any]) -> int | float | None:
+    for block in (
+        motion,
+        motion.get("compile"),
+        manifest,
+        manifest.get("motion_dungeon"),
+    ):
+        if isinstance(block, dict):
+            value = number(block.get("fps"))
+            if value is not None:
+                return value
+    return None
+
+
+def candidate_role(manifest: dict[str, Any], motion: dict[str, Any]) -> str | None:
+    candidate = manifest.get("candidate")
+    return first_text(
+        candidate.get("role") if isinstance(candidate, dict) else None,
+        manifest.get("candidate_role"),
+        manifest.get("role"),
+        motion.get("candidate_role"),
+        motion.get("role"),
         motion.get("source_role"),
-        manifest.get("contract_verification"),
-    ]
-    candidates.extend(key_names)
-    candidates.extend(event_names)
-    for value in candidates:
-        if isinstance(value, str):
-            clean = value.strip()
-            if clean and clean not in terms:
-                terms.append(clean)
-    return terms
+    )
 
 
-def _quality_gates(manifest: dict[str, Any]) -> dict[str, str]:
+def motion_name(manifest: dict[str, Any], motion: dict[str, Any]) -> str | None:
+    return first_text(
+        motion.get("motion_name"),
+        motion.get("title"),
+        motion.get("name"),
+        manifest.get("motion_name"),
+        manifest.get("title"),
+    )
+
+
+def quality_gates(manifest: dict[str, Any]) -> dict[str, str]:
     raw = manifest.get("quality_gates")
     if not isinstance(raw, dict):
         return {}
-    result: dict[str, str] = {}
-    for key, value in raw.items():
-        if isinstance(value, dict):
-            status = _string(value.get("status"))
-            if status:
-                result[str(key)] = status
-        elif isinstance(value, str):
-            result[str(key)] = value
-    return result
+    out: dict[str, str] = {}
+    for name, value in raw.items():
+        status = text(value.get("status")) if isinstance(value, dict) else text(value)
+        if status:
+            out[str(name)] = status
+    return out
 
 
-def _source_summary(manifest: dict[str, Any]) -> dict[str, Any]:
+def source_summary(manifest: dict[str, Any], motion: dict[str, Any]) -> dict[str, Any]:
     raw = manifest.get("source")
+    if not isinstance(raw, dict):
+        raw = motion.get("source")
     if not isinstance(raw, dict):
         return {}
     keep = (
         "provider",
+        "site",
         "asset_id",
         "title",
+        "identity",
         "url",
         "source_timing",
+        "timing_authority",
         "authored_timing_provenance",
         "rights_boundary",
+        "evidence_document_id",
+        "evidence_title",
+        "raw_sha256",
     )
-    result = {key: raw[key] for key in keep if key in raw}
-    exact = raw.get("exact_archive")
-    if isinstance(exact, dict):
-        result["exact_archive"] = exact
-    return result
+    out = {key: raw[key] for key in keep if key in raw}
+    for field in ("source_roles", "exact_archive", "rights_firewall"):
+        if field in raw:
+            out[field] = raw[field]
+    return out
 
 
-def _evidence_line(record: dict[str, Any]) -> str:
-    pieces = [record["experiment_id"], record["lane"]]
-    if record.get("candidate_role"):
-        pieces.append(str(record["candidate_role"]))
-    if record.get("motion_name"):
-        pieces.append(str(record["motion_name"]))
-    pieces.append(f"{record['key_count']} keys")
-    pieces.append(f"{record['event_count']} events")
-    if record.get("fps") is not None:
-        pieces.append(f"{record['fps']} fps")
-    return " | ".join(pieces)
+def artifact_paths(
+    manifest_path: Path, manifest: dict[str, Any], repo_root: Path
+) -> list[str]:
+    ignored = {"manifest.json", "motion.json", "receipt.json", "build.py"}
+    names = manifest.get("files")
+    candidates: list[Path]
+    if isinstance(names, list):
+        candidates = [
+            manifest_path.parent / name for name in names if isinstance(name, str)
+        ]
+    else:
+        candidates = sorted(p for p in manifest_path.parent.iterdir() if p.is_file())
+    return [
+        p.relative_to(repo_root).as_posix()
+        for p in candidates
+        if p.exists() and p.is_file() and p.name not in ignored
+    ]
 
 
-def _record_for(manifest_path: Path, repo_root: Path) -> dict[str, Any]:
-    manifest = _json(manifest_path)
-    if manifest.get("schema") != MANIFEST_SCHEMA:
-        raise CorpusError(
-            f"unsupported manifest schema at {manifest_path}: {manifest.get('schema')!r}"
-        )
-    if manifest.get("format_version") != 2:
-        raise CorpusError(f"unsupported format_version at {manifest_path}")
-    experiment_id = _string(manifest.get("experiment_id"))
-    lane = _string(manifest.get("lane"))
+def authored_terms(
+    manifest: dict[str, Any],
+    motion: dict[str, Any],
+    key_rows: list[dict[str, Any]],
+    event_rows: list[dict[str, Any]],
+) -> dict[str, list[str]]:
+    return {
+        "primitive": uniq(
+            [
+                text(motion.get("primitive")),
+                text(manifest.get("primitive")),
+                candidate_role(manifest, motion),
+                motion_name(manifest, motion),
+                text(motion.get("source_role")),
+            ]
+        ),
+        "key_ids": row_strings(key_rows, ("key_id", "id", "key")),
+        "key_names": row_strings(key_rows, ("name", "label", "pose", "key")),
+        "causal_roles": row_strings(key_rows, ("causal_role",)),
+        "contact_states": row_strings(key_rows, ("contact_state",)),
+        "authority_states": row_strings(key_rows, ("authority",)),
+        "timing_classes": row_strings(key_rows, ("timing_class", "timing")),
+        "timing_provenance": row_strings(
+            key_rows, ("timing_provenance", "provenance")
+        ),
+        "force_labels": row_strings(key_rows, ("force",)),
+        "support_states": support_states(key_rows),
+        "event_names": row_strings(
+            event_rows, ("event", "name", "label", "type", "kind")
+        ),
+    }
+
+
+def record_for(manifest_path: Path, repo_root: Path) -> dict[str, Any]:
+    manifest = read_object(manifest_path)
+    if manifest.get("schema") != MANIFEST_SCHEMA or manifest.get("format_version") != 2:
+        raise CorpusError(f"unsupported V2 manifest contract: {manifest_path}")
+
+    experiment_id = text(manifest.get("experiment_id"))
+    lane = text(manifest.get("lane"))
     if not experiment_id or not lane:
         raise CorpusError(f"manifest missing experiment_id/lane: {manifest_path}")
     if manifest_path.parent.name != experiment_id:
@@ -275,73 +279,55 @@ def _record_for(manifest_path: Path, repo_root: Path) -> dict[str, Any]:
         )
 
     motion_path = manifest_path.parent / "motion.json"
-    if not motion_path.exists():
-        raise CorpusError(f"V2 specimen missing motion.json: {manifest_path.parent}")
-    motion = _json(motion_path)
-    rows = _key_rows(motion)
-    events = _event_rows(motion)
-    key_names = _key_names(rows)
-    event_names = _event_names(events)
+    motion = read_object(motion_path)
+    key_rows = rows(motion)
+    if not key_rows:
+        raise CorpusError(f"V2 specimen has no keys/poses: {motion_path}")
+    event_rows = events(motion)
+    terms = authored_terms(manifest, motion, key_rows, event_rows)
 
-    rel_dir = manifest_path.parent.relative_to(repo_root).as_posix()
-    rel_manifest = manifest_path.relative_to(repo_root).as_posix()
-    rel_motion = motion_path.relative_to(repo_root).as_posix()
-    files = _list_of_strings(manifest.get("files"))
-
-    receipt_path = manifest_path.parent / "receipt.json"
-    receipt_rel = (
-        receipt_path.relative_to(repo_root).as_posix() if receipt_path.exists() else None
-    )
-
-    artifacts: list[str] = []
-    for name in files:
-        candidate = manifest_path.parent / name
-        if candidate.exists():
-            artifacts.append(candidate.relative_to(repo_root).as_posix())
-    if not artifacts:
-        for candidate in sorted(manifest_path.parent.iterdir()):
-            if candidate.is_file() and candidate.name not in {
-                "manifest.json",
-                "motion.json",
-                "receipt.json",
-                "build.py",
-            }:
-                artifacts.append(candidate.relative_to(repo_root).as_posix())
+    receipt = manifest_path.parent / "receipt.json"
+    specimen = {
+        "directory": manifest_path.parent.relative_to(repo_root).as_posix(),
+        "manifest_path": manifest_path.relative_to(repo_root).as_posix(),
+        "motion_path": motion_path.relative_to(repo_root).as_posix(),
+        "receipt_path": (
+            receipt.relative_to(repo_root).as_posix() if receipt.exists() else None
+        ),
+        "artifact_paths": artifact_paths(manifest_path, manifest, repo_root),
+        "manifest_sha256": sha256(manifest_path),
+        "motion_sha256": sha256(motion_path),
+    }
 
     record: dict[str, Any] = {
         "schema": RECORD_SCHEMA,
         "experiment_id": experiment_id,
         "lane": lane,
         "format_version": 2,
-        "candidate_role": _explicit_role(manifest, motion),
-        "motion_name": _explicit_motion_name(manifest, motion),
-        "fps": _fps(manifest, motion),
-        "key_count": len(rows),
-        "key_names": key_names,
-        "event_count": len(events),
-        "event_names": event_names,
-        "support_states": _support_states(rows),
-        "duration_seconds": _duration(rows),
-        "quality_gates": _quality_gates(manifest),
-        "contract_verification": _string(manifest.get("contract_verification")),
-        "source": _source_summary(manifest),
-        "abstraction_terms": _explicit_terms(manifest, motion, key_names, event_names),
-        "specimen": {
-            "directory": rel_dir,
-            "manifest_path": rel_manifest,
-            "motion_path": rel_motion,
-            "receipt_path": receipt_rel,
-            "artifact_paths": artifacts,
-            "manifest_sha256": _sha256(manifest_path),
-            "motion_sha256": _sha256(motion_path),
-        },
+        "candidate_role": candidate_role(manifest, motion),
+        "motion_name": motion_name(manifest, motion),
+        "fps": fps(manifest, motion),
+        "duration_seconds": duration_seconds(key_rows, motion),
+        "key_count": len(key_rows),
+        "event_count": len(event_rows),
+        "authored_terms": terms,
+        "quality_gates": quality_gates(manifest),
+        "contract_verification": text(manifest.get("contract_verification")),
+        "source": source_summary(manifest, motion),
+        "specimen": specimen,
         "authority": {
             "specimen_is_authoritative": True,
-            "record_is_observation": True,
+            "record_is_deterministic_observation": True,
             "generated_inference_allowed": False,
         },
     }
-    record["evidence_line"] = _evidence_line(record)
+    primitive = terms["primitive"][0] if terms["primitive"] else None
+    role = primitive or record["candidate_role"] or record["motion_name"] or "-"
+    record["evidence_line"] = (
+        f"{experiment_id} | {lane} | {role} | {len(key_rows)} keys | "
+        f"{len(event_rows)} events"
+        + (f" | {record['fps']} fps" if record["fps"] is not None else "")
+    )
     return record
 
 
@@ -358,12 +344,12 @@ def build_corpus(
         raise CorpusError("source root must stay inside repo root") from exc
 
     records: list[dict[str, Any]] = []
-    skipped: list[dict[str, str]] = []
+    rejected: list[dict[str, str]] = []
     for manifest_path in sorted(source_root.rglob("manifest.json")):
         try:
-            manifest = _json(manifest_path)
+            manifest = read_object(manifest_path)
         except CorpusError as exc:
-            skipped.append(
+            rejected.append(
                 {
                     "path": manifest_path.relative_to(repo_root).as_posix(),
                     "reason": str(exc),
@@ -373,115 +359,96 @@ def build_corpus(
         if manifest.get("schema") != MANIFEST_SCHEMA:
             continue
         try:
-            records.append(_record_for(manifest_path, repo_root))
+            records.append(record_for(manifest_path, repo_root))
         except CorpusError as exc:
-            skipped.append(
+            rejected.append(
                 {
                     "path": manifest_path.relative_to(repo_root).as_posix(),
                     "reason": str(exc),
                 }
             )
     records.sort(key=lambda row: row["experiment_id"])
-    skipped.sort(key=lambda row: row["path"])
-    return records, skipped
+    rejected.sort(key=lambda row: row["path"])
+    return records, rejected
 
 
-def _json_line(value: Any) -> str:
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-
-
-def _render_summary(
-    records: list[dict[str, Any]], skipped: list[dict[str, str]]
+def summary(
+    records: list[dict[str, Any]], rejected: list[dict[str, str]]
 ) -> dict[str, Any]:
-    lanes = Counter(str(row["lane"]) for row in records)
-    contract = Counter(
-        str(row.get("contract_verification") or "UNSPECIFIED") for row in records
-    )
-    gate_counts: Counter[str] = Counter()
+    gates: Counter[str] = Counter()
     for row in records:
-        for gate, status in row.get("quality_gates", {}).items():
-            gate_counts[f"{gate}:{status}"] += 1
+        for gate, status in row["quality_gates"].items():
+            gates[f"{gate}:{status}"] += 1
     return {
-        "schema": SCHEMA,
+        "schema": CORPUS_SCHEMA,
         "record_count": len(records),
-        "skipped_v2_count": len(skipped),
-        "lanes": dict(sorted(lanes.items())),
-        "contract_verification": dict(sorted(contract.items())),
-        "quality_gate_statuses": dict(sorted(gate_counts.items())),
+        "rejected_v2_count": len(rejected),
+        "lanes": dict(sorted(Counter(row["lane"] for row in records).items())),
+        "quality_gate_statuses": dict(sorted(gates.items())),
         "authority_ladder": [
             "raw specimen",
             "deterministic observation record",
-            "explicit authored abstraction terms",
+            "explicit authored semantic terms",
             "index/report retrieval surfaces",
         ],
-        "context_rule": "Retrieval expands resolution. Context never starts at full specimen resolution.",
+        "context_rule": (
+            "Retrieval expands resolution. Context never starts at full specimen resolution."
+        ),
     }
 
 
-def _render_report(
-    records: list[dict[str, Any]], skipped: list[dict[str, str]]
-) -> str:
-    summary = _render_summary(records, skipped)
+def json_line(value: Any) -> str:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+
+def report(records: list[dict[str, Any]], rejected: list[dict[str, str]]) -> str:
+    info = summary(records, rejected)
     lines = [
         "# ASCII Kinesis Motion Corpus",
         "",
-        "This is a deterministic retrieval surface over authoritative ASCII Kinesis V2 specimens.",
-        "It does not replace, promote, retime, redraw, or reinterpret the underlying animation.",
+        "Deterministic retrieval surface over authoritative ASCII Kinesis V2 specimens.",
+        "This report does not promote, retime, redraw, or replace the underlying motion.",
         "",
-        "## Authority",
-        "",
-        "1. Raw specimen and rendered artifact.",
-        "2. Deterministic observation record derived from committed JSON.",
-        "3. Explicit authored abstraction terms already present in the specimen metadata.",
-        "4. This index/report.",
-        "",
-        f"Indexed V2 specimens: **{summary['record_count']}**",
-        f"Rejected malformed V2 manifests: **{summary['skipped_v2_count']}**",
+        f"Indexed V2 specimens: **{info['record_count']}**",
+        f"Rejected malformed V2 specimens: **{info['rejected_v2_count']}**",
         "",
         "## Lanes",
         "",
     ]
-    for lane, count in summary["lanes"].items():
-        lines.append(f"- `{lane}`: {count}")
+    lines.extend(f"- `{lane}`: {count}" for lane, count in info["lanes"].items())
     lines.extend(
         [
             "",
             "## Compact index",
             "",
-            "| Experiment | Lane | Role / motion | Keys | Events | FPS | Source |",
+            "| Experiment | Lane | Primitive / role | Keys | Events | FPS | Source |",
             "| --- | --- | --- | ---: | ---: | ---: | --- |",
         ]
     )
     for row in records:
-        role = row.get("candidate_role") or row.get("motion_name") or ""
-        if (
-            row.get("candidate_role")
-            and row.get("motion_name")
-            and row["candidate_role"] != row["motion_name"]
-        ):
-            role = f"{row['candidate_role']} / {row['motion_name']}"
+        primitive = (row["authored_terms"].get("primitive") or [""])[0]
+        role = primitive or row.get("candidate_role") or row.get("motion_name") or ""
         role = str(role).replace("|", "\\|")
-        source = row["specimen"]["manifest_path"].replace("|", "%7C")
-        fps = "" if row.get("fps") is None else str(row["fps"])
+        fps_value = "" if row.get("fps") is None else str(row["fps"])
         lines.append(
             f"| `{row['experiment_id']}` | `{row['lane']}` | {role} | "
-            f"{row['key_count']} | {row['event_count']} | {fps} | `{source}` |"
+            f"{row['key_count']} | {row['event_count']} | {fps_value} | "
+            f"`{row['specimen']['manifest_path']}` |"
         )
-    if skipped:
-        lines.extend(["", "## Fail-closed V2 records", ""])
-        for item in skipped:
-            lines.append(f"- `{item['path']}`: {item['reason']}")
+    if rejected:
+        lines.extend(["", "## Fail-closed V2 specimens", ""])
+        lines.extend(f"- `{row['path']}`: {row['reason']}" for row in rejected)
     lines.extend(
         [
             "",
-            "## Query without loading the specimens",
+            "## Retrieval",
             "",
             "```sh",
             "python3 tools/ascii_kinesis_corpus.py search 'landing debt'",
             "python3 tools/ascii_kinesis_corpus.py show v2-airborne-003-apex-spacing-window",
             "```",
             "",
-            "Only use `show` or open the source paths when a compact record is insufficient.",
+            "Open raw specimen files only when the compact record is insufficient.",
             "",
         ]
     )
@@ -489,25 +456,18 @@ def _render_report(
 
 
 def render_outputs(
-    records: list[dict[str, Any]], skipped: list[dict[str, str]]
+    records: list[dict[str, Any]], rejected: list[dict[str, str]]
 ) -> dict[str, str]:
-    refs = "".join(_json_line(row) + "\n" for row in records)
-    rejected = "".join(_json_line(row) + "\n" for row in skipped)
-    summary = (
-        json.dumps(
-            _render_summary(records, skipped),
-            indent=2,
-            sort_keys=True,
-            ensure_ascii=False,
-        )
-        + "\n"
-    )
-    report = _render_report(records, skipped)
     return {
-        "motion_source_refs.jsonl": refs,
-        "motion_index_summary.json": summary,
-        "motion_index_report.md": report,
-        "rejected_v2_records.jsonl": rejected,
+        "motion_source_refs.jsonl": "".join(json_line(row) + "\n" for row in records),
+        "motion_index_summary.json": json.dumps(
+            summary(records, rejected), indent=2, sort_keys=True, ensure_ascii=False
+        )
+        + "\n",
+        "motion_index_report.md": report(records, rejected),
+        "rejected_v2_records.jsonl": "".join(
+            json_line(row) + "\n" for row in rejected
+        ),
     }
 
 
@@ -518,175 +478,185 @@ def write_outputs(out_dir: Path, outputs: dict[str, str]) -> None:
 
 
 def load_index(path: Path) -> list[dict[str, Any]]:
-    records: list[dict[str, Any]] = []
     try:
         lines = path.read_text(encoding="utf-8").splitlines()
     except FileNotFoundError as exc:
-        raise CorpusError(
-            f"index not found: {path}; run `python3 tools/ascii_kinesis_corpus.py build`"
-        ) from exc
-    for number, line in enumerate(lines, 1):
+        raise CorpusError(f"index not found: {path}") from exc
+    out: list[dict[str, Any]] = []
+    for line_number, line in enumerate(lines, 1):
         if not line.strip():
             continue
         try:
             row = json.loads(line)
         except json.JSONDecodeError as exc:
-            raise CorpusError(f"invalid JSONL at {path}:{number}") from exc
+            raise CorpusError(f"invalid JSONL at {path}:{line_number}") from exc
         if not isinstance(row, dict) or row.get("schema") != RECORD_SCHEMA:
-            raise CorpusError(f"unexpected record at {path}:{number}")
-        records.append(row)
+            raise CorpusError(f"unexpected record at {path}:{line_number}")
+        out.append(row)
+    return out
+
+
+def query_records(repo_root: Path, index_arg: str | None) -> list[dict[str, Any]]:
+    """Prefer a persisted index, but stay useful before the first build."""
+    if index_arg:
+        index = Path(index_arg)
+        if not index.is_absolute():
+            index = repo_root / index
+        return load_index(index)
+    default = repo_root / DEFAULT_OUT / "motion_source_refs.jsonl"
+    if default.exists():
+        return load_index(default)
+    records, _ = build_corpus(repo_root)
     return records
 
 
-def _haystack(row: dict[str, Any]) -> str:
-    fields: list[str] = [
+def haystack(row: dict[str, Any]) -> str:
+    values: list[str] = [
         str(row.get("experiment_id") or ""),
         str(row.get("lane") or ""),
         str(row.get("candidate_role") or ""),
         str(row.get("motion_name") or ""),
         str(row.get("evidence_line") or ""),
-        " ".join(str(x) for x in row.get("abstraction_terms", [])),
-        " ".join(str(x) for x in row.get("key_names", [])),
-        " ".join(str(x) for x in row.get("event_names", [])),
-        " ".join(str(x) for x in row.get("support_states", [])),
     ]
-    source = row.get("source")
-    if isinstance(source, dict):
-        fields.extend(
-            str(v) for v in source.values() if isinstance(v, (str, int, float))
-        )
-    return "\n".join(fields).lower()
+    for group in row.get("authored_terms", {}).values():
+        if isinstance(group, list):
+            values.extend(str(item) for item in group)
+    for value in row.get("source", {}).values():
+        if isinstance(value, (str, int, float, bool)):
+            values.append(str(value))
+    return "\n".join(values).lower()
 
 
 def search_records(
     records: list[dict[str, Any]], query: str, lane: str | None = None
 ) -> list[tuple[int, dict[str, Any]]]:
-    tokens = [token for token in re.findall(r"[a-z0-9_+-]+", query.lower()) if token]
+    tokens = re.findall(r"[a-z0-9_+-]+", query.lower())
     phrase = query.strip().lower()
     ranked: list[tuple[int, dict[str, Any]]] = []
     for row in records:
         if lane and row.get("lane") != lane:
             continue
-        hay = _haystack(row)
-        if tokens and not all(token in hay for token in tokens):
+        blob = haystack(row)
+        if tokens and not all(token in blob for token in tokens):
             continue
-        score = sum(hay.count(token) for token in tokens)
-        if phrase and phrase in hay:
-            score += 10
+        score = sum(blob.count(token) for token in tokens) + (
+            10 if phrase in blob else 0
+        )
         ranked.append((score, row))
-    ranked.sort(key=lambda pair: (-pair[0], pair[1]["experiment_id"]))
-    return ranked
+    return sorted(ranked, key=lambda pair: (-pair[0], pair[1]["experiment_id"]))
 
 
-def _compact(row: dict[str, Any]) -> str:
-    role = row.get("candidate_role") or row.get("motion_name") or "-"
+def compact(row: dict[str, Any]) -> str:
+    primitive = (row.get("authored_terms", {}).get("primitive") or ["-"])[0]
     return (
-        f"{row['experiment_id']} | {row['lane']} | {role} | "
+        f"{row['experiment_id']} | {row['lane']} | {primitive} | "
         f"{row['key_count']} keys | {row['event_count']} events | "
         f"{row['specimen']['manifest_path']}"
     )
 
 
-def _repo_root_from_script() -> Path:
+def repo_root_from_script() -> Path:
     return Path(__file__).resolve().parents[1]
-
-
-def _default_index(repo_root: Path) -> Path:
-    return repo_root / DEFAULT_OUT / "motion_source_refs.jsonl"
 
 
 def cmd_build(args: argparse.Namespace) -> int:
     repo_root = Path(args.repo_root).resolve()
-    source = Path(args.source_root)
-    out_dir = Path(args.out_dir)
-    if not out_dir.is_absolute():
-        out_dir = repo_root / out_dir
-    records, skipped = build_corpus(repo_root, source)
-    if skipped and args.fail_on_rejected:
-        for item in skipped:
+    records, rejected = build_corpus(repo_root, Path(args.source_root))
+    if rejected and args.fail_on_rejected:
+        for item in rejected:
             print(f"REJECT {item['path']}: {item['reason']}", file=sys.stderr)
         return 2
-    write_outputs(out_dir, render_outputs(records, skipped))
-    print(f"indexed={len(records)} rejected={len(skipped)} out={out_dir}")
+    out = Path(args.out_dir)
+    if not out.is_absolute():
+        out = repo_root / out
+    write_outputs(out, render_outputs(records, rejected))
+    print(f"indexed={len(records)} rejected={len(rejected)} out={out}")
     return 0
 
 
 def cmd_verify(args: argparse.Namespace) -> int:
     repo_root = Path(args.repo_root).resolve()
-    out_dir = Path(args.out_dir)
-    if not out_dir.is_absolute():
-        out_dir = repo_root / out_dir
-    records, skipped = build_corpus(repo_root, Path(args.source_root))
-    expected = render_outputs(records, skipped)
-    stale: list[str] = []
-    for name, content in expected.items():
-        path = out_dir / name
-        if not path.exists() or path.read_text(encoding="utf-8") != content:
-            stale.append(name)
+    records, rejected = build_corpus(repo_root, Path(args.source_root))
+    out = Path(args.out_dir)
+    if not out.is_absolute():
+        out = repo_root / out
+    expected = render_outputs(records, rejected)
+    stale = [
+        name
+        for name, content in expected.items()
+        if not (out / name).exists()
+        or (out / name).read_text(encoding="utf-8") != content
+    ]
     if stale:
         print("STALE " + " ".join(stale), file=sys.stderr)
         return 1
-    print(f"verified={len(records)} rejected={len(skipped)}")
+    print(f"verified={len(records)} rejected={len(rejected)}")
+    return 0
+
+
+def cmd_inventory(args: argparse.Namespace) -> int:
+    repo_root = Path(args.repo_root).resolve()
+    records, rejected = build_corpus(repo_root, Path(args.source_root))
+    print(json.dumps(summary(records, rejected), indent=2, sort_keys=True))
     return 0
 
 
 def cmd_search(args: argparse.Namespace) -> int:
     repo_root = Path(args.repo_root).resolve()
-    index = Path(args.index) if args.index else _default_index(repo_root)
-    if not index.is_absolute():
-        index = repo_root / index
-    ranked = search_records(load_index(index), args.query, args.lane)
+    ranked = search_records(query_records(repo_root, args.index), args.query, args.lane)
     for score, row in ranked[: args.limit]:
-        if args.json:
-            print(_json_line({"score": score, **row}))
-        else:
-            print(_compact(row))
+        print(json_line({"score": score, **row}) if args.json else compact(row))
     return 0 if ranked else 1
 
 
 def cmd_show(args: argparse.Namespace) -> int:
     repo_root = Path(args.repo_root).resolve()
-    index = Path(args.index) if args.index else _default_index(repo_root)
-    if not index.is_absolute():
-        index = repo_root / index
-    for row in load_index(index):
-        if row["experiment_id"] == args.experiment_id:
-            if args.json:
-                print(json.dumps(row, indent=2, sort_keys=True, ensure_ascii=False))
-            else:
-                print(_compact(row))
-                print(f"evidence: {row['evidence_line']}")
-                print(f"motion: {row['specimen']['motion_path']}")
-                print(f"receipt: {row['specimen'].get('receipt_path') or '-'}")
-                if row.get("abstraction_terms"):
-                    print("terms: " + ", ".join(row["abstraction_terms"]))
-            return 0
+    for row in query_records(repo_root, args.index):
+        if row["experiment_id"] != args.experiment_id:
+            continue
+        if args.json:
+            print(json.dumps(row, indent=2, sort_keys=True, ensure_ascii=False))
+        else:
+            print(compact(row))
+            print(f"evidence: {row['evidence_line']}")
+            print(f"motion: {row['specimen']['motion_path']}")
+            print(f"receipt: {row['specimen'].get('receipt_path') or '-'}")
+            terms = row.get("authored_terms", {})
+            for key in (
+                "key_names",
+                "causal_roles",
+                "contact_states",
+                "support_states",
+                "timing_classes",
+            ):
+                if terms.get(key):
+                    print(f"{key}: " + ", ".join(terms[key]))
+        return 0
     print(f"not found: {args.experiment_id}", file=sys.stderr)
     return 1
 
 
 def parser() -> argparse.ArgumentParser:
-    repo_root = _repo_root_from_script()
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("--repo-root", default=str(repo_root))
+    p.add_argument("--repo-root", default=str(repo_root_from_script()))
     sub = p.add_subparsers(dest="command", required=True)
 
-    build = sub.add_parser(
-        "build", help="rebuild compact corpus outputs from committed V2 specimens"
-    )
+    build = sub.add_parser("build")
     build.add_argument("--source-root", default=str(DEFAULT_SOURCE))
     build.add_argument("--out-dir", default=str(DEFAULT_OUT))
     build.add_argument("--fail-on-rejected", action="store_true")
     build.set_defaults(func=cmd_build)
 
-    verify = sub.add_parser("verify", help="fail if committed corpus outputs are stale")
+    verify = sub.add_parser("verify")
     verify.add_argument("--source-root", default=str(DEFAULT_SOURCE))
     verify.add_argument("--out-dir", default=str(DEFAULT_OUT))
     verify.set_defaults(func=cmd_verify)
 
-    search = sub.add_parser(
-        "search", help="search compact records without opening full specimens"
-    )
+    inventory = sub.add_parser("inventory")
+    inventory.add_argument("--source-root", default=str(DEFAULT_SOURCE))
+    inventory.set_defaults(func=cmd_inventory)
+
+    search = sub.add_parser("search")
     search.add_argument("query")
     search.add_argument("--index")
     search.add_argument("--lane")
@@ -694,9 +664,7 @@ def parser() -> argparse.ArgumentParser:
     search.add_argument("--json", action="store_true")
     search.set_defaults(func=cmd_search)
 
-    show = sub.add_parser(
-        "show", help="show one compact record and its specimen pointers"
-    )
+    show = sub.add_parser("show")
     show.add_argument("experiment_id")
     show.add_argument("--index")
     show.add_argument("--json", action="store_true")
