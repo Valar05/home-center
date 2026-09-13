@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic structural tests for the ASCII Kinesis corpus index.
+"""Deterministic structural tests for ASCII Kinesis compact corpus retrieval.
 
 These tests prove indexing/retrieval behavior only. They do not claim artistic
 acceptance of any motion specimen.
@@ -31,12 +31,7 @@ def fixture(root: Path, name: str = "v2-contact-001-test") -> Path:
             "candidate": {"role": "grounded_release"},
             "quality_gates": {"tango": {"status": "PASS"}},
             "contract_verification": "PASS_CANDIDATE_ISOLATED_OFFICIAL_V2",
-            "files": [
-                "contact-sheet.txt",
-                "manifest.json",
-                "motion.json",
-                "receipt.json",
-            ],
+            "files": ["contact-sheet.txt", "manifest.json", "motion.json", "receipt.json"],
             "source": {
                 "provider": "fixture",
                 "asset_id": "TEST-1",
@@ -48,13 +43,43 @@ def fixture(root: Path, name: str = "v2-contact-001-test") -> Path:
     write_json(
         entry / "motion.json",
         {
+            "schema": "ascii-kinesis.motion.v2",
+            "primitive": "RELATIONSHIP_FRAME_TRANSFER",
             "motion_name": "Fixture Bind",
-            "fps": 24,
+            "compile": {"fps": 24, "duration_seconds": 0.5},
             "source_role": "grapple",
             "keys": [
-                {"key": "guard", "t": 0.0, "support": "left"},
-                {"key": "contact", "t": 0.25, "support": "left"},
-                {"key": "recover", "t": 0.5, "support": "right"},
+                {
+                    "key_id": "R00",
+                    "name": "GUARD",
+                    "t": 0.0,
+                    "causal_role": "establish",
+                    "contact_state": "OFF",
+                    "timing_class": "FOURS",
+                    "timing_provenance": "INFERRED",
+                    "A": {"support": "LEFT"},
+                },
+                {
+                    "key_id": "R01",
+                    "name": "CONTACT",
+                    "t": 0.25,
+                    "causal_role": "transfer load",
+                    "contact_state": "LOCKED",
+                    "timing_class": "TWOS",
+                    "timing_provenance": "INFERRED",
+                    "A": {"support": "LEFT"},
+                    "B": {"support": "RIGHT"},
+                },
+                {
+                    "key_id": "R02",
+                    "name": "RECOVER",
+                    "t": 0.5,
+                    "causal_role": "settle",
+                    "contact_state": "OFF",
+                    "timing_class": "FOURS",
+                    "timing_provenance": "INFERRED",
+                    "B": {"support": "RIGHT"},
+                },
             ],
             "events": [{"event": "contact", "t": 0.25}],
         },
@@ -74,15 +99,20 @@ def main() -> int:
         assert not rejected, rejected
         assert len(records) == 1
         row = records[0]
+        terms = row["authored_terms"]
 
         assert row["experiment_id"] == "v2-contact-001-test"
         assert row["lane"] == "contact"
         assert row["candidate_role"] == "grounded_release"
         assert row["motion_name"] == "Fixture Bind"
-        assert row["key_names"] == ["guard", "contact", "recover"]
-        assert row["event_names"] == ["contact"]
-        assert row["support_states"] == ["left", "right"]
+        assert row["fps"] == 24
         assert row["duration_seconds"] == 0.5
+        assert terms["primitive"][0] == "RELATIONSHIP_FRAME_TRANSFER"
+        assert terms["key_ids"] == ["R00", "R01", "R02"]
+        assert terms["key_names"] == ["GUARD", "CONTACT", "RECOVER"]
+        assert terms["contact_states"] == ["OFF", "LOCKED"]
+        assert terms["support_states"] == ["A:LEFT", "B:RIGHT"]
+        assert terms["causal_roles"] == ["establish", "transfer load", "settle"]
         assert row["authority"]["specimen_is_authoritative"] is True
         assert row["authority"]["generated_inference_allowed"] is False
 
@@ -96,7 +126,8 @@ def main() -> int:
         out = root / "generated" / "ascii-kinesis-corpus"
         corpus.write_outputs(out, outputs_a)
         loaded = corpus.load_index(out / "motion_source_refs.jsonl")
-        hits = corpus.search_records(loaded, "grounded release")
+        assert corpus.query_records(root, None) == loaded
+        hits = corpus.search_records(loaded, "transfer load")
         assert hits and hits[0][1]["experiment_id"] == "v2-contact-001-test"
         assert corpus.search_records(loaded, "missing phrase") == []
 
@@ -112,29 +143,29 @@ def main() -> int:
             },
         )
         records2, rejected2 = corpus.build_corpus(root)
-        assert len(records2) == 1, "malformed V2 specimen must fail closed"
+        assert len(records2) == 1, "missing motion must fail closed"
         assert len(rejected2) == 1
-        assert "missing motion.json" in rejected2[0]["reason"]
+        assert "missing file" in rejected2[0]["reason"]
 
-        wrong = root / "experiments" / "ascii-kinesis" / "v2-defense-999-wrong-id"
-        wrong.mkdir(parents=True)
+        empty = root / "experiments" / "ascii-kinesis" / "v2-defense-999-empty"
+        empty.mkdir(parents=True)
         write_json(
-            wrong / "manifest.json",
+            empty / "manifest.json",
             {
                 "schema": "ascii-kinesis.swarm-manifest.v2",
                 "format_version": 2,
-                "experiment_id": "different-id",
+                "experiment_id": empty.name,
                 "lane": "defense",
             },
         )
-        write_json(wrong / "motion.json", {"keys": []})
+        write_json(empty / "motion.json", {"keys": []})
         records3, rejected3 = corpus.build_corpus(root)
-        assert len(records3) == 1
+        assert len(records3) == 1, "empty semantic motion must fail closed"
         assert len(rejected3) == 2
-        assert any("experiment_id/path mismatch" in item["reason"] for item in rejected3)
+        assert any("no keys/poses" in item["reason"] for item in rejected3)
 
         report = corpus.render_outputs(records3, rejected3)["motion_index_report.md"]
-        assert "Fail-closed V2 records" in report
+        assert "Fail-closed V2 specimens" in report
         assert "contact-sheet.txt" in outputs_a["motion_source_refs.jsonl"]
 
     print(
@@ -144,10 +175,12 @@ def main() -> int:
                 "ok": True,
                 "proves": [
                     "deterministic compact indexing",
+                    "exact authored semantic terms retained",
+                    "nested support state retained",
                     "specimen provenance retained",
                     "raw ASCII body excluded",
-                    "query surface works",
-                    "malformed V2 fails closed",
+                    "query surface works before or after persisted build",
+                    "malformed or empty V2 fails closed",
                 ],
             },
             sort_keys=True,
