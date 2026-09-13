@@ -20,6 +20,7 @@ BOOT_ROOT="${HC_DATA_DIR:-$HOME/.local/share/home-center}/terminal-dmc-bootstrap
 # dirty because historical LFS attributes classify ordinary MP4 blobs as LFS.
 SOURCE="$BOOT_ROOT/source-sparse-v2"
 LOCK="$BOOT_ROOT/bootstrap-v2.lock"
+LOCK_OWNER="$LOCK/pid"
 DATA_ROOT="${HC_DATA_DIR:-$HOME/.local/share/home-center}/terminal-dmc"
 REVISIONS="$DATA_ROOT/revisions"
 
@@ -41,16 +42,40 @@ need() {
   }
 }
 
+release_lock() {
+  rm -rf "$LOCK" 2>/dev/null || true
+}
+
+acquire_lock() {
+  if mkdir "$LOCK" 2>/dev/null; then
+    printf '%s\n' "$$" > "$LOCK_OWNER"
+    return 0
+  fi
+
+  local owner=""
+  owner="$(cat "$LOCK_OWNER" 2>/dev/null || true)"
+  if [ -n "$owner" ] && kill -0 "$owner" 2>/dev/null; then
+    echo "BLOCKED: another Terminal DMC sparse bootstrap is active: $LOCK (pid $owner)" >&2
+    exit 21
+  fi
+
+  # v2 originally exec'd into the campaign while still holding this mkdir lock,
+  # which guaranteed a stale directory after the bootstrap shell disappeared.
+  # A missing/dead owner therefore means stale bootstrap state, not an active
+  # campaign. Reclaim it deterministically instead of asking the operator to
+  # perform manual cleanup.
+  echo "RECOVER: removing stale Terminal DMC bootstrap lock: $LOCK" >&2
+  rm -rf "$LOCK"
+  mkdir "$LOCK"
+  printf '%s\n' "$$" > "$LOCK_OWNER"
+}
+
 need bash
 need git
 need python3
 mkdir -p "$BOOT_ROOT" "$REVISIONS"
-
-if ! mkdir "$LOCK" 2>/dev/null; then
-  echo "BLOCKED: another Terminal DMC sparse bootstrap is active: $LOCK" >&2
-  exit 21
-fi
-trap 'rmdir "$LOCK" 2>/dev/null || true' EXIT INT TERM
+acquire_lock
+trap release_lock EXIT INT TERM
 
 clone_source() {
   if [ -e "$SOURCE" ]; then
@@ -164,4 +189,11 @@ printf 'caller cwd preserved: %s\n' "$PWD"
 printf 'LFS/media checkout: bypassed\n'
 
 export HC_REPO_ROOT="$SOURCE"
+
+# The bootstrap lock protects only source/revision preparation. Release it
+# explicitly before replacing this process with the long-lived campaign. The
+# earlier implementation relied on an EXIT trap across exec, which does not run
+# after the shell is replaced and therefore left a permanent stale lock.
+release_lock
+trap - EXIT INT TERM
 exec bash "$SOURCE/tools/terminal_dmc_campaign.sh" "$@"
