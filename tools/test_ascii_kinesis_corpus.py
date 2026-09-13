@@ -126,7 +126,6 @@ def main() -> int:
         out = root / "generated" / "ascii-kinesis-corpus"
         corpus.write_outputs(out, outputs_a)
         loaded = corpus.load_index(out / "motion_source_refs.jsonl")
-        assert corpus.query_records(root, None) == loaded
         hits = corpus.search_records(loaded, "transfer load")
         assert hits and hits[0][1]["experiment_id"] == "v2-contact-001-test"
         assert corpus.search_records(loaded, "missing phrase") == []
@@ -168,6 +167,22 @@ def main() -> int:
         assert "Fail-closed V2 specimens" in report
         assert "contact-sheet.txt" in outputs_a["motion_source_refs.jsonl"]
 
+    # A persisted report is a snapshot, never a hidden global latest pointer.
+    # Default queries must see newly committed specimens immediately instead of
+    # silently preferring a stale generated index.
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        fixture(root, "v2-contact-001-old")
+        records, rejected = corpus.build_corpus(root)
+        out = root / "generated" / "ascii-kinesis-corpus"
+        corpus.write_outputs(out, corpus.render_outputs(records, rejected))
+        snapshot = out / "motion_source_refs.jsonl"
+        assert len(corpus.query_records(root, str(snapshot))) == 1
+
+        fixture(root, "v2-contact-002-new")
+        assert len(corpus.query_records(root, None)) == 2
+        assert len(corpus.query_records(root, str(snapshot))) == 1
+
     print(
         json.dumps(
             {
@@ -179,7 +194,8 @@ def main() -> int:
                     "nested support state retained",
                     "specimen provenance retained",
                     "raw ASCII body excluded",
-                    "query surface works before or after persisted build",
+                    "default queries read current specimens, not stale snapshots",
+                    "explicit snapshot queries remain reproducible",
                     "malformed or empty V2 fails closed",
                 ],
             },
