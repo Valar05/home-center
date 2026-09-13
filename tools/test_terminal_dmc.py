@@ -53,6 +53,21 @@ def main() -> int:
     assert dodge.player_hp == hp
     assert any("MISSED" in line for line in dodge.events)
 
+    # Shovel-brace parry turns the tool into temporary support and buys recovery debt.
+    parry = game.Game()
+    for foe in parry.enemies[1:]:
+        foe.dead = True
+    foe = parry.enemies[0]
+    foe.lane = 0
+    foe.distance = 1.4
+    foe.telegraph = 1
+    hp = parry.player_hp
+    parry.step(["f"])
+    assert parry.player_hp == hp
+    assert foe.stagger >= 18
+    assert parry.style >= 65
+    assert any("PARRIED" in line for line in parry.events)
+
     # Renderer exposes the playable information and first-person shovel.
     frame = game.render(game.Game(), 80, 27)
     assert "DMC TERMINAL // SHOVEL PROOF" in frame
@@ -76,6 +91,7 @@ def main() -> int:
             "ground-launch-juggle-spike grammar executes",
             "style rewards move variety",
             "dodge beats telegraphed strike when timed",
+            "shovel brace parries into enemy recovery debt",
             "renderer exposes target/style/first-person shovel",
             "scripted combat core is deterministic",
         ],
