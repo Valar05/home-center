@@ -55,6 +55,11 @@ def fixture(root: Path, name: str = "v2-contact-001-test") -> Path:
                     "t": 0.0,
                     "causal_role": "establish",
                     "contact_state": "OFF",
+                    "contact_points": [],
+                    "support_contact": "LEFT_SUPPORT",
+                    "root_owner": "LEFT_GROUND_SUPPORT",
+                    "root_velocity_class": "READY",
+                    "actuator_state": "ON",
                     "timing_class": "FOURS",
                     "timing_provenance": "INFERRED",
                     "A": {"support": "LEFT"},
@@ -65,6 +70,11 @@ def fixture(root: Path, name: str = "v2-contact-001-test") -> Path:
                     "t": 0.25,
                     "causal_role": "transfer load",
                     "contact_state": "LOCKED",
+                    "contact_points": ["A_HAND", "B_HAND"],
+                    "support_contact": "DUAL_SUPPORT",
+                    "root_owner": "SHARED_FRAME",
+                    "root_velocity_class": "TRANSFER",
+                    "actuator_state": "ON",
                     "timing_class": "TWOS",
                     "timing_provenance": "INFERRED",
                     "A": {"support": "LEFT"},
@@ -76,6 +86,11 @@ def fixture(root: Path, name: str = "v2-contact-001-test") -> Path:
                     "t": 0.5,
                     "causal_role": "settle",
                     "contact_state": "OFF",
+                    "contact_points": [],
+                    "support_contact": "RIGHT_SUPPORT",
+                    "root_owner": "RIGHT_GROUND_SUPPORT",
+                    "root_velocity_class": "SETTLED",
+                    "actuator_state": "RESTORE",
                     "timing_class": "FOURS",
                     "timing_provenance": "INFERRED",
                     "B": {"support": "RIGHT"},
@@ -111,7 +126,12 @@ def main() -> int:
         assert terms["key_ids"] == ["R00", "R01", "R02"]
         assert terms["key_names"] == ["GUARD", "CONTACT", "RECOVER"]
         assert terms["contact_states"] == ["OFF", "LOCKED"]
+        assert terms["contact_points"] == ["A_HAND", "B_HAND"]
+        assert terms["support_contacts"] == ["LEFT_SUPPORT", "DUAL_SUPPORT", "RIGHT_SUPPORT"]
         assert terms["support_states"] == ["A:LEFT", "B:RIGHT"]
+        assert terms["root_owners"] == ["LEFT_GROUND_SUPPORT", "SHARED_FRAME", "RIGHT_GROUND_SUPPORT"]
+        assert terms["root_velocity_classes"] == ["READY", "TRANSFER", "SETTLED"]
+        assert terms["actuator_states"] == ["ON", "RESTORE"]
         assert terms["causal_roles"] == ["establish", "transfer load", "settle"]
         assert row["authority"]["specimen_is_authoritative"] is True
         assert row["authority"]["generated_inference_allowed"] is False
@@ -128,6 +148,7 @@ def main() -> int:
         loaded = corpus.load_index(out / "motion_source_refs.jsonl")
         hits = corpus.search_records(loaded, "transfer load")
         assert hits and hits[0][1]["experiment_id"] == "v2-contact-001-test"
+        assert corpus.search_records(loaded, "right ground support")
         assert corpus.search_records(loaded, "missing phrase") == []
 
         broken = root / "experiments" / "ascii-kinesis" / "v2-airborne-999-broken"
@@ -191,6 +212,7 @@ def main() -> int:
                 "proves": [
                     "deterministic compact indexing",
                     "exact authored semantic terms retained",
+                    "contact/support/root/actuator states retained",
                     "nested support state retained",
                     "specimen provenance retained",
                     "raw ASCII body excluded",
