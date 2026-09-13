@@ -68,6 +68,18 @@ def main() -> int:
     assert parry.style >= 65
     assert any("PARRIED" in line for line in parry.events)
 
+    # Defensive inputs have real recovery/cooldown; holding them cannot create permanent invulnerability.
+    gated = game.Game()
+    gated.step(["f"])
+    first_guard = gated.guard_frames
+    gated.step(["f"])
+    assert gated.guard_frames < first_guard, "guard spam must not refresh during recovery"
+    dodge_gate = game.Game()
+    dodge_gate.step([" "])
+    first_dodge = dodge_gate.dodge_frames
+    dodge_gate.step([" "])
+    assert dodge_gate.dodge_frames < first_dodge, "dodge spam must not refresh during recovery"
+
     # Renderer exposes the playable information and first-person shovel.
     frame = game.render(game.Game(), 80, 27)
     assert "DMC TERMINAL // SHOVEL PROOF" in frame
@@ -92,6 +104,7 @@ def main() -> int:
             "style rewards move variety",
             "dodge beats telegraphed strike when timed",
             "shovel brace parries into enemy recovery debt",
+            "defensive spam cannot refresh invulnerability windows",
             "renderer exposes target/style/first-person shovel",
             "scripted combat core is deterministic",
         ],
