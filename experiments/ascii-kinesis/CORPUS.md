@@ -9,11 +9,11 @@ It exists so the scheduler can keep producing motion evidence without requiring 
 The corpus follows the same source discipline used by Thunder Brainstorm and Story Brainstorm:
 
 1. **Specimen**: committed `manifest.json`, `motion.json`, receipt, ASCII/contact-sheet, HTML/video, and exact hashes remain authoritative.
-2. **Observation record**: deterministic fields are extracted from committed JSON. No generated interpretation is allowed here.
-3. **Explicit abstraction terms**: only authored labels already present in the specimen are indexed: lane, candidate role, motion name, key names, event names, source role, and contract status.
-4. **Retrieval surfaces**: JSONL index, summary, and Markdown report help humans and agents find a small number of specimens.
+2. **Observation record**: deterministic facts are extracted from committed JSON. No generated interpretation is allowed here.
+3. **Authored semantic terms**: only strings already authored in the specimen are indexed, including primitive, lane, role, key names, causal roles, contact states, support states, timing classes, and events.
+4. **Retrieval surfaces**: compact query output, JSONL index, summary, and Markdown report help humans and agents find a small number of specimens.
 
-The report never promotes, retimes, redraws, or replaces an animation. If a compact record and the specimen disagree, the specimen wins.
+The retrieval layer never promotes, retimes, redraws, or replaces an animation. If a compact record and the specimen disagree, the specimen wins.
 
 ## Context rule
 
@@ -23,7 +23,21 @@ Normal lookup should consume one-line records first. Open a compact record secon
 
 Do not load a directory of ASCII frames merely to answer a search question.
 
-## Build
+## Query immediately
+
+A persisted index is optional for lookup. If no generated index exists, `search` and `show` deterministically scan the committed V2 manifest/motion JSON in memory and still avoid loading raw ASCII/video bodies.
+
+```sh
+python3 tools/ascii_kinesis_corpus.py inventory
+python3 tools/ascii_kinesis_corpus.py search "landing debt"
+python3 tools/ascii_kinesis_corpus.py search "support transfer" --lane contact
+python3 tools/ascii_kinesis_corpus.py show v2-airborne-003-apex-spacing-window
+python3 tools/ascii_kinesis_corpus.py show v2-airborne-003-apex-spacing-window --json
+```
+
+`inventory` returns only corpus counts and lane/gate summaries. `search` emits compact one-line records. `show` emits one deterministic observation record and pointers back to the exact specimen. None of them dumps the raw ASCII body.
+
+## Persist an index/report
 
 From the repository root:
 
@@ -31,7 +45,7 @@ From the repository root:
 python3 tools/ascii_kinesis_corpus.py build
 ```
 
-This scans `experiments/ascii-kinesis/**/manifest.json` and accepts only manifests with schema `ascii-kinesis.swarm-manifest.v2` plus a matching `motion.json`.
+This scans `experiments/ascii-kinesis/**/manifest.json` and accepts only manifests with schema `ascii-kinesis.swarm-manifest.v2`, format version 2, a path-matching experiment ID, a matching `motion.json`, and at least one authored key/pose.
 
 Outputs:
 
@@ -47,19 +61,6 @@ generated/ascii-kinesis-corpus/
 
 Legacy and non-V2 material remains readable in place but is not silently upgraded into this index.
 
-## Query
-
-After a build:
-
-```sh
-python3 tools/ascii_kinesis_corpus.py search "landing debt"
-python3 tools/ascii_kinesis_corpus.py search "support transfer" --lane contact
-python3 tools/ascii_kinesis_corpus.py show v2-airborne-003-apex-spacing-window
-python3 tools/ascii_kinesis_corpus.py show v2-airborne-003-apex-spacing-window --json
-```
-
-`search` emits compact lines. `show` emits one compact observation record and pointers back to the exact specimen. Neither command dumps the raw ASCII body.
-
 ## Determinism and staleness
 
 The generated files are reproducible from committed specimens:
@@ -68,7 +69,7 @@ The generated files are reproducible from committed specimens:
 python3 tools/ascii_kinesis_corpus.py verify
 ```
 
-`verify` exits nonzero if the committed retrieval outputs do not exactly match a fresh deterministic rebuild.
+`verify` exits nonzero if the persisted retrieval outputs do not exactly match a fresh deterministic rebuild.
 
 Structural regression test:
 
@@ -76,7 +77,7 @@ Structural regression test:
 python3 tools/test_ascii_kinesis_corpus.py
 ```
 
-The test covers deterministic regeneration, provenance retention, raw-ASCII exclusion from compact records, search behavior, and fail-closed malformed V2 handling. It does **not** claim that any motion is artistically good.
+The test covers deterministic regeneration, exact authored semantic-term retention, nested support-state extraction, specimen provenance, raw-ASCII exclusion, pre/post-build query behavior, and fail-closed malformed or empty V2 handling. It does **not** claim that any motion is artistically good.
 
 ## Relationship to the other systems
 
@@ -86,7 +87,7 @@ The test covers deterministic regeneration, provenance retention, raw-ASCII excl
 - **Story Brainstorm** provides the evidence -> observation -> abstraction firewall.
 - **This corpus layer** applies those retrieval laws to motion without creating a new animation authority.
 
-The scheduler may generate indefinitely. The retrieval layer should get larger on disk while normal model context stays small.
+The scheduler may generate indefinitely. The corpus may grow on disk while normal model context stays small.
 
 ## Non-goals
 
@@ -101,4 +102,4 @@ This layer does not:
 - deduplicate or mutate specimens yet;
 - hide the exact specimen path or hash behind a summary.
 
-Lineage, deduplication, preference pairs, and richer motion primitives can be added later only after the source-backed observation layer is proven useful on the real corpus.
+Lineage, deduplication, preference pairs, and richer derived motion primitives can be added later only after this source-backed observation layer is exercised on the real corpus.
