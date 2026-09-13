@@ -187,9 +187,20 @@ required_files_ok() {
   [ "$missing" -eq 0 ]
 }
 
-current_commit() {
+current_root() {
   if [ -L "$CURRENT" ] || [ -d "$CURRENT" ]; then
-    git -C "$CURRENT" rev-parse HEAD 2>/dev/null || true
+    python3 - "$CURRENT" <<'PY'
+import os, sys
+print(os.path.realpath(sys.argv[1]))
+PY
+  fi
+}
+
+current_commit() {
+  local root
+  root="$(current_root)"
+  if [ -n "$root" ] && [ -d "$root" ]; then
+    git -C "$root" rev-parse HEAD 2>/dev/null || true
   fi
 }
 
@@ -251,6 +262,15 @@ install_revision() {
   branch="$(git -C "$root" branch --show-current || true)"
   dirty="$(git -C "$root" status --porcelain=v1 --untracked-files=normal || true)"
   revdir="$REVISIONS/$head"
+
+  # Never flip the installed `current` pointer out from under an active proof
+  # worker, synchronous proof, or interactive game.
+  if [ -L "$CURRENT" ] || [ -d "$CURRENT" ]; then
+    if pid_alive "$WORKER_PID" || pid_alive "$PLAY_PID" || [ -d "$LOCK_DIR" ]; then
+      json_receipt "install" "BLOCKED" "active proof/play owns the installed revision; stop or wait before update" "$(current_commit)"
+      return 25
+    fi
+  fi
 
   # We never reset, checkout, stash, or clean the operator's working tree.
   # A dirty source checkout is preserved and simply excluded from the installed
@@ -413,8 +433,9 @@ run_proof_sync() {
   ensure_installed
   need python3
 
-  local commit
-  commit="$(current_commit)"
+  local commit run_root
+  run_root="$(current_root)"
+  commit="$(git -C "$run_root" rev-parse HEAD 2>/dev/null || true)"
   if [ -z "$commit" ]; then
     json_receipt "proof" "BLOCKED" "installed revision has no Git commit identity"
     return 30
@@ -436,7 +457,7 @@ run_proof_sync() {
   : > "$PROOF_STDERR"
   set +e
   (
-    cd "$CURRENT"
+    cd "$run_root"
     PYTHONDONTWRITEBYTECODE=1 python3 -B tools/terminal_dmc_prove.py > "$tmp" 2> "$PROOF_STDERR"
   )
   rc=$?
@@ -581,8 +602,9 @@ play_game() {
     return 40
   fi
 
-  local commit
-  commit="$(current_commit)"
+  local commit run_root
+  run_root="$(current_root)"
+  commit="$(git -C "$run_root" rev-parse HEAD 2>/dev/null || true)"
   write_checkpoint "PLAY" "PLAY_READY" "Drew plays; first feel defect becomes the next concrete campaign slice." "$commit"
   json_receipt "play" "STARTING" "interactive game launch; human acceptance remains pending" "$commit"
 
@@ -598,9 +620,9 @@ play_game() {
   set +e
   if [ -r /dev/tty ] && [ -w /dev/tty ]; then
     if [ "$mode" = "turn" ]; then
-      python3 -B "$CURRENT/tools/terminal_dmc.py" --turn </dev/tty >/dev/tty 2>/dev/tty &
+      python3 -B "$run_root/tools/terminal_dmc.py" --turn </dev/tty >/dev/tty 2>/dev/tty &
     else
-      python3 -B "$CURRENT/tools/terminal_dmc.py" </dev/tty >/dev/tty 2>/dev/tty &
+      python3 -B "$run_root/tools/terminal_dmc.py" </dev/tty >/dev/tty 2>/dev/tty &
     fi
     local game_pid=$!
     echo "$game_pid" > "$PLAY_PID"
@@ -609,9 +631,9 @@ play_game() {
     rm -f "$PLAY_PID"
   else
     if [ "$mode" = "turn" ]; then
-      python3 -B "$CURRENT/tools/terminal_dmc.py" --turn
+      python3 -B "$run_root/tools/terminal_dmc.py" --turn
     else
-      python3 -B "$CURRENT/tools/terminal_dmc.py"
+      python3 -B "$run_root/tools/terminal_dmc.py"
     fi
     rc=$?
   fi
