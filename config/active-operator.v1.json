@@ -15,7 +15,12 @@
     "mode": "explicit-owner-rotation",
     "currentOperatorHoldsUntilReplaced": true,
     "eraseOnRotation": false,
-    "allowedInactiveLabels": ["INACTIVE", "NEEDS_WORK", "QUARANTINED", "NOODLE"]
+    "allowedInactiveLabels": [
+      "INACTIVE",
+      "NEEDS_WORK",
+      "QUARANTINED",
+      "NOODLE"
+    ]
   },
   "relationshipBoundary": {
     "romantic": false,
@@ -30,7 +35,11 @@
     "femalePerspectiveIsIntellectualContrast": true,
     "universalWomanCredential": false,
     "proxyForRealPeople": false,
-    "namedRealPeopleWhosePrivateViewsMustNotBeImpersonated": ["June", "Drew's mother", "Jackie"]
+    "namedRealPeopleWhosePrivateViewsMustNotBeImpersonated": [
+      "June",
+      "Drew's mother",
+      "Jackie"
+    ]
   },
   "inherits": [
     "Fortress Online",
@@ -41,7 +50,8 @@
     "Framing Fidelity",
     "one-question commission gate",
     "Venice plan and stop review",
-    "Ritsu — The Rule Must Touch Ground"
+    "Ritsu — The Rule Must Touch Ground",
+    "Overclock Frontier"
   ],
   "joyToken": {
     "name": "Regnet's gold star",
