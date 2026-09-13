@@ -92,13 +92,17 @@ def main() -> int:
     assert trial2["response_correct"] is True
 
     # Offensive initiative closes the remaining counterfactual window instead
-    # of pretending the interrupted attack reached impact.
+    # of pretending the interrupted attack reached impact. Its visual telegraph
+    # must retire at the same boundary so the renderer cannot claim the old
+    # action window still exists.
     game3, target3 = isolated_game()
     game3._start_attack(target3, theorem.ATTACK_BY_NAME["LINE_THRUST"])
+    assert target3.telegraph > 0
     target3.stagger = 2
     game3.step([])
     assert game3.theorem_trials[-1]["outcome"] == "INTERRUPTED_BY_OFFENSE"
     assert target3.theorem_phase == "IDLE"
+    assert target3.telegraph == 0
 
     # The theorem is visible on the playable surface, not hidden in metadata.
     game4, target4 = isolated_game()
@@ -113,10 +117,7 @@ def main() -> int:
     with tempfile.TemporaryDirectory() as tmp:
         path = Path(tmp) / "trials.jsonl"
         path.write_text(
-            "\n".join(
-                json.dumps(row, sort_keys=True)
-                for row in (trial, trial2)
-            )
+            "\n".join(json.dumps(row, sort_keys=True) for row in (trial, trial2))
             + "\n",
             encoding="utf-8",
         )
@@ -136,7 +137,7 @@ def main() -> int:
                     "collapse-A counterfactual breaks the ordering",
                     "perfect-R counterfactual breaks strict A>R",
                     "responses retain A/R phase and correctness separately from survival",
-                    "offensive interruption closes the remaining attack window",
+                    "offensive interruption closes the remaining attack and visual telegraph window",
                     "playable render exposes theorem phase/cue",
                     "behavior report preserves phase-specific human evidence",
                 ],
