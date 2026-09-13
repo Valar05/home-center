@@ -88,6 +88,7 @@ class Game:
     player_hp: int = 100
     player_lane: int = 0
     dodge_frames: int = 0
+    guard_frames: int = 0
     last_strafe: int = 1
     recovery: int = 0
     cancel_window: int = 0
@@ -172,6 +173,8 @@ class Game:
 
         if " " in pressed:
             self._dodge()
+        if "f" in pressed:
+            self._guard()
 
         for key in pressed:
             if key in ("j", "k", "l") and self.can_act():
@@ -188,6 +191,8 @@ class Game:
             self.cancel_window -= 1
         if self.dodge_frames > 0:
             self.dodge_frames -= 1
+        if self.guard_frames > 0:
+            self.guard_frames -= 1
         if self.chain_timer > 0:
             self.chain_timer -= 1
         else:
@@ -204,6 +209,13 @@ class Game:
     def _decay_ui_only(self) -> None:
         if self.pose_ticks > 0:
             self.pose_ticks -= 1
+
+    def _guard(self) -> None:
+        self.guard_frames = max(self.guard_frames, 5)
+        self.recovery = min(self.recovery, 3)
+        self.pose = "KICKSTAND"
+        self.pose_ticks = 6
+        self.log("SHOVEL BRACE // support bought with tool")
 
     def _dodge(self) -> None:
         self.dodge_frames = max(self.dodge_frames, 8)
@@ -339,6 +351,15 @@ class Game:
                 self.log(f"{enemy.name} // WINDUP !")
 
     def _enemy_strike(self, enemy: Enemy) -> None:
+        if enemy.lane == self.player_lane and self.guard_frames > 0:
+            enemy.stagger = max(enemy.stagger, 18)
+            enemy.distance = min(6.0, enemy.distance + 0.35)
+            self.hitstop = max(self.hitstop, 2)
+            self.pose = "KICKSTAND"
+            self.pose_ticks = 7
+            self._award_flat_style(65, "SHOVEL PARRY")
+            self.log(f"{enemy.name} // PARRIED INTO DEBT")
+            return
         if enemy.lane != self.player_lane or self.dodge_frames > 0:
             self.log(f"{enemy.name} // MISSED")
             return
@@ -445,6 +466,14 @@ def weapon_sprite(pose: str) -> list[str]:
             "                _____/______/           ",
             "               /_____/                  ",
         ]
+    if pose == "KICKSTAND":
+        return [
+            "                                      /|",
+            "                                 ____/ |",
+            "                            ____/     |",
+            "                       ____/          |",
+            "______________________/_______________|_",
+        ]
     if pose == "DODGE":
         return [
             "                                             __",
@@ -525,7 +554,7 @@ def render(game: Game, width: int = WIDTH, height: int = HEIGHT) -> str:
     for i, line in enumerate(weapon):
         put(canvas, max(0, width - len(line) - 1), wy + i, line)
 
-    help_text = "A/D strafe  W/S range  J combo  K launcher  L heavy/spike  SPACE dodge  R reset  Q quit"
+    help_text = "A/D strafe  W/S range  J combo  K launcher  L heavy/spike  F brace  SPACE dodge  R reset  Q quit"
     put(canvas, 1, height - 2, help_text[: width - 2])
     event = " | ".join(game.events[-2:]) if game.events else "Move. Earn range. Make the hit mean something."
     put(canvas, 1, height - 1, event[: width - 2])
@@ -563,7 +592,7 @@ class RawTerminal:
             # Arrow keys are optional aliases for WASD.
             text = text.replace("\x1b[D", "a").replace("\x1b[C", "d")
             text = text.replace("\x1b[A", "w").replace("\x1b[B", "s")
-            keys.extend(ch.lower() for ch in text if ch.lower() in "adwsjklrq ")
+            keys.extend(ch.lower() for ch in text if ch.lower() in "adwsjklfrq ")
         return keys
 
     def __exit__(self, exc_type, exc, tb) -> None:
