@@ -1,0 +1,68 @@
+{
+  "schema": "ascii-kinesis.receipt.v2",
+  "experiment_id": "v2-video-motion-013-black-pirate-compression-release-repair",
+  "authoritative_reset": "5634613836",
+  "status": "QUALITY_GATES_PASS_READY_FOR_REPO_PERSISTENCE",
+  "revises": "experiments/ascii-kinesis/v2-video-motion-001-black-pirate-compression-release/",
+  "negative_fixture": "experiments/ascii-kinesis/v2-video-motion-001-black-pirate-compression-release/",
+  "source_change": false,
+  "preflight": {
+    "home_center_campaign_fresh_read": true,
+    "github_authenticated": true,
+    "reset_5634613836_fresh_read": true,
+    "rebind_5645068931_fresh_read": true,
+    "manager_5645488470_fresh_read": true,
+    "ascii_skill_fresh_read": true,
+    "swarm_contract_fresh_read": true,
+    "motion_direction_fresh_read": true,
+    "source_evidence_fresh_read": true,
+    "chronology_complete": true,
+    "oldest_predecessor_confirmed": true,
+    "post_reset_successor_count_before_creation": 0
+  },
+  "source": {
+    "title": "He'll walk the plank.webm",
+    "origin": "The Black Pirate (1926)",
+    "rights": "PD-US",
+    "home_center_document": "1LSyS83R9ekKhepMwR38iv2P29giqUoOLJyeMyFAtbpA",
+    "sha1": "249a58eaf8ea1c3fe2c4232e23184f757a1ad80c",
+    "bytes": 1281353,
+    "duration_s": 19.017,
+    "dimensions": [640, 480],
+    "roles": ["POSE_REFERENCE", "CONTACT_REFERENCE"],
+    "timing_authority": false,
+    "full_performance_authority": false,
+    "source_pixels_audio_in_output": false
+  },
+  "media": {
+    "mime": "video/mp4",
+    "encoding": "H.264 yuv420p",
+    "dimensions": [352, 156],
+    "embedded": "data_uri_in_spa",
+    "sha256": "e2b1c61a85380540f895cc8411ee94806b4ecfbedc5721dfbb82e594607d473e",
+    "bytes": 19769,
+    "frame_count": 70,
+    "compile_fps": 24,
+    "duration_s": 2.9166666666666665,
+    "source_pixels": false,
+    "source_audio": false
+  },
+  "quality": {
+    "tango": {
+      "status": "PASS",
+      "current_worker": true,
+      "iterations": [
+        {"iteration":1,"sha256":"005a6a0f67e37f9a5e0f4214875d45ded389cca9630f43b88a8d7fc996c144c1","verdict":"REVISE_REQUIRED","defect":"Crossing K5-K7 stacked B over A, reading as merged collision.","same_body_correction":"Keep A root planted but bend A torso/head/arms screen-right to open negative-space corridor while B commits low/left."},
+        {"iteration":2,"sha256":"c76499edf5bad8a90a668b674f8869279994d2e215f540df8edf1ce09ebb0093","verdict":"PASS"},
+        {"iteration":3,"sha256":"e2b1c61a85380540f895cc8411ee94806b4ecfbedc5721dfbb82e594607d473e","verdict":"PASS","reason":"Changed-media compact transcode reinspected as actual ordered decisive/bridge montage; load/support/release/catch/overshoot/brake/recovery remain readable."}
+      ]
+    },
+    "queen": {"status":"PASS","after_tango_pass":true,"same_final_render_sha256":"e2b1c61a85380540f895cc8411ee94806b4ecfbedc5721dfbb82e594607d473e","verdict":"TASTE + FUNCTION + CONTEMPT PASS"}
+  },
+  "validator": {"status":"PASS_CANDIDATE_ISOLATED_CURRENT_PREDICATES","repo_global_pass_claimed":false},
+  "github": {"persisted":false,"readback":false},
+  "issue": {"receipt":null},
+  "home_center": {"campaign_binding":false,"readback":false},
+  "chat_delivery": {"part1_ascii":false,"part2_json":false,"part3_video":false},
+  "drew_accepted": false
+}
