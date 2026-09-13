@@ -11,7 +11,7 @@ The corpus follows the same source discipline used by Thunder Brainstorm and Sto
 1. **Specimen**: committed `manifest.json`, `motion.json`, receipt, ASCII/contact-sheet, HTML/video, and exact hashes remain authoritative.
 2. **Observation record**: deterministic facts are extracted from committed JSON. No generated interpretation is allowed here.
 3. **Authored semantic terms**: only strings already authored in the specimen are indexed, including primitive, lane, role, key names, causal roles, contact states, support states, timing classes, and events.
-4. **Retrieval surfaces**: compact query output, JSONL index, summary, and Markdown report help humans and agents find a small number of specimens.
+4. **Retrieval surfaces**: compact query output, optional JSONL snapshots, summary, and Markdown report help humans and agents find a small number of specimens.
 
 The retrieval layer never promotes, retimes, redraws, or replaces an animation. If a compact record and the specimen disagree, the specimen wins.
 
@@ -23,9 +23,9 @@ Normal lookup should consume one-line records first. Open a compact record secon
 
 Do not load a directory of ASCII frames merely to answer a search question.
 
-## Query immediately
+## Query the current corpus
 
-A persisted index is optional for lookup. If no generated index exists, `search` and `show` deterministically scan the committed V2 manifest/motion JSON in memory and still avoid loading raw ASCII/video bodies.
+Default `inventory`, `search`, and `show` calls scan the committed V2 manifest/motion JSON **at call time**. They do not silently prefer an older generated index. This matters because the scheduler keeps adding specimens.
 
 ```sh
 python3 tools/ascii_kinesis_corpus.py inventory
@@ -37,7 +37,7 @@ python3 tools/ascii_kinesis_corpus.py show v2-airborne-003-apex-spacing-window -
 
 `inventory` returns only corpus counts and lane/gate summaries. `search` emits compact one-line records. `show` emits one deterministic observation record and pointers back to the exact specimen. None of them dumps the raw ASCII body.
 
-## Persist an index/report
+## Persist an explicit snapshot/report
 
 From the repository root:
 
@@ -57,19 +57,26 @@ generated/ascii-kinesis-corpus/
   rejected_v2_records.jsonl
 ```
 
+These files are a reproducible **snapshot**, not a global-latest pointer. If a caller deliberately wants that frozen snapshot instead of current source, pass it explicitly:
+
+```sh
+python3 tools/ascii_kinesis_corpus.py search "landing debt" \
+  --index generated/ascii-kinesis-corpus/motion_source_refs.jsonl
+```
+
 `rejected_v2_records.jsonl` is deliberate. A malformed V2 specimen is excluded from the usable index and recorded with its reason instead of being guessed into completeness.
 
 Legacy and non-V2 material remains readable in place but is not silently upgraded into this index.
 
 ## Determinism and staleness
 
-The generated files are reproducible from committed specimens:
+The snapshot files are reproducible from committed specimens:
 
 ```sh
 python3 tools/ascii_kinesis_corpus.py verify
 ```
 
-`verify` exits nonzero if the persisted retrieval outputs do not exactly match a fresh deterministic rebuild.
+`verify` exits nonzero if the persisted snapshot does not exactly match a fresh deterministic rebuild. This detects stale reports while keeping normal queries immune to stale-snapshot blindness.
 
 Structural regression test:
 
@@ -77,7 +84,7 @@ Structural regression test:
 python3 tools/test_ascii_kinesis_corpus.py
 ```
 
-The test covers deterministic regeneration, exact authored semantic-term retention, nested support-state extraction, specimen provenance, raw-ASCII exclusion, pre/post-build query behavior, and fail-closed malformed or empty V2 handling. It does **not** claim that any motion is artistically good.
+The test covers deterministic regeneration, exact authored semantic-term retention, nested support-state extraction, specimen provenance, raw-ASCII exclusion, current-source query behavior, explicit reproducible snapshots, and fail-closed malformed or empty V2 handling. It does **not** claim that any motion is artistically good.
 
 ## Relationship to the other systems
 
