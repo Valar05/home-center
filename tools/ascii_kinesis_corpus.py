@@ -108,13 +108,24 @@ def support_states(key_rows: Iterable[dict[str, Any]]) -> list[str]:
                 for k, v in sorted(direct.items())
                 if isinstance(v, (str, int, float, bool))
             )
-        # Modern V2 rigs often put support under actor blocks such as A/B.
+        # Modern V2 multi-body rigs often put support under actor blocks A/B.
         for key, value in sorted(row.items()):
             if not isinstance(value, dict):
                 continue
             nested = value.get("support")
             if isinstance(nested, str) and nested:
                 found.append(f"{key}:{nested}")
+    return uniq(found)
+
+
+def contact_points(key_rows: Iterable[dict[str, Any]]) -> list[str]:
+    found: list[str] = []
+    for row in key_rows:
+        value = row.get("contact_points")
+        if isinstance(value, str):
+            found.append(value)
+        elif isinstance(value, list):
+            found.extend(str(item) for item in value if isinstance(item, str))
     return uniq(found)
 
 
@@ -147,6 +158,11 @@ def fps(manifest: dict[str, Any], motion: dict[str, Any]) -> int | float | None:
             value = number(block.get("fps"))
             if value is not None:
                 return value
+    timing_policy = motion.get("timing_policy")
+    if isinstance(timing_policy, dict):
+        value = number(timing_policy.get("nominal_fps"))
+        if value is not None:
+            return value
     return None
 
 
@@ -198,9 +214,11 @@ def source_summary(manifest: dict[str, Any], motion: dict[str, Any]) -> dict[str
         "identity",
         "url",
         "source_timing",
+        "source_authentic_timing",
         "timing_authority",
         "authored_timing_provenance",
         "rights_boundary",
+        "rights_note",
         "evidence_document_id",
         "evidence_title",
         "raw_sha256",
@@ -251,13 +269,18 @@ def authored_terms(
         "key_names": row_strings(key_rows, ("name", "label", "pose", "key")),
         "causal_roles": row_strings(key_rows, ("causal_role",)),
         "contact_states": row_strings(key_rows, ("contact_state",)),
+        "contact_points": contact_points(key_rows),
+        "support_contacts": row_strings(key_rows, ("support_contact",)),
+        "support_states": support_states(key_rows),
+        "root_owners": row_strings(key_rows, ("root_owner",)),
+        "root_velocity_classes": row_strings(key_rows, ("root_velocity_class",)),
+        "actuator_states": row_strings(key_rows, ("actuator_state",)),
         "authority_states": row_strings(key_rows, ("authority",)),
         "timing_classes": row_strings(key_rows, ("timing_class", "timing")),
         "timing_provenance": row_strings(
             key_rows, ("timing_provenance", "provenance")
         ),
         "force_labels": row_strings(key_rows, ("force",)),
-        "support_states": support_states(key_rows),
         "event_names": row_strings(
             event_rows, ("event", "name", "label", "type", "kind")
         ),
@@ -623,7 +646,12 @@ def cmd_show(args: argparse.Namespace) -> int:
                 "key_names",
                 "causal_roles",
                 "contact_states",
+                "contact_points",
+                "support_contacts",
                 "support_states",
+                "root_owners",
+                "root_velocity_classes",
+                "actuator_states",
                 "timing_classes",
             ):
                 if terms.get(key):
