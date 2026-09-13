@@ -8,7 +8,6 @@ import terminal_dmc as game
 
 
 def main() -> int:
-    # Launcher actually creates airborne state and shares the same core as play.
     launched = game.run_script("w" * 12 + "k")
     target = launched.enemies[1]
     assert target.airborne, target
@@ -16,7 +15,6 @@ def main() -> int:
     assert launched.last_move == "UPROOT"
     assert launched.combo == 1
 
-    # Concrete DMC-like grammar: ground string -> launch -> air rehit -> spike.
     script = "w" * 12 + "j" + "." * 6 + "j" + "." * 7 + "k" + "." * 4 + "j" + "." * 5 + "l"
     combo = game.run_script(script)
     target = combo.enemies[1]
@@ -27,7 +25,6 @@ def main() -> int:
     assert combo.last_move == "BURIAL"
     assert target.vy < 0, "airborne heavy must become a downward spike"
 
-    # Same-move repetition earns less style than varied attacks.
     repeat = game.Game()
     repeat._award_style(game.HEAVY)
     first = repeat.style
@@ -40,7 +37,6 @@ def main() -> int:
     varied_second_gain = varied.style - varied_first
     assert second_gain < varied_second_gain
 
-    # Dodge resolves before a telegraphed strike on the same simulation tick.
     dodge = game.Game()
     for enemy in dodge.enemies[1:]:
         enemy.dead = True
@@ -53,7 +49,6 @@ def main() -> int:
     assert dodge.player_hp == hp
     assert any("MISSED" in line for line in dodge.events)
 
-    # Shovel-brace parry turns the tool into temporary support and buys recovery debt.
     parry = game.Game()
     for foe in parry.enemies[1:]:
         foe.dead = True
@@ -68,7 +63,6 @@ def main() -> int:
     assert parry.style >= 65
     assert any("PARRIED" in line for line in parry.events)
 
-    # Defensive inputs have real recovery/cooldown; holding them cannot create permanent invulnerability.
     gated = game.Game()
     gated.step(["f"])
     first_guard = gated.guard_frames
@@ -80,19 +74,20 @@ def main() -> int:
     dodge_gate.step([" "])
     assert dodge_gate.dodge_frames < first_dodge, "dodge spam must not refresh during recovery"
 
-    # Renderer exposes the playable information and first-person shovel.
     frame = game.render(game.Game(), 80, 27)
     assert "DMC TERMINAL // SHOVEL PROOF" in frame
     assert "STYLE" in frame
     assert "TARGET" in frame
     assert "____/__/" in frame or "/___/" in frame
 
-    # Identical scripted inputs produce identical mechanical state.
+    assert game.lane_screen_x(0, 0, 80) == 40
+    assert game.lane_screen_x(0, 1, 80) < 40
+    assert game.lane_screen_x(1, 1, 80) == 40
+
     a = game.run_script(script, settle=8).summary()
     b = game.run_script(script, settle=8).summary()
     assert a == b
 
-    # Raw ASCII specimen bodies are not required to launch this concrete slice.
     assert game.Game().summary()["schema"] == "terminal-dmc-state.v1"
 
     print(json.dumps({
@@ -106,6 +101,7 @@ def main() -> int:
             "shovel brace parries into enemy recovery debt",
             "defensive spam cannot refresh invulnerability windows",
             "renderer exposes target/style/first-person shovel",
+            "strafing shifts world lanes in first-person screen space",
             "scripted combat core is deterministic",
         ],
     }, sort_keys=True))
