@@ -39,17 +39,46 @@ def sha(value: str) -> str:
 
 
 def last_json(stdout: str) -> dict[str, Any]:
-    for line in reversed(stdout.splitlines()):
-        line = line.strip()
-        if not line:
-            continue
+    """Return the last top-level JSON object emitted in mixed stdout.
+
+    Some proof children emit a pure, indented multi-line JSON document while
+    the playable demo emits terminal rendering followed by JSON.  The previous
+    implementation only attempted json.loads() one physical line at a time,
+    which made every pretty-printed theorem channel report invisible and caused
+    a false mechanical-proof failure.
+    """
+    text = stdout.strip()
+    if not text:
+        return {}
+
+    # Fast path for commands whose entire stdout is one JSON document, including
+    # pretty-printed / multi-line reports.
+    try:
+        value = json.loads(text)
+    except json.JSONDecodeError:
+        value = None
+    if isinstance(value, dict):
+        return value
+
+    # Mixed-output path. Scan for decodable top-level objects and retain the
+    # latest one. This handles a rendered terminal frame followed by either a
+    # compact or multi-line JSON receipt without depending on line boundaries.
+    decoder = json.JSONDecoder()
+    latest: dict[str, Any] = {}
+    index = 0
+    while index < len(text):
+        start = text.find("{", index)
+        if start < 0:
+            break
         try:
-            value = json.loads(line)
+            candidate, consumed = decoder.raw_decode(text[start:])
         except json.JSONDecodeError:
+            index = start + 1
             continue
-        if isinstance(value, dict):
-            return value
-    return {}
+        if isinstance(candidate, dict):
+            latest = candidate
+        index = start + max(consumed, 1)
+    return latest
 
 
 def run_json(command: list[str]) -> tuple[subprocess.CompletedProcess[str], dict[str, Any]]:
