@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#07090c">
+<title>Terminal DMC Touch Lab</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#07090c;color:#f6f7fb;--panel:#11151c;--soft:#1a2029;--line:#323b49;--accent:#f7b94a;--good:#62d69a;--warn:#ff7a78;--cool:#76b7ff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:#07090c;overscroll-behavior:none}
+body{min-height:100dvh;display:flex;justify-content:center}
+button{font:inherit;color:inherit}
+#app{width:min(100vw,760px);min-height:100dvh;padding:max(10px,env(safe-area-inset-top)) 12px max(14px,env(safe-area-inset-bottom));display:grid;grid-template-rows:auto minmax(300px,1fr) auto auto auto;gap:10px}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.eyebrow{font-size:11px;letter-spacing:.15em;color:#99a4b5;font-weight:800}.title{font-size:clamp(22px,7vw,34px);font-weight:900;line-height:1;margin-top:2px}.badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.badge{padding:7px 10px;border:1px solid var(--line);border-radius:999px;background:#0b0e13;font-size:11px;font-weight:800;letter-spacing:.05em}
+.arena{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:24px;background:radial-gradient(circle at 50% 28%,#202736 0,#0d1118 46%,#07090c 78%);min-height:310px;touch-action:none}.coach{position:absolute;z-index:3;top:12px;left:12px;right:12px;padding:10px 12px;border-radius:16px;background:rgba(7,9,12,.76);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08)}.coach strong{display:block;font-size:16px}.coach span{display:block;margin-top:2px;font-size:12px;color:#c7cfdb}
+svg{display:block;width:100%;height:100%;min-height:310px}.rig *{transform-box:fill-box;transform-origin:center;transition:transform 100ms linear,opacity 80ms linear,stroke 80ms linear,fill 80ms linear}.enemy-body{transform-origin:50% 90%}.weapon{transform-origin:12% 50%}.enemy-head{transform-origin:center}.enemy-shadow{opacity:.26}.player-shovel{transform-origin:82% 88%;transition:transform 90ms ease-out}
+.rig.pose-overhead .enemy-body{transform:translateY(-5px) rotate(-3deg)}.rig.pose-overhead .weapon{transform:translate(-18px,-26px) rotate(-76deg)}
+.rig.pose-thrust .enemy-body{transform:translateX(-9px) rotate(-6deg)}.rig.pose-thrust .weapon{transform:translate(-22px,2px) rotate(3deg)}
+.rig.pose-sweep .enemy-body{transform:translateY(15px) rotate(5deg)}.rig.pose-sweep .weapon{transform:translate(-10px,28px) rotate(18deg)}
+.rig.pose-neutral .enemy-body{transform:translateY(3px)}.rig.pose-neutral .weapon{transform:translate(-8px,-2px) rotate(-28deg)}
+.rig.pose-arc .enemy-body{transform:translateX(8px) rotate(7deg)}.rig.pose-arc .weapon{transform:translate(24px,13px) rotate(54deg)}
+.rig.pose-line .enemy-body{transform:translateX(12px) rotate(4deg)}.rig.pose-line .weapon{transform:translate(48px,3px) rotate(1deg)}
+.rig.phase-reaction{filter:drop-shadow(0 0 8px rgba(255,122,120,.3))}.rig.phase-anticipation{filter:drop-shadow(0 0 8px rgba(118,183,255,.22))}
+.arena.player-left .player-shovel{transform:translateX(-18px) rotate(-8deg)}.arena.player-right .player-shovel{transform:translateX(18px) rotate(8deg)}.arena.player-attack .player-shovel{transform:translate(-22px,-20px) rotate(-42deg)}.arena.player-launch .player-shovel{transform:translate(-10px,-28px) rotate(-62deg)}.arena.player-heavy .player-shovel{transform:translate(-30px,-8px) rotate(-78deg)}.arena.player-dodge .player-shovel{transform:translateX(34px) rotate(18deg)}.arena.player-brace .player-shovel{transform:translate(-4px,-8px) rotate(-18deg)}
+.phase-card{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:10px 12px}.phase-labels{display:grid;grid-template-columns:1.6fr .8fr 1fr .7fr;gap:4px;font-size:10px;font-weight:900;letter-spacing:.08em;color:#8e99aa}.phase-track{position:relative;height:16px;margin-top:7px;display:grid;grid-template-columns:1.6fr .8fr 1fr .7fr;gap:4px}.phase-track>span{border-radius:999px;background:#242b36}.phase-track>span.active{background:var(--cool)}.phase-track>span.done{background:#4b5869}.phase-cursor{position:absolute;top:-3px;width:3px;height:22px;background:#fff;border-radius:2px;box-shadow:0 0 10px rgba(255,255,255,.65);transition:left 50ms linear}.phase-hint{margin-top:8px;font-size:12px;color:#c4ccd8}
+.replay{border:1px solid var(--line);border-radius:18px;background:#0d1118;padding:10px 12px;min-height:70px}.replay-title{display:flex;align-items:center;justify-content:space-between;font-weight:900}.replay small{color:#94a0b1}.replay p{margin:5px 0 0;font-size:13px;line-height:1.35}.replay[data-tone="early"]{border-color:#2c815a}.replay[data-tone="wrong"],.replay[data-tone="late"]{border-color:#8b4242}.mini-track{position:relative;margin-top:8px;height:7px;border-radius:999px;background:linear-gradient(90deg,#365b7f 0 32%,#6f5f34 32% 48%,#7b4f4d 48% 74%,#4b4f57 74%)}.mini-marker{position:absolute;top:-4px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px #0d1118;transform:translateX(-50%);transition:left 180ms ease-out}
+.conditions{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.condition{border:1px solid var(--line);background:#0f1319;border-radius:14px;padding:10px 6px;font-size:11px;font-weight:900;min-height:48px}.condition.active{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.controls{display:grid;gap:8px}.lanes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.lane,.action{border:1px solid var(--line);background:#151b23;border-radius:18px;font-weight:900;touch-action:manipulation;user-select:none}.lane{min-height:54px}.lane.active{background:#263343;border-color:#6e819a}.actions{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.action{min-height:66px;font-size:13px}.action[data-action="strike"]{grid-column:span 2}.action[data-action="launch"]{grid-column:span 2}.action[data-action="heavy"]{grid-column:span 2}.action[data-action="dodge"]{grid-column:span 3;background:#1b2531}.action[data-action="brace"]{grid-column:span 3;background:#242119}.action:active,.lane:active,.condition:active{transform:translateY(1px);filter:brightness(1.25)}
+.footer{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:#7f8a9b;padding:0 3px}.metric strong{color:#e7ebf1}.offline{position:fixed;inset:auto 12px max(12px,env(safe-area-inset-bottom));z-index:10;padding:10px 12px;background:#6e2525;border-radius:12px;font-weight:800;display:none}
+@media (min-height:850px){.arena{min-height:370px}.action{min-height:72px}}
+</style>
+</head>
+<body>
+<main id="app">
+  <header class="topbar">
+    <div><div class="eyebrow">TOUCH COMBAT LAB</div><div class="title">Read the attack.</div></div>
+    <div class="badges"><span class="badge" id="conditionBadge">READ EARLY</span><span class="badge" id="trialBadge">0 TRIALS</span></div>
+  </header>
+
+  <section class="arena" id="arena">
+    <div class="coach"><strong id="coachTitle">Watch the body.</strong><span id="coachDetail">Choose after you see evidence, not before.</span></div>
+    <svg viewBox="0 0 360 320" role="img" aria-label="One enemy and your shovel in a training room">
+      <defs><linearGradient id="floorFade" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#26303d"/><stop offset="1" stop-color="#0b0f15"/></linearGradient></defs>
+      <path d="M20 238 L180 160 L340 238 L340 300 L20 300 Z" fill="url(#floorFade)" opacity=".5"/>
+      <path d="M180 160 L180 305 M120 190 L88 305 M240 190 L272 305 M48 250 L312 250" stroke="#465163" stroke-width="1" opacity=".42"/>
+      <ellipse class="enemy-shadow" cx="180" cy="224" rx="56" ry="12" fill="#000"/>
+      <g id="enemyRig" class="rig">
+        <g class="enemy-body">
+          <circle class="enemy-head" cx="180" cy="101" r="22" fill="#d3d9e3" stroke="#f5f7fb" stroke-width="3"/>
+          <path d="M180 123 L180 193 M180 145 L144 170 M180 145 L216 170 M180 193 L153 228 M180 193 L207 228" stroke="#f4f6f9" stroke-width="12" stroke-linecap="round" fill="none"/>
+          <path d="M154 133 Q180 119 206 133 L214 192 Q180 207 146 192 Z" fill="#242d39" stroke="#6e7b8d" stroke-width="3"/>
+        </g>
+        <g class="weapon"><path d="M128 164 L257 164" stroke="#f1c167" stroke-width="9" stroke-linecap="round"/><path d="M246 151 L278 164 L246 177 Z" fill="#f1c167"/></g>
+      </g>
+      <g class="player-shovel">
+        <path d="M308 314 L244 248" stroke="#ccd4df" stroke-width="14" stroke-linecap="round"/>
+        <path d="M224 227 Q244 217 263 238 L242 262 Q223 255 214 244 Z" fill="#e2e6eb" stroke="#8e99a8" stroke-width="3"/>
+      </g>
+    </svg>
+  </section>
+
+  <section class="phase-card">
+    <div class="phase-labels"><span>ANTICIPATION</span><span>COMMIT</span><span>REACTION</span><span>IMPACT</span></div>
+    <div class="phase-track" id="phaseTrack"><span></span><span></span><span></span><span></span><i class="phase-cursor" id="phaseCursor"></i></div>
+    <div class="phase-hint" id="phaseHint">Nothing is attacking yet. Wait for the setup.</div>
+  </section>
+
+  <section class="replay" id="replay" data-tone="none">
+    <div class="replay-title"><span id="replayTitle">Your last decision will appear here.</span><small id="replayMeta">LIVE</small></div>
+    <p id="replayLesson">Touch timing will be placed back onto the attack timeline after each exchange.</p>
+    <div class="mini-track"><i class="mini-marker" id="replayMarker" style="display:none"></i></div>
+  </section>
+
+  <section class="controls">
+    <div class="conditions">
+      <button class="condition active" data-condition="normal">READ EARLY</button>
+      <button class="condition" data-condition="collapse">HIDE EARLY CUE</button>
+      <button class="condition" data-condition="perfect">MAKE LATE CUE OBVIOUS</button>
+    </div>
+    <div class="lanes">
+      <button class="lane" data-action="left">← LEFT</button><button class="lane active" data-action="center">CENTER</button><button class="lane" data-action="right">RIGHT →</button>
+    </div>
+    <div class="actions">
+      <button class="action" data-action="strike">STRIKE</button><button class="action" data-action="launch">LAUNCH</button><button class="action" data-action="heavy">HEAVY</button>
+      <button class="action" data-action="dodge">DODGE</button><button class="action" data-action="brace">BRACE</button>
+    </div>
+    <div class="footer"><span class="metric">accuracy <strong id="accuracy">—</strong></span><span class="metric">mean decision <strong id="latency">—</strong></span><span class="metric">style <strong id="style">D</strong></span></div>
+  </section>
+</main>
+<div class="offline" id="offline">Touch Lab server is not responding.</div>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+let lastReplay=0, latest=null, busy=false;
+const phaseOrder=['ANTICIPATION','COMMIT','REACTION','IMPACT'];
+const phaseCenters={ANTICIPATION:12,COMMIT:40,REACTION:62,IMPACT:88};
+
+async function post(path, body){
+  try{
+    await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),cache:'no-store'});
+    navigator.vibrate?.(12);
+  }catch(e){ $('#offline').style.display='block'; }
+}
+
+function visualPose(s){
+  const e=s.enemy, cond=s.condition.name;
+  if(e.phase==='IDLE') return 'idle';
+  if(e.phase==='ANTICIPATION'){
+    if(cond==='collapse') return 'neutral';
+    return {FALLING_EDGE:'overhead',LINE_THRUST:'thrust',LOW_SWEEP:'sweep'}[e.attack]||'neutral';
+  }
+  if(e.phase==='REACTION' && cond==='perfect') return {FALLING_EDGE:'overhead',LINE_THRUST:'thrust',LOW_SWEEP:'sweep'}[e.attack]||'neutral';
+  if(e.phase==='COMMIT'||e.phase==='REACTION') return e.reaction_cue==='LINE'?'line':'arc';
+  return 'neutral';
+}
+
+function coach(s){
+  const e=s.enemy, stage=s.tutorial_stage;
+  if(e.phase==='IDLE') return ['Watch the body.','Do not choose until the enemy gives you information.'];
+  if(e.phase==='ANTICIPATION'){
+    if(s.condition.name==='collapse') return ['The early identity is hidden.','Notice how much harder it is to choose before commitment.'];
+    if(stage==='SHOW_ANSWER') return [e.attack_label,`${cueSentence(e.attack)} → ${e.required_label}`];
+    if(stage==='SHOW_CUE') return [e.attack_label,cueSentence(e.attack)];
+    return ['Read the setup.','The label is gone. Use the movement.'];
+  }
+  if(e.phase==='COMMIT') return ['COMMITTED.','The counterfactual window is closing.'];
+  if(e.phase==='REACTION') return [s.condition.name==='perfect'?e.attack_label:'LATE CUE',s.condition.name==='perfect'?`Late identity is explicit → ${e.required_label}`:'There is less information and less time now.'];
+  return ['IMPACT.','The decision window is over.'];
+}
+function cueSentence(a){return {FALLING_EDGE:'Weapon rises overhead',LINE_THRUST:'Weapon retracts into a line',LOW_SWEEP:'Body drops and loads low'}[a]||'Watch the setup';}
+
+function render(s){
+  latest=s; $('#offline').style.display='none';
+  $('#conditionBadge').textContent=s.condition.label; $('#trialBadge').textContent=`${s.stats.trials} TRIAL${s.stats.trials===1?'':'S'}`;
+  const [ct,cd]=coach(s); $('#coachTitle').textContent=ct; $('#coachDetail').textContent=cd;
+  const rig=$('#enemyRig'); rig.className.baseVal=`rig phase-${s.enemy.phase.toLowerCase()} pose-${visualPose(s)}`;
+  const arena=$('#arena'); arena.className='arena'; arena.classList.add(`player-${s.player.lane<0?'left':s.player.lane>0?'right':'center'}`);
+  const pose=(s.player.pose||'').toUpperCase(); if(pose.includes('UPROOT'))arena.classList.add('player-launch'); else if(pose.includes('HEADSTONE')||pose.includes('BURIAL'))arena.classList.add('player-heavy'); else if(pose.includes('EDGE')||pose.includes('BACKHOE')||pose.includes('DRIVER')||pose.includes('CLEAVE'))arena.classList.add('player-attack'); else if(pose==='DODGE')arena.classList.add('player-dodge'); else if(pose==='KICKSTAND')arena.classList.add('player-brace');
+  $$('.lane').forEach((b,i)=>b.classList.toggle('active',[ -1,0,1 ][i]===s.player.lane));
+  $$('.condition').forEach(b=>b.classList.toggle('active',b.dataset.condition===s.condition.name));
+  const idx=phaseOrder.indexOf(s.enemy.phase); $$('#phaseTrack>span').forEach((x,i)=>{x.classList.toggle('active',i===idx);x.classList.toggle('done',idx>i)});
+  const cursor=$('#phaseCursor'); if(idx<0){cursor.style.opacity=.2;cursor.style.left='0%';}else{cursor.style.opacity=1; const widths=[32,16,26,26], starts=[0,32,48,74]; cursor.style.left=`${starts[idx]+widths[idx]*s.enemy.phase_progress}%`;}
+  $('#phaseHint').textContent=phaseHint(s);
+  $('#accuracy').textContent=s.stats.correct_rate==null?'—':`${Math.round(s.stats.correct_rate*100)}%`; $('#latency').textContent=s.stats.mean_latency_ms==null?'—':`${s.stats.mean_latency_ms} ms`; $('#style').textContent=`${s.player.rank} · ${Math.round(s.player.style)}`;
+  if(s.replay && s.replay.id!==lastReplay){ lastReplay=s.replay.id; renderReplay(s.replay); }
+}
+function phaseHint(s){const p=s.enemy.phase; if(p==='IDLE')return'Nothing is attacking yet. Wait for the setup.'; if(p==='ANTICIPATION')return'You still have counterfactual room. Read, then choose.'; if(p==='COMMIT')return'The attack has chosen its branch.'; if(p==='REACTION')return'You can still react, but the information arrived later.'; return'Impact can tell you what happened, not give the decision back.';}
+function renderReplay(r){const box=$('#replay');box.dataset.tone=r.tone||'none';$('#replayTitle').textContent=r.attack_label||'EXCHANGE';$('#replayMeta').textContent=r.latency_ms==null?r.outcome:`${r.latency_ms} ms · ${r.phase||'NO CHOICE'}`;$('#replayLesson').textContent=r.lesson||'';const m=$('#replayMarker'); if(r.phase&&phaseCenters[r.phase]!=null){m.style.display='block';m.style.left=`${phaseCenters[r.phase]}%`;}else{m.style.display='block';m.style.left='88%';} if(r.correct===true)navigator.vibrate?.([18,28,18]); else if(r.correct===false)navigator.vibrate?.(55);}
+
+$$('[data-action]').forEach(b=>b.addEventListener('pointerdown',e=>{e.preventDefault();post('/api/action',{action:b.dataset.action});},{passive:false}));
+$$('[data-condition]').forEach(b=>b.addEventListener('click',()=>post('/api/condition',{condition:b.dataset.condition})));
+
+async function poll(){if(busy)return;busy=true;try{const r=await fetch('/api/state',{cache:'no-store'});if(!r.ok)throw new Error(r.status);render(await r.json());}catch(e){$('#offline').style.display='block';}finally{busy=false;setTimeout(poll,50)}}
+poll();
+</script>
+</body>
+</html>
