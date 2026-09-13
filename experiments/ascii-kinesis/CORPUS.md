@@ -86,6 +86,34 @@ python3 tools/test_ascii_kinesis_corpus.py
 
 The test covers deterministic regeneration, exact authored semantic-term retention, nested support-state extraction, specimen provenance, raw-ASCII exclusion, current-source query behavior, explicit reproducible snapshots, and fail-closed malformed or empty V2 handling. It does **not** claim that any motion is artistically good.
 
+## Commit-bound runtime proof
+
+The authorized execution body has one proof entrypoint:
+
+```sh
+python3 -B tools/ascii_kinesis_corpus_prove.py
+```
+
+The proof runner refuses to report `PASS` when the Git worktree is dirty, when the current V2 corpus is empty, when any V2 specimen is rejected, when the compact-corpus regression contract fails, or when the existing ASCII Kinesis V2 swarm contract fails. It scans the current committed corpus rather than a generated snapshot.
+
+A passing receipt binds the result to:
+
+- exact Git `HEAD` and branch;
+- clean worktree state before and after the checks;
+- current record count and lane counts;
+- a SHA-256 of the compact current-corpus records;
+- exit/result hashes for `tools/test_ascii_kinesis_corpus.py`;
+- exit/result hashes for `tools/test_ascii_kinesis_swarm_contract_v2.py`.
+
+Stdout is always the JSON receipt. A runtime may also persist the same bytes explicitly:
+
+```sh
+python3 -B tools/ascii_kinesis_corpus_prove.py \
+  --receipt generated/ascii-kinesis-corpus/proof-receipt.json
+```
+
+That receipt proves mechanical indexing/retrieval behavior on the named commit. It does **not** prove artistic quality, Motion Dungeon visual acceptance, scheduler/deployment health, or Drew acceptance. Those states remain separate.
+
 ## Relationship to the other systems
 
 - **Motion Dungeon** owns the actual moving/rendered artifact and visual acceptance.
