@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 """Playable Anticipation Theorem layer for Terminal DMC.
 
-This module deliberately treats the game as an experiment, not as evidence that
-the theorem is true.  It separates enemy attack information into anticipation,
-commit/reaction, and impact channels, logs human responses, and exposes
-counterfactual switches that can destroy the theorem's information ordering.
+The theorem is a falsifiable game experiment, not a success label. Enemy attacks
+are split into anticipation, commitment/reaction, and impact information. Human
+responses are logged separately from physical survival, and counterfactual
+switches deliberately break the proposed information ordering.
 
 Normal design assumption:
-    I(X; A) > I(X; R) > I(X; I) = 0
-where X is attack identity, A is the anticipation cue, R is the compressed
-reaction/commit cue, and I is the impact cue.
+    I(X;A) > I(X;R) > I(X;I) = 0
 
-The implementation is original and imports Terminal DMC's existing simulation
-and renderer.  No Devil May Cry assets or source data are used.
+X is attack identity, A is the anticipation cue, R is the compressed reaction
+cue, and I is the impact cue. No Devil May Cry assets or source data are used.
 """
 from __future__ import annotations
 
@@ -53,10 +51,6 @@ PERFECT_REACTION = False
 TRIAL_LOG: Path | None = None
 
 
-# ---------------------------------------------------------------------------
-# Information surfaces
-
-
 def anticipation_observation(attack: AttackProfile) -> str:
     return "?" if COLLAPSE_ANTICIPATION else attack.anticipation_cue
 
@@ -66,8 +60,8 @@ def reaction_observation(attack: AttackProfile) -> str:
 
 
 def impact_observation(_attack: AttackProfile) -> str:
-    # Impact happens after the action-selection window and intentionally carries
-    # no attack-identity cue in the theorem condition.
+    # Impact occurs after the action-selection window and carries no attack
+    # identity information in the theorem condition.
     return "X"
 
 
@@ -81,38 +75,32 @@ def mutual_information(pairs: list[tuple[str, str]]) -> float:
     result = 0.0
     for (x, y), count in joint.items():
         pxy = count / n
-        px = xs[x] / n
-        py = ys[y] / n
-        result += pxy * math.log2(pxy / (px * py))
+        result += pxy * math.log2(pxy / ((xs[x] / n) * (ys[y] / n)))
     return result
 
 
 def channel_information() -> dict[str, object]:
-    # Repeat each attack equally so the report describes the channel design, not
-    # an arbitrary sample-size artifact.  This is a contract check, not human
-    # evidence.
+    # Equal attack frequency describes channel structure rather than a sample
+    # distribution. This is a mechanical contract, not human evidence.
     samples = [attack for attack in ATTACKS for _ in range(120)]
-    a_pairs = [(x.name, anticipation_observation(x)) for x in samples]
-    r_pairs = [(x.name, reaction_observation(x)) for x in samples]
-    i_pairs = [(x.name, impact_observation(x)) for x in samples]
-    ia = mutual_information(a_pairs)
-    ir = mutual_information(r_pairs)
-    ii = mutual_information(i_pairs)
+    ia = mutual_information([(x.name, anticipation_observation(x)) for x in samples])
+    ir = mutual_information([(x.name, reaction_observation(x)) for x in samples])
+    ii = mutual_information([(x.name, impact_observation(x)) for x in samples])
     return {
         "schema": "terminal-dmc.anticipation-channel.v1",
         "condition": {
             "collapse_anticipation": COLLAPSE_ANTICIPATION,
             "perfect_reaction": PERFECT_REACTION,
         },
-        "bits": {"I_X_A": round(ia, 6), "I_X_R": round(ir, 6), "I_X_I": round(ii, 6)},
+        "bits": {
+            "I_X_A": round(ia, 6),
+            "I_X_R": round(ir, 6),
+            "I_X_I": round(ii, 6),
+        },
         "strict_order_holds": ia > ir > ii and abs(ii) < 1e-12,
         "equation": "I(X;A) > I(X;R) > I(X;I)=0",
         "boundary": "channel structure only; not evidence of human performance",
     }
-
-
-# ---------------------------------------------------------------------------
-# Trial logging
 
 
 def response_from_keys(keys: Iterable[str]) -> str | None:
@@ -156,7 +144,7 @@ def behavioral_report(path: Path) -> dict[str, object]:
     for row in rows:
         by_phase[str(row.get("first_response_phase") or "NONE")].append(row)
 
-    phase_report: dict[str, object] = {}
+    phases: dict[str, object] = {}
     for phase, phase_rows in sorted(by_phase.items()):
         responded = [row for row in phase_rows if row.get("first_response")]
         correct = [row for row in responded if row.get("response_correct") is True]
@@ -165,7 +153,7 @@ def behavioral_report(path: Path) -> dict[str, object]:
             for row in responded
             if isinstance(row.get("response_latency_ticks"), int)
         ]
-        phase_report[phase] = {
+        phases[phase] = {
             "trials": len(phase_rows),
             "responses": len(responded),
             "correct": len(correct),
@@ -177,17 +165,13 @@ def behavioral_report(path: Path) -> dict[str, object]:
         "schema": "terminal-dmc.anticipation-behavior-report.v1",
         "trial_log": str(path),
         "trial_count": len(rows),
-        "by_first_response_phase": phase_report,
+        "by_first_response_phase": phases,
         "channel": channel_information(),
         "falsification_note": (
             "The channel inequality is a design condition. Human response accuracy/latency must change "
             "when that condition is manipulated before the theorem earns behavioral support."
         ),
     }
-
-
-# ---------------------------------------------------------------------------
-# Playable theorem state machine
 
 
 class AnticipationGame(base.Game):
@@ -206,12 +190,20 @@ class AnticipationGame(base.Game):
         enemy.theorem_first_response = None
         enemy.theorem_first_response_phase = None
         enemy.theorem_response_tick = None
+        # The theorem phase owns the enemy's attack-warning surface. Once a
+        # trial ends or is interrupted, no stale base-game telegraph may survive
+        # and imply a counterfactual window that no longer exists.
+        enemy.telegraph = 0
 
     def _active_enemy(self) -> base.Enemy | None:
-        for enemy in self.alive_enemies():
-            if getattr(enemy, "theorem_phase", "IDLE") != "IDLE":
-                return enemy
-        return None
+        return next(
+            (
+                enemy
+                for enemy in self.alive_enemies()
+                if getattr(enemy, "theorem_phase", "IDLE") != "IDLE"
+            ),
+            None,
+        )
 
     def _start_attack(self, enemy: base.Enemy, attack: AttackProfile | None = None) -> None:
         attack = attack or ATTACKS[self.theorem_attack_counter % len(ATTACKS)]
@@ -223,15 +215,16 @@ class AnticipationGame(base.Game):
         enemy.theorem_first_response = None
         enemy.theorem_first_response_phase = None
         enemy.theorem_response_tick = None
-        enemy.telegraph = attack.anticipation_frames + attack.commit_frames + attack.reaction_frames
+        enemy.telegraph = (
+            attack.anticipation_frames + attack.commit_frames + attack.reaction_frames
+        )
         self.log(
             f"{enemy.name} // A:{anticipation_observation(attack)} "
             f"({attack.anticipation_frames}f)"
         )
 
     def _attack_profile(self, enemy: base.Enemy) -> AttackProfile | None:
-        name = getattr(enemy, "theorem_attack", None)
-        return ATTACK_BY_NAME.get(name)
+        return ATTACK_BY_NAME.get(getattr(enemy, "theorem_attack", None))
 
     def _record_response(self, keys: Iterable[str]) -> None:
         response = response_from_keys(keys)
@@ -255,8 +248,6 @@ class AnticipationGame(base.Game):
         pressed = list(keys)
         self._record_response(pressed)
         super().step(pressed)
-        # Base reset reconstructs a base.Game through Game() inside its method.
-        # Repair theorem fields after a user room reset without changing base code.
         if "r" in pressed:
             self.theorem_attack_counter = 0
             self.theorem_trials = []
@@ -322,8 +313,7 @@ class AnticipationGame(base.Game):
 
             if enemy.stagger > 0:
                 # Offensive initiative can erase the opponent's remaining
-                # counterfactual window.  This is recorded as interruption, not
-                # silently converted into a completed defensive trial.
+                # counterfactual window. Interruption is evidence, not impact.
                 if getattr(enemy, "theorem_phase", "IDLE") != "IDLE":
                     self._cancel_trial(enemy, "INTERRUPTED_BY_OFFENSE")
                     active = None
@@ -340,7 +330,6 @@ class AnticipationGame(base.Game):
                 enemy.telegraph = max(0, enemy.telegraph - 1)
                 if enemy.theorem_phase_ticks > 0:
                     continue
-
                 if phase == "ANTICIPATION":
                     enemy.theorem_phase = "COMMIT"
                     enemy.theorem_phase_ticks = attack.commit_frames
@@ -358,14 +347,11 @@ class AnticipationGame(base.Game):
 
             if enemy.attack_cooldown > 0:
                 enemy.attack_cooldown -= 1
-
             if enemy.airborne:
                 continue
-
             if enemy.distance > 1.75 and self.tick % 5 == 0:
                 enemy.distance = max(1.2, enemy.distance - 0.12)
                 continue
-
             if (
                 enemy.distance <= 2.0
                 and enemy.attack_cooldown <= 0
@@ -384,9 +370,7 @@ class AnticipationGame(base.Game):
         if correct:
             self._award_flat_style(45, f"READ {attack.name}")
 
-        # Preserve the game's physical defense behavior.  The theorem score is
-        # intentionally separate: a player may survive with the wrong read, and
-        # that is useful counterexample data rather than something to hide.
+        # Inference correctness and physical survival are deliberately separate.
         before_hp = self.player_hp
         before_stagger = enemy.stagger
         super()._enemy_strike(enemy)
@@ -420,10 +404,6 @@ class AnticipationGame(base.Game):
             "recent_trials": list(self.theorem_trials[-5:]),
         }
         return result
-
-
-# ---------------------------------------------------------------------------
-# Render hooks
 
 
 _ORIGINAL_ENEMY_SPRITE = base.enemy_sprite
@@ -470,10 +450,6 @@ def install_hooks() -> None:
     base.render = theorem_render
 
 
-# ---------------------------------------------------------------------------
-# CLI
-
-
 def parse_wrapper(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("--collapse-anticipation", action="store_true")
@@ -494,13 +470,21 @@ def configure(args: argparse.Namespace) -> None:
     elif args.theorem_log:
         TRIAL_LOG = Path(args.theorem_log).expanduser()
     else:
-        state = Path(os.environ.get("HC_STATE_DIR", "~/.local/state/home-center")).expanduser()
+        state = Path(
+            os.environ.get("HC_STATE_DIR", "~/.local/state/home-center")
+        ).expanduser()
         condition = (
-            "collapse-a" if COLLAPSE_ANTICIPATION
-            else "perfect-r" if PERFECT_REACTION
+            "collapse-a"
+            if COLLAPSE_ANTICIPATION
+            else "perfect-r"
+            if PERFECT_REACTION
             else "normal"
         )
-        TRIAL_LOG = state / "terminal-dmc-campaign" / f"anticipation-trials-{condition}.jsonl"
+        TRIAL_LOG = (
+            state
+            / "terminal-dmc-campaign"
+            / f"anticipation-trials-{condition}.jsonl"
+        )
 
 
 def main(argv: list[str] | None = None) -> int:
