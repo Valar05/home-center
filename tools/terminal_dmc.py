@@ -504,6 +504,18 @@ def weapon_sprite(pose: str) -> list[str]:
     ]
 
 
+def lane_screen_x(world_lane: int, player_lane: int, width: int) -> int:
+    """Project world lanes into first-person screen space around the player's lane."""
+    relative = max(-2, min(2, world_lane - player_lane))
+    return {
+        -2: 5,
+        -1: width // 4,
+        0: width // 2,
+        1: 3 * width // 4,
+        2: width - 6,
+    }[relative]
+
+
 def render(game: Game, width: int = WIDTH, height: int = HEIGHT) -> str:
     width = max(64, width)
     height = max(23, height)
@@ -544,20 +556,20 @@ def render(game: Game, width: int = WIDTH, height: int = HEIGHT) -> str:
             inset = max(0, int((floor_bottom - y) * 1.5))
             put(canvas, inset, y, "-" * max(0, width - inset * 2))
 
-    lane_x = {-1: width // 4, 0: width // 2, 1: 3 * width // 4}
     for enemy in alive:
         sprite = enemy_sprite(enemy)
-        x = lane_x[enemy.lane] - len(sprite[0]) // 2
+        sx = lane_screen_x(enemy.lane, game.player_lane, width)
+        x = sx - len(sprite[0]) // 2
         base_y = floor_bottom - max(1, int((6.2 - min(6.0, enemy.distance)) * 1.2))
         base_y -= int(enemy.height * 3.0)
         top = base_y - len(sprite) + 1
         if enemy.telegraph:
-            put(canvas, lane_x[enemy.lane] - 1, top - 1, "!!!")
+            put(canvas, sx - 1, top - 1, "!!!")
         for i, line in enumerate(sprite):
             put(canvas, x, top + i, line)
         hp_width = 9
         filled = max(0, min(hp_width, int(hp_width * enemy.hp / enemy.max_hp)))
-        put(canvas, lane_x[enemy.lane] - 5, base_y + 1, "[" + "#" * filled + "." * (hp_width - filled) + "]")
+        put(canvas, sx - 5, base_y + 1, "[" + "#" * filled + "." * (hp_width - filled) + "]")
 
     if game.hitstop > 0:
         centered(canvas, horizon + 2, "*** HIT-STOP ***")
