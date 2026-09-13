@@ -1,0 +1,94 @@
+ASCII KINESIS V2 · VIDEO MOTION 013 · BLACK PIRATE COMPRESSION-RELEASE REPAIR
+reset=5634613836 · revises=negative_fixture=VideoMotion001 · source_change=false
+SOURCE ROLE: POSE_REFERENCE + CONTACT_REFERENCE · TIMING AUTHORITY: false
+Legend: O head · @ root/COM · V authored support · >>> root travel · ~ distal lag
+
+K0 SET_TENSION · FOURS · authored hold 8f · source locator 15.000s
+       A O                              B O~~~~
+        /|\                              /|
+         @                              / @
+        / \                           _/  |\
+       V   V                         ?    | V
+_______|___|_____________________________|_|_______
+A stays quiet. B coils crookedly onto rear/right support.
+
+K1 DEEP_COIL · FOURS · authored hold 6f · source locator 16.000s
+       A O                         B O~~~~
+        /|\                         /|
+         @                         / @__
+        / \                      _/   | \
+       V   V                    ?     |  V
+_______|___|__________________________|__|_________
+B sinks and advances while head/rear hand remain late.
+
+K2 COM_TRANSFER · TWOS · authored hold 2f · source locator 17.000s
+       A O                    B O~~~
+        /|\                    /|
+         @                    / @ >>>
+        / \                  V / \
+       V   V                _|/   ?
+_______|___|________________|______________________
+Lead/left support accepts load; rear heel peels before launch.
+
+K3 TOE_OFF_IGNITION · ONES · authored hold 1f · source locator 17.750s
+       A O               B O~~~
+        /|\               /|\
+         @              _/ @ >>>
+        / \            V  / \
+       V   V           /    \
+_______|___|__________V____________________________
+Final drive leaves the floor. Root commits left while distal mass lags.
+
+K4 BALLISTIC_CROSS · ONES · authored hold 1f · source locator 17.917s
+          A O >>>yield       B O~~~
+           /|\               /|\
+            @             <<< @
+           / \               / \
+          V   V              ? ?
+__________|___|____________________________________
+One decisive unsupported B state. A remains grounded and yields right.
+
+K5 CATCH_CONTACT · ONES · authored hold 2f · source locator 18.250s
+        B O~~~       A O
+         /|\          /|\
+       << @ >>>        @
+          |\          / \
+          V ?        V   V
+__________|__________|___|_________________________
+Left foot catches first; pelvis keeps traveling past the contact socket.
+
+K6 OVERSHOOT · TWOS · authored hold 2f · source locator 18.500s
+     B O~~~~~~^             A O
+      /|      ~              /|\
+   <<  @ >>>                  @
+      / \                    / \
+     V   ?                  V   V
+_____|_____________________|___|___________________
+Root overshoots catch. Trailing right arm whips high after the body.
+
+K7 BRAKE_REACQUIRE · TWOS · authored hold 4f · authored recovery bridge
+     B O~~~                 A O
+      /|\                    /|\
+       @                      @
+      / \                    / \
+     V   V                  V   V
+_____|___|__________________|___|__________________
+Second/right foot plants. Two-point base brakes travel before torso settles.
+
+K8 RECOVERY_DEBT · FOURS · authored hold 12f · source locator 18.750s
+      B O~~~                A O
+       /|\                   /|\
+        @                     @
+       /  \                  / \
+      V    V                V   V
+______|____|________________|___|__________________
+B stays displaced left, stance crooked, high arm late. No idle reset.
+
+BRIDGES · authored, nonuniform
+K0→K1 6f compress · K1→K2 5f compress · K2→K3 3f accelerate · K3→K4 2f snap
+K4→K5 2f ballistic · K5→K6 4f catch · K6→K7 4f overshoot · K7→K8 6f damped
+
+PROVENANCE FIREWALL
+Observed Black Pirate timestamps locate source evidence only. They do not own compiled holds.
+Source exact foot-support side, hand/prop endpoints, driver/yielder, and discrete impact remain unresolved.
+Compiled support chain and all cadence/bridges are authored direction. TRANSPORT CADENCE IS NOT PERFORMANCE CADENCE.
