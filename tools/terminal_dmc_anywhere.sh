@@ -23,6 +23,7 @@ LOCK="$BOOT_ROOT/bootstrap-v2.lock"
 LOCK_OWNER="$LOCK/pid"
 DATA_ROOT="${HC_DATA_DIR:-$HOME/.local/share/home-center}/terminal-dmc"
 REVISIONS="$DATA_ROOT/revisions"
+CURRENT="$DATA_ROOT/current"
 
 CAMPAIGN_PATHS=(
   tools/terminal_dmc_campaign.sh
@@ -32,6 +33,9 @@ CAMPAIGN_PATHS=(
   tools/terminal_dmc_prove.py
   tools/terminal_dmc_anticipation.py
   tools/test_terminal_dmc_anticipation.py
+  tools/terminal_dmc_web.py
+  tools/test_terminal_dmc_web.py
+  web/terminal-dmc/index.html
   docs/TERMINAL_DMC_VERTICAL_SLICE.md
 )
 
@@ -59,11 +63,6 @@ acquire_lock() {
     exit 21
   fi
 
-  # v2 originally exec'd into the campaign while still holding this mkdir lock,
-  # which guaranteed a stale directory after the bootstrap shell disappeared.
-  # A missing/dead owner therefore means stale bootstrap state, not an active
-  # campaign. Reclaim it deterministically instead of asking the operator to
-  # perform manual cleanup.
   echo "RECOVER: removing stale Terminal DMC bootstrap lock: $LOCK" >&2
   rm -rf "$LOCK"
   mkdir "$LOCK"
@@ -123,14 +122,9 @@ case "$origin" in
     ;;
 esac
 
-# Fetch metadata/blobs for the campaign branch without checking out the broad
-# repository tree.
 git -C "$SOURCE" fetch --prune origin \
   "+refs/heads/$BRANCH:refs/remotes/origin/$BRANCH"
 
-# Configure exact-file sparse checkout before materializing any branch content.
-# This is intentionally non-cone because one required file lives under docs/
-# while docs/evidence contains unrelated LFS payloads.
 git -C "$SOURCE" sparse-checkout init --no-cone >/dev/null 2>&1 || true
 git -C "$SOURCE" sparse-checkout set --no-cone "${CAMPAIGN_PATHS[@]}"
 git -C "$SOURCE" checkout --detach "refs/remotes/origin/$BRANCH" >/dev/null
@@ -162,14 +156,15 @@ if [ "$missing" -ne 0 ]; then
 fi
 
 # Pre-create the exact immutable revision worktree that terminal_dmc_campaign.sh
-# expects. The campaign therefore never needs to make a broad worktree checkout.
+# expects. Because sparse patterns are per-worktree, update them even when this
+# commit's revision directory already exists from an earlier campaign attempt.
 revdir="$REVISIONS/$head"
 if [ ! -d "$revdir" ]; then
   git -C "$SOURCE" worktree add --detach --no-checkout "$revdir" "$head" >/dev/null
-  git -C "$revdir" sparse-checkout init --no-cone >/dev/null 2>&1 || true
-  git -C "$revdir" sparse-checkout set --no-cone "${CAMPAIGN_PATHS[@]}"
-  git -C "$revdir" checkout --detach "$head" >/dev/null
 fi
+git -C "$revdir" sparse-checkout init --no-cone >/dev/null 2>&1 || true
+git -C "$revdir" sparse-checkout set --no-cone "${CAMPAIGN_PATHS[@]}"
+git -C "$revdir" checkout --detach "$head" >/dev/null
 
 if [ "$(git -C "$revdir" rev-parse HEAD 2>/dev/null || true)" != "$head" ]; then
   echo "BLOCKED: sparse revision worktree commit mismatch: $revdir" >&2
@@ -187,13 +182,63 @@ printf 'revision: %s\n' "$revdir"
 printf 'commit: %s\n' "$head"
 printf 'caller cwd preserved: %s\n' "$PWD"
 printf 'LFS/media checkout: bypassed\n'
+printf 'default human surface: touch SPA\n'
 
 export HC_REPO_ROOT="$SOURCE"
-
-# The bootstrap lock protects only source/revision preparation. Release it
-# explicitly before replacing this process with the long-lived campaign. The
-# earlier implementation relied on an EXIT trap across exec, which does not run
-# after the shell is replaced and therefore left a permanent stale lock.
 release_lock
 trap - EXIT INT TERM
-exec bash "$SOURCE/tools/terminal_dmc_campaign.sh" "$@"
+
+# Explicit subcommands still reach the durable campaign unchanged. A bare
+# anywhere-bootstrap, however, now proves the core, proves the localhost SPA
+# contract, installs a browser-first stable entrypoint, and opens the touch UI.
+if [ "$#" -gt 0 ]; then
+  exec bash "$SOURCE/tools/terminal_dmc_campaign.sh" "$@"
+fi
+
+bash "$SOURCE/tools/terminal_dmc_campaign.sh" install
+bash "$SOURCE/tools/terminal_dmc_campaign.sh" canary
+bash "$SOURCE/tools/terminal_dmc_campaign.sh" prove
+(
+  cd "$revdir"
+  PYTHONDONTWRITEBYTECODE=1 python3 -B tools/test_terminal_dmc_web.py
+)
+
+if [ -n "${PREFIX:-}" ] && [ -d "${PREFIX}/bin" ]; then
+  BIN_DIR="${PREFIX}/bin"
+else
+  BIN_DIR="${HOME}/.local/bin"
+fi
+mkdir -p "$BIN_DIR"
+BIN="$BIN_DIR/terminal-dmc"
+WEB_BIN="$BIN_DIR/terminal-dmc-web"
+
+cat > "$BIN" <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+CURRENT=$(printf '%q' "$CURRENT")
+cmd="\${1:-web}"
+case "\$cmd" in
+  web|play)
+    if [ "\$#" -gt 0 ]; then shift; fi
+    exec python3 -B "\$CURRENT/tools/terminal_dmc_web.py" --open "\$@"
+    ;;
+  terminal|raw)
+    if [ "\$#" -gt 0 ]; then shift; fi
+    exec bash "\$CURRENT/tools/terminal_dmc_campaign.sh" play "\$@"
+    ;;
+  *)
+    exec bash "\$CURRENT/tools/terminal_dmc_campaign.sh" "\$@"
+    ;;
+esac
+EOF
+chmod 755 "$BIN"
+
+cat > "$WEB_BIN" <<EOF
+#!/usr/bin/env bash
+exec $(printf '%q' "$BIN") web "\$@"
+EOF
+chmod 755 "$WEB_BIN"
+
+printf 'touch entrypoint installed: %s\n' "$BIN"
+printf 'raw terminal remains: %s terminal\n' "$BIN"
+exec "$BIN" web
