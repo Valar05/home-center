@@ -88,7 +88,9 @@ class Game:
     player_hp: int = 100
     player_lane: int = 0
     dodge_frames: int = 0
+    dodge_cooldown: int = 0
     guard_frames: int = 0
+    guard_cooldown: int = 0
     last_strafe: int = 1
     recovery: int = 0
     cancel_window: int = 0
@@ -149,6 +151,11 @@ class Game:
             self.log("ROOM RESET")
             return
 
+        if self.player_hp <= 0:
+            self._tick_timers()
+            self._tick_style()
+            return
+
         if self.hitstop > 0:
             self.hitstop -= 1
             self._decay_ui_only()
@@ -171,9 +178,9 @@ class Game:
             for enemy in self.alive_enemies():
                 enemy.distance = min(6.0, enemy.distance + 0.22)
 
-        if " " in pressed:
+        if " " in pressed and self.can_act() and self.dodge_cooldown <= 0:
             self._dodge()
-        if "f" in pressed:
+        if "f" in pressed and self.can_act() and self.guard_cooldown <= 0:
             self._guard()
 
         for key in pressed:
@@ -191,8 +198,12 @@ class Game:
             self.cancel_window -= 1
         if self.dodge_frames > 0:
             self.dodge_frames -= 1
+        if self.dodge_cooldown > 0:
+            self.dodge_cooldown -= 1
         if self.guard_frames > 0:
             self.guard_frames -= 1
+        if self.guard_cooldown > 0:
+            self.guard_cooldown -= 1
         if self.chain_timer > 0:
             self.chain_timer -= 1
         else:
@@ -211,16 +222,18 @@ class Game:
             self.pose_ticks -= 1
 
     def _guard(self) -> None:
-        self.guard_frames = max(self.guard_frames, 5)
-        self.recovery = min(self.recovery, 3)
+        self.guard_frames = 3
+        self.guard_cooldown = 10
+        self.recovery = max(self.recovery, 8)
         self.pose = "KICKSTAND"
         self.pose_ticks = 6
         self.log("SHOVEL BRACE // support bought with tool")
 
     def _dodge(self) -> None:
-        self.dodge_frames = max(self.dodge_frames, 8)
+        self.dodge_frames = 4
+        self.dodge_cooldown = 8
         self.player_lane = max(-1, min(1, self.player_lane + self.last_strafe))
-        self.recovery = min(self.recovery, 2)
+        self.recovery = max(self.recovery, 6)
         self.pose = "DODGE"
         self.pose_ticks = 5
         self.log("DODGE // lane break")
