@@ -7,6 +7,12 @@ set -euo pipefail
 # working directory. It owns a clean source checkout, fetches the exact campaign
 # branch, verifies the campaign surface, then hands off to the durable campaign.
 # It never mutates the operator's current repository.
+#
+# Terminal DMC is text-only. Home Center contains unrelated Git LFS evidence,
+# including historical objects that may no longer exist on the LFS server. Do
+# not let those unrelated payloads block this campaign. Keeping this exported
+# also protects the campaign's later detached worktree checkout.
+export GIT_LFS_SKIP_SMUDGE=1
 
 REPO="Valar05/home-center"
 BRANCH="codex/terminal-dmc-vertical-slice"
@@ -98,6 +104,8 @@ fi
 git -C "$SOURCE" fetch --prune origin \
   "+refs/heads/$BRANCH:refs/remotes/origin/$BRANCH"
 
+# GIT_LFS_SKIP_SMUDGE is deliberately inherited here. The campaign requires
+# only normal Git text files, so missing unrelated LFS objects are irrelevant.
 git -C "$SOURCE" checkout --detach "refs/remotes/origin/$BRANCH" >/dev/null
 
 head="$(git -C "$SOURCE" rev-parse HEAD)"
@@ -131,8 +139,11 @@ printf 'Terminal DMC anywhere bootstrap\n'
 printf 'source: %s\n' "$SOURCE"
 printf 'commit: %s\n' "$head"
 printf 'caller cwd preserved: %s\n' "$PWD"
+printf 'LFS smudge: skipped (campaign is text-only)\n'
 
 # The durable campaign uses HC_REPO_ROOT as its source authority. The caller's
-# working directory and working repository remain untouched.
+# working directory and working repository remain untouched. The LFS skip env
+# remains exported so campaign-owned worktree creation cannot re-trigger the
+# unrelated missing LFS object.
 export HC_REPO_ROOT="$SOURCE"
 exec bash "$SOURCE/tools/terminal_dmc_campaign.sh" "$@"
