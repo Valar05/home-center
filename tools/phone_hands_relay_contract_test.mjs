@@ -15,6 +15,7 @@ const overlayState=fs.readFileSync('android/operator-overlay/app/src/main/java/c
 const overlayProvider=fs.readFileSync('android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OperatorStateProvider.java','utf8');
 const overlayPolicy=fs.readFileSync('android/operator-overlay/app/src/main/java/com/homecenter/operatoroverlay/OverlayUiPolicy.java','utf8');
 const overlayPolicyTest=fs.readFileSync('android/operator-overlay/app/src/test/java/com/homecenter/operatoroverlay/OverlayUiPolicyTest.java','utf8');
+const hasAction=(source, action)=>source.includes(`'${action}'`) || source.includes(`"${action}"`);
 const factory=fs.readFileSync('tools/android_phone_factory_tools.py','utf8');
 const armoryDriver=fs.readFileSync('tools/android_armory_driver.py','utf8');
 const armoryBlender=fs.readFileSync('tools/fleshpunk_armory_blender.py','utf8');
@@ -29,7 +30,7 @@ for (const s of ['ROOTS','GODOT_PROJECTS','DiagnosticsEngine','capability_snapsh
 for (const forbidden of ['import subprocess','import urllib','import socket','import requests','shell=True','os.system','eval(','exec(']) {
   if (diagnostics.includes(forbidden)) throw new Error('phone diagnostics must not execute, write, or use network: '+forbidden);
 }
-if (agent.indexOf('if kind in DIAGNOSTIC_ACTIONS:') > agent.indexOf('gate=overlay_control_gate()')) throw new Error('typed diagnostics must not depend on the interaction overlay gate');
+if (agent.indexOf('if kind in DIAGNOSTIC_ACTIONS:') > agent.indexOf('gate = overlay_control_gate()')) throw new Error('typed diagnostics must not depend on the interaction overlay gate');
 
 const overlayActions=['operator_overlay_status','operator_overlay_start','operator_overlay_update'];
 for (const s of overlayActions) {
@@ -64,10 +65,10 @@ if (overlayState.includes('getBoolean(KEY_CONTROL_ENABLED, true)')) throw new Er
 for (const s of ['screen_active_until_ms','screen_yield_until_ms','panel_collapsed','overlay_hidden']) if (!overlayProvider.includes(s)) throw new Error('operator state provider bounded state contract missing '+s);
 for (const s of ['MIN_TOUCH_TARGET_DP = 48','touchGuardActive','controlEnabled && online && screenActive && !screenYield','clampPosition','isDrag','nextHidden']) if (!overlayPolicy.includes(s)) throw new Error('operator overlay pure policy contract missing '+s);
 for (const s of ['gestureThresholdSeparatesTapFromDrag','dragArbitrationWorksInBothAxes','hideAndRestoreAreExplicitTransitions','guardNeedsEveryLeasePrecondition','positionClampsToInsetsAndEveryEdge','oversizedPanelStillLeavesLocalEscapeCornerReachable']) if (!overlayPolicyTest.includes(s)) throw new Error('operator overlay policy regression coverage missing '+s);
-if (!agent.includes("if k=='status_say' and gate.get('muted')")) throw new Error('mute must suppress status speech at the relay');
-if (!agent.includes("if k in OVERLAY_ACTIONS")) throw new Error('overlay status/update actions must remain reachable when control is disabled');
-if (!agent.includes('gate=overlay_control_gate()')) throw new Error('ordinary remote phone actions must pass the user-owned overlay control gate');
-for (const s of ['overlay_screen_activity','SCREEN_DIRECT_ACTIONS','SCREEN_WINDOW_ACTIONS','_screen_profile','screen=_screen_profile(a)',"if k in TERMUX_SHELL_ACTIONS:return termux_shell_execute(a)","return {'leaseMs':2500,'yieldMs':0}","return {'leaseMs':2500,'yieldMs':900}"]) if (!agent.includes(s)) throw new Error('phone relay active-screen lease contract missing '+s);
+if (!agent.includes('if kind == "status_say" and gate.get("muted")')) throw new Error('mute must suppress status speech at the relay');
+if (!agent.includes('if kind in OVERLAY_ACTIONS:')) throw new Error('overlay status/update actions must remain reachable when control is disabled');
+if (!agent.includes('gate = overlay_control_gate()')) throw new Error('ordinary remote phone actions must pass the user-owned overlay control gate');
+for (const s of ['overlay_screen_activity','SCREEN_DIRECT_ACTIONS','SCREEN_WINDOW_ACTIONS','_screen_profile','screen = _screen_profile(action)','if kind in TERMUX_SHELL_ACTIONS:','return termux_shell_execute(action)','"leaseMs": 2500','"yieldMs": 0','"yieldMs": 900']) if (!agent.includes(s)) throw new Error('phone relay active-screen lease contract missing '+s);
 if (agent.includes("SCREEN_DIRECT_ACTIONS={'phone_shell'")) throw new Error('background phone_shell must never activate the screen guard');
 
 const factoryActions=['file_stat','file_hash','file_list','file_mkdir','file_copy','file_move','armory_inventory','armory_ingest'];
@@ -77,8 +78,8 @@ for (const s of factoryActions) {
 }
 for (const s of ['armory_doctor','armory_slice']) {
   if (!relay.includes(`'${s}'`)) throw new Error('relay action missing '+s);
-  if (!agent.includes(`'${s}'`)) throw new Error('agent action missing '+s);
-  if (!armoryDriver.includes(`'${s}'`)) throw new Error('armory driver action missing '+s);
+  if (!hasAction(agent, s)) throw new Error('agent action missing '+s);
+  if (!hasAction(armoryDriver, s)) throw new Error('armory driver action missing '+s);
 }
 for (const s of ['ALLOWED_ROOTS','verified_copy','sha256_file','glb_inventory','source_manifest.json','source_inventory.json']) if (!factory.includes(s)) throw new Error('factory safety/evidence contract missing '+s);
 for (const s of ['--background','slice_receipt.json','blender_path','timeoutSeconds']) if (!armoryDriver.includes(s)) throw new Error('armory driver contract missing '+s);
