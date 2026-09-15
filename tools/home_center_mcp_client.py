@@ -206,9 +206,9 @@ class HomeCenterMcp:
         return result if isinstance(result, dict) else envelope
 
     def read_document(self, file_id: str, name: str = "") -> str:
-        value = self.drive_operation(
-            "docs.read",
-            {"fileId": file_id, "name": name},
+        value = self.call_tool(
+            "drive_read",
+            {"fileId": file_id, "exportFormat": "text/plain"},
         )
         content = value.get("content")
         if not isinstance(content, str) or not content.strip():
@@ -216,11 +216,11 @@ class HomeCenterMcp:
         return content
 
     def search_drive(self, query: str, page_size: int = 10) -> list[dict[str, Any]]:
-        value = self.drive_operation(
-            "drive.search",
-            {"query": query, "pageSize": max(1, min(int(page_size), 10))},
+        value = self.call_tool(
+            "drive_search",
+            {"query": query, "limit": max(1, min(int(page_size), 50))},
         )
-        files = value.get("files") or []
+        files = value.get("results") or []
         return [item for item in files if isinstance(item, dict)]
 
     def read_sheet(
