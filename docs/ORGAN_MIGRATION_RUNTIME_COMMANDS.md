@@ -2,6 +2,8 @@
 
 This is the memory sheet for the Organ migration on THECAULDRON. It records existing scripts and the safe order for using them. It does not create a new control plane.
 
+For the full liveness thresholds, restart procedures, and receipt requirements, use [HOME_CENTER_LIVENESS_AND_RECOVERY.md](HOME_CENTER_LIVENESS_AND_RECOVERY.md) before dispatching work.
+
 ## Runtime topology
 
 `Drew phone -> Home Center -> windows-hands-01 -> THECAULDRON -> Chromium Throne -> Gemini`
@@ -108,6 +110,8 @@ A task state is not a heartbeat. Before dispatching migration work, require:
 - no duplicate worker identity;
 - request status reaches `completed` or a typed failure with stdout/stderr.
 
+The registration record is not enough. Require a fresh timestamp and a bounded marker completion. The full restart and anti-silent-drop contract is in [HOME_CENTER_LIVENESS_AND_RECOVERY.md](HOME_CENTER_LIVENESS_AND_RECOVERY.md).
+
 For the Organ migration, do not advance beyond the phone gate until the handoff produces its own recovery evidence. `queued`, `running`, a Windows task state, or a source-only test is not completion.
 
 ## Known failure boundaries
@@ -116,7 +120,7 @@ For the Organ migration, do not advance beyond the phone gate until the handoff 
 - The Windows checkout can give the Bash handoff CRLF input (`set: pipefail\\r`). Stream-normalize line endings for execution; do not rewrite the commissioned source file.
 - The worker shell may not have Node, Git Bash, `sed`, `python3`, or `gcloud` on `PATH`. Supply paths to already-installed executables through the existing request; do not install a new runtime as a workaround. On this host, the installed Python interpreter is `C:\\Users\\dclar\\AppData\\Local\\Programs\\Python\\Python313\\python.exe`.
 - The recovery handoff's temporary clone can fail on an unrelated missing Git LFS object. `GIT_LFS_SKIP_SMUDGE=1` is an execution-time checkout workaround; it does not repair or delete the missing artifact.
-- The current phone relay contract test requires the `overlay_heartbeat` symbol in `tools/android_phone_home_center_relay.py`, while the current `origin/main` agent does not provide it. The handoff must stop before deployment at this source-contract mismatch; do not weaken the test or claim a phone canary.
+- The phone relay contract now includes the `overlay_heartbeat` implementation and is deployed with the queue repair. Preserve the source label and verify the phone heartbeat before treating the relay as callable.
 - A running Computer Hands ticket serializes the physical desktop. Inspect and cancel only the exact authorized ticket before dispatching migration work.
 - If the handoff reports `WORKLOAD_INGRESS_BLOCKED`, preserve that receipt and stop. Do not replace the phone lane with arbitrary SSH, Browser Nerve, or another browser architecture.
 
