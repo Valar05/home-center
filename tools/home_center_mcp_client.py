@@ -210,7 +210,7 @@ class HomeCenterMcp:
             "drive_read",
             {"fileId": file_id, "exportFormat": "text/plain"},
         )
-        content = value.get("content")
+        content = value.get("text") or value.get("content")
         if not isinstance(content, str) or not content.strip():
             raise HomeCenterError(f"docs.read returned no content for {file_id}")
         return content
