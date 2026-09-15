@@ -52,6 +52,41 @@ ssh dclar@100.68.37.106 "powershell -ExecutionPolicy Bypass -File C:\\Users\\dcl
 
 Use `100.68.37.106` or the current Tailscale address. The stale `thecauldron` hostname previously aborted; do not treat that failure as proof that THECAULDRON is offline.
 
+## Organ chat surface
+
+Reuse Organ's existing mobile chat surface. It is the same surface that already proved the image workflow; do not build a second phone chat UI for the read-only conversation foundation.
+
+Source:
+
+```text
+C:\Users\dclar\workspace\organ\change-ui
+```
+
+Phone/Termux checkout:
+
+```text
+/storage/emulated/0/Documents/GodotProjects/organ/change-ui
+```
+
+Launch the existing local chat surface from the Organ checkout:
+
+```sh
+cd /storage/emulated/0/Documents/GodotProjects/organ
+python3 change-ui --project organ
+```
+
+The web surface binds to `http://127.0.0.1:8765/` by default and exposes `/api/message` and `/api/state`. It already supports ordinary conversation, Drive-context queries, deterministic fallback speech, concierge receipts, image intents, image artifact display, plan/confirmation state, and image correction. `ORGAN_WEB_PORT` may select another local port.
+
+The first foundation canary must be text-only:
+
+```text
+Ask a normal question that requires Drive/context evidence.
+Require a source-backed answer and a separately copyable writing block.
+Confirm that no image job, terminal command, browser action, or document mutation was started.
+```
+
+Do not call the image path proof of the conversation foundation. Keep these states separate: `INFORM_RESPONSE`, `IMAGE_REQUEST`, `TERMINAL_REQUEST`, `BROWSER_REQUEST`, and `DOCUMENT_MUTATION`.
+
 ## Home Center operation snippets
 
 These are authenticated Home Center operations, not shell commands. JSON pasted into an SSH shell will be interpreted as separate commands.
