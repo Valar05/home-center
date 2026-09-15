@@ -90,21 +90,58 @@ The Windows watchdog is configured to restart a non-running task and to restart 
 
 Home Center cannot wake a phone process that is no longer polling. When `lastSeenAtMs` is stale and a command remains queued, the phone-side relay must be restarted on the phone.
 
+### Known-good phone checkout path
+
+The working Termux checkout is:
+
+```text
+/storage/emulated/0/Documents/GodotProjects/home-center
+```
+
+If that directory is absent, clone the repository there. Use the LFS skip setting because unrelated historical media objects may be unavailable; the relay source itself is ordinary text and does not require those media files:
+
+```sh
+cd /storage/emulated/0/Documents/GodotProjects
+GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/Valar05/home-center.git home-center
+```
+
+Start the relay using the absolute path below. Do not rely on `$PWD` or the `$HOME/home-center` fallback: Termux can report a shortened prompt while the shell variable still points at `/data/data/com.termux/files/home`.
+
+```sh
+RELAY=/storage/emulated/0/Documents/GodotProjects/home-center/tools/android_phone_home_center_relay.py
+test -f "$RELAY" || { echo "relay source missing: $RELAY" >&2; exit 2; }
+```
+
 Use the existing Termux session on the phone. This is the normal foreground recovery command:
 
 ```sh
-REPO=/storage/emulated/0/Documents/GodotProjects/home-center
 mkdir -p "$HOME/.local/state/home-center"
 pkill -f android_phone_home_center_relay.py 2>/dev/null || true
-nohup python "$REPO/tools/android_phone_home_center_relay.py" \
+nohup python "$RELAY" \
   >>"$HOME/.local/state/home-center/phone-relay-console.log" 2>&1 &
 echo $! > "$HOME/.local/state/home-center/phone-relay.pid"
 ```
 
-If the checkout is in the Termux home directory, use:
+The expected startup line is:
+
+```text
+Home Center phone relay online: primary-phone (baseline transport: Termux; Shizuku optional)
+```
+
+The two historical warnings below are non-blocking when they appear during cloning:
+
+```text
+post-checkout hook was ignored because it's not set as executable
+Encountered files that should have been pointers, but weren't: ...mp4
+```
+
+If the log says `can't open file .../home/home-center/tools/android_phone_home_center_relay.py`, the wrong fallback path was used. Set `RELAY` to the absolute shared-storage path above and restart; do not delete pairing files.
+
+If the checkout is intentionally in the Termux home directory, use the actual path only after verifying it:
 
 ```sh
-REPO="$HOME/home-center"
+RELAY="$HOME/home-center/tools/android_phone_home_center_relay.py"
+test -f "$RELAY" || echo "wrong Termux-home path"
 ```
 
 The relay must retain these existing files; do not delete or recreate them during a restart:
