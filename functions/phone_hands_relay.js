@@ -282,14 +282,41 @@ async function devicePull(admin, {deviceId, deviceToken, leaseMs = 30000} = {}) 
   if (hashText(deviceToken) !== device.tokenHash) throw Object.assign(new Error('device unauthorized'), {status: 401});
   const now = Date.now();
   await devRef.set({lastSeenAtMs: now, status: 'online'}, {merge: true});
-  const query = await admin.firestore().collection(COLLECTIONS.commands)
-    .where('ownerKey','==',device.ownerKey).where('deviceId','==',id).where('status','==','queued').limit(10).get();
-  const candidates = query.docs.map((d) => d.data()).filter((x) => Number(x.expiresAtMs || 0) > now).sort((a,b) => a.createdAtMs-b.createdAtMs);
+  const PHONE_QUEUE_SCAN_LIMIT = 100;
+  const PHONE_QUEUE_DRAIN_ROUNDS = 20;
+  const commands = admin.firestore().collection(COLLECTIONS.commands);
+  const leasedQuery = await commands
+    .where('ownerKey','==',device.ownerKey).where('deviceId','==',id).where('status','==','leased')
+    .limit(PHONE_QUEUE_SCAN_LIMIT).get();
+  const staleLeases = leasedQuery.docs
+    .map((doc)=>({...doc.data(),commandId:safeText((doc.data()||{}).commandId,180)||doc.id}))
+    .filter((x)=>Number(x.leaseExpiresAtMs||0)>0 && Number(x.leaseExpiresAtMs||0)<=Date.now());
+  if (staleLeases.length) {
+    const batch=admin.firestore().batch(); const t=Date.now();
+    for (const x of staleLeases) batch.set(commands.doc(x.commandId),{status:'failed',error:'lease_expired_before_completion',completedAtMs:t,updatedAtMs:t,leaseExpiresAtMs:0},{merge:true});
+    await batch.commit();
+  }
+  let candidates=[];
+  for (let round = 0; round < PHONE_QUEUE_DRAIN_ROUNDS; round += 1) {
+    const scanNow=Date.now();
+    const query=await commands.where('ownerKey','==',device.ownerKey).where('deviceId','==',id).where('status','==','queued').limit(PHONE_QUEUE_SCAN_LIMIT).get();
+    const queued=query.docs.map((doc)=>({...doc.data(),commandId:safeText((doc.data()||{}).commandId,180)||doc.id})).sort((a,b)=>Number(a.createdAtMs||0)-Number(b.createdAtMs||0));
+    if (!queued.length) break;
+    const expired=queued.filter((x)=>Number(x.expiresAtMs||0)<=scanNow);
+    if (expired.length) {
+      const batch=admin.firestore().batch();
+      for (const x of expired) batch.set(commands.doc(x.commandId),{status:'failed',error:'expired_before_lease',completedAtMs:scanNow,updatedAtMs:scanNow,leaseExpiresAtMs:0},{merge:true});
+      await batch.commit();
+    }
+    candidates=queued.filter((x)=>Number(x.expiresAtMs||0)>scanNow);
+    if (candidates.length || !expired.length) break;
+  }
   if (!candidates.length) return {ok: true, command: null};
-  const chosen = candidates[0];
-  const leaseOwner = `device:${id}`;
-  await admin.firestore().collection(COLLECTIONS.commands).doc(chosen.commandId).set({status:'leased', leaseOwner, leaseExpiresAtMs: now + Math.max(5000, Math.min(Number(leaseMs), 120000)), updatedAtMs: now}, {merge:true});
-  return {ok: true, command: {...chosen, status:'leased', leaseOwner}};
+  const chosen=candidates.find((x)=>Number(x.expiresAtMs||0)>Date.now());
+  if (!chosen) return {ok: true, command: null};
+  const leaseOwner=`device:${id}`; const leaseNow=Date.now();
+  await commands.doc(chosen.commandId).set({status:'leased',leaseOwner,leaseExpiresAtMs:leaseNow+Math.max(5000,Math.min(Number(leaseMs),120000)),updatedAtMs:leaseNow},{merge:true});
+  return {ok:true,command:{...chosen,status:'leased',leaseOwner}};
 }
 async function deviceComplete(admin, {deviceId, deviceToken, commandId, status, result, error} = {}) {
   const id = cleanDeviceId(deviceId);
