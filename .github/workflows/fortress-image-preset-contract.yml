@@ -1,0 +1,68 @@
+name: Fortress Image Preset Contract
+
+on:
+  pull_request:
+    paths:
+      - 'tools/fortress_image_cli.py'
+      - 'tools/fortress_image_presets.json'
+      - 'tools/fortress_image_cauldron.ps1'
+      - 'tools/venice_fleshpunk_phone.sh'
+      - 'tools/install_fortress_image_phone.sh'
+      - 'tools/fortress_image_entry.sh'
+      - 'tools/accept_fortress_image_phone.sh'
+      - 'tools/test_fortress_image_cli.py'
+      - 'tools/test_improper_image_delivery_contract.py'
+      - 'docs/IMPROPER_IMAGE_DELIVERY_CAMPAIGN.md'
+      - '.github/workflows/fortress-image-preset-contract.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/fortress_image_cli.py'
+      - 'tools/fortress_image_presets.json'
+      - 'tools/fortress_image_cauldron.ps1'
+      - 'tools/venice_fleshpunk_phone.sh'
+      - 'tools/install_fortress_image_phone.sh'
+      - 'tools/test_fortress_image_cli.py'
+      - 'tools/test_improper_image_delivery_contract.py'
+      - '.github/workflows/fortress-image-preset-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Bash syntax
+        run: |
+          bash -n tools/venice_fleshpunk_phone.sh
+          bash -n tools/fortress_image_entry.sh
+          bash -n tools/install_fortress_image_phone.sh
+          bash -n tools/accept_fortress_image_phone.sh
+          bash -n tools/improper_image_delivery_campaign.sh
+      - name: Python syntax and deterministic preset tests
+        run: |
+          python3 -m py_compile tools/fortress_image_cli.py tools/test_fortress_image_cli.py
+          python3 tools/test_fortress_image_cli.py
+      - name: PowerShell parser
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path 'tools/fortress_image_cauldron.ps1'),
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+          if ($errors.Count -gt 0) {
+            $errors | Format-List | Out-String | Write-Error
+            exit 1
+          }
+      - name: Existing image transport contract
+        run: python3 tools/test_improper_image_delivery_contract.py
