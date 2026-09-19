@@ -111,3 +111,17 @@ For single-image morph/displace animation or two-authored-key connective deforma
 `../single-image-displacement-motion/SKILL.md`
 
 Pose Lab recovery owns runtime/deployment. The displacement skill owns deformation technique and visual acceptance rules.
+
+
+## Reusable single-image displacement technique
+Canonical reusable doctrine lives in:
+`skills/single-image-displacement-animation/SKILL.md`
+
+Use that skill when the task is not merely two-key endpoint morphing, but making one beautiful authored image visibly alive through lawful deformation without redrawing it frame by frame.
+
+Core distinction:
+- single-image displacement = one authored image, one visual identity, lawful local deformation over time;
+- two-key displacement morph = two sacred authored endpoint images plus singular-anatomy connective deformation between them;
+- contact-sheet retargeting = multiple authored semantic keys generated together as one sheet.
+
+Do not collapse these three methods into crossfades or independent redraws.
