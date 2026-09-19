@@ -204,6 +204,8 @@ def main() -> None:
     p_plan = sub.add_parser("plan", help="print the exact compiled render config without executing it")
     add_render_args(p_plan, sheet=False)
     p_plan.add_argument("--sheet", action="store_true", help="plan contact-sheet mode instead of single")
+    p_plan.add_argument("--count", type=int, default=9)
+    p_plan.add_argument("--cols", type=int, default=3)
 
     p_generate = sub.add_parser("generate", help="legacy positional generator compatibility")
     p_generate.add_argument("prompt")
