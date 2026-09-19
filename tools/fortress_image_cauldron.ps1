@@ -10,7 +10,7 @@ $LoraRoot = Join-Path $ComfyRoot 'models\loras'
 $OutputRoot = Join-Path $ComfyRoot 'output'
 $Comfy = 'http://127.0.0.1:8188'
 
-function Write-Result([hashtable]$Result) {
+function Write-Result([System.Collections.IDictionary]$Result) {
     $Result['runtime'] = 'fortress_image_cauldron.ps1'
     $Result['generatedAt'] = (Get-Date).ToString('o')
     $Result | ConvertTo-Json -Depth 30 | Set-Content -Encoding UTF8 $ResultPath
@@ -369,6 +369,7 @@ switch ($action) {
 
     'generate' {
         $null = Assert-Comfy
+        Remove-Item -Force -ErrorAction SilentlyContinue $PrimaryPng
         $count = [int]$req.count
         if ($count -lt 1 -or $count -gt 12) { throw "count must be 1..12" }
         $mode = [string]$req.mode
