@@ -21,11 +21,26 @@ $RunnerEnsurePath = Join-Path $Root 'ensure-github-runner.ps1'
 $RunnerReceiptPath = Join-Path $Root 'github-runner-receipt.json'
 $HealthPath = Join-Path $Root 'cloud-health.json'
 $ReceiptPath = Join-Path $Root 'hardening-receipt.json'
+$FailurePath = Join-Path $Root 'hardening-failure.json'
 $TaskName = 'HomeCenterComputerHands'
 $WatchdogTaskName = 'HomeCenterComputerHandsWatchdog'
 $SentinelTaskName = 'HomeCenterFortressSentinel'
 
 New-Item -ItemType Directory -Force -Path $Root | Out-Null
+Remove-Item -Force -LiteralPath $ReceiptPath -ErrorAction SilentlyContinue
+Remove-Item -Force -LiteralPath $FailurePath -ErrorAction SilentlyContinue
+trap {
+  $failure=[ordered]@{
+    schema='home-center-thecauldron-hardening-failure-v1'
+    failedAt=(Get-Date).ToUniversalTime().ToString('o')
+    machine=$env:COMPUTERNAME
+    sourceRef=$SourceRef
+    message=$_.Exception.Message
+    scriptStackTrace=$_.ScriptStackTrace
+  }
+  try { [IO.File]::WriteAllText($FailurePath,($failure|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false)) } catch {}
+  exit 1
+}
 if (-not (Test-Path -LiteralPath $ConfigPath)) { throw "Missing Computer Hands config: $ConfigPath" }
 if (-not (Test-Path -LiteralPath $TokenPath)) { throw "Missing DPAPI worker token: $TokenPath" }
 
@@ -202,5 +217,6 @@ $result=[ordered]@{
   ok=[bool](@($taskRows|Where-Object{$_.state -ne 'Running'}).Count -eq 0 -and $runnerReceipt.ok -and $cloudFresh -and $powerOk)
 }
 [IO.File]::WriteAllText($ReceiptPath,($result|ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false))
+Remove-Item -Force -LiteralPath $FailurePath -ErrorAction SilentlyContinue
 $result | ConvertTo-Json -Depth 12
 if(-not $result.ok){ throw 'THECAULDRON hardening receipt is not green.' }
