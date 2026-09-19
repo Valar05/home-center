@@ -4,6 +4,7 @@ param(
   [string]$RunnerName = 'THECAULDRON',
   [string]$RunnerRoot = "$env:LOCALAPPDATA\HomeCenter\GitHubRunner",
   [string]$TaskName = 'HomeCenterGitHubRunner',
+  [string]$ConfigPath = "$env:LOCALAPPDATA\HomeCenter\ComputerHands\config.json",
   [string]$Version = '2.337.0',
   [string]$ExpectedSha256 = '1150692afa94e71f872017e254ea55b6eece1eece3fe7e3a6d4c93d0a1b85cfc'
 )
@@ -142,6 +143,16 @@ while ((Get-Date) -lt $deadline) {
   $registered = Get-RegisteredRunner
   if ($listener -and $registered -and $registered.status -eq 'online') { break }
   Start-Sleep -Seconds 2
+}
+
+if (Test-Path -LiteralPath $ConfigPath) {
+  $cfg = Get-Content -LiteralPath $ConfigPath -Raw | ConvertFrom-Json
+  $cfg | Add-Member -NotePropertyName runnerPath -NotePropertyValue $RunnerRoot -Force
+  $cfg | Add-Member -NotePropertyName runnerTaskName -NotePropertyValue $TaskName -Force
+  $cfg | Add-Member -NotePropertyName runnerVersion -NotePropertyValue $Version -Force
+  $cfgTemp = "$ConfigPath.tmp"
+  [IO.File]::WriteAllText($cfgTemp,($cfg | ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false))
+  Move-Item -Force $cfgTemp $ConfigPath
 }
 
 $task = Get-ScheduledTask -TaskName $TaskName
