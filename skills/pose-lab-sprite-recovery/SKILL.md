@@ -34,3 +34,16 @@ The manifest is diagnostic review truth, not final canonical animation acceptanc
 
 ## Failure handling
 If Pose Lab reports `Animation manifest returned 404`, verify the exact raw GitHub path exists before giving Drew another localhost link. Do not report deployment based on a planned or nonexistent path.
+
+
+## Private-repo manifest rule
+`Valar05/pose-lab-v2` is private. A phone browser fetching
+`raw.githubusercontent.com/Valar05/pose-lab-v2/...` without GitHub auth receives 404 even when the file exists.
+Do not use a raw-GitHub manifest URL as the localhost Pose Lab handoff.
+
+Preferred order:
+1. Serve the manifest and frame assets from the phone checkout / localhost surface.
+2. If the phone write lane is temporarily unavailable but Pose Lab is already running, use a self-contained `data:application/json;base64,...` manifest override whose frames are also data URLs. This is diagnostic review only.
+3. Do not mistake authenticated connector readback for browser reachability.
+
+Before giving Drew a localhost link, verify the manifest transport from the same browser-reachable lane. A GitHub connector fetch is not that proof.
