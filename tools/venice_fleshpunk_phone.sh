@@ -233,6 +233,11 @@ REMOTE_PS='C:/Users/Public/fortress-image-cauldron.ps1'
 REMOTE_RESULT='C:/Users/Public/fortress-image-result.json'
 REMOTE_PNG='C:/Users/Public/fortress-image-latest.png'
 
+rm -f "$STATE/control-latest.json" "$STATE/control-latest.json.part" "$STATE/result-scp.err"
+if [ "$ACTION" = generate ]; then
+  rm -f "$STATE/latest.json" "$STATE/latest.json.part" "$STATE/latest.png" "$STATE/latest.png.part"
+fi
+
 scp -P "$PORT" -o BatchMode=yes -o StrictHostKeyChecking=accept-new "$REQ" "$HOSTPORT:$REMOTE_REQ"
 scp -P "$PORT" -o BatchMode=yes -o StrictHostKeyChecking=accept-new "$REMOTE_RUNTIME_LOCAL" "$HOSTPORT:$REMOTE_PS"
 
