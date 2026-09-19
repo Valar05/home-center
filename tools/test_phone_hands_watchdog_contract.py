@@ -16,6 +16,8 @@ for token in [
     "source_hash_mismatch",
     "heartbeat_pid_mismatch",
     "phone-hands-watchdog.run.lock",
+    "-u PHONE_HANDS_WATCHDOG_INTERVAL",
+    "-u PHONE_HANDS_REPO_ROOT",
 ]:
     assert token in watchdog, f"watchdog missing safety/recovery contract: {token}"
 
@@ -40,6 +42,7 @@ for token in [
     "canonical_recovery=1",
     "no_wakelock=1",
     "no_notification=1",
+    "export PHONE_HANDS_WATCHDOG_INTERVAL=60",
 ]:
     assert token in installer, f"installer missing durable watchdog contract: {token}"
 
