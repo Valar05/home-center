@@ -61,3 +61,15 @@ Required order for subtle motion:
 6. judge the result in playback before promoting it.
 
 If playback reads as texture crawl, silhouette creep, or costume boil, reject the candidate even if every still frame looks good. Do not try to rescue redraw jitter with timing tweaks.
+
+
+## Contact-sheet generation rule
+Contact sheets are the unit of generation and retargeting.
+
+- When source motion exists, extract the chosen source frames first and assemble ONE contact sheet that preserves every full source frame. Do not crop away feet, hands, props, or other motion evidence unless the user explicitly asks for a crop.
+- Feed that entire source contact sheet directly as the image input/reference for character retargeting.
+- Generate the corresponding target poses as ONE full contact sheet in one image-generation operation.
+- Never generate six independent target images for a six-frame contact sheet. Independent generations cause identity, costume, scale, silhouette, prop, and camera drift.
+- Do not replace source keys with invented “equivalent” poses. The point of a performed video is to preserve the actual keys and relationships.
+- No stabilization, puppet deformation, or other smart interpolation before the direct source-contact-sheet -> target-contact-sheet pass has been evaluated.
+- If the source video contains feet, preserve them in the source contact sheet and target contact sheet.
