@@ -2,7 +2,7 @@
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-contact-030-scoped-sync-grapple-root-com-transfer-repair",
   "lane": "contact",
-  "status": "DELIVERED_PENDING_TERMINAL_DURABILITY",
+  "status": "DELIVERED_VERIFIED",
   "reset_issue_comment": 5634613836,
   "chronology_bind_issue_comment": 5644669228,
   "successor_churn_rebind_issue_comment": 5645387490,
@@ -79,11 +79,12 @@
     "chat_part1_ascii": true,
     "chat_part2_json": true,
     "chat_part3_visible_video": true,
-    "issue_terminal_comment": null,
-    "home_center_terminal_binding": false,
-    "home_center_terminal_readback": false,
+    "issue_terminal_comment": 5741623324,
+    "home_center_terminal_binding": true,
+    "home_center_terminal_readback": true,
     "exact_six_files": true,
-    "exact_one_spa": true
+    "exact_one_spa": true,
+    "issue_terminal_readback": true
   },
   "drew_accepted": false,
   "authorized_runtime_media_identity_failure_issue_comment": 5737833341,
@@ -99,5 +100,8 @@
   },
   "delivery_media_export_command_id": "phc_7a5bf85e-bad0-413b-8484-597ea6999258",
   "pre_delivery_issue_comment": 5741551862,
-  "pre_delivery_home_center_marker": "ascii-kinesis-contact030-pre-delivery-binding-20260919-dc20-v1"
+  "pre_delivery_home_center_marker": "ascii-kinesis-contact030-pre-delivery-binding-20260919-dc20-v1",
+  "terminal_issue_comment": 5741623324,
+  "terminal_home_center_marker": "ascii-kinesis-contact030-terminal-delivery-binding-20260919-dc20-v1",
+  "terminal_delivery_basis_commit": "c20e1028f5e889827c8fdcfd0462b0053e77d418"
 }
