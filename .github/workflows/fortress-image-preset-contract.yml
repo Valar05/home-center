@@ -15,8 +15,7 @@ on:
       - 'docs/IMPROPER_IMAGE_DELIVERY_CAMPAIGN.md'
       - '.github/workflows/fortress-image-preset-contract.yml'
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
       - 'tools/fortress_image_cli.py'
       - 'tools/fortress_image_presets.json'
@@ -31,27 +30,62 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: fortress-image-preset-contract
+  cancel-in-progress: true
+
 jobs:
   contract:
-    runs-on: ubuntu-latest
+    name: THECAULDRON source contract
+    runs-on: self-hosted
+    timeout-minutes: 10
     steps:
+      - name: Refuse the wrong execution body
+        shell: powershell
+        run: |
+          if ($env:COMPUTERNAME -ine 'THECAULDRON') {
+            throw "Refusing Fortress Image contract on $env:COMPUTERNAME; expected THECAULDRON."
+          }
+          Write-Host "FORTRESS_IMAGE_CONTRACT_BODY_OK computer=$env:COMPUTERNAME"
+
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      - name: Bash syntax
+          fetch-depth: 1
+          lfs: false
+
+      - name: Bash and Python contracts
+        shell: powershell
         run: |
-          bash -n tools/venice_fleshpunk_phone.sh
-          bash -n tools/fortress_image_entry.sh
-          bash -n tools/install_fortress_image_phone.sh
-          bash -n tools/accept_fortress_image_phone.sh
-          bash -n tools/improper_image_delivery_campaign.sh
-      - name: Python syntax and deterministic preset tests
-        run: |
-          python3 -m py_compile tools/fortress_image_cli.py tools/test_fortress_image_cli.py
-          python3 tools/test_fortress_image_cli.py
-      - name: PowerShell parser
-        shell: pwsh
+          $ErrorActionPreference = 'Stop'
+          $bash = Get-Command bash -ErrorAction SilentlyContinue
+          if (-not $bash) {
+            $candidates = @(
+              (Join-Path $env:ProgramFiles 'Git\bin\bash.exe'),
+              (Join-Path ${env:ProgramFiles(x86)} 'Git\bin\bash.exe')
+            )
+            $found = $candidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+            if (-not $found) { throw 'Git Bash is required for Fortress Image shell contract checks.' }
+            $bashPath = $found
+          } else {
+            $bashPath = $bash.Source
+          }
+          & $bashPath -n tools/venice_fleshpunk_phone.sh
+          if ($LASTEXITCODE -ne 0) { throw 'venice_fleshpunk_phone.sh syntax failed' }
+          & $bashPath -n tools/fortress_image_entry.sh
+          if ($LASTEXITCODE -ne 0) { throw 'fortress_image_entry.sh syntax failed' }
+          & $bashPath -n tools/install_fortress_image_phone.sh
+          if ($LASTEXITCODE -ne 0) { throw 'install_fortress_image_phone.sh syntax failed' }
+          & $bashPath -n tools/accept_fortress_image_phone.sh
+          if ($LASTEXITCODE -ne 0) { throw 'accept_fortress_image_phone.sh syntax failed' }
+          python -m py_compile tools/fortress_image_cli.py tools/test_fortress_image_cli.py
+          if ($LASTEXITCODE -ne 0) { throw 'Fortress Image Python syntax failed' }
+          python tools/test_fortress_image_cli.py
+          if ($LASTEXITCODE -ne 0) { throw 'Deterministic preset tests failed' }
+          python tools/test_improper_image_delivery_contract.py
+          if ($LASTEXITCODE -ne 0) { throw 'Existing image transport contract failed' }
+
+      - name: PowerShell parser contract
+        shell: powershell
         run: |
           $tokens = $null
           $errors = $null
@@ -64,5 +98,4 @@ jobs:
             $errors | Format-List | Out-String | Write-Error
             exit 1
           }
-      - name: Existing image transport contract
-        run: python3 tools/test_improper_image_delivery_contract.py
+          Write-Host 'FORTRESS_IMAGE_POWERSHELL_PARSE_OK'
