@@ -66,10 +66,11 @@ recover(){
   if HC_PHONE_REPO="$repo" sh "$recover" >>"$LOG" 2>&1; then
     log "RECOVERED reason=$reason"
     return 0
+  else
+    rc=$?
+    log "DEGRADED recovery_failed reason=$reason rc=$rc"
+    return "$rc"
   fi
-  rc=$?
-  log "DEGRADED recovery_failed reason=$reason rc=$rc"
-  return "$rc"
 }
 
 run_once(){
@@ -111,7 +112,7 @@ $snap
 EOF
     wanted_source="$(source_sha "$repo" 2>/dev/null || true)"
 
-    if [ -n "$command_id" ] && [ "$hb_age" -le "$BUSY_GRACE" ]; then
+    if [ "$hb_state" = "poll_ok" ] && [ -n "$command_id" ] && [ "$hb_age" -le "$BUSY_GRACE" ]; then
       log "BUSY_PROTECTED pid=$pid heartbeat_age=$hb_age command=$command_id state=$hb_state"
       exit 0
     fi
