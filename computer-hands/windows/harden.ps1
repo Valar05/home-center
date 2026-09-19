@@ -17,6 +17,8 @@ $WorkerPath = Join-Path $Root 'home-center-hands.ps1'
 $WatchdogPath = Join-Path $Root 'watchdog.ps1'
 $SentinelPath = Join-Path $Root 'fortress-sentinel.ps1'
 $LaunchPath = Join-Path $Root 'launch.ps1'
+$RunnerEnsurePath = Join-Path $Root 'ensure-github-runner.ps1'
+$RunnerReceiptPath = Join-Path $Root 'github-runner-receipt.json'
 $HealthPath = Join-Path $Root 'cloud-health.json'
 $ReceiptPath = Join-Path $Root 'hardening-receipt.json'
 $TaskName = 'HomeCenterComputerHands'
@@ -50,6 +52,7 @@ $sourceFiles = [ordered]@{
   'computer-hands/windows/watchdog.ps1' = $WatchdogPath
   'computer-hands/windows/fortress-sentinel.ps1' = $SentinelPath
   'computer-hands/windows/launch.ps1' = $LaunchPath
+  'computer-hands/windows/ensure-github-runner.ps1' = $RunnerEnsurePath
 }
 foreach($entry in $sourceFiles.GetEnumerator()){
   $source=Read-GitFile ([string]$entry.Key)
@@ -83,12 +86,16 @@ if ([string]::IsNullOrWhiteSpace($RunnerPath)) {
   $runnerMarker=Get-ChildItem -LiteralPath $env:USERPROFILE -Filter '.runner' -File -Recurse -Depth 5 -ErrorAction SilentlyContinue | Select-Object -First 1
   if($runnerMarker -and (Test-Path -LiteralPath (Join-Path $runnerMarker.DirectoryName 'run.cmd'))){ $RunnerPath=$runnerMarker.DirectoryName }
 }
+if ([string]::IsNullOrWhiteSpace($RunnerPath)) {
+  $RunnerPath = Join-Path $env:LOCALAPPDATA 'HomeCenter\GitHubRunner'
+}
 
 $thronePath=Join-Path $env:USERPROFILE 'bin\throne.ps1'
 if(-not (Test-Path -LiteralPath $thronePath)){ $thronePath='' }
 
 $cfg | Add-Member -NotePropertyName healthPath -NotePropertyValue $HealthPath -Force
 $cfg | Add-Member -NotePropertyName runnerPath -NotePropertyValue ([string]$RunnerPath) -Force
+$cfg | Add-Member -NotePropertyName runnerTaskName -NotePropertyValue 'HomeCenterGitHubRunner' -Force
 $cfg | Add-Member -NotePropertyName thronePath -NotePropertyValue ([string]$thronePath) -Force
 $cfg | Add-Member -NotePropertyName hardeningVersion -NotePropertyValue 'thecauldron-fortress-v1' -Force
 $cfg | Add-Member -NotePropertyName hardeningSourceRef -NotePropertyValue $SourceRef -Force
@@ -153,18 +160,26 @@ if(-not $PreserveAcSleep){
   $power.changed=($power.standbyAc -eq 0 -and $power.hibernateAc -eq 0 -and $power.lidCloseAc -eq 0 -and $power.reactivate -eq 0)
 }
 
+& $RunnerEnsurePath -ConfigPath $ConfigPath -RunnerRoot $RunnerPath | Out-Host
+if (-not (Test-Path -LiteralPath $RunnerReceiptPath)) { throw 'GitHub runner bootstrap produced no receipt.' }
+$runnerReceipt = Get-Content -LiteralPath $RunnerReceiptPath -Raw | ConvertFrom-Json
+if (-not $runnerReceipt.ok) { throw 'GitHub runner bootstrap receipt is not green.' }
+
 Start-Sleep -Seconds 8
 $taskRows=@()
-foreach($n in @($TaskName,$WatchdogTaskName,$SentinelTaskName)){
+foreach($n in @($TaskName,$WatchdogTaskName,$SentinelTaskName,'HomeCenterGitHubRunner')){
   $t=Get-ScheduledTask -TaskName $n
   $i=Get-ScheduledTaskInfo -TaskName $n
   $taskRows += [ordered]@{name=$n;state=[string]$t.State;lastTaskResult=$i.LastTaskResult;lastRunTime=$i.LastRunTime.ToString('o');nextRunTime=$i.NextRunTime.ToString('o')}
 }
 $fileRows=@()
-foreach($p in @($WorkerPath,$WatchdogPath,$SentinelPath,$LaunchPath)){
+foreach($p in @($WorkerPath,$WatchdogPath,$SentinelPath,$LaunchPath,$RunnerEnsurePath)){
   $fileRows += [ordered]@{path=$p;sha256=(Get-FileHash -Algorithm SHA256 -LiteralPath $p).Hash.ToLowerInvariant()}
 }
 $health=Get-Item -LiteralPath $HealthPath -ErrorAction SilentlyContinue
+$healthAgeSeconds=if($health){[Math]::Max(0,((Get-Date)-$health.LastWriteTime).TotalSeconds)}else{[double]::PositiveInfinity}
+$cloudFresh=[bool]($health -and $healthAgeSeconds -lt 90)
+$powerOk=[bool]($PreserveAcSleep -or $power.changed)
 $result=[ordered]@{
   schema='home-center-thecauldron-hardening-receipt-v1'
   appliedAt=(Get-Date).ToUniversalTime().ToString('o')
@@ -180,9 +195,12 @@ $result=[ordered]@{
   thronePath=[string]$thronePath
   cloudHealthPath=$HealthPath
   cloudHealthPresent=[bool]$health
+  cloudHealthAgeSeconds=if([double]::IsPositiveInfinity($healthAgeSeconds)){'infinite'}else{[int]$healthAgeSeconds}
+  runner=[ordered]@{name=[string]$runnerReceipt.runnerName;version=[string]$runnerReceipt.version;taskState=[string]$runnerReceipt.taskState;githubStatus=[string]$runnerReceipt.githubStatus;listenerPid=$runnerReceipt.listenerPid;ok=[bool]$runnerReceipt.ok}
   tasks=$taskRows
   files=$fileRows
-  ok=[bool](@($taskRows|Where-Object{$_.state -ne 'Running'}).Count -eq 0)
+  ok=[bool](@($taskRows|Where-Object{$_.state -ne 'Running'}).Count -eq 0 -and $runnerReceipt.ok -and $cloudFresh -and $powerOk)
 }
 [IO.File]::WriteAllText($ReceiptPath,($result|ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false))
 $result | ConvertTo-Json -Depth 12
+if(-not $result.ok){ throw 'THECAULDRON hardening receipt is not green.' }
