@@ -104,3 +104,10 @@ Hard requirements:
 - If a limb changes position substantially, the deformation must carry that same limb through space. Do not leave a ghost at the origin.
 - Never label a crossfade or mixed-pixel dissolve as displacement morphing.
 - Visual acceptance requires that A visibly becomes B in playback while anatomy remains singular and coherent.
+
+
+## Displacement-motion dependency
+For single-image morph/displace animation or two-authored-key connective deformation, inherit:
+`../single-image-displacement-motion/SKILL.md`
+
+Pose Lab recovery owns runtime/deployment. The displacement skill owns deformation technique and visual acceptance rules.
