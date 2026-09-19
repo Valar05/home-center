@@ -30,21 +30,21 @@
     "height": 192,
     "fps": 24,
     "frames": 48,
-    "bytes": 8555,
-    "sha256": "00abdc840fd8accb64dca3607acfd4d92306fe230c28ee21530a1bc16b0475bc",
+    "bytes": 8542,
+    "sha256": "dc20bae2f2e72fa3b0b1dda84f4fcfcf9a07bd898f0649a0de06477925138c2c",
     "source": "abstract ASCII rig + authored hold_frames only",
-    "decode": "PASS_CURRENT_WORKER_RECONSTRUCTION"
+    "decode": "PASS_AUTHORIZED_RECONSTRUCTION_STRICT_DECODE"
   },
   "quality": {
     "tango": {
-      "status": "PASS_R4_CURRENT_WORKER_320X192_ACTUAL_RENDER",
-      "render_media_sha256": "00abdc840fd8accb64dca3607acfd4d92306fe230c28ee21530a1bc16b0475bc",
-      "judgment": "Current-worker actual-render PASS retained only because R4 media bytes are unchanged."
+      "status": "PENDING_RECURSIVE_TANGO_CURRENT_MEDIA",
+      "render_media_sha256": "dc20bae2f2e72fa3b0b1dda84f4fcfcf9a07bd898f0649a0de06477925138c2c",
+      "judgment": "Prior PASS invalidated by authorized runtime media identity mismatch; actual visible Tango required on exact repaired media."
     },
     "noodle_queen": {
-      "status": "PASS_TASTE_FUNCTION_CONTEMPT_SAME_R4_RENDER",
-      "render_media_sha256": "00abdc840fd8accb64dca3607acfd4d92306fe230c28ee21530a1bc16b0475bc",
-      "judgment": "Same-render PASS retained only because R4 media bytes are unchanged."
+      "status": "PENDING_AFTER_TANGO_CURRENT_MEDIA",
+      "render_media_sha256": "dc20bae2f2e72fa3b0b1dda84f4fcfcf9a07bd898f0649a0de06477925138c2c",
+      "judgment": "Prior Queen PASS invalidated with old media identity; same-media Queen required after Tango."
     }
   },
   "package": {
@@ -59,11 +59,15 @@
     ],
     "exact_six_files": true,
     "exact_one_spa": true,
-    "spa_tabs": ["ascii", "json", "video"]
+    "spa_tabs": [
+      "ascii",
+      "json",
+      "video"
+    ]
   },
   "official_validator": {
     "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
-    "result": "PENDING_POST_RECONCILIATION_RUN"
+    "result": "PENDING_POST_MEDIA_IDENTITY_REPAIR_TANGO_QUEEN"
   },
   "persistence": {
     "repo_persisted": true,
@@ -78,5 +82,7 @@
     "home_center_terminal_binding": false,
     "home_center_terminal_readback": false
   },
-  "drew_accepted": false
+  "drew_accepted": false,
+  "authorized_runtime_media_identity_failure_issue_comment": 5737833341,
+  "authorized_runtime_media_identity_failure_marker": "ascii-kinesis-manager-authorized-media-identity-failure-20260918-1925-cdt"
 }
