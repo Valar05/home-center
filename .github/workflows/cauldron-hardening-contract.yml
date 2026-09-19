@@ -17,9 +17,16 @@ permissions:
 
 jobs:
   source-contract:
-    runs-on: windows-latest
+    runs-on: self-hosted
     timeout-minutes: 10
     steps:
+      - name: Refuse wrong execution body
+        shell: powershell
+        run: |
+          if ($env:COMPUTERNAME -ine 'THECAULDRON') {
+            throw "Refusing hardening contract on $env:COMPUTERNAME; expected THECAULDRON."
+          }
+          Write-Host "CAULDRON_HARDENING_BODY_OK computer=$env:COMPUTERNAME"
       - uses: actions/checkout@v4
       - name: Parse and enforce hardening invariants
         shell: powershell
