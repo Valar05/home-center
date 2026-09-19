@@ -227,7 +227,9 @@ def main() -> None:
         argv = ["generate", args.prompt]
         if args.seed is not None:
             argv.append(args.seed)
-        exec_entry(argv)
+        env = os.environ.copy()
+        env.setdefault("FORTRESS_IMAGE_PROFILE", "plain")
+        exec_entry(argv, env)
 
     if args.command in {"models", "setup", "doctor"}:
         preset = args.preset
