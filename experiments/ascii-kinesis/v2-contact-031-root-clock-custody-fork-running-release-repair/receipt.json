@@ -65,7 +65,7 @@
     "source_timing": "UNKNOWN",
     "whole_sheet_inspected": true
   },
-  "state": "DELIVERED_PENDING_TERMINAL_DURABILITY",
+  "state": "DELIVERED_VERIFIED",
   "tango": "PASS_CURRENT_WORKER_ACTUAL_FINAL_MEDIA",
   "quality": {
     "tango": {
@@ -104,6 +104,14 @@
     "chat_part1_ascii": true,
     "chat_part2_json": true,
     "chat_part3_visible_video": true,
-    "terminal_reconciled": false
-  }
+    "terminal_reconciled": true,
+    "issue_terminal_comment": 5744874800,
+    "issue_terminal_readback": true,
+    "home_center_terminal_binding": true,
+    "home_center_terminal_readback": true
+  },
+  "terminal_issue_comment": 5744874800,
+  "terminal_home_center_marker": "ascii-kinesis-contact031-terminal-delivery-binding-20260919-35656408-v1",
+  "terminal_delivery_basis_commit": "7c25ac5d0115af66c8e848e4eceebcd763260236",
+  "terminal_reconciliation_command_id": "phc_contact031_terminal_reconcile_20260919_1652_v1"
 }

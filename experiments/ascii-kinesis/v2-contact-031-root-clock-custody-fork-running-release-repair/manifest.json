@@ -63,7 +63,7 @@
     "whole_sheet_inspected": true
   },
   "source_art_embedded": false,
-  "state": "DELIVERED_PENDING_TERMINAL_DURABILITY",
+  "state": "DELIVERED_VERIFIED",
   "video_packaging": "embedded MP4 data URI in root-clock-custody-fork-running-release-repair.motion.html",
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
@@ -107,7 +107,15 @@
     "chat_part1_ascii": true,
     "chat_part2_json": true,
     "chat_part3_visible_video": true,
-    "terminal_reconciled": false
+    "terminal_reconciled": true,
+    "issue_terminal_comment": 5744874800,
+    "issue_terminal_readback": true,
+    "home_center_terminal_binding": true,
+    "home_center_terminal_readback": true
   },
-  "drew_accepted": false
+  "drew_accepted": false,
+  "terminal_issue_comment": 5744874800,
+  "terminal_home_center_marker": "ascii-kinesis-contact031-terminal-delivery-binding-20260919-35656408-v1",
+  "terminal_delivery_basis_commit": "7c25ac5d0115af66c8e848e4eceebcd763260236",
+  "terminal_reconciliation_command_id": "phc_contact031_terminal_reconcile_20260919_1652_v1"
 }
