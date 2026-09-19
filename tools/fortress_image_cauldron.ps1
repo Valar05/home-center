@@ -317,6 +317,7 @@ function New-ContactSheet($Images, [int]$Cols, [int]$Width, [int]$Height, [strin
 if (-not (Test-Path -LiteralPath $RequestPath -PathType Leaf)) {
     throw "Request missing: $RequestPath"
 }
+Remove-Item -Force -ErrorAction SilentlyContinue $ResultPath
 $req = Get-Content -Raw -LiteralPath $RequestPath | ConvertFrom-Json
 $action = [string]$req.action
 
