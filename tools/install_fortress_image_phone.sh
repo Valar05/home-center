@@ -34,7 +34,6 @@ mv "$DEST.new" "$DEST"
 
 cat > "$BIN/fortress-image" <<'EOF'
 #!/data/data/com.termux/files/usr/bin/sh
-export FORTRESS_IMAGE_PROFILE="${FORTRESS_IMAGE_PROFILE:-plain}"
 exec python "$HOME/.local/share/fortress-image/tools/fortress_image_cli.py" "$@"
 EOF
 chmod 700 "$BIN/fortress-image"
