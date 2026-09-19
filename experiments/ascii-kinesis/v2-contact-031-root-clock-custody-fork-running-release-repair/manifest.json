@@ -84,5 +84,6 @@
     }
   },
   "tango": "PASS_CURRENT_WORKER_ACTUAL_FINAL_MEDIA",
-  "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_SAME_FINAL_MEDIA"
+  "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_SAME_FINAL_MEDIA",
+  "backward_compatible": true
 }
