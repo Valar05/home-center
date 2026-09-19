@@ -42,3 +42,18 @@ Deterministic structural regression:
 - `../../tools/test_ascii_kinesis_swarm_contract_v2.py`
 
 Parked future extraction target: terminal-native ASCII animation/game engine. Do not build it until repeated V2 specimens prove the shared primitives worth extracting.
+
+
+## Kinesis Cathedral
+
+The anthology now has a browser-native interpretive surface at `cathedral/index.html`.
+
+The Cathedral does not supersede specimen evidence or current taste-reset law. It reads the heterogeneous `motion.json` corpus through an adapter, projects decisive keys into the Belly of Defiance phase grammar (LOAD -> COMMIT -> HIT -> CONSEQUENCE -> RECOVERY), keeps literal/reconstructed ASCII contact truth visible, and renders an expressive Canvas body downstream from that truth.
+
+Compact law:
+
+`ASCII CONTACT TRUTH -> EXPRESSIVE BODY -> BEAUTY -> CONSEQUENCE`
+
+Beauty may decorate or exaggerate Kinesis. It may not contradict support, contact, root, facing, load, custody, or earned recovery.
+
+See `cathedral/README.md` for the architecture and run surface.
