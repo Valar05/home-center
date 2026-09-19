@@ -8,6 +8,7 @@ $paths=@(
   'computer-hands/windows/watchdog.ps1',
   'computer-hands/windows/fortress-sentinel.ps1',
   'computer-hands/windows/launch.ps1',
+  'computer-hands/windows/ensure-github-runner.ps1',
   'computer-hands/windows/harden.ps1'
 )
 foreach($rel in $paths){
@@ -33,6 +34,12 @@ Need 'computer-hands/windows/fortress-sentinel.ps1' 'SetThreadExecutionState'
 Need 'computer-hands/windows/fortress-sentinel.ps1' 'actions.runner'
 Need 'computer-hands/windows/fortress-sentinel.ps1' 'Ensure-Throne'
 Need 'computer-hands/windows/fortress-sentinel.ps1' 'Ensure-Tailscale'
+Need 'computer-hands/windows/fortress-sentinel.ps1' 'runnerTaskName'
+Need 'computer-hands/windows/ensure-github-runner.ps1' '2.337.0'
+Need 'computer-hands/windows/ensure-github-runner.ps1' '1150692afa94e71f872017e254ea55b6eece1eece3fe7e3a6d4c93d0a1b85cfc'
+Need 'computer-hands/windows/ensure-github-runner.ps1' 'actions/runners/registration-token'
+Need 'computer-hands/windows/ensure-github-runner.ps1' 'HomeCenterGitHubRunner'
+Need 'computer-hands/windows/ensure-github-runner.ps1' 'home-center-github-runner-receipt-v1'
 Need 'computer-hands/windows/harden.ps1' 'standby-timeout-ac 0'
 Need 'computer-hands/windows/harden.ps1' 'hibernate-timeout-ac 0'
 Need 'computer-hands/windows/harden.ps1' '5ca83367-6e45-459f-a27b-476b1d01c936 0'
