@@ -187,13 +187,13 @@ def main() -> None:
     sub.add_parser("receipts", help="show the latest image receipt")
 
     p_models = sub.add_parser("models", help="inspect required model assets on THECAULDRON")
-    p_models.add_argument("--preset", default="graphic")
+    p_models.add_argument("--preset", default=os.environ.get("FORTRESS_IMAGE_PROFILE", "graphic"))
 
     p_setup = sub.add_parser("setup", help="download and SHA-256 verify managed Hugging Face assets on THECAULDRON")
-    p_setup.add_argument("--preset", default="graphic", help="preset to provision, or 'all'")
+    p_setup.add_argument("--preset", default=os.environ.get("FORTRESS_IMAGE_PROFILE", "graphic"), help="preset to provision, or 'all'")
 
     p_doctor = sub.add_parser("doctor", help="validate transport, preset, dimensions, and model files")
-    p_doctor.add_argument("--preset", default="graphic")
+    p_doctor.add_argument("--preset", default=os.environ.get("FORTRESS_IMAGE_PROFILE", "graphic"))
 
     p_render = sub.add_parser("render", help="render one deterministic image")
     add_render_args(p_render, sheet=False)
