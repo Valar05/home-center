@@ -63,6 +63,27 @@ function Start-RunnerIfNeeded([object]$Cfg) {
   $listener=@(Get-Process -Name 'Runner.Listener' -ErrorAction SilentlyContinue)
   if($listener.Count -gt 0){ return @{state='running';pid=$listener[0].Id} }
 
+  $taskProperty=$Cfg.PSObject.Properties['runnerTaskName']
+  $runnerTaskName=if($taskProperty -and $taskProperty.Value){[string]$taskProperty.Value}else{''}
+  if($runnerTaskName){
+    try {
+      $task=Get-ScheduledTask -TaskName $runnerTaskName -ErrorAction Stop
+      if(((Get-Date)-$lastRunnerStart).TotalSeconds -ge 90){
+        if($task.State -eq 'Running'){
+          Stop-ScheduledTask -TaskName $runnerTaskName -ErrorAction SilentlyContinue
+          Start-Sleep -Seconds 1
+          L "runner_task_recycle_no_listener name=$runnerTaskName"
+        }
+        Start-ScheduledTask -TaskName $runnerTaskName -ErrorAction Stop
+        $script:lastRunnerStart=Get-Date
+        return @{state='task_started';task=$runnerTaskName}
+      }
+      return @{state='task_waiting';task=$runnerTaskName}
+    } catch {
+      L "runner_task_error name=$runnerTaskName detail=$($_.Exception.Message)"
+    }
+  }
+
   $services=@(Get-Service -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'actions.runner*' })
   foreach($svc in $services){
     if($svc.Status -ne 'Running'){
