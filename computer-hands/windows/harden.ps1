@@ -95,18 +95,44 @@ $cfg | Add-Member -NotePropertyName hardeningSourceRef -NotePropertyValue $Sourc
 [IO.File]::WriteAllText($ConfigPath,($cfg|ConvertTo-Json -Depth 10),[Text.UTF8Encoding]::new($false))
 
 $ps=(Get-Command powershell.exe -ErrorAction Stop).Source
-$user="$env:USERDOMAIN\$env:USERNAME"
-$principal=New-ScheduledTaskPrincipal -UserId $user -LogonType Interactive -RunLevel Limited
-$logon=New-ScheduledTaskTrigger -AtLogOn -User $user
+$currentIdentity=[Security.Principal.WindowsIdentity]::GetCurrent()
+if(-not $currentIdentity.User){ throw 'Could not resolve current Windows user SID.' }
+$userSid=$currentIdentity.User.Value
+$principal=New-ScheduledTaskPrincipal -UserId $userSid -LogonType Interactive -RunLevel Limited
+$logon=New-ScheduledTaskTrigger -AtLogOn -User $userSid
 $repeat=New-ScheduledTaskTrigger -Once -At ((Get-Date).AddMinutes(1)) -RepetitionInterval (New-TimeSpan -Minutes 1) -RepetitionDuration (New-TimeSpan -Days 3650)
 $settings=New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -ExecutionTimeLimit ([TimeSpan]::Zero) -RestartCount 999 -RestartInterval (New-TimeSpan -Minutes 1) -Hidden -MultipleInstances IgnoreNew
+
+# Prove the principal is schedulable before stopping a single working task.
+$preflightName="HomeCenterFortressPrincipalPreflight-$PID"
+$preflightAction=New-ScheduledTaskAction -Execute $ps -Argument '-NoLogo -NoProfile -NonInteractive -Command "exit 0"'
+try {
+  Register-ScheduledTask -TaskName $preflightName -Action $preflightAction -Trigger $repeat -Principal $principal -Settings $settings -Force | Out-Null
+} finally {
+  Unregister-ScheduledTask -TaskName $preflightName -Confirm:$false -ErrorAction SilentlyContinue
+}
 
 function Register-FortressTask([string]$Name,[string]$Script,[string]$Extra='') {
   $arg = '-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File "{0}" {1}' -f $Script,$Extra
   $action=New-ScheduledTaskAction -Execute $ps -Argument $arg
-  Stop-ScheduledTask -TaskName $Name -ErrorAction SilentlyContinue
-  Register-ScheduledTask -TaskName $Name -Action $action -Trigger @($logon,$repeat) -Principal $principal -Settings $settings -Force | Out-Null
-  Start-ScheduledTask -TaskName $Name
+  $backupXml=$null
+  $existing=Get-ScheduledTask -TaskName $Name -ErrorAction SilentlyContinue
+  if($existing){ $backupXml=Export-ScheduledTask -TaskName $Name }
+  try {
+    if($existing){ Stop-ScheduledTask -TaskName $Name -ErrorAction SilentlyContinue }
+    Register-ScheduledTask -TaskName $Name -Action $action -Trigger @($logon,$repeat) -Principal $principal -Settings $settings -Force | Out-Null
+    Start-ScheduledTask -TaskName $Name
+  } catch {
+    $installError=$_.Exception
+    if($backupXml){
+      try {
+        Unregister-ScheduledTask -TaskName $Name -Confirm:$false -ErrorAction SilentlyContinue
+        Register-ScheduledTask -TaskName $Name -Xml $backupXml -Force | Out-Null
+        Start-ScheduledTask -TaskName $Name -ErrorAction SilentlyContinue
+      } catch {}
+    }
+    throw $installError
+  }
 }
 
 Register-FortressTask $TaskName $LaunchPath ('-ConfigPath "{0}"' -f $ConfigPath)
@@ -139,6 +165,7 @@ $result=[ordered]@{
   appliedAt=(Get-Date).ToUniversalTime().ToString('o')
   machine=$env:COMPUTERNAME
   user=[Environment]::UserName
+  userSid=$userSid
   sourceRef=$SourceRef
   repoPath=$RepoPath
   workerId=[string]$cfg.workerId
