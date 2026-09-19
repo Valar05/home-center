@@ -63,7 +63,14 @@ PY
 recover(){
   local repo="$1" reason="$2" recover="$repo/tools/home_center_phone_relay_recover.sh"
   log "RECOVERY_REQUEST reason=$reason repo=$repo"
-  if HC_PHONE_REPO="$repo" sh "$recover" >>"$LOG" 2>&1; then
+  if env \
+    -u PHONE_HANDS_WATCHDOG_INTERVAL \
+    -u PHONE_HANDS_WATCHDOG_HEALTHY_AGE_SECONDS \
+    -u PHONE_HANDS_WATCHDOG_BUSY_GRACE_SECONDS \
+    -u PHONE_HANDS_WATCHDOG_STARTUP_GRACE_SECONDS \
+    -u PHONE_HANDS_STATE_DIR \
+    -u PHONE_HANDS_REPO_ROOT \
+    HC_PHONE_REPO="$repo" sh "$recover" >>"$LOG" 2>&1; then
     log "RECOVERED reason=$reason"
     return 0
   else

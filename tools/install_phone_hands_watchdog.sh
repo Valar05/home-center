@@ -20,6 +20,7 @@ chmod 700 "$BIN"
 cat > "$BOOT" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
 export PHONE_HANDS_REPO_ROOT="$REPO_ROOT"
+export PHONE_HANDS_WATCHDOG_INTERVAL=60
 nohup "$BIN" loop >>"$STATE_DIR/phone-hands-watchdog-boot.log" 2>&1 &
 EOF
 chmod 700 "$BOOT"
