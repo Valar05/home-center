@@ -3,7 +3,8 @@ param(
   [string]$WorkerTaskName = 'HomeCenterComputerHands',
   [string]$WatchdogTaskName = 'HomeCenterComputerHandsWatchdog',
   [int]$CheckSeconds = 20,
-  [int]$CloudStaleSeconds = 150
+  [int]$CloudStaleSeconds = 150,
+  [int]$LowBatteryReleasePercent = 20
 )
 
 $ErrorActionPreference = 'SilentlyContinue'
@@ -37,12 +38,33 @@ function L([string]$Message) {
   }
 }
 
-function Test-AcPower {
+function Get-PowerState {
+  $onAc=$true
+  $batteryPercent=$null
   try {
     $rows=@(Get-CimInstance -Namespace root\wmi -Class BatteryStatus -ErrorAction Stop)
-    if($rows.Count -eq 0){ return $true }
-    return [bool]($rows | Where-Object { $_.PowerOnline } | Select-Object -First 1)
-  } catch { return $true }
+    if($rows.Count -gt 0){
+      $onAc=[bool]($rows | Where-Object { $_.PowerOnline } | Select-Object -First 1)
+    }
+  } catch {}
+
+  try {
+    $battery=Get-CimInstance Win32_Battery -ErrorAction Stop | Select-Object -First 1
+    if($battery -and $battery.EstimatedChargeRemaining -ne $null){
+      $batteryPercent=[int]$battery.EstimatedChargeRemaining
+    }
+  } catch {}
+
+  # Uptime wins during ordinary battery use. At critically low battery, release
+  # the execution-state hold so Windows can protect the machine instead of
+  # Fortress driving it into a hard power loss.
+  $holdAwake=[bool]($onAc -or $batteryPercent -eq $null -or $batteryPercent -gt $LowBatteryReleasePercent)
+  return [ordered]@{
+    acPower=$onAc
+    batteryPercent=$batteryPercent
+    lowBatteryReleasePercent=$LowBatteryReleasePercent
+    sleepInhibited=$holdAwake
+  }
 }
 
 function Ensure-Task([string]$Name) {
@@ -139,8 +161,8 @@ L "sentinel_start pid=$PID"
 while($true){
   try {
     $cfg=Get-Content -LiteralPath $ConfigPath -Raw | ConvertFrom-Json
-    $onAc=Test-AcPower
-    if($onAc){
+    $powerState=Get-PowerState
+    if($powerState.sleepInhibited){
       [void][FortressPower]::SetThreadExecutionState([FortressPower]::ES_CONTINUOUS -bor [FortressPower]::ES_SYSTEM_REQUIRED)
     } else {
       [void][FortressPower]::SetThreadExecutionState([FortressPower]::ES_CONTINUOUS)
@@ -169,7 +191,10 @@ while($true){
       updatedAt=(Get-Date).ToUniversalTime().ToString('o')
       machine=$env:COMPUTERNAME
       pid=$PID
-      acPower=$onAc
+      acPower=[bool]$powerState.acPower
+      batteryPercent=$powerState.batteryPercent
+      lowBatteryReleasePercent=[int]$powerState.lowBatteryReleasePercent
+      sleepInhibited=[bool]$powerState.sleepInhibited
       workerTask=$workerTaskState
       watchdogTask=$watchdogTaskState
       cloudHealthPath=$healthPath
