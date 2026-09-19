@@ -73,3 +73,20 @@ Contact sheets are the unit of generation and retargeting.
 - Do not replace source keys with invented “equivalent” poses. The point of a performed video is to preserve the actual keys and relationships.
 - No stabilization, puppet deformation, or other smart interpolation before the direct source-contact-sheet -> target-contact-sheet pass has been evaluated.
 - If the source video contains feet, preserve them in the source contact sheet and target contact sheet.
+
+
+## Two-key bridge rule
+When two authored contact-sheet frames carry the event, use those exact endpoints and derive only connective frames between them.
+
+Rules:
+- keep the authored endpoint pixels unchanged;
+- use deterministic articulated deformation for intermediate frames;
+- keep planted foot and world anchors explicit;
+- do not whole-image crossfade or optical-flow blend endpoints;
+- do not create ghost silhouettes or double exposures;
+- allow the destination authored key to arrive as a deliberate graphic snap;
+- reverse from the destination key for recovery rather than generating extra poses;
+- validate in Pose Lab playback, not only as still images.
+
+Pattern: AUTHORED KEY -> PROCEDURAL COMPRESSION -> AUTHORED KEY -> PROCEDURAL RECOVERY.
+The bridge is connective motion only and must not invent a new semantic pose or redesign the character.
