@@ -63,7 +63,7 @@
     "whole_sheet_inspected": true
   },
   "source_art_embedded": false,
-  "state": "PERSISTED_NOT_DELIVERED",
+  "state": "DELIVERED_PENDING_TERMINAL_DURABILITY",
   "video_packaging": "embedded MP4 data URI in root-clock-custody-fork-running-release-repair.motion.html",
   "video_required": true,
   "video_source": "abstract_ascii_rig_only",
@@ -85,5 +85,29 @@
   },
   "tango": "PASS_CURRENT_WORKER_ACTUAL_FINAL_MEDIA",
   "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_SAME_FINAL_MEDIA",
-  "backward_compatible": true
+  "backward_compatible": true,
+  "pre_delivery_issue_comment": 5744850009,
+  "pre_delivery_home_center_marker": "ascii-kinesis-contact031-pre-delivery-binding-20260919-35656408-v1",
+  "delivery_media_sha256": "35656408bef2d777ad1787de884abc7afb2c1cbb80d2179ba1da40851cf4542a",
+  "delivery_media_export_command_id": "phc_contact031_media_export_20260919_1433_v1",
+  "delivery_surface": {
+    "chat_part1_ascii": true,
+    "chat_part2_json": true,
+    "chat_part3_visible_video": true,
+    "ordered": true
+  },
+  "persistence": {
+    "exact_six_files": true,
+    "exact_one_spa": true,
+    "repo_persisted": true,
+    "repo_readback": true,
+    "issue_pre_delivery_comment": 5744850009,
+    "issue_pre_delivery_readback": true,
+    "home_center_pre_delivery_readback": true,
+    "chat_part1_ascii": true,
+    "chat_part2_json": true,
+    "chat_part3_visible_video": true,
+    "terminal_reconciled": false
+  },
+  "drew_accepted": false
 }
