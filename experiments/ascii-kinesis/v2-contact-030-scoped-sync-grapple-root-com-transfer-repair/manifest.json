@@ -57,14 +57,14 @@
   },
   "evaluation": {
     "tango": {
-      "status": "PENDING_RECURSIVE_TANGO_CURRENT_MEDIA",
+      "status": "PASS_CURRENT_WORKER_ACTUAL_FINAL_MEDIA",
       "render_media_sha256": "dc20bae2f2e72fa3b0b1dda84f4fcfcf9a07bd898f0649a0de06477925138c2c",
-      "judgment": "Prior PASS invalidated by authorized runtime media identity mismatch; actual visible Tango required on exact repaired media."
+      "judgment": "Fresh current-worker visual inspection of the actual final 320x192 H.264 media, all 48 decoded frames from the exact Home Center-exported bytes after authenticated reconstruction: PASS. Separation is readable before root-led close; near-range compression precedes the two-anchor lock; B visibly drops into the load stack before A unweights; transfer carries A left/up while B remains structurally loaded; release is a hard topology break; A and B recover on unequal clocks through airborne departure, low brace, rise, brake, and displaced settle. No inherited old-media PASS was used."
     },
     "noodle_queen": {
-      "status": "PENDING_AFTER_TANGO_CURRENT_MEDIA",
+      "status": "PASS_TASTE_FUNCTION_CONTEMPT_SAME_FINAL_MEDIA",
       "render_media_sha256": "dc20bae2f2e72fa3b0b1dda84f4fcfcf9a07bd898f0649a0de06477925138c2c",
-      "judgment": "Prior Queen PASS invalidated with old media identity; same-media Queen required after Tango."
+      "judgment": "PASS after Tango on the same exact final media. The grapple reads as custody transfer rather than two mannequins touching: B gets underneath the relationship before A leaves the floor, the middle empties decisively on release, and the recovery does not snap back to mirrored idle. The early approach is intentionally plain, but it earns contact distance instead of counterfeiting complexity; the load ownership and aftermath survive the 320x192 reduction."
     }
   },
   "files": [
@@ -77,7 +77,7 @@
   ],
   "official_validator": {
     "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
-    "result": "PENDING_POST_MEDIA_IDENTITY_REPAIR_TANGO_QUEEN"
+    "result": "PENDING_POST_TANGO_QUEEN_RUN"
   },
   "persistence": {
     "exact_six_files": true,
