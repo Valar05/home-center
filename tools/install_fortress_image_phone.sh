@@ -9,6 +9,9 @@ mkdir -p "$BIN" "$STATE"
 
 required=(
   tools/venice_fleshpunk_phone.sh
+  tools/fortress_image_cli.py
+  tools/fortress_image_presets.json
+  tools/fortress_image_cauldron.ps1
   tools/fortress_image_entry.sh
   tools/accept_fortress_image_phone.sh
   tools/accept_venice_fleshpunk_phone.sh
@@ -32,7 +35,7 @@ mv "$DEST.new" "$DEST"
 cat > "$BIN/fortress-image" <<'EOF'
 #!/data/data/com.termux/files/usr/bin/sh
 export FORTRESS_IMAGE_PROFILE="${FORTRESS_IMAGE_PROFILE:-plain}"
-exec bash "$HOME/.local/share/fortress-image/tools/fortress_image_entry.sh" "$@"
+exec python "$HOME/.local/share/fortress-image/tools/fortress_image_cli.py" "$@"
 EOF
 chmod 700 "$BIN/fortress-image"
 
@@ -107,5 +110,8 @@ print(json.dumps({
   'atomRequired':False,
   'vladRequired':False,
   'endpointPolicy':'verified-ssh-axis-dynamic',
+  'presetRegistry':sys.argv[1]+'/tools/fortress_image_presets.json',
+  'deterministicCli':sys.argv[1]+'/tools/fortress_image_cli.py',
+  'cauldronRuntime':sys.argv[1]+'/tools/fortress_image_cauldron.ps1',
 },sort_keys=True))
 PY
