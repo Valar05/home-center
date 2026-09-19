@@ -90,3 +90,17 @@ Rules:
 
 Pattern: AUTHORED KEY -> PROCEDURAL COMPRESSION -> AUTHORED KEY -> PROCEDURAL RECOVERY.
 The bridge is connective motion only and must not invent a new semantic pose or redesign the character.
+
+
+## Two-key displacement morph rule
+Two-Key Snap connective motion must be a true displacement/deformation of one body between two sacred authored endpoint images.
+
+Hard requirements:
+- Key A and Key B remain exact authored images at the endpoints.
+- Intermediate frames must move pixels/spatial regions through one-to-one deformation. They must not alpha-crossfade A and B, pixel-vote between A and B, or composite both bodies.
+- At every intermediate frame there is one head, one torso, two arms/hands, two legs/feet, one weapon/holster set. Duplicate hands, limbs, faces, silhouettes, or weapon edges are automatic FAIL.
+- Use articulated/body-region or mesh/landmark-guided warping with explicit endpoint correspondences. The bridge should visibly change pose, not merely texture.
+- Planted feet must remain world-anchored unless the authored endpoint itself moves them.
+- If a limb changes position substantially, the deformation must carry that same limb through space. Do not leave a ghost at the origin.
+- Never label a crossfade or mixed-pixel dissolve as displacement morphing.
+- Visual acceptance requires that A visibly becomes B in playback while anatomy remains singular and coherent.
