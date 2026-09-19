@@ -46,12 +46,12 @@ for token in [
 for forbidden in [
     "HC_ENABLE_LEGACY_PHONE_HANDS_WATCHDOG",
     "LEGACY_PHONE_HANDS_WATCHDOG_RETIRED",
-    "exec "$DECOMMISSION"",
+    'exec "$DECOMMISSION"',
     "termux-wake-lock",
     "termux-notification",
 ]:
     assert forbidden not in installer, f"installer regressed to retired/side-effect path: {forbidden}"
 
-assert "PHONE_HANDS_REPO_ROOT="$REPO_ROOT" "$BIN" once" in installer
-assert "PHONE_HANDS_REPO_ROOT="$REPO_ROOT" nohup "$BIN" loop" in installer
+assert 'PHONE_HANDS_REPO_ROOT="$REPO_ROOT" "$BIN" once' in installer
+assert 'PHONE_HANDS_REPO_ROOT="$REPO_ROOT" nohup "$BIN" loop' in installer
 print("Phone Hands working relay watchdog contract: PASS")
