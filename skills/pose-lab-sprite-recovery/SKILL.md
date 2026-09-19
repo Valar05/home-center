@@ -47,3 +47,17 @@ Preferred order:
 3. Do not mistake authenticated connector readback for browser reachability.
 
 Before giving Drew a localhost link, verify the manifest transport from the same browser-reachable lane. A GitHub connector fetch is not that proof.
+
+
+## Subtle-idle redraw rule
+For subtle idles, per-frame image generation is a red failure mode. Similar semantic keys must not be independently redrawn: costume folds, straps, hoses, face, silhouette, and weapon detail will jitter more than the intended motion.
+
+Required order for subtle motion:
+1. lock one appearance-authority frame;
+2. derive motion from the source performance/contact sheet;
+3. deform or rig the same pixels deterministically for nearby keys;
+4. keep feet/world anchors explicit;
+5. use generated redraws only for genuinely different semantic poses, never as the in-between mechanism;
+6. judge the result in playback before promoting it.
+
+If playback reads as texture crawl, silhouette creep, or costume boil, reject the candidate even if every still frame looks good. Do not try to rescue redraw jitter with timing tweaks.
