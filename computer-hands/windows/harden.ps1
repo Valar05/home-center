@@ -102,6 +102,7 @@ $principal=New-ScheduledTaskPrincipal -UserId $userSid -LogonType Interactive -R
 $logon=New-ScheduledTaskTrigger -AtLogOn -User $userSid
 $repeat=New-ScheduledTaskTrigger -Once -At ((Get-Date).AddMinutes(1)) -RepetitionInterval (New-TimeSpan -Minutes 1) -RepetitionDuration (New-TimeSpan -Days 3650)
 $settings=New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -ExecutionTimeLimit ([TimeSpan]::Zero) -RestartCount 999 -RestartInterval (New-TimeSpan -Minutes 1) -Hidden -MultipleInstances IgnoreNew
+$sentinelSettings=New-ScheduledTaskSettingsSet -DontStopIfGoingOnBatteries -StartWhenAvailable -WakeToRun -ExecutionTimeLimit ([TimeSpan]::Zero) -RestartCount 999 -RestartInterval (New-TimeSpan -Minutes 1) -Hidden -MultipleInstances IgnoreNew
 
 # Prove the principal is schedulable before stopping a single working task.
 $preflightName="HomeCenterFortressPrincipalPreflight-$PID"
@@ -112,7 +113,7 @@ try {
   Unregister-ScheduledTask -TaskName $preflightName -Confirm:$false -ErrorAction SilentlyContinue
 }
 
-function Register-FortressTask([string]$Name,[string]$Script,[string]$Extra='') {
+function Register-FortressTask([string]$Name,[string]$Script,[string]$Extra='',[object]$TaskSettings=$settings) {
   $arg = '-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File "{0}" {1}' -f $Script,$Extra
   $action=New-ScheduledTaskAction -Execute $ps -Argument $arg
   $backupXml=$null
@@ -120,7 +121,7 @@ function Register-FortressTask([string]$Name,[string]$Script,[string]$Extra='') 
   if($existing){ $backupXml=Export-ScheduledTask -TaskName $Name }
   try {
     if($existing){ Stop-ScheduledTask -TaskName $Name -ErrorAction SilentlyContinue }
-    Register-ScheduledTask -TaskName $Name -Action $action -Trigger @($logon,$repeat) -Principal $principal -Settings $settings -Force | Out-Null
+    Register-ScheduledTask -TaskName $Name -Action $action -Trigger @($logon,$repeat) -Principal $principal -Settings $TaskSettings -Force | Out-Null
     Start-ScheduledTask -TaskName $Name
   } catch {
     $installError=$_.Exception
@@ -137,15 +138,19 @@ function Register-FortressTask([string]$Name,[string]$Script,[string]$Extra='') 
 
 Register-FortressTask $TaskName $LaunchPath ('-ConfigPath "{0}"' -f $ConfigPath)
 Register-FortressTask $WatchdogTaskName $WatchdogPath ('-ConfigPath "{0}" -TaskName "{1}" -StaleSeconds 120 -CheckSeconds 20 -RestartCooldownSeconds 90' -f $ConfigPath,$TaskName)
-Register-FortressTask $SentinelTaskName $SentinelPath ('-ConfigPath "{0}" -WorkerTaskName "{1}" -WatchdogTaskName "{2}" -CheckSeconds 20 -CloudStaleSeconds 150' -f $ConfigPath,$TaskName,$WatchdogTaskName)
+Register-FortressTask $SentinelTaskName $SentinelPath ('-ConfigPath "{0}" -WorkerTaskName "{1}" -WatchdogTaskName "{2}" -CheckSeconds 20 -CloudStaleSeconds 150' -f $ConfigPath,$TaskName,$WatchdogTaskName) $sentinelSettings
 
-$power=[ordered]@{changed=$false;standbyAc=$null;hibernateAc=$null}
+$power=[ordered]@{changed=$false;standbyAc=$null;hibernateAc=$null;lidCloseAc=$null;reactivate=$null}
 if(-not $PreserveAcSleep){
   & powercfg.exe /change standby-timeout-ac 0 | Out-Null
   $power.standbyAc=$LASTEXITCODE
   & powercfg.exe /change hibernate-timeout-ac 0 | Out-Null
   $power.hibernateAc=$LASTEXITCODE
-  $power.changed=($power.standbyAc -eq 0 -and $power.hibernateAc -eq 0)
+  & powercfg.exe /setacvalueindex SCHEME_CURRENT 4f971e89-eebd-4455-a8de-9e59040e7347 5ca83367-6e45-459f-a27b-476b1d01c936 0 | Out-Null
+  $power.lidCloseAc=$LASTEXITCODE
+  & powercfg.exe /setactive SCHEME_CURRENT | Out-Null
+  $power.reactivate=$LASTEXITCODE
+  $power.changed=($power.standbyAc -eq 0 -and $power.hibernateAc -eq 0 -and $power.lidCloseAc -eq 0 -and $power.reactivate -eq 0)
 }
 
 Start-Sleep -Seconds 8
