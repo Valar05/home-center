@@ -24,7 +24,16 @@
     "strict_decode": "PASS"
   },
   "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_SAME_FINAL_MEDIA",
-  "official_validator": "PENDING_POST_TANGO_QUEEN_RUN",
+  "official_validator": {
+    "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
+    "result": "PASS_AUTHORIZED_HOME_CENTER_CANDIDATE_ISOLATED",
+    "command_id": "phc_contact031_validator_20260919_v3",
+    "validated_ref": "657f56c882d751e1be1c9b311b1751ff08028b42",
+    "entries_checked": [
+      "v2-contact-031-root-clock-custody-fork-running-release-repair"
+    ],
+    "stderr_empty": true
+  },
   "repo_readback": false,
   "revision": {
     "negative_fixture": "experiments/ascii-kinesis/v2-contact-002-root-clock-custody-fork/",
