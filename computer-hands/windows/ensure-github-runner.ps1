@@ -20,8 +20,25 @@ $releaseTag = "v$Version"
 $downloadUrl = "https://github.com/actions/runner/releases/download/$releaseTag/$asset"
 $stateRoot = Join-Path $env:LOCALAPPDATA 'HomeCenter\ComputerHands'
 $receiptPath = Join-Path $stateRoot 'github-runner-receipt.json'
+$failurePath = Join-Path $stateRoot 'github-runner-failure.json'
 $logPath = Join-Path $stateRoot 'github-runner-bootstrap.log'
 $zipPath = Join-Path $env:TEMP $asset
+New-Item -ItemType Directory -Force -Path $stateRoot | Out-Null
+Remove-Item -Force -LiteralPath $receiptPath -ErrorAction SilentlyContinue
+Remove-Item -Force -LiteralPath $failurePath -ErrorAction SilentlyContinue
+trap {
+  $failure=[ordered]@{
+    schema='home-center-github-runner-failure-v1'
+    failedAt=(Get-Date).ToUniversalTime().ToString('o')
+    machine=$env:COMPUTERNAME
+    runnerName=$RunnerName
+    version=$Version
+    message=$_.Exception.Message
+    scriptStackTrace=$_.ScriptStackTrace
+  }
+  try { [IO.File]::WriteAllText($failurePath,($failure|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false)) } catch {}
+  exit 1
+}
 
 function Log([string]$Message) {
   New-Item -ItemType Directory -Force -Path $stateRoot | Out-Null
@@ -182,5 +199,6 @@ $receipt = [ordered]@{
   ok = [bool]($listener -and $registered -and $registered.status -eq 'online' -and $task.State -eq 'Running')
 }
 [IO.File]::WriteAllText($receiptPath,($receipt | ConvertTo-Json -Depth 10),[Text.UTF8Encoding]::new($false))
+Remove-Item -Force -LiteralPath $failurePath -ErrorAction SilentlyContinue
 $receipt | ConvertTo-Json -Depth 10
 if (-not $receipt.ok) { throw 'GitHub runner did not reach registered online state.' }
