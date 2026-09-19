@@ -2,7 +2,7 @@
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-contact-030-scoped-sync-grapple-root-com-transfer-repair",
   "lane": "contact",
-  "status": "PERSISTED_NOT_DELIVERED",
+  "status": "DELIVERED_PENDING_TERMINAL_DURABILITY",
   "reset_issue_comment": 5634613836,
   "chronology_bind_issue_comment": 5644669228,
   "successor_churn_rebind_issue_comment": 5645387490,
@@ -67,22 +67,37 @@
   },
   "official_validator": {
     "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
-    "result": "PENDING_POST_TANGO_QUEEN_RUN"
+    "result": "PASS_AUTHORIZED_HOME_CENTER_CANDIDATE_ISOLATED",
+    "command_id": "phc_aaabb269-d0b5-49f5-b6f5-5c26a60d7ef3"
   },
   "persistence": {
     "repo_persisted": true,
-    "repo_readback": false,
-    "issue_pre_delivery_comment": null,
-    "issue_pre_delivery_readback": false,
-    "home_center_pre_delivery_readback": false,
-    "chat_part1_ascii": false,
-    "chat_part2_json": false,
-    "chat_part3_visible_video": false,
+    "repo_readback": true,
+    "issue_pre_delivery_comment": 5741551862,
+    "issue_pre_delivery_readback": true,
+    "home_center_pre_delivery_readback": true,
+    "chat_part1_ascii": true,
+    "chat_part2_json": true,
+    "chat_part3_visible_video": true,
     "issue_terminal_comment": null,
     "home_center_terminal_binding": false,
-    "home_center_terminal_readback": false
+    "home_center_terminal_readback": false,
+    "exact_six_files": true,
+    "exact_one_spa": true
   },
   "drew_accepted": false,
   "authorized_runtime_media_identity_failure_issue_comment": 5737833341,
-  "authorized_runtime_media_identity_failure_marker": "ascii-kinesis-manager-authorized-media-identity-failure-20260918-1925-cdt"
+  "authorized_runtime_media_identity_failure_marker": "ascii-kinesis-manager-authorized-media-identity-failure-20260918-1925-cdt",
+  "authorized_runtime_proof": {
+    "command_id": "phc_2f481536-9846-4071-95cb-f03597eff2a0",
+    "source_ref": "011f2e9d5efef3f3142a9c7ce7321f21bbd2d658",
+    "media_sha256": "dc20bae2f2e72fa3b0b1dda84f4fcfcf9a07bd898f0649a0de06477925138c2c",
+    "media_bytes": 8542,
+    "strict_decode": true,
+    "stderr_empty": true,
+    "device_id": "primary-phone"
+  },
+  "delivery_media_export_command_id": "phc_7a5bf85e-bad0-413b-8484-597ea6999258",
+  "pre_delivery_issue_comment": 5741551862,
+  "pre_delivery_home_center_marker": "ascii-kinesis-contact030-pre-delivery-binding-20260919-dc20-v1"
 }
