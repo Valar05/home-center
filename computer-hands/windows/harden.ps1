@@ -52,7 +52,14 @@ $sourceFiles = [ordered]@{
   'computer-hands/windows/launch.ps1' = $LaunchPath
 }
 foreach($entry in $sourceFiles.GetEnumerator()){
-  [IO.File]::WriteAllText([string]$entry.Value,(Read-GitFile ([string]$entry.Key)),[Text.UTF8Encoding]::new($false))
+  $source=Read-GitFile ([string]$entry.Key)
+  $tokens=$null
+  $errors=$null
+  [System.Management.Automation.Language.Parser]::ParseInput($source,[ref]$tokens,[ref]$errors) | Out-Null
+  if($errors.Count -gt 0){
+    throw ("PowerShell parse failed for {0}: {1}" -f $entry.Key,(($errors|ForEach-Object{$_.Message}) -join '; '))
+  }
+  [IO.File]::WriteAllText([string]$entry.Value,$source,[Text.UTF8Encoding]::new($false))
 }
 
 $cfg = Get-Content -LiteralPath $ConfigPath -Raw | ConvertFrom-Json
