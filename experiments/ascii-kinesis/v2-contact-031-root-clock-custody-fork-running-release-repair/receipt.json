@@ -23,8 +23,8 @@
     "sha256": "35656408bef2d777ad1787de884abc7afb2c1cbb80d2179ba1da40851cf4542a",
     "strict_decode": "PASS"
   },
-  "noodle_queen": "PENDING_AFTER_TANGO",
-  "official_validator": "PENDING_AFTER_TANGO_QUEEN",
+  "noodle_queen": "PASS_TASTE_FUNCTION_CONTEMPT_SAME_FINAL_MEDIA",
+  "official_validator": "PENDING_POST_TANGO_QUEEN_RUN",
   "repo_readback": false,
   "revision": {
     "negative_fixture": "experiments/ascii-kinesis/v2-contact-002-root-clock-custody-fork/",
@@ -57,5 +57,21 @@
     "whole_sheet_inspected": true
   },
   "state": "PERSISTED_NOT_DELIVERED",
-  "tango": "PENDING_ACTUAL_VISIBLE_FINAL_MEDIA"
+  "tango": "PASS_CURRENT_WORKER_ACTUAL_FINAL_MEDIA",
+  "quality": {
+    "tango": {
+      "status": "PASS_CURRENT_WORKER_ACTUAL_FINAL_MEDIA",
+      "render_media_sha256": "35656408bef2d777ad1787de884abc7afb2c1cbb80d2179ba1da40851cf4542a",
+      "authorized_media_export_command_id": "phc_contact031_media_export_20260919_1433_v1",
+      "frames_visually_inspected": 45,
+      "judgment": "Fresh current-worker visual inspection of the exact Home Center-exported 320x192 H.264 media, all 45 decoded frames: PASS. Root/COM continue right through gather, counterrotation, whip, release, recoil, and recovery; support alternates instead of freezing; hand-object custody is readable before the hard A_HAND->FREE fork; the free object visibly gains separation while the carrier keeps moving; recoil drops and recovers through subsequent strides rather than reversing the throw or snapping to idle; asymmetry and negative space survive reduction."
+    },
+    "noodle_queen": {
+      "status": "PASS_TASTE_FUNCTION_CONTEMPT_SAME_FINAL_MEDIA",
+      "render_media_sha256": "35656408bef2d777ad1787de884abc7afb2c1cbb80d2179ba1da40851cf4542a",
+      "after_tango": true,
+      "judgment": "PASS after Tango on the same exact final media. The action reads as a running throw rather than a planted throw with translated root: the load stays behind the traveling pelvis, release occurs at full directional commitment, and the object independent clock becomes obvious immediately after the fork. Projectile exit and carrier recovery remain unequal and purposeful without decorative complexity."
+    }
+  },
+  "authorized_media_export_command_id": "phc_contact031_media_export_20260919_1433_v1"
 }
