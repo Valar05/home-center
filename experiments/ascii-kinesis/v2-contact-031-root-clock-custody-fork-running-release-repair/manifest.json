@@ -1,0 +1,71 @@
+{
+  "ascii_literal_text": true,
+  "experiment_id": "v2-contact-031-root-clock-custody-fork-running-release-repair",
+  "files": [
+    "build.py",
+    "contact-sheet.txt",
+    "manifest.json",
+    "motion.json",
+    "receipt.json",
+    "root-clock-custody-fork-running-release-repair.motion.html"
+  ],
+  "format_version": 2,
+  "lane": "contact",
+  "ligatures_disabled": true,
+  "media": {
+    "bytes": 8665,
+    "decoded_frames": 45,
+    "probe": {
+      "avg_frame_rate": "24/1",
+      "codec_name": "h264",
+      "height": 192,
+      "nb_frames": "45",
+      "pix_fmt": "yuv420p",
+      "width": 320
+    },
+    "sha256": "35656408bef2d777ad1787de884abc7afb2c1cbb80d2179ba1da40851cf4542a",
+    "strict_decode": "PASS"
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "reconstruction": "python3 build.py",
+  "revision": {
+    "negative_fixture": "experiments/ascii-kinesis/v2-contact-002-root-clock-custody-fork/",
+    "reset_issue_comment": 5634613836,
+    "revises": "experiments/ascii-kinesis/v2-contact-002-root-clock-custody-fork/",
+    "source_change": false,
+    "successor_identity_issue_comment": 5744486433
+  },
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "source": {
+    "asset_id": 52578,
+    "game": "Super Mario Bros. 2: The Lost Levels (JPN)",
+    "name": "Mario & Luigi",
+    "platform": "NES",
+    "raw_bytes": 52370,
+    "raw_dimensions": [
+      584,
+      468
+    ],
+    "raw_sha256": "7aa238a5d3cb74646aa93659241a3f933caea45d7908a27e59fa56a477d33bf6",
+    "region": [
+      12,
+      300,
+      250,
+      103
+    ],
+    "rights": "evidence-only; no source pixels, palette, costume, exact silhouette, choreography, tracing, or redistribution",
+    "site": "The Spriters Resource",
+    "source_timing": "UNKNOWN",
+    "whole_sheet_inspected": true
+  },
+  "source_art_embedded": false,
+  "state": "PERSISTED_NOT_DELIVERED",
+  "video_packaging": "embedded MP4 data URI in root-clock-custody-fork-running-release-repair.motion.html",
+  "video_required": true,
+  "video_source": "abstract_ascii_rig_only",
+  "whitespace_preserved": true
+}
