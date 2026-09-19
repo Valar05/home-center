@@ -129,26 +129,39 @@
   "github": {
     "persisted": true,
     "readback": true,
-    "package_observed_main_oid": "e4d42e8b562c7b6c50b94a587dd132307eb22e7e",
+    "package_observed_main_oid": "3020f46f31fbc1b41cc5b17c90bb57eaee20ed59",
     "exact_six_files": true,
     "authoritative_spa_count": 1,
     "package_blobs": {
-      "black-pirate-compression-release-repair.motion.html": "b3bd358da0688ca28a93c4e66f63c33ef392cf90",
+      "black-pirate-compression-release-repair.motion.html": "d1de191c87372e45f252fb1a83979524159a25d6",
       "build_motion.py": "4f6ff2e690e4a5c538b4ed1052e3f9497af50220",
       "contact_sheet.txt": "c7eac9901b61136610d9a2783df209c959ea0c8d",
-      "manifest.json": "ded77c1d79b7948690cd38481a720c4872e6a6a5",
-      "motion.json": "7f89967dc38fc08c5a091b8401bfacb925dfa4a3",
-      "receipt.json": "c7326dda795bab4a722af42c68159a1056cd44e2"
+      "manifest.json": "d7e146cdb2235096e3144352d2a44af6e8dc6579",
+      "motion.json": "531a18a7aa7327097f43a7600ae11f5b3c17af69",
+      "receipt_pre_reconciliation_blob": "4a97b7618b18fd25d1a734edc57456b7e736445e"
     },
-    "note": "package_observed_main_oid and package_blobs identify the exact pre-reconciliation package read back before this metadata-only receipt commit; media and the other five package files are unchanged"
+    "note": "Exact six-file/one-SPA GitHub readback at repair commit. This metadata-only receipt commit necessarily changes the receipt blob itself; media and the other five package files remain unchanged."
   },
   "authorized_runtime_proof": {
-    "status": "PENDING_POST_PERSIST_RECONSTRUCTION",
+    "status": "PASS_POST_PERSIST_RECONSTRUCTION_STRICT_DECODE",
     "execution_surface": "Home Center Phone Hands primary-phone",
-    "candidate_repair_probe": "phc_3fd24265-9a7b-4a36-bb55-3f163075d597",
+    "command_id": "phc_332df219-1b86-42c0-92f9-69270c4e2a59",
     "media_change": true,
-    "candidate_media_sha256": "6422ea5998d8e94a4f1d4ca107b66b36d329ce2ef382f82b3eb9ac0e847d4a10",
-    "candidate_media_bytes": 12090
+    "video_sha256": "6422ea5998d8e94a4f1d4ca107b66b36d329ce2ef382f82b3eb9ac0e847d4a10",
+    "bytes": 12090,
+    "single_video_data_uri": true,
+    "strict_decode_exit_code": 0,
+    "codec": "h264",
+    "pix_fmt": "yuv420p",
+    "dimensions": [
+      352,
+      112
+    ],
+    "fps": 24,
+    "declared_frames": 70,
+    "decoded_frames": 70,
+    "duration_s": 2.916667,
+    "stderr_empty": true
   },
   "issue": {
     "receipt": null,
