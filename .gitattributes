@@ -43,3 +43,10 @@
 # The deployment contract compares this generated source byte-for-byte.
 functions/venice_worker_profile.generated.js text eol=lf
 tools/deploy_venice_discord.sh text eol=lf
+
+# Fortress Image shell contracts run on THECAULDRON's Windows self-hosted runner.
+# Pin these Termux shell sources to LF so Git Bash validates the repository bytes.
+tools/venice_fleshpunk_phone.sh text eol=lf
+tools/fortress_image_entry.sh text eol=lf
+tools/install_fortress_image_phone.sh text eol=lf
+tools/accept_fortress_image_phone.sh text eol=lf
