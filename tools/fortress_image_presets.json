@@ -1,0 +1,134 @@
+{
+  "schema": "fortress-image-presets.v1",
+  "managedAssets": {
+    "dreamshaper8": {
+      "kind": "checkpoint",
+      "filename": "DreamShaper_8_pruned.safetensors",
+      "url": "https://huggingface.co/Lykon/DreamShaper/resolve/c6565f0dbcab40e8eb7be2d1e54f49cfc5415127/DreamShaper_8_pruned.safetensors?download=true",
+      "sha256": "879db523c30d3b9017143d56705015e15a2cb5628762c11d086fed9538abd7fd",
+      "bytes": 2132625894,
+      "source": "Lykon/DreamShaper",
+      "revision": "c6565f0dbcab40e8eb7be2d1e54f49cfc5415127"
+    },
+    "detailTweaker": {
+      "kind": "lora",
+      "filename": "add_detail.safetensors",
+      "url": "https://huggingface.co/OedoSoldier/detail-tweaker-lora/resolve/d75b249ea117a948e11649bbce7b828117d3ab89/add_detail.safetensors?download=true",
+      "sha256": "47aaaf0d2945ca937151d61304946dd229b3f072140b85484bc93e38f2a6e2f7",
+      "bytes": 37861176,
+      "source": "OedoSoldier/detail-tweaker-lora",
+      "revision": "d75b249ea117a948e11649bbce7b828117d3ab89"
+    }
+  },
+  "presets": {
+    "plain": {
+      "description": "Legacy SD 1.5 baseline. Kept for transport regression and comparison.",
+      "checkpoint": "v1-5-pruned-emaonly.safetensors",
+      "managedAssetKeys": [],
+      "loras": [],
+      "positivePrefix": "",
+      "negative": "low quality, blurry, malformed anatomy, malformed hands, extra fingers, missing fingers, watermark, signature, unwanted text, jpeg artifacts",
+      "steps": 28,
+      "cfg": 7.0,
+      "sampler": "euler_ancestral",
+      "scheduler": "normal",
+      "width": 512,
+      "height": 768
+    },
+    "fleshpunk": {
+      "description": "Legacy Fleshpunk compatibility preset.",
+      "checkpoint": "v1-5-pruned-emaonly.safetensors",
+      "managedAssetKeys": [],
+      "loras": [
+        {"filename": "drw_fleshpunk_v1.safetensors", "model": 0.85, "clip": 0.85}
+      ],
+      "positivePrefix": "",
+      "negative": "low quality, blurry, malformed anatomy, malformed hands, extra fingers, missing fingers, watermark, signature, unwanted text, jpeg artifacts",
+      "steps": 28,
+      "cfg": 7.0,
+      "sampler": "euler_ancestral",
+      "scheduler": "normal",
+      "width": 512,
+      "height": 768
+    },
+    "dream": {
+      "description": "DreamShaper 8 clean baseline. Stronger general-purpose SD 1.5 renderer with no style LoRA.",
+      "checkpoint": "DreamShaper_8_pruned.safetensors",
+      "managedAssetKeys": ["dreamshaper8"],
+      "loras": [],
+      "positivePrefix": "high quality, coherent composition, intentional lighting",
+      "negative": "low quality, blurry, malformed anatomy, malformed hands, extra fingers, missing fingers, watermark, signature, unwanted text, jpeg artifacts",
+      "steps": 26,
+      "cfg": 6.5,
+      "sampler": "dpmpp_2m",
+      "scheduler": "karras",
+      "width": 512,
+      "height": 768
+    },
+    "dream-photo": {
+      "description": "DreamShaper 8 plus restrained detail enhancement for modern realistic editorial images.",
+      "checkpoint": "DreamShaper_8_pruned.safetensors",
+      "managedAssetKeys": ["dreamshaper8", "detailTweaker"],
+      "loras": [
+        {"filename": "add_detail.safetensors", "model": 0.38, "clip": 0.38}
+      ],
+      "positivePrefix": "modern editorial photography, natural skin texture, controlled studio lighting, realistic materials, high-end color grading",
+      "negative": "plastic skin, waxy skin, overprocessed, low quality, blurry, malformed anatomy, malformed hands, extra fingers, missing fingers, watermark, signature, unwanted text, jpeg artifacts",
+      "steps": 26,
+      "cfg": 6.0,
+      "sampler": "dpmpp_2m",
+      "scheduler": "karras",
+      "width": 512,
+      "height": 768
+    },
+    "graphic": {
+      "description": "Modern realistic graphic illustration: editorial realism with bold shape language and restrained detail LoRA.",
+      "checkpoint": "DreamShaper_8_pruned.safetensors",
+      "managedAssetKeys": ["dreamshaper8", "detailTweaker"],
+      "loras": [
+        {"filename": "add_detail.safetensors", "model": 0.42, "clip": 0.42}
+      ],
+      "positivePrefix": "modern graphic editorial illustration, realistic anatomy and materials, hard confident line design, poster-grade composition, selective texture, dramatic controlled lighting, sophisticated print finish",
+      "negative": "generic anime, chibi, plastic 3d render, mushy painterly edges, low quality, blurry, malformed anatomy, malformed hands, extra fingers, missing fingers, watermark, signature, unwanted text, jpeg artifacts",
+      "steps": 28,
+      "cfg": 6.5,
+      "sampler": "dpmpp_2m",
+      "scheduler": "karras",
+      "width": 512,
+      "height": 768
+    },
+    "graphic-thirst": {
+      "description": "Adult-only glamorous graphic editorial portrait preset. Sexy without requiring a celebrity or identity LoRA.",
+      "checkpoint": "DreamShaper_8_pruned.safetensors",
+      "managedAssetKeys": ["dreamshaper8", "detailTweaker"],
+      "loras": [
+        {"filename": "add_detail.safetensors", "model": 0.52, "clip": 0.48}
+      ],
+      "positivePrefix": "adult woman age 25+, glamorous sensual editorial portrait, confident pose, modern graphic realism, fashion campaign art direction, natural skin texture, hard elegant line design, dramatic controlled lighting, sophisticated magazine color grading",
+      "negative": "child, minor, teen, young-looking, school uniform, childish proportions, generic anime, chibi, plastic skin, waxy skin, low quality, blurry, malformed anatomy, malformed hands, extra fingers, missing fingers, watermark, signature, unwanted text, jpeg artifacts",
+      "steps": 30,
+      "cfg": 6.2,
+      "sampler": "dpmpp_2m",
+      "scheduler": "karras",
+      "width": 512,
+      "height": 768
+    },
+    "fleshpunk-plus": {
+      "description": "Rebuilt Fleshpunk stack: DreamShaper 8 base, old Fleshpunk LoRA reduced, Detail Tweaker underneath it.",
+      "checkpoint": "DreamShaper_8_pruned.safetensors",
+      "managedAssetKeys": ["dreamshaper8", "detailTweaker"],
+      "loras": [
+        {"filename": "add_detail.safetensors", "model": 0.32, "clip": 0.28},
+        {"filename": "drw_fleshpunk_v1.safetensors", "model": 0.58, "clip": 0.52}
+      ],
+      "positivePrefix": "fleshpunk biomechanical design, readable engineered structure, tendon-like load paths, pressure vessels, couplers, manifolds, functional anatomy, graphic editorial realism",
+      "negative": "random gore, shapeless meat, generic tentacles, visual sludge, low quality, blurry, malformed anatomy, malformed hands, extra fingers, missing fingers, watermark, signature, unwanted text, jpeg artifacts",
+      "steps": 30,
+      "cfg": 6.3,
+      "sampler": "dpmpp_2m",
+      "scheduler": "karras",
+      "width": 512,
+      "height": 768
+    }
+  }
+}
