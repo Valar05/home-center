@@ -31,9 +31,10 @@ def forbid(text, needle, owner):
 
 def main():
     for shell in (GEN,ENTRY,INSTALL,ACCEPT,CAMPAIGN):
+        rel=shell.relative_to(ROOT).as_posix()
         subprocess.run(
-            ['bash','-n'],
-            input=shell.read_bytes().replace(b'\\r\\n',b'\\n').replace(b'\\r',b'\\n'),
+            ['bash','-lc',f'git show HEAD:{rel} | bash -n'],
+            cwd=ROOT,
             check=True,
         )
     subprocess.run([sys.executable,'-m','py_compile',str(SSH_AXIS),str(RESOLVER),str(CLI)],check=True)
