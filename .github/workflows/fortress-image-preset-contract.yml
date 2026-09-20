@@ -49,6 +49,10 @@ jobs:
           Write-Host "FORTRESS_IMAGE_CONTRACT_BODY_OK computer=$env:COMPUTERNAME"
 
       - uses: actions/checkout@v4
+        env:
+          GIT_CONFIG_COUNT: 1
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: "false"
         with:
           fetch-depth: 1
           lfs: false
