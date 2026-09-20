@@ -4,11 +4,58 @@ Set-StrictMode -Version Latest
 $RequestPath = 'C:\Users\Public\fortress-image-request.json'
 $ResultPath = 'C:\Users\Public\fortress-image-result.json'
 $PrimaryPng = 'C:\Users\Public\fortress-image-latest.png'
-$ComfyRoot = Join-Path $env:LOCALAPPDATA 'VeniceImageBridge\ComfyUI'
+$Comfy = 'http://127.0.0.1:8188'
+
+function Resolve-ComfyRoot {
+    $override = [string]$env:FORTRESS_COMFY_ROOT
+    if (-not [string]::IsNullOrWhiteSpace($override)) {
+        $candidate = [IO.Path]::GetFullPath($override)
+        if (-not (Test-Path -LiteralPath (Join-Path $candidate 'main.py') -PathType Leaf)) {
+            throw "FORTRESS_COMFY_ROOT does not contain ComfyUI main.py: $candidate"
+        }
+        return (Get-Item -LiteralPath $candidate).FullName
+    }
+
+    $live = @()
+    try {
+        $live = @(Get-CimInstance Win32_Process | Where-Object {
+            -not [string]::IsNullOrWhiteSpace([string]$_.ExecutablePath) -and
+            -not [string]::IsNullOrWhiteSpace([string]$_.CommandLine) -and
+            ([string]$_.CommandLine -match '(?i)ComfyUI[\\/]main\.py') -and
+            ([string]$_.CommandLine -match '(?i)--port\s+8188(?:\s|$)')
+        })
+    } catch {
+        $live = @()
+    }
+    foreach ($proc in $live) {
+        $pythonDir = Split-Path -Parent ([string]$proc.ExecutablePath)
+        $portableRoot = Split-Path -Parent $pythonDir
+        $candidate = Join-Path $portableRoot 'ComfyUI'
+        if (Test-Path -LiteralPath (Join-Path $candidate 'main.py') -PathType Leaf) {
+            return (Get-Item -LiteralPath $candidate).FullName
+        }
+    }
+
+    $fallbacks = @(
+        (Join-Path $env:USERPROFILE 'workspace\codex-lite-runtime\ComfyUI_windows_portable\ComfyUI'),
+        (Join-Path $env:LOCALAPPDATA 'VeniceImageBridge\ComfyUI')
+    )
+    $existing = @($fallbacks | Where-Object {
+        Test-Path -LiteralPath (Join-Path $_ 'main.py') -PathType Leaf
+    })
+    if ($existing.Count -eq 1) {
+        return (Get-Item -LiteralPath $existing[0]).FullName
+    }
+    if ($existing.Count -gt 1) {
+        throw "Multiple ComfyUI roots exist and no live port-8188 process identified one: $($existing -join ', ')"
+    }
+    throw 'Could not resolve the localhost ComfyUI root. Start the existing ComfyUI runtime or set FORTRESS_COMFY_ROOT.'
+}
+
+$ComfyRoot = Resolve-ComfyRoot
 $CheckpointRoot = Join-Path $ComfyRoot 'models\checkpoints'
 $LoraRoot = Join-Path $ComfyRoot 'models\loras'
 $OutputRoot = Join-Path $ComfyRoot 'output'
-$Comfy = 'http://127.0.0.1:8188'
 
 function Write-Result([System.Collections.IDictionary]$Result) {
     $Result['runtime'] = 'fortress_image_cauldron.ps1'
@@ -111,6 +158,18 @@ function Assert-Comfy {
         return $stats
     } catch {
         throw "ComfyUI unavailable on 127.0.0.1:8188: $($_.Exception.Message)"
+    }
+}
+
+function Get-ComfyModelInventory {
+    try {
+        $info = Invoke-RestMethod -TimeoutSec 10 "$Comfy/object_info"
+    } catch {
+        throw "Could not inspect ComfyUI model inventory: $($_.Exception.Message)"
+    }
+    return [ordered]@{
+        checkpoints = @($info.CheckpointLoaderSimple.input.required.ckpt_name[0])
+        loras = @($info.LoraLoader.input.required.lora_name[0])
     }
 }
 
@@ -332,6 +391,7 @@ switch ($action) {
             ok=$true
             action='setup'
             profile=[string]$req.profile
+            comfyRoot=$ComfyRoot
             assets=$installed
         })
         exit 0
@@ -343,6 +403,7 @@ switch ($action) {
             ok=$true
             action='models'
             profile=[string]$req.profile
+            comfyRoot=$ComfyRoot
             assets=@(Get-PresetAssetStatus $req)
         })
         exit 0
@@ -353,16 +414,33 @@ switch ($action) {
         $assets = @(Get-PresetAssetStatus $req)
         $missing = @($assets | Where-Object { $_.contains('exists') -and -not $_.exists })
         $badManaged = @($assets | Where-Object { $_.contains('verified') -and -not $_.verified })
-        $ok = ($missing.Count -eq 0 -and $badManaged.Count -eq 0)
+        $inventory = Get-ComfyModelInventory
+        $advertisedMissing = @()
+        if (-not [string]::IsNullOrWhiteSpace([string]$req.checkpoint) -and
+            @($inventory.checkpoints) -notcontains [string]$req.checkpoint) {
+            $advertisedMissing += "checkpoint:$([string]$req.checkpoint)"
+        }
+        foreach ($spec in @($req.loras)) {
+            $name = [string]$spec.filename
+            if (@($inventory.loras) -notcontains $name) {
+                $advertisedMissing += "lora:$name"
+            }
+        }
+        $ok = ($missing.Count -eq 0 -and $badManaged.Count -eq 0 -and $advertisedMissing.Count -eq 0)
         Write-Result ([ordered]@{
             schema='fortress-image-cauldron-doctor.v2'
             ok=$ok
             action='doctor'
             profile=[string]$req.profile
             comfy='http://127.0.0.1:8188'
+            comfyRoot=$ComfyRoot
+            advertisedCheckpoints=@($inventory.checkpoints)
+            advertisedLoras=@($inventory.loras)
+            advertisedMissing=$advertisedMissing
             assets=$assets
             missingCount=$missing.Count
             unverifiedManagedCount=$badManaged.Count
+            advertisedMissingCount=$advertisedMissing.Count
         })
         if (-not $ok) { exit 3 }
         exit 0
@@ -404,6 +482,7 @@ switch ($action) {
             negative=[string]$req.negative
             seed=[int64]$req.seed
             profile=[string]$req.profile
+            comfyRoot=$ComfyRoot
             mode=$mode
             count=$count
             cols=[int]$req.cols
