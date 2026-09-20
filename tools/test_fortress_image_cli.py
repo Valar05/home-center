@@ -73,6 +73,9 @@ def main():
     ps = PS1.read_text(encoding="utf-8")
     for fragment in (
         "http://127.0.0.1:8188",
+        "Resolve-ComfyRoot",
+        "FORTRESS_COMFY_ROOT",
+        "advertisedMissingCount",
         "CheckpointLoaderSimple",
         "LoraLoader",
         "strength_model",
