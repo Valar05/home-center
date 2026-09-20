@@ -86,6 +86,8 @@ const {
   registry: smsCalendarOperationRegistry,
   runOperation: smsCalendarOperationRunOperation,
 } = require('./sms_calendar_intake');
+const {assertHomeCenterIdentityAllowed} = require('./home_center_access_policy');
+const {homeCenterIdentityStatusOperation, homeCenterIdentityRevokeOperation} = require('./home_center_identity_security');
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const DEFAULT_MCP_AUTHORIZATION_SERVER_BASE = 'https://homecentermcp-vxybsaualq-uc.a.run.app';
@@ -166,14 +168,12 @@ function resolveOAuthGrant(resourceValue, scopeValue) {
 }
 const CREDIT_GATED_EMAILS = Object.freeze([
   'dclarke1005@gmail.com',
-  'junewren28@gmail.com',
   'timothypomeroy07@gmail.com',
 ]);
 const CREDIT_GATED_EMAIL_SET = new Set(CREDIT_GATED_EMAILS);
 
 const GITHUB_ADMIN_ALLOWED_EMAILS = Object.freeze([
   'dclarke1005@gmail.com',
-  'junewren28@gmail.com',
   'timothypomeroy07@gmail.com',
 ]);
 const GITHUB_ADMIN_ALLOWED_EMAIL_SET = new Set(GITHUB_ADMIN_ALLOWED_EMAILS);
@@ -181,6 +181,7 @@ const GITHUB_ADMIN_LEGACY_EMAIL = 'dclarke1005@gmail.com';
 
 function requireCreditGatedEmail(email, surface = 'credit-backed operation') {
   const clean = safeText(email, 320).toLowerCase();
+  assertHomeCenterIdentityAllowed(clean, surface);
   if (CREDIT_GATED_EMAIL_SET.has(clean)) return clean;
   const err = new Error(surface + ' is restricted to approved Home Center accounts.');
   err.status = 403;
@@ -197,6 +198,7 @@ async function requireCreditGatedContext({google, admin, googleClientId, googleC
 
 function requireGitHubAdminUser(user) {
   const email = safeText(user && user.email, 320).toLowerCase();
+  assertHomeCenterIdentityAllowed(email, 'GitHub Admin');
   if (GITHUB_ADMIN_ALLOWED_EMAIL_SET.has(email)) return email;
   const err = new Error('GitHub Admin is restricted to approved Home Center accounts.');
   err.status = 403;
@@ -604,6 +606,7 @@ async function loadMcpAccessContext(admin, google, googleClientId, googleClientS
   const snap = await oauthCollection(admin, 'mcpOAuthAccessTokens').doc(tokenHash(accessToken)).get();
   if (!snap.exists) return null;
   const data = snap.data() || {};
+  assertHomeCenterIdentityAllowed(data.email, 'Home Center OAuth token');
   if (data.revokedAtMs || safeNumber(data.expiresAtMs, 0) <= Date.now()) {
     const err = new Error(data.revokedAtMs ? 'Home Center OAuth token was revoked. Reconnect the client.' : 'Home Center OAuth token expired. Reconnect the ChatGPT app.');
     err.status = 401;
@@ -675,6 +678,7 @@ async function createDelegatedHomeCenterAuthContext({
     err.status = 500;
     throw err;
   }
+  assertHomeCenterIdentityAllowed(email, 'delegated Home Center auth');
   const snap = await admin.firestore().collection('googleToolTokens').doc(email).get();
   if (!snap.exists) {
     const err = new Error('Google tools are not connected for the delegated Home Center account.');
@@ -745,12 +749,16 @@ async function googleIdentityFromToken(accessToken) {
     err.status = 401;
     throw err;
   }
+  assertHomeCenterIdentityAllowed(email, 'Google OAuth bearer');
   return {email, authKind: 'google_oauth_bearer'};
 }
 
 async function requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret) {
   const internal = internalHomeCenterAuthFromExtra(extra);
-  if (internal) return internal;
+  if (internal) {
+    assertHomeCenterIdentityAllowed(internal.user && internal.user.email, 'internal Home Center delegation');
+    return internal;
+  }
   const accessToken = bearerTokenFromExtra(extra);
   const proxied = await loadMcpAccessContext(admin, google, googleClientId, googleClientSecret, accessToken);
   if (proxied) return proxied;
@@ -5003,6 +5011,8 @@ function driveOperationRegistry() {
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
       'time.now': {summary: 'Return the current Home Center runtime time.', write: false, requiredScopes: [], input: {}},
+      'security.identity_status': {summary: 'Read owner-only revocation status for an identity explicitly blocked by Home Center policy.', write: false, requiredScopes: [], input: {email: 'blocked Home Center email'}},
+      'security.revoke_identity': {summary: 'Owner-only fail-closed revocation of every Home Center credential, membership, delegated token, and paired phone device for an identity explicitly blocked by policy.', write: true, requiresRequestId: true, requiredScopes: [], input: {email: 'blocked Home Center email', approved: 'boolean true', requestId: 'string'}},
       ...artifactOperationEntries(),
       ...tvtroperOperationEntries(),
       ...blenderWorkspaceOperationEntries(),
@@ -5964,6 +5974,14 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   if (operation === 'time.now') {
     const now = new Date();
     return {operation, registryVersion: registry.version, completed: true, result: {utcIso: now.toISOString(), unixMs: now.getTime()}};
+  }
+  if (operation === 'security.identity_status') {
+    const result = await homeCenterIdentityStatusOperation({admin, user, args: safeObject(args.args)});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (operation === 'security.revoke_identity') {
+    const result = await homeCenterIdentityRevokeOperation({admin, user, args: safeObject(args.args)});
+    return {operation, registryVersion: registry.version, completed: result.fullyRevoked === true, result};
   }
   if (tvtroperOperationEntries()[operation]) {
     const result = await tvTroperRetrievalOperation({google, args: safeObject(args.args)});
@@ -7913,6 +7931,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         res.redirect(redirectWithParams(stateData.redirectUri, {error: 'access_denied', error_description: 'verified_google_email_required', state: stateData.state}));
         return;
       }
+      assertHomeCenterIdentityAllowed(email, 'Home Center OAuth sign-in');
       const allowedEmails = Array.isArray(stateData.allowedEmails) ? stateData.allowedEmails.map((value) => safeText(value, 320).toLowerCase()) : null;
       if (allowedEmails && !allowedEmails.includes(email)) {
         await stateSnap.ref.delete();
@@ -7952,7 +7971,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       res.redirect(redirectWithParams(stateData.redirectUri, {code, state: stateData.state}));
     } catch (err) {
       connectorLog('google_callback_error', req, {error: safeText(err.message || String(err), 300)});
-      res.status(500).send(err.message || String(err));
+      res.status(err.status || 500).send(err.message || String(err));
     }
   });
 
@@ -8002,6 +8021,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         return;
       }
       const stateData = stateSnap.data() || {};
+      assertHomeCenterIdentityAllowed(stateData.email, 'Home Center OAuth handoff');
       if (stateData.handoffRedirectUrl && safeNumber(stateData.expiresAtMs, 0) > Date.now()) {
         connectorLog('handoff_complete_replay_redirect', req, {clientIdPrefix: safeText(stateData.clientId, 80).slice(0, 28), redirectHost: redirectHost(stateData.redirectUri), oauthFlowId: stateData.oauthFlowId || '', chatgptConnector: !!stateData.chatgptConnector, emailHash: tokenHashPrefix(stateData.email)});
         res.redirect(stateData.handoffRedirectUrl);
@@ -8040,7 +8060,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       res.redirect(handoffRedirectUrl);
     } catch (err) {
       connectorLog('handoff_complete_error', req, {error: safeText(err.message || String(err), 300)});
-      res.status(500).send(err.message || String(err));
+      res.status(err.status || 500).send(err.message || String(err));
     }
   });
 
@@ -8062,6 +8082,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
           return;
         }
         const refreshData = refreshSnap.data() || {};
+        assertHomeCenterIdentityAllowed(refreshData.email, 'Home Center OAuth refresh');
         const refreshResource = safeText(req.body && req.body.resource, 1200);
         const boundRefreshResource = safeText(refreshData.resource, 1200) || MCP_RESOURCE;
         if (refreshData.clientId !== clientId || refreshData.revokedAtMs) {
@@ -8105,6 +8126,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         return;
       }
       const data = codeSnap.data() || {};
+      assertHomeCenterIdentityAllowed(data.email, 'Home Center OAuth token exchange');
       await codeSnap.ref.delete();
       if (safeNumber(data.expiresAtMs, 0) <= Date.now() || data.clientId !== clientId || data.redirectUri !== redirectUri) {
         connectorLog('token_invalid_grant', req, {clientIdPrefix: safeText(data.clientId || clientId, 80).slice(0, 28), redirectHost: redirectHost(redirectUri), oauthFlowId: data.oauthFlowId || '', chatgptConnector: !!data.chatgptConnector, reason: 'expired_client_or_redirect_mismatch'});
@@ -8156,7 +8178,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       res.json({access_token: accessToken, refresh_token: refreshToken, token_type: 'Bearer', expires_in: 3300, scope: issuedScopes.join(' ')});
     } catch (err) {
       connectorLog('token_error', req, {error: safeText(err.message || String(err), 300)});
-      res.status(500).json({error: 'server_error', error_description: err.message || String(err)});
+      res.status(err.status || 500).json({error: err.status === 403 ? 'access_denied' : 'server_error', error_description: err.message || String(err)});
     }
   });
 

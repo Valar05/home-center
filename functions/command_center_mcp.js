@@ -5,6 +5,7 @@ const {McpServer} = require('@modelcontextprotocol/sdk/server/mcp.js');
 const {StreamableHTTPServerTransport} = require('@modelcontextprotocol/sdk/server/streamableHttp.js');
 const {APP_CONTROL_COLLECTIONS, APP_CONTROL_DEFAULT_SEEDS, appControlProfileObjectId, appControlProfilePath} = require('./app_control_cloud');
 const {registerCommandCenterPhoneTools, enqueuePhoneCommand, getPhoneCommand, listPhoneDevices} = require('./phone_hands_relay');
+const {assertHomeCenterIdentityAllowed} = require('./home_center_access_policy');
 const {enqueueBrowserNerveTicket} = require('./browser_nerve_api');
 const {scopeBucketQuery, compareBucketObjects} = require('./command_center_bucket_query');
 
@@ -67,13 +68,13 @@ const COMMAND_CENTER_BUCKET_LAYOUT = Object.freeze({
 });
 const COMMAND_CENTER_ALLOWED_EMAILS = Object.freeze([
   'dclarke1005@gmail.com',
-  'junewren28@gmail.com',
   'timothypomeroy07@gmail.com',
 ]);
 const COMMAND_CENTER_ALLOWED_EMAIL_SET = new Set(COMMAND_CENTER_ALLOWED_EMAILS);
 
 function requireCommandCenterAllowedEmail(email) {
   const clean = safeText(email, 320).toLowerCase();
+  assertHomeCenterIdentityAllowed(clean, 'Command Center');
   if (COMMAND_CENTER_ALLOWED_EMAIL_SET.has(clean)) return clean;
   const err = new Error('command_center_forbidden: this Command Center MCP is restricted to approved Home Center accounts.');
   err.status = 403;
