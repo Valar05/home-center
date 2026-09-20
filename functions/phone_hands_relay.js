@@ -1,4 +1,5 @@
 const {createHash, randomUUID} = require('node:crypto');
+const {assertHomeCenterIdentityAllowed} = require('./home_center_access_policy');
 
 const COLLECTIONS = Object.freeze({
   devices: 'phoneHandsDevices',
@@ -162,6 +163,7 @@ async function callerFromBearer(admin, bearer) {
   if (data.revokedAtMs || Number(data.expiresAtMs || 0) <= Date.now()) throw Object.assign(new Error('expired Home Center bearer token'), {status:401});
   const email = safeText(data.email,320).toLowerCase();
   if (!email) throw Object.assign(new Error('bearer token has no owner email'), {status:401});
+  assertHomeCenterIdentityAllowed(email, 'Phone Hands');
   return {actor:email, ownerKey:ownerKeyFromActor(email)};
 }
 

@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const {CREDIT_GATED_EMAILS, requireCreditGatedEmail, createHomeCenterMcpApp, createDriveFolderOperation, createGoogleDocOperation} = require('./home_center_mcp');
+const {assertHomeCenterIdentityAllowed} = require('./home_center_access_policy');
 const {audioLibraryHandler} = require('./audio_library_api');
 const {createCommandCenterMcpApp} = require('./command_center_mcp');
 const {createPhoneHandsRelayHandler} = require('./phone_hands_relay');
@@ -109,7 +110,9 @@ async function requireUser(req) {
     err.status = 401;
     throw err;
   }
-  return admin.auth().verifyIdToken(match[1]);
+  const user = await admin.auth().verifyIdToken(match[1]);
+  assertHomeCenterIdentityAllowed(user && user.email, 'Home Center Firebase app');
+  return user;
 }
 
 async function requireSmokeUser(req) {
@@ -122,7 +125,9 @@ async function requireSmokeUser(req) {
   }
   const token = match[1];
   try {
-    return await admin.auth().verifyIdToken(token);
+    const user = await admin.auth().verifyIdToken(token);
+    assertHomeCenterIdentityAllowed(user && user.email, 'Home Center smoke endpoint');
+    return user;
   } catch (_) {
     const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
       headers: {Authorization: `Bearer ${token}`},
@@ -145,6 +150,7 @@ async function requireSmokeUser(req) {
       err.status = 401;
       throw err;
     }
+    assertHomeCenterIdentityAllowed(email, 'Home Center smoke endpoint');
     try {
       const user = await admin.auth().getUserByEmail(email);
       return {uid: user.uid, email};
@@ -193,6 +199,7 @@ async function requireGoogleOAuthAction(req) {
     err.status = 401;
     throw err;
   }
+  assertHomeCenterIdentityAllowed(email, 'Home Center Google OAuth action');
   let uid = '';
   try {
     const user = await admin.auth().getUserByEmail(email);
@@ -873,6 +880,7 @@ function oauthClient(redirectUri = 'postmessage') {
 
 async function storeGoogleToolTokens(uid, email, tokens, source) {
   const cleanEmail = safeText(email, 320).toLowerCase();
+  assertHomeCenterIdentityAllowed(cleanEmail, 'Home Center Google tool token storage');
   const payload = {
     tokens,
     email: cleanEmail,
@@ -888,6 +896,7 @@ async function storeGoogleToolTokens(uid, email, tokens, source) {
 }
 
 async function loadGoogleToolTokenData(uid, email = '') {
+  if (email) assertHomeCenterIdentityAllowed(email, 'Home Center Google tool token load');
   let snap = uid ? await userTokenRef(uid).get() : null;
   if ((!snap || !snap.exists) && email) {
     snap = await googleEmailTokenRef(email).get();
@@ -950,6 +959,7 @@ async function requireTermuxHubAccess(req) {
     throw err;
   }
   const data = snap.data() || {};
+  assertHomeCenterIdentityAllowed(data.email, 'Home Center hub token');
   if (data.revokedAtMs || Number(data.expiresAtMs || 0) <= Date.now()) {
     const err = new Error('Expired or revoked Home Center hub token.');
     err.status = 401;
@@ -960,6 +970,7 @@ async function requireTermuxHubAccess(req) {
 
 async function issueTermuxHubTokens(pairing, source = 'termux_pairing') {
   const email = safeText(pairing.email, 320).toLowerCase();
+  assertHomeCenterIdentityAllowed(email, 'Home Center Termux pairing');
   const uid = safeText(pairing.uid, 160);
   const tokenData = await loadGoogleToolTokenData(uid, email);
   if (!tokenData || !tokenData.tokens) {
@@ -1024,6 +1035,7 @@ async function issueTermuxAccessFromRefresh(refreshToken) {
     throw err;
   }
   const data = refreshSnap.data() || {};
+  assertHomeCenterIdentityAllowed(data.email, 'Home Center Termux refresh');
   if (data.revokedAtMs || Number(data.expiresAtMs || 0) <= Date.now()) {
     const err = new Error('Expired or revoked Home Center refresh token.');
     err.status = 401;
