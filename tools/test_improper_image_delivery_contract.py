@@ -31,7 +31,12 @@ def forbid(text, needle, owner):
 
 def main():
     for shell in (GEN,ENTRY,INSTALL,ACCEPT,CAMPAIGN):
-        subprocess.run(['bash','-n',str(shell)],check=True)
+        subprocess.run(
+            ['bash','-n'],
+            input=shell.read_text(encoding='utf-8'),
+            text=True,
+            check=True,
+        )
     subprocess.run([sys.executable,'-m','py_compile',str(SSH_AXIS),str(RESOLVER),str(CLI)],check=True)
     subprocess.run([sys.executable,str(RELAY_TEST)],check=True)
     subprocess.run([sys.executable,str(CLI_TEST)],check=True)
