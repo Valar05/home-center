@@ -33,8 +33,7 @@ def main():
     for shell in (GEN,ENTRY,INSTALL,ACCEPT,CAMPAIGN):
         subprocess.run(
             ['bash','-n'],
-            input=shell.read_text(encoding='utf-8'),
-            text=True,
+            input=shell.read_bytes().replace(b'\\r\\n',b'\\n').replace(b'\\r',b'\\n'),
             check=True,
         )
     subprocess.run([sys.executable,'-m','py_compile',str(SSH_AXIS),str(RESOLVER),str(CLI)],check=True)
