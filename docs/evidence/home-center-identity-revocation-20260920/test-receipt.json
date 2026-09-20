@@ -1,0 +1,8 @@
+{
+  "schema": "home-center-security-test-receipt-v1",
+  "testedCommit": "b5480f9c181f61b2339c3dab9dc36a927b0fada2",
+  "device": "primary-phone",
+  "result": "PASS",
+  "tests": ["node --check security/auth entrypoints", "home_center_authorization_contract_test.mjs", "command_center_mcp_contract_test.mjs", "home_center_status_contract_test.mjs", "home_center_regression_tests.py", "git diff --check"],
+  "logSha256": "68eb365bfe4c7fe565634a53bfdef4a58daa66e2f0f67f89199befd86a388603"
+}
