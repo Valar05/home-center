@@ -1,8 +1,15 @@
 {
   "creation": {
+    "creation_commit": "eb7fdb1415820bd557127995b3fdedb9ebd69f8f",
+    "failed_predecessor_attempt": {
+      "authoritative_for_creation": false,
+      "command": "phc_86fb981e-b160-4265-9388-d7aff5851d1d",
+      "effect": "NONE_BEFORE_COPY",
+      "failure": "LFS_SMUDGE_404"
+    },
     "from_main": "855ea990eda6e2e81261ed3dc21a4cddf9ecedd8",
     "hc_binding": "ascii-kinesis-contact003-successor-identity-correction-20260919-short-v1",
-    "home_center_command": "phc_86fb981e-b160-4265-9388-d7aff5851d1d failed-before-copy due LFS; successful creation command is authoritative Home Center command for this run",
+    "home_center_command": "phc_b541a0d4-004d-42dc-9946-a94a475f98c2",
     "issue_binding": 5746780741
   },
   "experiment_id": "v2-contact-032-persistent-relationship-support-transfer-repair",
