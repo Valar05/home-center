@@ -23,7 +23,9 @@ for (const email of approvedCreditUsers) {
 assert.deepEqual(accessPolicy.BLOCKED_HOME_CENTER_EMAILS, [june]);
 assert.equal(accessPolicy.isHomeCenterIdentityBlocked(june), true);
 assert.throws(() => accessPolicy.assertHomeCenterIdentityAllowed(june), (err) => err && err.status === 403 && err.code === 'home_center_identity_blocked');
-for (const email of [june, '', 'outsider@example.com', 'drew@example.com']) {
+assert.throws(() => home.requireCreditGatedEmail(june), (err) => err && err.status === 403 && err.code === 'home_center_identity_blocked');
+assert.throws(() => commandCenter.requireCommandCenterAllowedEmail(june), (err) => err && err.status === 403 && err.code === 'home_center_identity_blocked');
+for (const email of ['', 'outsider@example.com', 'drew@example.com']) {
   assert.throws(() => home.requireCreditGatedEmail(email), /restricted to approved Home Center accounts/);
   assert.throws(() => commandCenter.requireCommandCenterAllowedEmail(email), /restricted to approved Home Center accounts/);
 }
@@ -31,7 +33,8 @@ for (const email of [june, '', 'outsider@example.com', 'drew@example.com']) {
 for (const email of approvedCreditUsers) {
   assert.equal(home.requireGitHubAdminUser({email}), email);
 }
-for (const email of [june, 'outsider@example.com', '']) {
+assert.throws(() => home.requireGitHubAdminUser({email: june}), (err) => err && err.status === 403 && err.code === 'home_center_identity_blocked');
+for (const email of ['outsider@example.com', '']) {
   assert.throws(
     () => home.requireGitHubAdminUser({email}),
     (err) => err && err.status === 403 && err.code === 'github_admin_forbidden_email'
