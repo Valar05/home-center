@@ -52,6 +52,26 @@ def main() -> None:
         relay = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(relay)
 
+        if os.name == "nt":
+            # THECAULDRON validates relay routing/import independence, not a
+            # Termux filesystem it does not have. Real phone_shell execution is
+            # accepted on the primary phone after source validation.
+            def windows_termux_shell_stub(action):
+                command = str(action.get("command") or "").strip()
+                if not command.startswith("printf "):
+                    raise AssertionError(f"unexpected Windows relay-test command: {command!r}")
+                return {
+                    "ok": True,
+                    "action": "phone_shell",
+                    "exitCode": 0,
+                    "cwd": str(Path.home()),
+                    "stdout": command[len("printf "):],
+                    "stderr": "",
+                    "timeoutSeconds": int(action.get("timeoutSeconds") or 10),
+                }
+
+            relay.termux_shell_execute = windows_termux_shell_stub
+
         first = relay.execute_action(
             {
                 "action": "phone_shell",
