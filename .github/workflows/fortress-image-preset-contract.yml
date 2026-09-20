@@ -73,6 +73,10 @@ jobs:
           } else {
             $bashPath = $bash.Source
           }
+          python -c "import subprocess; paths=['tools/venice_fleshpunk_phone.sh','tools/fortress_image_entry.sh','tools/install_fortress_image_phone.sh','tools/accept_fortress_image_phone.sh']; bad=[p for p in paths if b'\\r' in subprocess.check_output(['git','show','HEAD:'+p])]; assert not bad, 'Repository shell blobs contain CR bytes: '+','.join(bad)"
+          if ($LASTEXITCODE -ne 0) { throw 'Fortress Image repository shell blobs are not LF-clean' }
+          python -c "from pathlib import Path; paths=['tools/venice_fleshpunk_phone.sh','tools/fortress_image_entry.sh','tools/install_fortress_image_phone.sh','tools/accept_fortress_image_phone.sh']; [p.write_bytes(p.read_bytes().replace(b'\\r\\n',b'\\n').replace(b'\\r',b'\\n')) for p in map(Path,paths)]"
+          if ($LASTEXITCODE -ne 0) { throw 'Fortress Image runner worktree LF normalization failed' }
           & $bashPath -n tools/venice_fleshpunk_phone.sh
           if ($LASTEXITCODE -ne 0) { throw 'venice_fleshpunk_phone.sh syntax failed' }
           & $bashPath -n tools/fortress_image_entry.sh
