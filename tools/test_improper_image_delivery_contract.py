@@ -41,16 +41,16 @@ def main():
     subprocess.run([sys.executable,str(RELAY_TEST)],check=True)
     subprocess.run([sys.executable,str(CLI_TEST)],check=True)
 
-    gen=GEN.read_text()
-    entry=ENTRY.read_text()
-    install=INSTALL.read_text()
-    accept=ACCEPT.read_text()
-    campaign=CAMPAIGN.read_text()
-    resolver=RESOLVER.read_text()
-    cli=CLI.read_text()
-    presets=PRESETS.read_text()
-    cauldron=CAULDRON.read_text()
-    doc=DOC.read_text()
+    gen=GEN.read_text(encoding="utf-8")
+    entry=ENTRY.read_text(encoding="utf-8")
+    install=INSTALL.read_text(encoding="utf-8")
+    accept=ACCEPT.read_text(encoding="utf-8")
+    campaign=CAMPAIGN.read_text(encoding="utf-8")
+    resolver=RESOLVER.read_text(encoding="utf-8")
+    cli=CLI.read_text(encoding="utf-8")
+    presets=PRESETS.read_text(encoding="utf-8")
+    cauldron=CAULDRON.read_text(encoding="utf-8")
+    doc=DOC.read_text(encoding="utf-8")
 
     for fragment in (
         "FORTRESS_IMAGE_PROFILE:-fleshpunk",
