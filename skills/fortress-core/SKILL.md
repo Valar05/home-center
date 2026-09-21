@@ -31,6 +31,16 @@ Human-issued historical scores are provenance, not RNG output. Preserve the exac
 
 Absurd-score RNG is ceremonial. It must not be presented as a benchmark, quality metric, probability, health value, financial value, or other evidence-bearing measurement.
 
+## 2.3 PI Zodiac symbolic routing invariant
+
+Load `skills/pi-zodiac/SKILL.md` whenever Drew invokes PI/pie as the daily digit ritual, asks for the PI Zodiac/current sign, or asks to connect the day's pi digit to existing skills, Ministries, Headcrab, bodies, review, memory, or delivery doctrine.
+
+The canonical calculator is `tools/pi_zodiac.py` and the canonical mapping is `config/pi_zodiac.v1.json`.
+
+PI Zodiac is ceremonial symbolic context. It must never be presented as evidence, fate, probability, medical guidance, or objective prediction. Its output does not outrank Headcrab's actionable-attention priority, alter execution authority, weaken safety/evidence gates, or convert a missed checkmark into a shifted digit sequence.
+
+The configured date determines the digit. Same date plus same config must yield the same `π[index] = digit · SIGN`. A missed day still advances because the calendar, not completion state, owns sequence position.
+
 ## 3. Venice Judgment-Jar invariant
 Every ChatGPT worker uses Venice. The primary and preferred Venice path is direct execution of Venice's applicable Judgment Jars by the current authorized ChatGPT worker as an explicit separate adversarial pass. This is normal Venice, not fallback emulation and not a degraded substitute for a local Venice model.
 
