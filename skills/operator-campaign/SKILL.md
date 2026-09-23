@@ -1,5 +1,33 @@
 # Operator Campaign Skill
 
+## Mandatory trigger phrases
+Load this skill **before doing any campaign-shaped work** whenever Drew says or implies any of the following:
+
+- `script campaign`
+- `campaign script`
+- `operator campaign`
+- `startup campaign`
+- `bootstrap campaign`
+- `make a campaign`
+- `campaign intro`
+- `campaign launcher`
+- `durable script`
+- `one command to run this`
+- `make me a script I can rerun`
+- `put it in tmux and give me status/stop/resume`
+- any request whose real outcome is a reusable Termux/Android script with run/status/follow/stop/resume/receipts
+
+These phrases are aliases for the **Operator Campaign contract**, not permission to improvise a one-shot shell script.
+
+When any trigger above matches, the first implementation step is:
+1. read this skill in full;
+2. identify the stable campaign entrypoint and control surface;
+3. satisfy the Termux/Android handoff contract, including clipboard-first success **and failure** receipts when applicable;
+4. only then author or modify the campaign.
+
+Do not draft a launcher first and retrofit campaign behavior later.
+
+
 ## Purpose
 Any time an agent asks Drew to run something, the requested action must create or invoke a durable campaign capability rather than a disposable one-off command chain.
 
