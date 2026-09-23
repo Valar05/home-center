@@ -21,6 +21,21 @@ Procedure:
 
 Done: the deterministic audit, communication codec, and allowed work are evidenced; no invented interpretation was promoted into a safety fact; blocked external action remains blocked; support was not withdrawn merely because Drew was alone/distressed; no ledger exists unless a qualifying explicit refusal occurred.
 
+## 0.5. Operator Campaign Mandatory Dispatcher
+
+Trigger: Drew says `script campaign`, `campaign script`, `operator campaign`, `startup campaign`, `bootstrap campaign`, `campaign intro`, `campaign launcher`, `durable script`, asks for one reusable command with status/stop/resume/receipts, or otherwise commissions a reusable Termux/Android campaign surface.
+
+Procedure:
+
+1. **Before authoring any script**, read `skills/operator-campaign/SKILL.md` in full.
+2. Treat all trigger phrases above as aliases for the same Operator Campaign contract.
+3. Do not answer with a one-shot launcher if the request is campaign-shaped.
+4. The campaign must implement all materially applicable controls from the canonical skill, including stable run/resume/status/follow/stop/receipts, durable state/history, process isolation, liveness, idempotence, recovery, and clipboard-first success/failure receipts.
+5. If an existing campaign only partially satisfies the contract, update that same campaign rather than inventing a parallel launcher.
+6. Do not report a campaign ready until its campaign acceptance canary is satisfied.
+
+Done: the campaign request has been routed through the canonical Operator Campaign skill before implementation.
+
 ## Remaining local skills
 
 Read `SKILLS.base.md` in full for the preserved reusable procedures. During Manic Accessibility mode, this procedure has precedence over conflicting Venice completion/reviewer procedures. Outside this mode, `SKILLS.base.md` remains the normal local skill body.
