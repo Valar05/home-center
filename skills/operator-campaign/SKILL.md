@@ -78,6 +78,7 @@ This section exists because these failure classes have already happened repeated
 13. **No dependency lasagna** — do not introduce an unproved command-repair shell, wrapper, daemon, or agent merely to compensate for fragile commands. First make the direct script lane correct and testable. Add another layer only when repeated evidence proves a distinct requirement.
 14. **No giant artisanal one-liners** — beyond trivial inspection commands, prefer a named script committed to the repository. If the same complex command is handed to Drew twice, that is evidence it should become a durable script.
 15. **Operator stays in the loop** — the handoff should keep Drew visibly in control: one bounded command, immediate output, short receipt, then the next correction. Long invisible automation is not automatically superior to a fast operator-driven loop.
+16. **Clipboard-first receipts** — every operator-facing script or nontrivial command must copy the concise, relevant user-facing result to the Android clipboard automatically so Drew can paste it back without selecting terminal text. Prefer `termux-clipboard-set` when available. Clipboard delivery must be best-effort and must never make the actual task fail if the clipboard command is unavailable. Copy the compact receipt, summary, error, or requested output, not megabytes of logs. Never place secrets, tokens, passwords, private keys, auth headers, or other sensitive values on the clipboard. If clipboard support is unavailable, print one explicit line saying so and still emit the same receipt to stdout.
 
 ### Android script acceptance canary
 
@@ -94,6 +95,7 @@ A Termux/Android script handoff is not acceptable until the agent can answer yes
 - Is rerun behavior safe?
 - Is the script persisted in the real repository if it has continuing value?
 - Does the receipt expose the actual changed set and Git status where relevant?
+- Is the concise operator-facing receipt copied to the Android clipboard when `termux-clipboard-set` is available, without copying secrets?
 
 Known regression fixtures include: direct execution from `/storage/emulated/0/Download` returning permission denied; Python `input()` behind a heredoc producing EOF; opening `/dev/tty` in a mode unsupported by the stream; and recursive scans where the destination is nested beneath the source.
 
