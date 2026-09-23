@@ -56,6 +56,47 @@ A fresh worker must consume the latest durable checkpoint before acting and pres
 
 `STOP_ALLOWED` remains the campaign-level stopping gate. A worker may yield at a checkpoint before `STOP_ALLOWED`, but the campaign remains explicitly open and resumable until Venice permits actual stopping or Drew changes/cancels the mission.
 
+
+## Termux / Android script handoff contract
+
+When Drew is the operator and the commissioned execution lane is Android/Termux, the agent must prefer a small, durable, repository-backed script over improvised shell incantations or UI tapping whenever the task is filesystem-, Git-, build-, conversion-, import-, rename-, move-, or batch-operation-shaped.
+
+This section exists because these failure classes have already happened repeatedly and are no longer novel debugging discoveries.
+
+1. **Target the real runtime** — author for Termux on Android, not generic desktop Linux.
+2. **Shared storage is data, not an executable filesystem** — paths under `/storage/emulated/0` must be assumed non-executable. Run shell scripts with `bash path/to/script.sh`, or install/copy executable tools into `$HOME` or `$PREFIX`.
+3. **Do not steal stdin with a heredoc** — never embed interactive Python behind a shell heredoc and then call ordinary `input()`. Prefer non-interactive arguments. If interactive terminal input is truly required, read and write `/dev/tty` with separate handles and test that path on Termux.
+4. **Arguments beat mid-script questions** — prefer explicit `--dry-run`, `--apply`, source, destination, cutoff, and mode arguments so reruns are inspectable and reproducible.
+5. **Dry-run before mutation** — moves, deletes, renames, conversions, deduplication, and mass edits must show the exact affected set before mutation unless Drew explicitly waives preview.
+6. **Print the contract before touching files** — source, destination, cutoff/selection rule, file count, collision policy, and recursion behavior must be visible.
+7. **Guard parent/child paths** — if a destination lives beneath the source, traversal must exclude the destination and must not recursively consume its own output.
+8. **Idempotence is the default** — a second run should converge safely rather than duplicate work or corrupt names/state.
+9. **Collision safety** — never silently overwrite unrelated files. Use deterministic conflict handling and report every collision decision.
+10. **Useful receipt** — print what changed, what did not, and the final relevant status. When Git is involved, print `git status --short`; do not commit or push unless the commission explicitly includes that action.
+11. **Repository-backed scripts beat chat-local cargo** — anything worth running twice belongs in the real project repository under a stable path such as `tools/`. The preferred loop is: agent edits GitHub -> Drew pulls -> Drew runs one named script -> Drew returns the receipt/error -> agent fixes the same script in GitHub.
+12. **Phone Hands is not a shell substitute** — use Phone Hands for UI-only state, permissions, taps, screenshots, and device surfaces that cannot be expressed safely as deterministic filesystem/shell work. Do not spend robot-finger effort on work a script can do exactly.
+13. **No dependency lasagna** — do not introduce an unproved command-repair shell, wrapper, daemon, or agent merely to compensate for fragile commands. First make the direct script lane correct and testable. Add another layer only when repeated evidence proves a distinct requirement.
+14. **No giant artisanal one-liners** — beyond trivial inspection commands, prefer a named script committed to the repository. If the same complex command is handed to Drew twice, that is evidence it should become a durable script.
+15. **Operator stays in the loop** — the handoff should keep Drew visibly in control: one bounded command, immediate output, short receipt, then the next correction. Long invisible automation is not automatically superior to a fast operator-driven loop.
+
+### Android script acceptance canary
+
+A Termux/Android script handoff is not acceptable until the agent can answer yes to all materially applicable checks:
+
+- Is the exact source path known?
+- Is the exact destination path known?
+- Is recursion bounded?
+- Is a child destination excluded from source traversal?
+- Is shared-storage execution avoided?
+- Is the preview/dry-run visible before mutation?
+- Are duplicate names handled without silent overwrite?
+- Is stdin/TTY behavior compatible with the chosen transport?
+- Is rerun behavior safe?
+- Is the script persisted in the real repository if it has continuing value?
+- Does the receipt expose the actual changed set and Git status where relevant?
+
+Known regression fixtures include: direct execution from `/storage/emulated/0/Download` returning permission denied; Python `input()` behind a heredoc producing EOF; opening `/dev/tty` in a mode unsupported by the stream; and recursive scans where the destination is nested beneath the source.
+
 ## Acceptance
 A campaign is not accepted merely because its immediate task passed or a worker reached a checkpoint. It must prove that the stable entrypoint, durable state/history, checkpoint/resume path, recovery path, status/control surface, future rerun behavior, process isolation, and out-of-band stop path exist and remain callable. True campaign completion still requires the applicable Venice stop review.
 
