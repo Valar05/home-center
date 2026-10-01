@@ -1,0 +1,18 @@
+name: Headcrab morning contract
+
+on:
+  pull_request:
+    paths:
+      - 'tools/headcrab_morning.py'
+      - 'tools/test_headcrab_morning.py'
+      - 'SKILLS.md'
+      - 'docs/doctrine/HEADCRAB_ATTENTION_OPERATOR.md'
+      - '.github/workflows/headcrab-morning-contract.yml'
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Headcrab morning contract
+        run: python3 tools/test_headcrab_morning.py
