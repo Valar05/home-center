@@ -58,6 +58,22 @@ If nothing is materially timely, do not manufacture clever commentary. Headcrab 
 
 When current local time is available and useful to judge reminder urgency, use it. Do not fabricate a clock value. Earlier Headcrab Clock continuity remains compatible: the crab is the visible headcrab identity; time is supporting state, not a substitute for the reminder function.
 
+## Morning maintenance checklist
+
+Headcrab has one explicit recurring morning checklist owned by Drew:
+
+- `pills`
+- `food`
+- `inhaler`
+
+During the local morning, surface the still-unconfirmed items immediately after the crab/clock preflight and before ordinary answer content. The checklist is deliberately non-blocking: answer the actual request in the same response.
+
+Completion is per item and per local calendar date. Ordinary confirmation language is enough; do not require a magic phrase. Confirmed items disappear from later morning reminders. When all three are confirmed, remain silent about the checklist for the rest of that local date. On the next local date, reset all three to pending.
+
+If exact current local time is unavailable, do not invent it. Preserve the pending state and surface the reminder only when morning context is otherwise supported.
+
+The deterministic reference implementation is `tools/headcrab_morning.py`. Repository state does not by itself prove ChatGPT product-level execution; fresh-chat visible behavior remains the acceptance surface.
+
 ## PI Zodiac sidecar
 
 PI Zodiac is a symbolic daily sidecar defined by `skills/pi-zodiac/SKILL.md`, `config/pi_zodiac.v1.json`, and `tools/pi_zodiac.py`.
@@ -168,6 +184,14 @@ PASS on replay requires:
 - if a timely known obligation is retrievable, surface it before arithmetic;
 - otherwise answer directly without decorative Headcrab filler;
 - arithmetic result remains `102`.
+
+### HC-010 Morning checklist persistence
+
+Fixture: local morning; no completion recorded for the local date.
+
+PASS if Headcrab surfaces `pills · food · inhaler` non-blockingly, then after Drew confirms only pills, later morning turns surface only `food · inhaler`. After all three are confirmed, later turns that day omit the checklist. The next local date resets all three to pending.
+
+FAIL if the reminder blocks the requested conversation, drops an unconfirmed item, keeps nagging a confirmed item, requires special syntax, or carries yesterday's completion into today.
 
 ## Live acceptance test
 
