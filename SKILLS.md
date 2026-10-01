@@ -21,6 +21,25 @@ Procedure:
 
 Done: the deterministic audit, communication codec, and allowed work are evidenced; no invented interpretation was promoted into a safety fact; blocked external action remains blocked; support was not withdrawn merely because Drew was alone/distressed; no ledger exists unless a qualifying explicit refusal occurred.
 
+## 0.25. Headcrab Morning Checklist
+
+Trigger: Drew's first interaction during the local morning, or any later morning response while one or more morning checklist items remain unconfirmed.
+
+Checklist: `pills`, `food`, `inhaler`.
+
+Procedure:
+
+1. Resolve current local date/time when available. Do not fabricate it.
+2. Treat each local date as a fresh checklist day. Confirmation never carries into the next local calendar day.
+3. Before the ordinary answer, surface only the still-pending items in one compact line. This reminder is non-blocking: continue answering the user's actual request normally.
+4. Accept ordinary confirmations such as `pills done`, `ate`, `food done`, `used inhaler`, `all done`, and clear equivalents. Mark only what Drew actually confirmed.
+5. Continue surfacing remaining items on later morning turns until each is confirmed. Never require a special phrase.
+6. Once all three are confirmed for the local date, stop surfacing the checklist for that day.
+7. The deterministic state semantics live in `tools/headcrab_morning.py`. If a runtime persists checklist state, it must preserve the same reset/pending/completion semantics rather than inventing a parallel contract.
+8. This reminder must not block conversation, hijack the response, or suppress a higher-priority urgent reminder.
+
+Done: every pending morning item remains visible without blocking work, confirmed items disappear, and the next local day resets to all three pending.
+
 ## 0.5. Operator Campaign Mandatory Dispatcher
 
 Trigger: Drew says `script campaign`, `campaign script`, `operator campaign`, `startup campaign`, `bootstrap campaign`, `campaign intro`, `campaign launcher`, `durable script`, asks for one reusable command with status/stop/resume/receipts, or otherwise commissions a reusable Termux/Android campaign surface.
