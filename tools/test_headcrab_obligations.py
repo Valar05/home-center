@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
-from headcrab_obligations import ObligationLedger, render_reminders
+from headcrab_obligations import (
+    ObligationLedger,
+    load_ledger,
+    render_reminders,
+    save_ledger,
+)
 
 central = timezone(timedelta(hours=-5))
 ledger = ObligationLedger.empty()
@@ -60,3 +67,19 @@ except ValueError as exc:
     assert "timezone-aware" in str(exc)
 else:
     raise AssertionError("naive obligation time should fail closed")
+
+
+# File persistence survives process/runtime boundaries.
+with TemporaryDirectory() as tmp:
+    path = Path(tmp) / "headcrab-obligations.json"
+    fresh = ObligationLedger.empty()
+    saved = fresh.capture(
+        "Call Corey",
+        datetime(2026, 10, 2, 20, 0, tzinfo=central),
+    )
+    save_ledger(path, fresh)
+    loaded = load_ledger(path)
+    assert loaded.to_dict() == fresh.to_dict()
+    assert loaded.actionable(
+        datetime(2026, 10, 2, 19, 55, tzinfo=central)
+    ) == (saved,)
