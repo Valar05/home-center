@@ -197,18 +197,98 @@ PY
 
 reconcile_primary() {
   snapshot_primary >/dev/null 2>&1 || true
-  if [ -n "$(git -C "$ROOT" status --porcelain)" ]; then
-    write_state reconcile-preserved preserved "primary Home Center checkout is dirty; leaving it untouched and using isolated runtime as reconciled campaign surface"
-    printf 'Primary checkout remains dirty and untouched. Campaign worktree: %s\n' "$WORKTREE"
-    return 0
-  fi
   git -C "$ROOT" fetch origin main >>"$LOG" 2>&1 || return 1
-  if git -C "$ROOT" merge --ff-only origin/main >>"$LOG" 2>&1; then
-    write_state reconciled healthy "clean primary checkout fast-forwarded to origin/main"
+
+  branch="$(git -C "$ROOT" symbolic-ref --short -q HEAD || true)"
+  if [ "$branch" != "main" ]; then
+    write_state reconcile-preserved preserved "primary checkout is on '$branch', not main; refusing to merge origin/main into an unrelated branch"
     return 0
   fi
-  write_state reconcile-blocked blocked "primary checkout clean but not fast-forwardable; no destructive reconciliation attempted"
-  return 14
+
+  if [ -z "$(git -C "$ROOT" status --porcelain)" ]; then
+    if git -C "$ROOT" merge --ff-only origin/main >>"$LOG" 2>&1; then
+      write_state reconciled healthy "clean primary checkout fast-forwarded to origin/main"
+      return 0
+    fi
+    write_state reconcile-blocked blocked "clean primary main is not fast-forwardable; no reset/rebase attempted"
+    return 14
+  fi
+
+  if ! git -C "$ROOT" merge-base --is-ancestor HEAD origin/main >>"$LOG" 2>&1; then
+    write_state reconcile-preserved preserved "dirty primary main has local commits/divergence; preserving it untouched instead of rewriting history"
+    return 0
+  fi
+
+  write_state reconcile-probe running "testing dirty primary changes against updated origin/main before touching the working state"
+  before_head="$(git -C "$ROOT" rev-parse HEAD)"
+  stamp="$(date +%Y%m%d-%H%M%S)"
+  stash_msg="headcrab-pr384-reconcile-$stamp"
+
+  if ! git -C "$ROOT" stash push --include-untracked -m "$stash_msg" >>"$LOG" 2>&1; then
+    write_state reconcile-blocked blocked "could not create safety stash; primary worktree left as-is"
+    return 25
+  fi
+  stash_oid="$(git -C "$ROOT" rev-parse stash@{0} 2>/dev/null || true)"
+  if [ -z "$stash_oid" ]; then
+    write_state reconcile-blocked blocked "safety stash identity missing; refusing to continue"
+    return 26
+  fi
+
+  testtree="$RUNTIME_ROOT/reconcile-test"
+  git -C "$ROOT" worktree remove --force "$testtree" >>"$LOG" 2>&1 || true
+  rm -rf "$testtree"
+
+  restore_original() {
+    git -C "$ROOT" checkout main >>"$LOG" 2>&1 || true
+    if [ "$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || true)" != "$before_head" ]; then
+      git -C "$ROOT" reset --hard "$before_head" >>"$LOG" 2>&1 || true
+    fi
+    git -C "$ROOT" stash apply --index "$stash_oid" >>"$LOG" 2>&1
+  }
+
+  if ! git -C "$ROOT" worktree add --detach "$testtree" origin/main >>"$LOG" 2>&1; then
+    restore_original || {
+      write_state reconcile-emergency blocked "reconcile probe setup failed and automatic dirty-state restore also failed; safety stash $stash_oid retained"
+      return 27
+    }
+    write_state reconcile-preserved preserved "could not create reconciliation probe; original dirty worktree restored and safety stash retained"
+    return 0
+  fi
+
+  if ! git -C "$testtree" stash apply --index "$stash_oid" >>"$LOG" 2>&1; then
+    git -C "$testtree" reset --hard HEAD >>"$LOG" 2>&1 || true
+    git -C "$ROOT" worktree remove --force "$testtree" >>"$LOG" 2>&1 || true
+    restore_original || {
+      write_state reconcile-emergency blocked "dirty changes conflict with new main and automatic restore failed; safety stash $stash_oid retained"
+      return 28
+    }
+    write_state reconcile-conflict preserved "dirty changes do not apply cleanly to origin/main; original worktree restored, stash retained, no destructive merge attempted"
+    return 0
+  fi
+
+  git -C "$testtree" reset --hard HEAD >>"$LOG" 2>&1 || true
+  git -C "$ROOT" worktree remove --force "$testtree" >>"$LOG" 2>&1 || true
+
+  if ! git -C "$ROOT" merge --ff-only origin/main >>"$LOG" 2>&1; then
+    restore_original || {
+      write_state reconcile-emergency blocked "fast-forward unexpectedly failed and dirty-state restore failed; safety stash $stash_oid retained"
+      return 29
+    }
+    write_state reconcile-preserved preserved "origin/main changed during reconciliation; original dirty worktree restored, resume can retry"
+    return 0
+  fi
+
+  if ! git -C "$ROOT" stash apply --index "$stash_oid" >>"$LOG" 2>&1; then
+    write_state reconcile-emergency blocked "probe passed but final stash application failed; safety stash $stash_oid retained for recovery"
+    return 30
+  fi
+
+  top_oid="$(git -C "$ROOT" rev-parse stash@{0} 2>/dev/null || true)"
+  if [ "$top_oid" = "$stash_oid" ]; then
+    git -C "$ROOT" stash drop stash@{0} >>"$LOG" 2>&1 || true
+  fi
+  write_state reconciled-dirty healthy "primary main fast-forwarded and pre-existing dirty changes reapplied after a clean rehearsal; staged/untracked state preserved through stash --index"
+  return 0
 }
 
 worker() {
@@ -256,8 +336,8 @@ PY
     fi
   fi
 
-  reconcile_primary || true
-  local final="HEADCRAB PR384 READY: CI green. Primary dirty worktree preserved. Receipts: $LATEST"
+  snapshot_primary >>"$LOG" 2>&1 || true
+  local final="HEADCRAB PR384 READY: CI green. Primary worktree untouched until explicit merge/reconcile. Receipts: $LATEST"
   write_state ready healthy "$final"
   clipboard "$final"
   printf '%s\n' "$final"
