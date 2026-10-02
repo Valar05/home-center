@@ -89,11 +89,19 @@ EOF
 stopped(){ [ -f "$STOPFILE" ]; }
 
 prepare_clean_main(){
-  state prepare running "creating fresh isolated main checkout; dirty primary checkout is not touched"
+  state prepare running "creating sparse isolated main checkout for deployment/test surfaces; dirty primary checkout is not touched"
   rm -rf "$WORK"
-  GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 --branch main "$REPO_URL" "$WORK" >>"$LOG" 2>&1 || return 11
-  git -C "$WORK" remote get-url origin >>"$LOG" 2>&1 || return 12
-  [ -z "$(git -C "$WORK" status --porcelain)" ] || return 13
+  GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 --no-checkout --branch main "$REPO_URL" "$WORK" >>"$LOG" 2>&1 || return 11
+  git -C "$WORK" sparse-checkout init --cone >>"$LOG" 2>&1 || return 12
+  git -C "$WORK" sparse-checkout set functions tools contracts .github >>"$LOG" 2>&1 || return 13
+  GIT_LFS_SKIP_SMUDGE=1 git -C "$WORK" checkout main >>"$LOG" 2>&1 || return 14
+  git -C "$WORK" remote get-url origin >>"$LOG" 2>&1 || return 15
+  dirty="$(git -C "$WORK" status --porcelain --untracked-files=all)"
+  if [ -n "$dirty" ]; then
+    printf '%s\n' "$dirty" >>"$LOG"
+    state prepare-dirty blocked "sparse deployment checkout is unexpectedly dirty"
+    return 16
+  fi
 }
 
 install_dependencies(){
