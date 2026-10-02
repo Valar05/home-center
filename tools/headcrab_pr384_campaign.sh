@@ -319,10 +319,15 @@ follow() {
 
 install_command() {
   bindir="${PREFIX:-$HOME/.local}/bin"
-  mkdir -p "$bindir"
+  stable="$STATE_ROOT/campaign.sh"
+  mkdir -p "$bindir" "$STATE_ROOT"
+  if [ "$(readlink -f "${BASH_SOURCE[0]}")" != "$(readlink -f "$stable" 2>/dev/null || true)" ]; then
+    cp "${BASH_SOURCE[0]}" "$stable"
+    chmod 700 "$stable"
+  fi
   cat >"$bindir/headcrab-ci-campaign" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
-exec env HC_REPO_ROOT="$ROOT" bash "$ROOT/tools/headcrab_pr384_campaign.sh" "\$@"
+exec env HC_REPO_ROOT="$ROOT" bash "$stable" "\$@"
 EOF
   chmod 755 "$bindir/headcrab-ci-campaign"
   printf 'installed %s/headcrab-ci-campaign\n' "$bindir"
