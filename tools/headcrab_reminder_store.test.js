@@ -10,6 +10,8 @@ const {
   maintenancePrompt,
   attentionFallback,
   attentionPulse,
+  dueFromText,
+  emailReminderCandidate,
 } = require('../functions/headcrab_reminder_store');
 
 function fakeAdmin() {
@@ -126,4 +128,48 @@ test('open obligations outrank maintenance nudges', async () => {
   const pulse = await attentionPulse({admin, user, now: new Date('2026-10-02T14:00:00Z')});
   assert.equal(pulse.mode, 'obligation');
   assert.equal(pulse.reminders[0].label, 'Get psychiatrist records');
+});
+
+
+test('email miner candidate recognizes vehicle tag renewal and ignores promotions', () => {
+  const candidate = emailReminderCandidate({
+    subject: 'Notification: Taxes and tag renewal @ Thu Oct 1, 2026',
+    snippet: 'You have an upcoming event Taxes and tag renewal Thursday Oct 1, 2026.',
+    labels: ['INBOX', 'CATEGORY_UPDATES'],
+  });
+  assert.equal(candidate.kind, 'vehicle_renewal');
+  assert.equal(candidate.label, 'Handle vehicle tags / registration renewal');
+  assert.equal(candidate.dueAt, '2026-10-01T22:00:00.000Z');
+
+  const promo = emailReminderCandidate({
+    subject: 'Renew your vacation dreams',
+    snippet: 'Limited-time offer',
+    labels: ['CATEGORY_PROMOTIONS'],
+  });
+  assert.equal(promo, null);
+});
+
+test('email-derived reminder deduplicates by Gmail source reference', async () => {
+  const admin = fakeAdmin();
+  const a = await captureReminder({
+    admin,
+    user,
+    label: 'Handle vehicle tags / registration renewal',
+    source: 'gmail_miner',
+    sourceRef: 'gmail:abc123',
+  });
+  const b = await captureReminder({
+    admin,
+    user,
+    label: 'Different generated label should still dedupe',
+    source: 'gmail_miner',
+    sourceRef: 'gmail:abc123',
+  });
+  assert.equal(a.created, true);
+  assert.equal(b.created, false);
+  assert.equal(a.reminder.reminderId, b.reminder.reminderId);
+});
+
+test('date extraction fails closed when no explicit date exists', () => {
+  assert.equal(dueFromText('renew soon'), null);
 });
