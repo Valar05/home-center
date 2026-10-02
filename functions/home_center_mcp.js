@@ -6549,13 +6549,11 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
 
   registerHeadcrabReminderTools(server, {
     admin,
+    google,
     z,
     textResult,
     securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
-    requestUserContext: async (extra) => {
-      const context = await requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret);
-      return {user: context.user};
-    },
+    requestUserContext: async (extra) => requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret),
   });
 
   server.registerTool('health', {
