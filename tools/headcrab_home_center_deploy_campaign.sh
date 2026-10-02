@@ -246,7 +246,10 @@ worker(){
 launch(){
   if [ -f "$PIDFILE" ]; then
     old="$(cat "$PIDFILE" 2>/dev/null || true)"
-    if [ -n "$old" ] && kill -0 "$old" 2>/dev/null; then status; return 0; fi
+    if [ -n "$old" ] && kill -0 "$old" 2>/dev/null; then
+      state attached running "campaign already active; attaching to existing worker"
+      return 0
+    fi
   fi
   rm -f "$STOPFILE"
   command -v setsid >/dev/null 2>&1 || { echo "NEED: setsid" >&2; return 70; }
@@ -254,8 +257,15 @@ launch(){
   pid=$!
   printf '%s\n' "$pid" >"$PIDFILE"
   state launched running "background deployment campaign launched"
-  msg="HEADCRAB DEPLOY CAMPAIGN STARTED pid=$pid; follow: headcrab-deploy-campaign follow"
+  msg="HEADCRAB DEPLOY CAMPAIGN STARTED pid=$pid"
   clip "$msg"; printf '%s\n' "$msg"
+}
+
+run_and_follow(){
+  install
+  launch || return $?
+  printf '\nFollowing campaign log. Ctrl-C detaches the viewer; it does NOT stop the campaign.\n'
+  follow
 }
 
 stop_campaign(){
@@ -291,12 +301,13 @@ EOF
 }
 
 case "${1:-run}" in
-  run|resume) install; launch ;;
+  run) run_and_follow ;;
+  start|resume) install; launch ;;
   _worker) worker ;;
   status) status ;;
   follow) follow ;;
   receipts) receipts ;;
   stop) stop_campaign ;;
   install) install ;;
-  *) echo "usage: headcrab-deploy-campaign [run|resume|status|follow|receipts|stop|install]" >&2; exit 64 ;;
+  *) echo "usage: headcrab-deploy-campaign [run|start|resume|status|follow|receipts|stop|install]" >&2; exit 64 ;;
 esac
