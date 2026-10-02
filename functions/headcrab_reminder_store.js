@@ -133,16 +133,28 @@ async function readCheckpoints({admin, user}) {
   return values;
 }
 
+function maintenancePrompt(now = new Date()) {
+  const choices = [
+    {kind: 'move', text: 'Headcrab maintenance: two-minute movement snack?'},
+    {kind: 'outside', text: 'Headcrab maintenance: five minutes outside if practical?'},
+    {kind: 'water', text: 'Headcrab maintenance: water check.'},
+    {kind: 'stretch', text: 'Headcrab maintenance: unclench, stand, stretch something stubborn.'},
+  ];
+  const day = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) / 86400000;
+  const slot = Math.floor(now.getUTCHours() / 3);
+  return choices[Math.abs(Math.floor(day + slot)) % choices.length];
+}
+
 function attentionFallback(checkpoints = {}, now = new Date()) {
   const emailAt = checkpoints.email ? Date.parse(checkpoints.email) : NaN;
   const workEmailAt = checkpoints.work_email ? Date.parse(checkpoints.work_email) : NaN;
   const calendarAt = checkpoints.calendar ? Date.parse(checkpoints.calendar) : NaN;
   const hours = (ms) => Number.isFinite(ms) ? (now.getTime() - ms) / 3600000 : Infinity;
 
-  if (hours(emailAt) >= 6) return {kind: 'email', text: 'Headcrab: when did you last check personal email?'};
-  if (hours(workEmailAt) >= 4) return {kind: 'work_email', text: 'Headcrab: when did you last check work email?'};
-  if (hours(calendarAt) >= 12) return {kind: 'calendar', text: 'Headcrab: have you checked today\'s calendar lately?'};
-  return {kind: 'status', text: 'Headcrab: anything still open that would hurt if it slipped?'};
+  if (hours(emailAt) >= 6) return {kind: 'email', class: 'attention', text: 'Headcrab: when did you last check personal email?'};
+  if (hours(workEmailAt) >= 4) return {kind: 'work_email', class: 'attention', text: 'Headcrab: when did you last check work email?'};
+  if (hours(calendarAt) >= 12) return {kind: 'calendar', class: 'attention', text: 'Headcrab: have you checked today\'s calendar lately?'};
+  return {...maintenancePrompt(now), class: 'maintenance'};
 }
 
 async function attentionPulse({admin, user, limit = 100, now = new Date()}) {
