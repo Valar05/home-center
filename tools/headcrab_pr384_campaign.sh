@@ -6,7 +6,29 @@ PR_NUMBER="384"
 REMOTE_BRANCH="codex/headcrab-durable-reminders"
 RUNTIME_BRANCH="campaign/headcrab-pr384-runtime"
 
-ROOT="${HC_REPO_ROOT:-$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)}"
+find_home_center_root() {
+  local candidate remote
+  for candidate in \
+    "${HC_REPO_ROOT:-}" \
+    "/storage/emulated/0/Documents/GodotProjects/home-center" \
+    "/storage/emulated/0/Documents/GodotProjects/home-center-phone-hands" \
+    "$HOME/home-center"; do
+    [ -n "$candidate" ] || continue
+    [ -d "$candidate/.git" ] || [ -f "$candidate/.git" ] || continue
+    remote="$(git -C "$candidate" remote get-url origin 2>/dev/null || true)"
+    case "$remote" in
+      *Valar05/home-center*|*valar05/home-center*) printf '%s\n' "$candidate"; return 0 ;;
+    esac
+  done
+  return 1
+}
+
+ROOT="${HC_REPO_ROOT:-}"
+if [ -z "$ROOT" ]; then ROOT="$(find_home_center_root || true)"; fi
+if [ -z "$ROOT" ]; then
+  printf 'HEADCRAB_CAMPAIGN_REPO_NOT_FOUND: checked canonical Termux Home Center paths\n' >&2
+  exit 66
+fi
 STATE_ROOT="${HC_STATE_DIR:-$HOME/.local/state/home-center}/$CAMPAIGN_ID"
 RUNTIME_ROOT="${HC_CAMPAIGN_RUNTIME_ROOT:-$HOME/.local/share/home-center-campaigns}/$CAMPAIGN_ID"
 WORKTREE="$RUNTIME_ROOT/worktree"
