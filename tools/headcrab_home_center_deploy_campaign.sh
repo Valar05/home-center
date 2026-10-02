@@ -47,21 +47,43 @@ ensure_gcloud(){
     state prerequisites running "using native Termux gcloud"
     return 0
   fi
-  if command -v proot-distro >/dev/null 2>&1 && proot-distro login debian -- sh -lc 'command -v gcloud >/dev/null 2>&1'; then
-    local bindir="$STATE_ROOT/bin"
-    mkdir -p "$bindir"
-    cat >"$bindir/gcloud" <<EOF
+
+  if ! command -v proot-distro >/dev/null 2>&1; then
+    state prerequisites repairing "installing Termux proot-distro for Google Cloud CLI capsule"
+    command -v pkg >/dev/null 2>&1 || { state prerequisites blocked "pkg unavailable; cannot install proot-distro"; return 10; }
+    pkg install -y proot-distro >>"$LOG" 2>&1 || return 10
+  fi
+
+  if ! proot-distro login debian -- true >/dev/null 2>&1; then
+    state prerequisites repairing "installing Debian capsule for Google Cloud CLI"
+    proot-distro install debian >>"$LOG" 2>&1 || return 10
+  fi
+
+  if ! proot-distro login debian -- sh -lc 'command -v gcloud >/dev/null 2>&1'; then
+    state prerequisites repairing "installing Google Cloud CLI inside Debian capsule"
+    proot-distro login debian -- sh -lc '
+      set -eu
+      apt-get update
+      apt-get install -y ca-certificates curl gnupg
+      mkdir -p /usr/share/keyrings
+      curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor --yes -o /usr/share/keyrings/cloud.google.gpg
+      printf "%s\\n" "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/sources.list.d/google-cloud-sdk.list
+      apt-get update
+      apt-get install -y google-cloud-cli
+    ' >>"$LOG" 2>&1 || return 10
+  fi
+
+  local bindir="$STATE_ROOT/bin"
+  mkdir -p "$bindir"
+  cat >"$bindir/gcloud" <<EOF
 #!/data/data/com.termux/files/usr/bin/bash
 exec proot-distro login debian --bind "$HOME:$HOME" -- gcloud "\$@"
 EOF
-    chmod 700 "$bindir/gcloud"
-    export PATH="$bindir:$PATH"
-    command -v gcloud >/dev/null 2>&1 || return 10
-    state prerequisites running "using Debian/proot gcloud capsule"
-    return 0
-  fi
-  state prerequisites blocked "gcloud unavailable in Termux and Debian/proot capsule"
-  return 10
+  chmod 700 "$bindir/gcloud"
+  export PATH="$bindir:$PATH"
+  command -v gcloud >/dev/null 2>&1 || return 10
+  state prerequisites running "using Debian/proot gcloud capsule"
+  return 0
 }
 
 stopped(){ [ -f "$STOPFILE" ]; }
@@ -196,7 +218,6 @@ worker(){
   need node || exit $?
   need npm || exit $?
   need python3 || exit $?
-  need proot-distro || true
   ensure_gcloud || exit $?
   need curl || exit $?
   stopped && exit 130
