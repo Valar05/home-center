@@ -211,36 +211,79 @@ print(json.dumps(obj,indent=2,sort_keys=True))
 PY
 }
 
-worker(){
+worker_once(){
   rm -f "$STOPFILE"
   : >"$LOG"
-  need git || exit $?
-  need node || exit $?
-  need npm || exit $?
-  need python3 || exit $?
-  ensure_gcloud || exit $?
-  need curl || exit $?
-  stopped && exit 130
+  need git || return $?
+  need node || return $?
+  need npm || return $?
+  need python3 || return $?
+  ensure_gcloud || return $?
+  need curl || return $?
+  stopped && return 130
 
-  prepare_clean_main || { rc=$?; state prepare-failed blocked "clean checkout failed rc=$rc"; receipt blocked "prepare failed"; exit "$rc"; }
-  install_dependencies || { rc=$?; state deps-failed blocked "npm ci failed rc=$rc"; receipt blocked "dependency install failed"; exit "$rc"; }
-  run_headcrab_tests || { rc=$?; state test-failed blocked "focused Headcrab tests failed rc=$rc"; receipt blocked "tests failed"; exit "$rc"; }
-  refresh_manifest || { rc=$?; state manifest-failed blocked "manifest refresh failed rc=$rc"; receipt blocked "manifest refresh failed"; exit "$rc"; }
+  prepare_clean_main || { rc=$?; state prepare-failed retrying "clean checkout failed rc=$rc"; receipt degraded "prepare failed"; return "$rc"; }
+  install_dependencies || { rc=$?; state deps-failed retrying "npm ci failed rc=$rc"; receipt degraded "dependency install failed"; return "$rc"; }
+  run_headcrab_tests || { rc=$?; state test-failed retrying "focused Headcrab tests failed rc=$rc"; receipt degraded "tests failed"; return "$rc"; }
+  refresh_manifest || { rc=$?; state manifest-failed retrying "manifest refresh failed rc=$rc"; receipt degraded "manifest refresh failed"; return "$rc"; }
 
-  # The manifest commit may have advanced main; refresh exact clean main before deployment.
-  prepare_clean_main || { rc=$?; state prepare-deploy-failed blocked "could not refresh exact main rc=$rc"; exit "$rc"; }
-  install_dependencies || { rc=$?; state deps-deploy-failed blocked "npm ci before deploy failed rc=$rc"; exit "$rc"; }
-  run_headcrab_tests || { rc=$?; state final-test-failed blocked "Headcrab tests failed on exact deploy commit rc=$rc"; exit "$rc"; }
-  (cd "$WORK" && node tools/generate_home_center_public_manifest.mjs --check) >>"$LOG" 2>&1 || { state manifest-check-failed blocked "manifest stale on exact deploy commit"; exit 60; }
+  prepare_clean_main || { rc=$?; state prepare-deploy-failed retrying "could not refresh exact main rc=$rc"; return "$rc"; }
+  install_dependencies || { rc=$?; state deps-deploy-failed retrying "npm ci before deploy failed rc=$rc"; return "$rc"; }
+  run_headcrab_tests || { rc=$?; state final-test-failed retrying "Headcrab tests failed on exact deploy commit rc=$rc"; return "$rc"; }
+  (cd "$WORK" && node tools/generate_home_center_public_manifest.mjs --check) >>"$LOG" 2>&1 || { state manifest-check-failed retrying "manifest stale on exact deploy commit"; return 60; }
 
-  deploy || { rc=$?; state deploy-failed degraded "homeCenterMcp deploy failed rc=$rc; resume retries from clean main"; receipt degraded "deploy failed"; exit "$rc"; }
-  verify || { rc=$?; state verify-failed degraded "deployment completed but live verification failed rc=$rc"; receipt degraded "live verification failed"; exit "$rc"; }
+  acct="$(gcloud auth list --filter=status:ACTIVE --format='value(account)' 2>/dev/null | head -n 1 || true)"
+  if [ -z "$acct" ]; then
+    state auth-needed waiting "Google Cloud CLI is installed but no active account is authenticated. Run gcloud auth login in the same Termux/Proot environment, then leave this campaign running; it will continue automatically."
+    return 75
+  fi
+
+  deploy || { rc=$?; state deploy-failed retrying "homeCenterMcp deploy failed rc=$rc"; receipt degraded "deploy failed"; return "$rc"; }
+  verify || { rc=$?; state verify-failed retrying "deployment completed but live verification failed rc=$rc"; receipt degraded "live verification failed"; return "$rc"; }
 
   receipt healthy "Headcrab Home Center deployment verified live" >>"$LOG" 2>&1
   state healthy healthy "Headcrab reminder tools are deployed and verified on live Home Center"
   msg="HEADCRAB HOME CENTER DEPLOYED + VERIFIED. Receipt: $LATEST"
   clip "$msg"
   printf '%s\n' "$msg"
+  return 0
+}
+
+self_update(){
+  local root="/storage/emulated/0/Documents/GodotProjects/home-center"
+  local latest="$STATE_ROOT/latest-campaign.sh"
+  if [ -e "$root/.git" ]; then
+    git -C "$root" fetch origin main >>"$LOG" 2>&1 || return 1
+    git -C "$root" show origin/main:tools/headcrab_home_center_deploy_campaign.sh >"$latest" 2>>"$LOG" || return 1
+    chmod 700 "$latest"
+    if ! cmp -s "$latest" "$0"; then
+      state self-update restarting "newer campaign script found on origin/main; restarting supervisor with latest code"
+      exec bash "$latest" _supervise
+    fi
+  fi
+}
+
+supervise(){
+  rm -f "$STOPFILE"
+  local round=0 rc=0 delay=0
+  while true; do
+    stopped && { state stopped stopped "operator stop requested"; return 130; }
+    round=$((round+1))
+    state supervise running "completion supervisor round $round"
+    self_update || true
+    worker_once
+    rc=$?
+    if [ "$rc" -eq 0 ]; then return 0; fi
+    if [ "$rc" -eq 130 ]; then return 130; fi
+    if [ "$rc" -eq 75 ]; then
+      sleep 30
+      continue
+    fi
+    if [ "$round" -lt 6 ]; then delay=$((2 ** round)); else delay=60; fi
+    [ "$delay" -gt 60 ] && delay=60
+    state supervise retrying "round $round ended rc=$rc; retrying in ${delay}s"
+    sleep "$delay"
+  done
 }
 
 launch(){
@@ -253,7 +296,7 @@ launch(){
   fi
   rm -f "$STOPFILE"
   command -v setsid >/dev/null 2>&1 || { echo "NEED: setsid" >&2; return 70; }
-  setsid bash "$0" _worker >>"$LOG" 2>&1 < /dev/null &
+  setsid bash "$0" _supervise >>"$LOG" 2>&1 < /dev/null &
   pid=$!
   printf '%s\n' "$pid" >"$PIDFILE"
   state launched running "background deployment campaign launched"
@@ -303,7 +346,7 @@ EOF
 case "${1:-run}" in
   run) run_and_follow ;;
   start|resume) install; launch ;;
-  _worker) worker ;;
+  _supervise) supervise ;;
   status) status ;;
   follow) follow ;;
   receipts) receipts ;;
