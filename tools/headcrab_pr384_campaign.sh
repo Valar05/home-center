@@ -156,7 +156,12 @@ wait_ci() {
     if grep -Eiq 'fail|cancel|error' "$STATE_ROOT/ci-checks.txt"; then
       write_state ci-failed repairing "CI reports failure; capturing logs and attempting one bounded repair cycle"
       gh run list --repo Valar05/home-center --branch "$REMOTE_BRANCH" --limit 20 >"$STATE_ROOT/ci-runs.txt" 2>&1 || true
-      gh run view --repo Valar05/home-center --log-failed >"$STATE_ROOT/ci-failed.log" 2>&1 || true
+      fail_id="$(gh run list --repo Valar05/home-center --branch "$REMOTE_BRANCH" --status failure --limit 1 --json databaseId --jq '.[0].databaseId' 2>/dev/null || true)"
+      if [ -n "$fail_id" ]; then
+        gh run view "$fail_id" --repo Valar05/home-center --log-failed >"$STATE_ROOT/ci-failed.log" 2>&1 || true
+      else
+        cp "$STATE_ROOT/ci-checks.txt" "$STATE_ROOT/ci-failed.log" 2>/dev/null || true
+      fi
       return 2
     fi
     sleep 20
@@ -267,10 +272,13 @@ launch() {
     fi
   fi
   rm -f "$STOP_FILE"
-  (
-    trap '' HUP
-    worker
-  ) >>"$LOG" 2>&1 &
+  if ! command -v setsid >/dev/null 2>&1; then
+    write_state launch-blocked blocked "setsid unavailable; refusing to let a long-running campaign own the operator shell"
+    clipboard "HEADCRAB PR384 CAMPAIGN BLOCKED: setsid unavailable"
+    return 22
+  fi
+  setsid env HC_REPO_ROOT="$ROOT" HC_STATE_DIR="${HC_STATE_DIR:-$HOME/.local/state/home-center}" \
+    bash "$ROOT/tools/headcrab_pr384_campaign.sh" _worker >>"$LOG" 2>&1 < /dev/null &
   pid=$!
   printf '%s\n' "$pid" >"$WORKER_PID"
   write_state launched running "campaign worker launched in background"
@@ -328,9 +336,18 @@ case "${1:-run}" in
   stop) stop_campaign ;;
   receipts) receipts ;;
   reconcile) reconcile_primary ;;
+  merge)
+    write_state merge running "operator explicitly requested merge after campaign verification"
+    gh pr checks "$PR_NUMBER" --repo Valar05/home-center --required >>"$LOG" 2>&1 || { write_state merge-blocked blocked "required checks are not green"; exit 23; }
+    gh pr merge "$PR_NUMBER" --repo Valar05/home-center --merge >>"$LOG" 2>&1 || { write_state merge-failed degraded "GitHub merge failed; no local destructive fallback attempted"; exit 24; }
+    write_receipt merged "PR #384 merged" >"$STATE_ROOT/receipt.out" 2>&1 || true
+    reconcile_primary || true
+    write_state merged healthy "PR #384 merged; primary reconciliation handled conservatively"
+    clipboard "HEADCRAB PR384 MERGED; receipts: $LATEST"
+    ;;
   install) install_command ;;
   *)
-    echo "usage: headcrab-ci-campaign [run|resume|status|follow|stop|receipts|reconcile|install]" >&2
+    echo "usage: headcrab-ci-campaign [run|resume|status|follow|stop|receipts|reconcile|merge|install]" >&2
     exit 64
     ;;
 esac
