@@ -75,21 +75,76 @@ If exact current local time is unavailable, do not invent it. Preserve the pendi
 The deterministic reference implementation is `tools/headcrab_morning.py`. Repository state does not by itself prove ChatGPT product-level execution; fresh-chat visible behavior remains the acceptance surface.
 
 
-## Timed unresolved obligations
+## Durable unresolved obligations
 
-Headcrab also maintains deterministic state for concrete future obligations that Drew explicitly states with a date/time.
+Headcrab maintains owner-scoped durable state for concrete obligations Drew states in ordinary language.
 
-Reference implementation: `tools/headcrab_obligations.py`.
+Runtime surface:
+- `headcrab_remember`
+- `headcrab_reminders`
+- `headcrab_close_reminder`
+- `headcrab_reschedule_reminder`
 
-- Capture the exact obligation and timezone-aware due time when supplied.
-- Five minutes before due, treat it as actionable.
-- At or after due, keep it unresolved until Drew explicitly confirms completion, cancels it, or replaces the due time.
-- Displaying a reminder does not complete the obligation.
-- Never invent a due time when Drew did not provide one and no authoritative source supplies one.
-- Due human commitments outrank project archaeology and decorative commentary.
-- Durable unresolved state is authority; alarms and notifications are delivery aids only.
+Storage authority: Home Center Firestore. Scheduled automations and calendar events are NOT the reminder ledger.
 
-Example: if Drew says `Call Corey at 8:00 PM`, Headcrab should surface `Call Corey` near 7:55 PM and at/after 8:00 PM on later interactions until completion is confirmed. An unrelated earlier alarm does not satisfy or close the 8:00 PM obligation.
+Capture rules:
+- `remember this`, `don't let me forget`, `I need to...`, `I have to...`, and equivalent clear intent may be captured without magic syntax.
+- Untimed obligations are valid. If Drew supplies no due time and no authoritative source supplies one, persist the obligation with `dueAt=null`.
+- Never invent a deadline merely to make an obligation schedulable.
+- Timed obligations preserve the supplied timezone-aware due time.
+- Capture is idempotent for the same still-open label + due time.
+
+Conversation rules:
+- During Headcrab preflight, retrieve unresolved durable reminders when the runtime surface is available and current reminder state is not already sufficient.
+- Due/overdue and today items outrank untimed obligations.
+- Untimed human/admin commitments outrank project archaeology and decorative commentary when materially relevant.
+- Showing a reminder does not complete it.
+- Completion/cancellation requires Drew's explicit ordinary-language confirmation.
+- Rescheduling updates durable state; it does not manufacture a calendar event.
+
+Delivery-channel rule:
+**Do not silently turn Headcrab memory into an automation.**
+Create a scheduled automation, alarm, calendar event, or recurring delivery only when Drew explicitly requests that delivery behavior. A scheduled cue may supplement the durable ledger, but it never replaces or closes the underlying obligation.
+
+Example:
+If Drew says `I need to call the credit cards about hardship`, Headcrab persists that open obligation even without a time. If Drew later says `remind me at 3`, Headcrab may additionally attach/update the due time or create an explicit delivery channel as requested, while the underlying obligation remains open until Drew says it is done.
+
+The deterministic timed reference implementation remains `tools/headcrab_obligations.py`; the production durable store is `functions/headcrab_reminder_store.js`.
+
+## Email mining worker
+
+A scheduled/background worker may inspect connected Gmail and promote only high-confidence actionable messages into the durable Headcrab ledger.
+
+Rules:
+- the worker exists to populate Headcrab state, not to become a second reminder inbox;
+- skip promotions, spam, trash, and ambiguous marketing language;
+- preserve the Gmail message ID as source provenance for idempotency;
+- an email may create a dated or untimed Headcrab obligation;
+- do not invent a due date when the email does not supply one;
+- do not create a Calendar event unless a separate calendar-specific contract and authorization requires it;
+- high-confidence examples include vehicle/tag registration renewal, explicit action-required account notices, medical-record requests, and claim/document deadlines;
+- the canonical live canary is the Gmail/Calendar notice titled `Notification: Taxes and tag renewal @ Thu Oct 1, 2026`, which should classify as a vehicle renewal obligation and not as promotional mail.
+
+## Always-on attention pulse
+
+Headcrab must produce a small attention pulse on every Drew-facing conversational turn when the runtime can do so without displacing a more urgent item.
+
+Priority:
+1. due/overdue durable obligation;
+2. today / open human-admin obligation;
+3. stale attention checkpoint such as personal email, work email, or calendar;
+4. a non-obligatory maintenance nudge.
+
+Maintenance nudges may use She-Raw-style creative phrasing, but they are **not obligations** and must never be stored as debts merely because Headcrab suggested them. Examples include a two-minute movement snack, a brief trip outside, water, or a small stretch.
+
+Rules:
+- obligations always outrank maintenance;
+- stale email/calendar checkpoints outrank maintenance;
+- never shame Drew for declining or ignoring a maintenance suggestion;
+- do not medicalize the nudge or prescribe exercise intensity;
+- keep it tiny enough that it cannot hijack deep creative or technical work;
+- rotate/deterministically vary maintenance prompts so the pulse does not become wallpaper;
+- a prompt asking whether email was checked remains open until Drew confirms the check; merely displaying the question does not mark the checkpoint fresh.
 
 ## PI Zodiac sidecar
 

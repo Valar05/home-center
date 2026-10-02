@@ -86,15 +86,15 @@ const {
   registry: smsCalendarOperationRegistry,
   runOperation: smsCalendarOperationRunOperation,
 } = require('./sms_calendar_intake');
-const {assertHomeCenterIdentityAllowed} = require('./home_center_access_policy');
+const {assertHomeCenterIdentityAllowed} = require('./home_center_access_policy');\nconst {registerHeadcrabReminderTools} = require('./headcrab_reminder_store');
 const {homeCenterIdentityStatusOperation, homeCenterIdentityRevokeOperation} = require('./home_center_identity_security');
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const DEFAULT_MCP_AUTHORIZATION_SERVER_BASE = 'https://homecentermcp-vxybsaualq-uc.a.run.app';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const MCP_AUTHORIZATION_SERVER_BASE = process.env.HOME_CENTER_MCP_AUTHORIZATION_SERVER_BASE || DEFAULT_MCP_AUTHORIZATION_SERVER_BASE;
-const HOME_CENTER_MCP_SERVER_VERSION = '0.3.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-09-04.browser-nerve-action-surface-v1';
+const HOME_CENTER_MCP_SERVER_VERSION = '0.3.1';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-10-02.headcrab-durable-reminders-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_AUTHORIZATION_SERVER_BASE}/mcp`;
@@ -6545,6 +6545,15 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   const server = new McpServer({
     name: 'home-center-drive-bridge',
     version: HOME_CENTER_MCP_SERVER_VERSION,
+  });
+
+  registerHeadcrabReminderTools(server, {
+    admin,
+    google,
+    z,
+    textResult,
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    requestUserContext: async (extra) => requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret),
   });
 
   server.registerTool('health', {
