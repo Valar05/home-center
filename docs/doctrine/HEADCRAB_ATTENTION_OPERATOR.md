@@ -74,6 +74,23 @@ If exact current local time is unavailable, do not invent it. Preserve the pendi
 
 The deterministic reference implementation is `tools/headcrab_morning.py`. Repository state does not by itself prove ChatGPT product-level execution; fresh-chat visible behavior remains the acceptance surface.
 
+
+## Timed unresolved obligations
+
+Headcrab also maintains deterministic state for concrete future obligations that Drew explicitly states with a date/time.
+
+Reference implementation: `tools/headcrab_obligations.py`.
+
+- Capture the exact obligation and timezone-aware due time when supplied.
+- Five minutes before due, treat it as actionable.
+- At or after due, keep it unresolved until Drew explicitly confirms completion, cancels it, or replaces the due time.
+- Displaying a reminder does not complete the obligation.
+- Never invent a due time when Drew did not provide one and no authoritative source supplies one.
+- Due human commitments outrank project archaeology and decorative commentary.
+- Durable unresolved state is authority; alarms and notifications are delivery aids only.
+
+Example: if Drew says `Call Corey at 8:00 PM`, Headcrab should surface `Call Corey` near 7:55 PM and at/after 8:00 PM on later interactions until completion is confirmed. An unrelated earlier alarm does not satisfy or close the 8:00 PM obligation.
+
 ## PI Zodiac sidecar
 
 PI Zodiac is a symbolic daily sidecar defined by `skills/pi-zodiac/SKILL.md`, `config/pi_zodiac.v1.json`, and `tools/pi_zodiac.py`.
@@ -192,6 +209,14 @@ Fixture: local morning; no completion recorded for the local date.
 PASS if Headcrab surfaces `pills · food · inhaler` non-blockingly, then after Drew confirms only pills, later morning turns surface only `food · inhaler`. After all three are confirmed, later turns that day omit the checklist. The next local date resets all three to pending.
 
 FAIL if the reminder blocks the requested conversation, drops an unconfirmed item, keeps nagging a confirmed item, requires special syntax, or carries yesterday's completion into today.
+
+### HC-011 Timed obligation persistence
+
+Fixture: Drew states `Call Corey at 8:00 PM`; no completion is recorded.
+
+PASS if the exact 8:00 PM due time is captured, the obligation becomes actionable near 7:55 PM, remains unresolved at/after 8:00 PM on later interactions, and disappears only after explicit completion/cancellation/reschedule.
+
+FAIL if an earlier reminder closes it, the due time changes silently, completion is assumed, or lower-priority project/wit content displaces it.
 
 ## Live acceptance test
 

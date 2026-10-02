@@ -40,6 +40,27 @@ Procedure:
 
 Done: every pending morning item remains visible without blocking work, confirmed items disappear, and the next local day resets to all three pending.
 
+
+## 0.3. Headcrab Timed Obligation Loop
+
+Trigger: Drew states a concrete future obligation with an actionable date/time, or an already-captured obligation becomes imminent/due/overdue.
+
+Examples: `call Corey at 8`, `appointment at 1:30`, `send the form by noon`.
+
+Procedure:
+
+1. Capture the obligation when Drew states it. Preserve the actual label, due time, and timezone; do not replace an exact time with an earlier generic reminder.
+2. The deterministic state semantics live in `tools/headcrab_obligations.py`. A runtime persistence layer must preserve the same identity, due-time, pending, completion, and fail-closed semantics.
+3. Five minutes before the due time, the obligation becomes actionable. Surface it non-blockingly before ordinary response content when Drew is interacting.
+4. At or after the due time, continue surfacing the unresolved obligation on later interactions until Drew explicitly confirms completion, cancels it, or supplies a replacement time.
+5. Ordinary language closes the loop. Never require a magic phrase. Do not mark an obligation complete merely because Headcrab surfaced it.
+6. Human commitments outrank project archaeology and decorative commentary. A due call to Corey outranks Pose Lab, jokes, or other lower-priority context.
+7. If Drew never supplied the time/date and no authoritative source provides it, fail honestly: the obligation cannot be treated as timed. Never invent a due time.
+8. Timed obligations complement the recurring morning checklist; they do not replace `pills · food · inhaler`.
+9. This loop is interaction-aware, not scheduled-job theater. External alarms/notifications may help deliver a cue, but durable unresolved state is the authority and must survive a missed or early alarm.
+
+Done: a captured obligation becomes visible when actionable, remains unresolved across later interactions until explicitly closed, and cannot silently disappear because an earlier notification fired.
+
 ## 0.5. Operator Campaign Mandatory Dispatcher
 
 Trigger: Drew says `script campaign`, `campaign script`, `operator campaign`, `startup campaign`, `bootstrap campaign`, `campaign intro`, `campaign launcher`, `durable script`, asks for one reusable command with status/stop/resume/receipts, or otherwise commissions a reusable Termux/Android campaign surface.
