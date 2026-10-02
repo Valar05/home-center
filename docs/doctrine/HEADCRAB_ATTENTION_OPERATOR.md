@@ -111,6 +111,20 @@ If Drew says `I need to call the credit cards about hardship`, Headcrab persists
 
 The deterministic timed reference implementation remains `tools/headcrab_obligations.py`; the production durable store is `functions/headcrab_reminder_store.js`.
 
+## Email mining worker
+
+A scheduled/background worker may inspect connected Gmail and promote only high-confidence actionable messages into the durable Headcrab ledger.
+
+Rules:
+- the worker exists to populate Headcrab state, not to become a second reminder inbox;
+- skip promotions, spam, trash, and ambiguous marketing language;
+- preserve the Gmail message ID as source provenance for idempotency;
+- an email may create a dated or untimed Headcrab obligation;
+- do not invent a due date when the email does not supply one;
+- do not create a Calendar event unless a separate calendar-specific contract and authorization requires it;
+- high-confidence examples include vehicle/tag registration renewal, explicit action-required account notices, medical-record requests, and claim/document deadlines;
+- the canonical live canary is the Gmail/Calendar notice titled `Notification: Taxes and tag renewal @ Thu Oct 1, 2026`, which should classify as a vehicle renewal obligation and not as promotional mail.
+
 ## Always-on attention pulse
 
 Headcrab must produce a small attention pulse on every Drew-facing conversational turn when the runtime can do so without displacing a more urgent item.
