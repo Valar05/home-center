@@ -101,11 +101,89 @@ async function rescheduleReminder({admin, user, reminderId, dueAt}) {
   return {reminderId: cleanId, dueAt: normalizedDueAt, status: 'open'};
 }
 
-function registerHeadcrabReminderTools(server, {admin, z, textResult, requestUserContext, securitySchemes}) {
+
+function checkpointCollection(admin, user) {
+  return admin.firestore()
+    .collection('headcrabReminderUsers')
+    .doc(ownerKey(user))
+    .collection('attentionCheckpoints');
+}
+
+async function recordCheckpoint({admin, user, kind, checkedAt = null}) {
+  const cleanKind = cleanText(kind, 80).toLowerCase();
+  if (!['email', 'work_email', 'calendar', 'records', 'bills'].includes(cleanKind)) {
+    throw Object.assign(new Error('Unsupported Headcrab checkpoint kind.'), {status: 400});
+  }
+  const at = checkedAt ? parseDueAt(checkedAt) : new Date().toISOString();
+  await checkpointCollection(admin, user).doc(cleanKind).set({
+    kind: cleanKind,
+    checkedAt: at,
+    updatedAt: new Date().toISOString(),
+  }, {merge: true});
+  return {kind: cleanKind, checkedAt: at};
+}
+
+async function readCheckpoints({admin, user}) {
+  const snap = await checkpointCollection(admin, user).limit(20).get();
+  const values = {};
+  snap.forEach((doc) => {
+    const data = doc.data() || {};
+    if (data.kind) values[data.kind] = data.checkedAt || null;
+  });
+  return values;
+}
+
+function attentionFallback(checkpoints = {}, now = new Date()) {
+  const emailAt = checkpoints.email ? Date.parse(checkpoints.email) : NaN;
+  const workEmailAt = checkpoints.work_email ? Date.parse(checkpoints.work_email) : NaN;
+  const calendarAt = checkpoints.calendar ? Date.parse(checkpoints.calendar) : NaN;
+  const hours = (ms) => Number.isFinite(ms) ? (now.getTime() - ms) / 3600000 : Infinity;
+
+  if (hours(emailAt) >= 6) return {kind: 'email', text: 'Headcrab: when did you last check personal email?'};
+  if (hours(workEmailAt) >= 4) return {kind: 'work_email', text: 'Headcrab: when did you last check work email?'};
+  if (hours(calendarAt) >= 12) return {kind: 'calendar', text: 'Headcrab: have you checked today\'s calendar lately?'};
+  return {kind: 'status', text: 'Headcrab: anything still open that would hurt if it slipped?'};
+}
+
+async function attentionPulse({admin, user, limit = 100, now = new Date()}) {
+  const reminders = await listOpenReminders({admin, user, limit});
+  const checkpoints = await readCheckpoints({admin, user});
+  if (reminders.length) {
+    return {mode: 'obligation', reminders, checkpoints};
+  }
+  return {mode: 'fallback', prompt: attentionFallback(checkpoints, now), checkpoints};
+}
+\nfunction registerHeadcrabReminderTools(server, {admin, z, textResult, requestUserContext, securitySchemes}) {
   const commonMeta = {
     securitySchemes,
     _meta: {securitySchemes},
   };
+
+
+  server.registerTool('headcrab_attention_pulse', {
+    title: 'Headcrab attention pulse',
+    description: 'Return the durable unresolved reminder stack, or when no open reminder exists, a tiny fallback attention prompt such as checking email/calendar. Intended for every conversational preflight so Headcrab cannot disappear during deep work.',
+    inputSchema: {limit: z.number().int().min(1).max(200).default(100)},
+    ...commonMeta,
+    annotations: {readOnlyHint: true, openWorldHint: false},
+  }, async (args, extra) => {
+    const {user} = await requestUserContext(extra);
+    return textResult(await attentionPulse({admin, user, limit: args && args.limit}));
+  });
+
+  server.registerTool('headcrab_mark_checked', {
+    title: 'Headcrab mark checked',
+    description: 'Record that Drew actually checked a recurring attention surface such as personal email, work email, calendar, records, or bills. Do not mark a surface checked merely because Headcrab asked about it.',
+    inputSchema: {
+      kind: z.enum(['email', 'work_email', 'calendar', 'records', 'bills']),
+      checkedAt: z.string().optional().describe('Optional ISO-8601 timestamp with timezone; defaults to now.'),
+    },
+    ...commonMeta,
+    annotations: {readOnlyHint: false, openWorldHint: false},
+  }, async (args, extra) => {
+    const {user} = await requestUserContext(extra);
+    return textResult(await recordCheckpoint({admin, user, ...(args || {})}));
+  });
 
   server.registerTool('headcrab_remember', {
     title: 'Headcrab remember',
