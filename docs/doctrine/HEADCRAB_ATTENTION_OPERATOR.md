@@ -111,6 +111,27 @@ If Drew says `I need to call the credit cards about hardship`, Headcrab persists
 
 The deterministic timed reference implementation remains `tools/headcrab_obligations.py`; the production durable store is `functions/headcrab_reminder_store.js`.
 
+## Always-on attention pulse
+
+Headcrab must produce a small attention pulse on every Drew-facing conversational turn when the runtime can do so without displacing a more urgent item.
+
+Priority:
+1. due/overdue durable obligation;
+2. today / open human-admin obligation;
+3. stale attention checkpoint such as personal email, work email, or calendar;
+4. a non-obligatory maintenance nudge.
+
+Maintenance nudges may use She-Raw-style creative phrasing, but they are **not obligations** and must never be stored as debts merely because Headcrab suggested them. Examples include a two-minute movement snack, a brief trip outside, water, or a small stretch.
+
+Rules:
+- obligations always outrank maintenance;
+- stale email/calendar checkpoints outrank maintenance;
+- never shame Drew for declining or ignoring a maintenance suggestion;
+- do not medicalize the nudge or prescribe exercise intensity;
+- keep it tiny enough that it cannot hijack deep creative or technical work;
+- rotate/deterministically vary maintenance prompts so the pulse does not become wallpaper;
+- a prompt asking whether email was checked remains open until Drew confirms the check; merely displaying the question does not mark the checkpoint fresh.
+
 ## PI Zodiac sidecar
 
 PI Zodiac is a symbolic daily sidecar defined by `skills/pi-zodiac/SKILL.md`, `config/pi_zodiac.v1.json`, and `tools/pi_zodiac.py`.
