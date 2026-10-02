@@ -43,14 +43,18 @@ async function listOpenReminders({admin, user, limit = 100}) {
   return items;
 }
 
-async function captureReminder({admin, user, label, dueAt = null, notes = '', source = 'conversation'}) {
+async function captureReminder({admin, user, label, dueAt = null, notes = '', source = 'conversation', sourceRef = ''}) {
   const cleanLabel = cleanText(label, 500);
   if (!cleanLabel) throw Object.assign(new Error('Reminder label is required.'), {status: 400});
   const normalizedDueAt = parseDueAt(dueAt);
+  const normalizedSourceRef = cleanText(sourceRef, 500);
   const open = await listOpenReminders({admin, user, limit: 200});
   const duplicate = open.find((item) =>
-    cleanText(item.label, 500).toLowerCase() === cleanLabel.toLowerCase()
-    && (item.dueAt || null) === normalizedDueAt
+    (normalizedSourceRef && cleanText(item.sourceRef, 500) === normalizedSourceRef)
+    || (
+      cleanText(item.label, 500).toLowerCase() === cleanLabel.toLowerCase()
+      && (item.dueAt || null) === normalizedDueAt
+    )
   );
   if (duplicate) return {created: false, reminder: duplicate};
 
@@ -61,6 +65,7 @@ async function captureReminder({admin, user, label, dueAt = null, notes = '', so
     dueAt: normalizedDueAt,
     notes: cleanText(notes, 2000),
     source: cleanText(source, 120) || 'conversation',
+    sourceRef: normalizedSourceRef || null,
     status: 'open',
     createdAt: now,
     updatedAt: now,
@@ -165,12 +170,113 @@ async function attentionPulse({admin, user, limit = 100, now = new Date()}) {
   }
   return {mode: 'fallback', prompt: attentionFallback(checkpoints, now), checkpoints};
 }
-\nfunction registerHeadcrabReminderTools(server, {admin, z, textResult, requestUserContext, securitySchemes}) {
+\n
+const MONTHS = Object.freeze({
+  jan: 0, january: 0, feb: 1, february: 1, mar: 2, march: 2, apr: 3, april: 3,
+  may: 4, jun: 5, june: 5, jul: 6, july: 6, aug: 7, august: 7,
+  sep: 8, sept: 8, september: 8, oct: 9, october: 9, nov: 10, november: 10, dec: 11, december: 11,
+});
+
+function dueFromText(textValue, defaultOffset = '-05:00') {
+  const value = cleanText(textValue, 4000);
+  const m = value.match(/\\b(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\\s+(\\d{1,2})(?:,)?\\s+(20\\d{2})\\b/i);
+  if (!m) return null;
+  const month = MONTHS[m[1].toLowerCase()];
+  const day = Number(m[2]);
+  const year = Number(m[3]);
+  if (!Number.isInteger(month) || day < 1 || day > 31) return null;
+  const mm = String(month + 1).padStart(2, '0');
+  const dd = String(day).padStart(2, '0');
+  return parseDueAt(`${year}-${mm}-${dd}T17:00:00${defaultOffset}`);
+}
+
+function emailReminderCandidate(message = {}, defaultOffset = '-05:00') {
+  const subject = cleanText(message.subject, 500);
+  const snippet = cleanText(message.snippet, 1200);
+  const haystack = `${subject} ${snippet}`.toLowerCase();
+  const labels = new Set(Array.isArray(message.labels) ? message.labels : []);
+  if (labels.has('CATEGORY_PROMOTIONS') || labels.has('SPAM') || labels.has('TRASH')) return null;
+
+  const rules = [
+    {kind: 'vehicle_renewal', re: /\\b(?:tag|tags|vehicle|registration)\\b.*\\brenew(?:al|ed)?\\b|\\brenew(?:al|ed)?\\b.*\\b(?:tag|tags|vehicle|registration)\\b/i, label: 'Handle vehicle tags / registration renewal'},
+    {kind: 'insurance_claim', re: /\\b(?:claim|disability|insurance)\\b.*\\b(?:action required|due|deadline|records?|documents?)\\b|\\b(?:action required|due|deadline)\\b.*\\b(?:claim|disability|insurance)\\b/i, label: 'Handle insurance claim requirement'},
+    {kind: 'medical_records', re: /\\bmedical records?\\b.*\\b(?:ready|requested|request|pick up|available|send|release)\\b|\\b(?:records?|documents?)\\b.*\\bprovider\\b/i, label: 'Handle medical records request'},
+    {kind: 'account_action', re: /\\b(?:action required|final reminder|past due|payment due|finish registration|renewal due)\\b/i, label: subject || 'Handle account action'},
+  ];
+  const rule = rules.find((entry) => entry.re.test(haystack));
+  if (!rule) return null;
+  const dueAt = dueFromText(subject + ' ' + snippet, defaultOffset);
+  const label = rule.kind === 'account_action' ? cleanText(subject, 300) : rule.label;
+  return {
+    kind: rule.kind,
+    label,
+    dueAt,
+    notes: subject && snippet ? `${subject} — ${snippet}` : (subject || snippet),
+  };
+}
+
+async function mineEmailReminders({google, auth, admin, user, query = 'newer_than:7d -category:promotions -in:spam -in:trash', maxResults = 50, defaultOffset = '-05:00'}) {
+  if (!google || !auth) throw Object.assign(new Error('Gmail mining requires connected Google OAuth context.'), {status: 401});
+  const gmail = google.gmail({version: 'v1', auth});
+  const listed = await gmail.users.messages.list({
+    userId: 'me',
+    q: cleanText(query, 500),
+    maxResults: Math.max(1, Math.min(100, Number(maxResults) || 50)),
+  });
+  const ids = (listed.data.messages || []).map((item) => item.id).filter(Boolean);
+  const created = [];
+  const skipped = [];
+  for (const id of ids) {
+    const fetched = await gmail.users.messages.get({userId: 'me', id, format: 'metadata', metadataHeaders: ['Subject', 'From', 'Date']});
+    const headers = Object.fromEntries((fetched.data.payload && fetched.data.payload.headers || []).map((h) => [String(h.name || '').toLowerCase(), String(h.value || '')]));
+    const message = {
+      id,
+      subject: headers.subject || '',
+      from: headers.from || '',
+      snippet: fetched.data.snippet || '',
+      labels: fetched.data.labelIds || [],
+    };
+    const candidate = emailReminderCandidate(message, defaultOffset);
+    if (!candidate) {
+      skipped.push({messageId: id, reason: 'not_high_confidence'});
+      continue;
+    }
+    const result = await captureReminder({
+      admin,
+      user,
+      label: candidate.label,
+      dueAt: candidate.dueAt,
+      notes: candidate.notes,
+      source: 'gmail_miner',
+      sourceRef: `gmail:${id}`,
+    });
+    if (result.created) created.push({messageId: id, kind: candidate.kind, reminder: result.reminder});
+    else skipped.push({messageId: id, reason: 'duplicate'});
+  }
+  return {query, scanned: ids.length, created, skippedCount: skipped.length};
+}
+\nfunction registerHeadcrabReminderTools(server, {admin, google, z, textResult, requestUserContext, securitySchemes}) {
   const commonMeta = {
     securitySchemes,
     _meta: {securitySchemes},
   };
 
+
+
+  server.registerTool('headcrab_mine_email', {
+    title: 'Headcrab mine email',
+    description: 'Scan recent non-promotional Gmail for high-confidence actionable obligations and persist them into the same durable Headcrab reminder ledger. This is a worker/intake operation, not a reminder delivery channel. Ambiguous mail is skipped; it does not create Calendar events.',
+    inputSchema: {
+      query: z.string().max(500).optional(),
+      maxResults: z.number().int().min(1).max(100).default(50),
+      defaultOffset: z.string().max(16).default('-05:00'),
+    },
+    ...commonMeta,
+    annotations: {readOnlyHint: false, openWorldHint: true},
+  }, async (args, extra) => {
+    const {user, auth} = await requestUserContext(extra);
+    return textResult(await mineEmailReminders({google, auth, admin, user, ...(args || {})}));
+  });
 
   server.registerTool('headcrab_attention_pulse', {
     title: 'Headcrab attention pulse',
