@@ -61,6 +61,8 @@ Procedure:
 10. The MCP runtime surface is `headcrab_remember`, `headcrab_reminders`, `headcrab_close_reminder`, and `headcrab_reschedule_reminder`. State is owner-scoped and persisted in Firestore.
 11. The deterministic Python timed-obligation reference in `tools/headcrab_obligations.py` remains valid for timing semantics; the Firestore store extends it to durable untimed conversational obligations.
 12. External alarms/notifications are delivery aids only. Durable unresolved state is authority and must survive a missed notification, another chat, or a process restart.
+13. A scheduled worker may mine Gmail for high-confidence obligations and write them into the same durable reminder ledger. The worker is intake, not delivery. It must skip ambiguous/promotional mail and must not create Calendar events merely because it found an obligation.
+14. Headcrab should emit an always-on attention pulse: obligation first, then stale email/calendar checkpoint, then an optional non-obligatory maintenance nudge. Maintenance suggestions must never become stored debt unless Drew explicitly adopts them.
 
 Done: Drew can add an obligation just by saying it, the obligation survives beyond the current chat, Headcrab can retrieve it during later conversation, and it disappears only after explicit completion/cancellation. No scheduled event is created unless Drew separately requests one.
 
