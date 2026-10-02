@@ -41,25 +41,28 @@ Procedure:
 Done: every pending morning item remains visible without blocking work, confirmed items disappear, and the next local day resets to all three pending.
 
 
-## 0.3. Headcrab Timed Obligation Loop
+## 0.3. Headcrab Durable Obligation Loop
 
-Trigger: Drew states a concrete future obligation with an actionable date/time, or an already-captured obligation becomes imminent/due/overdue.
+Trigger: Drew states an obligation in ordinary language, asks Headcrab to remember something, or an already-captured obligation becomes timely.
 
-Examples: `call Corey at 8`, `appointment at 1:30`, `send the form by noon`.
+Examples: `call Cori at 6:30`, `I need to call the credit cards about hardship`, `don't let me forget the psychiatrist records`, `appointment at 1:30`.
 
 Procedure:
 
-1. Capture the obligation when Drew states it. Preserve the actual label, due time, and timezone; do not replace an exact time with an earlier generic reminder.
-2. The deterministic state semantics live in `tools/headcrab_obligations.py`. A runtime persistence layer must preserve the same identity, due-time, pending, completion, and fail-closed semantics.
-3. Five minutes before the due time, the obligation becomes actionable. Surface it non-blockingly before ordinary response content when Drew is interacting.
-4. At or after the due time, continue surfacing the unresolved obligation on later interactions until Drew explicitly confirms completion, cancels it, or supplies a replacement time.
-5. Ordinary language closes the loop. Never require a magic phrase. Do not mark an obligation complete merely because Headcrab surfaced it.
-6. Human commitments outrank project archaeology and decorative commentary. A due call to Corey outranks Pose Lab, jokes, or other lower-priority context.
-7. If Drew never supplied the time/date and no authoritative source provides it, fail honestly: the obligation cannot be treated as timed. Never invent a due time.
-8. Timed obligations complement the recurring morning checklist; they do not replace `pills · food · inhaler`.
-9. This loop is interaction-aware, not scheduled-job theater. External alarms/notifications may help deliver a cue, but durable unresolved state is the authority and must survive a missed or early alarm.
+1. Capture clear obligations into Home Center's durable reminder store. Do not require a magic phrase.
+2. **Untimed obligations are valid.** If Drew supplied no real date/time and no authoritative source supplies one, persist the obligation with no due time rather than inventing one.
+3. Timed obligations preserve the exact due time and timezone. Five minutes before due, treat them as actionable.
+4. On every conversational preflight where Headcrab state is available, read the durable unresolved stack and surface the smallest materially relevant item before ordinary response content.
+5. At or after due time, keep a timed obligation unresolved on later interactions until Drew explicitly confirms completion, cancellation, or a replacement time.
+6. Untimed obligations remain unresolved until Drew explicitly closes them; rank them behind due/today items but ahead of archaeology and decorative commentary when they are active human/admin commitments.
+7. Ordinary language closes or reschedules the loop. Never require IDs or special syntax from Drew; the assistant may use reminder IDs internally.
+8. Human commitments outrank project archaeology and decorative commentary.
+9. **Do not silently convert conversational reminders into scheduled automations or calendar events.** Scheduled delivery is a separate, explicit channel requested only when Drew asks for an alarm, scheduled reminder, recurring delivery, or future notification.
+10. The MCP runtime surface is `headcrab_remember`, `headcrab_reminders`, `headcrab_close_reminder`, and `headcrab_reschedule_reminder`. State is owner-scoped and persisted in Firestore.
+11. The deterministic Python timed-obligation reference in `tools/headcrab_obligations.py` remains valid for timing semantics; the Firestore store extends it to durable untimed conversational obligations.
+12. External alarms/notifications are delivery aids only. Durable unresolved state is authority and must survive a missed notification, another chat, or a process restart.
 
-Done: a captured obligation becomes visible when actionable, remains unresolved across later interactions until explicitly closed, and cannot silently disappear because an earlier notification fired.
+Done: Drew can add an obligation just by saying it, the obligation survives beyond the current chat, Headcrab can retrieve it during later conversation, and it disappears only after explicit completion/cancellation. No scheduled event is created unless Drew separately requests one.
 
 ## 0.5. Operator Campaign Mandatory Dispatcher
 
