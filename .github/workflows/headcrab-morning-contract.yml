@@ -7,6 +7,9 @@ on:
       - 'tools/test_headcrab_morning.py'
       - 'tools/headcrab_obligations.py'
       - 'tools/test_headcrab_obligations.py'
+      - 'functions/headcrab_reminder_store.js'
+      - 'tools/headcrab_reminder_store.test.js'
+      - 'functions/home_center_mcp.js'
       - 'SKILLS.md'
       - 'docs/doctrine/HEADCRAB_ATTENTION_OPERATOR.md'
       - '.github/workflows/headcrab-morning-contract.yml'
@@ -20,3 +23,4 @@ jobs:
         run: |
           python3 tools/test_headcrab_morning.py
           python3 tools/test_headcrab_obligations.py
+          node --test tools/headcrab_reminder_store.test.js
