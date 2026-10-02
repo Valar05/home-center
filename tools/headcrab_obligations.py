@@ -6,6 +6,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from hashlib import sha256
+import json
+from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import Iterable
 
 DEFAULT_LEAD_MINUTES = 5
@@ -157,3 +160,30 @@ def render_reminders(
             minutes = max(1, int((due - now).total_seconds() // 60))
             rendered.append(f"Headcrab: ⏰ {item.label} — in {minutes}m")
     return tuple(rendered)
+
+
+def load_ledger(path: str | Path) -> ObligationLedger:
+    target = Path(path)
+    if not target.exists():
+        return ObligationLedger.empty()
+    payload = json.loads(target.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("Headcrab obligation state must be a JSON object")
+    return ObligationLedger.from_dict(payload)
+
+
+def save_ledger(path: str | Path, ledger: ObligationLedger) -> None:
+    target = Path(path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps(ledger.to_dict(), indent=2, sort_keys=True) + "\n"
+    with NamedTemporaryFile(
+        "w",
+        encoding="utf-8",
+        dir=target.parent,
+        prefix=target.name + ".",
+        suffix=".tmp",
+        delete=False,
+    ) as handle:
+        handle.write(payload)
+        temp_path = Path(handle.name)
+    temp_path.replace(target)
