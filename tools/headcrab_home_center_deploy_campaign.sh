@@ -41,6 +41,29 @@ PY
 }
 
 need(){ command -v "$1" >/dev/null 2>&1 || { state prerequisites blocked "missing $1"; return 10; }; }
+
+ensure_gcloud(){
+  if command -v gcloud >/dev/null 2>&1; then
+    state prerequisites running "using native Termux gcloud"
+    return 0
+  fi
+  if command -v proot-distro >/dev/null 2>&1 && proot-distro login debian -- sh -lc 'command -v gcloud >/dev/null 2>&1'; then
+    local bindir="$STATE_ROOT/bin"
+    mkdir -p "$bindir"
+    cat >"$bindir/gcloud" <<EOF
+#!/data/data/com.termux/files/usr/bin/bash
+exec proot-distro login debian --bind "$HOME:$HOME" -- gcloud "\$@"
+EOF
+    chmod 700 "$bindir/gcloud"
+    export PATH="$bindir:$PATH"
+    command -v gcloud >/dev/null 2>&1 || return 10
+    state prerequisites running "using Debian/proot gcloud capsule"
+    return 0
+  fi
+  state prerequisites blocked "gcloud unavailable in Termux and Debian/proot capsule"
+  return 10
+}
+
 stopped(){ [ -f "$STOPFILE" ]; }
 
 prepare_clean_main(){
@@ -65,7 +88,7 @@ run_headcrab_tests(){
     python3 tools/test_headcrab_morning.py &&
     python3 tools/test_headcrab_obligations.py &&
     node --check functions/home_center_mcp.js &&
-    bash -n tools/headcrab_pr384_campaign.sh 2>/dev/null || true
+    if [ -f tools/headcrab_pr384_campaign.sh ]; then bash -n tools/headcrab_pr384_campaign.sh; fi
   ) >>"$LOG" 2>&1
 }
 
@@ -173,7 +196,8 @@ worker(){
   need node || exit $?
   need npm || exit $?
   need python3 || exit $?
-  need gcloud || exit $?
+  need proot-distro || true
+  ensure_gcloud || exit $?
   need curl || exit $?
   stopped && exit 130
 
