@@ -170,7 +170,7 @@ async function attentionPulse({admin, user, limit = 100, now = new Date()}) {
   }
   return {mode: 'fallback', prompt: attentionFallback(checkpoints, now), checkpoints};
 }
-\n
+
 const MONTHS = Object.freeze({
   jan: 0, january: 0, feb: 1, february: 1, mar: 2, march: 2, apr: 3, april: 3,
   may: 4, jun: 5, june: 5, jul: 6, july: 6, aug: 7, august: 7,
@@ -255,7 +255,8 @@ async function mineEmailReminders({google, auth, admin, user, query = 'newer_tha
   }
   return {query, scanned: ids.length, created, skippedCount: skipped.length};
 }
-\nfunction registerHeadcrabReminderTools(server, {admin, google, z, textResult, requestUserContext, securitySchemes}) {
+
+function registerHeadcrabReminderTools(server, {admin, google, z, textResult, requestUserContext, securitySchemes}) {
   const commonMeta = {
     securitySchemes,
     _meta: {securitySchemes},
@@ -369,4 +370,12 @@ module.exports = {
   closeReminder,
   rescheduleReminder,
   registerHeadcrabReminderTools,
+  recordCheckpoint,
+  readCheckpoints,
+  maintenancePrompt,
+  attentionFallback,
+  attentionPulse,
+  dueFromText,
+  emailReminderCandidate,
+  mineEmailReminders,
 };
