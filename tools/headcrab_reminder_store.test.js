@@ -7,6 +7,9 @@ const {
   listOpenReminders,
   closeReminder,
   rescheduleReminder,
+  maintenancePrompt,
+  attentionFallback,
+  attentionPulse,
 } = require('../functions/headcrab_reminder_store');
 
 function fakeAdmin() {
@@ -86,4 +89,41 @@ test('reschedule changes state but creates no external schedule', async () => {
 
 test('dueAt must be timezone-aware', () => {
   assert.throws(() => parseDueAt('2026-10-02T11:00:00'), /timezone/);
+});
+
+
+test('attention fallback prefers stale email over maintenance', () => {
+  const now = new Date('2026-10-02T14:00:00Z');
+  const prompt = attentionFallback({
+    email: '2026-10-02T05:00:00Z',
+    work_email: '2026-10-02T13:00:00Z',
+    calendar: '2026-10-02T13:00:00Z',
+  }, now);
+  assert.equal(prompt.kind, 'email');
+  assert.equal(prompt.class, 'attention');
+});
+
+test('attention fallback may emit maintenance when attention surfaces are fresh', () => {
+  const now = new Date('2026-10-02T14:00:00Z');
+  const prompt = attentionFallback({
+    email: '2026-10-02T13:30:00Z',
+    work_email: '2026-10-02T13:30:00Z',
+    calendar: '2026-10-02T13:30:00Z',
+  }, now);
+  assert.equal(prompt.class, 'maintenance');
+  assert.ok(['move', 'outside', 'water', 'stretch'].includes(prompt.kind));
+});
+
+test('maintenance prompt is deterministic within the same three-hour slot', () => {
+  const a = maintenancePrompt(new Date('2026-10-02T14:00:00Z'));
+  const b = maintenancePrompt(new Date('2026-10-02T14:59:59Z'));
+  assert.deepEqual(a, b);
+});
+
+test('open obligations outrank maintenance nudges', async () => {
+  const admin = fakeAdmin();
+  await captureReminder({admin, user, label: 'Get psychiatrist records'});
+  const pulse = await attentionPulse({admin, user, now: new Date('2026-10-02T14:00:00Z')});
+  assert.equal(pulse.mode, 'obligation');
+  assert.equal(pulse.reminders[0].label, 'Get psychiatrist records');
 });
