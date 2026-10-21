@@ -37,6 +37,17 @@ jobs:
         with:
           ref: refs/heads/main
           fetch-depth: 0
+      - name: Normalize fresh runner checkout and diagnose release tree
+        run: |
+          echo "Checkout status before normalization:"
+          git status --short --untracked-files=all
+          # Ephemeral GitHub-hosted runner: no user files exist to preserve.
+          # Rehydrate the exact checked-out commit and discard checkout artifacts.
+          git reset --hard HEAD
+          git clean -fd
+          echo "Checkout status after normalization:"
+          git status --short --untracked-files=all
+          test -z "$(git status --porcelain --untracked-files=all)"
       - name: Enforce immutable main release source
         run: sh tools/assert_home_center_mcp_main_release.sh "$GITHUB_WORKSPACE"
       - uses: actions/setup-node@v4
