@@ -87,7 +87,8 @@ const {
   registry: smsCalendarOperationRegistry,
   runOperation: smsCalendarOperationRunOperation,
 } = require('./sms_calendar_intake');
-const {assertHomeCenterIdentityAllowed} = require('./home_center_access_policy');\nconst {registerHeadcrabReminderTools} = require('./headcrab_reminder_store');
+const {assertHomeCenterIdentityAllowed} = require('./home_center_access_policy');
+const {registerHeadcrabReminderTools} = require('./headcrab_reminder_store');
 const {homeCenterIdentityStatusOperation, homeCenterIdentityRevokeOperation} = require('./home_center_identity_security');
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
