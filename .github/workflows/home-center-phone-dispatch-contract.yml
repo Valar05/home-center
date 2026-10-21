@@ -7,7 +7,32 @@ on:
       - 'functions/home_center_phone_dispatch.test.js'
       - '.github/workflows/home-center-phone-dispatch-contract.yml'
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
+  regenerate-manifest:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --prefix functions
+      - run: node tools/generate_home_center_public_manifest.mjs
+      - run: node tools/generate_home_center_public_manifest.mjs --check
+      - name: Commit generated contract baseline
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add contracts/home-center-top-level-mcp.v1.json contracts/home-center-public-tool-manifest.v1.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Regenerate Home Center public MCP contract baseline"
+            git push origin HEAD:${{ github.head_ref }}
+          fi
   contract:
     runs-on: ubuntu-latest
     steps:
