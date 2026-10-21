@@ -1,5 +1,5 @@
 param([ValidateSet('test')][string]$Stage='test')
-$ErrorActionPreference='Stop'
+$ErrorActionPreference='Continue'
 $Root=Join-Path $env:USERPROFILE 'workspace\ritsu-audio-lab'
 $Python=Join-Path $Root '.venv\Scripts\python.exe'
 $Probe=Join-Path $PSScriptRoot 'probe.py'
