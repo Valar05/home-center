@@ -21,5 +21,6 @@ jobs:
           echo "Dirty path count: $(wc -l < /tmp/mcp-status.txt)"
           git diff --name-only | head -60
           git lfs version || true
+          git config --get core.autocrlf || true
       - name: Test existing release gate
         run: sh tools/assert_home_center_mcp_main_release.sh "$GITHUB_WORKSPACE"
