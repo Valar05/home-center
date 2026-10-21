@@ -33,6 +33,7 @@ const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOp
 const {recoverAudioRenderRegistrationOperation, linkDriveAudioToReaderStageOperation} = require('./audio_catalog_service');
 const {localVoiceOperationEntries, localVoiceOperationRunOperation} = require('./local_voice_farm_api');
 const {computerHandsOperationEntries, computerHandsOperationRunOperation} = require('./computer_hands_api');
+const {enqueuePhoneCommand, getPhoneCommand, listPhoneDevices} = require('./phone_hands_relay');
 const {browserNerveOperationEntries, browserNerveOperationRunOperation} = require('./browser_nerve_api');
 const {veniceBodyOperationEntries, veniceBodyOperationRunOperation} = require('./venice_body_router');
 const {veniceNerveOperationEntries, veniceNerveOperationRunOperation} = require('./venice_nerve_api');
@@ -86,7 +87,8 @@ const {
   registry: smsCalendarOperationRegistry,
   runOperation: smsCalendarOperationRunOperation,
 } = require('./sms_calendar_intake');
-const {assertHomeCenterIdentityAllowed} = require('./home_center_access_policy');\nconst {registerHeadcrabReminderTools} = require('./headcrab_reminder_store');
+const {assertHomeCenterIdentityAllowed} = require('./home_center_access_policy');
+const {registerHeadcrabReminderTools} = require('./headcrab_reminder_store');
 const {homeCenterIdentityStatusOperation, homeCenterIdentityRevokeOperation} = require('./home_center_identity_security');
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
@@ -1141,6 +1143,21 @@ async function commandCenterOperationRunOperation({google = null, admin = null, 
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
+
+  // Phone Hands is a Home Center-owned Firestore relay. Keep the legacy operation
+  // names for clients, but never route these calls through Command Center MCP.
+  const phoneOperation = operation.startsWith('command_center.') ? operation.slice('command_center.'.length) : operation;
+  if (['phone_hands.devices', 'phone_hands.enqueue', 'phone_hands.get'].includes(phoneOperation)) {
+    const email = safeText(context.user && context.user.email, 320).toLowerCase();
+    assertHomeCenterIdentityAllowed(email, 'Phone Hands');
+    const caller = {actor: email, ownerKey: 'owner_' + createHash('sha256').update(email).digest('hex').slice(0, 32)};
+    const result = phoneOperation === 'phone_hands.devices'
+      ? await listPhoneDevices(admin, caller)
+      : phoneOperation === 'phone_hands.enqueue'
+        ? await enqueuePhoneCommand(admin, caller, operationArgs)
+        : await getPhoneCommand(admin, caller, operationArgs);
+    return {operation, toolName, commandCenterMcpUrl: null, result};
+  }
 
   const bearerToken = bearerTokenFromExtra(extra);
 
