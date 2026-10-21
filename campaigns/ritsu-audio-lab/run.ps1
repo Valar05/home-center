@@ -11,7 +11,7 @@ function Run([string]$Executable,[string[]]$Arguments) {
 if ($Stage -eq 'install') {
   if (-not (Test-Path $Python)) { Run 'py' @('-3.10','-m','venv',(Join-Path $Root '.venv')) }
   Run $Python @('-m','pip','install','--disable-pip-version-check','--upgrade','pip')
-  Run $Python @('-m','pip','install','--disable-pip-version-check','torch','torchaudio','--index-url','https://download.pytorch.org/whl/cu124')
+  Run $Python @('-m','pip','install','--disable-pip-version-check','torch','torchaudio','torchvision','--index-url','https://download.pytorch.org/whl/cu124')
   Run $Python @('-m','pip','install','--disable-pip-version-check','laion-clap','soundfile')
 }
 if (-not (Test-Path $Python)) { throw 'Environment missing: run install first' }
