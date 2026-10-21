@@ -1,0 +1,25 @@
+name: Diagnose Home Center MCP Release Checkout
+on:
+  push:
+    paths:
+      - '.github/workflows/diagnose-home-center-mcp-checkout.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/heads/main
+          fetch-depth: 0
+      - name: Inspect checkout without modifying repository
+        run: |
+          git status --short --untracked-files=all
+          git status --porcelain=v1 --untracked-files=all > /tmp/mcp-status.txt
+          echo "Dirty path count: $(wc -l < /tmp/mcp-status.txt)"
+          git diff --name-only | head -60
+          git lfs version || true
+      - name: Test existing release gate
+        run: sh tools/assert_home_center_mcp_main_release.sh "$GITHUB_WORKSPACE"
