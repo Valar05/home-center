@@ -1,0 +1,38 @@
+name: Diagnose Ritsu Bootstrap Store
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm --prefix functions ci
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - name: Compare registration records without revealing codes
+        working-directory: functions
+        env:
+          GOOGLE_CLOUD_PROJECT: home-center-dclar
+        run: |
+          node - <<'NODE'
+          const admin=require('firebase-admin');
+          admin.initializeApp({projectId:process.env.GOOGLE_CLOUD_PROJECT});
+          const hashes=[
+            'c5515bf3cd846736e733272ad4aa2494220ffd31ac4df7cb551d24c9c02ef7c4',
+            '7ea5cc9690371174107b937d662c51f809f7be51c005d7dc92535bc5d18336ce'
+          ];
+          (async()=>{
+            for (let i=0;i<hashes.length;i++) {
+              const snap=await admin.firestore().collection('ritsuWarmVoiceBootstrap').doc(hashes[i]).get();
+              console.log(JSON.stringify({registration:i+1,recordPresent:snap.exists,used:snap.exists?snap.data().used:null}));
+            }
+          })().catch(e=>{console.error('DIAGNOSTIC_ERROR',e.code||e.name);process.exitCode=1});
+          NODE
