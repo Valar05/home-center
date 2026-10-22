@@ -2,10 +2,13 @@ package com.homecenter.ritsucontrol;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.StatusBarManager;
 import android.content.Intent;
+import android.content.ComponentName;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.graphics.drawable.Icon;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -32,8 +35,10 @@ public final class MainActivity extends Activity {
         status.setPadding(0, dp(18), 0, dp(18));
         layout.addView(status);
 
-        button(layout, "Show persistent notification", "Enable Ritsu's local notification controls",
+        button(layout, "Show compact notification", "Show Ritsu compact controls; Android may still allow swipe dismissal",
                 v -> startPanel());
+        button(layout, "Pin Ritsu in Quick Settings", "Add a lasting Ritsu tile to Quick Settings",
+                v -> addQuickTile());
         button(layout, "Request microphone mode", "Toggle requested microphone mode; recording is not implemented",
                 v -> send(RitsuControlService.ACTION_MIC_REQUEST));
         button(layout, "Request speaker mute", "Toggle requested output mute; live audio is not connected",
@@ -45,13 +50,35 @@ public final class MainActivity extends Activity {
 
         TextView warning = new TextView(this);
         warning.setPadding(0, dp(24), 0, 0);
-        warning.setText("Stage A prototype only. Microphone audio is not captured. Speaker mute is a saved preference, not yet connected to the existing Termux relay. The old operator overlay is not activated.");
+        warning.setText("Stage A control prototype. Android 14+ allows swiping away ongoing notifications. Pin the Ritsu Quick Settings tile to reopen controls at any time. Mic and mute requests are NOT connected to real audio. The old operator overlay remains retired.");
         warning.setTextSize(15);
         layout.addView(warning);
         ScrollView scroll = new ScrollView(this);
         scroll.addView(layout);
         setContentView(scroll);
         refresh();
+    }
+
+    private void addQuickTile() {
+        if (Build.VERSION.SDK_INT < 33) {
+            status.setText("Open Quick Settings, choose Edit, and drag Ritsu controls into the active tiles.");
+            return;
+        }
+        StatusBarManager manager = getSystemService(StatusBarManager.class);
+        if (manager == null) {
+            status.setText("Quick Settings installer unavailable. Add Ritsu manually from Quick Settings > Edit.");
+            return;
+        }
+        manager.requestAddTileService(
+                new ComponentName(this, RitsuQuickTileService.class),
+                "Ritsu controls",
+                Icon.createWithResource(this, android.R.drawable.ic_btn_speak_now),
+                getMainExecutor(),
+                result -> {
+                    refresh();
+                    status.append("\\nTile request returned " + result
+                            + ". If Ritsu isn't visible, add it from Quick Settings > Edit.");
+                });
     }
 
     private void startPanel() {
