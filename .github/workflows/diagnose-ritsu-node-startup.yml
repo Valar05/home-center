@@ -22,6 +22,7 @@ jobs:
       - name: Boot HTTP function framework locally and probe health
         run: |
           cd functions
+          npm install --no-save --package-lock=false @google-cloud/functions-framework@3.4.6
           node -e "console.log('FRAMEWORK',require.resolve('@google-cloud/functions-framework'))"
           npx --no-install functions-framework --target=ritsuVoice --source=. --signature-type=http --port=8080 >/tmp/ritsu-framework.log 2>&1 &
           PID=$!
