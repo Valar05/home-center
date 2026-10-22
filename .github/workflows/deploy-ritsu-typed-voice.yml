@@ -73,7 +73,7 @@ jobs:
             --gen2 --project="$PROJECT" --region="$REGION" \
             --runtime=nodejs22 --source="$GITHUB_WORKSPACE/functions" \
             --entry-point=ritsuVoice --trigger-http --allow-unauthenticated \
-            --timeout=60s
+            --timeout=60s --memory=1Gi --cpu=1
       - name: Verify typed voice endpoint (without enqueuing audio)
         run: |
           gcloud functions describe ritsuVoice --gen2 --project="$PROJECT" --region="$REGION" --format='value(state,serviceConfig.uri)'
