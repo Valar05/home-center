@@ -47,7 +47,7 @@ jobs:
           grep -q 'android.permission.BIND_QUICK_SETTINGS_TILE' "$MANIFEST"
           ! grep -q 'android.permission.INTERNET' "$MANIFEST"
           ! grep -q 'BOOT_COMPLETED' "$MANIFEST"
-          grep -q 'type="specialUse|microphone"' "$MANIFEST"
+          grep -Fq 'android:foregroundServiceType="specialUse|microphone"' "$MANIFEST"
           grep -q 'capture.stop()' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
           grep -q 'Settings.canDrawOverlays' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
 
