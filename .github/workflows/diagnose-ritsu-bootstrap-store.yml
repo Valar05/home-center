@@ -17,22 +17,11 @@ jobs:
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
-      - name: Compare registration records without revealing codes
-        working-directory: functions
-        env:
-          GOOGLE_CLOUD_PROJECT: home-center-dclar
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Check Cloud Firestore registration records by hash only
         run: |
-          node - <<'NODE'
-          const admin=require('firebase-admin');
-          admin.initializeApp({projectId:process.env.GOOGLE_CLOUD_PROJECT});
-          const hashes=[
-            'c5515bf3cd846736e733272ad4aa2494220ffd31ac4df7cb551d24c9c02ef7c4',
-            '7ea5cc9690371174107b937d662c51f809f7be51c005d7dc92535bc5d18336ce'
-          ];
-          (async()=>{
-            for (let i=0;i<hashes.length;i++) {
-              const snap=await admin.firestore().collection('ritsuWarmVoiceBootstrap').doc(hashes[i]).get();
-              console.log(JSON.stringify({registration:i+1,recordPresent:snap.exists,used:snap.exists?snap.data().used:null}));
-            }
-          })().catch(e=>{console.error('DIAGNOSTIC_ERROR',e.code||e.name);process.exitCode=1});
-          NODE
+          TOKEN="$(gcloud auth print-access-token)"
+          for HASH in c5515bf3cd846736e733272ad4aa2494220ffd31ac4df7cb551d24c9c02ef7c4 7ea5cc9690371174107b937d662c51f809f7be51c005d7dc92535bc5d18336ce; do
+            STATUS="$(curl --silent --output /dev/null --write-out '%{http_code}' --header "Authorization: Bearer $TOKEN" "https://firestore.googleapis.com/v1/projects/home-center-dclar/databases/(default)/documents/ritsuWarmVoiceBootstrap/$HASH")"
+            echo "registration record query HTTP $STATUS"
+          done
