@@ -1,5 +1,7 @@
 'use strict';
 const {createHash,randomBytes}=require('node:crypto');
+const REPERTOIRE=require('./ritsu_voice_profiles.json');
+const PROFILES=Object.freeze(Object.keys(REPERTOIRE.profiles));
 const VERSION='ritsu-warm-typed-v1',VOICE='warm-v1',WORKER='cauldron-ritsu-warm-01',LEASE_MS=20*60*1000;
 const COL={tickets:'ritsuWarmVoiceTickets',workers:'ritsuWarmVoiceWorkers',bootstrap:'ritsuWarmVoiceBootstrap',tokens:'ritsuWarmVoiceTokens'};
 const ORIGIN=process.env.HOME_CENTER_RITSU_VOICE_ORIGIN||'https://us-central1-home-center-dclar.cloudfunctions.net/ritsuVoice';
@@ -9,17 +11,20 @@ function id(s){if(typeof s!=='string'||!/^[A-Za-z0-9_.:-]{6,160}$/.test(s))fail(
 function own(user){const email=String(user?.email||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))fail('Authenticated owner required',401);return hash(email).slice(0,32);}
 function key(owner,requestId){return hash(owner+'\n'+requestId);}
 function validate(args){
- for(const k of Object.keys(args))if(!['requestId','text','voice','delivery','chunks'].includes(k))fail('Unexpected speech field');
+ for(const k of Object.keys(args))if(!['requestId','text','voice','delivery','chunks','profile'].includes(k))fail('Unexpected speech field');
  id(args.requestId);
  if(typeof args.text!=='string'||!args.text.trim()||args.text.length>5000||/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(args.text))fail('Invalid dialogue');
  if(args.voice!==undefined&&args.voice!==VOICE)fail('Only approved Warm v1 is permitted');
  if(args.delivery!==undefined&&args.delivery!=='phone')fail('Only existing phone relay is permitted');
+ const profile=args.profile===undefined?REPERTOIRE.defaultProfile:args.profile;
+ if(typeof profile!=='string'||!PROFILES.includes(profile))fail('Unsupported Ritsu profile');
  const count=args.chunks===undefined?null:args.chunks;
  if(count!==null&&(!Number.isInteger(count)||count<1||count>50))fail('Invalid chunk count');
- return {requestId:args.requestId,text:args.text,textSha256:hash(args.text),voice:VOICE,delivery:'phone',expectedChunks:count};
+ return {requestId:args.requestId,text:args.text,textSha256:hash(args.text),voice:VOICE,delivery:'phone',profile,expectedChunks:count};
 }
 function entries(){return {
- 'ritsu.voice.speak':{summary:'Queue exact dialogue only for approved Warm v1 on existing Android Tailscale relay; no arbitrary shell, alternate voice or transport.',write:true,requiresRequestId:true,requiredScopes:[],input:{requestId:'stable unique id',text:'exact dialogue',voice:'warm-v1',delivery:'phone',chunks:'optional expected chunk count'}},
+ 'ritsu.voice.profiles':{summary:'Enumerate registered Ritsu voice profiles with approval and pitch metadata; no local audio files or credentials.',write:false,requiresRequestId:false,requiredScopes:[],input:{}},
+ 'ritsu.voice.speak':{summary:'Queue exact dialogue only for approved Warm v1 on existing Android Tailscale relay; no arbitrary shell, alternate voice or transport.',write:true,requiresRequestId:true,requiredScopes:[],input:{requestId:'stable unique id',text:'exact dialogue',voice:'warm-v1',delivery:'phone',chunks:'optional expected chunk count',profile:'normal|whisper|amused|happy|upset|somber, defaults normal'}},
  'ritsu.voice.status':{summary:'Read Ritsu ticket state, enqueue receipts; hearing never implied.',write:false,requiresRequestId:false,requiredScopes:[],input:{requestId:'ticket ID'}},
  'ritsu.voice.worker.register':{summary:'One-time private bootstrap for THECAULDRON fixed Warm worker.',write:true,requiresRequestId:true,requiredScopes:[],input:{requestId:'stable unique id'}}
 };}
@@ -27,15 +32,15 @@ async function speak({admin,user,args,now=Date.now()}){
  const owner=own(user),request=validate(args),ref=admin.firestore().collection(COL.tickets).doc(key(owner,request.requestId));let idempotent=false;
  await admin.firestore().runTransaction(async tx=>{
  const old=await tx.get(ref);
- if(old.exists){const row=old.data();if(row.request.textSha256!==request.textSha256||row.request.expectedChunks!==request.expectedChunks)fail('Idempotency conflict',409);idempotent=true;return;}
+ if(old.exists){const row=old.data();if(row.request.textSha256!==request.textSha256||row.request.expectedChunks!==request.expectedChunks||row.request.profile!==request.profile)fail('Idempotency conflict',409);idempotent=true;return;}
  tx.create(ref,{version:VERSION,ownerKey:owner,workerId:WORKER,request,status:'queued',createdAtMs:now,updatedAtMs:now,lease:null,result:null});
  });
- const row=(await ref.get()).data();return {ticketId:request.requestId,status:row.status,voice:VOICE,textSha256:request.textSha256,idempotent,heard:'not_verified'};
+ const row=(await ref.get()).data();return {ticketId:request.requestId,status:row.status,voice:VOICE,profile:row.request.profile||'normal',textSha256:request.textSha256,idempotent,heard:'not_verified'};
 }
 async function status({admin,user,args}){
  const owner=own(user),ticketId=id(args.requestId||args.ticketId);
  const snap=await admin.firestore().collection(COL.tickets).doc(key(owner,ticketId)).get();if(!snap.exists)fail('Ticket not found',404);
- const r=snap.data();return {ticketId,status:r.status,voice:VOICE,textSha256:r.request.textSha256,expectedChunks:r.request.expectedChunks,result:r.result||null,updatedAtMs:r.updatedAtMs,heard:'not_verified'};
+ const r=snap.data();return {ticketId,status:r.status,voice:VOICE,profile:r.request.profile||'normal',textSha256:r.request.textSha256,expectedChunks:r.request.expectedChunks,result:r.result||null,updatedAtMs:r.updatedAtMs,heard:'not_verified'};
 }
 async function register({admin,user,args,now=Date.now()}){
  const owner=own(user),requestId=id(args.requestId),code=randomBytes(24).toString('base64url'),ref=admin.firestore().collection(COL.bootstrap).doc(hash(code));
@@ -43,6 +48,7 @@ async function register({admin,user,args,now=Date.now()}){
  return {status:'bootstrap_ready',workerId:WORKER,origin:ORIGIN,bootstrapCode:code,expiresAtMs:now+600000,warning:'Private one-time code; never print or commit worker credentials'};
 }
 async function run({admin,user,operation,args={}}){
+ if(operation==='ritsu.voice.profiles')return {version:REPERTOIRE.version,defaultProfile:REPERTOIRE.defaultProfile,profiles:Object.fromEntries(PROFILES.map(name=>[name,{status:REPERTOIRE.profiles[name].status,pitchSemitones:REPERTOIRE.profiles[name].pitchSemitones}]))};
  if(operation==='ritsu.voice.speak')return speak({admin,user,args});
  if(operation==='ritsu.voice.status')return status({admin,user,args});
  if(operation==='ritsu.voice.worker.register')return register({admin,user,args});
@@ -75,7 +81,7 @@ async function lease({admin,worker,now=Date.now()}){
  const old=await tx.get(candidate.ref);if(!old.exists)return;const row=old.data();
  if(row.ownerKey!==worker.ownerKey||!(row.status==='queued'||row.status==='leased'&&row.lease?.expiresAtMs<=now))return;
  tx.update(candidate.ref,{status:'leased',lease:{workerId:WORKER,expiresAtMs:now+LEASE_MS},updatedAtMs:now});
- result={ticketId:row.request.requestId,text:row.request.text,voice:VOICE,delivery:'phone',textSha256:row.request.textSha256,expectedChunks:row.request.expectedChunks};
+ result={ticketId:row.request.requestId,text:row.request.text,voice:VOICE,profile:row.request.profile||'normal',delivery:'phone',textSha256:row.request.textSha256,expectedChunks:row.request.expectedChunks};
  });if(result)return {ticket:result,pollAfterSeconds:1};
  }return {ticket:null,pollAfterSeconds:3};
 }
