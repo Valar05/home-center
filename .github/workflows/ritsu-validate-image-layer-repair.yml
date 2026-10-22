@@ -25,6 +25,12 @@ jobs:
           mkdir -p /tmp/ritsu-image-repair
           docker cp "$ID":/layers/google.nodejs.runtime/heapsize/exec.d/heapsize.sh /tmp/ritsu-image-repair/heapsize.sh
           docker rm "$ID" >/dev/null
+          echo 'HEAPSIZE_SCRIPT_FIRST_LINES:'
+          head -c 250 /tmp/ritsu-image-repair/heapsize.sh
+          echo
+          docker run --rm --entrypoint=/bin/sh "$BAD" -c 'for p in /bin/sh /bin/bash /usr/bin/env /layers/google.nodejs.runtime/heapsize/exec.d/heapsize.sh; do ls -l "$p" || true; done' || true
+          echo 'REPLACING_WITH_MINIMAL_POSIX_EXEC_D_FOR_DIAGNOSTIC'
+          printf '#!/bin/sh\nexit 0\n' > /tmp/ritsu-image-repair/heapsize.sh
           chmod 755 /tmp/ritsu-image-repair/heapsize.sh
           cat > /tmp/ritsu-image-repair/Dockerfile <<DOCKER
           FROM $BAD
