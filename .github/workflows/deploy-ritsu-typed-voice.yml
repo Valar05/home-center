@@ -35,7 +35,7 @@ jobs:
           # patterns. Git LFS clean filters report them as dirty on a fresh checkout.
           # Suppress the filter ONLY for these exact paths, in ephemeral runner metadata.
           mkdir -p .git/info
-          printf '%s\\n' 'experiments/ascii-kinesis/001-backward-stairs/backward-stairs-ascii.mp4 -filter -diff -merge' 'experiments/ascii-kinesis/v2-locomotion-002-overhead-support-handoff/overhead-support-handoff.mp4 -filter -diff -merge' >> .git/info/attributes
+          printf '%s\n' 'experiments/ascii-kinesis/001-backward-stairs/backward-stairs-ascii.mp4 -filter -diff -merge' 'experiments/ascii-kinesis/v2-locomotion-002-overhead-support-handoff/overhead-support-handoff.mp4 -filter -diff -merge' >> .git/info/attributes
           git reset --hard HEAD
           git clean -fd
           sh tools/assert_home_center_mcp_main_release.sh "$GITHUB_WORKSPACE"
