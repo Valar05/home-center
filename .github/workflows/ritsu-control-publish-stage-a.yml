@@ -1,5 +1,10 @@
 name: Publish Ritsu Stage A APK to branch
 on:
+  push:
+    branches:
+      - 'feature/ritsu-command-bridge-scavenge-20261022'
+    paths:
+      - '.github/workflows/ritsu-control-publish-stage-a.yml'
   workflow_dispatch:
 permissions:
   contents: write
