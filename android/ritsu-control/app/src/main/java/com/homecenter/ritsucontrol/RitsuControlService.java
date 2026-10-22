@@ -58,23 +58,27 @@ public final class RitsuControlService extends Service {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         String mic = state.microphoneRequested ? "MIC REQUESTED" : "MIC OFF";
         String speaker = state.speakerMuted ? "OUTPUT MUTE REQUESTED" : "OUTPUT NORMAL REQUESTED";
+        // A compact default row. Never use BigTextStyle here: Android chooses
+        // whether expanded actions are shown, but we do not force a tall card.
+        // Android 14+ lets users dismiss foreground notifications while unlocked;
+        // the Quick Settings tile is the independent way back.
         return new Notification.Builder(this, CHANNEL)
                 .setSmallIcon(android.R.drawable.ic_btn_speak_now)
-                .setContentTitle("Ritsu | Command Control")
-                .setContentText(mic + " · " + speaker + " · Audio bridge NOT CONNECTED")
-                .setStyle(new Notification.BigTextStyle().bigText(
-                        mic + " · " + speaker + "\nThis is a control prototype: no microphone capture, no live output mute. Tap to inspect."))
+                .setContentTitle("Ritsu")
+                .setContentText((state.microphoneRequested ? "Mic requested" : "Mic off")
+                        + " · " + (state.speakerMuted ? "Mute requested" : "Output normal")
+                        + " · Demo")
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .setShowWhen(false)
                 .setContentIntent(openIntent)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
                 .addAction(new Notification.Action.Builder(null,
-                        state.microphoneRequested ? "Cancel mic request" : "Request mic",
+                        state.microphoneRequested ? "Cancel mic" : "Request mic",
                         serviceAction(ACTION_MIC_REQUEST, 42)).build())
                 .addAction(new Notification.Action.Builder(null,
                         state.speakerMuted ? "Unrequest mute" : "Request mute",
                         serviceAction(ACTION_SPEAKER_PREFERENCE, 43)).build())
-                .addAction(new Notification.Action.Builder(null,
-                        "Close", serviceAction(ACTION_STOP, 44)).build())
                 .build();
     }
 
