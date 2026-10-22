@@ -1,0 +1,35 @@
+name: Ritsu Control Android Contract
+on:
+  pull_request:
+    paths:
+      - 'android/ritsu-control/**'
+      - '.github/workflows/ritsu-control-contract.yml'
+  push:
+    branches:
+      - 'feature/ritsu-command-bridge-scavenge-20261022'
+    paths:
+      - 'android/ritsu-control/**'
+      - '.github/workflows/ritsu-control-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-and-unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+      - name: Pure-state tests and Android build
+        run: gradle -p android/ritsu-control :app:testDebugUnitTest :app:assembleDebug --no-daemon
+      - name: Stage A permission contract
+        run: |
+          ! grep -q 'android.permission.RECORD_AUDIO' android/ritsu-control/app/src/main/AndroidManifest.xml
+          ! grep -q 'android.permission.SYSTEM_ALERT_WINDOW' android/ritsu-control/app/src/main/AndroidManifest.xml
