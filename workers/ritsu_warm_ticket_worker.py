@@ -186,6 +186,20 @@ def process_ticket(job):
 
 
 def main():
+    # Windows kernel mutex prevents accidental duplicate polling processes.
+    mutex = None
+    if os.name == 'nt':
+        import ctypes
+        kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+        kernel.CreateMutexW.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_wchar_p]
+        kernel.CreateMutexW.restype = ctypes.c_void_p
+        mutex = kernel.CreateMutexW(None, 0, 'Local\\RitsuWarmTicketWorker_V1')
+        if not mutex:
+            raise RuntimeError('Cannot create voice worker mutex')
+        if ctypes.get_last_error() == 183:
+            print('ALREADY_RUNNING: refusing second ticket worker', flush=True)
+            kernel.CloseHandle(mutex)
+            return
     token = worker_token()
     while True:
         try:
