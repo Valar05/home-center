@@ -33,6 +33,7 @@ const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOp
 const {recoverAudioRenderRegistrationOperation, linkDriveAudioToReaderStageOperation} = require('./audio_catalog_service');
 const {localVoiceOperationEntries, localVoiceOperationRunOperation} = require('./local_voice_farm_api');
 const {computerHandsOperationEntries, computerHandsOperationRunOperation} = require('./computer_hands_api');
+const {entryList: ritsuVoiceOperationEntries, runOperation: ritsuVoiceOperationRunOperation} = require('./ritsu_voice_api');
 const {enqueuePhoneCommand, getPhoneCommand, listPhoneDevices} = require('./phone_hands_relay');
 const {browserNerveOperationEntries, browserNerveOperationRunOperation} = require('./browser_nerve_api');
 const {veniceBodyOperationEntries, veniceBodyOperationRunOperation} = require('./venice_body_router');
@@ -5450,8 +5451,9 @@ function driveOperationRegistry() {
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
         input: {fileId: 'string', newName: 'string', requestId: 'string', callerNote: 'optional string'},
       },
-      ...localVoiceOperationEntries(),
+
     ...computerHandsOperationEntries(),
+    ...ritsuVoiceOperationEntries(),
     ...browserNerveOperationEntries(),
     ...veniceBodyOperationEntries(),
     ...veniceNerveOperationEntries(),
@@ -6058,9 +6060,9 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
-  if (localVoiceOperationEntries()[operation]) {
+  if (ritsuVoiceOperationEntries()[operation]) {
     requireCreditGatedEmail(user && user.email, operation);
-    const result = await localVoiceOperationRunOperation({admin, user, operation, args: operationArgs});
+    const result = await ritsuVoiceOperationRunOperation({admin, user, operation, args: operationArgs});
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (computerHandsOperationEntries()[operation]) {
