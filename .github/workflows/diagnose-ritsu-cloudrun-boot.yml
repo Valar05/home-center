@@ -15,4 +15,4 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v2
       - name: Read error logs for failed ritsuvoice revision
         run: |
-          gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="ritsuvoice" AND resource.labels.revision_name="ritsuvoice-00002-joc"' --project=home-center-dclar --limit=18 --format='value(textPayload)' --freshness=2h | tail -c 11000
+          gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="ritsuvoice" AND resource.labels.revision_name="ritsuvoice-00002-joc"' --project=home-center-dclar --limit=40 --format=json --freshness=2h | python3 -c 'import sys,json; rows=json.load(sys.stdin); [print(json.dumps({"severity":r.get("severity"),"payload":str(r.get("textPayload") or r.get("jsonPayload",{}).get("message") or r.get("protoPayload",{}).get("status",{}).get("message") or r.get("jsonPayload"))[:900]})) for r in rows]'
