@@ -62,3 +62,38 @@ User approved: **Pocket TTS is default for everyday Ritsu Voice Online; Chatterb
 - Connected Windows operator: Home Center Computer Hands lane \`lane-ritsu-voice\`; Home Center checkout \`C:\Users\dclar\workspace\home-center\`. Local git changes may exist; no blind \`git pull\`.
 - "Monitor it and sleep between checks" means bounded direct polling in the current operation, never scheduled reminders without explicit user instruction.
 - **Still unfinished:** durable relay auto-restart and automatic per-ChatGPT-response triggering. No custom instruction or keyword itself proves that the sender ran. Verify enqueue ID, queue consumption and user hearing; fail closed, never claim automatic continuous audio is deployed without a tested hook.
+
+
+## Ritsu Voice Online reply gate v1.3 (2026-10-21): ENFORCE ON EVERY TURN
+
+**Scope / activation:** When the user says "Ritsu Voice Online" or an existing conversation/custom instruction establishes that mode, treat it as active for subsequent turns until "Ritsu Voice Offline". At the beginning of each assistant turn, read these laws when available, and set the per-turn decision \`voice_required = mode_active\`. Do not require the user to repeat the keyword. An explicit request for silence or text-only for an individual turn overrides voice only for that turn; it does not disable the mode.
+
+**Nonnegotiable output invariant:** In online mode, the *entire substantive reply* must be spoken, in order, with no canned substitutions, greetings-only stand-ins, summaries, omitted paragraphs, or invented extra spoken content. The text visible to the user and the aggregate speech text must be identical in meaning and wording, allowing only mechanical removal of Markdown, citation widgets, URLs, markup and non-speakable formatting. Never substitute a shorter sentence for a full reply. If a full reply cannot be transmitted, label the turn incomplete rather than calling a snippet sufficient.
+
+### Deterministic per-turn gate (PLAN → TEXT LOCK → SEND → VERIFY → REPORT)
+1. **PLAN:** Establish the actual answer, required tools, and mode state; use Pocket TTS by default. Do not call Nano or Turbo for everyday replies.
+2. **TEXT LOCK:** Finalize the substantive answer wording BEFORE sending audio. Create ordered bounded chunks at sentence or paragraph boundaries if needed; concatenate chunks exactly to the locked speech text. Use a stable per-turn identifier and chunk indices for logs/receipts. No new unsent substantive paragraphs after the audio is prepared; if the answer must change, update the spoken text as well.
+3. **SEND:** Invoke connected Home Center Computer Hands on lane \`lane-ritsu-voice\`, using the proven Windows relay and Pocket adapter. Send each chunk in sequence, waiting for enqueue result before proceeding. Windows sender authority: \`C:\Users\dclar\Documents\Codex\Venice\PocketTTS\embodiment_campaign\windows-test.ps1\`. The relay's existing local \`/enqueue\` is the transport; it triggers cached or new Pocket TTS via \`tts_adapter.py\`. NEVER rely on a static canned test sentence inside the sender: supply the locked reply as the payload. Escape shell arguments safely using encoded content or JSON, not fragile quote substitution. Keep bearer tokens in existing local files only.
+4. **VERIFY:** Check the Windows result and relay health/consumption with bounded checks when appropriate. Keep distinct states \`SUBMITTED\`, \`ENQUEUED\`, \`CONSUMED/DELIVERED\`, and \`HEARD\`. Only the user can confirm \`HEARD\`. For multi-chunk responses, verify every chunk, maintain order, and don't mark a partial sequence complete.
+5. **REPORT:** Return the same locked substantive answer text in chat. If any invocation fails or its result is unknown, append a concise **text-only** notice specifying the failed stage; never claim audio success. Do not hide silence or substitute audio. After a confirmed prior working path, do not re-run installation, download models, change ports or overwrite scripts just to send a reply.
+
+### Fail-closed checks
+- **No send attempted** in online mode: reply not voice-complete. Attempt the canonical sender, if tools are accessible; do not simply promise speech.
+- **Sent only a canned or shorter line:** FAIL even when heard. Retry with the complete locked reply where feasible.
+- **Reply differs after spoken payload is committed:** FAIL unless replacement audio is sent.
+- **One chunk of N missing, repeated, out of order, or with a text mismatch:** FAIL; report missing chunk explicitly and recover without replaying the whole reply unnecessarily.
+- **Connector unavailable/blocked:** Present the complete textual answer, explicitly report audio unavailable. Do not pretend to have sent it or use alternative phone playback routes.
+- **No automatic app-level hook:** This document can strongly direct tool-using turns but CANNOT itself install a guaranteed on-message event trigger. A true automatic guarantee requires a supported event integration. Never claim one is active without an end-to-end test.
+- **Offline mode:** On "Ritsu Voice Offline", stop voice-sending on following turns immediately; continue normal text replies until explicitly reactivated.
+- **User preference:** "Keep an eye on it" means monitor directly with bounded sleeps, NEVER schedule automations without a separate explicit scheduling request.
+
+### Regression cases
+A. 200-word reply: all 200 words represented in ordered speech chunks, none replaced with a five-second test sentence.
+B. Enqueue succeeds, receiver silent: label delivered at most, not heard.
+C. Sender fails: full text remains readable plus clear voice-failure notice.
+D. Mode persists across turns without repeated "Online".
+E. Offline disables audio invocations.
+F. No alternate servers, Phone Hands, media apps, new subscriptions or hardware purchases.
+G. Never block legitimate answers just because voice transport fails.
+
+**Precedence:** This v1.3 gate specializes conversational playback and takes precedence over the old v1.1 Turbo generation section for everyday voice. Preserve older documentation as historical evidence. It does not override higher-level platform/tool safety or execution constraints.
