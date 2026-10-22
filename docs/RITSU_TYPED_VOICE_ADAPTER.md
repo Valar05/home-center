@@ -46,3 +46,11 @@ For safety, the legacy Kokoro HTTP endpoint, Firestore tickets, older worker fil
 - `workers/ritsu_warm_ticket_worker.py` is the fixed Windows voice worker.
 - `tools/apply_ritsu_voice_patch.mjs` adds operation and HTTPS export, deprecates Kokoro MCP exposure.
 - `.github/workflows/ritsu-typed-voice-integrate.yml` tests and stages integration wiring, no automatic production deployment.
+
+## Deployment and Windows staging checkpoint, 2026-10-22
+
+- PR #386 merged to main. Dedicated GitHub Actions run `39848810751` passed, deploying both `ritsuVoice` HTTP endpoint and `homeCenterMcp`. Home Center `capabilities` confirmed exactly `ritsu.voice.speak`, `.status`, and `.worker.register` advertised, with legacy Kokoro operations removed.
+- Live Windows Computer Hands worker `windows-hands-01` is online. The `process.start` request `ritsu-worker-stage-source-20261022` was accepted/completed and launched a short-lived PowerShell process to fetch the reviewed GitHub `workers/ritsu_warm_ticket_worker.py` into `%LOCALAPPDATA%\\RitsuWarmTicketWorker\\worker.py` and compile it. **Only process launch is attested, not the child command exit status or actual file hash; verify locally before claiming installed.**
+- Independent `process.start` request `ritsu-typed-worker-protect-asmr-20261022` launched PowerShell to create the `RITSU_WARM_ASMR_MAINTENANCE` sentinel if absent. This is intended to prevent the new worker from consuming GPU while ASMR is active. Again, only process start is attested, not file readback.
+- **Pending private bootstrap:** Never put the one-time registration code or bearer token into GitHub commits, ChatGPT transcripts or Computer Hands tickets. The current `ritsu.voice.worker.register` operation creates a 10-minute single-use secret and the local Python worker `--bootstrap` asks for it via `getpass`. A secure out-of-band enrollment transfer or an explicit user-led private Windows entry is required. Registration has **not** been initiated to avoid exposing a secret without that channel. Worker is **not running/polling** and no voice ticket has been submitted.
+- Before the first audible canary, reconcile user-selected whisper reference and the -1 semitone setting with the pinned approved speaker. Current worker explicitly requests original Warm v1. No approval has been given to silently switch voice identity.
