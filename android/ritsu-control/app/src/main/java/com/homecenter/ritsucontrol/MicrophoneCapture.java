@@ -49,7 +49,7 @@ final class MicrophoneCapture {
             worker = new Thread(() -> captureLoop(capture, epoch), "ritsu-microphone-vad");
             worker.start();
             return true;
-        } catch (RuntimeException | SecurityException failure) {
+        } catch (RuntimeException failure) {
             if (record != null) try { record.release(); } catch (Exception ignored) {}
             return false;
         }
