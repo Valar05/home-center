@@ -1,0 +1,87 @@
+name: Deploy Ritsu Typed Voice
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type deploy to publish Ritsu voice API and Home Center MCP"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+# Serializes with existing MCP deployment workflows to prevent version races.
+concurrency:
+  group: deploy-home-center-mcp
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ inputs.confirm == 'deploy' }}
+    runs-on: ubuntu-latest
+    env:
+      PROJECT: home-center-dclar
+      REGION: us-central1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/heads/main
+          fetch-depth: 0
+      - name: Enforce clean canonical main release
+        run: |
+          git reset --hard HEAD
+          git clean -fd
+          sh tools/assert_home_center_mcp_main_release.sh "$GITHUB_WORKSPACE"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - run: npm --prefix functions ci
+      - name: Verify fixed voice adapter and no unsafe shell path
+        run: |
+          node --check functions/ritsu_voice_api.js
+          node --check functions/index.js
+          node --check functions/home_center_mcp.js
+          node --test functions/ritsu_voice_api.test.js
+          python -m unittest discover -s workers -p 'test_ritsu_warm_ticket_worker.py'
+          node - <<'JS'
+          const fs=require('node:fs');
+          const mcp=fs.readFileSync('functions/home_center_mcp.js','utf8');
+          const index=fs.readFileSync('functions/index.js','utf8');
+          if(!mcp.includes('...ritsuVoiceOperationEntries(),')||
+             !mcp.includes('ritsuVoiceOperationRunOperation({')||
+             mcp.includes('...localVoiceOperationEntries(),')||
+             !index.includes('exports.ritsuVoice =')) throw Error('Typed operation integration not present on main');
+          JS
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Deploy only dedicated Ritsu voice ticket endpoint
+        run: |
+          gcloud functions deploy ritsuVoice \
+            --gen2 --project="$PROJECT" --region="$REGION" \
+            --runtime=nodejs22 --source="$GITHUB_WORKSPACE/functions" \
+            --entry-point=ritsuVoice --trigger-http --allow-unauthenticated \
+            --timeout=60s
+      - name: Verify typed voice endpoint (without enqueuing audio)
+        run: |
+          gcloud functions describe ritsuVoice --gen2 --project="$PROJECT" --region="$REGION" --format='value(state,serviceConfig.uri)'
+          URL="https://${REGION}-${PROJECT}.cloudfunctions.net/ritsuVoice/health"
+          curl --fail --silent --show-error "$URL" > /tmp/ritsu-voice-health.json
+          node -e 'const p=require("/tmp/ritsu-voice-health.json"); if(!p.ok||p.service!=="ritsu-voice"||p.voice!=="warm-v1") process.exit(1)'
+      - name: Deploy only Home Center MCP operation dispatcher
+        env:
+          COMMAND_CENTER_MCP_URL: https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp
+          HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64: ${{ secrets.HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64 }}
+        run: |
+          sh tools/deploy_functions_termux.sh "$PROJECT" homeCenterMcp
+      - name: Verify Home Center dispatcher release
+        run: |
+          gcloud functions describe homeCenterMcp --gen2 --project="$PROJECT" --region="$REGION" --format='value(state,serviceConfig.uri)'
+          echo "DEPLOYED_ENDPOINT_ONLY: voice worker bootstrap, phone HEARD and GPU maintenance remain separate acceptance gates."
