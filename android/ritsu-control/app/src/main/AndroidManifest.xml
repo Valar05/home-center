@@ -3,7 +3,10 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
-    <!-- Stage A has no RECORD_AUDIO permission: this app does not record audio. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- App requires explicit user consent for mic and overlay. No boot receiver. -->
     <application android:allowBackup="false" android:label="Ritsu Control" android:supportsRtl="true" android:theme="@android:style/Theme.Material.Light.NoActionBar">
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
@@ -11,9 +14,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".RitsuControlService" android:exported="false" android:foregroundServiceType="specialUse">
+        <service android:name=".RitsuControlService" android:exported="false" android:foregroundServiceType="specialUse|microphone">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Persistent user-visible local Ritsu conversation control notification; Stage A does not record audio." />
+                android:value="User-initiated local continuous voice activity detection with visible mute and stop controls; no audio upload." />
         </service>
         <!-- Persistent user-added system tile. Does not capture audio and can
              reopen the control activity even after Android dismisses the FGS notification. -->
