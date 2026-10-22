@@ -1,0 +1,149 @@
+#!/usr/bin/env python3
+"""Dedicated outbound THECAULDRON Warm v1 worker, no arbitrary shell."""
+import argparse
+import getpass
+import hashlib
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+import time
+import urllib.request
+from pathlib import Path
+
+ROOT = Path(r'C:\Users\dclar\workspace\ritsu-faster-qwen3-tts')
+SENDER = ROOT / 'ritsu_say.py'
+PYTHON = ROOT / '.venv' / 'Scripts' / 'python.exe'
+VOICE_TOKEN = ROOT / 'ritsu-api-token.txt'
+PAUSE = ROOT / 'RITSU_WARM_ASMR_MAINTENANCE'
+DIRECTORY = Path(os.environ.get('LOCALAPPDATA', str(Path.home()))) / 'RitsuWarmTicketWorker'
+CREDENTIALS = DIRECTORY / 'worker_token.json'
+SERVER = os.environ.get('RITSU_VOICE_TICKET_ORIGIN', 'https://us-central1-home-center-dclar.cloudfunctions.net/ritsuVoice').rstrip('/')
+WORKER = 'cauldron-ritsu-warm-01'
+RECEIPT = re.compile(r'^ENQUEUED_CHUNK\s+(\d+)\s+of\s+(\d+)\s+relay\s+([a-f0-9]{16,80})\b')
+SAFE_ID = re.compile(r'^[A-Za-z0-9_.:-]{6,160}$')
+
+
+def post(route, payload, token=None):
+    headers = {'Content-Type': 'application/json'}
+    if token:
+        headers['Authorization'] = 'Bearer ' + token
+        headers['X-Home-Center-Worker'] = WORKER
+    req = urllib.request.Request(SERVER + '/' + route, json.dumps(payload).encode(), headers, method='POST')
+    with urllib.request.urlopen(req, timeout=25) as response:
+        return json.load(response)
+
+
+def bootstrap():
+    DIRECTORY.mkdir(parents=True, exist_ok=True)
+    if CREDENTIALS.exists():
+        raise RuntimeError('Worker already registered; refusing credential replacement')
+    code = getpass.getpass('One-time private Ritsu bootstrap code: ')
+    answer = post('bootstrap', {'bootstrapCode': code})
+    if answer.get('status') != 'registered' or answer.get('workerId') != WORKER:
+        raise RuntimeError('Worker registration not accepted')
+    tmp = CREDENTIALS.with_suffix('.tmp')
+    tmp.write_text(json.dumps(answer), encoding='utf-8')
+    me = os.environ.get('USERNAME', '')
+    if not me:
+        tmp.unlink(missing_ok=True)
+        raise RuntimeError('Missing Windows user for credential ACL')
+    subprocess.run(['icacls', str(tmp), '/inheritance:r', '/grant:r', me + ':F'],
+                   check=True, stdout=subprocess.DEVNULL)
+    os.replace(tmp, CREDENTIALS)
+    print('REGISTERED: token saved privately, not printed')
+
+
+def worker_token():
+    row = json.loads(CREDENTIALS.read_text(encoding='utf-8'))
+    if row.get('workerId') != WORKER or int(row.get('expiresAtMs', 0)) <= int(time.time()*1000):
+        raise RuntimeError('Voice token invalid or expired')
+    return row['token']
+
+
+def warm_ready():
+    if not PYTHON.is_file() or not SENDER.is_file() or not VOICE_TOKEN.is_file():
+        return False
+    token = VOICE_TOKEN.read_text(encoding='utf-8').strip()
+    req = urllib.request.Request('http://127.0.0.1:19645/v1/health',
+                                 headers={'Authorization': 'Bearer ' + token})
+    try:
+        with urllib.request.urlopen(req, timeout=5) as response:
+            row = json.load(response)
+        return row.get('model') == 'loaded' and not row.get('error')
+    except (OSError, ValueError):
+        return False
+
+
+def dispatch(ticket):
+    if ticket.get('voice') != 'warm-v1' or ticket.get('delivery') != 'phone':
+        return {'status': 'failed', 'errorCode': 'WRONG_VOICE_OR_TRANSPORT'}
+    if PAUSE.exists():
+        return {'status': 'maintenance'}
+    if not warm_ready():
+        return {'status': 'failed', 'errorCode': 'WARM_UNAVAILABLE'}
+    text = ticket.get('text', '')
+    if hashlib.sha256(text.encode('utf-8')).hexdigest() != ticket.get('textSha256'):
+        return {'status': 'failed', 'errorCode': 'PAYLOAD_DIGEST_MISMATCH'}
+    DIRECTORY.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix='ritsu-', dir=DIRECTORY) as temp:
+        source = Path(temp)/'dialogue.txt'
+        source.write_text(text, encoding='utf-8')
+        # Fixed program and fixed argument names; dialogue never interpolated into a shell.
+        proc = subprocess.run([str(PYTHON), str(SENDER), '--text-file', str(source)],
+                              cwd=str(ROOT), capture_output=True, text=True, timeout=1100,
+                              creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+        if proc.returncode != 0:
+            return {'status': 'failed', 'errorCode': 'SENDER_FAILED'}
+        ids = []
+        total = None
+        for line in proc.stdout.splitlines():
+            match = RECEIPT.match(line)
+            if match:
+                number, count, relay = int(match[1]), int(match[2]), match[3]
+                if number != len(ids)+1 or count > 50 or (total is not None and count != total):
+                    return {'status': 'failed', 'errorCode': 'RECEIPT_ORDER_MISMATCH'}
+                total = count
+                ids.append(relay)
+        if not ids or len(ids) != total or 'ALL_CHUNKS_ENQUEUED_NOT_HEARD' not in proc.stdout:
+            return {'status': 'failed', 'errorCode': 'INCOMPLETE_ENQUEUE'}
+        return {'status': 'enqueued', 'relayIds': ids}
+
+
+def main():
+    token = worker_token()
+    while True:
+        try:
+            response = post('lease', {}, token)
+            job = response.get('ticket')
+            if not job:
+                time.sleep(max(1, min(int(response.get('pollAfterSeconds', 3)), 30)))
+                continue
+            name = job.get('ticketId', '')
+            if not SAFE_ID.fullmatch(name):
+                raise RuntimeError('Rejected malformed ticket id')
+            try:
+                result = dispatch(job)
+            except subprocess.TimeoutExpired:
+                result = {'status': 'failed', 'errorCode': 'SENDER_TIMEOUT'}
+            except Exception:
+                result = {'status': 'failed', 'errorCode': 'LOCAL_EXECUTION_ERROR'}
+            post('tickets/' + name + '/complete', result, token)
+            print('TICKET', name, result['status'], len(result.get('relayIds', [])), flush=True)
+        except KeyboardInterrupt:
+            break
+        except Exception as err:
+            print('RETRY', type(err).__name__, flush=True)
+            time.sleep(10)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--bootstrap', action='store_true')
+    args = parser.parse_args()
+    if args.bootstrap:
+        bootstrap()
+    else:
+        main()
