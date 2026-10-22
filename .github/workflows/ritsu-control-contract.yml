@@ -1,4 +1,4 @@
-name: Ritsu Control Android Contract
+name: Ritsu Control Android Microphone Contract
 on:
   pull_request:
     paths:
@@ -37,15 +37,24 @@ jobs:
           gradle-version: '8.10.2'
       - name: Pure-state tests and Android build
         run: gradle -p android/ritsu-control :app:testDebugUnitTest :app:assembleDebug --no-daemon
-      - name: Stage A permission contract
+      - name: Stage B microphone privacy and permission contract
         run: |
-          ! grep -q 'android.permission.RECORD_AUDIO' android/ritsu-control/app/src/main/AndroidManifest.xml
-          ! grep -q 'android.permission.SYSTEM_ALERT_WINDOW' android/ritsu-control/app/src/main/AndroidManifest.xml
+          set -euo pipefail
+          MANIFEST=android/ritsu-control/app/src/main/AndroidManifest.xml
+          grep -q 'android.permission.RECORD_AUDIO' "$MANIFEST"
+          grep -q 'android.permission.FOREGROUND_SERVICE_MICROPHONE' "$MANIFEST"
+          grep -q 'android.permission.SYSTEM_ALERT_WINDOW' "$MANIFEST"
+          grep -q 'android.permission.BIND_QUICK_SETTINGS_TILE' "$MANIFEST"
+          ! grep -q 'android.permission.INTERNET' "$MANIFEST"
+          ! grep -q 'BOOT_COMPLETED' "$MANIFEST"
+          grep -q 'type="specialUse|microphone"' "$MANIFEST"
+          grep -q 'capture.stop()' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
+          grep -q 'Settings.canDrawOverlays' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
 
       - name: Publish isolated Android debug APK (not deployed)
         uses: actions/upload-artifact@v4
         with:
-          name: ritsu-control-stage-a-debug-apk
+          name: ritsu-control-v0.3-local-listening-debug-apk
           path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
