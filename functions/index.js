@@ -13,6 +13,7 @@ const {createCommandCenterMcpApp} = require('./command_center_mcp');
 const {createPhoneHandsRelayHandler} = require('./phone_hands_relay');
 const {createLocalVoiceFarmHandler} = require('./local_voice_farm_api');
 const {createComputerHandsHandler} = require('./computer_hands_api');
+const {handler: createRitsuVoiceHandler} = require('./ritsu_voice_api');
 const {createBrowserNerveHandler} = require('./browser_nerve_api');
 const {createVeniceNerveHandler} = require('./venice_nerve_api');
 const {createSheRawMcpApp} = require('./she_raw_mcp');
@@ -3567,6 +3568,7 @@ exports.phoneHandsRelay = onRequest({timeoutSeconds: 120}, createPhoneHandsRelay
 exports.localVoiceFarm = onRequest({timeoutSeconds: 300, memory: '1GiB'}, createLocalVoiceFarmHandler({admin}));
 
 exports.computerHands = onRequest({timeoutSeconds: 300}, createComputerHandsHandler({admin}));
+exports.ritsuVoice = onRequest({timeoutSeconds: 60}, createRitsuVoiceHandler({admin}));
 
 exports.browserNerve = onRequest({timeoutSeconds: 300}, createBrowserNerveHandler({admin}));
 
