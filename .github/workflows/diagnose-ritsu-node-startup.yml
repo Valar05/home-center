@@ -19,3 +19,18 @@ jobs:
           cd functions
           node -e "const a=require('./ritsu_voice_api'); const r=a.entryList(); console.log('PROFILE_REGISTRY_LOAD',Object.keys(r).join(','));"
           timeout 45 node -e "require('./index.js'); console.log('INDEX_LOAD_OK')" 
+      - name: Boot HTTP function framework locally and probe health
+        run: |
+          cd functions
+          node -e "console.log('FRAMEWORK',require.resolve('@google-cloud/functions-framework'))"
+          npx --no-install functions-framework --target=ritsuVoice --source=. --signature-type=http --port=8080 >/tmp/ritsu-framework.log 2>&1 &
+          PID=$!
+          OK=0
+          for i in $(seq 1 40); do
+            if curl --fail --silent http://127.0.0.1:8080/health >/tmp/ritsu-health.json; then OK=1; break; fi
+            if ! kill -0 "$PID" 2>/dev/null; then break; fi
+            sleep 1
+          done
+          cat /tmp/ritsu-health.json 2>/dev/null || true
+          if [ "$OK" -ne 1 ]; then tail -c 4000 /tmp/ritsu-framework.log; exit 1; fi
+          kill "$PID" 2>/dev/null || true
