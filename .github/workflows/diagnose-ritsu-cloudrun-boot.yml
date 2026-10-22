@@ -16,3 +16,7 @@ jobs:
       - name: Read error logs for failed ritsuvoice revision
         run: |
           gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="ritsuvoice" AND resource.labels.revision_name="ritsuvoice-00002-joc"' --project=home-center-dclar --limit=40 --format=json --freshness=2h | python3 -c 'import sys,json; rows=json.load(sys.stdin); [print(json.dumps({"severity":r.get("severity"),"payload":str(r.get("textPayload") or r.get("jsonPayload",{}).get("message") or r.get("protoPayload",{}).get("status",{}).get("message") or r.get("jsonPayload"))[:900]})) for r in rows]'
+      - name: Describe deployed revisions and resource limits
+        run: |
+          gcloud run revisions list --service=ritsuvoice --region=us-central1 --project=home-center-dclar --format='table(metadata.name,status.conditions[0].status,spec.containers[0].resources.limits.memory)' --limit=5
+          gcloud run revisions describe ritsuvoice-00002-joc --region=us-central1 --project=home-center-dclar --format=json | python3 -c 'import sys,json; r=json.load(sys.stdin); print(json.dumps({"status":r.get("status",{}).get("conditions",[]),"resources":r.get("spec",{}).get("containers",[{}])[0].get("resources",{})})[:3000])'
