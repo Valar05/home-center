@@ -1,92 +1,244 @@
 package com.homecenter.ritsucontrol;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
+import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.provider.Settings;
 
 /**
- * Salvaged from the old operator overlay's notification/foreground pattern.
- * Stage A only persists local requests. It neither records a microphone nor
- * stops existing Termux playback. UI explicitly says that audio is unwired.
+ * Home Center Ritsu local control layer.
+ * Real microphone, local-only VAD; no audio stream, transcript, wake-word,
+ * or remote ChatGPT command is implemented here.
+ *
+ * Starts listening ONLY after a user-visible Activity requests RECORD_AUDIO
+ * permission. No BOOT_COMPLETED receiver and no restart-on-kill behavior.
  */
 public final class RitsuControlService extends Service {
     static final String ACTION_START = "com.homecenter.ritsucontrol.START";
-    static final String ACTION_MIC_REQUEST = "com.homecenter.ritsucontrol.MIC_REQUEST";
+    static final String ACTION_LISTEN = "com.homecenter.ritsucontrol.LISTEN";
+    static final String ACTION_MUTE = "com.homecenter.ritsucontrol.MUTE";
+    static final String ACTION_RESUME = "com.homecenter.ritsucontrol.RESUME";
+    static final String ACTION_SHOW_BUBBLE = "com.homecenter.ritsucontrol.SHOW_BUBBLE";
+    static final String ACTION_HIDE_BUBBLE = "com.homecenter.ritsucontrol.HIDE_BUBBLE";
     static final String ACTION_SPEAKER_PREFERENCE = "com.homecenter.ritsucontrol.SPEAKER_PREFERENCE";
     static final String ACTION_STOP = "com.homecenter.ritsucontrol.STOP";
-    private static final String CHANNEL = "ritsu_control_notification";
+    // Deliberately do not handle Stage A's misleading MIC_REQUEST action.
+    private static final String CHANNEL = "ritsu_control_notification_v2";
     private static final int NOTIFICATION_ID = 19644;
+    static volatile ListeningPolicy.Mode liveMode = ListeningPolicy.Mode.OFF;
+    static volatile boolean voiceActivity = false;
+    static volatile String lastProblem = "";
+
+    private ListeningPolicy.Mode mode = ListeningPolicy.Mode.OFF;
+    private MicrophoneCapture capture;
+    private ControlReceipts receipts;
+    private RitsuBubble bubble;
+    private Handler mainHandler;
 
     @Override public void onCreate() {
         super.onCreate();
-        getSystemService(NotificationManager.class).createNotificationChannel(
-                new NotificationChannel(CHANNEL, "Ritsu control", NotificationManager.IMPORTANCE_LOW));
-        // On a new service lifetime, a prior mic request must never carry over.
+        mainHandler = new Handler(Looper.getMainLooper());
+        receipts = new ControlReceipts(this);
+        liveMode = ListeningPolicy.Mode.OFF;
+        voiceActivity = false;
+        lastProblem = "";
+        // Clear Stage A's stale "mic requested" marker.
         ControlStore.transition(this, ControlPolicy.ACTION_START);
-        startForeground(NOTIFICATION_ID, notification(ControlStore.read(this)));
+        getSystemService(NotificationManager.class).createNotificationChannel(
+                new NotificationChannel(CHANNEL, "Ritsu listening controls", NotificationManager.IMPORTANCE_LOW));
+        capture = new MicrophoneCapture(this, new MicrophoneCapture.Observer() {
+            @Override public void onSpeechChanged(boolean speaking) {
+                mainHandler.post(() -> {
+                    if (mode != ListeningPolicy.Mode.LISTENING) return;
+                    if (voiceActivity == speaking) return;
+                    voiceActivity = speaking;
+                    receipts.append(speaking ? "SPEECH_BEGIN" : "SPEECH_END", mode, mode, "local_energy_gate");
+                    if (bubble != null) bubble.refresh();
+                });
+            }
+            @Override public void onFailure(String reason) {
+                mainHandler.post(() -> failCapture(reason));
+            }
+        });
+        bubble = new RitsuBubble(this, new RitsuBubble.Actions() {
+            @Override public void toggleMute() {
+                if (mode == ListeningPolicy.Mode.LISTENING) mute();
+                else if (mode == ListeningPolicy.Mode.MUTED) resume();
+                else openApp();
+            }
+            @Override public void stopSession() { endSession(); }
+            @Override public void hideBubble() { bubble.hide(); updateNotification(); }
+            @Override public ListeningPolicy.Mode mode() { return mode; }
+        });
+        // An idle foreground service does not obtain the microphone service type.
+        setForeground(false);
+        receipts.append("SERVICE_CREATED", ListeningPolicy.Mode.OFF, mode, "explicit_control");
     }
 
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent == null ? ACTION_START : intent.getAction();
-        int operation;
-        if (ACTION_MIC_REQUEST.equals(action)) operation = ControlPolicy.ACTION_MIC_REQUEST;
-        else if (ACTION_SPEAKER_PREFERENCE.equals(action)) operation = ControlPolicy.ACTION_SPEAKER_PREFERENCE;
-        else if (ACTION_STOP.equals(action)) {
-            ControlStore.transition(this, ControlPolicy.ACTION_STOP);
-            stopForeground(STOP_FOREGROUND_REMOVE);
-            stopSelf();
-            return START_NOT_STICKY;
-        } else if (ACTION_START.equals(action)) {
-            // Ignore duplicate launches; onCreate already established fail-closed state.
-            operation = -1;
-        } else {
-            // No untrusted arbitrary commands.
-            return START_NOT_STICKY;
+        if (ACTION_LISTEN.equals(action)) startListening();
+        else if (ACTION_MUTE.equals(action)) mute();
+        else if (ACTION_RESUME.equals(action)) resume();
+        else if (ACTION_SHOW_BUBBLE.equals(action)) {
+            if (!bubble.show()) lastProblem = "Bubble requires Android display-over-other-apps permission";
+        } else if (ACTION_HIDE_BUBBLE.equals(action)) bubble.hide();
+        else if (ACTION_SPEAKER_PREFERENCE.equals(action))
+            ControlStore.transition(this, ControlPolicy.ACTION_SPEAKER_PREFERENCE);
+        else if (ACTION_STOP.equals(action)) { endSession(); return START_NOT_STICKY; }
+        else if (!ACTION_START.equals(action)) {
+            receipts.append("UNKNOWN_ACTION_IGNORED", mode, mode, "not_allowed");
         }
-        ControlPolicy.State state = operation < 0 ? ControlStore.read(this) : ControlStore.transition(this, operation);
-        getSystemService(NotificationManager.class).notify(NOTIFICATION_ID, notification(state));
+        updateNotification();
         return START_NOT_STICKY;
     }
 
-    private Notification notification(ControlPolicy.State state) {
-        Intent open = new Intent(this, MainActivity.class);
-        PendingIntent openIntent = PendingIntent.getActivity(this, 41, open,
+    private void startListening() {
+        if (mode == ListeningPolicy.Mode.LISTENING || mode == ListeningPolicy.Mode.MUTED) return;
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            failCapture("microphone_permission_not_granted"); return;
+        }
+        try {
+            setForeground(true);
+            if (!capture.start()) { failCapture("audio_device_unavailable"); return; }
+            applyTransition(ListeningPolicy.Event.CAPTURE_STARTED, "audio_record_started");
+            if (Settings.canDrawOverlays(this)) bubble.show();
+        } catch (RuntimeException exception) {
+            failCapture("microphone_foreground_start_rejected");
+        }
+    }
+
+    private void mute() {
+        if (mode != ListeningPolicy.Mode.LISTENING) return;
+        capture.stop(); // Actual audio hardware capture is stopped BEFORE reporting MUTED.
+        voiceActivity = false;
+        applyTransition(ListeningPolicy.Event.MUTED_RELEASED, "audio_record_released");
+        // Keep existing foreground microphone service, so user can resume from
+        // a notification or floating bubble without starting a new background FGS.
+    }
+
+    private void resume() {
+        if (mode != ListeningPolicy.Mode.MUTED) return;
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            failCapture("microphone_permission_revoked"); return;
+        }
+        try {
+            setForeground(true);
+            if (!capture.start()) { failCapture("audio_device_unavailable"); return; }
+            applyTransition(ListeningPolicy.Event.RESUMED_CAPTURE, "audio_record_resumed");
+        } catch (RuntimeException exception) {
+            failCapture("microphone_restart_rejected");
+        }
+    }
+
+    private void failCapture(String reason) {
+        capture.stop();
+        voiceActivity = false;
+        lastProblem = reason;
+        applyTransition(ListeningPolicy.Event.FAILED, reason);
+        try { setForeground(false); } catch (RuntimeException ignored) {}
+    }
+
+    private void applyTransition(ListeningPolicy.Event event, String reason) {
+        ListeningPolicy.Mode previous = mode;
+        mode = ListeningPolicy.next(mode, event);
+        liveMode = mode;
+        receipts.append(event.name(), previous, mode, reason);
+        updateNotification();
+        if (bubble != null) bubble.refresh();
+    }
+
+    private void openApp() {
+        Intent i = new Intent(this, MainActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(i); // Only user-initiated from the visible floating bubble.
+    }
+
+    private void endSession() {
+        if (capture != null) capture.stop();
+        voiceActivity = false;
+        ListeningPolicy.Mode previous = mode;
+        mode = ListeningPolicy.next(mode, ListeningPolicy.Event.STOPPED);
+        liveMode = mode;
+        receipts.append("SESSION_STOPPED", previous, mode, "explicit_user_stop");
+        if (bubble != null) bubble.hide();
+        stopForeground(STOP_FOREGROUND_REMOVE);
+        stopSelf();
+    }
+
+    private void setForeground(boolean microphone) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            int types = ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE;
+            if (microphone) types |= ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
+            startForeground(NOTIFICATION_ID, notification(), types);
+        } else if (Build.VERSION.SDK_INT >= 29) {
+            startForeground(NOTIFICATION_ID, notification(),
+                    microphone ? ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE : 0);
+        } else {
+            startForeground(NOTIFICATION_ID, notification());
+        }
+    }
+
+    private void updateNotification() {
+        getSystemService(NotificationManager.class).notify(NOTIFICATION_ID, notification());
+    }
+
+    private Notification notification() {
+        PendingIntent open = PendingIntent.getActivity(this, 41,
+                new Intent(this, MainActivity.class),
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        String mic = state.microphoneRequested ? "MIC REQUESTED" : "MIC OFF";
-        String speaker = state.speakerMuted ? "OUTPUT MUTE REQUESTED" : "OUTPUT NORMAL REQUESTED";
-        // A compact default row. Never use BigTextStyle here: Android chooses
-        // whether expanded actions are shown, but we do not force a tall card.
-        // Android 14+ lets users dismiss foreground notifications while unlocked;
-        // the Quick Settings tile is the independent way back.
-        return new Notification.Builder(this, CHANNEL)
+        String detail = mode == ListeningPolicy.Mode.LISTENING ? "Listening locally"
+                : mode == ListeningPolicy.Mode.MUTED ? "Mic muted (hardware released)"
+                : mode == ListeningPolicy.Mode.ERROR ? "Mic error · open to inspect" : "Mic off";
+        Notification.Builder builder = new Notification.Builder(this, CHANNEL)
                 .setSmallIcon(android.R.drawable.ic_btn_speak_now)
                 .setContentTitle("Ritsu")
-                .setContentText((state.microphoneRequested ? "Mic requested" : "Mic off")
-                        + " · " + (state.speakerMuted ? "Mute requested" : "Output normal")
-                        + " · Demo")
+                .setContentText(detail + " · No transcription or upload")
                 .setCategory(Notification.CATEGORY_SERVICE)
+                .setContentIntent(open)
                 .setShowWhen(false)
-                .setContentIntent(openIntent)
                 .setOngoing(true)
-                .setOnlyAlertOnce(true)
-                .addAction(new Notification.Action.Builder(null,
-                        state.microphoneRequested ? "Cancel mic" : "Request mic",
-                        serviceAction(ACTION_MIC_REQUEST, 42)).build())
-                .addAction(new Notification.Action.Builder(null,
-                        state.speakerMuted ? "Unrequest mute" : "Request mute",
-                        serviceAction(ACTION_SPEAKER_PREFERENCE, 43)).build())
-                .build();
+                .setOnlyAlertOnce(true);
+        if (mode == ListeningPolicy.Mode.LISTENING) {
+            builder.addAction(new Notification.Action.Builder(null, "Mute mic",
+                    serviceAction(ACTION_MUTE, 47)).build());
+        } else if (mode == ListeningPolicy.Mode.MUTED) {
+            builder.addAction(new Notification.Action.Builder(null, "Resume mic",
+                    serviceAction(ACTION_RESUME, 48)).build());
+        } else {
+            // Opening a visible Activity is necessary for the first microphone start.
+            builder.addAction(new Notification.Action.Builder(null, "Open controls", open).build());
+        }
+        builder.addAction(new Notification.Action.Builder(null, "Stop",
+                serviceAction(ACTION_STOP, 49)).build());
+        return builder.build();
     }
 
     private PendingIntent serviceAction(String action, int id) {
-        Intent intent = new Intent(this, RitsuControlService.class).setAction(action);
-        return PendingIntent.getService(this, id, intent,
+        return PendingIntent.getService(this, id,
+                new Intent(this, RitsuControlService.class).setAction(action),
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
+    @Override public void onDestroy() {
+        if (capture != null) capture.stop();
+        if (bubble != null) bubble.hide();
+        voiceActivity = false;
+        ListeningPolicy.Mode previous = mode;
+        mode = ListeningPolicy.Mode.OFF;
+        liveMode = mode;
+        if (receipts != null) receipts.append("SERVICE_DESTROYED", previous, mode, "system_or_explicit");
+        super.onDestroy();
+    }
     @Override public IBinder onBind(Intent intent) { return null; }
 }
