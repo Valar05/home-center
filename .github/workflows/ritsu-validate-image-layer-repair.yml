@@ -1,0 +1,46 @@
+name: Validate Ritsu Runtime Layer Repair
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Reuse Google helper from last healthy runtime image
+        run: |
+          set -e
+          gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+          GOOD='us-central1-docker.pkg.dev/home-center-dclar/gcf-artifacts/home--center--dclar__us--central1__ritsu_voice@sha256:4a80b63ded72c24bf985dd98e29608bbe8500bd7873970751fb45c18afb494c8'
+          BAD='us-central1-docker.pkg.dev/home-center-dclar/gcf-artifacts/home--center--dclar__us--central1__ritsu_voice@sha256:3faea8006a8fd6b0d5b3e3951061e90f5a4a2c73832093a3c865dbdab20f9b10'
+          docker pull "$GOOD" >/dev/null
+          docker pull "$BAD" >/dev/null
+          ID="$(docker create "$GOOD")"
+          mkdir -p /tmp/ritsu-image-repair
+          docker cp "$ID":/layers/google.nodejs.runtime/heapsize/exec.d/heapsize.sh /tmp/ritsu-image-repair/heapsize.sh
+          docker rm "$ID" >/dev/null
+          chmod 755 /tmp/ritsu-image-repair/heapsize.sh
+          cat > /tmp/ritsu-image-repair/Dockerfile <<DOCKER
+          FROM $BAD
+          COPY --chmod=755 heapsize.sh /layers/google.nodejs.runtime/heapsize/exec.d/heapsize.sh
+          DOCKER
+          docker build -q -t ritsu-repertoire-repaired:local /tmp/ritsu-image-repair
+          ID="$(docker run -d --memory=1g --cpus=1 -e PORT=8080 -p 18080:8080 ritsu-repertoire-repaired:local)"
+          OK=0
+          for i in $(seq 1 25); do
+            if curl -sf http://127.0.0.1:18080/health >/tmp/ritsu-fixed-health.json; then OK=1; break; fi
+            if [ "$(docker inspect -f '{{.State.Running}}' "$ID")" = false ]; then break; fi
+            sleep 1
+          done
+          echo "REPAIRED_HEALTH=$OK"
+          cat /tmp/ritsu-fixed-health.json 2>/dev/null || true
+          docker inspect "$ID" --format 'EXIT={{.State.ExitCode}} OOM={{.State.OOMKilled}}'
+          docker logs "$ID" 2>&1 | tail -c 6000
+          docker rm -f "$ID" >/dev/null 2>&1 || true
+          test "$OK" -eq 1
