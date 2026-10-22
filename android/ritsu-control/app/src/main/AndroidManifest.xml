@@ -15,5 +15,16 @@
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Persistent user-visible local Ritsu conversation control notification; Stage A does not record audio." />
         </service>
+        <!-- Persistent user-added system tile. Does not capture audio and can
+             reopen the control activity even after Android dismisses the FGS notification. -->
+        <service android:name=".RitsuQuickTileService"
+                 android:label="Ritsu"
+                 android:icon="@android:drawable/ic_btn_speak_now"
+                 android:exported="true"
+                 android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>
