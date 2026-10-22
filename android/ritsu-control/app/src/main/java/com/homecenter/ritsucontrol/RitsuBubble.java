@@ -110,6 +110,19 @@ final class RitsuBubble {
         windows.getDefaultDisplay().getSize(size);
         lp.x = Math.max(dp(8), size.x - dp(80));
         lp.y = Math.max(dp(64), size.y / 3);
+        // A real click listener is required so TalkBack can expand/collapse
+        // the controls through accessibility, not merely a raw touch gesture.
+        bubble.setOnClickListener(v -> {
+            expanded = !expanded;
+            menu.setVisibility(expanded ? View.VISIBLE : View.GONE);
+            if (expanded) {
+                lp.x = Math.min(lp.x, Math.max(0, size.x - dp(210)));
+                lp.y = Math.min(lp.y, Math.max(0, size.y - dp(285)));
+            }
+            refresh();
+            try { windows.updateViewLayout(panel, lp); }
+            catch (RuntimeException ignored) {}
+        });
         bubble.setOnTouchListener(new View.OnTouchListener() {
             private float initialRawX, initialRawY;
             private int startingX, startingY;
@@ -133,20 +146,7 @@ final class RitsuBubble {
                         }
                         return true;
                     case MotionEvent.ACTION_UP:
-                        if (!dragging) {
-                            v.performClick();
-                            expanded = !expanded;
-                            menu.setVisibility(expanded ? View.VISIBLE : View.GONE);
-                            if (expanded) {
-                                // The collapsed bubble hugs the right edge; keep the
-                                // newly-expanded controls entirely on the screen.
-                                lp.x = Math.min(lp.x, Math.max(0, size.x - dp(210)));
-                                lp.y = Math.min(lp.y, Math.max(0, size.y - dp(285)));
-                            }
-                            refresh();
-                            try { windows.updateViewLayout(panel, lp); }
-                            catch (RuntimeException ignored) {}
-                        }
+                        if (!dragging) v.performClick();
                         return true;
                     default: return false;
                 }
