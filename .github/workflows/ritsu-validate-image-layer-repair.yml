@@ -30,7 +30,10 @@ jobs:
           echo
           docker run --rm --entrypoint=/bin/sh "$BAD" -c 'for p in /bin/sh /bin/bash /usr/bin/env /layers/google.nodejs.runtime/heapsize/exec.d/heapsize.sh; do ls -l "$p" || true; done' || true
           echo 'REPLACING_WITH_MINIMAL_POSIX_EXEC_D_FOR_DIAGNOSTIC'
-          printf '#!/bin/sh\nexit 0\n' > /tmp/ritsu-image-repair/heapsize.sh
+          # This Google runtime base is distroless: no /bin/sh or /bin/bash.
+          # exec.d must be a native binary, not a shebang script.
+          printf 'int main(void) { return 0; }\n' > /tmp/ritsu-image-repair/heapsize.c
+          gcc -static -O2 -s -o /tmp/ritsu-image-repair/heapsize.sh /tmp/ritsu-image-repair/heapsize.c
           chmod 755 /tmp/ritsu-image-repair/heapsize.sh
           cat > /tmp/ritsu-image-repair/Dockerfile <<DOCKER
           FROM $BAD
