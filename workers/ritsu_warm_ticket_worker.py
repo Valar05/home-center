@@ -47,11 +47,32 @@ def post(route, payload, token=None):
         raise RuntimeError(f'Voice endpoint HTTP {err.code}: {reason}') from None
 
 
-def bootstrap():
+def read_private_code(use_clipboard=False):
+    if not use_clipboard:
+        return getpass.getpass('One-time private Ritsu bootstrap code: ').strip()
+    # msvcrt.getwch used by getpass on Windows may not receive pasted text
+    # from some terminal hosts. Read clipboard without putting the code on
+    # the command line or printing it, then immediately clear clipboard.
+    if os.name != 'nt':
+        raise RuntimeError('Clipboard bootstrap is available on Windows only')
+    capture = subprocess.run(['powershell.exe', '-NoProfile', '-NonInteractive', '-Command',
+                              'Get-Clipboard -Raw'], capture_output=True, text=True,
+                             timeout=15, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+    try:
+        if capture.returncode != 0:
+            raise RuntimeError('Cannot read clipboard; copy the code and retry')
+        return capture.stdout.strip()
+    finally:
+        subprocess.run(['powershell.exe', '-NoProfile', '-NonInteractive', '-Command',
+                        "Set-Clipboard -Value ''"], capture_output=True, timeout=15,
+                       creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+
+
+def bootstrap(use_clipboard=False):
     DIRECTORY.mkdir(parents=True, exist_ok=True)
     if CREDENTIALS.exists():
         raise RuntimeError('Worker already registered; refusing credential replacement')
-    code = getpass.getpass('One-time private Ritsu bootstrap code: ').strip()
+    code = read_private_code(use_clipboard)
     if not re.fullmatch(r'[A-Za-z0-9_-]{32}', code):
         raise RuntimeError('Registration code must be exactly 32 base64url characters. No spaces or backticks.')
     print('CODE_FINGERPRINT:', hashlib.sha256(code.encode('utf-8')).hexdigest()[:12], flush=True)
@@ -187,8 +208,9 @@ def main():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--bootstrap', action='store_true')
+    parser.add_argument('--bootstrap-clipboard', action='store_true')
     args = parser.parse_args()
-    if args.bootstrap:
-        bootstrap()
+    if args.bootstrap or args.bootstrap_clipboard:
+        bootstrap(use_clipboard=args.bootstrap_clipboard)
     else:
         main()
