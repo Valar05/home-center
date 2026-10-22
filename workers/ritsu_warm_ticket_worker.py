@@ -51,7 +51,10 @@ def bootstrap():
     DIRECTORY.mkdir(parents=True, exist_ok=True)
     if CREDENTIALS.exists():
         raise RuntimeError('Worker already registered; refusing credential replacement')
-    code = getpass.getpass('One-time private Ritsu bootstrap code: ')
+    code = getpass.getpass('One-time private Ritsu bootstrap code: ').strip()
+    if not re.fullmatch(r'[A-Za-z0-9_-]{32}', code):
+        raise RuntimeError('Registration code must be exactly 32 base64url characters. No spaces or backticks.')
+    print('CODE_FINGERPRINT:', hashlib.sha256(code.encode('utf-8')).hexdigest()[:12], flush=True)
     answer = post('bootstrap', {'bootstrapCode': code})
     if answer.get('status') != 'registered' or answer.get('workerId') != WORKER:
         raise RuntimeError('Worker registration not accepted')
