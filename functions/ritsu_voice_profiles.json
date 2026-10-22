@@ -1,0 +1,51 @@
+{
+  "version": "ritsu-repertoire-v1-20261022",
+  "engine": "Qwen3-TTS 0.6B Base reference clone",
+  "defaultProfile": "normal",
+  "legacyProfile": "warm-v1",
+  "delivery": "phone",
+  "profiles": {
+    "normal": {
+      "status": "approved",
+      "referenceFile": "ex04_happy_00085.wav",
+      "referenceText": "Would you like some tomato bisque?",
+      "pitchSemitones": -1,
+      "sourceManifestProfile": "normal"
+    },
+    "whisper": {
+      "status": "approved_audition_pitch_candidate",
+      "referenceFile": "ex04_whisper_00059.wav",
+      "referenceText": "He's cool in a brainiac kind of way.",
+      "pitchSemitones": -1,
+      "sourceManifestProfile": "whisper"
+    },
+    "amused": {
+      "status": "approved",
+      "referenceFile": "ex04_laughing_00044.wav",
+      "referenceText": "I did actually! the kids were watching \"Animaniacs\" over the weekend. I still love that show!",
+      "pitchSemitones": 0,
+      "sourceManifestProfile": "amused"
+    },
+    "happy": {
+      "status": "approved",
+      "referenceFile": "ex04_happy_00112.wav",
+      "referenceText": "It's shaping up to be everything the scroll predicted!",
+      "pitchSemitones": 0,
+      "sourceManifestProfile": "happy"
+    },
+    "upset": {
+      "status": "provisional",
+      "referenceFile": "ex04_confused_00043.wav",
+      "referenceText": "Like it got worse.",
+      "pitchSemitones": 0,
+      "sourceManifestProfile": "upset"
+    },
+    "somber": {
+      "status": "rework_later",
+      "referenceFile": "ex04_sad_00037.wav",
+      "referenceText": "I knew it was a set up!",
+      "pitchSemitones": 0,
+      "sourceManifestProfile": "somber"
+    }
+  }
+}
