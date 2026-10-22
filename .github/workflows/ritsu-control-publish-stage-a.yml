@@ -33,13 +33,14 @@ jobs:
           unzip -p "$RUNNER_TEMP/ritsu-stage-a.zip" app-debug.apk > downloads/ritsu-control-stage-a-debug.apk
           test -s downloads/ritsu-control-stage-a-debug.apk
           file downloads/ritsu-control-stage-a-debug.apk
-          sha256sum downloads/ritsu-control-stage-a-debug.apk
+          echo '63f6cbb07bda6244b115fea90d9f0ec6fc98ab64ce5cf8674860dd2632e54df6  downloads/ritsu-control-stage-a-debug.apk' | sha256sum -c -
       - name: Commit repository-hosted APK
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add downloads/ritsu-control-stage-a-debug.apk
+          # Repo-wide APK ignore policy remains unchanged. Force-add only this verified fixture.
+          git add -f -- downloads/ritsu-control-stage-a-debug.apk
           if git diff --staged --quiet; then
             echo 'APK already committed; no change.'
           else
