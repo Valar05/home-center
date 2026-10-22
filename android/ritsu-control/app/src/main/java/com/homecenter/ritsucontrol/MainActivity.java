@@ -76,7 +76,7 @@ public final class MainActivity extends Activity {
                 getMainExecutor(),
                 result -> {
                     refresh();
-                    status.append("\\nTile request returned " + result
+                    status.append("\nTile request returned " + result
                             + ". If Ritsu isn't visible, add it from Quick Settings > Edit.");
                 });
     }
