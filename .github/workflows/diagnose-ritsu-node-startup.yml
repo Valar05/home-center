@@ -1,0 +1,21 @@
+name: Diagnose Ritsu Node Startup
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - run: npm --prefix functions ci
+      - name: Test module resolution and Cloud Functions entry point
+        run: |
+          cd functions
+          node -e "const a=require('./ritsu_voice_api'); const r=a.entryList(); console.log('PROFILE_REGISTRY_LOAD',Object.keys(r).join(','));"
+          timeout 45 node -e "require('./index.js'); console.log('INDEX_LOAD_OK')" 
