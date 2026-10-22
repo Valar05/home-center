@@ -137,6 +137,12 @@ final class RitsuBubble {
                             v.performClick();
                             expanded = !expanded;
                             menu.setVisibility(expanded ? View.VISIBLE : View.GONE);
+                            if (expanded) {
+                                // The collapsed bubble hugs the right edge; keep the
+                                // newly-expanded controls entirely on the screen.
+                                lp.x = Math.min(lp.x, Math.max(0, size.x - dp(210)));
+                                lp.y = Math.min(lp.y, Math.max(0, size.y - dp(285)));
+                            }
                             refresh();
                             try { windows.updateViewLayout(panel, lp); }
                             catch (RuntimeException ignored) {}
