@@ -11,6 +11,7 @@ import sys
 import tempfile
 import time
 import urllib.request
+import urllib.error
 from pathlib import Path
 
 ROOT = Path(r'C:\Users\dclar\workspace\ritsu-faster-qwen3-tts')
@@ -33,8 +34,17 @@ def post(route, payload, token=None):
         headers['Authorization'] = 'Bearer ' + token
         headers['X-Home-Center-Worker'] = WORKER
     req = urllib.request.Request(SERVER + '/' + route, json.dumps(payload).encode(), headers, method='POST')
-    with urllib.request.urlopen(req, timeout=25) as response:
-        return json.load(response)
+    try:
+        with urllib.request.urlopen(req, timeout=25) as response:
+            return json.load(response)
+    except urllib.error.HTTPError as err:
+        # Never echo bootstrap code, bearer token, or request body.
+        try:
+            body = json.loads(err.read(1024).decode('utf-8'))
+            reason = str(body.get('error', 'server error'))[:160]
+        except (ValueError, UnicodeError):
+            reason = 'non-JSON server response'
+        raise RuntimeError(f'Voice endpoint HTTP {err.code}: {reason}') from None
 
 
 def bootstrap():
