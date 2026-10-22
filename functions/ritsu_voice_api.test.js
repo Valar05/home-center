@@ -8,6 +8,9 @@ test('fixed Warm voice and fixed phone transport',()=>{
  assert.equal(request.voice,'warm-v1');
  assert.equal(request.delivery,'phone');
  assert.equal(request.expectedChunks,null);
+ assert.equal(request.profile,'normal');
+ assert.equal(api.validateSpeak({requestId:'turn-profile-10',text:'hello',profile:'somber'}).profile,'somber');
+ assert.throws(()=>api.validateSpeak({requestId:'turn-profile-11',text:'hello',profile:'unregistered'}),/Unsupported Ritsu profile/);
  assert.throws(()=>api.validateSpeak({requestId:'turn-000002',text:'hello',voice:'fixed:kokoro:af_heart'}),/Warm v1/);
  assert.throws(()=>api.validateSpeak({requestId:'turn-000003',text:'hello',delivery:'drive'}),/phone/);
  assert.throws(()=>api.validateSpeak({requestId:'turn-000004',text:'ok',action:'shell.exec'}),/Unexpected/);
@@ -21,9 +24,9 @@ test('fail closed on invalid payload',()=>{
   {requestId:'turn-000008',text:'ok',chunks:51}
  ])assert.throws(()=>api.validateSpeak(a));
 });
-test('advertise only the three narrow operations, never generic shell',()=>{
+test('advertise fixed profile registry and three narrow ticket operations, never generic shell',()=>{
  const e=api.entryList();
- assert.deepEqual(Object.keys(e).sort(),['ritsu.voice.speak','ritsu.voice.status','ritsu.voice.worker.register']);
+ assert.deepEqual(Object.keys(e).sort(),['ritsu.voice.profiles','ritsu.voice.speak','ritsu.voice.status','ritsu.voice.worker.register']);
  assert.equal(JSON.stringify(e).includes('shell.exec'),false);
 });
 function fakeDb(){
