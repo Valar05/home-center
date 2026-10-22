@@ -20,6 +20,7 @@ VOICE_TOKEN = ROOT / 'ritsu-api-token.txt'
 PAUSE = ROOT / 'RITSU_WARM_ASMR_MAINTENANCE'
 DIRECTORY = Path(os.environ.get('LOCALAPPDATA', str(Path.home()))) / 'RitsuWarmTicketWorker'
 CREDENTIALS = DIRECTORY / 'worker_token.json'
+JOURNAL = DIRECTORY / 'tickets'
 SERVER = os.environ.get('RITSU_VOICE_TICKET_ORIGIN', 'https://us-central1-home-center-dclar.cloudfunctions.net/ritsuVoice').rstrip('/')
 WORKER = 'cauldron-ritsu-warm-01'
 RECEIPT = re.compile(r'^ENQUEUED_CHUNK\s+(\d+)\s+of\s+(\d+)\s+relay\s+([a-f0-9]{16,80})\b')
@@ -112,6 +113,44 @@ def dispatch(ticket):
         return {'status': 'enqueued', 'relayIds': ids}
 
 
+def durable_record(name, payload):
+    """Write safely before a side effect or result acknowledgment."""
+    JOURNAL.mkdir(parents=True, exist_ok=True)
+    target = JOURNAL / (name + '.json')
+    draft = JOURNAL / (name + '.new')
+    with draft.open('w', encoding='utf-8') as f:
+        json.dump(payload, f)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(draft, target)
+
+
+def process_ticket(job):
+    name = job.get('ticketId', '')
+    if not SAFE_ID.fullmatch(name):
+        raise RuntimeError('Rejected malformed ticket id')
+    digest = job.get('textSha256', '')
+    record_file = JOURNAL / (name + '.json')
+    if record_file.exists():
+        old = json.loads(record_file.read_text(encoding='utf-8'))
+        if old.get('textSha256') != digest:
+            raise RuntimeError('Duplicate ticket ID with different transcript digest')
+        if old.get('phase') == 'complete':
+            return old['result']
+        # Previous invocation may have enqueued one or more clips.
+        # Fail closed rather than replay speech with unknown delivery.
+        return {'status': 'failed', 'errorCode': 'AMBIGUOUS_PREVIOUS_ATTEMPT'}
+    durable_record(name, {'phase': 'started', 'textSha256': digest})
+    try:
+        result = dispatch(job)
+    except subprocess.TimeoutExpired:
+        result = {'status': 'failed', 'errorCode': 'SENDER_TIMEOUT_AMBIGUOUS'}
+    except Exception:
+        result = {'status': 'failed', 'errorCode': 'LOCAL_EXECUTION_ERROR'}
+    durable_record(name, {'phase': 'complete', 'textSha256': digest, 'result': result})
+    return result
+
+
 def main():
     token = worker_token()
     while True:
@@ -122,14 +161,7 @@ def main():
                 time.sleep(max(1, min(int(response.get('pollAfterSeconds', 3)), 30)))
                 continue
             name = job.get('ticketId', '')
-            if not SAFE_ID.fullmatch(name):
-                raise RuntimeError('Rejected malformed ticket id')
-            try:
-                result = dispatch(job)
-            except subprocess.TimeoutExpired:
-                result = {'status': 'failed', 'errorCode': 'SENDER_TIMEOUT'}
-            except Exception:
-                result = {'status': 'failed', 'errorCode': 'LOCAL_EXECUTION_ERROR'}
+            result = process_ticket(job)
             post('tickets/' + name + '/complete', result, token)
             print('TICKET', name, result['status'], len(result.get('relayIds', [])), flush=True)
         except KeyboardInterrupt:
