@@ -58,17 +58,5 @@ jobs:
       - name: Verify live voice handler
         run: |
           curl -fsS "https://${REGION}-${PROJECT}.cloudfunctions.net/ritsuVoice/health" | node -e 'let s="";process.stdin.on("data",c=>s+=c).on("end",()=>{let j=JSON.parse(s);if(!j.ok||j.service!=="ritsu-voice")process.exit(1);console.log("VOICE_HEALTH_OK")})'
-      - name: Publish Home Center MCP on Node24
-        env:
-          HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64: ${{ secrets.HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64 }}
-        run: |
-          gcloud functions deploy homeCenterMcp --gen2 --project="$PROJECT" --region="$REGION" \
-            --runtime=nodejs24 --source="$RUNNER_TEMP/ritsu-functions-node24" \
-            --entry-point=homeCenterMcp --trigger-http --allow-unauthenticated \
-            --timeout=300s --memory=1Gi --cpu=1 \
-            --set-env-vars="HOME_CENTER_MCP_EXTENDED_TOOLS=true,HOME_CENTER_SOURCE_REPOSITORY=Valar05/home-center,HOME_CENTER_SOURCE_COMMIT=$GITHUB_SHA,HOME_CENTER_SOURCE_REF=refs/heads/main,HOME_CENTER_GITHUB_ADMIN_ENABLED=true,HOME_CENTER_GITHUB_ADMIN_OWNERS=Valar05,HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64=${HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64},COMMAND_CENTER_MCP_URL=https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp" \
-            --set-secrets="GOOGLE_OAUTH_CLIENT_ID=GOOGLE_OAUTH_CLIENT_ID:latest,GOOGLE_OAUTH_CLIENT_SECRET=GOOGLE_OAUTH_CLIENT_SECRET:latest,GITHUB_TOKEN=GITHUB_TOKEN:latest,GITHUB_BOOTSTRAP_TOKEN=GITHUB_BOOTSTRAP_TOKEN:latest,CARTESIA_API_KEY=CARTESIA_API_KEY:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,GITHUB_APP_ID=GITHUB_APP_ID:latest,GITHUB_APP_INSTALLATION_ID=GITHUB_APP_INSTALLATION_ID:latest,GITHUB_APP_PRIVATE_KEY=GITHUB_APP_PRIVATE_KEY:latest"
-      - name: Verify deployed functions
-        run: |
-          gcloud functions describe ritsuVoice --gen2 --project="$PROJECT" --region="$REGION" --format='value(state,serviceConfig.uri)'
-          gcloud functions describe homeCenterMcp --gen2 --project="$PROJECT" --region="$REGION" --format='value(state,serviceConfig.uri)'
+      - name: Verify voice function
+        run: gcloud functions describe ritsuVoice --gen2 --project="$PROJECT" --region="$REGION" --format='value(state,serviceConfig.uri)'
