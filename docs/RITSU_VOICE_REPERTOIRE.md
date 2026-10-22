@@ -36,3 +36,9 @@ Before audible activation: verify cloud deployment and `ritsu.voice.profiles` ca
 ## Revision notes
 
 The repertoire includes upset and somber at user request despite their unfinished quality. Approval status is metadata, not a prohibition: the caller may deliberately choose either profile.
+
+## Cloud deployment blocker, confirmed at 2026-10-22 22:18 UTC
+
+**Source registration is complete; live rollout is not.** The compiled six-profile cloud contract cannot yet be advertised by the currently running Home Center MCP because the updated `ritsuVoice` Cloud Function fails its Google Cloud Run startup check. The old healthy `ritsuvoice-00001-moy` continues to serve the pre-repertoire typed API. Do **not** claim `ritsu.voice.profiles` live or clear the ASMR safeguard. Re-running the current deploy workflow without addressing the buildpack incompatibility is not useful.
+
+Root cause was reproduced by pulling the *actual failed container image*. New Google Node22 buildpack image uses a distroless runtime without `/bin/bash`, while its generated CNB web process explicitly tries to execute `/bin/bash`; its exec.d helper also has a bash shebang. Docker exits 82 before the Ritsu application starts. CPU, RAM, declaring Functions Framework, and an exec.d helper-only patch did not resolve this base/process mismatch. GitHub issue [#389](https://github.com/Valar05/home-center/issues/389) contains run links and a detailed continuation plan. Source and Windows stage are safe and passing; cloud publication awaits a reproducible runtime fix.
