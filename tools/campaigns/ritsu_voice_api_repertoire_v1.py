@@ -46,11 +46,20 @@ def worker():
     shift=int(profile['pitchSemitones'])
    if not ref_audio.is_file():raise FileNotFoundError('Registered reference is unavailable: '+chosen)
    clips,sr=model.generate_voice_clone(text=job['text'],language='English',ref_audio=str(ref_audio),ref_text=ref_text,xvec_only=False,max_new_tokens=384)
-   # Whisper was approved from an unprocessed Qwen clone audition.\n   # Pitch-shifting the generated whisper adds a phasey unison artifact.\n   # Preserve that original waveform; -1 remains the requested catalog target,\n   # but whisper is deliberately exempt until a clean native-pitch method exists.\n   if shift and chosen != 'whisper':
-    import numpy as np
-    import librosa
-    clips[0]=librosa.effects.pitch_shift(np.asarray(clips[0],dtype=np.float32),sr=sr,n_steps=shift)
-   path=OUT/(jid+'.wav');sf.write(str(path),clips[0],sr,subtype='PCM_16')
+   # Approved -1 previews were processed by FFmpeg with formants preserved.
+   # Never use librosa.effects.pitch_shift: it causes audible phase/unison artifacts.
+   path=OUT/(jid+'.wav')
+   sf.write(str(path),clips[0],sr,subtype='PCM_16')
+   if shift:
+    import subprocess
+    import math
+    ffmpeg=shutil.which('ffmpeg') or str(Path(r'C:\Users\dclar\Downloads\ffmpeg-2025-10-09-git-469aad3897-full_build\ffmpeg-2025-10-09-git-469aad3897-full_build\bin\ffmpeg.exe'))
+    if not Path(ffmpeg).is_file():raise FileNotFoundError('FFmpeg with rubberband unavailable')
+    tmp=OUT/(jid+'.shifted.wav')
+    factor=math.pow(2,shift/12)
+    completed=subprocess.run([ffmpeg,'-hide_banner','-loglevel','error','-nostdin','-y','-i',str(path),'-af',f'rubberband=pitch={factor:.12f}:formant=preserved','-c:a','pcm_s16le',str(tmp)],capture_output=True,timeout=90,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
+    if completed.returncode!=0 or not tmp.is_file():raise RuntimeError('Formant-preserving pitch shift failed')
+    os.replace(tmp,path)
    with lock:jobs[jid].update(state='completed',generation_seconds=round(time.monotonic()-t,3),audio_seconds=round(len(clips[0])/sr,3),bytes=path.stat().st_size)
   except Exception as e:
    state['model']='error';state['error']=str(e)[:200]
