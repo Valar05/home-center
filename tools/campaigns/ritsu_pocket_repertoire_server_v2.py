@@ -37,8 +37,8 @@ ALIASES = {"normal": "normal", "warm": "normal", "delighted": "delighted",
            "happy": "delighted", "amused": "amused", "somber": "somber",
            "upset": "somber", "whisper": "whisper"}
 STATES = {
-    "normal": (CAND / "warm-cheesecake-no-laugh-20261023" / "ritsu-warm-cheesecake-no-laugh-minus1-pocket.safetensors",
-               "6D619A92B6F17C4DF4163919E690FAFADD48C285A0773AE01EFDE7BAA510ED07"),
+    "normal": (CAND / "fullset-20261023" / "warm-minus1.safetensors",
+               "043D61FCA49B175C88A41734D1A659ED9655D39BDE8BD5FA2038AFC35D7FBB36"),
     "delighted": (CAND / "fullset-20261023" / "delighted-minus1.safetensors",
                   "050A501F67F83A3876183BEFD649806265B844BFC13BB21D967FC37C0456427A"),
     "amused": (CAND / "fullset-20261023" / "amused-minus1.safetensors",
