@@ -26,7 +26,7 @@ async function main() {
   });
   const gateway=createRitsuAndroidGateway({
     host:required('HOME_CENTER_RITSU_TAILNET_IPV4'),
-    port:Number(process.env.HOME_CENTER_RITSU_PHONE_PORT||19645),
+    port:Number(process.env.HOME_CENTER_RITSU_PHONE_PORT||19646),
     clientBearer:token,
     coordinator,
   });
