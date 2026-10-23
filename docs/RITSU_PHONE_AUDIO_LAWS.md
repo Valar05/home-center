@@ -1,5 +1,26 @@
 # RITSU PHONE AUDIO LAWS v1.0
 
+## PHONE RECEIVER DIRECT INSPECTION AND SAFE REPLACEMENT v1.9 (2026-10-23)
+
+**Decisive installed device evidence:** User ran read-only `grep -n -C 6 -E 'termux-media-player|sleep [0-9]|/ack' "$HOME/.ritsu-embodiment/receiver.sh"` directly on Android. The actual installed receiver contains:
+- Line 18: `curl ... "$URL/ack" >/dev/null || true` **before playing**.
+- Line 19: `termux-media-player play "$FILE" || true`.
+- Line 20: unconditional `sleep 1`.
+- Line 21: `while termux-media-player info ... grep -Eiq 'playing|isPlaying.*true'; do sleep 1; done`.
+- Line 24: `sleep 2` on empty queue.
+The same receipt `a854816b739c83c3f8c5aaef` appeared in the actual live `receiver.log` as `Now Playing`, despite user's earlier inability to hear it at automatic runtime. User manually played the same file interactively using `termux-media-player play`, then explicitly confirmed **"Yes, she speaks"**. This proves the phone file, output audio, and Termux API player function on demand, but automatic background audibility and gap semantics remain unverified.
+
+**Confirmed cause for repeatable pauses:** Installed receiver's serial download-after-play design and sleeps, not Pocket throughput. Source for Termux:API Android `MediaPlayerAPI.java` demonstrates `info` reports `Status: Playing`, `Status: Paused` or `No track currently!` when the MediaPlayer completion callback resets `hasTrack`. See upstream Termux termux-api repository, `app/src/main/java/com/termux/api/apis/MediaPlayerAPI.java`.
+
+**Prepared and mocked, not yet installed on user's phone:** Updated `tools/campaigns/ritsu_phone_receiver_prefetch_v2.sh` preserves the same canonical Tailscale host port 19643, bearer files and Termux API media-player, with strict producer-consumer FIFO and at most 3 downloaded-but-not-finished WAVs, persistent sequence/ACK journal, replay refusal after interrupted playback, receiver UTC+monotonic playback stamps, track-identity validation, explicit stop handling, pause/resume support and bounded eight-WAV archive. Ten-item local mock run using a real localhost HTTP relay and simulated Termux media-player yielded 10 downloads, 10 ACKs, ordered ten starts/ends, and ~0.7–1.0 seconds simulated inter-file media API overhead, **not** proven real Android improvement.
+
+**Owner-facing guarded local installation artifact:** `ritsu_receiver_upgrade.sh` (11,169 bytes, SHA256 `e4a04fd49c8d61ba2ad7a2ac8402ef0c524a7e815958b0379b62297aab383d61`), generated within ChatGPT's present-turn container and linked in the corresponding response; it embeds the **exact mocked receiver** SHA256 `8acd84673b91420dddac5705829e17997ca9dfcde87e5f3d3f35b872f219322f`, needs no network download for code, checks exact embedded checksum and syntax, original receiver identity/PID, live player `No track currently!`, relay queue HTTP204 at two gates; backs up original receiver and controls; stops only verified receiver PID; atomically swaps and starts via `nohup`; restores original if new receiver boot gate fails. An isolated Linux mock test of the installer passed old-PID gated cutover, backup, updated pause/resume/stop controls, and receiver startup. **Not installed on real Android until user runs approved artifact.** This local artifact may differ in comments from repo candidate; the embedded SHA above is authoritative for actual installer.
+
+**Test gate:** After a real owner-confirmed installation success receipt, send 8–12 complete normal-voice sentences through Home Center with proper single-sentence Pocket synthesis and ordered relay tickets. Verify Android receiver v2 `trace.jsonl` has every `fetched`, `acknowledged`, `playback_started`, `playback_finished` in sequence and measure phone-monotonic playback finish→next start. Get explicit owner HEARD verdict, no skipped or duplicated words, and compare audible gaps against old 2.68-second retrieval proxy. Do not claim the gaps are gone before this live test.
+
+---
+
+
 ## Confirmed phone audio output works; receiver acknowledgment bug still open (2026-10-23)
 
 Owner confirms the Android phone is independently producing audio normally. Therefore do **not** repeat generic phone-volume/speaker instructions as the primary diagnostic. The specific missing Ritsu clip was non-silent at generation and downloaded successfully. The investigation is narrowed to the **Termux receiver/media player** rather than general phone output.
