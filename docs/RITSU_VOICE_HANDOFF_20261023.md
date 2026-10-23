@@ -1,4 +1,15 @@
-# CURRENT MISSION: Pocket TTS clone from approved whisper (owner correction, 2026-10-23)
+# CURRENT MISSION: Pocket TTS voice experiments and accepted voices (updated 2026-10-23)
+
+## Pocket TTS Warm v1 clone: separate audition (2026-10-23)
+
+- Owner requested cloning the approved **Warm** voice into Pocket TTS, with the possibility of re-audition if the existing Warm personality was too over-the-top. This is **not** the whisper clone and does **not** authorize changing either the Pocket whisper or Qwen live voice default.
+- Audio reference **actually verified on THECAULDRON**: `C:\\Users\\dclar\\workspace\\ritsu-faster-qwen3-tts\\ritsu-maxwarm-fullclone-20261022.wav`, 265004 bytes, SHA-256 `B323EC729AD54E907F22425AF275E89ECB35FB7AFFCFA3BAD6763CD29896A3CB`. This is the previously approved Qwen Warm v1 generated sample, not the raw exaggerated Turbo reference. No pitch shift or effects added.
+- Installed Pocket TTS `export-voice` generated a **new separate clone** at `C:\\Users\\dclar\\Documents\\Codex\\Venice\\PocketTTS\\voice-candidates\\ritsu-warm-v1-pocket-20261023.safetensors`, 3441904 bytes, SHA-256 `74D30028529D3E23831E849A6ADC5FB3BE32498A946375DC8D41C172221AB269`; Windows Computer Hands ticket `hands-ritsu-warm-pocket-export-20261023-0742` completed exit 0. Existing `venice-canon.safetensors` and `ritsu-whisper-approved-minus1-20261023.safetensors` untouched.
+- Pocket-generated **new utterance**, exact text: “Good morning. The workshop is quiet, the coffee is ready, and I have a few ideas.” Ticket `hands-ritsu-warm-pocket-audition-generate-20261023-0743`, exit 0. Raw WAV `ritsu-warm-pocket-audition-20261023-raw.wav` SHA-256 `10683B764293D40A6FB675F5A5FCFCFB754682C35301FE1CA19FE2B793E91943`, size 247724 bytes. Header-only-normalized playable WAV `ritsu-warm-pocket-audition-20261023-playable.wav`, SHA-256 `866CB9A6F68FA130B359BF3F1C0F16394A7F23D9BB707397793E0C9C877D0403`, same size, 247680 PCM bytes (5.16 seconds), audio samples unmodified.
+- Played corrected WAV **directly on Windows desktop**, same successful FFplay method, interactive console session 1 at 07:43:53–07:43:58 CDT, exit 0, ticket `hands-ritsu-pocket-warm-desktop-audition-20261023-0744`. This establishes playback call completion only; **owner HEARD and fidelity verdict PENDING**, especially whether Pocket moderates the saccharine Warm delivery. Never invent auditory judgment.
+- Until owner approves the new Warm candidate, preserve both prior Warm Qwen and Pocket whisper as rollback/comparison; do not deploy this candidate to everyday Pocket/API or phone on this evidence alone.
+
+# PRIOR MISSION: Pocket TTS clone from approved whisper (owner correction, 2026-10-23)
 
 **This section supersedes all conflicting Qwen cutover instructions below.** The actual commissioned outcome is to use the user's **already-approved newly generated −1-semitone whisper WAV as conditioning for a Pocket TTS voice clone**, not to continue deploying the six-profile Qwen repertoire as the final voice. Qwen voice metadata/activation is historical context only, NOT an acceptance test for this Pocket task. Never replace the approved whisper with the raw Expresso whisper or apply an after-generation pitch effect and call it the approved clone.
 
