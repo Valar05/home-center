@@ -35,6 +35,20 @@ public final class ListeningPolicyTest {
         ListeningPolicy.next(ListeningPolicy.Mode.MUTED,
             ListeningPolicy.Event.RECOGNITION_FINISHED);
     }
+    @Test public void liveRecognizerOwnsMicrophoneDirectly() {
+        assertEquals(ListeningPolicy.Mode.RECOGNIZING,
+            ListeningPolicy.next(ListeningPolicy.Mode.OFF, ListeningPolicy.Event.PROVIDER_STARTED));
+        assertEquals(ListeningPolicy.Mode.MUTED,
+            ListeningPolicy.next(ListeningPolicy.Mode.RECOGNIZING,
+                    ListeningPolicy.Event.RECOGNITION_FINISHED));
+        assertEquals(ListeningPolicy.Mode.RECOGNIZING,
+            ListeningPolicy.next(ListeningPolicy.Mode.MUTED, ListeningPolicy.Event.PROVIDER_STARTED));
+    }
+    @Test(expected=IllegalStateException.class)
+    public void providerCannotBeRestartedWithoutStoppingPriorSession() {
+        ListeningPolicy.next(ListeningPolicy.Mode.RECOGNIZING,
+                ListeningPolicy.Event.PROVIDER_STARTED);
+    }
     @Test public void stopAlwaysFailsClosed() {
         for (ListeningPolicy.Mode mode : ListeningPolicy.Mode.values()) {
             assertEquals(ListeningPolicy.Mode.OFF,
