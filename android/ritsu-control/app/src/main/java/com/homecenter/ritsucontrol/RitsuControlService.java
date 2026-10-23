@@ -66,6 +66,14 @@ public final class RitsuControlService extends Service {
     private RitsuBubble bubble;
     private int consecutiveErrors;
     private int sessionGeneration;
+    private boolean mediaObservedInSession;
+    private final Runnable playbackProbe = new Runnable() {
+        @Override public void run() {
+            if (mode != ListeningPolicy.Mode.RECOGNIZING) return;
+            if (mediaPause.otherAudioMayBeActive()) mediaObservedInSession = true;
+            mainHandler.postDelayed(this, 350);
+        }
+    };
 
     @Override public void onCreate() {
         super.onCreate();
@@ -93,7 +101,8 @@ public final class RitsuControlService extends Service {
             @Override public void partialTranscript(String text) {
                 // Preview only. Never treat partial speech as an executable turn.
                 if (mode != ListeningPolicy.Mode.RECOGNIZING) return;
-                if (mediaPause.otherAudioMayBeActive()) {
+                if (mediaPause.otherAudioMayBeActive()) mediaObservedInSession = true;
+                if (mediaObservedInSession) {
                     partialTranscript = "";
                     mediaGuardStatus = "Phone audio playing: provisional text suppressed";
                     return;
@@ -104,8 +113,9 @@ public final class RitsuControlService extends Service {
             }
             @Override public void finalTranscript(String text) {
                 if (mode != ListeningPolicy.Mode.RECOGNIZING) return;
-                if (mediaPause.otherAudioMayBeActive()) {
-                    recognitionStatus = "Phone audio playing: transcript rejected";
+                if (mediaPause.otherAudioMayBeActive()) mediaObservedInSession = true;
+                if (mediaObservedInSession) {
+                    recognitionStatus = "Phone playback heard during utterance; text rejected";
                     mediaGuardStatus = "Source not verified. No user turn accepted.";
                     receipts.append("PHONE_PLAYBACK_REJECTED", mode, mode,
                             "cannot_identify_human_when_media_active");
@@ -195,6 +205,7 @@ public final class RitsuControlService extends Service {
             }
             applyTransition(ListeningPolicy.Event.PROVIDER_STARTED,
                     "system_recognizer_owns_microphone");
+            beginPlaybackWatch();
             recognitionStatus = "Google/system recognizer listening";
             scheduleTimeout(sessionGeneration);
             if (Settings.canDrawOverlays(this)) bubble.show();
@@ -224,6 +235,7 @@ public final class RitsuControlService extends Service {
             nextRecognition = null;
             if (epoch != sessionGeneration || mode != ListeningPolicy.Mode.RECOGNIZING)
                 return;
+            mediaObservedInSession = mediaPause.otherAudioMayBeActive();
             if (!speechSession.begin()) {
                 failCapture("Recognizer did not restart; " + lastProblem);
                 return;
@@ -248,7 +260,14 @@ public final class RitsuControlService extends Service {
         mainHandler.postDelayed(recognitionTimeout, 45000);
     }
 
+    private void beginPlaybackWatch() {
+        mainHandler.removeCallbacks(playbackProbe);
+        mediaObservedInSession = mediaPause.otherAudioMayBeActive();
+        mainHandler.postDelayed(playbackProbe, 350);
+    }
+
     private void clearCallbacks() {
+        if (mainHandler != null) mainHandler.removeCallbacks(playbackProbe);
         if (recognitionTimeout != null) mainHandler.removeCallbacks(recognitionTimeout);
         if (nextRecognition != null) mainHandler.removeCallbacks(nextRecognition);
         recognitionTimeout = null;
@@ -286,6 +305,7 @@ public final class RitsuControlService extends Service {
             }
             applyTransition(ListeningPolicy.Event.PROVIDER_STARTED,
                     "system_recognizer_resumed");
+            beginPlaybackWatch();
             consecutiveErrors = 0;
             scheduleTimeout(sessionGeneration);
         } catch (RuntimeException e) {
