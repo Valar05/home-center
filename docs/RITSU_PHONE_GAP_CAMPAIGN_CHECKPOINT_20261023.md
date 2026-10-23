@@ -88,3 +88,19 @@ New repository artifacts (source-only):
 - `docs/RITSU_PHONE_AUDIO_LAWS.md` addendum commit `b1510c51f6b34cc59a1179e9d8e24668984698b8` records owner authorization and speech-integrity gates.
 
 **No live changes:** Do not wire cutter into Pocket, relay, receiver, or sender until actual phone PCM probe and careful listening prove no words or soft syllable onset is cut. Prior downstream MediaPlayer per-file overhead and unapproved upstream sentence splitter remain independent problems. NEXT: obtain `ritsu-gap silence` receipt from actual Termux; compare leading quiet against measured 1.445s phone handoff; prepare minimal opt-in cut/agent-authored-paragraph fix with test/rollback and owner-heard acceptance.
+
+
+## Read-only silence probe real installation and zero-onset correction
+
+Owner ran the guarded Termux upgrade on October 23 and returned:
+`RITSU_SILENCE_PROBE_INSTALLED=1`;
+backup `~/.local/share/ritsu-phone-gap/backups/silence-20261023T213755Z`;
+read-only probe WAV seq 90–97 all `leading_quiet_ms=0`, `candidate_cut_ms=0`, report `~/.ritsu-embodiment/gap-campaign/silence-20261023T213755Z.json`, and `AUDIO_UNCHANGED=1`.
+
+**Interpretation correction:** 0ms at existing very-low thresholds (PEAK >96 / RMS >32 in signed 16-bit samples over first 10ms) does NOT imply immediate speech or that the previous Windows 0.02–0.75s low-energy padding findings were false. Even background digital noise, room tone, or pre-utterance energy can exceed these thresholds. The old cutter deliberately proposed no cuts to avoid phoneme damage. These newer WAVs are different from seq51–58 and require per-clip comparison.
+
+New source-only refinement: `ritsu_pcm_silence_guard.py` commit `2d3285d2e39a7afaa6102e848433db31c90c0a77` adds read-only first-frame dBFS, leading 100/250ms envelope peaks, and five-consecutive-10ms threshold crossing candidates at -50/-40/-30dBFS and adaptive relative envelope threshold, explicitly NO AUTO CUT. `ritsu_phone_gap_campaign.py` commit `8a11a5237161839c44d67002d361e9d24af0dd99` correlates onset estimates to actual per-sequence preceding playback API gap and player elapsed vs WAV duration. `test_ritsu_pcm_silence_guard.py` commit `589f2ff13ee030297c12a149a090cc4cdaf396ee` adds synthetic low-level pre-speech PCM and immediate-onset controls.
+
+The guarded, pinned in-place installer `tools/campaigns/upgrade_ritsu_gap_energy_profile.sh` commit `8c3e8d5115663851dfc8befb3a480dd88a2562ba` checks exact prior source against installed files, runs offline tests, backups before replace, and finally invokes the unchanged `ritsu-gap silence` command. This later upgrade is **not yet run** on Android and should never be labeled accepted until its device receipt exists. No Pocket model, voices, relay, receiver script, or playback process changed.
+
+Priority: interpret actual dBFS envelope and phone timing together. A threshold crossing is not word onset and never by itself authorizes PCM trimming. Retain earlier owner directive for complete agent-authored paragraphs without source-based sentence splitting.
