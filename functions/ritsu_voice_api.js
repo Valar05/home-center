@@ -48,7 +48,7 @@ async function register({admin,user,args,now=Date.now()}){
  return {status:'bootstrap_ready',workerId:WORKER,origin:ORIGIN,bootstrapCode:code,expiresAtMs:now+600000,warning:'Private one-time code; never print or commit worker credentials'};
 }
 async function run({admin,user,operation,args={}}){
- if(operation==='ritsu.voice.profiles')return {version:REPERTOIRE.version,defaultProfile:REPERTOIRE.defaultProfile,profiles:Object.fromEntries(PROFILES.map(name=>[name,{status:REPERTOIRE.profiles[name].status,pitchSemitones:REPERTOIRE.profiles[name].pitchSemitones}]))};
+ if(operation==='ritsu.voice.profiles')return {version:REPERTOIRE.version,engine:REPERTOIRE.engine,defaultProfile:REPERTOIRE.defaultProfile,profiles:Object.fromEntries(PROFILES.map(name=>[name,{status:REPERTOIRE.profiles[name].status,pitchSemitones:REPERTOIRE.profiles[name].pitchSemitones,aliasOf:REPERTOIRE.profiles[name].aliasOf||null}]))};
  if(operation==='ritsu.voice.speak')return speak({admin,user,args});
  if(operation==='ritsu.voice.status')return status({admin,user,args});
  if(operation==='ritsu.voice.worker.register')return register({admin,user,args});
