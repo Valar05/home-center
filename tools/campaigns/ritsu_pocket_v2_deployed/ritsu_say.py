@@ -25,11 +25,20 @@ LOGDIR = pathlib.Path(os.environ.get("LOCALAPPDATA", str(pathlib.Path.home()))) 
 HTTP = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 
+def literal_chunks(text):
+    """The ChatGPT agent owns segmentation; transmit its chunk verbatim."""
+    if not text or not text.strip():
+        raise ValueError("Empty authored chunk")
+    if len(text) > MAX_SENTENCE_CHARS:
+        raise ValueError("Agent-authored chunk exceeds Pocket's limit; do not split or truncate")
+    return [text]
+
+
 def sentence_chunks(text):
+    """Explicit compatibility mode for historical multi-sentence cloud tickets only."""
     original = text.strip()
     if not original:
         raise ValueError("Empty speech")
-    # Split at grammatical endings, retaining all spoken punctuation and words.
     parts = [p.strip() for p in re.split(r'(?<=[.!?])\s+(?=[A-Z0-9"“(])', original) if p.strip()]
     if len(parts) > MAX_SENTENCES:
         raise ValueError("Too many sentences for one turn")
@@ -143,9 +152,11 @@ def main(argv=None):
     ap.add_argument("--profile", choices=PROFILES, default="normal")
     ap.add_argument("--turn-id", default=None)
     ap.add_argument("--timeout", type=int, default=180)
+    ap.add_argument("--legacy-split", action="store_true",
+                    help="Only for explicit historical multi-chunk cloud tickets; never for agent-authored chunks")
     args = ap.parse_args(argv)
     text = args.text if args.text is not None else pathlib.Path(args.text_file).read_text(encoding="utf-8")
-    sentences = sentence_chunks(text)
+    sentences = sentence_chunks(text) if args.legacy_split else literal_chunks(text)
     trace_id = args.turn_id or ("local-" + uuid.uuid4().hex)
     print("SPEECH_CHUNKS", len(sentences), flush=True)
     deliver_ordered(sentences, args.profile, trace_id, args.timeout)
