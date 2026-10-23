@@ -317,7 +317,13 @@ function requireThrone(req, throneCapability) {
   if (!throneCapability || req.headers.authorization !== `Bearer ${throneCapability}`) throw Object.assign(new Error('Chromium Throne capability required'), {code: 'THRONE_CAPABILITY_MISMATCH', status: 403});
 }
 function requireExtensionAndThrone(req, extensionOrigin, throneCapability) {
-  requireExtension(req, extensionOrigin); requireThrone(req, throneCapability);
+  // Chromium MV3 extension requests with host_permissions sometimes omit the
+  // Origin header, even though their script runs under chrome-extension://.
+  // A missing Origin is NOT a mismatched Origin: the high-entropy capability
+  // remains mandatory, the HTTP listener remains 127.0.0.1-only, and an
+  // explicit hostile or opaque Origin is always rejected.
+  requireThrone(req, throneCapability);
+  if (req.headers.origin != null) requireExtension(req, extensionOrigin);
 }
 
 async function body(req) {
