@@ -1,5 +1,19 @@
 # RITSU PHONE AUDIO LAWS v1.0
 
+## 2026-10-23 NO-AUDIO INCIDENT: verified WAV and phone GET, user heard nothing
+
+**User's explicit listening verdict:** "I've never heard anything if that's what was supposed to happen" in response to a prior status message whose audio had been enqueued via `ritsu.voice.speak`. This is **HEARD=false**, regardless of cloud ticket/relay ACK. Do not replay automatically or claim phone audible acceptance.
+
+Specific immutable trace:
+- Home Center voice ticket `ritsu-gap-phone-control-expired-accurate-status-20261023`, profile Normal, one chunk, state `enqueued`, relay ID `a854816b739c83c3f8c5aaef`, HEARD not verified by cloud (user later explicitly says no audio).
+- Windows canonical relay logs at 2026-10-23 13:31:16 CDT `POST /enqueue` success, Android peer `GET /next` 200; 13:31:17 `GET /audio/a854816b739c83c3f8c5aaef` 200 and `POST /ack` 200. Next Android `GET /next` not until 13:31:31, approximately 14 seconds later. After that, receiver continued `GET /next` HTTP204 about every 2–3 seconds through at least 13:49 CDT, relay healthy. Download/ACK is not playback evidence.
+- Corresponding file `workspace/ritsu-chatterbox-turbo/generated/ritsu-pocket-0366f2dfb06143ff9b48bfacd99a348e.wav`, SHA256 `14EFEACDD174D4D3AC586BD10262142D6B5C3BF006DC143AAABFFBEA76767E06`, 24kHz mono PCM16, 282240 frames (**11.76 s**), RMS **−24.6 dBFS**, peak 0.506, ~0.1% exact-zero samples. Verified it contains a normal-level waveform, so **the generated WAV isn't silent**. The ~14s interval before next Android poll is consistent with receiver being busy around the recording duration; it does **not prove** speaker playback.
+- **Leading failure area:** Android Termux media-player execution, media output route/volume, playback lifecycle or interrupted presentation, not server generation/relay availability. Without phone-local playback start/end receipt or a fresh authorized read-only Termux inspection, do not claim exact cause. The separate Phone Hands control relay primary/rescue inspections expired unexecuted in the prior turn; this is separate from the functioning audio receiver.
+- **Nonnegotiable recovery:** preserve established Pocket voice identities (Normal Desire02 −1), canonical Tailscale 19643 relay and Termux transport. Do not blindly restart or replace live receiver. Obtain phone-local playback/volume/route and process evidence via authorized readback if available. If no ingress, ask for minimal UI-level output-route verification. Do not mark HEARD based on `POST /ack`, relay queue empty or an ordinary sleep interval. Avoid unrequested repeated phone canaries.
+
+---
+
+
 ## PHONE-SIDE GAP FOLLOW-UP v1.7: user confirms unchanged pauses (2026-10-23)
 
 **Owner's explicit audible verdict for the 10-sentence post-Windows-lookahead test:** "The pauses were just as long as ever." Thus **Windows-side relay enqueue improvement DID NOT solve audible sentence-gap acceptance**, despite ten downloads/ACKs. Distinguish measured host preparation improvement from user HEARD and unacceptable pacing. Never claim this performance goal complete.
