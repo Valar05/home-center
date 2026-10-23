@@ -36,6 +36,7 @@ public final class MainActivity extends Activity {
     private boolean pendingBubbleEnable;
     private boolean pendingRecognizeOnce;
     private long observedTranscriptRevision = 0;
+    private long observedPartialRevision = 0;
     private final Handler displayHandler = new Handler(Looper.getMainLooper());
     private final Runnable liveRefresh = new Runnable() {
         @Override public void run() {
@@ -243,6 +244,13 @@ public final class MainActivity extends Activity {
     }
 
     private void refresh() {
+        long partial = RitsuControlService.partialRevision;
+        if (partial != observedPartialRevision
+                && RitsuControlService.liveMode == ListeningPolicy.Mode.RECOGNIZING) {
+            observedPartialRevision = partial;
+            transcriptEditor.setText(RitsuControlService.partialTranscript);
+            transcriptEditor.setSelection(transcriptEditor.length());
+        }
         long latest = RitsuControlService.transcriptRevision;
         if (latest != observedTranscriptRevision) {
             observedTranscriptRevision = latest;
@@ -259,6 +267,7 @@ public final class MainActivity extends Activity {
                     (mode == ListeningPolicy.Mode.LISTENING && RitsuControlService.voiceActivity
                         ? "Detected" : "No active speech")
                 + "\nSpeech recognition: " + RitsuControlService.recognitionStatus
+                + "\nInterim recognized text: " + RitsuControlService.partialTranscript
                 + "\nLatest transcript (not sent): " + RitsuControlService.lastTranscript
                 + "\nChatGPT turn submission: NOT CONNECTED"
                 + "\nLast error: " + (RitsuControlService.lastProblem.isEmpty() ? "none" :
