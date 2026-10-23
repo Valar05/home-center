@@ -1,30 +1,23 @@
-# Ritsu Control v0.7: visible chat footer and live Google speech fix
+# Ritsu Control v0.8: Gboard-inspired thinking pauses
 
-## Owner's phone feedback on v0.6 (FAIL)
-- Footer buttons were drawn under Android's gesture navigation/home controls.
-- When Gboard opened, it obscured the composer and bottom controls.
-- Speech produced no text.
+## Owner observation from v0.7
+The system recognizer auto-ended phrases too aggressively. The owner naturally pauses between words while thinking and is accustomed to Gboard's more forgiving dictation cadence. A provider-level onResults callback does **not** establish that the human has finished speaking.
 
-## Corrective changes
-- Native Android 15+/SDK35 edge-to-edge layout now consumes real `WindowInsets.Type.systemBars()`, `displayCutout()` and `ime()`. The entire vertical chat column is padded by the larger of the navigation and keyboard bottom insets. Keyboard resize mode is requested. The composer and fixed Listen/Mute/More controls should remain accessible above system UI.
-- The More control opens a modal Android dialog rather than expanding a tall panel below the footer.
-- A small live recognized-words preview appears above the composer, and returned final recognized speech enters the Ritsu/All feed.
-- The app now calls `SpeechRecognizer.startListening()` directly with the provider owning the **live microphone**. V0.6 used `RecognizerIntent.EXTRA_AUDIO_SOURCE` with already-recorded PCM. Android documents that the provider **may ignore** the extra, causing silent/nonworking results. That experimental default route is removed.
-- Google's recognizer handles its own speech-ending/silence endpoint. It reports `onResults` or `onError`; the service only requests another bounded session **after** that callback, with 450ms or 1800ms pacing, a 45s watchdog, and a four-consecutive-error fail-closed circuit breaker. This is not a guaranteed continuous Google speech service, which Android's docs discourage for long-running use; battery and real-device stability still need verification.
-- If Android reports phone media playback during any part of a recognition session, the transcript is rejected rather than being accidentally treated as an owner command. This conservative, best-effort protection may also reject the owner's own speech while watching YouTube and is not a proven acoustic origin classifier.
-- The chat interface still stores only genuine recognized/typed text locally as `WAITING_FOR_HOME_CENTER`, never a fictional worker reply. The Android package still has no INTERNET permission; system recognition provider may perform remote processing under its own permissions.
+## Changes
+- Added pure Java SpokenTurnBuffer. Android recognized final fragments are held as one *draft* turn until **3.2 seconds of quiet following the most recent finalized fragment** rather than being inserted into chat immediately.
+- Starting another speech phrase cancels the scheduled commit. New final fragment extends the same draft and resets the timer. This creates one message across pauses when Google's recognizer ends a session early.
+- After the full quiet interval, or after an explicit user Mute/Stop, one bounded local outbox message is created and shown in the chat. No duplicate provisional messages are sent.
+- The default 3.2s delay is a **tunable approximation of the Gboard feeling**, not a reverse-engineered Gboard internal setting. In **More → Speech pause timing**, choose Quick 2s, Natural 3.2s (default), or Thoughtful 5s. The preference is persisted on the phone and changing it does not instantly submit old drafts.
+- Optionally pass Android recognizer 1350/2300ms possible/complete silence hints. Android warns recognition providers may ignore these or behave unexpectedly; the independent application draft buffer is the authoritative commit gate.
+- Live UI shows **Composing: ...** while speech is held back. The completed message appears once in the All/Ritsu feed only when the draft is committed. Other conversation channels and Home Center transport semantics are unchanged.
+- On recognizer no-match during a continuation attempt, allow quiet timer to elapse rather than losing an already-transcribed earlier fragment. Audio-source rejection still applies before buffering.
 
-## Suggested phone test
-1. Install v0.7 APK, opening Ritsu Control with mic permission. If a debug signature differs, uninstall **only Ritsu Control**, not the separate Termux receiver.
-2. Open Gboard in the composer: both its text field and Listen/Mute/More footer must be visible above the keyboard, including with gesture navigation.
-3. Close Gboard, tap Listen once, speak a simple sentence and stop. The recognizer should return final text as a Ritsu/All chat item. Interim words, if exposed by the provider, appear above the composer.
-4. If nothing appears, the header and More -> Status and recognition errors should reveal whether Android returns no speech, permission denial, provider busy or network issues.
-5. Mute must cancel the active recognizer and stop future listening. Resume restarts the live provider. The phone's microphone privacy indicator is another independent check.
-6. Test phone media playback separately. The active-media guard may block transcripts, including real speech over music; do not interpret that as reliable full-duplex echo cancellation.
+## Acceptance test on device
+1. Tap Listen and say “I think...” then pause about 1.5 seconds, then “we should make her wait longer.”
+2. Expect ONE final chat message, not two. During the pause, see an unfinished composing preview.
+3. After speaking ends, wait 3.2s for the single message to enter the local feed. Repeat with Thoughtful (5s) if naturally deliberative speech is still split.
+4. Mute after a partial draft: recognized final fragments should be committed locally once, and recording stops. Try speaking for longer than the configured gap to intentionally create two messages.
+5. Compare the subjective cadence with Gboard typing on the same phone. Device/provider timing remains subject to Google's own end-of-speech and start-listening gaps.
 
-## Still not implemented
-- An authenticated phone-to-Home Center-to-Chromium Throne multi-conversation roundtrip, receiving worker results, and Ritsu speaking her approved voice through the canonical Tailscale :19643/Termux receiver.
-- True human speech-vs-phone playback separation and reliable automatic YouTube pause and barge-in.
-- Verified Pixel screen-off, Gboard IME resize, recognition quality and Android provider restart behavior.
-
-Passing CI unit tests or generating an APK does **not** validate the owner's runtime experience. No claim of audible Ritsu replies or actual ChatGPT delivery is made.
+## Not established
+This is **not** a synchronized clone of Gboard's private timing, nor a guarantee that Google will capture every syllable during its restart gap. Real phone behavior remains unverified. The underlying app still does not send to Home Center or retrieve ChatGPT replies, and Ritsu audio responses are not integrated in this APK.
