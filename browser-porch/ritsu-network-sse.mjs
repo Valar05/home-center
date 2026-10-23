@@ -131,7 +131,7 @@ export class RitsuNetworkSse {
   result({marker,requestFinished=false}={}){
     if(!requestFinished||!this.#done)throw Error('sse_stream_not_terminal');
     if(this.#conflict)throw Error('sse_multiple_final_messages');
-    if(!this.#candidate||!this.#finished||!this.#candidate.includes(marker))
+    if(!this.#candidate||!this.#visible||!this.#candidate.includes(marker))
       throw Error('sse_no_matching_final_canary_text');
     return Object.freeze({
       text:this.#candidate,messageId:this.#messageId,
