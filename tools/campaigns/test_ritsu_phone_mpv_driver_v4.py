@@ -116,8 +116,11 @@ def real_no_audio_probe():
             (p/"stop.request").touch()
             thread.join(3)
             raise RuntimeError("mpv did not start first null-AO WAV")
-        # Second completed source arrives while first is still playing.
-        wav(f2,1.2)
+        # Publish atomically, just like the canonical relay fetcher: the
+        # controller must never observe an unfinished WAV header or payload.
+        temp = p / "incoming-second.tmp"
+        wav(temp,1.2)
+        os.replace(temp, f2)
         while driver.finished_count<2 and time.monotonic()<deadline:
             time.sleep(.05)
         (p/"stop.request").touch()
