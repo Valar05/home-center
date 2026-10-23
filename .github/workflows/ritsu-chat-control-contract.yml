@@ -1,0 +1,34 @@
+name: Ritsu Chat Control Contract
+on:
+  push:
+    branches:
+      - 'feature/ritsu-command-bridge-scavenge-20261022'
+    paths:
+      - 'browser-porch/**'
+      - '.github/workflows/ritsu-chat-control-contract.yml'
+  pull_request:
+    paths:
+      - 'browser-porch/**'
+      - '.github/workflows/ritsu-chat-control-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ritsu-throne:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax gate
+        run: |
+          node --check browser-porch/relay.mjs
+          node --check browser-porch/ritsu-turn-protocol.mjs
+          node --check browser-porch/extension/service-worker.js
+      - name: Protocol and relay behavior
+        run: |
+          node --test browser-porch/ritsu-turn-protocol.test.mjs
+          node --test browser-porch/ritsu-chat-relay.test.mjs
+          node --test browser-porch/relay.test.mjs
+          node --test browser-porch/extension/swarm-core.test.mjs browser-porch/extension/throne_context.test.mjs
