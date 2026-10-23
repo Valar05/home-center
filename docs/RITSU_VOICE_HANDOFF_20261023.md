@@ -1,5 +1,24 @@
 # CURRENT MISSION: Pocket TTS voice experiments and accepted voices (updated 2026-10-23)
 
+## Owner correction: −2 experiment is DELIGHTED, not Desire (2026-10-23)
+
+**Explicit newest user correction:** 'Whoops. Not desire, delighted, desire was fine though it is lacking a certain amount of warmth.' This supersedes the previous ambiguous request to shift 'the desire voice' one more semitone. Thus **only DELIGHTED needs the new -2 semitone experiment**, while **Desire/Ocean Dream Warm remains at -1 semitone**. Its warmth/voice-identity concerns should be explored through source/performance selection, not assumed to be solvable with lowering pitch. Upset can remain a roleplay-special-purpose candidate, not ordinary conversation.
+
+An earlier -2 warm Ocean Dream experiment was generated before the correction. Its original source SHA256 `08364A79C54F806F0714F05A8CCA22A3724AA54B06CCA168657B269ADDA1B40E` -> -2 48kHz PCM16 formant-preserved reference `voice-candidates/minus2-experiment-20261023/warm-desire02-minus2-formant-pcm16-48k.wav` SHA `FE8A813C36F19F956A93187F28E6D20AC060B8173A6389CFC40ECE4A487A1DC1`; clone `ritsu-warm-ocean-minus2-pocket.safetensors` SHA `516C6B8DF40F128854F1DA16C605326FB20995CA187EFEA8F3FD77E15B2C3BDC`; generated WAV `ritsu-warm-ocean-minus2-comparison-playable.wav` SHA `582613B1B4F053157919CE9F4CCB3EDE7CD7F150E736EB82833F4FECBA7AB488`. This unwanted target had already been played compared to the -1 Warm at 10:06:22–10:06:35 CDT with successful FFplay, receipt `hands-ritsu-ocean-warm-minus1-minus2-compare-playonce-20261023`. **Do not promote the -2 Warm experiment; leave existing -1 Warm candidate unchanged.**
+
+**Corrected DELIGHTED −2 candidate** regenerated from **original, unshifted** `workspace/ritsu-expresso-auditions/ex04_happy_00112.wav` SHA256 `6F5342EC0F32DB5276408ECA182D3CBC32A9F03E46CA6230B4161D4FE802400C`, with FFmpeg Rubberband `tempo=1:pitch=0.8908987181403393:formant=preserved` directly applied ONCE to the reference, encoding mono 48kHz PCM16. Do not shift the already −1 source to avoid multiple resampling rounds, and do not post-shift Pocket generated WAV.
+
+- Prepared −2 reference: `C:/Users/dclar/Documents/Codex/Venice/PocketTTS/voice-candidates/minus2-delighted-experiment-20261023/ex04-happy00112-minus2-formant-pcm16-48k.wav`, SHA256 `FEF76A4CEEEEFDDD789276BCD9F39A598370F295CDBFACE67A7E09B5137DB4E2`, duration 3.103271s.
+- Separate new Pocket clone: `.../minus2-delighted-experiment-20261023/ritsu-delighted-happy00112-minus2-pocket.safetensors`, SHA256 `44C282D2DFD95C20D98564320F170B9B09E0800600A091F58AF01A8BF48ADDD1`, 1,967,336 bytes.
+- New audition text exactly matching −1 preview: `Oh, that's wonderful! I'm so glad it worked out.` Pocket temp 0.7, language English, CPU. Playable WAV: `.../minus2-delighted-experiment-20261023/ritsu-delighted-happy00112-minus2-test-playable.wav`, SHA256 `E896D27DE214AA619E653AE8A2C027ED50764F261A9F19128E1096BE56850E3B`, duration 3.64s. Header-only finalize verified all PCM sample bytes identical before/after. Signal QA RMS -29.97dBFS, peak .275, opening zero-cross .081, no static flags.
+- Compared preexisting −1 Delighted preview from `voice-candidates/fullset-20261023/delighted-playable.wav`, SHA256 `950BC2D36E1125B2163830411BEC6866202CE370EC6F33757BF3B63A1B571B48` (3.72s) to new −2 Delighted above. Played in that order, with 3s pause, interactive desktop Windows session 1, 10:10:40–10:10:51 CDT, both exit 0, guarded one-shot `hands-ritsu-delighted-minus1-minus2-desktop-compare-20261023`.
+- Receipts: reference bake `hands-ritsu-delighted-minus2-original-reference-bake-20261023`, clone `hands-ritsu-delighted-minus2-pocket-clone-20261023`, generation `hands-ritsu-delighted-minus2-generate-audition-20261023`, signal QA `hands-ritsu-delighted-minus1-minus2-QA-20261023`, audition `hands-ritsu-delighted-minus1-minus2-desktop-compare-20261023`. All completed exit 0. **User has not yet provided subjective verdict on new −2 Delighted.**
+
+No live profile switches or phone relay activation occurred. Previous accepted Delighted −1/original-pitch states, Warm −1, Somber, Amused, Whisper, Upset remain saved. Do not confuse Delighted source label `happy_00112` with Desire source `ocean-dream`.
+
+---
+
+
 ## Complete six-voice Pocket rebuild, minus-one references (2026-10-23)
 
 User explicitly requested fresh clone exports and a single sequential desktop audition of the full voice set including already pitch-adjusted Whisper and Amused.
