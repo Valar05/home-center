@@ -18,7 +18,7 @@ import uuid
 ROOT = pathlib.Path(__file__).resolve().parent
 BASE = "http://127.0.0.1:10205"
 PROFILES = ("normal", "whisper", "amused", "happy", "delighted", "upset", "somber", "warm")
-MAX_TEXT_CHARS = 1000
+MAX_TEXT_CHARS = 450  # Match the verified live Pocket /v1/speak limit
 LOGDIR = pathlib.Path(os.environ.get("LOCALAPPDATA", str(pathlib.Path.home()))) / "RitsuWarmTicketWorker" / "timing"
 HTTP = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
