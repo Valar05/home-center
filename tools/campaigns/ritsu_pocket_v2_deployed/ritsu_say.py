@@ -1,7 +1,8 @@
-"""Sentence-complete, ordered-lookahead Ritsu Pocket ticket sender.
+"""Single WAV per entire agent-authored Ritsu reply.
 
-Only Pocket 10205 and the existing /v1/deliver -> canonical 19643 phone relay.
-No parallel synthesis, Qwen fallback, generated speech pitch shift, or unsafe replay.
+No sentence segmentation, text rewriting, silence trimming or chunk concatenation
+in this sender. Pocket must render the complete input through one /v1/speak job;
+that one WAV is enqueued to the canonical 19643 relay exactly once.
 """
 import argparse
 import datetime
@@ -10,7 +11,6 @@ import json
 import os
 import pathlib
 import re
-import sys
 import time
 import urllib.request
 import uuid
@@ -18,34 +18,17 @@ import uuid
 ROOT = pathlib.Path(__file__).resolve().parent
 BASE = "http://127.0.0.1:10205"
 PROFILES = ("normal", "whisper", "amused", "happy", "delighted", "upset", "somber", "warm")
-WINDOW = 4
-MAX_SENTENCES = 50
-MAX_SENTENCE_CHARS = 450
+MAX_TEXT_CHARS = 1000
 LOGDIR = pathlib.Path(os.environ.get("LOCALAPPDATA", str(pathlib.Path.home()))) / "RitsuWarmTicketWorker" / "timing"
 HTTP = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 
-def literal_chunks(text):
-    """The ChatGPT agent owns segmentation; transmit its chunk verbatim."""
-    if not text or not text.strip():
-        raise ValueError("Empty authored chunk")
-    if len(text) > MAX_SENTENCE_CHARS:
-        raise ValueError("Agent-authored chunk exceeds Pocket's limit; do not split or truncate")
-    return [text]
-
-
-def sentence_chunks(text):
-    """Explicit compatibility mode for historical multi-sentence cloud tickets only."""
-    original = text.strip()
-    if not original:
-        raise ValueError("Empty speech")
-    parts = [p.strip() for p in re.split(r'(?<=[.!?])\s+(?=[A-Z0-9"“(])', original) if p.strip()]
-    if len(parts) > MAX_SENTENCES:
-        raise ValueError("Too many sentences for one turn")
-    for part in parts:
-        if len(part) > MAX_SENTENCE_CHARS:
-            raise ValueError("Sentence too long: refuse truncation or mid-sentence splitting")
-    return parts
+def validate_whole_text(text):
+    if not isinstance(text, str) or not text.strip():
+        raise ValueError("Empty voice transcript")
+    if len(text) > MAX_TEXT_CHARS:
+        raise ValueError("Full transcript exceeds single Pocket request limit; refusing to split, shorten or omit any text")
+    return text
 
 
 def timestamp():
@@ -55,111 +38,81 @@ def timestamp():
 class Trace:
     def __init__(self, turn_id):
         if not re.fullmatch(r"[A-Za-z0-9_.:-]{6,160}", turn_id):
-            raise ValueError("Bad turn ID")
+            raise ValueError("Invalid turn ID")
         self.turn_id = turn_id
         LOGDIR.mkdir(parents=True, exist_ok=True)
         self.file = LOGDIR / (turn_id + ".jsonl")
         if self.file.exists():
-            raise FileExistsError("Refuse duplicate trace/possible speech replay")
+            raise FileExistsError("Duplicate turn ID: refusing an ambiguous second delivery")
 
-    def record(self, event, seq=0, **details):
-        obj = {"turnId": self.turn_id, "seq": seq, "event": event,
+    def record(self, event, **details):
+        row = {"turnId": self.turn_id, "seq": 1, "event": event,
                "utc": timestamp(), "monotonic_ns": time.monotonic_ns(), **details}
-        with self.file.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(obj, separators=(",", ":")) + "\n")
-
-
-def get_key():
-    return (ROOT / "ritsu-api-token.txt").read_text(encoding="utf-8").strip()
+        with self.file.open("a", encoding="utf-8") as writer:
+            writer.write(json.dumps(row, separators=(",", ":")) + "\n")
 
 
 def request(token, method, path, body=None):
     data = None if body is None else json.dumps(body).encode("utf-8")
     req = urllib.request.Request(BASE + path, data=data, method=method,
-              headers={"Authorization": "Bearer " + token,
-                       "Content-Type": "application/json"})
+          headers={"Authorization": "Bearer " + token, "Content-Type": "application/json"})
     with HTTP.open(req, timeout=20) as response:
         return json.load(response)
 
 
-def deliver_ordered(sentences, profile, turn_id, timeout=180, client=None, trace=None):
+def deliver_whole(text, profile, turn_id, timeout=300, client=None, trace=None):
+    text = validate_whole_text(text)
     if profile not in PROFILES:
         raise ValueError("Unsupported voice profile")
-    if not (1 <= len(sentences) <= MAX_SENTENCES):
-        raise ValueError("Invalid sentence count")
-    client = client or (lambda m, p, b=None: request(get_key(), m, p, b))
+    client = client or (lambda m, p, b=None: request((ROOT / "ritsu-api-token.txt").read_text(encoding="utf-8").strip(), m, p, b))
     trace = trace or Trace(turn_id)
-    active = {}
-    queued = 0
-    receipts = []
     started = time.monotonic()
-    trace.record("turn_start", count=len(sentences), profile=profile,
-                 transcript_sha256=hashlib.sha256(" ".join(sentences).encode()).hexdigest())
-
-    def submit_next():
-        nonlocal queued
-        i = queued + 1
-        trace.record("pocket_submit_start", i)
-        job = client("POST", "/v1/speak", {"text": sentences[queued], "speaker": profile})
-        if job.get("state") != "queued" or not job.get("id"):
-            raise RuntimeError("Pocket job acceptance failed at sentence " + str(i))
-        active[i] = job["id"]
-        queued += 1
-        trace.record("pocket_accepted", i, jobId=job["id"])
-
-    for _ in range(min(WINDOW, len(sentences))):
-        submit_next()
-    for i in range(1, len(sentences) + 1):
-        jid = active[i]
-        deadline = time.monotonic() + timeout
-        while True:
-            row = client("GET", "/v1/jobs/" + jid)
-            if row.get("state") == "completed":
-                trace.record("pocket_completed", i, jobId=jid,
-                             generation_seconds=row.get("generation_seconds"),
-                             audio_seconds=row.get("audio_seconds"),
-                             wav_bytes=row.get("bytes"))
-                break
-            if row.get("state") == "failed":
-                raise RuntimeError("Pocket generation failed at sentence " + str(i))
-            if time.monotonic() >= deadline:
-                raise TimeoutError("Pocket generation timeout at sentence " + str(i))
-            time.sleep(0.20)
-        # Keep a constant four-sentence lookahead. CPU synthesis remains serial
-        # via the unchanged Pocket ThreadPoolExecutor(max_workers=1).
-        if queued < len(sentences):
-            submit_next()
-        trace.record("relay_deliver_start", i, jobId=jid)
-        delivered = client("POST", "/v1/deliver", {"job_id": jid})
-        relay = delivered.get("relay_id")
-        if delivered.get("state") != "enqueued" or not isinstance(relay, str) or not re.fullmatch(r"[a-f0-9]{16,80}", relay):
-            raise RuntimeError("Relay acceptance missing; stop rather than replay")
-        receipts.append(relay)
-        trace.record("relay_enqueued", i, jobId=jid, relayId=relay)
-        del active[i]
-        print("ENQUEUED_CHUNK", i, "of", len(sentences), "relay", relay,
-              "audio_sec", row.get("audio_seconds"), "gen_sec", row.get("generation_seconds"), flush=True)
-    trace.record("turn_enqueued", count=len(receipts), elapsed_s=round(time.monotonic()-started, 3))
+    trace.record("whole_transcript_start", text_sha256=hashlib.sha256(text.encode("utf-8")).hexdigest(),
+                 text_chars=len(text), expected_wavs=1, profile=profile)
+    trace.record("pocket_submit_start")
+    job = client("POST", "/v1/speak", {"text": text, "speaker": profile})
+    if job.get("state") != "queued" or not job.get("id"):
+        raise RuntimeError("Pocket did not accept complete text as one job")
+    jid = job["id"]
+    trace.record("pocket_accepted", jobId=jid)
+    deadline = time.monotonic() + timeout
+    while True:
+        item = client("GET", "/v1/jobs/" + jid)
+        if item.get("state") == "completed":
+            trace.record("pocket_completed", jobId=jid,
+                         generation_seconds=item.get("generation_seconds"),
+                         audio_seconds=item.get("audio_seconds"), wav_bytes=item.get("bytes"))
+            break
+        if item.get("state") == "failed":
+            raise RuntimeError("Pocket failed whole-text render; no partial audio delivered")
+        if time.monotonic() >= deadline:
+            raise TimeoutError("Pocket whole-text render deadline; do not replay ambiguous job")
+        time.sleep(0.2)
+    trace.record("relay_deliver_start", jobId=jid)
+    delivered = client("POST", "/v1/deliver", {"job_id": jid})
+    relay = delivered.get("relay_id")
+    if delivered.get("state") != "enqueued" or not isinstance(relay, str) or not re.fullmatch(r"[a-f0-9]{16,80}", relay):
+        raise RuntimeError("No canonical relay receipt for whole WAV")
+    trace.record("relay_enqueued", jobId=jid, relayId=relay)
+    trace.record("turn_one_wav_enqueued", elapsed_seconds=round(time.monotonic()-started, 3))
+    print("ENQUEUED_CHUNK 1 of 1 relay", relay, "audio_sec", item.get("audio_seconds"),
+          "gen_sec", item.get("generation_seconds"), flush=True)
     print("ALL_CHUNKS_ENQUEUED_NOT_HEARD", flush=True)
-    return receipts
+    return [relay]
 
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    group = ap.add_mutually_exclusive_group(required=True)
-    group.add_argument("--text")
-    group.add_argument("--text-file")
+    input_group = ap.add_mutually_exclusive_group(required=True)
+    input_group.add_argument("--text")
+    input_group.add_argument("--text-file")
     ap.add_argument("--profile", choices=PROFILES, default="normal")
     ap.add_argument("--turn-id", default=None)
-    ap.add_argument("--timeout", type=int, default=180)
-    ap.add_argument("--legacy-split", action="store_true",
-                    help="Only for explicit historical multi-chunk cloud tickets; never for agent-authored chunks")
+    ap.add_argument("--timeout", type=int, default=300)
     args = ap.parse_args(argv)
     text = args.text if args.text is not None else pathlib.Path(args.text_file).read_text(encoding="utf-8")
-    sentences = sentence_chunks(text) if args.legacy_split else literal_chunks(text)
-    trace_id = args.turn_id or ("local-" + uuid.uuid4().hex)
-    print("SPEECH_CHUNKS", len(sentences), flush=True)
-    deliver_ordered(sentences, args.profile, trace_id, args.timeout)
+    trace_id = args.turn_id or ("whole-" + uuid.uuid4().hex)
+    deliver_whole(text, args.profile, trace_id, args.timeout)
 
 
 if __name__ == "__main__":
