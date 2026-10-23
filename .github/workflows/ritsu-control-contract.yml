@@ -64,11 +64,16 @@ jobs:
           grep -q 'WindowInsets.Type.systemBars' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
           grep -q 'SafeInsets.bottom' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
           grep -q 'getWindow().setSoftInputMode' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'SpokenTurnBuffer' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
+          grep -q 'speechStarted' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/SystemSpeechSession.java
+          grep -q 'schedulePendingCommit' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
+          grep -q 'selectSpeechTiming' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'DEFAULT_PAUSE_MS = 3200' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/SpokenTurnBuffer.java
 
       - name: Publish isolated Android debug APK (not deployed)
         uses: actions/upload-artifact@v4
         with:
-          name: ritsu-control-v0.7-live-google-ime-fix-debug-apk
+          name: ritsu-control-v0.8-thinking-pause-debug-apk
           path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
