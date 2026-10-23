@@ -10,10 +10,10 @@ The cloud operation `ritsu.voice.profiles` lists profile names, pitch shifts and
 | --- | --- | ---: | --- |
 | normal | ex04_happy_00085.wav | -1 | approved; everyday default |
 | whisper | ex04_whisper_00059.wav | -1 | approved whisper audition, lowered candidate |
-| amused | ex04_laughing_00044.wav | 0 | approved amusing reference chosen in final audition |
-| happy | ex04_happy_00112.wav | 0 | approved delighted option 2 |
-| upset | ex04_confused_00043.wav | 0 | provisional, user asked to include |
-| somber | ex04_sad_00037.wav | 0 | rework later, user asked to include |
+| amused | ex04_laughing_00044.wav | -1 | approved amusing reference chosen in final audition |
+| happy | ex04_happy_00112.wav | -1 | approved delighted option 2 |
+| upset | ex04_confused_00043.wav | -1 | provisional, user asked to include |
+| somber | ex04_sad_00037.wav | -1 | rework later, user asked to include |
 
 The original `warm` local reference remains as rollback. Do not remove it or replace its files. No new voice is silently generated or trained.
 
@@ -42,3 +42,7 @@ The repertoire includes upset and somber at user request despite their unfinishe
 **Source registration is complete; live rollout is not.** The compiled six-profile cloud contract cannot yet be advertised by the currently running Home Center MCP because the updated `ritsuVoice` Cloud Function fails its Google Cloud Run startup check. The old healthy `ritsuvoice-00001-moy` continues to serve the pre-repertoire typed API. Do **not** claim `ritsu.voice.profiles` live or clear the ASMR safeguard. Re-running the current deploy workflow without addressing the buildpack incompatibility is not useful.
 
 Root cause was reproduced by pulling the *actual failed container image*. New Google Node22 buildpack image uses a distroless runtime without `/bin/bash`, while its generated CNB web process explicitly tries to execute `/bin/bash`; its exec.d helper also has a bash shebang. Docker exits 82 before the Ritsu application starts. CPU, RAM, declaring Functions Framework, and an exec.d helper-only patch did not resolve this base/process mismatch. GitHub issue [#389](https://github.com/Valar05/home-center/issues/389) contains run links and a detailed continuation plan. Source and Windows stage are safe and passing; cloud publication awaits a reproducible runtime fix.
+
+## Global pitch correction, 2026-10-22
+
+User explicitly set **all six registered voices to -1 semitone**, including amused, happy, upset, and somber. The authoritative catalog must hold -1 for each and Windows activation must copy the catalog into the Qwen API root before launching the repertoire API. The original warm rollback sample remains unchanged. This revision supersedes the earlier table and any Windows staging manifest with old pitch values.
