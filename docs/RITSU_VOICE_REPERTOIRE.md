@@ -1,5 +1,18 @@
 # Ritsu registered voice repertoire, 2026-10-22
 
+## Normal/Warm switch, Desire 02 -1, plus measured sentence-lookahead (2026-10-23)
+
+**Newest selection overrides earlier table:** Normal/Warm is now the approved Desire 02 Ocean Dream **-1 reference-baked Pocket clone** `voice-candidates/fullset-20261023/warm-minus1.safetensors` SHA256 `043D61FCA49B175C88A41734D1A659ED9655D39BDE8BD5FA2038AFC35D7FBB36`; source pre-bake SHA256 `45032B1B34872CBBD671FEAB16431F9BC768BE03582EE0FBC1DBC95DF8905F66`. The Cheesecake no-laugh Warm remains safely archived, not live. Live Pocket server /health verified exact new Warm state. Delighted -1, Amused -1, Somber -1 (shared with Upset), and Whisper -1 are all unchanged, zero active Qwen voice synthesis.
+
+The sentence-level Home Center sender now queues four upcoming complete grammatical sentences with bounded lookahead to the existing **serial CPU Pocket model**, then delivers in FIFO order to the unchanged canonical Tailscale relay. No long multi-sentence Pocket synth call, no sentence truncation, no parallel GPU use. Added per-ticket and per-sentence UTC/monotonic timing logs. Ten-sentence live Home Center test ticket `ritsu-gapfix-live-10sentence-lookahead-20261023` has 10 ordered relay IDs, 10 distinct GET/audio, 10 ACKs, sender transcript hash equal to cloud transcript hash; HEARD pending.
+
+Measured server/transport improvement: pre-fix historical median relay enqueues **5.5s**, post-fix **1.371s**; ten-sentence preflight model generated **25.6s of audio in 17.89s**, confirming synthesis isn't the throughput bottleneck. Remaining measured **phone retrieval interval minus preceding audio duration median 2.68s**, not an exact audible gap. Current Android receiver fetched next WAV only after playing prior one, and is NOT instrumented for playback-start/end or yet modified. Receiver/phone-side prefetch follows only after verified readback/access and owner's audible verdict.
+
+**Operational hard law and exact receipts:** `docs/RITSU_PHONE_AUDIO_LAWS.md` v1.6; source `tools/campaigns/ritsu_pocket_v2_deployed/ritsu_say.py`, `worker.py`, `test_ritsu_say_lookahead.py`; restore backups `PocketTTS/gapfix-desire02-cutover-backups-20261023`. Do not declare gaps eliminated or phone HEARD without user confirmation.
+
+---
+
+
 ## CORRECTION: Delighted is the −1-semitone Pocket clone (2026-10-23, authoritative)
 
 The user explicitly corrected the assistant's misinterpretation of "original": **the official Delighted voice is the clone made by feeding the −1-semitone Happy 00112 reference into Pocket TTS**, not the unshifted Pocket clone and **not any old Qwen/"Quinn" clone**. That adjusted Pocket state **already existed** and its file SHA256, reference SHA256 and source recording have now been verified. No output/post-generation pitch shifting is used.
