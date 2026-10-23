@@ -49,3 +49,9 @@ test('retry with same id is idempotent and content cannot change',async()=>{
  assert.equal(again.idempotent,true);
  await assert.rejects(api.runOperation({admin,user,operation:'ritsu.voice.speak',args:{...args,text:'New reply'}}),/Idempotency conflict/);
 });
+
+test('every registered voice receives the user-approved minus-one semitone pitch shift',()=>{
+ const catalog=require('./ritsu_voice_profiles.json');
+ assert.deepEqual(Object.keys(catalog.profiles).sort(),['amused','happy','normal','somber','upset','whisper']);
+ for (const [name,profile] of Object.entries(catalog.profiles)) assert.equal(profile.pitchSemitones,-1,`${name} pitch must be -1 semitone`);
+});
