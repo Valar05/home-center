@@ -54,9 +54,9 @@ jobs:
           grep -q 'SpeechRecognizer.createSpeechRecognizer' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/SystemSpeechSession.java
           grep -q 'capture.stop()' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
           grep -q 'InputType.TYPE_TEXT_FLAG_AUTO_CORRECT' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
-          grep -q 'ACTION_SPEAK_ONCE' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
-          grep -q 'transcriptRevision' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
           grep -q 'ConversationLedger' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'ACTION_LISTEN' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'automaticUtterance' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
           grep -q 'UtteranceAccumulator' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MicrophoneCapture.java
           grep -q 'EXTRA_AUDIO_SOURCE' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/SystemSpeechSession.java
           grep -q 'AUDIO_PLAYBACK_BLOCKED' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
