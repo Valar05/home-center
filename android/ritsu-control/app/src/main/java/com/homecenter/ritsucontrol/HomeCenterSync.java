@@ -1,0 +1,160 @@
+package com.homecenter.ritsucontrol;
+
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+/** One bounded, serialized sync engine PER foreground service instance.
+ * Home Center owns the CONTROL chat. Android never sends worker jobs,
+ * publishes staged material, handles Chrome capabilities or fabricates replies.
+ */
+final class HomeCenterSync implements AutoCloseable {
+    static volatile String status = "Home Center not paired";
+    private final Context app;
+    private final ConversationLedger ledger;
+    private final Runnable onChange;
+    private final Handler main = new Handler(Looper.getMainLooper());
+    private final ScheduledExecutorService queue =
+            Executors.newSingleThreadScheduledExecutor(r -> {
+                Thread thread=new Thread(r,"RitsuHomeCenterSync");
+                thread.setDaemon(true);
+                return thread;
+            });
+    private volatile boolean stopped;
+    HomeCenterSync(Context context, ConversationLedger ledger, Runnable onChange) {
+        this.app=context.getApplicationContext();
+        this.ledger=ledger;
+        this.onChange=onChange;
+    }
+    void start() {
+        queue.scheduleWithFixedDelay(this::safeSync,0,5,TimeUnit.SECONDS);
+    }
+    void requestNow() {
+        if(!stopped)queue.execute(this::safeSync);
+    }
+    private void safeSync() {
+        if(stopped)return;
+        try{syncOnce();}
+        catch(Exception error){
+            // Never report a queued network request as accepted by ChatGPT.
+            status="Home Center sync unavailable ("+
+                    error.getClass().getSimpleName()+")";
+        }
+    }
+    private void syncOnce() throws Exception {
+        RitsuPairing.Pair paired=RitsuPairing.load(app);
+        if(paired==null){status="Home Center not paired";return;}
+        status="Checking Home Center";
+        List<ConversationLedger.Entry> all=ledger.list("all");
+        int processed=0;
+        for(ConversationLedger.Entry row:all) {
+            if(stopped || processed>=8)break;
+            if(!"You".equals(row.who))continue;
+            if(ConversationLedger.OUTBOX.equals(row.state)) {
+                JSONObject request=new JSONObject();
+                request.put("turnId",row.id);
+                request.put("channel","control");
+                request.put("prompt",row.text);
+                JSONObject received=exchange(paired,"POST","/v1/ritsu/turn",request);
+                if(!received.optBoolean("ok"))throw new IllegalStateException("Gateway did not accept");
+                apply(row.id,received.optJSONObject("receipt"));
+                processed++;
+            } else if(row.state.startsWith("HOME_CENTER_")) {
+                if("HOME_CENTER_FAILED".equals(row.state) ||
+                        "HOME_CENTER_COLLISION".equals(row.state))continue;
+                JSONObject received=exchange(paired,"GET",
+                        "/v1/ritsu/turn?turnId="+row.id,null);
+                if(received.optBoolean("ok"))apply(row.id,received.optJSONObject("receipt"));
+                processed++;
+            }
+        }
+        status="Home Center connected; "+processed+" turn(s) checked";
+    }
+    private void apply(String turnId, JSONObject receipt) {
+        if(receipt==null)throw new IllegalStateException("Missing durable receipt");
+        if(!turnId.equals(receipt.optString("turnId")) ||
+                !"control".equals(receipt.optString("channel")))
+            throw new IllegalStateException("Wrong Home Center conversation receipt");
+        String state=receipt.optString("state");
+        switch(state) {
+            case "queued":
+                ledger.updateState(turnId,"HOME_CENTER_QUEUED");break;
+            case "leased":
+                ledger.updateState(turnId,"HOME_CENTER_LEASED");break;
+            case "dispatch_unknown":
+            case "unknown":
+                ledger.updateState(turnId,"HOME_CENTER_UNCERTAIN");break;
+            case "failed":
+                ledger.updateState(turnId,"HOME_CENTER_FAILED");break;
+            case "completed":
+                JSONObject result=receipt.optJSONObject("result");
+                if(result==null||result.optString("text").trim().isEmpty())
+                    throw new IllegalStateException("Completed without verified text");
+                ledger.insertReplyOnce(turnId,result.optString("text"));
+                ledger.updateState(turnId,"COMPLETED");
+                break;
+            default:throw new IllegalStateException("Unrecognized receipt state");
+        }
+        main.post(onChange);
+    }
+
+    /** No redirects, no arbitrary hosts. Pairing validates tailnet 100.64/10
+     * and port 19645; all requests stay inside WireGuard Tailscale VPN.
+     * A successful HTTP response only proves Home Center intake/readback.
+     */
+    private static JSONObject exchange(RitsuPairing.Pair paired,String method,
+                                       String path,JSONObject payload) throws Exception {
+        URL url=new URL(paired.origin+path);
+        HttpURLConnection conn=(HttpURLConnection)url.openConnection();
+        conn.setInstanceFollowRedirects(false);
+        conn.setConnectTimeout(3200);
+        conn.setReadTimeout(5200);
+        conn.setRequestMethod(method);
+        conn.setRequestProperty("Authorization","Bearer "+paired.token);
+        conn.setRequestProperty("Accept","application/json");
+        conn.setRequestProperty("Cache-Control","no-store");
+        if(payload!=null) {
+            conn.setDoOutput(true);
+            conn.setRequestProperty("Content-Type","application/json");
+        }
+        try {
+            if(payload!=null) {
+                byte[] bytes=payload.toString().getBytes(StandardCharsets.UTF_8);
+                if(bytes.length>6500)throw new IllegalArgumentException("message oversized");
+                conn.setFixedLengthStreamingMode(bytes.length);
+                try(OutputStream output=conn.getOutputStream()){output.write(bytes);}
+            }
+            int code=conn.getResponseCode();
+            if(code==401)throw new IllegalStateException("Device pairing unauthorized");
+            if(code==409)throw new IllegalStateException("Turn ID collision");
+            if(code<200||code>299)throw new IllegalStateException("Gateway HTTP "+code);
+            try(InputStream stream=conn.getInputStream()){
+                ByteArrayOutputStream buffer=new ByteArrayOutputStream();
+                byte[] chunk=new byte[2048];
+                int read;
+                while((read=stream.read(chunk))!=-1) {
+                    if(buffer.size()+read>100000)
+                        throw new IllegalStateException("Gateway reply too large");
+                    buffer.write(chunk,0,read);
+                }
+                return new JSONObject(buffer.toString(StandardCharsets.UTF_8.name()));
+            }
+        } finally {conn.disconnect();}
+    }
+    @Override public void close() {
+        stopped=true;
+        queue.shutdownNow();
+    }
+}
