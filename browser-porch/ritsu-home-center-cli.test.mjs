@@ -101,3 +101,39 @@ test('trusted local Home Center executable survives process restart and stages r
   assert.equal(finalFeed[1].text,mockReply.text);
   assert.equal(finalFeed[1].publishedByTurnId,'ritsu-cli-main-001');
 });
+
+
+test('two simultaneous host CLI processes cannot overwrite each other\'s turn journal',async t=>{
+  const capability='y'.repeat(48);
+  const origin='chrome-extension://'+'p'.repeat(32);
+  const server=createRelay({port:0,extensionOrigin:origin,throneCapability:capability,
+    eventSink:async()=>{}});
+  await new Promise(resolve=>server.once('listening',resolve));
+  t.after(()=>server.close());
+  const dir=await mkdtemp(path.join(os.tmpdir(),'ritsu-hc-concurrent-'));
+  t.after(()=>rm(dir,{recursive:true,force:true}));
+  const base='http://127.0.0.1:'+server.address().port+'/v1/throne';
+  const env={
+    HOME_CENTER_RITSU_STATE_DIR:dir,
+    HOME_CENTER_RITSU_NAMESPACE:'ritsu-cli-concurrent-01',
+    HOME_CENTER_RITSU_CONTROL_SESSION:'ritsu-concurrent-main-01',
+    HOME_CENTER_RITSU_DIALOGUE_SESSION:'ritsu-concurrent-talk-01',
+    HOME_CENTER_CHROMIUM_THRONE_CAPABILITY:capability,
+    HOME_CENTER_RITSU_RELAY_URL:base,
+  };
+  const requests=[
+    {operation:'submit',turnId:'ritsu-concurrent-a1',channel:'dialogue',prompt:'First.'},
+    {operation:'submit',turnId:'ritsu-concurrent-b2',channel:'control',prompt:'Second.'},
+  ];
+  const results=await Promise.all(requests.map(request=>invoke(request,env)));
+  assert.deepEqual(results.map(r=>r.code),[0,0]);
+  const snapshot=(await invoke({operation:'state'},env)).body.result;
+  assert.equal(snapshot.turns.length,2);
+  assert.deepEqual(snapshot.turns.map(row=>row.turn.turnId).sort(),
+    ['ritsu-concurrent-a1','ritsu-concurrent-b2']);
+  const auth={authorization:'Bearer '+capability,origin};
+  const one=(await (await fetch(base+'/command',{headers:auth})).json()).command;
+  const two=(await (await fetch(base+'/command',{headers:auth})).json()).command;
+  assert.deepEqual([one.turn.turnId,two.turn.turnId].sort(),
+    ['ritsu-concurrent-a1','ritsu-concurrent-b2']);
+});
