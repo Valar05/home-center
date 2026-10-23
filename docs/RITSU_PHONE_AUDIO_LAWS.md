@@ -1,5 +1,13 @@
 # RITSU PHONE AUDIO LAWS v1.0
 
+## OCTOBER 23, 2026 — VERIFIED ANDROID V3 ACTIVATION AND FIRST THREE-TICKET REGRESSION
+
+**Newer evidence supersedes older 'not live' labels below.** The owner executed the guarded Termux v3 activation script and returned a physical receipt `RITSU_V3_RECEIVER_ACTIVE=1`, exact corrected receiver SHA256 `55c0fb71168573145de842bf217a3136d942654053f0f785993de8b23abef015`, PID `11198`, `PLAY_SEQ=FETCH_SEQ=121`, `RELAY=19643`, unchanged `termux-media-player`, `CUT_SAMPLES=0`. Thus v3 is **activated on the phone**, not merely installed. On-device actual audio continuity and HEARD remain unverified.
+
+Three complete multi-sentence authored Normal-profile test utterances have been submitted through **canonical** `ritsu.voice.speak` in order, separate unique request IDs `ritsu-android-v3-owner-listening-20261023-01/-02/-03`. Home Center returned **enqueued** for each, with respective relay IDs `b1a452b36b05cca4e4ff6f45`, `a16859924a8359ecc91d8c89`, and `cf5811e3310d24ecf45fe96c`. Enqueue is not phone `PLAYED` or human `HEARD`. Test length each well under 450 characters; deliberate complete thoughts, no Windows sentence splitter. Distinct v3 `batch_playback_started` and `batch_playback_finished` events, if any, must be verified in the physical `~/.ritsu-embodiment/receiver-v2/trace.jsonl`; when no second WAV ready, v3 immediately plays one source and still incurs MediaPlayer transition.
+
+User must confirm audio quality, last phoneme completeness, and any audible gaps before declaring receiver-gap repair accepted. Keep approved voices, original v2 backup, no PCM trimming, and canonical relay unchanged. The tested receiver's absolute PID is process-specific, not an invariant.
+
 ## OCTOBER 23, 2026 — V3 INSTALL CONFIRMED, CORRECTED ARRAY EXPANSIONS REQUIRED BEFORE FIRST RESTART
 
 The owner ran the guarded Termux install and returned `RITSU_V3_SOURCE_INSTALLED=1`; old original v2 SHA `8acd8467...` backed up, but the *installed v3 source SHA* `cd71d8d2215ba369aa489aea65b35911fdaf9c7ca59e41e6bcd342a5d02c4e32` contains a subsequently discovered BUG: 13 literal `\\${...}` escaped Bash array expansions. `bash -n` does NOT detect this runtime error. **NEVER run this defective SHA, and never label its mere install as activation.** Old in-memory receiver still handles audio.
