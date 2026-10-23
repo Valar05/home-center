@@ -59,7 +59,7 @@ export function createRitsuAndroidGateway({
 }={}) {
   if(!tailnetIPv4(host) && !(allowLoopbackForTests && host==='127.0.0.1'))
     throw new Error('gateway_must_bind_specific_tailnet_ipv4');
-  if(!Number.isInteger(port)||port<1024||port>65535)
+  if(!Number.isInteger(port)||(!allowLoopbackForTests && port<1024)||port<0||port>65535)
     throw new Error('gateway_port_invalid');
   if(typeof clientBearer!=='string'||clientBearer.length<40)
     throw new Error('separate_device_capability_required');
