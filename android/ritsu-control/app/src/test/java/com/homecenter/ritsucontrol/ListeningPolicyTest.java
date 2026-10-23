@@ -14,6 +14,27 @@ public final class ListeningPolicyTest {
         assertEquals(ListeningPolicy.Mode.LISTENING,
             ListeningPolicy.next(ListeningPolicy.Mode.MUTED, ListeningPolicy.Event.RESUMED_CAPTURE));
     }
+    @Test public void handoffToAndroidRecognizerDoesNotPretendAudioRecordIsRunning() {
+        assertEquals(ListeningPolicy.Mode.RECOGNIZING,
+            ListeningPolicy.next(ListeningPolicy.Mode.LISTENING,
+                ListeningPolicy.Event.RECOGNITION_STARTED));
+        assertEquals(ListeningPolicy.Mode.MUTED,
+            ListeningPolicy.next(ListeningPolicy.Mode.RECOGNIZING,
+                ListeningPolicy.Event.RECOGNITION_FINISHED));
+        assertEquals(ListeningPolicy.Mode.LISTENING,
+            ListeningPolicy.next(ListeningPolicy.Mode.MUTED,
+                ListeningPolicy.Event.RESUMED_CAPTURE));
+    }
+    @Test(expected=IllegalStateException.class)
+    public void neverStartRecognitionFromIdleOrMuted() {
+        ListeningPolicy.next(ListeningPolicy.Mode.MUTED,
+            ListeningPolicy.Event.RECOGNITION_STARTED);
+    }
+    @Test(expected=IllegalStateException.class)
+    public void neverFinishRecognitionTwice() {
+        ListeningPolicy.next(ListeningPolicy.Mode.MUTED,
+            ListeningPolicy.Event.RECOGNITION_FINISHED);
+    }
     @Test public void stopAlwaysFailsClosed() {
         for (ListeningPolicy.Mode mode : ListeningPolicy.Mode.values()) {
             assertEquals(ListeningPolicy.Mode.OFF,
