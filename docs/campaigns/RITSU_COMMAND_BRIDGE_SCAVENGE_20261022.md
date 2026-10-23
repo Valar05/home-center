@@ -102,3 +102,12 @@ The older overlay's `muted` controlled status speech, not mic input. Termux rece
 - SOURCE INSPECTED: Ritsu Termux notification installer, retired overlay and UI policy, Chromium Throne extension, Home Center capabilities.
 - NOT PROVEN LIVE: current phone notification visibility/registration, current installed overlay status, speech-recognition pipeline, Chromium Throne headless ChatGPT automation, automatic front/worker roundtrip, context rotation, calendar scheduling, new Android notification controls.
 - This branch is a **salvage/design checkpoint only**, not operational delivery. No Android APK, compiled app, voice sends, model processes, worker jobs, or deployment initiated.
+
+
+## User direction: Voice-first supersedes optional text cockpit (2026-10-22)
+
+**Primary acceptance is an eyes-free spoken conversation**, not a text messenger. The phone captures an authorized utterance, ASR finalizes it, Home Center deduplicates and coordinates the ChatGPT turn through Chromium Throne, and Ritsu speaks the reply over the already-approved Tailscale/Termux audio path. A second spoken turn must work without manually bringing ChatGPT onscreen. The floating bubble offers quick physical mic mute/resume and interruption.
+
+Text compose and transcript/readback are **secondary opt-in capabilities** for troubleshooting, quiet environments, and inspecting what actually happened. They must not delay the next working voice roundtrip, and text-only browser tests do not qualify as voice acceptance.
+
+Current truth boundary: v0.3's Android microphone layer only performs local energy VAD; actual speech recognition, authenticated Home Center ingress, integration with the desktop Chromium Throne profile, canonical speech playback, barge-in interruption, and user-heard verification remain to be implemented and tested. Refer to `docs/campaigns/RITSU_CHAT_TEXT_CONTROL_20261022.md` for the voice-first amendment to the bounded one-turn protocol.
