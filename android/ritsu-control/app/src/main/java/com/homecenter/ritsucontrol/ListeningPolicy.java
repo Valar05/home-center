@@ -4,13 +4,17 @@ package com.homecenter.ritsucontrol;
  * never "requested". All mutating operations are serialized on the service main thread. */
 final class ListeningPolicy {
     enum Mode { OFF, LISTENING, RECOGNIZING, MUTED, ERROR }
-    enum Event { CAPTURE_STARTED, RECOGNITION_STARTED, RECOGNITION_FINISHED, MUTED_RELEASED, RESUMED_CAPTURE, STOPPED, FAILED }
+    enum Event { CAPTURE_STARTED, RECOGNITION_STARTED, RECOGNITION_FINISHED, PROVIDER_STARTED, MUTED_RELEASED, RESUMED_CAPTURE, STOPPED, FAILED }
     static Mode next(Mode previous, Event event) {
         switch (event) {
             case CAPTURE_STARTED:
                 if (previous != Mode.OFF && previous != Mode.ERROR)
                     throw new IllegalStateException("capture may start only from OFF or ERROR");
                 return Mode.LISTENING;
+            case PROVIDER_STARTED:
+                if (previous != Mode.OFF && previous != Mode.MUTED && previous != Mode.ERROR)
+                    throw new IllegalStateException("provider may start only from OFF, MUTED or ERROR");
+                return Mode.RECOGNIZING;
             case RECOGNITION_STARTED:
                 if (previous != Mode.LISTENING)
                     throw new IllegalStateException("recognition handoff requires active capture");
