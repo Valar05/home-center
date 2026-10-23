@@ -46,6 +46,7 @@ EVOLUTION LOOP: observe evidence -> consult governance -> choose one high-levera
 `;
 
 let swarmPromise = null;
+let ritsuOneTurnRunning = false;
 chrome.sidePanel.setPanelBehavior({openPanelOnActionClick: true}).catch(() => {});
 chrome.runtime.onInstalled.addListener(() => configureRelay().catch(() => {}));
 chrome.runtime.onStartup.addListener(() => configureRelay().catch(() => {}));
@@ -108,6 +109,7 @@ async function pollRelay() {
 
 async function executeRelayCommand(command) {
   switch (command.action) {
+    case 'chat.turn': return executeOneRitsuTurn(command.turn);
     case 'swarm.enqueue': {
       const {throneQueue = []} = await chrome.storage.local.get('throneQueue');
       const known = new Set(throneQueue.map((job) => job.id));
@@ -120,6 +122,68 @@ async function executeRelayCommand(command) {
     case 'swarm.resume': await chrome.storage.session.set({throneStopped: false}); return {ok: true, stopped: false, accepted: false};
     case 'swarm.status': return {...await throneStatus(), accepted: false};
     default: throw new Error('unsupported_relay_action');
+  }
+}
+
+/** Exactly one ChatGPT message and one assistant reply. No BOOT_ENVELOPE,
+ * no automatic swarm recursion, and no implicit context rotation. */
+async function executeOneRitsuTurn(turn) {
+  if (!turn || !/^[A-Za-z0-9_.:-]{8,100}$/.test(String(turn.sessionId || '')) ||
+      !/^[A-Za-z0-9_.:-]{8,100}$/.test(String(turn.turnId || '')) ||
+      !['control', 'dialogue'].includes(turn.channel) ||
+      typeof turn.prompt !== 'string' || !turn.prompt.trim() || turn.prompt.length > 5000)
+    throw new Error('ritsu_turn_invalid');
+  if (await isStopped()) throw new Error('chromium_throne_stopped');
+  if (ritsuOneTurnRunning) throw new Error('ritsu_turn_lane_busy');
+  ritsuOneTurnRunning = true;
+  const key = `${turn.channel}:${turn.sessionId}`;
+  const turnKey = `${key}:${turn.turnId}`;
+  try {
+    const old = await chrome.storage.local.get(['ritsuChatSessions', 'ritsuChatReceipts']);
+    const sessions = old.ritsuChatSessions || {};
+    const receipts = old.ritsuChatReceipts || {};
+    if (receipts[turnKey]) {
+      if (receipts[turnKey].state === 'completed')
+        return {...receipts[turnKey].result, duplicate: true};
+      // Repeated or restarted dispatch might have already hit ChatGPT.
+      // Never submit twice after an ambiguous boundary.
+      throw new Error('ritsu_turn_prior_attempt_unconfirmed');
+    }
+    let tab;
+    if (sessions[key]?.tabId) {
+      try { tab = await requireChatTab(sessions[key].tabId); }
+      catch { throw new Error('ritsu_session_tab_missing_no_auto_rotation'); }
+    } else {
+      tab = await createWorkerTab();
+      sessions[key] = {tabId: tab.id, channel: turn.channel, sessionId: turn.sessionId};
+      await chrome.storage.local.set({ritsuChatSessions: sessions});
+    }
+    const before = await inspectWorker(tab.id);
+    const baseline = Number(before.assistantCount || 0);
+    receipts[turnKey] = {state: 'unknown', tabId: tab.id, baselineAssistantCount: baseline};
+    // Persistence *before* DOM mutation is the at-most-once boundary.
+    await chrome.storage.local.set({ritsuChatReceipts: receipts});
+    const [submitted] = await chrome.scripting.executeScript({
+      target: {tabId: tab.id}, func: submitChatGptPrompt, args: [turn.prompt]
+    });
+    if (!submitted?.result?.ok)
+      throw new Error('ritsu_submit_uncertain:' + String(submitted?.result?.error || 'unknown'));
+    const done = await waitForCompletedAssistant(tab.id, baseline, 120000);
+    if (!done.ok) throw new Error('ritsu_reply_unknown:' + String(done.error));
+    const result = {ok: true, accepted: true, sessionId: turn.sessionId,
+      turnId: turn.turnId, channel: turn.channel, tabId: tab.id,
+      text: done.text, assistantCount: done.assistantCount,
+      verifiedAt: new Date().toISOString()};
+    receipts[turnKey] = {state: 'completed', result};
+    const keys = Object.keys(receipts);
+    for (const stale of keys.slice(0, Math.max(0, keys.length - 100))) delete receipts[stale];
+    await chrome.storage.local.set({ritsuChatReceipts: receipts});
+    await appendReceipt({type: 'ritsu_chat_turn_returned', at: result.verifiedAt,
+      sessionId: turn.sessionId, turnId: turn.turnId, channel: turn.channel,
+      tabId: tab.id, assistantCount: done.assistantCount});
+    return result;
+  } finally {
+    ritsuOneTurnRunning = false;
   }
 }
 
