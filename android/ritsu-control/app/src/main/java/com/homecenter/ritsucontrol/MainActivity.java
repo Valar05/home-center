@@ -281,12 +281,12 @@ public final class MainActivity extends Activity {
 
     private String diagnosticText() {
         return "System recognizer: " + RitsuControlService.recognitionStatus
-                + "\\nLast recognized: " + RitsuControlService.lastTranscript
-                + "\\nMedia guard: " + RitsuControlService.mediaGuardStatus
-                + "\\nLast error: " + (RitsuControlService.lastProblem.isEmpty()
+                + "\nLast recognized: " + RitsuControlService.lastTranscript
+                + "\nMedia guard: " + RitsuControlService.mediaGuardStatus
+                + "\nLast error: " + (RitsuControlService.lastProblem.isEmpty()
                         ? "None" : RitsuControlService.lastProblem)
-                + "\\nLocal outbox only. Worker replies require Home Center."
-                + "\\nNo Ritsu voice playback in this build.";
+                + "\nLocal outbox only. Worker replies require Home Center."
+                + "\nNo Ritsu voice playback in this build.";
     }
 
     private void enableBubble() {
@@ -325,7 +325,7 @@ public final class MainActivity extends Activity {
                 : "Mic off";
         String detail = RitsuControlService.recognitionStatus;
         if (detail.length() > 75) detail = detail.substring(0, 75);
-        headerStatus.setText(state + " · " + detail + "\\nChatGPT not connected");
+        headerStatus.setText(state + " · " + detail + "\nChatGPT not connected");
         if (listenButton != null) {
             listenButton.setText(mode == ListeningPolicy.Mode.RECOGNIZING
                     ? "Listening ●" : "Listen");
