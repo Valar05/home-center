@@ -25,8 +25,12 @@ test('Ritsu chat turn has exact session, text, idempotency, origin and authentic
   const collision=await post(base+'/command',{...cmd,turn:{...cmd.turn,prompt:'Different text'}},auth);
   assert.equal(collision.status,409);
   assert.equal((await collision.json()).error,'RITSU_TURN_ID_COLLISION');
-  assert.equal((await fetch(base+'/command',{headers:auth})).status,403);
-  const lease=await fetch(base+'/command',{headers:extension});
+  // A bearer is still required, and explicitly hostile/opaque origins
+  // cannot masquerade as the installed Chrome extension.
+  assert.equal((await fetch(base+'/command',{headers:{...auth,origin:'https://evil.example'}})).status,403);
+  assert.equal((await fetch(base+'/command',{headers:{...auth,origin:'null'}})).status,403);
+  assert.equal((await fetch(base+'/command',{headers:{origin:extensionOrigin}})).status,403);
+  const lease=await fetch(base+'/command',{headers:auth});
   assert.equal(lease.status,200);
   const leased=(await lease.json()).command;
   assert.equal(leased.turn.prompt,'Say cobalt penguin.');
@@ -39,12 +43,17 @@ test('Ritsu chat turn has exact session, text, idempotency, origin and authentic
   assert.equal((await fetch(resultUrl)).status,403);
   assert.equal((await (await fetch(resultUrl,{headers:auth})).json()).state,'leased');
   const answer={ok:true,accepted:true,sessionId:cmd.turn.sessionId,turnId:cmd.turn.turnId,channel:'dialogue',tabId:42,text:'Cobalt penguin.'};
-  assert.equal((await post(base+'/complete',{commandId:cmd.commandId,ok:true,result:answer},auth)).status,403);
+  assert.equal((await post(base+'/complete',{commandId:cmd.commandId,ok:true,result:answer},{...auth,origin:'https://evil.example'})).status,403);
   assert.equal((await post(base+'/complete',{commandId:cmd.commandId,ok:true,result:answer},extension)).status,200);
   const final=await (await fetch(resultUrl,{headers:auth})).json();
   assert.equal(final.state,'completed');
   assert.deepEqual(final.result,answer);
   assert.equal(events.at(-1).type,'throne.command.completed');
+  // Chrome MV3 may omit Origin for a privileged cross-origin GET/POST.
+  // A correct local bearer remains enough when the header is absent,
+  // never when the header explicitly declares a foreign Origin.
+  assert.equal((await fetch(base+'/command',{headers:auth})).status,204);
+  assert.equal((await post(base+'/complete',{commandId:'nonexistent-probe-01',ok:false,result:{}},auth)).status,404);
 });
 
 test('Ritsu turn validation blocks bad user IDs and unbounded text before browser',async t=>{
