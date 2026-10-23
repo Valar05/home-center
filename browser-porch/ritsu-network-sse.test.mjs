@@ -34,3 +34,15 @@ test('unknown wire formats remain unknown; never fabricate text',()=>{
   const x=new RitsuNetworkSse();x.push(Buffer.from('data: {"delta":"test"}\n\n'+done));
   assert.throws(()=>x.result({marker,requestFinished:true}),/no_matching_final/);
 });
+
+test('redacted shape diagnostic cannot contain message text or canary nonce',()=>{
+  const x=new RitsuNetworkSse();
+  const secret='USER_VISIBLE_PRIVATE_SENTENCE_'+marker;
+  x.push(Buffer.from(frame(m(secret))+done));
+  const diagnostic=JSON.stringify(x.diagnostic());
+  assert.equal(diagnostic.includes(secret),false);
+  assert.equal(diagnostic.includes(marker),false);
+  assert.equal(x.diagnostic().eventCount,2);
+  assert.equal(x.diagnostic().terminalDone,true);
+  assert.equal(x.diagnostic().textCandidate,true);
+});
