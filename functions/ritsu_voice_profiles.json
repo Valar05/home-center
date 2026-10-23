@@ -7,9 +7,10 @@
   "profiles": {
     "normal": {
       "status": "selected_default",
-      "voiceStateSha256": "6D619A92B6F17C4DF4163919E690FAFADD48C285A0773AE01EFDE7BAA510ED07",
+      "voiceStateSha256": "043D61FCA49B175C88A41734D1A659ED9655D39BDE8BD5FA2038AFC35D7FBB36",
       "pitchSemitones": -1,
-      "source": "edited_cheesecake_no_laugh"
+      "source": "desire_02_ocean_dream_minus1_formant_preserved_pocket",
+      "clone": "fullset-20261023/warm-minus1.safetensors"
     },
     "whisper": {
       "status": "approved",
