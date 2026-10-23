@@ -29,6 +29,8 @@ jobs:
           node --check browser-porch/ritsu-home-center-throne-transport.mjs
           node --check browser-porch/ritsu-coordinator-file-store.mjs
           node --check browser-porch/ritsu-home-center-cli.mjs
+          node --check browser-porch/ritsu-initiated-chat.mjs
+          node --check browser-porch/ritsu-initiated-chat-cli.mjs
           node --check browser-porch/ritsu-android-gateway.mjs
           node --check browser-porch/ritsu-android-gateway-runner.mjs
           node --check browser-porch/ritsu-voice-return.mjs
@@ -41,6 +43,7 @@ jobs:
           node --test browser-porch/ritsu-home-center-coordinator.test.mjs
           node --test browser-porch/ritsu-home-center-cli.test.mjs
           node --test browser-porch/ritsu-android-gateway.test.mjs
+          node --test browser-porch/ritsu-initiated-chat.test.mjs
           node --test browser-porch/ritsu-voice-return.test.mjs
           node --test browser-porch/relay.test.mjs
           node --test browser-porch/extension/swarm-core.test.mjs browser-porch/extension/throne_context.test.mjs
