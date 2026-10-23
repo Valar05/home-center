@@ -66,7 +66,11 @@ export function createRitsuHomeCenterCoordinator({
   // Serializes mutation within THIS instance only; nothing process-global.
   let previous = Promise.resolve();
   function exclusive(work) {
-    const task = previous.then(work);
+    // A single coordinator serializes itself. A file-backed Home Center CLI
+    // also provides an inter-process namespace lock; multiple campaign IDs
+    // remain independent and there is never a process-global singleton.
+    const task = previous.then(() => typeof store.withNamespaceLock === 'function'
+      ? store.withNamespaceLock(namespace, work) : work());
     previous = task.catch(() => {});
     return task;
   }
