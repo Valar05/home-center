@@ -1,5 +1,29 @@
 # CURRENT MISSION: Pocket TTS voice experiments and accepted voices (updated 2026-10-23)
 
+## Pocket −1 semitone alignment: Delighted, Warm, Somber (2026-10-23)
+
+Owner requested: "redo the delighted clip and any others that didn't get caught" after noticing mixed semitone-pitched voice tests. Audited all approved/current Pocket variants before changes.
+
+**Audit:** The original Oct 23 Pocket Delighted, Ocean Dream Warm, and Personal Affirmation Somber candidate had been created at **original pitch**, without the intended −1 semitone reference transformation. **Amused** already uses canonical `ex04_laughing_00044.wav` −1-prebaked source, and the accepted **Whisper** state `ritsu-whisper-approved-minus1-20261023.safetensors` SHA256 `B99EB2E16612E8B8C3E3A96F74BD631676CC79071779537FD94C564DB5796BE5` is already a minus-one version. Do not double-shift these. Older original-pitch versions remain immutable for comparison.
+
+Applied canonical pitch transformation **once to the *reference***: FFmpeg `rubberband=tempo=1:pitch=0.9438743126816935:formant=preserved` with 48 kHz mono, PCM16 output. For Delighted, reused **already existing** baked prepared reference; for Warm and Somber, created and SHA256-verified their own references from original Expresso 24-bit sources. This also avoids Pocket's historical PCM24 decoding bug; a separate decoder patch was previously installed/tested. Do NOT shift the generated output again.
+
+| Emotion | Baked −1 reference / SHA256 | NEW separate Pocket clone / SHA256 | NEW playable audition WAV / SHA256 | Result |
+|---|---|---|---|---|
+| **Delighted** (no laughs) | existing `C:\Users\dclar\workspace\ritsu-faster-qwen3-tts\ritsu-pitched-references\ex04_happy_00112.wav` / `20A36E295FCE95820F87B9AC34D5036DC8929CBB39282182EC3BCAF56BC331BE` | `ritsu-delighted-happy00112-minus1-pocket-20261023.safetensors` / `050A501F67F83A3876183BEFD649806265B844BFC13BB21D967FC37C0456427A` | `ritsu-delighted-happy00112-minus1-test-20261023-playable.wav` / `6FA980FAA33FDD879FF453CE0CFE7702B6D342347B50BA20DDDD02771C02E65F` | 3.32s, nonstatic, FFplay completed |
+| **Warm** (Ocean Dream) | `minus1-prepared-20261023/warm-desire02-minus1-formant-pcm16-48k.wav` / `45032B1B34872CBBD671FEAB16431F9BC768BE03582EE0FBC1DBC95DF8905F66` | `ritsu-warm-desire02-minus1-pocket-20261023.safetensors` / `043D61FCA49B175C88A41734D1A659ED9655D39BDE8BD5FA2038AFC35D7FBB36` | `ritsu-warm-desire02-minus1-test-20261023-playable.wav` / `E1908BDE3554F633E8BA37CF8F06452C173D9DC9E20DD1086A384C1F6C1235DF` | 4.12s, nonstatic, FFplay completed |
+| **Somber** (Personal Affirmation, *not* Cheesecake) | `minus1-prepared-20261023/somber-desire01-minus1-formant-pcm16-48k.wav` / `3CE376A8EC112B1803D9A61C3C0F706E013FDED4BCB39C9A5EFF81F3D3C936C4` | `ritsu-somber-desire01-minus1-pocket-20261023.safetensors` / `51C7B4F55361082ED23ABB56E1F7E9878D4CA26DA5740349858BDBDF2A4CA0BD` | `ritsu-somber-desire01-minus1-test-20261023-playable.wav` / `5AE8CE88590DA742011C460D2EF42B86AACE3F22615E8F76967EE4ED0F573885` | 4.28s, nonstatic, FFplay completed |
+
+All NEW states/audio live in `C:\Users\dclar\Documents\Codex\Venice\PocketTTS\voice-candidates\` on THECAULDRON; relative `minus1-prepared-20261023` is inside that directory. Testing used Pocket temperature `0.7`, CPU, one state/export per voice, header-only WAV finalizer preserving sample bytes. Delighted test text `Oh, that's wonderful! I'm so glad it worked out.` Warm and Somber both use `Good morning. The workshop is quiet, the coffee is ready, and I have a few ideas.`
+
+**Preflight receipt** `hands-ritsu-voice-minus1-audit-simple-20261023`; reference bake `hands-ritsu-minus1-warm-somber-reference-bake-20261023`; clone exports `hands-ritsu-delighted-minus1-voice-export-20261023-retry`, `hands-ritsu-minus1-warm-export-20261023`, `hands-ritsu-minus1-somber-export-20261023`; synthesis `hands-ritsu-delighted-minus1-synthesis-20261023`, `hands-ritsu-warm-minus1-synthesis-20261023`, `hands-ritsu-somber-minus1-synthesis-20261023`; QA `hands-ritsu-minus1-three-clips-no-static-signal-check-20261023`, completed exit 0 for all clips. Signal QA: RMS dBFS −29/−26.7/−31, zero-crossing .081/.083/.071 respectively.
+
+**Desktop playback receipt** `hands-ritsu-minus1-delighted-warm-somber-play-three-20261023`, completed exit 0, interactive Windows session 1, direct guarded FFplay sequential one-shot with 3s pauses: Delighted 09:40:29–09:40:34 CDT, Warm 09:40:37–09:40:41 CDT, Somber 09:40:45–09:40:49 CDT. The user has **NOT YET** reported hearing/quality verdict for these newly lowered samples; previous favorable feedback applies to the earlier original-pitch versions. **No live API profile, default, Qwen, Whisper or phone routing updated**.
+
+**Next:** await owner subjective comparison before promoting any corrected state; distinguish source pitch correction from exact output pitch (conditioning with a lowered reference can influence pitch but does not prove every generated syllable is exactly −1 semitone). Never overwrite the previously approved Delighted original-pitch clone. Preserve Cheesecake rejection and Somber = Personal Affirmation.
+
+
+
 ## Amused Pocket minus-one-semitone audition and pitch clarification (2026-10-23)
 
 - Owner noticed recently generated Pocket Delighted sounded higher than the prior carefully chosen Ritsu pitch and explicitly asked whether we were still applying the **−1 semitone** adjustment. **We were not:** the Oct-23 Pocket Warm, Somber, and Delighted auditions cloned raw source/reference recordings at their original pitch. Do not claim the prior -1 was retained. Their delivery-quality verdicts remain as recorded, but pitch is not yet aligned to prior repertoire.
