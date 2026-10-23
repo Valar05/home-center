@@ -73,6 +73,11 @@ final class RitsuPairing {
                     .edit().putString("sealed",Base64.encodeToString(data,Base64.NO_WRAP))
                     .commit();
             if(!committed)throw new IllegalStateException("Pairing not saved");
+            // A newly paired Home Center may have an entirely different
+            // journal sequence. Never carry the old publication cursor over.
+            if(!context.getSharedPreferences("ritsu_sync_feed_v1",Context.MODE_PRIVATE)
+                    .edit().putLong("cursor",0).commit())
+                throw new IllegalStateException("Feed cursor not reset");
         }catch(IllegalArgumentException e){throw e;}
         catch(Exception e){throw new IllegalStateException("Secure pairing failed");}
     }
@@ -100,6 +105,8 @@ final class RitsuPairing {
 
     static void disconnect(Context context) {
         context.getSharedPreferences(PREF,Context.MODE_PRIVATE).edit().remove("sealed").commit();
+        context.getSharedPreferences("ritsu_sync_feed_v1",Context.MODE_PRIVATE)
+                .edit().putLong("cursor",0).commit();
     }
 
     private static SecretKey key() throws Exception {
