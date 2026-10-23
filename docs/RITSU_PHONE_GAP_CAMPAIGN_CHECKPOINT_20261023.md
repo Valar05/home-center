@@ -18,9 +18,9 @@ Authoritative user correction: agent deliberately authors complete paragraphs wi
 
 ## Source artifacts, not yet installed
 
-- `tools/campaigns/ritsu_phone_gap_campaign.py`, source latest commit `d61735b6ed6756185dec0c4aed027f7ce1af10b0`.
+- `tools/campaigns/ritsu_phone_gap_campaign.py`, source latest commit `9fbc3cfbb6ecd29009e2f07dac9b4348462112cb`.
   - Android Termux read-only trace/WAV/source-hash collector; stable `run/resume/status/receipts/follow/stop/recover`, bounded isolated child, durable JSON receipts, clipboard status; no voice/relay mutation.
-  - Explicitly marks absent/invalid playback trace `inspection-incomplete`, never gap-free or HEARD.
+  - Explicitly marks absent, corrupt or truncated playback evidence `inspection-incomplete` and exits nonzero; never gap-free or HEARD.
   - Source is not itself an installed operator notification/menu. Do not claim full Operator Campaign acceptance without runtime install/canaries.
 - `tools/campaigns/test_ritsu_phone_gap_campaign.py`, source commit `1ce21be41ac40483943dc4b03070793e3711ddde`. Offline fixtures for gap arithmetic, trace absence/corruption, and event integrity. **Tests authored, not reported as run on phone.**
 
