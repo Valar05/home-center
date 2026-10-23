@@ -54,6 +54,7 @@ public final class RitsuControlService extends Service {
     private Handler mainHandler;
     private SystemSpeechSession speechSession;
     private Runnable recognitionTimeout;
+    private Runnable mediaFocusDeadline;
     private MediaPauseLease mediaPause;
     private ConversationLedger chatLedger;
     static volatile long feedRevision = 0;
@@ -155,6 +156,14 @@ public final class RitsuControlService extends Service {
             mediaGuardStatus = requested
                     ? "Android pause request via transient audio focus (compliance unverified)"
                     : "Media focus denied; player may continue";
+            if (requested) {
+                if (mediaFocusDeadline != null) mainHandler.removeCallbacks(mediaFocusDeadline);
+                mediaFocusDeadline = () -> {
+                    mediaPause.release();
+                    mediaGuardStatus = "Cooperative media pause lease expired";
+                };
+                mainHandler.postDelayed(mediaFocusDeadline, 30000);
+            }
             if (requested && mode == ListeningPolicy.Mode.OFF) startListening();
         }
         else if (ACTION_MUTE.equals(action)) mute();
@@ -188,6 +197,9 @@ public final class RitsuControlService extends Service {
     }
 
     private void mute() {
+        if (mediaPause != null) mediaPause.release();
+        if (mediaFocusDeadline != null) mainHandler.removeCallbacks(mediaFocusDeadline);
+        mediaFocusDeadline = null;
         if (mode == ListeningPolicy.Mode.RECOGNIZING) {
             cancelRecognition("User muted during Google recognition");
             applyTransition(ListeningPolicy.Event.RECOGNITION_FINISHED,
@@ -346,6 +358,8 @@ public final class RitsuControlService extends Service {
     }
 
     private void endSession() {
+        if (mediaFocusDeadline != null) mainHandler.removeCallbacks(mediaFocusDeadline);
+        mediaFocusDeadline = null;
         cancelRecognition("Session stopped");
         mediaPause.release();
         if (capture != null) capture.stop();
