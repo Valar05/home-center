@@ -1,5 +1,15 @@
 # RITSU PHONE AUDIO LAWS v1.0
 
+## OCTOBER 23, 2026 — V3 INSTALL CONFIRMED, CORRECTED ARRAY EXPANSIONS REQUIRED BEFORE FIRST RESTART
+
+The owner ran the guarded Termux install and returned `RITSU_V3_SOURCE_INSTALLED=1`; old original v2 SHA `8acd8467...` backed up, but the *installed v3 source SHA* `cd71d8d2215ba369aa489aea65b35911fdaf9c7ca59e41e6bcd342a5d02c4e32` contains a subsequently discovered BUG: 13 literal `\\${...}` escaped Bash array expansions. `bash -n` does NOT detect this runtime error. **NEVER run this defective SHA, and never label its mere install as activation.** Old in-memory receiver still handles audio.
+
+The corrected source in `tools/campaigns/ritsu_phone_receiver_prefetch_v3.sh` at commit `7cbbe2a363afbdf6d6e421d7af4627b19bd42019` has SHA256 `55c0fb71168573145de842bf217a3136d942654053f0f785993de8b23abef015`. Windows validation confirmed zero escaped variable expansions, correct array expressions, Bash parse exit 0, and four lossless PCM/FIFO unit tests pass. **Real Android v3 playback still NOT verified.**
+
+Use the guarded one-time phone-source repair/idle-activation `tools/campaigns/activate_ritsu_receiver_v3_safe.sh` at commit `7194d7a891e8a244097986eeaded8ef92fc9367d`. It validates exact original v2 backup and installed v3 hashes, tests candidate, backs up bad staged v3, patches source atomically, then may gracefully stop and restart only after repeated idle checks. If playback or queued audio is detected, it reports HOTFIXED + DEFERRED and leaves current receiver unchanged; on ambiguity refuse restart/replay. No force stop, no clearing play/fetch counters, no changing Home Center voice, cloud worker, relay 19643 or player. The original v2 backup remains available for deliberate recovery. **Owner must report actual Termux activation receipt plus HEARD acceptance before any claim of an Android fix.**
+
+The October 23 speech rules remain: exact agent-authored complete thought per WAV, hard Pocket request max 450 characters, provisional 90–140-character opening thought and 180–300-character subsequent thoughts, never mechanical splitting. Smaller number of Android playback starts is a hypothesis needing real before/after user listening.
+
 ## OCTOBER 23, 2026, 17:02+ CDT — PHONE HANDOFF REPAIR CANDIDATE (NOT LIVE)
 
 The active sender has already been verified no-split with maximum **450 characters per complete agent-authored speech ticket**. Prefer the first stable complete thought around 90–140 characters, later complete thoughts about 180–300 characters as provisional timing targets, NOT programmatic cutoffs. Emit first speech unit early and preserve full visible narration coverage in multiple ordered units. Do not revert to sentence-by-sentence server heuristics.
