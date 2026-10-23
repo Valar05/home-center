@@ -42,6 +42,8 @@ public final class RitsuControlService extends Service {
     static volatile String lastProblem = "";
     static volatile String lastTranscript = "";
     static volatile long transcriptRevision = 0;
+    static volatile String partialTranscript = "";
+    static volatile long partialRevision = 0;
     static volatile String recognitionStatus = "Not started";
 
     private ListeningPolicy.Mode mode = ListeningPolicy.Mode.OFF;
@@ -61,6 +63,8 @@ public final class RitsuControlService extends Service {
         lastProblem = "";
         lastTranscript = "";
         transcriptRevision = 0;
+        partialTranscript = "";
+        partialRevision = 0;
         recognitionStatus = "Not started";
         // Clear Stage A's stale "mic requested" marker.
         ControlStore.transition(this, ControlPolicy.ACTION_START);
@@ -81,6 +85,11 @@ public final class RitsuControlService extends Service {
             }
         });
         speechSession = new SystemSpeechSession(this, new SystemSpeechSession.Observer() {
+            @Override public void partialTranscript(String text) {
+                partialTranscript = text;
+                partialRevision++;
+                recognitionStatus = "Interim speech recognized (not yet final)";
+            }
             @Override public void status(String message) {
                 recognitionStatus = message;
                 updateNotification();
@@ -88,6 +97,7 @@ public final class RitsuControlService extends Service {
             @Override public void finalTranscript(String text) {
                 lastTranscript = text;
                 transcriptRevision++;
+                partialTranscript = "";
                 recognitionStatus = "Recognized words received; NOT sent";
                 receipts.append("ASR_TEXT_READY", mode, mode, "private_transcript_not_logged");
                 // Finish only after the recognizer releases the microphone.
@@ -194,6 +204,8 @@ public final class RitsuControlService extends Service {
         voiceActivity = false;
         applyTransition(ListeningPolicy.Event.RECOGNITION_STARTED, "vad_released_for_google_asr");
         lastTranscript = "";
+        partialTranscript = "";
+        partialRevision++;
         recognitionStatus = "Requesting system speech recognizer";
         if (!speechSession.begin()) {
             applyTransition(ListeningPolicy.Event.RECOGNITION_FINISHED, "recognizer_unavailable");
