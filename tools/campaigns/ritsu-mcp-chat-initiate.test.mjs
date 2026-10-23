@@ -33,8 +33,10 @@ test('one existing signed-in blank tab receives an MCP callback instruction, nev
   const journal=JSON.parse(await readFile(path.join(dir,'mcp-canary-'+prompt.turnId+'.json'),'utf8'));
   assert.equal(journal.state,'user_prompt_observed');
   await assert.rejects(applyOne({...prompt,stateDirectory:dir,
-    fetchImpl:async()=>existing(),evalImpl}),{code:'EEXIST'});
-  assert.equal(writes,3); // only read-only preflight; never another send
+    fetchImpl:async()=>existing(),
+    evalImpl:async()=>JSON.stringify({url:tab.url,ready:true,empty:true,
+      userCount:0,assistantCount:0,loggedOut:false})}),{code:'EEXIST'});
+  assert.equal(writes,2); // No second irreversible evaluation.
 });
 test('uncertain dispatch is persisted and never blindly retried',async t=>{
   const dir=await mkdtemp(path.join(os.tmpdir(),'ritsu-mcp-uncertain-'));
