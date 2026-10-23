@@ -1,5 +1,33 @@
 # CURRENT MISSION: Pocket TTS voice experiments and accepted voices (updated 2026-10-23)
 
+## Complete six-voice Pocket rebuild, minus-one references (2026-10-23)
+
+User explicitly requested fresh clone exports and a single sequential desktop audition of the full voice set including already pitch-adjusted Whisper and Amused.
+All six are freshly exported from the EXACT verified pitch-lowered conditioning references, with no pitch processing applied to generated speech. Only the WAV header finalizer touched output containers, not their sample data. Temperature 0.7 on CPU for all.
+All six separate new voice states and preview WAVs are under C:/Users/dclar/Documents/Codex/Venice/PocketTTS/voice-candidates/fullset-20261023. State name is ROLE-minus1.safetensors; preview name ROLE-playable.wav.
+
+| Playback order | Role | Reference SHA256 | Fresh state SHA256 | Fresh WAV SHA256 | Seconds |
+|---|---|---|---|---|---|
+| 1 | Warm / Normal (Ocean Dream) | 45032B1B34872CBBD671FEAB16431F9BC768BE03582EE0FBC1DBC95DF8905F66 | 043D61FCA49B175C88A41734D1A659ED9655D39BDE8BD5FA2038AFC35D7FBB36 | 551E50374E86A85351BC0CD53109E97F95BB2E2DC4F53DA40B08EA493D7D326E | 4.84 |
+| 2 | Delighted (happy_00112, no laugh) | 20A36E295FCE95820F87B9AC34D5036DC8929CBB39282182EC3BCAF56BC331BE | 050A501F67F83A3876183BEFD649806265B844BFC13BB21D967FC37C0456427A | 950BC2D36E1125B2163830411BEC6866202CE370EC6F33757BF3B63A1B571B48 | 3.72 |
+| 3 | Amused (laughing_00044) | A66971D3C28B7B63EB805F2CFEE90B0F1FB5FBA8AFCC4DE225419578C66D3DCA | 6F878B05D4227E10B43BB0AA8A87C6CBDF909B9CCA0F4A845E28C6541F17D9FE | A786C67404F0A7B447F778B8A4B29BFBB9A8FE1B4E324B9579A1D0E60E03B454 | 3.24 |
+| 4 | Somber (Personal Affirmation, not Cheesecake) | 3CE376A8EC112B1803D9A61C3C0F706E013FDED4BCB39C9A5EFF81F3D3C936C4 | 51C7B4F55361082ED23ABB56E1F7E9878D4CA26DA5740349858BDBDF2A4CA0BD | 50992DE6DA1E6209634B01AB133FA8A69091E804E436EB70EA1E3E764CF35A59 | 4.52 |
+| 5 | Whisper (original approved pitched Qwen output) | 673F2A3EB7119F91E58CAABBE188237AE677B27DFB40A39D44A225A3E891DC3C | B99EB2E16612E8B8C3E3A96F74BD631676CC79071779537FD94C564DB5796BE5 | 1BA1788CA34B161C98F63A6C2631441860144366EB97AA89EBF3A38D10866A9D | 4.20 |
+| 6 | Upset (confused_00043) | 8D4398610B3041A523ADCEBC0B98174C13E0E58D1660C3059BD50323C7ECED9C | 4A90D110D178B12B91A485265C7DD77828EF3647FDF8592F37DC44A5395F8E87 | 86584B51F53894FB3C0F758365062EA27F84F11826E1BA7BE6A16430AF215E74 | 3.80 |
+
+Verified actual conditioning references: Warm voice-candidates/minus1-prepared-20261023/warm-desire02-minus1-formant-pcm16-48k.wav; Delighted workspace/ritsu-faster-qwen3-tts/ritsu-pitched-references/ex04_happy_00112.wav; Amused same prepared directory/ex04_laughing_00044.wav; Somber voice-candidates/minus1-prepared-20261023/somber-desire01-minus1-formant-pcm16-48k.wav; Whisper workspace/ritsu-faster-qwen3-tts/ex04-whisper-v1-lower-1st-20261022.wav; Upset workspace/ritsu-faster-qwen3-tts/ritsu-pitched-references/ex04_confused_00043.wav.
+IMPORTANT: Whisper's existing accepted Pocket state was cloned from the -1 lowered Qwen whisper WAV (24kHz), NOT the raw ex04 whisper file or its prepared Expresso form. Rebuilt Whisper state SHA256 matches its earlier approved minus-one voice state. Other five previously built states also reproduced their state hashes where applicable. Upset had no Pocket state previously and was exported as a new distinct voice.
+
+Test scripts: Warm and Somber 'Good morning. The workshop is quiet, the coffee is ready, and I have a few ideas.'; Delighted 'Oh, that's wonderful! I'm so glad it worked out.'; Amused 'Well, look at you! Someone's feeling clever today.'; Whisper 'I'm right here, darling. Everything is quiet tonight.'; Upset 'Wait, what happened? I thought we had this working.'
+Preflight receipts hands-ritsu-full-repertoire-pocket-state-inventory-20261023, hands-ritsu-full-repertoire-whisper-upset-provenance-20261023, hands-ritsu-fullset-whisper-real-source-check-20261023.
+Clone+generation receipts: hands-ritsu-fullset-rebuild-warm-20261023, hands-ritsu-fullset-rebuild-delighted-20261023, hands-ritsu-fullset-rebuild-amused-20261023, hands-ritsu-fullset-rebuild-somber-20261023, hands-ritsu-fullset-rebuild-whisper-20261023, hands-ritsu-fullset-rebuild-upset-20261023. All completed exit 0.
+Signal QA receipt hands-ritsu-full-repertoire-six-preview-signal-qa-20261023, completed exit 0. All PCM16 mono 24000 Hz, reasonable RMS and zero crossing, no detected high noise or clipping. Machine-readable output hashes and QA are in fullset-20261023/fullset-manifest.json.
+Playback receipt hands-ritsu-fullset-20261023-six-voices-sequential-desktop-playonce, completed exit 0, Windows interactive desktop session 1, direct guarded FFplay -loop 1, 3-second gaps, 09:55:11 to 09:55:53 CDT, each six player exit codes 0.
+User HEARD verdict on this fresh complete set is not yet returned. Do not infer emotional approval from playback. Existing accepted reference previews, previous states and live API settings are untouched; no phone audio claim. Continue respecting Warm=Ocean Dream, Somber=Personal Affirmation, Cheesecake rejected, no laughs in Delighted.
+
+---
+
+
 ## Pocket −1 semitone alignment: Delighted, Warm, Somber (2026-10-23)
 
 Owner requested: "redo the delighted clip and any others that didn't get caught" after noticing mixed semitone-pitched voice tests. Audited all approved/current Pocket variants before changes.
