@@ -56,3 +56,16 @@ The approved Windows audition `ex04-whisper-v1-lower-1st-20261022.wav` was compa
 The repertoire Qwen local API source now implements that FFmpeg Rubber Band stage, not librosa phase-vocoder shift. A local code readback confirmed the running source contains `formant=preserved` and that librosa pitch shift occurs only in an explanatory comment. The API was restarted after pausing its worker; `/v1/health` returned `model:loaded` with no error; `/v1/voices` returned all six profiles at -1 semitone. ASMR maintenance was cleared after the user confirmed the experiment ended.
 
 Exact whisper end-to-end ticket: `ritsu-whisper-rubberband-approved-test-20261022`, text `Hey, sweetheart. I'm right here.`, profile `whisper`. Home Center status reached `enqueued`, relay ID `eeb01561de1a6ddef6ec6e10`. **Phone HEARD remains unverified until user confirms.** Do not assert audible delivery or subjective sound quality from enqueue alone. Keep original audition WAVs untouched and preserve the backed-up API sources in `%LOCALAPPDATA%\\RitsuWarmTicketWorker\\repertoire-backup-20261022-191709`.
+
+## Baked minus-one references (2026-10-23)
+
+User corrected the architecture: a previous clean -1-semitone preview existed, and recurrent post-processing of generated dialogue introduced an objectionable doubled/unison whisper. This is not evidence that every -1 pitch operation sounds bad. The explicit current design is to **prepare each reference WAV once** with FFmpeg `rubberband=pitch=0.943874312682:formant=preserved`, never modify original audition WAVs, and stop post-processing generated dialogue. Do not silently reinstate per-generation `librosa.effects.pitch_shift` or FFmpeg filters.
+
+- One-time baker: `tools/campaigns/ritsu_bake_voice_references.py`
+- Local baked WAVs: `C:\Users\dclar\workspace\ritsu-faster-qwen3-tts\ritsu-pitched-references\<referenceFile>`
+- Manifest with original and baked SHA256: `ritsu-pitched-references/bake-manifest.json`
+- Runtime API: `tools/campaigns/ritsu_voice_api_repertoire_v1.py` now reads baked samples directly and writes generated audio without pitch postprocessing
+- Computer Hands receipt: `ritsu-bake-ref-run-20261023` exit 0, `BAKED_SIX_REFERENCES_OK 6`; originals preserved
+- Windows activation receipt: `activation-report.json` reached `activated` at 2026-10-23 06:15 local with backup `repertoire-backup-20261023-061154`; registration worker started, no HEARD assertion
+- A dedicated whisper test was submitted as `ritsu-baked-whisper-audition-20261023-01` but remained queued at last verification. The result must be checked and the user must audition before declaring the whisper fixed.
+- Baking pitch into a reference changes voice-cloning conditioning; it is not necessarily acoustically identical to pitch shifting the finalized output. Compare with the user's approved earlier preview.
