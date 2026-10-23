@@ -92,12 +92,66 @@ def decide(pcm: bytes) -> dict:
             "reason": "leading_quiet_candidate" if cut_ms else "no_safe_trim"}
 
 
+
+def energy_profile(pcm: bytes) -> dict:
+    """Describe actual levels, never interpret quiet frames as expendable speech.
+
+    Data are dBFS RMS of 10ms frames. Sustained onsets are descriptive
+    threshold crossings, not a safe trim instruction or VAD result.
+    """
+    frame_bytes = SAMPLE_RATE * FRAME_MS // 1000 * SAMPLE_WIDTH
+    levels = []
+    for offset in range(0, len(pcm), frame_bytes):
+        raw = pcm[offset:offset+frame_bytes]
+        values = array("h")
+        values.frombytes(raw)
+        if sys.byteorder != "little":
+            values.byteswap()
+        if not values:
+            continue
+        rms = math.sqrt(sum(int(x)*int(x) for x in values) / len(values))
+        dbfs = 20 * math.log10(max(rms, 1e-6) / 32768)
+        levels.append(round(max(-120.0, dbfs), 2))
+    if not levels:
+        return {"valid": False}
+    sorted_levels = sorted(levels)
+    reference_dbfs = sorted_levels[int((len(sorted_levels)-1)*0.9)]
+    def window(start_ms: int, stop_ms: int):
+        values = levels[start_ms//FRAME_MS:stop_ms//FRAME_MS]
+        if not values:
+            return None
+        return round(max(values), 2)
+    def sustained_at(threshold_dbfs: float):
+        # Requiring consecutive 10ms frames avoids an isolated impulse. It
+        # does NOT distinguish quiet consonants from noise.
+        for i in range(max(0, len(levels)-4)):
+            if all(n >= threshold_dbfs for n in levels[i:i+5]):
+                return i*FRAME_MS
+        return None
+    adaptive_threshold = max(-45.0, round(reference_dbfs-22, 2))
+    return {
+        "thresholdMethod": "five_consecutive_10ms_rms_above_dbfs_no_trim_authority",
+        "first10msRmsDbfs": levels[0],
+        "first100msMaxRmsDbfs": window(0, 100),
+        "first250msMaxRmsDbfs": window(0, 250),
+        "speechReferenceP90Dbfs": reference_dbfs,
+        "adaptiveThresholdDbfs": adaptive_threshold,
+        "candidateOnsetMsByThreshold": {
+            "minus50dB": sustained_at(-50),
+            "minus40dB": sustained_at(-40),
+            "minus30dB": sustained_at(-30),
+            "adaptive": sustained_at(adaptive_threshold),
+        },
+        "noAutoCut": True,
+    }
+
+
 def inspect(path: Path) -> dict:
     pcm = pcm_read(path)
     plan = decide(pcm)
     return {"file": path.name, "samples": len(pcm)//2,
             "durationMs": len(pcm)*1000//(SAMPLE_RATE*SAMPLE_WIDTH),
-            "sampleRate": SAMPLE_RATE, **plan}
+            "sampleRate": SAMPLE_RATE, "energyProfile": energy_profile(pcm), **plan}
 
 
 def candidate(source: Path, dest: Path) -> dict:
