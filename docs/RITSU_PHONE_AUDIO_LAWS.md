@@ -1,5 +1,10 @@
 # RITSU PHONE AUDIO LAWS v1.0
 
+## 2026-10-23 — TEMPORARY PARAGRAPH-BOUNDARY SPEECH OVERRIDE (USER DIRECTIVE)
+
+This latest explicit user instruction overrides earlier single-sentence-per-ticket mandates for conversational RV ON output. Chunk at the END OF A COMPLETE SHORT PARAGRAPH, never in the middle of a sentence. Prefer short paragraphs of one to three sentences, and shorten unusually long paragraphs in the visible text before audio submission. Maintain exact full spoken/visible content correspondence, in-order chunk IDs and receipt checks. Never omit entire chunks or let a partial successful enqueue stand in for full narration. Preserve the canonical Pocket engine, Tailscale relay, Termux receiver, approved voice states and fail-closed safety restrictions. This is a *documentation and submission policy* change, not evidence of an installed code fix or uninterrupted playback. User reported that RV ON produced no audible audio in the preceding response: a printed activation message does not count as successful speech. Submit actual voice tickets for each ON reply and report precise status.
+
+
 ## 2026-10-23 REAL ANDROID PREFETCH INSTALL + FIRST 10-CLIP REGRESSION (awaiting HEARD verdict)
 
 **Verified from owner's actual Termux output, not a mock:** First `bash /sdcard/Download/ritsu_receiver_upgrade.sh` failed with "No such file or directory" before download completion. Second invocation succeeded and printed:
