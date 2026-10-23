@@ -207,8 +207,16 @@ async function probe(){
       // A finished unrelated request must not be mistaken for the answer.
       // Keep bounded wait for the actual marked canary response.
       if(candidates.size&&Date.now()-observedAt>15000&&
-         [...candidates.values()].every(r=>r.finished||r.failed||r.error))
+         [...candidates.values()].every(r=>r.finished||r.failed||r.error)){
+        // Redacted response-shape receipt for a controlled next adapter repair.
+        // Never persist raw SSE bytes, response headers, message text or marker.
+        await receipt({state:'schema_diagnostic',revision:args.revision,
+          jobId:args.jobId,source:'cdp_network_only',requests:[...candidates.values()]
+            .slice(0,6).map(row=>({finished:row.finished,failed:row.failed,
+              streamed:row.streamed,armed:row.armed,bytes:row.bytes,
+              error:row.error,syntax:row.sse.diagnostic()}))});
         throw Error('no_terminal_network_reply_with_canary_marker');
+      }
       await wait(200);
     }
     throw Error(candidates.size===0?'no_conversation_network_request':
