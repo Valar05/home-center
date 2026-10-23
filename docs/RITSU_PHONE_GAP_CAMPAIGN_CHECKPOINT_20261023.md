@@ -153,3 +153,13 @@ Owner provided actual on-phone installation receipt `RITSU_V3_SOURCE_INSTALLED=1
 For future first-time installs, old installer commit `183666...` pinned the bad source; superseded installer source on GitHub main now pins `7cbbe2a...` and exact corrected SHA (commit `6e107be04f5eecf775bf6aff00343bdbb8427d7e`), but the already-pinned owner install was completed before this fix. Always use the guarded ACTIVATOR for this phone, not the first-time installer a second time.
 
 True acceptance still requires a real multi-utterance phone trace with events `batch_playback_started/batch_playback_finished`, physical owner listening, complete words, and lower perceptual pauses. No silence cutter active.
+
+
+## 17:xx CDT October 23: v3 confirmed actively launched on physical Android
+
+Owner pasted real activation receipt after guarded Termux activator:
+`RITSU_V3_RECEIVER_ACTIVE=1`, `SOURCE_SHA256=55c0fb71168573145de842bf217a3136d942654053f0f785993de8b23abef015`, `PROCESS_PID=11198`, `PLAY_SEQ=121`, `FETCH_SEQ=121`, `RELAY=19643`, `PLAYER=termux-media-player`, `CUT_SAMPLES=0`, `HEARD=unverified`.
+
+This conclusively upgrades the prior SOURCE-ONLY/NOT-LIVE checkpoint: Android **v3 activation proved** for the corrected SHA, at FIFO drained seq121. It does **not** prove WAV batching engaged, perceptual pause shortened, or audio words heard. Original v2 source still backed up at `~/.ritsu-embodiment/receiver-backups/v3-source-20261023T221843Z/receiver.sh`; no voice/relay replacements or sample cuts.
+
+Owner-authorized three-part Normal-profile listening test via canonical Home Center `ritsu.voice.speak`, three distinct unique request IDs `ritsu-android-v3-owner-listening-20261023-01`, `-02`, `-03`; lengths 152, 196, 164 characters, all multi-sentence, complete thoughts, below Pocket 450 chars. Cloud accepted all 3 in order, first initially `enqueued` relay ID `b1a452b36b05cca4e4ff6f45`, second initially leased, third queued. Full status must be polled; do not claim HEARD from `enqueued`. Distinguish one WAV per complete agent-authored speech ticket from 2–3 independent WAVs optionally prebatched by Android if already downloaded. Check actual Android `batch_playback_started`/`batch_playback_finished` trace for proof that merging engaged. If none, no-wait path may play individually. User hearing is decisive.
