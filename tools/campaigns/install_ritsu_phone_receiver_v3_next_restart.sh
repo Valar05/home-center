@@ -55,7 +55,7 @@ done
 PHASE=tests
 bash -n "$SCRATCH/ritsu_phone_receiver_prefetch_v3.sh"
 [ "$(sha256sum "$SCRATCH/ritsu_phone_receiver_prefetch_v3.sh" | awk '{print $1}')" = "55c0fb71168573145de842bf217a3136d942654053f0f785993de8b23abef015" ] || { receipt 'RITSU_V3_INSTALL_REFUSED corrected_source_hash_mismatch'; exit 21; }
-if grep -Fq '\\python3 -m py_compile "$SCRATCH/ritsu_phone_wav_batch.py" "$SCRATCH/test_ritsu_phone_wav_batch.py"
+python3 -m py_compile "$SCRATCH/ritsu_phone_wav_batch.py" "$SCRATCH/test_ritsu_phone_wav_batch.py"
 (cd "$SCRATCH" && python3 test_ritsu_phone_wav_batch.py) >"$SCRATCH/tests.txt" 2>&1 || {
   tail -n 30 "$SCRATCH/tests.txt" >&2
   receipt 'RITSU_V3_INSTALL_REFUSED tests_failed; no live change'
