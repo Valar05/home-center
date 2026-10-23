@@ -1,5 +1,16 @@
 # RITSU PHONE AUDIO LAWS v1.0
 
+## Confirmed phone audio output works; receiver acknowledgment bug still open (2026-10-23)
+
+Owner confirms the Android phone is independently producing audio normally. Therefore do **not** repeat generic phone-volume/speaker instructions as the primary diagnostic. The specific missing Ritsu clip was non-silent at generation and downloaded successfully. The investigation is narrowed to the **Termux receiver/media player** rather than general phone output.
+
+Direct source inspection of the canonical repo's legacy receiver installer `tools/campaigns/ritsu-phone-embodiment-20261021.sh` identifies a specific dangerous behavior: its generated `~/.ritsu-embodiment/receiver.sh` POSTs `/ack` **before attempting** `termux-media-player play "$FILE"`, and invokes playback with `|| true`, so a Termux player launch failure gets silently ignored while relay discards the queued clip. The following `sleep 1` and one-second media-status polling also contribute to pauses. These findings explain a *possible* silent delivery in which HTTP GET/ACK succeed but the user hears nothing, but **installed phone source has not yet been verified**, so do not claim causality proven.
+
+Authorized Phone Hands primary/rescue remained unavailable in the last attempt; inspect the actual on-device player result and source before patching. Minimal user-run targeted diagnostic when tool control remains unavailable: use the **already downloaded** unplayed audio file at `$HOME/.ritsu-embodiment/audio/a854816b739c83c3f8c5aaef.wav` (only if present), invoke `termux-media-player play` without suppressing stderr, capture command output and `termux-media-player info`, and ask if heard. This does not synthesize a new clip, enqueue a duplicate, change relay/voices, or restart services.
+
+---
+
+
 ## 2026-10-23 NO-AUDIO INCIDENT: verified WAV and phone GET, user heard nothing
 
 **User's explicit listening verdict:** "I've never heard anything if that's what was supposed to happen" in response to a prior status message whose audio had been enqueued via `ritsu.voice.speak`. This is **HEARD=false**, regardless of cloud ticket/relay ACK. Do not replay automatically or claim phone audible acceptance.
