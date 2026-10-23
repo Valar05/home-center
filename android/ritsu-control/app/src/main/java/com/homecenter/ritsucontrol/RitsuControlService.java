@@ -88,8 +88,15 @@ public final class RitsuControlService extends Service {
         receipts = new ControlReceipts(this);
         ledger = new ConversationLedger(this);
         mediaPause = new MediaPauseLease(this);
-        int storedPause = getSharedPreferences("ritsu_voice_timing_v1", MODE_PRIVATE)
-                .getInt("pauseMs", SpokenTurnBuffer.DEFAULT_PAUSE_MS);
+        // Upgrade existing v0.8 sessions once to the owner's requested
+        // Thoughtful default, without clobbering any later explicit choice.
+        android.content.SharedPreferences timing =
+                getSharedPreferences("ritsu_voice_timing_v1", MODE_PRIVATE);
+        if (!timing.getBoolean("thoughtful_migration_20261023", false)) {
+            timing.edit().putInt("pauseMs", 5000)
+                    .putBoolean("thoughtful_migration_20261023", true).apply();
+        }
+        int storedPause = timing.getInt("pauseMs", SpokenTurnBuffer.DEFAULT_PAUSE_MS);
         if (storedPause < SpokenTurnBuffer.MIN_PAUSE_MS ||
                 storedPause > SpokenTurnBuffer.MAX_PAUSE_MS)
             storedPause = SpokenTurnBuffer.DEFAULT_PAUSE_MS;
