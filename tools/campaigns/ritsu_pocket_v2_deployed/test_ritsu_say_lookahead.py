@@ -7,6 +7,14 @@ def run():
     sentences=ritsu_say.sentence_chunks(original)
     assert sentences==["She smiles.","The clock ticks!","Is it working?","Yes, it is."]
     assert " ".join(sentences)==original
+    # The default path must preserve an agent-authored chunk exactly.
+    already="  Dr. Imani smiles...  Yes, darling!  "
+    assert ritsu_say.literal_chunks(already)==[already]
+    assert ritsu_say.literal_chunks("I have a point. And another!") == ["I have a point. And another!"]
+    try:ritsu_say.literal_chunks("x"*451)
+    except ValueError:pass
+    else:raise AssertionError("Long agent-authored chunk was not rejected")
+
     assert len(ritsu_say.sentence_chunks("One. Two. Three. Four. Five. Six. Seven. Eight. Nine. Ten."))==10
     try:ritsu_say.sentence_chunks("x"*451)
     except ValueError:pass
