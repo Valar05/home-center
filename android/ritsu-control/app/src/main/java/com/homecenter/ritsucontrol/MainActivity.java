@@ -11,6 +11,8 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.InputType;
 import android.provider.Settings;
 import android.view.View;
@@ -32,6 +34,16 @@ public final class MainActivity extends Activity {
     private EditText transcriptEditor;
     private SpellingSuggestions spellchecker;
     private boolean pendingBubbleEnable;
+    private boolean pendingRecognizeOnce;
+    private long observedTranscriptRevision = 0;
+    private final Handler displayHandler = new Handler(Looper.getMainLooper());
+    private final Runnable liveRefresh = new Runnable() {
+        @Override public void run() {
+            if (status == null || transcriptEditor == null) return;
+            refresh();
+            displayHandler.postDelayed(this, 300);
+        }
+    };
 
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,10 +69,10 @@ public final class MainActivity extends Activity {
                 InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
         transcriptEditor.setContentDescription("Editable transcript using your normal Gboard keyboard and suggestions");
         layout.addView(transcriptEditor);
-        button(layout, "Use Google speech recognition (one phrase)",
-                "While local listening runs, hand the microphone to Android's system speech recognition for one utterance",
-                v -> send(RitsuControlService.ACTION_TRANSCRIBE));
-        button(layout, "Load recognized transcript", "Copy the latest recognized words into the editable Gboard text field",
+        button(layout, "Talk to Google recognizer (one phrase)",
+                "One tap starts permitted microphone capture and Google's system recognition, then shows the words automatically",
+                v -> requestRecognition());
+        button(layout, "Reload transcript", "Copy the latest recognized words into the editable Gboard text field",
                 v -> {
                     transcriptEditor.setText(RitsuControlService.lastTranscript);
                     transcriptEditor.setSelection(transcriptEditor.length());
@@ -89,7 +101,7 @@ public final class MainActivity extends Activity {
                 v -> refresh());
 
         TextView warning = new TextView(this);
-        warning.setText("GOOGLE/ANDROID SPEECH TEST. Start local listening, then recognize one phrase. The default Google/system service MAY process audio online; this app does not store audio or submit a ChatGPT command. Gboard autocomplete is available in the editable text field, but its private personal suggestions cannot be exported. Recognition is bounded and does not run continuously. Overlay is optional.");
+        warning.setText("SPEECH RECOGNITION TEST ONLY. Tap Talk to Google recognizer and say one phrase. Results automatically appear above or a provider error appears in live status. The system provider MAY use cloud processing. This app cannot yet send words to ChatGPT or speak back in Ritsu's voice. Gboard editing and optional overlay remain available.");
         warning.setTextSize(14);
         warning.setPadding(0, dp(20), 0, dp(12));
         layout.addView(warning);
@@ -107,6 +119,23 @@ public final class MainActivity extends Activity {
             send(RitsuControlService.ACTION_SHOW_BUBBLE);
         }
         if (status != null) refresh();
+        displayHandler.removeCallbacks(liveRefresh);
+        displayHandler.postDelayed(liveRefresh, 300);
+    }
+
+    @Override protected void onPause() {
+        displayHandler.removeCallbacks(liveRefresh);
+        super.onPause();
+    }
+
+    private void requestRecognition() {
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            pendingRecognizeOnce = true;
+            requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, MIC_PERMISSION_REQUEST);
+            return;
+        }
+        pendingRecognizeOnce = false;
+        send(RitsuControlService.ACTION_SPEAK_ONCE);
     }
 
     private void requestListening() {
@@ -140,6 +169,7 @@ public final class MainActivity extends Activity {
     }
 
     @Override protected void onDestroy() {
+        displayHandler.removeCallbacks(liveRefresh);
         if (spellchecker != null) spellchecker.close();
         super.onDestroy();
     }
@@ -172,8 +202,11 @@ public final class MainActivity extends Activity {
         super.onRequestPermissionsResult(requestCode, permissions, grants);
         boolean allowed = grants.length > 0 && grants[0] == PackageManager.PERMISSION_GRANTED;
         if (requestCode == MIC_PERMISSION_REQUEST) {
-            if (allowed) send(RitsuControlService.ACTION_LISTEN);
-            else status.setText("Microphone permission denied. Ritsu is NOT listening.");
+            boolean recognize = pendingRecognizeOnce;
+            pendingRecognizeOnce = false;
+            if (allowed) send(recognize ? RitsuControlService.ACTION_SPEAK_ONCE
+                    : RitsuControlService.ACTION_LISTEN);
+            else status.setText("Microphone permission denied. Speech was NOT captured.");
         } else if (requestCode == NOTIFICATION_PERMISSION_REQUEST) {
             if (allowed) send(RitsuControlService.ACTION_START);
             else status.setText("Notification permission denied. Use Quick Settings or Ritsu app to reopen.");
@@ -210,6 +243,12 @@ public final class MainActivity extends Activity {
     }
 
     private void refresh() {
+        long latest = RitsuControlService.transcriptRevision;
+        if (latest != observedTranscriptRevision) {
+            observedTranscriptRevision = latest;
+            transcriptEditor.setText(RitsuControlService.lastTranscript);
+            transcriptEditor.setSelection(transcriptEditor.length());
+        }
         ListeningPolicy.Mode mode = RitsuControlService.liveMode;
         String microphone = mode == ListeningPolicy.Mode.LISTENING ? "ACTIVE: local energy detector"
                 : mode == ListeningPolicy.Mode.RECOGNIZING ? "SYSTEM ASR: provider may be capturing"
