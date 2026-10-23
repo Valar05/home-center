@@ -111,11 +111,11 @@ play_loop() {
     shopt -s nullglob
     candidates=("$READY/$(printf '%08d' "$seq")_"*.wav)
     shopt -u nullglob
-    if [ "\${#candidates[@]}" -eq 0 ]; then
+    if [ "${#candidates[@]}" -eq 0 ]; then
       if ! kill -0 "$fetch_pid" 2>/dev/null; then echo 'RITSU_V3_FETCHER_DIED' >&2; exit 9; fi
       sleep .10; continue
     fi
-    if [ "\${#candidates[@]}" -ne 1 ]; then echo 'RITSU_V3_DUPLICATE_FIFO_SLOT' >&2; exit 5; fi
+    if [ "${#candidates[@]}" -ne 1 ]; then echo 'RITSU_V3_DUPLICATE_FIFO_SLOT' >&2; exit 5; fi
     # All group members MUST already exist; never wait for another clip.
     group=() ids=()
     for ((i=0; i<3; i++)); do
@@ -123,31 +123,31 @@ play_loop() {
       shopt -s nullglob
       candidates=("$READY/$(printf '%08d' "$f")_"*.wav)
       shopt -u nullglob
-      [ "\${#candidates[@]}" -eq 0 ] && break
-      if [ "\${#candidates[@]}" -ne 1 ]; then echo 'RITSU_V3_DUPLICATE_FIFO_SLOT' >&2; exit 5; fi
-      item="\${candidates[0]}"
-      id="\${item##*/}"; id="\${id#*_}"; id="\${id%.wav}"
+      [ "${#candidates[@]}" -eq 0 ] && break
+      if [ "${#candidates[@]}" -ne 1 ]; then echo 'RITSU_V3_DUPLICATE_FIFO_SLOT' >&2; exit 5; fi
+      item="${candidates[0]}"
+      id="${item##*/}"; id="${id#*_}"; id="${id%.wav}"
       [[ "$id" =~ ^[a-f0-9]{24}$ ]] || exit 5
       group+=("$item"); ids+=("$id")
     done
-    count="\${#group[@]}"
+    count="${#group[@]}"
     [ "$count" -gt 0 ] || exit 5
     endseq=$((seq+count-1))
-    firstid="\${ids[0]}"
+    firstid="${ids[0]}"
     combined=''
-    playfile="\${group[0]}"
+    playfile="${group[0]}"
     if (( count > 1 )); then
       [ -f "$batch_helper" ] || { echo 'RITSU_V3_BATCH_HELPER_MISSING' >&2; exit 16; }
       combined="$BATCH_READY/$(printf '%08d' "$seq")-$(printf '%08d' "$endseq").wav"
       if [ -e "$combined" ]; then echo 'RITSU_V3_BATCH_ALREADY_EXISTS_AMBIGUOUS' >&2; exit 17; fi
-      batchlog="$(python3 "$batch_helper" --output "$combined" "\${group[@]}")" ||
+      batchlog="$(python3 "$batch_helper" --output "$combined" "${group[@]}")" ||
         { echo 'RITSU_V3_BATCH_VERIFY_FAILED' >&2; exit 18; }
       printf '%s' "$batchlog" | jq -e --argjson first "$seq" --argjson last "$endseq" \
         '.status == "verified" and .firstSeq == $first and .lastSeq == $last and .gapInsertedSamples == 0 and .sourceSamplesTrimmed == 0' >/dev/null ||
         { echo 'RITSU_V3_BATCH_RECEIPT_INVALID' >&2; exit 18; }
       playfile="$combined"
     fi
-    printf '%d %d %s\n' "$seq" "$endseq" "\${ids[*]}" > "$STATE/playing.tmp.$$"
+    printf '%d %d %s\n' "$seq" "$endseq" "${ids[*]}" > "$STATE/playing.tmp.$$"
     mv -f "$STATE/playing.tmp.$$" "$STATE/playing"
     printf '%s' "$playfile" > "$DIR/current"
     result="$(termux-media-player play "$playfile")" ||
