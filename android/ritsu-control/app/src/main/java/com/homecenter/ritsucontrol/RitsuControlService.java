@@ -16,12 +16,16 @@ import android.os.Looper;
 import android.provider.Settings;
 
 /**
- * Home Center Ritsu local control layer.
- * Real microphone, local-only VAD; no audio stream, transcript, wake-word,
- * or remote ChatGPT command is implemented here.
+ * Voice-first foreground session: Android's default recognition provider
+ * owns the microphone directly. No external prerecorded PCM injection.
  *
- * Starts listening ONLY after a user-visible Activity requests RECORD_AUDIO
- * permission. No BOOT_COMPLETED receiver and no restart-on-kill behavior.
+ * Google/Android recognition ends individual utterances. The service requests
+ * a subsequent bounded session only after the previous onResults/onError
+ * callback, with pacing and a finite failure circuit breaker.
+ *
+ * Phone speaker audio cannot reliably be identified as human voice. Reject
+ * results when Android reports media active; do NOT use them as user commands.
+ * The authenticated ChatGPT / TTS bridge is not wired in this APK.
  */
 public final class RitsuControlService extends Service {
     static final String ACTION_START = "com.homecenter.ritsucontrol.START";
@@ -35,9 +39,10 @@ public final class RitsuControlService extends Service {
     static final String ACTION_SPEAKER_PREFERENCE = "com.homecenter.ritsucontrol.SPEAKER_PREFERENCE";
     static final String ACTION_MEDIA_TALK = "com.homecenter.ritsucontrol.MEDIA_TALK";
     static final String ACTION_STOP = "com.homecenter.ritsucontrol.STOP";
-    // Deliberately do not handle Stage A's misleading MIC_REQUEST action.
     private static final String CHANNEL = "ritsu_control_notification_v2";
     private static final int NOTIFICATION_ID = 19644;
+    private static final int MAX_CONSECUTIVE_ERRORS = 4;
+
     static volatile ListeningPolicy.Mode liveMode = ListeningPolicy.Mode.OFF;
     static volatile boolean voiceActivity = false;
     static volatile String lastProblem = "";
@@ -46,299 +51,280 @@ public final class RitsuControlService extends Service {
     static volatile String partialTranscript = "";
     static volatile long partialRevision = 0;
     static volatile String recognitionStatus = "Not started";
+    static volatile String mediaGuardStatus = "Playback source not verified";
+    static volatile long feedRevision = 0;
 
     private ListeningPolicy.Mode mode = ListeningPolicy.Mode.OFF;
-    private MicrophoneCapture capture;
-    private ControlReceipts receipts;
-    private RitsuBubble bubble;
     private Handler mainHandler;
     private SystemSpeechSession speechSession;
     private Runnable recognitionTimeout;
+    private Runnable nextRecognition;
     private Runnable mediaFocusDeadline;
+    private ControlReceipts receipts;
+    private ConversationLedger ledger;
     private MediaPauseLease mediaPause;
-    private ConversationLedger chatLedger;
-    static volatile long feedRevision = 0;
-    static volatile String mediaGuardStatus = "Not tested";
+    private RitsuBubble bubble;
+    private int consecutiveErrors;
+    private int sessionGeneration;
 
     @Override public void onCreate() {
         super.onCreate();
         mainHandler = new Handler(Looper.getMainLooper());
         receipts = new ControlReceipts(this);
+        ledger = new ConversationLedger(this);
         mediaPause = new MediaPauseLease(this);
-        chatLedger = new ConversationLedger(this);
-        mediaGuardStatus = "Playback rejection enabled; AEC device-dependent";
+        ControlStore.transition(this, ControlPolicy.ACTION_START);
         liveMode = ListeningPolicy.Mode.OFF;
         voiceActivity = false;
         lastProblem = "";
         lastTranscript = "";
-        transcriptRevision = 0;
         partialTranscript = "";
-        partialRevision = 0;
-        recognitionStatus = "Not started";
-        // Clear Stage A's stale "mic requested" marker.
-        ControlStore.transition(this, ControlPolicy.ACTION_START);
+        recognitionStatus = "Microphone off";
+        mediaGuardStatus = "Results blocked while Android media is active";
         getSystemService(NotificationManager.class).createNotificationChannel(
-                new NotificationChannel(CHANNEL, "Ritsu listening controls", NotificationManager.IMPORTANCE_LOW));
-        capture = new MicrophoneCapture(this, new MicrophoneCapture.Observer() {
-            @Override public void onSpeechChanged(boolean speaking) {
-                mainHandler.post(() -> {
-                    if (mode != ListeningPolicy.Mode.LISTENING) return;
-                    mediaGuardStatus = capture.echoCancellationEnabled()
-                            ? "Android acoustic echo canceller enabled (not guaranteed)"
-                            : "No verified acoustic echo cancellation on current route";
-                    if (voiceActivity == speaking) return;
-                    voiceActivity = speaking;
-                    receipts.append(speaking ? "SPEECH_BEGIN" : "SPEECH_END", mode, mode, "local_energy_gate");
-                    if (bubble != null) bubble.refresh();
-                });
-            }
-            @Override public void onUtterance(short[] pcm) {
-                mainHandler.post(() -> automaticUtterance(pcm));
-            }
-            @Override public void onFailure(String reason) {
-                mainHandler.post(() -> failCapture(reason));
-            }
-        });
+                new NotificationChannel(CHANNEL, "Ritsu listening controls",
+                        NotificationManager.IMPORTANCE_LOW));
+
         speechSession = new SystemSpeechSession(this, new SystemSpeechSession.Observer() {
-            @Override public void partialTranscript(String text) {
-                partialTranscript = text;
-                partialRevision++;
-                recognitionStatus = "Interim speech recognized (not yet final)";
-            }
-            @Override public void status(String message) {
-                recognitionStatus = message;
+            @Override public void status(String text) {
+                recognitionStatus = text;
                 updateNotification();
             }
-            @Override public void finalTranscript(String text) {
-                lastTranscript = text;
-                transcriptRevision++;
-                if (chatLedger != null) {
-                    chatLedger.add("dialogue", "You", text,
-                            ConversationLedger.OUTBOX);
-                    feedRevision++;
+            @Override public void partialTranscript(String text) {
+                // Preview only. Never treat partial speech as an executable turn.
+                if (mode != ListeningPolicy.Mode.RECOGNIZING) return;
+                if (mediaPause.otherAudioMayBeActive()) {
+                    partialTranscript = "";
+                    mediaGuardStatus = "Phone audio playing: provisional text suppressed";
+                    return;
                 }
-                partialTranscript = "";
-                recognitionStatus = "Recognized words received; NOT sent";
-                receipts.append("ASR_TEXT_READY", mode, mode, "private_transcript_not_logged");
-                // Finish only after the recognizer releases the microphone.
-                mainHandler.post(() -> completeRecognition());
+                partialTranscript = text;
+                partialRevision++;
+                recognitionStatus = "Recognizing words";
+            }
+            @Override public void finalTranscript(String text) {
+                if (mode != ListeningPolicy.Mode.RECOGNIZING) return;
+                if (mediaPause.otherAudioMayBeActive()) {
+                    recognitionStatus = "Phone audio playing: transcript rejected";
+                    mediaGuardStatus = "Source not verified. No user turn accepted.";
+                    receipts.append("PHONE_PLAYBACK_REJECTED", mode, mode,
+                            "cannot_identify_human_when_media_active");
+                    partialTranscript = "";
+                    partialRevision++;
+                } else {
+                    lastTranscript = text;
+                    transcriptRevision++;
+                    partialTranscript = "";
+                    partialRevision++;
+                    ledger.add("dialogue", "You", text, ConversationLedger.OUTBOX);
+                    feedRevision++;
+                    recognitionStatus = "Text captured locally; Home Center not connected";
+                    mediaGuardStatus = "No active media reported (NOT proof of human origin)";
+                    receipts.append("LOCAL_TRANSCRIPT", mode, mode,
+                            "transcript_stored_locally_not_sent");
+                }
+                consecutiveErrors = 0;
+                mainHandler.post(() -> completeProviderSession(true));
             }
             @Override public void failed(String reason) {
-                recognitionStatus = reason;
+                if (mode != ListeningPolicy.Mode.RECOGNIZING) return;
                 lastProblem = reason;
-                receipts.append("ASR_FAILED", mode, mode, "provider_error_no_text");
-                mainHandler.post(() -> completeRecognition());
+                recognitionStatus = reason;
+                receipts.append("RECOGNIZER_ERROR", mode, mode, "provider_error");
+                mainHandler.post(() -> completeProviderSession(false));
             }
         });
         bubble = new RitsuBubble(this, new RitsuBubble.Actions() {
             @Override public void toggleMute() {
-                if (mode == ListeningPolicy.Mode.LISTENING ||
-                    mode == ListeningPolicy.Mode.RECOGNIZING) mute();
+                if (mode == ListeningPolicy.Mode.RECOGNIZING) mute();
                 else if (mode == ListeningPolicy.Mode.MUTED) resume();
                 else openApp();
             }
             @Override public void stopSession() { endSession(); }
-            @Override public void hideBubble() { bubble.hide(); updateNotification(); }
+            @Override public void hideBubble() {
+                bubble.hide();
+                updateNotification();
+            }
             @Override public ListeningPolicy.Mode mode() { return mode; }
         });
-        // An idle foreground service does not obtain the microphone service type.
         setForeground(false);
-        receipts.append("SERVICE_CREATED", ListeningPolicy.Mode.OFF, mode, "explicit_control");
+        receipts.append("SERVICE_CREATED", ListeningPolicy.Mode.OFF, mode, "explicit");
     }
 
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent == null ? ACTION_START : intent.getAction();
-        if (ACTION_LISTEN.equals(action)) startListening();
-        else if (ACTION_TRANSCRIBE.equals(action)) recognizeOnce();
-        else if (ACTION_SPEAK_ONCE.equals(action)) startAndRecognizeOnce();
-        else if (ACTION_MEDIA_TALK.equals(action)) {
-            boolean requested = mediaPause.requestPauseForVerifiedSpeech();
-            mediaGuardStatus = requested
-                    ? "Android pause request via transient audio focus (compliance unverified)"
-                    : "Media focus denied; player may continue";
-            if (requested) {
-                if (mediaFocusDeadline != null) mainHandler.removeCallbacks(mediaFocusDeadline);
-                mediaFocusDeadline = () -> {
-                    mediaPause.release();
-                    mediaGuardStatus = "Cooperative media pause lease expired";
-                };
-                mainHandler.postDelayed(mediaFocusDeadline, 30000);
-            }
-            if (requested && mode == ListeningPolicy.Mode.OFF) startListening();
-        }
+        if (ACTION_LISTEN.equals(action) || ACTION_SPEAK_ONCE.equals(action)
+                || ACTION_TRANSCRIBE.equals(action)) startListening();
         else if (ACTION_MUTE.equals(action)) mute();
         else if (ACTION_RESUME.equals(action)) resume();
         else if (ACTION_SHOW_BUBBLE.equals(action)) {
-            if (!bubble.show()) lastProblem = "Bubble requires Android display-over-other-apps permission";
+            if (!bubble.show()) lastProblem = "Android overlay permission not granted";
         } else if (ACTION_HIDE_BUBBLE.equals(action)) bubble.hide();
+        else if (ACTION_MEDIA_TALK.equals(action)) requestMediaFocus();
         else if (ACTION_SPEAKER_PREFERENCE.equals(action))
             ControlStore.transition(this, ControlPolicy.ACTION_SPEAKER_PREFERENCE);
-        else if (ACTION_STOP.equals(action)) { endSession(); return START_NOT_STICKY; }
-        else if (!ACTION_START.equals(action)) {
-            receipts.append("UNKNOWN_ACTION_IGNORED", mode, mode, "not_allowed");
+        else if (ACTION_STOP.equals(action)) {
+            endSession();
+            return START_NOT_STICKY;
+        } else if (!ACTION_START.equals(action)) {
+            receipts.append("UNKNOWN_ACTION", mode, mode, "rejected");
         }
         updateNotification();
         return START_NOT_STICKY;
     }
 
     private void startListening() {
-        if (mode == ListeningPolicy.Mode.LISTENING || mode == ListeningPolicy.Mode.MUTED) return;
-        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            failCapture("microphone_permission_not_granted"); return;
-        }
-        try {
-            setForeground(true);
-            if (!capture.start()) { failCapture("audio_device_unavailable"); return; }
-            applyTransition(ListeningPolicy.Event.CAPTURE_STARTED, "audio_record_started");
-            if (Settings.canDrawOverlays(this)) bubble.show();
-        } catch (RuntimeException exception) {
-            failCapture("microphone_foreground_start_rejected");
-        }
-    }
-
-    private void mute() {
-        if (mediaPause != null) mediaPause.release();
-        if (mediaFocusDeadline != null) mainHandler.removeCallbacks(mediaFocusDeadline);
-        mediaFocusDeadline = null;
-        if (mode == ListeningPolicy.Mode.RECOGNIZING) {
-            cancelRecognition("User muted during Google recognition");
-            applyTransition(ListeningPolicy.Event.RECOGNITION_FINISHED,
-                    "recognizer_cancelled_audio_released");
-            return;
-        }
-        if (mode != ListeningPolicy.Mode.LISTENING) return;
-        capture.stop(); // Actual audio hardware capture is stopped BEFORE reporting MUTED.
-        voiceActivity = false;
-        applyTransition(ListeningPolicy.Event.MUTED_RELEASED, "audio_record_released");
-        // Keep existing foreground microphone service, so user can resume from
-        // a notification or floating bubble without starting a new background FGS.
-    }
-
-
-    /** Explicit one-shot speech-to-text. This is NOT a continuous
-     * SpeechRecognizer loop: Android's service may limit session duration
-     * and use Google's cloud. AudioRecord is released BEFORE ASR starts. */
-    /** One visible-user-triggered action, not a second hidden mode button.
-     * Starts an authorized FGS, then immediately hands the microphone to
-     * Android's default speech provider for exactly one utterance. */
-    private void startAndRecognizeOnce() {
-        if (mode == ListeningPolicy.Mode.RECOGNIZING) {
-            recognitionStatus = "Recognition already in progress";
-            return;
-        }
+        if (mode == ListeningPolicy.Mode.RECOGNIZING) return;
         if (mode == ListeningPolicy.Mode.MUTED) {
-            recognitionStatus = "Mic muted: resume before recognition";
-            return;
-        }
-        if (mode == ListeningPolicy.Mode.OFF || mode == ListeningPolicy.Mode.ERROR) {
-            startListening();
-        }
-        if (mode == ListeningPolicy.Mode.LISTENING) recognizeOnce();
-    }
-
-    /** Automatic on local VAD silence after capturing the *whole* utterance.
-     * This is never called with media playing, because VAD cannot prove
-     * whether a nearby speaker or human supplied the waveform. */
-    private void automaticUtterance(short[] pcm) {
-        if (mode != ListeningPolicy.Mode.LISTENING) return;
-        // Conservative self-audio guard: no ambient media transcripts can be
-        // interpreted as user commands. Near-end verification while media plays
-        // is still an unimplemented full-duplex acceptance requirement.
-        if (mediaPause.otherAudioMayBeActive()) {
-            receipts.append("AUDIO_PLAYBACK_BLOCKED", mode, mode,
-                    "untrusted_phone_playback_no_human_proof");
-            recognitionStatus = "Phone media detected: rejected ambiguous speech";
-            mediaGuardStatus = "Rejected source audio because human-vs-phone playback is not verified";
-            capture.stop();
-            if (!capture.start()) failCapture("audio_recorder_could_not_rearm");
-            updateNotification();
-            return;
-        }
-        capture.stop();
-        voiceActivity = false;
-        applyTransition(ListeningPolicy.Event.RECOGNITION_STARTED,
-                "silence_finalized_utterance_vad_released");
-        lastTranscript = "";
-        partialTranscript = "";
-        partialRevision++;
-        recognitionStatus = "Silence detected; sending captured PCM to Android recognizer";
-        mediaGuardStatus = capture.echoCancellationEnabled()
-                ? "AEC enabled (not a verified near-end classifier)"
-                : "Media idle at onset; playback echo protection not verified";
-        if (!speechSession.beginCaptured(pcm)) {
-            applyTransition(ListeningPolicy.Event.RECOGNITION_FINISHED,
-                    "external_audio_recognizer_unavailable");
             resume();
             return;
         }
-        scheduleRecognitionTimeout();
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+            failCapture("Microphone permission not granted");
+            return;
+        }
+        ++sessionGeneration;
+        consecutiveErrors = 0;
+        clearCallbacks();
+        try {
+            setForeground(true);
+            if (!speechSession.begin()) {
+                failCapture("No active Android speech recognizer");
+                return;
+            }
+            applyTransition(ListeningPolicy.Event.PROVIDER_STARTED,
+                    "system_recognizer_owns_microphone");
+            recognitionStatus = "Google/system recognizer listening";
+            scheduleTimeout(sessionGeneration);
+            if (Settings.canDrawOverlays(this)) bubble.show();
+        } catch (RuntimeException exception) {
+            failCapture("Unable to start foreground Google recognition");
+        }
+    }
+
+    /** Recognizer uses its own end-of-speech detector; Android does not provide
+     * a guaranteed always-open transcription API. Pace bounded new sessions. */
+    private void completeProviderSession(boolean success) {
+        if (mode != ListeningPolicy.Mode.RECOGNIZING) return;
+        if (recognitionTimeout != null) mainHandler.removeCallbacks(recognitionTimeout);
+        recognitionTimeout = null;
+        if (success) consecutiveErrors = 0;
+        else ++consecutiveErrors;
+        if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+            failCapture("Recognition failed repeatedly; reopen Ritsu to try again. "
+                    + lastProblem);
+            return;
+        }
+        final int epoch = sessionGeneration;
+        final int delay = success ? 450 : 1800;
+        recognitionStatus = success ? "Rearming microphone for next phrase"
+                : "Recognition paused; retrying after provider error";
+        nextRecognition = () -> {
+            nextRecognition = null;
+            if (epoch != sessionGeneration || mode != ListeningPolicy.Mode.RECOGNIZING)
+                return;
+            if (!speechSession.begin()) {
+                failCapture("Recognizer did not restart; " + lastProblem);
+                return;
+            }
+            recognitionStatus = "Listening for next spoken phrase";
+            scheduleTimeout(epoch);
+            updateNotification();
+        };
+        mainHandler.postDelayed(nextRecognition, delay);
         updateNotification();
     }
 
-    private void scheduleRecognitionTimeout() {
+    private void scheduleTimeout(int epoch) {
         recognitionTimeout = () -> {
-            if (mode != ListeningPolicy.Mode.RECOGNIZING) return;
-            cancelRecognition("Recognition timeout (45s)");
-            applyTransition(ListeningPolicy.Event.RECOGNITION_FINISHED, "asr_timeout");
-            resume();
+            recognitionTimeout = null;
+            if (epoch != sessionGeneration ||
+                    mode != ListeningPolicy.Mode.RECOGNIZING) return;
+            speechSession.cancel();
+            lastProblem = "Speech session timed out, trying another bounded session";
+            completeProviderSession(false);
         };
         mainHandler.postDelayed(recognitionTimeout, 45000);
     }
 
-    private void recognizeOnce() {
-        if (mode != ListeningPolicy.Mode.LISTENING || speechSession.isActive()) return;
-        capture.stop();
+    private void clearCallbacks() {
+        if (recognitionTimeout != null) mainHandler.removeCallbacks(recognitionTimeout);
+        if (nextRecognition != null) mainHandler.removeCallbacks(nextRecognition);
+        recognitionTimeout = null;
+        nextRecognition = null;
+    }
+
+    private void mute() {
+        if (mode != ListeningPolicy.Mode.RECOGNIZING) return;
+        ++sessionGeneration;
+        clearCallbacks();
+        speechSession.cancel();
+        mediaPause.release();
         voiceActivity = false;
-        applyTransition(ListeningPolicy.Event.RECOGNITION_STARTED, "vad_released_for_google_asr");
-        lastTranscript = "";
         partialTranscript = "";
         partialRevision++;
-        recognitionStatus = "Requesting system speech recognizer";
-        if (!speechSession.begin()) {
-            applyTransition(ListeningPolicy.Event.RECOGNITION_FINISHED, "recognizer_unavailable");
-            resume();
-            return;
-        }
-        scheduleRecognitionTimeout();
-        updateNotification();
-    }
-    private void completeRecognition() {
-        if (mode != ListeningPolicy.Mode.RECOGNIZING) return;
-        if (recognitionTimeout != null) mainHandler.removeCallbacks(recognitionTimeout);
-        recognitionTimeout = null;
+        recognitionStatus = "Microphone muted";
         applyTransition(ListeningPolicy.Event.RECOGNITION_FINISHED,
-                "system_recognizer_released");
-        mediaPause.release();
-        resume(); // Re-arm VAD; do not auto-run another recognition session.
-    }
-    private void cancelRecognition(String reason) {
-        if (recognitionTimeout != null) mainHandler.removeCallbacks(recognitionTimeout);
-        recognitionTimeout = null;
-        if (speechSession != null) speechSession.cancel();
-        recognitionStatus = reason;
+                "system_recognizer_cancelled_on_mute");
     }
 
     private void resume() {
         if (mode != ListeningPolicy.Mode.MUTED) return;
-        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            failCapture("microphone_permission_revoked"); return;
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+            failCapture("Microphone permission revoked");
+            return;
         }
+        ++sessionGeneration;
+        clearCallbacks();
         try {
             setForeground(true);
-            if (!capture.start()) { failCapture("audio_device_unavailable"); return; }
-            applyTransition(ListeningPolicy.Event.RESUMED_CAPTURE, "audio_record_resumed");
-        } catch (RuntimeException exception) {
-            failCapture("microphone_restart_rejected");
+            if (!speechSession.begin()) {
+                failCapture("Recognizer unavailable while resuming");
+                return;
+            }
+            applyTransition(ListeningPolicy.Event.PROVIDER_STARTED,
+                    "system_recognizer_resumed");
+            consecutiveErrors = 0;
+            scheduleTimeout(sessionGeneration);
+        } catch (RuntimeException e) {
+            failCapture("Microphone resume rejected");
+        }
+    }
+
+    private void requestMediaFocus() {
+        boolean granted = mediaPause.requestPauseForVerifiedSpeech();
+        mediaGuardStatus = granted
+                ? "Android requested media pause; player compliance unverified"
+                : "Media pause denied; media may continue";
+        if (mediaFocusDeadline != null) mainHandler.removeCallbacks(mediaFocusDeadline);
+        mediaFocusDeadline = null;
+        if (granted) {
+            mediaFocusDeadline = () -> {
+                mediaPause.release();
+                mediaGuardStatus = "Cooperative media pause lease expired";
+                mediaFocusDeadline = null;
+            };
+            mainHandler.postDelayed(mediaFocusDeadline, 30000);
         }
     }
 
     private void failCapture(String reason) {
-        cancelRecognition("Recording stopped after error");
+        ++sessionGeneration;
+        clearCallbacks();
+        speechSession.cancel();
         mediaPause.release();
-        capture.stop();
-        voiceActivity = false;
         lastProblem = reason;
-        applyTransition(ListeningPolicy.Event.FAILED, reason);
+        recognitionStatus = reason;
+        voiceActivity = false;
+        partialTranscript = "";
+        ListeningPolicy.Mode previous = mode;
+        mode = ListeningPolicy.Mode.ERROR;
+        liveMode = mode;
+        receipts.append("FAILED", previous, mode, "recognizer_unavailable");
+        updateNotification();
+        if (bubble != null) bubble.refresh();
         try { setForeground(false); } catch (RuntimeException ignored) {}
     }
 
@@ -354,21 +340,22 @@ public final class RitsuControlService extends Service {
     private void openApp() {
         Intent i = new Intent(this, MainActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(i); // Only user-initiated from the visible floating bubble.
+        startActivity(i);
     }
 
     private void endSession() {
+        ++sessionGeneration;
+        clearCallbacks();
+        speechSession.cancel();
+        mediaPause.release();
         if (mediaFocusDeadline != null) mainHandler.removeCallbacks(mediaFocusDeadline);
         mediaFocusDeadline = null;
-        cancelRecognition("Session stopped");
-        mediaPause.release();
-        if (capture != null) capture.stop();
         voiceActivity = false;
         ListeningPolicy.Mode previous = mode;
         mode = ListeningPolicy.next(mode, ListeningPolicy.Event.STOPPED);
         liveMode = mode;
-        receipts.append("SESSION_STOPPED", previous, mode, "explicit_user_stop");
-        if (bubble != null) bubble.hide();
+        receipts.append("SESSION_STOPPED", previous, mode, "explicit_stop");
+        bubble.hide();
         stopForeground(STOP_FOREGROUND_REMOVE);
         stopSelf();
     }
@@ -394,31 +381,28 @@ public final class RitsuControlService extends Service {
         PendingIntent open = PendingIntent.getActivity(this, 41,
                 new Intent(this, MainActivity.class),
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        String detail = mode == ListeningPolicy.Mode.LISTENING ? "Listening locally"
-                : mode == ListeningPolicy.Mode.RECOGNIZING ? "Google speech recognition"
-                : mode == ListeningPolicy.Mode.MUTED ? "Mic muted (hardware released)"
-                : mode == ListeningPolicy.Mode.ERROR ? "Mic error · open to inspect" : "Mic off";
+        String detail = mode == ListeningPolicy.Mode.RECOGNIZING ? recognitionStatus
+                : mode == ListeningPolicy.Mode.MUTED ? "Mic muted"
+                : mode == ListeningPolicy.Mode.ERROR ? "Recognizer error · open app"
+                : "Mic off";
         Notification.Builder builder = new Notification.Builder(this, CHANNEL)
                 .setSmallIcon(android.R.drawable.ic_btn_speak_now)
                 .setContentTitle("Ritsu")
-                .setContentText(detail + " · No ChatGPT submission")
+                .setContentText(detail + " · No ChatGPT connection")
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .setContentIntent(open)
                 .setShowWhen(false)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true);
-        if (mode == ListeningPolicy.Mode.LISTENING) {
+        if (mode == ListeningPolicy.Mode.RECOGNIZING) {
             builder.addAction(new Notification.Action.Builder(null, "Mute mic",
-                    serviceAction(ACTION_MUTE, 47)).build());
-        } else if (mode == ListeningPolicy.Mode.RECOGNIZING) {
-            builder.addAction(new Notification.Action.Builder(null, "Cancel recognition",
                     serviceAction(ACTION_MUTE, 47)).build());
         } else if (mode == ListeningPolicy.Mode.MUTED) {
             builder.addAction(new Notification.Action.Builder(null, "Resume mic",
                     serviceAction(ACTION_RESUME, 48)).build());
         } else {
-            // Opening a visible Activity is necessary for the first microphone start.
-            builder.addAction(new Notification.Action.Builder(null, "Open controls", open).build());
+            builder.addAction(new Notification.Action.Builder(null, "Open controls",
+                    open).build());
         }
         builder.addAction(new Notification.Action.Builder(null, "Stop",
                 serviceAction(ACTION_STOP, 49)).build());
@@ -432,16 +416,19 @@ public final class RitsuControlService extends Service {
     }
 
     @Override public void onDestroy() {
-        cancelRecognition("Service destroyed");
+        ++sessionGeneration;
+        clearCallbacks();
+        if (speechSession != null) speechSession.cancel();
         if (mediaPause != null) mediaPause.release();
-        if (capture != null) capture.stop();
         if (bubble != null) bubble.hide();
         voiceActivity = false;
         ListeningPolicy.Mode previous = mode;
         mode = ListeningPolicy.Mode.OFF;
         liveMode = mode;
-        if (receipts != null) receipts.append("SERVICE_DESTROYED", previous, mode, "system_or_explicit");
+        if (receipts != null)
+            receipts.append("SERVICE_DESTROYED", previous, mode, "service_stop");
         super.onDestroy();
     }
-    @Override public IBinder onBind(Intent intent) { return null; }
+
+    @Override public IBinder onBind(Intent i) { return null; }
 }
