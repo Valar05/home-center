@@ -24,7 +24,7 @@ jobs:
           if(-not $ast){throw 'No campaign AST'}
           $contract=Get-Content 'tools/campaigns/ritsu-e2e-contract.json' -Raw|ConvertFrom-Json
           if($contract.campaignId -ne 'ritsu-chat-voice-e2e'){throw 'Wrong campaign contract'}
-          if($contract.execution.canonicalAudio -notmatch '19643'){throw 'Lost protected voice path'}
+          if($contract.execution.originalAudio -notmatch '19643'){throw 'Lost protected voice path'}
           $body=Get-Content $script -Raw
           foreach($marker in @('pinned','worktree','Get-ScheduledTask','Start-ScheduledTask','Receipt','19646','19643','Stop-ScheduledTask')){
             if(-not $body.Contains($marker)){throw ('Missing contractual marker '+$marker)}
