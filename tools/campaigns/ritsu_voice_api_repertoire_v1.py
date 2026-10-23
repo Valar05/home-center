@@ -46,7 +46,7 @@ def worker():
     shift=int(profile['pitchSemitones'])
    if not ref_audio.is_file():raise FileNotFoundError('Registered reference is unavailable: '+chosen)
    clips,sr=model.generate_voice_clone(text=job['text'],language='English',ref_audio=str(ref_audio),ref_text=ref_text,xvec_only=False,max_new_tokens=384)
-   if shift:
+   # Whisper was approved from an unprocessed Qwen clone audition.\n   # Pitch-shifting the generated whisper adds a phasey unison artifact.\n   # Preserve that original waveform; -1 remains the requested catalog target,\n   # but whisper is deliberately exempt until a clean native-pitch method exists.\n   if shift and chosen != 'whisper':
     import numpy as np
     import librosa
     clips[0]=librosa.effects.pitch_shift(np.asarray(clips[0],dtype=np.float32),sr=sr,n_steps=shift)
