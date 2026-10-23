@@ -1,5 +1,23 @@
 # RITSU PHONE AUDIO LAWS v1.0
 
+## OCTOBER 23, 2026 — FULL-REPLY AUDIO COMPLETENESS HOTFIX (USER-REPORTED FAILURE)
+
+User reports repeated loss of substantive text in spoken replies despite successful short phone narration. This is a STOP-SHIP completeness defect, not an aesthetic preference. This section strengthens and takes precedence over any vague earlier language about reply equivalence.
+
+**Invariant:** For every RV ON assistant turn, concatenate every submitted speech chunk in index order, stripping only Markdown/emoji/unpronounceable formatting. The result must equal the ENTIRE user-visible substantive reply, sentence for sentence. No narration of just the opening, the emotional highlights, a summary, a canned speech test, or a subset of paragraphs.
+
+**Mandatory mechanics:**
+1. Maintain a per-turn immutable speech manifest: turn ID, total chunk count, chunk indexes, exact per-chunk text and hashes, submission ticket IDs, queue status, and aggregate text hash/length.
+2. Generate each chunk from the actual finalized prose for that chunk, never from a parallel paraphrase. Early dispatch is encouraged only if all later substantive text ALSO gets submitted before the turn ends.
+3. An assistant reply MUST NOT be marked voice-complete unless **every** chunk has a successful, verified submission ticket and the manifest's concatenated text covers every substantive sentence of the visible reply. Text-only operational receipts about transport may be excluded from speech, but the substantive answer cannot.
+4. For missing or failed chunks, resume only the missing chunk with idempotency checks, preserving order. Do not quietly omit it. If blocked, describe exactly which chunk failed in text. Policy/safety blocks remain hard boundaries and must not be circumvented.
+5. The final user-visible message must not append new substantive prose after speech dispatch. If a correction is necessary, send its audio too or explicitly label that turn as not voice-complete.
+6. Measure first-audio latency separately from completeness. Early playback of sentence one with the rest missing is a FAILURE, not a speed success. A queued ticket is not proof of phone playback; only the user confirms HEARD.
+7. A single ticket per short reply is preferable when safe for latency. For longer replies, segment on sentence boundaries and ensure every segment is transmitted. Do not declare success from partial enqueue.
+
+**Regression acceptance:** An N-sentence reply must have N sentences in ordered submitted speech. Five paragraphs spoken as only one paragraph is FAIL. A partial reply with one audible chunk is still INCOMPLETE. After any interrupted/blocked call, surface the exact missing span, not a generic successful-voice claim.
+
+
 ## OCTOBER 23, 2026 — PRIORITY DELIVERY ADDENDUM: EARLY AUDIO AND RETRY DISCIPLINE
 
 User-confirmed HEARD for the Pocket-TTS Warm reply to RV ON in the current conversation. Subsequent emotional-range audio calls were blocked; do not treat the block as delivery and do not silently abandon an ordinary transient failure.
