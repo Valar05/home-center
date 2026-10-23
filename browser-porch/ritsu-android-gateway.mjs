@@ -55,7 +55,7 @@ function safeRow(row) {
  *  HTTP rides the WireGuard-encrypted tailnet, and never binds to LAN/public.
  */
 export function createRitsuAndroidGateway({
-  host,port=19645,clientBearer,coordinator,allowLoopbackForTests=false,
+  host,port=19646,clientBearer,coordinator,allowLoopbackForTests=false,
 }={}) {
   if(!tailnetIPv4(host) && !(allowLoopbackForTests && host==='127.0.0.1'))
     throw new Error('gateway_must_bind_specific_tailnet_ipv4');
