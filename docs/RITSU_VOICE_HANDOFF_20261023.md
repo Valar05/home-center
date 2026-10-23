@@ -1,5 +1,20 @@
 # CURRENT MISSION: Pocket TTS voice experiments and accepted voices (updated 2026-10-23)
 
+## Definitive listener verdict: host lookahead did not improve audible gaps (2026-10-23)
+
+The user heard the latest 10-sentence speech test and said **"The pauses were just as long as ever."** This closes the Windows lookahead as an **insufficient** solution for *audible* gaps, even though it substantially accelerated relay enqueues. Do NOT repeat Windows/Pocket optimization as an assumed solution; Pocket 10 sentences produced 25.6 seconds of audio in 17.89 seconds, while the separate Android receiver fetched the next clip only after the prior completed. Existing relay GET /audio data gives ~2.68s median extra download interval beyond prior audio length. Phone playback start/end not measured.
+
+Attempted authorized live receiver inspection with owner-scoped Home Center Phone Hands:
+- `ritsu_phone_receiver_live_readonly_20261023_1` on `primary-phone`, 45s TTL.
+- `ritsu_phone_receiver_rescue_readonly_20261023_1` on `primary-phone-rescue-v1`, 30s TTL.
+Both expired while queued, without any phone-side stdout, exit code or evidence of executing. **Do not claim installed Android state was read or patched.** The separate Termux audio receiver can be alive even when the Phone Hands control agent's heartbeat is stale.
+
+Staged a source-only canonical Termux receiver prefetch candidate, `tools/campaigns/ritsu_phone_receiver_prefetch_v2.sh`, GitHub commit `6e4bda929d2223853553173555c441515e81fa98`. Its objective is a bounded (three-file) FIFO local buffer populated while the preceding audio is playing, same authenticated Tailscale relay 19643 and Termux MediaPlayer, ACK journaling, phone-local monotonic timing. Mock-run against local HTTP server + media player on Linux passed ten downloads, ten ACKs, ten ordered playback starts/finishes and 10–30ms *simulated* gaps. This is NOT a real phone playback test or deployment. Must review pause/stop controls, actual installed receiver source and crash semantics before replacement.
+
+**Remaining gate:** Obtain fresh phone control and readback from actual `~/.ritsu-embodiment/receiver.sh` on `primary-phone`; after a safe idle backup and controlled patch, do a new user-heard 8–12 sentence test with on-phone start/end traces. Keep Pocket Desire02 -1 Warm and all other approved voice clones unchanged, no old Qwen. Operational authority `docs/RITSU_PHONE_AUDIO_LAWS.md` v1.7, commit `6e030db`. No blind control-plane substitution or audio transport change.
+
+---
+
 ## Gap-investigation handoff: validated host lookahead; Android gap still open (2026-10-23)
 
 **Latest request:** measure the live per-sentence latency chain, eliminate audible between-sentence pauses with deterministic ordered lookahead, preserve five approved Pocket voice identities and canonical relay, AND switch Normal/Warm back from cleaned Cheesecake to Desire 02 −1-semitone **Pocket** clone.
