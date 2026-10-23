@@ -1,0 +1,73 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {createRelay} from './relay.mjs';
+import {toThroneCommand} from './ritsu-turn-protocol.mjs';
+
+async function post(url, value, headers={}) {
+  return fetch(url, {method:'POST', headers:{'content-type':'application/json',...headers}, body:JSON.stringify(value)});
+}
+
+test('Ritsu chat turn has exact session, text, idempotency, origin and authenticated reply',async t=>{
+  const extensionOrigin='chrome-extension://'+'m'.repeat(32);
+  const throneCapability='r'.repeat(48);
+  const events=[];
+  const server=createRelay({port:0,extensionOrigin,throneCapability,eventSink:async e=>events.push(e)});
+  await new Promise(resolve=>server.once('listening',resolve));
+  t.after(()=>server.close());
+  const base=`http://127.0.0.1:${server.address().port}/v1/throne`;
+  const auth={authorization:`Bearer ${throneCapability}`};
+  const extension={...auth,origin:extensionOrigin};
+  const cmd=toThroneCommand({sessionId:'ritsu-session-001',turnId:'ritsu-turn-001',channel:'dialogue',prompt:'Say cobalt penguin.'});
+  assert.equal((await post(base+'/command',cmd)).status,403);
+  assert.equal((await post(base+'/command',cmd,auth)).status,202);
+  assert.equal((await post(base+'/command',cmd,auth)).status,200);
+  const collision=await post(base+'/command',{...cmd,turn:{...cmd.turn,prompt:'Different text'}},auth);
+  assert.equal(collision.status,409);
+  assert.equal((await collision.json()).error,'RITSU_TURN_ID_COLLISION');
+  assert.equal((await fetch(base+'/command',{headers:auth})).status,403);
+  const lease=await fetch(base+'/command',{headers:extension});
+  assert.equal(lease.status,200);
+  const leased=(await lease.json()).command;
+  assert.equal(leased.turn.prompt,'Say cobalt penguin.');
+  assert.equal(leased.action,'chat.turn');
+  assert.ok(leased.lease.expiresAtMs-leased.lease.leasedAtMs>=180000);
+  const status=await fetch(base+'/status',{headers:auth});
+  const statusJson=await status.json();
+  assert.ok(!JSON.stringify(statusJson).includes('cobalt penguin'));
+  const resultUrl=base+'/result?commandId='+encodeURIComponent(cmd.commandId);
+  assert.equal((await fetch(resultUrl)).status,403);
+  assert.equal((await (await fetch(resultUrl,{headers:auth})).json()).state,'leased');
+  const answer={ok:true,accepted:true,sessionId:cmd.turn.sessionId,turnId:cmd.turn.turnId,channel:'dialogue',tabId:42,text:'Cobalt penguin.'};
+  assert.equal((await post(base+'/complete',{commandId:cmd.commandId,ok:true,result:answer},auth)).status,403);
+  assert.equal((await post(base+'/complete',{commandId:cmd.commandId,ok:true,result:answer},extension)).status,200);
+  const final=await (await fetch(resultUrl,{headers:auth})).json();
+  assert.equal(final.state,'completed');
+  assert.deepEqual(final.result,answer);
+  assert.equal(events.at(-1).type,'throne.command.completed');
+});
+
+test('Ritsu turn validation blocks bad user IDs and unbounded text before browser',async t=>{
+  const server=createRelay({port:0,extensionOrigin:'chrome-extension://'+'j'.repeat(32),throneCapability:'t'.repeat(48),eventSink:async()=>{}});
+  await new Promise(resolve=>server.once('listening',resolve));
+  t.after(()=>server.close());
+  const base=`http://127.0.0.1:${server.address().port}/v1/throne/command`;
+  const auth={authorization:'Bearer '+'t'.repeat(48)};
+  const cmd=toThroneCommand({sessionId:'session-ritsu-2',turnId:'turn-ritsu-2',channel:'control',prompt:'Status?'});
+  assert.equal((await post(base,{...cmd,commandId:'mismatched-command'},auth)).status,400);
+  assert.equal((await post(base,{...cmd,turn:{...cmd.turn,prompt:'z'.repeat(5001)}},auth)).status,400);
+});
+
+test('Chromium Throne route does one bounded turn rather than automatic swarm continuation',()=>{
+  const source=fs.readFileSync(new URL('./extension/service-worker.js',import.meta.url),'utf8');
+  const at=source.indexOf('async function executeOneRitsuTurn(');
+  const end=source.indexOf('async function runStoredSwarm(',at);
+  assert.ok(at>0 && end>at);
+  const one=source.slice(at,end);
+  assert.match(one,/func: submitChatGptPrompt/);
+  assert.match(one,/waitForCompletedAssistant/);
+  assert.doesNotMatch(one,/runStoredSwarm\(/);
+  assert.doesNotMatch(one,/planVeniceContinuation|BOOT_ENVELOPE/);
+  assert.match(one,/ritsu_session_tab_missing_no_auto_rotation/);
+  assert.match(one,/ritsuChatReceipts/);
+});
