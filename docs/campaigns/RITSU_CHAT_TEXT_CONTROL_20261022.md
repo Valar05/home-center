@@ -9,6 +9,18 @@ The owner reports that **Gboard's built-in dictation works very well**, and want
 - Preserve exact ASR text in receipts and keep corrected text distinct if a later explicit correction stage is implemented. Do not silently rewrite proper names, commands, addresses, or personal vocabulary using a generic language model.
 - Device acceptance compares **Gboard dictation quality** with the chosen heads-free ASR on actual frequently used names/terms; ask for fixes only if evidence shows a gap. Gboard stays available as a user-controlled fallback.
 
+## Google recognizer reuse and correction surface decision (2026-10-22)
+The owner asks to reuse Google's existing speech recognition and Gboard's intelligent autocomplete. Implement the **supported** portion directly:
+
+- Default recognizer: `SpeechRecognizer.createSpeechRecognizer(context)` after `isRecognitionAvailable(context)` and declared `<queries><intent><action android:name="android.speech.RecognitionService" /></intent></queries>`. Where supported, `createOnDeviceSpeechRecognizer(context)` may be selectable. Inspect the actual provider and runtime behavior; do not assert it is the exact Gboard/Assistant voice-typing model.
+- Prioritize speaker-specific vocabulary by passing `RecognizerIntent.EXTRA_BIASING_STRINGS` (API 33+) and optionally `EXTRA_ENABLE_BIASING_DEVICE_CONTEXT`. Both are **hints, not guarantees**; feature/provider support must be checked.
+- Google's Gboard customized autocomplete **is not publicly exported** to arbitrary apps. Never claim access to its private suggestion ranking, dictation corrections, or learned profile. `SpellCheckerSession.getSentenceSuggestions` is an accessible system spell-checker route, but is not equivalent to Gboard suggestions.
+- A visible transcript editing field must invoke actual Gboard so the owner can use its full learned autocorrection. If a later custom correction layer is needed, it should contain user-approved terms with explicit provenance, not copied private Gboard data.
+- Google `SpeechRecognizer` may use network/cloud audio processing and is **not intended for unbounded continuous sessions**. Keep the user-consented microphone foreground session distinct from individual bounded ASR utterances triggered by local VAD; only allow one microphone owner at a time. Where the recognition provider opens its own mic, release/pause the app's AudioRecord first and reacquire after completion; explicit mute/stop cancels both layers. Test screen-off, Android privacy indicator, service lifetime, provider silence and battery on-device.
+- Preserve raw transcript and accepted corrections separately with turn ID, do not silently overwrite a personal name. The contract is not accepted until Google recognition on this specific phone returns actual text and a user confirms its quality.
+
+Official Android references: https://developer.android.com/reference/android/speech/SpeechRecognizer ; https://developer.android.com/reference/android/speech/RecognizerIntent ; https://developer.android.com/reference/android/view/textservice/SpellCheckerSession .
+
 ## Voice-first product directive (user-confirmed 2026-10-22)
 **Voice is the PRIMARY user interaction.** The phone should function as an eyes-free Ritsu conversation with optional minimized floating mute/interrupt controls, while ChatGPT/browser work occurs off-screen. Text input is a fallback/debugging/quiet-mode control, and returned transcripts are optionally inspectable, not an attention-demanding chat inbox.
 
