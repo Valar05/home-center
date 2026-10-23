@@ -1,25 +1,30 @@
-# Ritsu Control v0.5: fix invisible speech-recognition results
+# Ritsu Control v0.6: voice-first multi-conversation cockpit (prototype)
 
-## V4 fault diagnosis
-A confirmed owner report from their phone: speech into the installed V4 produced no visible text and no Ritsu spoken reply. Source inspection revealed two concrete UI/flow errors:
-- V4 required **Start local listening** followed by an independent **Use Google speech recognition** tap. The first control only launched AudioRecord's **energy detector** and never generated words.
-- Even a successful `SpeechRecognizer.onResults` wrote a static field, and the editable Gboard text box was only populated by a further **Load recognized transcript** tap. Normal UI refresh didn't pull in the results.
-- V4 had no phone->Home Center->ChatGPT->Ritsu TTS transport, so speech output was not implementable from that app. It cannot be called a voice companion.
+## User intent
+Ritsu should operate as a voice-first overlord chat app: continuously detect owner speech once enabled, finalize utterances at silence, display the text and results from several conversations, and play her answers. Phone-speaker audio, including YouTube and Ritsu herself, must not become false user commands. Verified owner speech should request pausing competing media.
 
-## V5 repairs
-- One **Talk to Google recognizer (one phrase)** button requests RECORD_AUDIO from the visible activity and then starts mic/ASR handoff in one operation, rather than quietly enabling energy VAD only.
-- The visible Activity updates status and transcript every 300ms **while visible**, with callbacks stopped when paused. No background screen polling.
-- The recognizer's partial results are displayed as interim words immediately when Google returns them, and a final result automatically replaces the preview in the Gboard-compatible editable field.
-- Speech errors, timeouts, busy provider, permission and network errors have **human-readable** diagnostic status (and no false text).
-- All recognized text is local/ephemeral, never automatically treated as a ChatGPT command or routed through a model. The system provider may separately use online recognition.
-- Independent **Start local listening** still runs only the local energy detector and is labeled as such.
+## Implemented
+- Dark chat screen with All, Ritsu, Control and Workers lanes; message provenance and state visible. Small Listen/Mute/More control bar.
+- Optional Gboard-compatible input. Typed messages enter a **local-only** outbox marked WAITING_FOR_HOME_CENTER; this does not prove any ChatGPT delivery.
+- Mic buffers up to 20 seconds of PCM16 in RAM, with 400ms pre-roll and 700ms silence end-of-utterance detection. Press Listen once; subsequent segments are automatically passed to Android speech recognition, not via another button.
+- Android 13+ recognizer can optionally consume captured PCM through its EXTRA_AUDIO_SOURCE file descriptor. Provider support is unverified. May use network processing through system provider.
+- Final recognized utterances appear in the Ritsu/All feeds with local outbox status. Interim text is not an executable command.
+- The microphone uses VOICE_COMMUNICATION and Android AcousticEchoCanceler where available, but hardware cancellation cannot guarantee rejection of all phone speaker audio.
+- Conservative playback guard rejects ambiguous automatic utterances while Android reports active media. This prevents blind YouTube self-transcription, but also blocks genuine barge-in while media plays. The missing near-end speech detector is a gating requirement.
+- Advanced explicit media pause control uses Android transient audio focus; third-party players may not pause or resume, and **automatic media pause on verified human speech is not implemented**.
 
-## Expected test
-1. Install debug V5 (may need uninstalling only old Ritsu Control if CI ephemeral debug signature differs).
-2. Open Ritsu Control and tap **Talk to Google recognizer (one phrase)** just once. Approve mic permission if asked.
-3. Say a short sentence. Watch interim or final words appear directly in the text field. An explanatory provider error should appear in live status if the recognizer fails. The provider may produce only final results.
-4. Open Gboard in the field to use your normal editing/autocorrect suggestions.
-5. This still does **not** cause Ritsu's voice to speak back. The certified voice-response path requires the authenticated Home Center and Chromium Throne bridge, an existing Ritsu voice worker, and the canonical Windows/Tailscale :19643 -> Termux playback. It must not be simulated with generic Android TTS.
+## Check on device
+1. Install v0.6 APK (if Android refuses a debug key change, uninstall only the separate Ritsu Control app, never the Termux voice receiver).
+2. Open Ritsu, tap Listen once, grant microphone access. Say one sentence and leave one second of silence.
+3. If system PCM injection is supported, words should appear in the Ritsu and All views automatically; otherwise an explicit provider status/error should appear under More.
+4. Worker tab currently says No verified results because the authenticated Home Center result feed has not yet been connected.
+5. Test with phone YouTube playback: ambiguous sound should be rejected, not treated as a command. Headphone behavior also needs testing.
+6. Mute physically stops mic capture and recognition. Stop ends session.
 
-## Verification boundaries
-CI pass == compiled APK + pure-state and manifest/flow contract checks. It is **not** device recognition proof, ChatGPT command delivery proof, or audible feedback proof. The owner must verify phone behavior. The speech provider API is not intended for indefinite continuous recognition, so this button remains single-phrase; full-duplex live voice/barging remains unaccepted.
+## Unmet acceptance
+- Real phone support for Google recognition PCM injection and ASR word quality; no automatic continuous Google recognition is guaranteed.
+- Echo-cancelled distinction between owner speech and Ritsu/YouTube, real automatic media pause with confirmation, accurate user barge-in and Termux clip-scoped playback cancellation.
+- Phone -> Home Center authenticated turn ingest, durable outbox sync, Chromium Throne real ChatGPT reply, multiple worker results, approved Ritsu voice synthesis and canonical Tailscale 19643/Termux playback with audible confirmation.
+- Phone lock-screen, permission loss and provider timeout/device runtime testing.
+
+This is **not yet a working two-way voice companion**. Build/test PASS cannot be mistaken for phone runtime, chat delivery, or user-heard playback. Do not fabricate worker results.
