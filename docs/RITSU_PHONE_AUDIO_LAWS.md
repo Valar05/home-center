@@ -1,5 +1,19 @@
 # RITSU PHONE AUDIO LAWS v1.0
 
+## CORRECTION: Delighted is the −1-semitone Pocket clone (2026-10-23, authoritative)
+
+The user explicitly corrected the assistant's misinterpretation of "original": **the official Delighted voice is the clone made by feeding the −1-semitone Happy 00112 reference into Pocket TTS**, not the unshifted Pocket clone and **not any old Qwen/"Quinn" clone**. That adjusted Pocket state **already existed** and its file SHA256, reference SHA256 and source recording have now been verified. No output/post-generation pitch shifting is used.
+
+- Original Expresso reference `ex04_happy_00112.wav` SHA256 `6F5342EC0F32DB5276408ECA182D3CBC32A9F03E46CA6230B4161D4FE802400C`.
+- −1-semitone pre-baked reference `workspace/ritsu-faster-qwen3-tts/ritsu-pitched-references/ex04_happy_00112.wav` SHA256 `20A36E295FCE95820F87B9AC34D5036DC8929CBB39282182EC3BCAF56BC331BE`, formants preserved.
+- **Selected live Pocket clone:** `C:\Users\dclar\Documents\Codex\Venice\PocketTTS\voice-candidates\fullset-20261023\delighted-minus1.safetensors`, SHA256 `050A501F67F83A3876183BEFD649806265B844BFC13BB21D967FC37C0456427A`. This is genuinely exported Pocket voice conditioning state, not a Qwen WAV or a post-hoc pitch filter. Original unshifted Pocket Delighted state SHA `47089F6F...` is preserved as an archive and **not live**.
+- **Actual cutover verified:** Live Pocket service `127.0.0.1:10205/health` reports `stateSha256.delighted=050A501F67F83A3876183BEFD649806265B844BFC13BB21D967FC37C0456427A`, model ready with five states, Somber still the Upset alias. After patching `ritsu_pocket_repertoire_server_v2.py` and `embodiment_campaign/tts_adapter.py`, Pocket watchdog restarted the service and canonical relay watchdog restarted the relay (new PID 17728) after a queue-empty preflight. New profile cache keys include the correct clone hash. Home Center `ritsu.voice.speak` `profile=happy` phone canary `ritsu-live-pocket-delighted-minus1-verified-phone-20261023` status `enqueued`, relay ID `f5aef07ca845b5da6ae237ad`; **HEARD has not yet been confirmed for this corrected audition**, even though user heard earlier unshifted canary tests.
+- The Warm, Amused, Somber and Whisper selected states remain unchanged; Upset still aliases Somber; active Qwen synthesis remains retired. Pocket service source archive and adapter source and catalog were updated in GitHub as part of this fix; cloud profile-list metadata may remain stale until deployment. Windows backups saved under `PocketTTS/delighted-minus1-live-selection-backup-20261023`.
+
+This correction takes precedence over all earlier text claiming that the official Delighted state was the **original-pitch** Pocket clone.
+
+
+
 ## ACTIVE ENGINE CUTOVER v1.5: Pocket-only Ritsu repertoire (2026-10-23)
 **MOST RECENT AUTHORITY. Supersedes historical Qwen/“Quinn” engine and profile selection in older sections of this file.** User expressly requested **“hook up the ones we have, none of the old Quinn ones. I think somber will work just fine for upset. I don't really need upset.”**
 
