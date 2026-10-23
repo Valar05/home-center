@@ -1,5 +1,17 @@
 # RITSU PHONE AUDIO LAWS v1.0
 
+## OCTOBER 23, 2026 — PRIORITY DELIVERY ADDENDUM: EARLY AUDIO AND RETRY DISCIPLINE
+
+User-confirmed HEARD for the Pocket-TTS Warm reply to RV ON in the current conversation. Subsequent emotional-range audio calls were blocked; do not treat the block as delivery and do not silently abandon an ordinary transient failure.
+
+1. **Low-latency first audio:** For ordinary speech, form the *first complete, independently useful sentence or short paragraph* as soon as its wording is stable; dispatch its exact text through the existing `ritsu.voice.speak` canonical ticket immediately, before composing or rendering later chunks. Continue composing later chunks while the first is in flight when the tool environment permits. Do NOT wait for the entire long response and all tool readbacks if a truthful opening chunk is already locked. Never synthesize audio for words not yet fixed. Long tool research that could change the opening claims must happen first.
+2. **Chunk integrity:** Lock each chunk before it is submitted, keep one stable turn-specific ID with increasing indices, use explicit `profile` only when intended, and send later chunks in narrative order. Preserve spoken/visible content equivalence; don't append an unsent substantive afterthought. Keep first chunks short enough for early playback without slicing words or sentences.
+3. **Bounded retrial:** For timeouts, temporary network errors, lease/contention, 429, 5xx, or ambiguous submission outcomes, inspect `ritsu.voice.status` with the SAME request ID first, to avoid duplicate narration. Retry only when confirmed safe, using the SAME idempotent request ID and exact text/profile or a newly justified ID if the prior request demonstrably did not enter the queue. Use at most two bounded transport retries, then report precise failure. A policy/safety block is **not** a transient network fault: do not evade, paraphrase solely to defeat, or repeatedly submit requests to circumvent a safety restriction; report the blocked stage.
+4. **Asynchronous reality:** In these sessions, tool dispatch and phone synthesis may overlap with writing later text, but the ChatGPT platform does not guarantee sending voice ahead of visible streamed text. Work toward fastest permitted FIRST CHUNK submission, not a false promise that narration will always finish before text appears.
+5. **Evidence:** distinguish QUEUED, LEASED, ENQUEUED, CONSUMED, and user-confirmed HEARD. Prior successful HEARD never proves a later chunk was heard. Check final ticket status when possible; no invented success.
+6. **Activation:** The per-conversation RV ON latch remains active until RV OFF. Apply this timing and retry addendum to every subsequent eligible response. Never divert to an alternative transport, unrelated app, old Qwen voice model or local guessing.
+
+
 ## CORRECTION: Delighted is the −1-semitone Pocket clone (2026-10-23, authoritative)
 
 The user explicitly corrected the assistant's misinterpretation of "original": **the official Delighted voice is the clone made by feeding the −1-semitone Happy 00112 reference into Pocket TTS**, not the unshifted Pocket clone and **not any old Qwen/"Quinn" clone**. That adjusted Pocket state **already existed** and its file SHA256, reference SHA256 and source recording have now been verified. No output/post-generation pitch shifting is used.
