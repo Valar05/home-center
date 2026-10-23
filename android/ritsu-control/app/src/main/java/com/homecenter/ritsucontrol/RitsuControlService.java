@@ -53,11 +53,16 @@ public final class RitsuControlService extends Service {
     private Handler mainHandler;
     private SystemSpeechSession speechSession;
     private Runnable recognitionTimeout;
+    private MediaPauseLease mediaPause;
+    private ConversationLedger chatLedger;
+    static volatile long feedRevision = 0;
 
     @Override public void onCreate() {
         super.onCreate();
         mainHandler = new Handler(Looper.getMainLooper());
         receipts = new ControlReceipts(this);
+        mediaPause = new MediaPauseLease(this);
+        chatLedger = new ConversationLedger(this);
         liveMode = ListeningPolicy.Mode.OFF;
         voiceActivity = false;
         lastProblem = "";
@@ -80,6 +85,9 @@ public final class RitsuControlService extends Service {
                     if (bubble != null) bubble.refresh();
                 });
             }
+            @Override public void onUtterance(short[] pcm) {
+                mainHandler.post(() -> automaticUtterance(pcm));
+            }
             @Override public void onFailure(String reason) {
                 mainHandler.post(() -> failCapture(reason));
             }
@@ -97,6 +105,11 @@ public final class RitsuControlService extends Service {
             @Override public void finalTranscript(String text) {
                 lastTranscript = text;
                 transcriptRevision++;
+                if (chatLedger != null) {
+                    chatLedger.add("dialogue", "You", text,
+                            ConversationLedger.OUTBOX);
+                    feedRevision++;
+                }
                 partialTranscript = "";
                 recognitionStatus = "Recognized words received; NOT sent";
                 receipts.append("ASR_TEXT_READY", mode, mode, "private_transcript_not_logged");
@@ -198,6 +211,51 @@ public final class RitsuControlService extends Service {
         if (mode == ListeningPolicy.Mode.LISTENING) recognizeOnce();
     }
 
+    /** Automatic on local VAD silence after capturing the *whole* utterance.
+     * This is never called with media playing, because VAD cannot prove
+     * whether a nearby speaker or human supplied the waveform. */
+    private void automaticUtterance(short[] pcm) {
+        if (mode != ListeningPolicy.Mode.LISTENING) return;
+        // Conservative self-audio guard: no ambient media transcripts can be
+        // interpreted as user commands. Near-end verification while media plays
+        // is still an unimplemented full-duplex acceptance requirement.
+        if (mediaPause.otherAudioMayBeActive()) {
+            receipts.append("AUDIO_PLAYBACK_BLOCKED", mode, mode,
+                    "untrusted_phone_playback_no_human_proof");
+            recognitionStatus = "Phone media detected: rejected ambiguous speech";
+            capture.stop();
+            if (!capture.start()) failCapture("audio_recorder_could_not_rearm");
+            updateNotification();
+            return;
+        }
+        capture.stop();
+        voiceActivity = false;
+        applyTransition(ListeningPolicy.Event.RECOGNITION_STARTED,
+                "silence_finalized_utterance_vad_released");
+        lastTranscript = "";
+        partialTranscript = "";
+        partialRevision++;
+        recognitionStatus = "Silence detected; sending captured PCM to Android recognizer";
+        if (!speechSession.beginCaptured(pcm)) {
+            applyTransition(ListeningPolicy.Event.RECOGNITION_FINISHED,
+                    "external_audio_recognizer_unavailable");
+            resume();
+            return;
+        }
+        scheduleRecognitionTimeout();
+        updateNotification();
+    }
+
+    private void scheduleRecognitionTimeout() {
+        recognitionTimeout = () -> {
+            if (mode != ListeningPolicy.Mode.RECOGNIZING) return;
+            cancelRecognition("Recognition timeout (45s)");
+            applyTransition(ListeningPolicy.Event.RECOGNITION_FINISHED, "asr_timeout");
+            resume();
+        };
+        mainHandler.postDelayed(recognitionTimeout, 45000);
+    }
+
     private void recognizeOnce() {
         if (mode != ListeningPolicy.Mode.LISTENING || speechSession.isActive()) return;
         capture.stop();
@@ -212,13 +270,7 @@ public final class RitsuControlService extends Service {
             resume();
             return;
         }
-        recognitionTimeout = () -> {
-            if (mode != ListeningPolicy.Mode.RECOGNIZING) return;
-            cancelRecognition("Recognition timeout (45s)");
-            applyTransition(ListeningPolicy.Event.RECOGNITION_FINISHED, "asr_timeout");
-            resume();
-        };
-        mainHandler.postDelayed(recognitionTimeout, 45000);
+        scheduleRecognitionTimeout();
         updateNotification();
     }
     private void completeRecognition() {
@@ -227,6 +279,7 @@ public final class RitsuControlService extends Service {
         recognitionTimeout = null;
         applyTransition(ListeningPolicy.Event.RECOGNITION_FINISHED,
                 "system_recognizer_released");
+        mediaPause.release();
         resume(); // Re-arm VAD; do not auto-run another recognition session.
     }
     private void cancelRecognition(String reason) {
@@ -252,6 +305,7 @@ public final class RitsuControlService extends Service {
 
     private void failCapture(String reason) {
         cancelRecognition("Recording stopped after error");
+        mediaPause.release();
         capture.stop();
         voiceActivity = false;
         lastProblem = reason;
@@ -276,6 +330,7 @@ public final class RitsuControlService extends Service {
 
     private void endSession() {
         cancelRecognition("Session stopped");
+        mediaPause.release();
         if (capture != null) capture.stop();
         voiceActivity = false;
         ListeningPolicy.Mode previous = mode;
@@ -347,6 +402,7 @@ public final class RitsuControlService extends Service {
 
     @Override public void onDestroy() {
         cancelRecognition("Service destroyed");
+        if (mediaPause != null) mediaPause.release();
         if (capture != null) capture.stop();
         if (bubble != null) bubble.hide();
         voiceActivity = false;
