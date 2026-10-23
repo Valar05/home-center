@@ -47,8 +47,8 @@ export function createRelay({
         const command = validateThroneCommand(await body(req));
         if (throneCommands.has(command.commandId)) {
           const existing = throneCommands.get(command.commandId);
-          if (command.action === 'chat.turn' &&
-              (existing.action !== 'chat.turn' ||
+          if ((command.action === 'chat.turn' || existing.action === 'chat.turn') &&
+              (existing.action !== command.action ||
               sha256(JSON.stringify(existing.turn)) !== sha256(JSON.stringify(command.turn))))
             return send(res, 409, {ok: false, error: 'RITSU_TURN_ID_COLLISION'});
           return send(res, 200, {ok: true, commandId: command.commandId, state: existing.state, duplicate: true});
@@ -70,7 +70,10 @@ export function createRelay({
           .sort((a, b) => a.createdAtMs - b.createdAtMs)[0];
         if (!row) return send(res, 204, undefined, extensionOrigin);
         row.state = 'leased';
-        row.lease = {leasedAtMs: nowMs, expiresAtMs: nowMs + THRONE_LEASE_MS};
+        // The browser-side single-turn watcher has a 120s reply deadline.
+        // The relay lease must exceed it or a valid reply becomes unknowable.
+        const leaseMs = row.action === 'chat.turn' ? 180_000 : THRONE_LEASE_MS;
+        row.lease = {leasedAtMs: nowMs, expiresAtMs: nowMs + leaseMs};
         await eventSink({type: 'throne.command.leased', command: publicThroneCommand(row)});
         return send(res, 200, {command: leasedThroneCommand(row)}, extensionOrigin);
       }
