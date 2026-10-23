@@ -2,6 +2,9 @@
 // Explicit trusted Home Center host entrypoint, never invoked from the APK.
 // One coordinator per configured campaign, no process-global singleton.
 import {readFile} from 'node:fs/promises';
+import path from 'node:path';
+import {createRitsuVoiceReturn} from './ritsu-voice-return.mjs';
+import {createCanonicalVoiceSender} from './ritsu-canonical-voice-sender.mjs';
 import {createRitsuAndroidGateway} from './ritsu-android-gateway.mjs';
 import {createRitsuHomeCenterCoordinator} from './ritsu-home-center-coordinator.mjs';
 import {createLocalThroneTransport} from './ritsu-home-center-throne-transport.mjs';
@@ -24,11 +27,18 @@ async function main() {
         'http://127.0.0.1:9235/v1/throne',
     }),
   });
+  const voiceReturn=createRitsuVoiceReturn({
+    directory:path.join(required('HOME_CENTER_RITSU_STATE_DIR'),'voice-return'),
+    sender:createCanonicalVoiceSender({
+      relayRoot:required('HOME_CENTER_RITSU_CANONICAL_RELAY_ROOT'),
+    }),
+  });
   const gateway=createRitsuAndroidGateway({
     host:required('HOME_CENTER_RITSU_TAILNET_IPV4'),
     port:Number(process.env.HOME_CENTER_RITSU_PHONE_PORT||19646),
     clientBearer:token,
     coordinator,
+    voiceReturn,
   });
   const address=await gateway.start();
   // Receipt contains only listener address and process ID, never secret.
