@@ -159,6 +159,10 @@ async function executeOneRitsuTurn(turn) {
       await chrome.storage.local.set({ritsuChatSessions: sessions});
     }
     const before = await inspectWorker(tab.id);
+    // Authentication/readiness is checked BEFORE the pre-send unknown receipt.
+    // A logged-out ChatGPT page must not poison the at-most-once ledger.
+    // No prompt mutation is attempted until a real composer is visible.
+    await requireRitsuPromptComposer(tab.id);
     const baseline = Number(before.assistantCount || 0);
     receipts[turnKey] = {state: 'unknown', tabId: tab.id, baselineAssistantCount: baseline};
     // Persistence *before* DOM mutation is the at-most-once boundary.
@@ -400,6 +404,25 @@ async function chatTabSummary() { const [tab] = await chrome.tabs.query({active:
 async function requireChatTab(tabId = null) { const tab = tabId ? await chrome.tabs.get(tabId) : (await chrome.tabs.query({active: true, currentWindow: true}))[0]; if (!tab?.id || !isChatGpt(tab.url)) throw new Error('ChatGPT worker tab is missing or no longer usable'); return tab; }
 function isChatGpt(url) { try { return new URL(url).origin === CHATGPT_ORIGIN; } catch { return false; } }
 function waitForTabComplete(tabId, timeoutMs) { return new Promise((resolve, reject) => { const timer = setTimeout(() => finish(new Error('Timed out waiting for ChatGPT tab load')), timeoutMs); const listener = (changedId, info) => { if (changedId === tabId && info.status === 'complete') finish(); }; function finish(error) { clearTimeout(timer); chrome.tabs.onUpdated.removeListener(listener); error ? reject(error) : resolve(); } chrome.tabs.onUpdated.addListener(listener); chrome.tabs.get(tabId).then((tab) => { if (tab.status === 'complete') finish(); }).catch(finish); }); }
+
+async function requireRitsuPromptComposer(tabId) {
+  for (let i = 0; i < 24; i += 1) {
+    const [probe] = await chrome.scripting.executeScript({
+      target: {tabId}, func: probeRitsuPromptComposer
+    });
+    if (probe?.result?.ready) return;
+    if (probe?.result?.loginRequired) throw new Error('ritsu_chatgpt_login_required');
+    await sleep(250);
+  }
+  throw new Error('ritsu_chatgpt_composer_unavailable_before_send');
+}
+function probeRitsuPromptComposer() {
+  const composer = document.querySelector('#prompt-textarea, textarea[data-testid="prompt-textarea"], div[contenteditable="true"][data-testid="prompt-textarea"]');
+  const loginRequired = !composer &&
+    Boolean([...document.querySelectorAll('a,button')].some((node) =>
+      /^(log in|sign in)$/i.test((node.textContent || '').trim())));
+  return {ready: Boolean(composer), loginRequired};
+}
 
 async function submitChatGptPrompt(prompt) {
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); let composer;
