@@ -1,5 +1,32 @@
 # CURRENT MISSION: Pocket TTS voice experiments and accepted voices (updated 2026-10-23)
 
+## Warm: Cheesecake Wish with the laugh section removed (2026-10-23)
+
+User says Delighted voice currently in their main generated folder sounds okay, and explicitly says to **mark that existing Delighted version as official**, despite imperfect similarity to other Ritsu voices. **Do not replace Delighted with a different earlier variant or change live routing by guessing which on-disk path is the main generated version**. Previous experimental Delighted candidates remain archived. Priority shifts to a **new genuinely warm** voice.
+
+Owner's insight: The unedited Expresso `ex04-desire-03-cheesecake-wish.wav` **spoken words sounded genuinely warm**, but the presence of a laugh/breathy interjection led Pocket to produce an unnatural laughing artifact; previous raw Cheesecake-based clone was rejected. User now authorizes a new Warm clone from the spoken part **with the laugh removed**. Keep original audio, existing Warm Ocean Dream, Somber Personal Affirmation, etc. intact. Do not mistake new candidate for automatic approval.
+
+Reference original `C:/Users/dclar/workspace/ritsu-expresso-auditions/desire/ex04-desire-03-cheesecake-wish.wav`, mono 24-bit 48000Hz, 3.725sec, SHA256 `C68E97E636F4F460CB0792BE4279F17D9C476C501914E6C15ED778F282061D6C`, transcript `I would love to be at the Cheesecake Factory.` Signal investigation found a low-level middle island between two speech phrases: RMS ~0.006–0.013 from 1.5 to 2.3sec, speech resumes ~2.4sec. Edited to keep original 0–1.54s and 2.36–3.725s, applying a linear 45ms crossfade at their junction; removed effective 0.865sec. Note this is an acoustically grounded edit of the suspected laugh/interjection, not independently verified speech/laughter diarization. Edited reference mono PCM16 48000Hz, **2.86 seconds**.
+
+Files under `C:/Users/dclar/Documents/Codex/Venice/PocketTTS/voice-candidates/warm-cheesecake-no-laugh-20261023/`: 
+- `cheesecake-speech-only-48k-pcm16.wav` edited unpitched SHA256 `591E3A6898477A2281BEFE1C95B8245605D4B00B6BED6912AC5566F746CDA77A`.
+- `cheesecake-speech-only-minus1-formant-48k-pcm16.wav` baked −1-semitone ONCE into the **edited reference** via FFmpeg `rubberband=tempo=1:pitch=0.9438743126816935:formant=preserved`, SHA256 `69E232438F57A972B9558DF41BE8BC7A5A58B79051FF3C761954F2C9E8AA398D`, 2.86sec, 48k mono PCM16.
+- `ritsu-warm-cheesecake-no-laugh-minus1-pocket.safetensors` NEW separate Pocket TTS clone SHA256 `6D619A92B6F17C4DF4163919E690FAFADD48C285A0773AE01EFDE7BAA510ED07`, 1,819,880 bytes.
+- `warm-cheesecake-no-laugh-control-playable.wav` NEW sample temp 0.7: `Good morning. The workshop is quiet, the coffee is ready, and I have a few ideas.` SHA256 `E996F991339FB8A03416AF7DD8E7FD0DB0624E2FCE97DE99042215211FBC187D`, 4.12s.
+- `warm-cheesecake-no-laugh-affection-playable.wav` NEW sample temp 0.7: `I really like having you here. Even an ordinary afternoon feels a little more special.` SHA256 `1B5392A93E08848D594E0D03C98B3E52493EAF8A7A37B8FD4ADAEC8C377BCD92`, 4.44s.
+- Source edit details recorded in `cheesecake-source-edit.json` under same directory.
+
+After voice export generated 2 new samples with Pocket TTS at `--temperature 0.7 --language english --device cpu`. Generated audio WAV headers repaired by canonical finalizer, PCM samples verified byte-identical. No pitch applied after generation. Signal QA `hands-ritsu-cheesecake-no-laugh-warm-audition-signal-qa-20261023` exit 0, no clipping or static-like start for the new clips.
+
+**Desktop playback completed in four ordered clips, 3sec gaps, interactive session 1**: (1) edited −1 Cheesecake speech-only reference, (2) previous Ocean Dream Warm −1 baseline, (3) new Cheesecake Warm standard sentence, (4) new Cheesecake Warm affectionate sentence. One-shot ticket `hands-ritsu-cheesecake-clean-vs-ocean-warm-four-auditions-20261023`, all FFplay exit 0, 10:34:48–10:35:16 CDT. **USER HAS NOT YET CONFIRMED whether these clips were heard or whether any new Warm is accepted**. Do not infer from FFplay exit. No existing settings or stored states overwritten; prior Cheesecake clone rejection still applies to its **unedited** source, not to this new cleaned experiment.
+
+Other receipts: `hands-ritsu-cheesecake-laugh-segment-forensics-20261023` 10ms audio RMS analysis, `hands-ritsu-cheesecake-speech-laugh-cut-first-20261023` waveform edit, `hands-ritsu-cheesecake-clean-speech-minus1-reference-20261023` pitch bake, `hands-ritsu-warm-clean-cheesecake-clone-20261023` clone export, `hands-ritsu-cheesecake-warm-no-laugh-two-tests-20261023` synthesis.
+
+Next: listen to user's verdict on whether edited source still contains laughter or abrupt join, and whether new Pocket Warm voice is genuinely more affectionate, without unnatural laughter. If laughs persist, inspect edited source further and refine cut; otherwise consider promoting only after explicit user approval.
+
+---
+
+
 ## New Delighted reference experiment, avoiding pitch-only fixes (2026-10-23)
 
 **Owner verdict on prior −1/−2 Delighted pitch comparison:** Delighted still feels like a different person/voice relative to the rest of Ritsu's repertoire, and an additional −1 reference semitone to −2 did **not** improve identity. So **do NOT promote the −2 happy_00112 Delighted state**. A different source performance is more plausible than further pitch adjustment. Owner says other voices mostly sound similar; the Warm/Desire voice still lacks a certain amount of tenderness but is otherwise acceptable at −1. Upset could be reserved for roleplay, not required as everyday personality.
