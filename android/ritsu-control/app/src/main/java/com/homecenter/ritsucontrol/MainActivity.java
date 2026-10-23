@@ -37,6 +37,8 @@ public final class MainActivity extends Activity {
     private static final int REQUEST_NOTIFICATIONS = 19644;
     private TextView headerStatus, details;
     private EditText composer;
+    private Button listenButton, muteButton;
+    private TextView liveWords;
     private LinearLayout transcriptRows;
     private ScrollView feedScroll;
     private ConversationLedger ledger;
@@ -108,6 +110,10 @@ public final class MainActivity extends Activity {
         feedScroll.addView(transcriptRows);
         root.addView(feedScroll,new LinearLayout.LayoutParams(-1,0,1));
 
+        liveWords = label("", 14, false);
+        liveWords.setVisibility(View.GONE);
+        liveWords.setPadding(dp(8), dp(6), dp(8), dp(6));
+        root.addView(liveWords);
         LinearLayout compose = new LinearLayout(this);
         compose.setOrientation(LinearLayout.HORIZONTAL);
         composer = new EditText(this);
@@ -129,10 +135,10 @@ public final class MainActivity extends Activity {
 
         LinearLayout controls=new LinearLayout(this);
         controls.setOrientation(LinearLayout.HORIZONTAL);
-        controls.addView(button("Listen",v->requestListening()),
-                new LinearLayout.LayoutParams(0,dp(56),1));
-        controls.addView(button("Mute / Resume",v->toggleMute()),
-                new LinearLayout.LayoutParams(0,dp(56),1));
+        listenButton = button("Listen",v->requestListening());
+        muteButton = button("Mute",v->toggleMute());
+        controls.addView(listenButton, new LinearLayout.LayoutParams(0,dp(56),1));
+        controls.addView(muteButton, new LinearLayout.LayoutParams(0,dp(56),1));
         controls.addView(button("More",v->toggleAdvanced()),
                 new LinearLayout.LayoutParams(0,dp(56),1));
         root.addView(controls);
@@ -320,6 +326,22 @@ public final class MainActivity extends Activity {
         String detail = RitsuControlService.recognitionStatus;
         if (detail.length() > 75) detail = detail.substring(0, 75);
         headerStatus.setText(state + " · " + detail + "\\nChatGPT not connected");
+        if (listenButton != null) {
+            listenButton.setText(mode == ListeningPolicy.Mode.RECOGNIZING
+                    ? "Listening ●" : "Listen");
+        }
+        if (muteButton != null) {
+            muteButton.setText(mode == ListeningPolicy.Mode.MUTED ? "Resume" : "Mute");
+        }
+        if (liveWords != null) {
+            String interim = RitsuControlService.partialTranscript;
+            if (mode == ListeningPolicy.Mode.RECOGNIZING && !interim.isEmpty()) {
+                liveWords.setText("Hearing: " + interim);
+                liveWords.setVisibility(View.VISIBLE);
+            } else {
+                liveWords.setVisibility(View.GONE);
+            }
+        }
     }
 
     @Override protected void onResume(){
