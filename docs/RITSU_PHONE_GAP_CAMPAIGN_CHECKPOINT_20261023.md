@@ -42,3 +42,17 @@ Authoritative user correction: agent deliberately authors complete paragraphs wi
 5. Real phone listening confirms continuity and full word/paragraph coverage. Keep `HEARD` false/unverified until owner confirms.
 
 No new speech canary, Android receiver restart, approved voice replacement, or live Windows sender cutover occurred during this campaign slice. Prior staged paragraph sender remains source-only and Android v2 prefetch receiver is the previously installed runtime.
+
+
+## 16:18–16:20 CDT retry and authorized operator fallback
+
+Owner correction: Ritsu's **voice receiver has continued working**; do not conflate that with the distinct Home Center Phone Hands command-control receiver. The Tailscale speech relay may be healthy even while `android_phone_home_center_relay.py` has a stale heartbeat.
+
+Retried from ChatGPT via real Home Center `command_center.phone_hands.enqueue`:
+- `ritsu-gap-primary-trace-20261023-1618-cdt-v2` on `primary-phone`, read-only `phone_shell`, TTL 120 seconds, accepted as **queued**.
+- `ritsu-gap-rescue-trace-20261023-1618-cdt-v2` on `primary-phone-rescue-v1`, same read-only diagnostics, TTL 60 seconds, accepted as **queued**.
+- Both `phone_hands.get` readbacks at 21:20:41 UTC remain **queued**, with no lease owner, no stdout, and no execution receipt, after their TTL. This proves Home Center cloud enqueue works, not phone-local execution. No voice service changed.
+
+Owner expressly volunteered to run on-phone recovery manually if required. Because both authorized phone control lanes were tried and not executing, preserve a one-time, bounded operator handoff. Committed guarded install source `tools/campaigns/install_ritsu_phone_gap_campaign.sh` commit `7dfd8bbea6eac9cd89fe995f4faa55b124b43dc2`. It pins the read-only campaign to `9fbc3cfbb6ecd29009e2f07dac9b4348462112cb`, downloads source and offline tests, compiles and runs tests before installing into Termux private app storage, preserves changed existing files, exposes stable `ritsu-gap` run/status/receipts/follow/stop/recover and clipboard receipt. **This installer is committed, NOT installed, NOT tested on Android.** It must not be counted as a phone repair until owner returns an actual device receipt; campaign itself only diagnoses gaps and does not repair audio.
+
+Next live evidence must be actual Termux receiver-v2 `trace.jsonl` event deltas, followed by measured minimal fix. No speculative rewriting of Pocket engine or phone transport.
