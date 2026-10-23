@@ -6,7 +6,7 @@ ROOT="$HOME/.ritsu-embodiment"
 OLD="$ROOT/receiver.sh"
 HELPER="$ROOT/ritsu_phone_wav_batch.py"
 STATE="$ROOT/receiver-v2"
-REF="9f94c5c5d10524c3ea8f265dbacd8ad9bc4031fc"
+REF="7cbbe2a363afbdf6d6e421d7af4627b19bd42019"
 OLD_SHA="8acd84673b91420dddac5705829e17997ca9dfcde87e5f3d3f35b872f219322f"
 BASE="https://raw.githubusercontent.com/Valar05/home-center/$REF/tools/campaigns"
 SCRATCH=""
@@ -54,6 +54,50 @@ for name in ritsu_phone_receiver_prefetch_v3.sh ritsu_phone_wav_batch.py test_ri
 done
 PHASE=tests
 bash -n "$SCRATCH/ritsu_phone_receiver_prefetch_v3.sh"
+[ "$(sha256sum "$SCRATCH/ritsu_phone_receiver_prefetch_v3.sh" | awk '{print $1}')" = "55c0fb71168573145de842bf217a3136d942654053f0f785993de8b23abef015" ] || { receipt 'RITSU_V3_INSTALL_REFUSED corrected_source_hash_mismatch'; exit 21; }
+if grep -Fq '\\python3 -m py_compile "$SCRATCH/ritsu_phone_wav_batch.py" "$SCRATCH/test_ritsu_phone_wav_batch.py"
+(cd "$SCRATCH" && python3 test_ritsu_phone_wav_batch.py) >"$SCRATCH/tests.txt" 2>&1 || {
+  tail -n 30 "$SCRATCH/tests.txt" >&2
+  receipt 'RITSU_V3_INSTALL_REFUSED tests_failed; no live change'
+  exit 15
+}
+if [ -e "$STATE/playing" ]; then
+ receipt 'RITSU_V3_INSTALL_PAUSED playback_started_during_tests; no change'
+ exit 16
+fi
+[ "$(sha256sum "$OLD" | awk '{print $1}')" = "$OLD_SHA" ] ||
+  { receipt 'RITSU_V3_INSTALL_REFUSED receiver_changed_during_tests'; exit 17; }
+PHASE=backup
+BACKUP="$ROOT/receiver-backups/v3-source-$(date -u +%Y%m%dT%H%M%SZ)"
+mkdir -p "$BACKUP"
+cp -p "$OLD" "$BACKUP/receiver.sh"
+[ "$(sha256sum "$BACKUP/receiver.sh" | awk '{print $1}')" = "$OLD_SHA" ] ||
+  { receipt 'RITSU_V3_INSTALL_REFUSED backup_mismatch'; exit 18; }
+PHASE=install_for_next_restart
+cp "$SCRATCH/ritsu_phone_wav_batch.py" "$ROOT/.batch-helper.$$"
+chmod 600 "$ROOT/.batch-helper.$$"
+mv -f "$ROOT/.batch-helper.$$" "$HELPER"
+cp "$SCRATCH/ritsu_phone_receiver_prefetch_v3.sh" "$ROOT/.receiver-v3.$$"
+chmod 700 "$ROOT/.receiver-v3.$$"
+NEW_SHA="$(sha256sum "$ROOT/.receiver-v3.$$" | awk '{print $1}')"
+mv -f "$ROOT/.receiver-v3.$$" "$OLD"
+ACTUAL_SHA="$(sha256sum "$OLD" | awk '{print $1}')"
+[ "$ACTUAL_SHA" = "$NEW_SHA" ] || {
+ receipt 'RITSU_V3_INSTALL_READBACK_FAILED; rollback_from_backup_required'
+ exit 19
+}
+receipt "RITSU_V3_SOURCE_INSTALLED=1
+BACKUP=$BACKUP
+OLD_SHA256=$OLD_SHA
+NEW_SHA256=$NEW_SHA
+BASH_SYNTAX_AND_PCM_TESTS=PASS
+ACTIVE_RECEIVER=UNCHANGED_UNTIL_RESTART
+RELAY=UNCHANGED
+MEDIA_PLAYER=UNCHANGED
+VOICES=UNCHANGED
+NO_AUDIO_RESTART=1
+HEARD=unverified"
+'{' "$SCRATCH/ritsu_phone_receiver_prefetch_v3.sh"; then receipt 'RITSU_V3_INSTALL_REFUSED escaped_Bash_arrays'; exit 22; fi
 python3 -m py_compile "$SCRATCH/ritsu_phone_wav_batch.py" "$SCRATCH/test_ritsu_phone_wav_batch.py"
 (cd "$SCRATCH" && python3 test_ritsu_phone_wav_batch.py) >"$SCRATCH/tests.txt" 2>&1 || {
   tail -n 30 "$SCRATCH/tests.txt" >&2
