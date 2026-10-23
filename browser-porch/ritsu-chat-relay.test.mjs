@@ -86,4 +86,11 @@ test('Chromium Throne route does one bounded turn rather than automatic swarm co
     'signed-out ChatGPT must be rejected before the at-most-once send receipt');
   assert.match(source,/function probeRitsuPromptComposer\(\)/);
   assert.match(source,/ritsu_chatgpt_login_required/);
+  assert.match(source,/data-composer-markdown/);
+  assert.match(source,/document\.execCommand\('insertText'/);
+  assert.match(source,/userMessageObserved: true/);
+  assert.match(source,/Submit click not verified by ChatGPT user-message DOM/);
+  assert.doesNotMatch(source,/composer\.textContent = prompt/);
+  assert.doesNotMatch(source,/new KeyboardEvent\('keydown'.*'Enter'/);
+  assert.match(source,/ChatGPT send button not enabled; no dispatch/);
 });
