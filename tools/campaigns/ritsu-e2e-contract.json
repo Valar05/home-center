@@ -1,7 +1,7 @@
 {
   "schema": "home-center.ritsu-e2e-campaign.v1",
   "campaignId": "ritsu-chat-voice-e2e",
-  "mission": "Android speech/text -> Home Center CONTROL -> bound Chromium Throne ChatGPT -> verified CONTROL reply -> published Android feed -> approved Pocket TTS on existing 19643 phone relay",
+  "mission": "Initiate one ChatGPT turn through Home Center and retrieve the actual verified assistant response into the initiating Home Center process. Do not confuse tab open, queued, leased or submitted with retrieved.",
   "authority": "CAMPAIGN_ETIQUETTE Git Script Campaign Operating Rules, 2026-10-21; AGENTS.md; RITSU_PHONE_AUDIO_LAWS.md",
   "execution": {
     "host": "THECAULDRON",
@@ -35,20 +35,45 @@
     "Original Android application until explicit install"
   ],
   "doneOnlyWhen": [
-    "Exact Git SHA verified",
-    "Local tests passed",
-    "Staged extension and hashes verified",
-    "Detached phone gateway started with no inherited shell",
-    "Bearer health 200 and unauthorized 401 on 19646",
-    "Real ChatGPT submitted user bubble plus verified response",
-    "Android pair plus speech/typed submit plus visible reply",
-    "User confirms original phone audio playback"
+    "Exact Git SHA validated",
+    "One real initiated CONTROL chat is visibly submitted in a bound authenticated ChatGPT tab",
+    "That same chat returns a new completed assistant response",
+    "Home Center readback returns the exact assistant text to its initiator with verified turn/session identity",
+    "No automatic new tabs or duplicate submission"
   ],
   "neverCallAccepted": [
     "CI green only",
     "Browser tab opened",
     "Command leased",
     "Phone text queued locally",
-    "Audio enqueued without human hearing"
-  ]
+    "Audio enqueued without human hearing",
+    "ChatGPT composer contains text but Send was not acknowledged",
+    "Assistant count changed without matching turn identity",
+    "Answer captured only in browser without Home Center retrieval"
+  ],
+  "primaryAcceptance": {
+    "goal": "assistant initiates a real ChatGPT conversation and can read back the resulting answer",
+    "operation": "Home Center CONTROL -> authenticated Chromium Throne -> real ChatGPT message -> new completed assistant message -> same Home Center CONTROL receipt -> caller",
+    "requiredProof": [
+      "one unique turn ID and named control session, explicitly bound to an existing signed-in ChatGPT tab",
+      "visible user prompt accepted by ChatGPT (not merely typed into draft)",
+      "new assistant response captured after that user prompt completes",
+      "authenticated reply with same command ID, turn ID, session ID, channel and tab ID",
+      "initiating caller receives the exact assistant reply text from Home Center",
+      "no duplicate sends, no excess tabs, no fabricated pending/leased success"
+    ],
+    "independentOf": [
+      "Android app",
+      "Microphone",
+      "Pocket TTS",
+      "additional worker parallelism"
+    ]
+  },
+  "futureScope": {
+    "afterPrimaryAcceptance": [
+      "secure Android ingress and response feed",
+      "Ritsu voice over already approved Pocket/Tailscale transport",
+      "multiple independent ChatGPT threads published only by CONTROL"
+    ]
+  }
 }
