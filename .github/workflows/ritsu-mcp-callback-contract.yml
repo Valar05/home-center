@@ -1,0 +1,49 @@
+name: Ritsu MCP Callback Release Contract
+on:
+  push:
+    branches: ['ritsu/mcp-result-callback-20261023']
+    paths:
+      - 'functions/ritsu_chat_callback_api.js'
+      - 'functions/ritsu_chat_callback_api.test.js'
+      - 'functions/home_center_mcp.js'
+      - '.github/workflows/ritsu-mcp-callback-contract.yml'
+  pull_request:
+    paths:
+      - 'functions/ritsu_chat_callback_api.js'
+      - 'functions/ritsu_chat_callback_api.test.js'
+      - 'functions/home_center_mcp.js'
+      - '.github/workflows/ritsu-mcp-callback-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate exact MCP callback and host syntax
+        run: |
+          node --check functions/ritsu_chat_callback_api.js
+          node --check functions/ritsu_chat_callback_api.test.js
+          node --check functions/home_center_mcp.js
+          node --test functions/ritsu_chat_callback_api.test.js
+      - name: Verify existing MCP dispatcher has exactly the intended registration
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs');
+          const s=fs.readFileSync('functions/home_center_mcp.js','utf8');
+          const required=[
+            "require('./ritsu_chat_callback_api')",
+            '...ritsuChatCallbackOperationEntries()',
+            'ritsuChatCallbackOperationEntries()[operation]',
+            'ritsuChatCallbackRunOperation({admin, user, operation, args: operationArgs})',
+            'requireCreditGatedEmail(user && user.email, operation)'
+          ];
+          for(const needle of required)if(!s.includes(needle))throw Error('Missing callback MCP boundary: '+needle);
+          for(const needle of ['require(\'./ritsu_voice_api\')','...ritsuVoiceOperationEntries()'])
+            if(!s.includes(needle))throw Error('Existing voice registry was damaged');
+          console.log('RITSU_MCP_CALLBACK_RELEASE_GATE_PASS');
+          NODE
