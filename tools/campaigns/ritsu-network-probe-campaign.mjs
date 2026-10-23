@@ -186,7 +186,10 @@ async function probe(){
       if(failure)throw Error(failure);
       const matches=[];
       for(const [requestId,row] of candidates){
-        if(!row.finished||!row.armed||!row.streamed||row.failed||row.error)continue;
+        if(!row.finished||!row.armed||!row.streamed||row.error)continue;
+        // CDP may report a cancelled HTTP request after the server's [DONE].
+        // Treat explicit terminal SSE framing as authority, not loadingFailed.
+        if(row.failed&&!row.sse.diagnostic().terminalDone)continue;
         try{
           const result=row.sse.result({marker,requestFinished:true});
           matches.push({requestId,result,bytes:row.bytes});
