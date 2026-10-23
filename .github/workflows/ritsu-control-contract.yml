@@ -37,7 +37,7 @@ jobs:
           gradle-version: '8.10.2'
       - name: Pure-state tests and Android build
         run: gradle -p android/ritsu-control :app:testDebugUnitTest :app:assembleDebug --no-daemon
-      - name: Stage B microphone privacy and permission contract
+      - name: Stage C Android system speech privacy and permission contract
         run: |
           set -euo pipefail
           MANIFEST=android/ritsu-control/app/src/main/AndroidManifest.xml
@@ -50,11 +50,15 @@ jobs:
           grep -Fq 'android:foregroundServiceType="specialUse|microphone"' "$MANIFEST"
           grep -q 'capture.stop()' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
           grep -q 'Settings.canDrawOverlays' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'android.speech.RecognitionService' "$MANIFEST"
+          grep -q 'SpeechRecognizer.createSpeechRecognizer' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/SystemSpeechSession.java
+          grep -q 'capture.stop()' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
+          grep -q 'InputType.TYPE_TEXT_FLAG_AUTO_CORRECT' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
 
       - name: Publish isolated Android debug APK (not deployed)
         uses: actions/upload-artifact@v4
         with:
-          name: ritsu-control-v0.3-local-listening-debug-apk
+          name: ritsu-control-v0.4-system-asr-debug-apk
           path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
