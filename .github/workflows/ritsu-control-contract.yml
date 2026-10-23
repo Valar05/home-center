@@ -45,7 +45,7 @@ jobs:
           grep -q 'android.permission.FOREGROUND_SERVICE_MICROPHONE' "$MANIFEST"
           grep -q 'android.permission.SYSTEM_ALERT_WINDOW' "$MANIFEST"
           grep -q 'android.permission.BIND_QUICK_SETTINGS_TILE' "$MANIFEST"
-          ! grep -q 'android.permission.INTERNET' "$MANIFEST"
+          grep -q 'android.permission.INTERNET' "$MANIFEST"
           ! grep -q 'BOOT_COMPLETED' "$MANIFEST"
           grep -Fq 'android:foregroundServiceType="specialUse|microphone"' "$MANIFEST"
           grep -q 'Settings.canDrawOverlays' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
@@ -69,11 +69,17 @@ jobs:
           grep -q 'schedulePendingCommit' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
           grep -q 'selectSpeechTiming' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
           grep -q 'DEFAULT_PAUSE_MS = 5000' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/SpokenTurnBuffer.java
+          grep -q 'AndroidKeyStore' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuPairing.java
+          grep -q 'Only private Tailscale IPv4 is accepted' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuPairing.java
+          grep -q 'class HomeCenterSync' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
+          grep -q 'ACTION_SYNC_NOW' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
+          grep -q 'insertReplyOnce' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/ConversationLedger.java
+          grep -q 'no-store' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java || grep -q 'no-store' browser-porch/ritsu-android-gateway.mjs
 
       - name: Publish isolated Android debug APK (not deployed)
         uses: actions/upload-artifact@v4
         with:
-          name: ritsu-control-v0.8-thinking-pause-debug-apk
+          name: ritsu-control-v0.9-home-center-text-bridge-debug-apk
           path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
