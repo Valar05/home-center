@@ -1,5 +1,14 @@
 # CURRENT MISSION: Pocket TTS voice experiments and accepted voices (updated 2026-10-23)
 
+## Pocket Warm affection audition: user-selected reference 2 (2026-10-23)
+
+- Owner preferred **reference 2** among two unmodified original Expresso recordings replayed once each: reference 1 `ex04_happy_00083.wav` (1.53s) vs reference 2 `C:\\Users\\dclar\\workspace\\ritsu-expresso-auditions\\ex04_happy_00111.wav` (3.07s); source 2 SHA-256 `D1A4811384DC02990DC1A931D78B2EC2598730ED70988959E44143CF352B7921`. Chose reference **before** Pocket cloning as owner requested. No new Qwen synthesis, pitch shift or WAV changes to the original.
+- Windows Computer Hands `hands-ritsu-choice2-pocket-clone-20261023-0801`: installed Pocket CLI `export-voice` from exact verified source to new independent `C:\\Users\\dclar\\Documents\\Codex\\Venice\\PocketTTS\\voice-candidates\\ritsu-warm-affection-choice2-20261023.safetensors`, 1967336 bytes, SHA-256 `680A6132AF7A076CFB32F60F25AF26565977E1B80D0A34CBD3246304BFC2871E`. Export completed exit 0; prior warm, whisper and venice-canon voice states untouched.
+- Windows Computer Hands `hands-ritsu-choice2-pocket-audition-generate-20261023-0802`: generated comparison sentence `Good morning. The workshop is quiet, the coffee is ready, and I have a few ideas.` through Pocket CLI at default **temperature 0.7** using new choice-2 voice state. Raw `ritsu-warm-affection-choice2-test-20261023-raw.wav`, size 259244 bytes SHA-256 `DD1C23E3C77C5D633A43696E62ADE229C6541C630505E3D85B70E32449EB7EB3`. Header-only finalized playable `ritsu-warm-affection-choice2-test-20261023-playable.wav`, size 259244 bytes SHA-256 `7AA2D6DA64ACB1657CDB618D20DB82857342DC4040B60EBFE7F2A60493EEAE7F`. Sample stream unchanged, 129600 mono PCM16 frames at 24kHz = 5.4 sec.
+- Windows Computer Hands `hands-ritsu-choice2-pocket-audition-playonce-20261023-0803`: FFplay direct THECAULDRON interactive session 1, one-shot guard, explicit `-loop 1`, started 08:03:33 CDT ended 08:03:39 CDT, exit code 0. **Do not assert HEARD:** owner subjective quality verdict pending. Do not switch live voice until owner confirms this new clone meets desired affection and tone.
+
+
+
 ## Pocket TTS Warm v1 clone: separate audition (2026-10-23)
 
 - Owner requested cloning the approved **Warm** voice into Pocket TTS, with the possibility of re-audition if the existing Warm personality was too over-the-top. This is **not** the whisper clone and does **not** authorize changing either the Pocket whisper or Qwen live voice default.
