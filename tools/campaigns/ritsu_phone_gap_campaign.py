@@ -102,7 +102,10 @@ def events():
                                "ms": int(row["deviceMonotonicMs"]), "relayId": row.get("relayId")})
         except (ValueError, TypeError, KeyError, json.JSONDecodeError):
             bad += 1
-    return result, "PARSE_WARNINGS_" + str(bad) if bad else "OK"
+    health = "PARSE_WARNINGS_" + str(bad) if bad else "OK"
+    if size > MAX_TRACE_BYTES:
+        health = "TRACE_TRUNCATED_" + health
+    return result, health
 
 def trace_report(rows):
     starts, ends = {}, {}
@@ -193,7 +196,7 @@ def collect():
         copy_receipt("RITSU_GAP_INSPECTION_FAILED\nERROR=" + type(exc).__name__
                      + "\nLOG=" + str(LOG) + "\nHEARD=unverified")
         return 1
-    return 0
+    return 0 if complete else 4
 
 def worker_alive(record):
     pid = record.get("workerPid")
