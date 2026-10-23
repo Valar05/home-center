@@ -62,7 +62,7 @@ def worker():
     os.replace(tmp,path)
    with lock:jobs[jid].update(state='completed',generation_seconds=round(time.monotonic()-t,3),audio_seconds=round(len(clips[0])/sr,3),bytes=path.stat().st_size)
   except Exception as e:
-   state['model']='error';state['error']=str(e)[:200]
+   if model is None: state['model']='error';state['error']=str(e)[:200]
    with lock:jobs[jid].update(state='failed',error=str(e)[:200])
   finally:q.task_done()
 threading.Thread(target=worker,daemon=True).start()
