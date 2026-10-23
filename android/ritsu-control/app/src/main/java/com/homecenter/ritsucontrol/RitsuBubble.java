@@ -167,12 +167,15 @@ final class RitsuBubble {
     void refresh() {
         if (root == null) return;
         ListeningPolicy.Mode mode = actions.mode();
-        indicator.setText(mode == ListeningPolicy.Mode.LISTENING ? "Mic listening"
+        indicator.setText(mode == ListeningPolicy.Mode.RECOGNIZING ? "Google speech recognition"
+                : mode == ListeningPolicy.Mode.LISTENING ? "Mic listening"
                 : mode == ListeningPolicy.Mode.MUTED ? "Mic muted"
                 : mode == ListeningPolicy.Mode.ERROR ? "Mic error" : "Mic off");
-        mute.setText(mode == ListeningPolicy.Mode.LISTENING ? "Mute microphone"
+        mute.setText(mode == ListeningPolicy.Mode.RECOGNIZING ? "Cancel speech and mute"
+                : mode == ListeningPolicy.Mode.LISTENING ? "Mute microphone"
                 : mode == ListeningPolicy.Mode.MUTED ? "Resume microphone" : "Open app to listen");
-        handle.setText(mode == ListeningPolicy.Mode.LISTENING ? "●" :
+        handle.setText(mode == ListeningPolicy.Mode.RECOGNIZING ? "…" :
+                mode == ListeningPolicy.Mode.LISTENING ? "●" :
                 mode == ListeningPolicy.Mode.MUTED ? "×" : "R");
         mute.setContentDescription(mute.getText().toString());
     }
