@@ -2,8 +2,12 @@ package com.homecenter.ritsucontrol;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioFormat;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -30,6 +34,9 @@ final class SystemSpeechSession {
     private final Observer observer;
     private SpeechRecognizer recognizer;
     private int epoch;
+    private ParcelFileDescriptor readPipe;
+    private ParcelFileDescriptor writePipe;
+    private Thread pcmWriter;
     private boolean active;
 
     SystemSpeechSession(Context context, Observer observer) {
@@ -38,7 +45,24 @@ final class SystemSpeechSession {
     }
     boolean isActive() { return active; }
 
-    boolean begin() {
+    boolean begin() { return beginWithPcm(null); }
+
+    /** Android 13+ optional external PCM recognizer source.
+     * The system provider may ignore EXTRA_AUDIO_SOURCE. We do not substitute
+     * live input silently if pipe playback is not supported. */
+    boolean beginCaptured(short[] pcm) {
+        if (pcm == null || pcm.length == 0) {
+            observer.failed("No recorded utterance");
+            return false;
+        }
+        if (Build.VERSION.SDK_INT < 33) {
+            observer.failed("This recognizer needs Android 13+ external audio support");
+            return false;
+        }
+        return beginWithPcm(pcm);
+    }
+
+    private boolean beginWithPcm(short[] pcm) {
         if (active) return false;
         if (!SpeechRecognizer.isRecognitionAvailable(app)) {
             observer.failed("No Android recognition service available");
@@ -94,6 +118,16 @@ final class SystemSpeechSession {
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
             intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
             intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
+            if (pcm != null) {
+                ParcelFileDescriptor[] pipe = ParcelFileDescriptor.createPipe();
+                readPipe = pipe[0];
+                writePipe = pipe[1];
+                intent.putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE, readPipe);
+                intent.putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_CHANNEL_COUNT, 1);
+                intent.putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_ENCODING,
+                        AudioFormat.ENCODING_PCM_16BIT);
+                intent.putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_SAMPLING_RATE, 16000);
+            }
             if (Build.VERSION.SDK_INT >= 33) {
                 intent.putExtra(RecognizerIntent.EXTRA_ENABLE_BIASING_DEVICE_CONTEXT, true);
                 intent.putStringArrayListExtra(RecognizerIntent.EXTRA_BIASING_STRINGS,
@@ -106,8 +140,9 @@ final class SystemSpeechSession {
             active = true;
             observer.status("Starting default Android speech recognition");
             recognizer.startListening(intent);
+            if (pcm != null) startPcmWriter(pcm, ticket);
             return true;
-        } catch (RuntimeException error) {
+        } catch (RuntimeException | IOException error) {
             active = false;
             observer.failed("Recognition start rejected: " + error.getClass().getSimpleName());
             cleanup();
@@ -128,6 +163,32 @@ final class SystemSpeechSession {
             default: return "Speech recognizer error code " + error;
         }
     }
+    private void startPcmWriter(short[] pcm, int ticket) {
+        final ParcelFileDescriptor target = writePipe;
+        pcmWriter = new Thread(() -> {
+            try (FileOutputStream output = new FileOutputStream(target.getFileDescriptor())) {
+                byte[] chunk = new byte[UtteranceAccumulator.FRAME_SAMPLES * 2];
+                for (int pos = 0; pos < pcm.length && ticket == epoch && active;
+                     pos += UtteranceAccumulator.FRAME_SAMPLES) {
+                    int n = Math.min(UtteranceAccumulator.FRAME_SAMPLES, pcm.length-pos);
+                    for (int i=0; i<n; i++) {
+                        int v=pcm[pos+i];
+                        chunk[i*2]=(byte)(v&255);
+                        chunk[i*2+1]=(byte)((v>>>8)&255);
+                    }
+                    output.write(chunk,0,n*2);
+                    // Replay at real-time cadence; avoids overrunning providers
+                    // which interpret the supplied file descriptor as live PCM.
+                    Thread.sleep(20);
+                }
+            } catch (IOException | InterruptedException ignored) {
+                Thread.currentThread().interrupt();
+            } finally {
+                try { target.close(); } catch (IOException ignored) {}
+            }
+        }, "ritsu-asr-pcm-feeder");
+        pcmWriter.start();
+    }
     void cancel() {
         ++epoch;
         active = false;
@@ -141,6 +202,18 @@ final class SystemSpeechSession {
         cleanup();
     }
     private void cleanup() {
+        if (readPipe != null) {
+            try { readPipe.close(); } catch (IOException ignored) {}
+            readPipe = null;
+        }
+        if (writePipe != null) {
+            try { writePipe.close(); } catch (IOException ignored) {}
+            writePipe = null;
+        }
+        if (pcmWriter != null) {
+            pcmWriter.interrupt();
+            pcmWriter = null;
+        }
         if (recognizer != null) {
             try { recognizer.destroy(); } catch (RuntimeException ignored) {}
             recognizer = null;
