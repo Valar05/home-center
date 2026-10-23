@@ -170,7 +170,7 @@ async function executeOneRitsuTurn(turn) {
       throw new Error('ritsu_submit_uncertain:' + String(submitted?.result?.error || 'unknown'));
     const done = await waitForCompletedAssistant(tab.id, baseline, 120000);
     if (!done.ok) throw new Error('ritsu_reply_unknown:' + String(done.error));
-    const result = {ok: true, accepted: true, sessionId: turn.sessionId,
+    const result = {ok: true, accepted: false, verifiedTurn: true, sessionId: turn.sessionId,
       turnId: turn.turnId, channel: turn.channel, tabId: tab.id,
       text: done.text, assistantCount: done.assistantCount,
       verifiedAt: new Date().toISOString()};
