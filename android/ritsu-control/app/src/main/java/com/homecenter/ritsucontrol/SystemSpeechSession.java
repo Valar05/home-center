@@ -22,6 +22,8 @@ final class SystemSpeechSession {
     interface Observer {
         void status(String value);
         void partialTranscript(String text);
+        void speechStarted();
+        void speechEnded();
         void finalTranscript(String text);
         void failed(String reason);
     }
@@ -55,12 +57,18 @@ final class SystemSpeechSession {
                     if (ticket == epoch && active) observer.status("Google recognizer ready; speak");
                 }
                 @Override public void onBeginningOfSpeech() {
-                    if (ticket == epoch && active) observer.status("Speech detected");
+                    if (ticket == epoch && active) {
+                        observer.speechStarted();
+                        observer.status("Speech detected");
+                    }
                 }
                 @Override public void onRmsChanged(float rmsDb) {}
                 @Override public void onBufferReceived(byte[] buffer) {}
                 @Override public void onEndOfSpeech() {
-                    if (ticket == epoch && active) observer.status("Silence detected; preparing words");
+                    if (ticket == epoch && active) {
+                        observer.speechEnded();
+                        observer.status("Silence detected; preparing words");
+                    }
                 }
                 @Override public void onError(int error) {
                     if (ticket != epoch || !active) return;
@@ -95,6 +103,15 @@ final class SystemSpeechSession {
                     RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
             intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
             intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
+            // Endpointer *hints* only. Google may ignore these entirely.
+            // Conservative values permit a natural thinking pause within
+            // a single provider session if supported by the device.
+            intent.putExtra(
+                    RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,
+                    1350L);
+            intent.putExtra(
+                    RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,
+                    2300L);
             if (Build.VERSION.SDK_INT >= 33) {
                 intent.putExtra(RecognizerIntent.EXTRA_ENABLE_BIASING_DEVICE_CONTEXT, true);
                 intent.putStringArrayListExtra(RecognizerIntent.EXTRA_BIASING_STRINGS,
