@@ -1,4 +1,17 @@
 # Ritsu Pocket TTS: Agent-to-Agent Handoff (October 23, 2026)
+
+## LATEST OCTOBER 23, 17:02 CDT OPERATOR RULES AND DEPLOYED TRUTH
+
+**Read this section before the older historical deployment-state notes below.** The Windows sender was replaced live via Home Center Computer Hands, with dry-run tests, atomic backup and fresh hash readback. Live `C:\Users\dclar\workspace\ritsu-faster-qwen3-tts\ritsu_say.py` SHA-256 `3DDA464DF8D5E24D29DB471DF7C7B8D70D28741C98866996A980AFE5443C6AD8` runs one complete agent-authored speech unit per Pocket `/v1/speak`, no sentence regex or heuristic character splitting, exactly one WAV to the same 19643 relay. The live Windows worker/Pocket service, approved five voices and Android receiver were unchanged. Backup `%LOCALAPPDATA%/RitsuWarmTicketWorker/sender-backups/ritsu_say.20261023T165107.pre-no-split.py`. **Previously written statements in this file that the no-split sender is source-only/uninstalled are now superseded.**
+
+**Enforced Pocket cap: at most 450 characters per `/v1/speak` ticket.** This is a per-ticket hard ceiling, *not* a preferred composition length and not permission to auto-split. Ritsu/ChatGPT authors deliberate, full, naturally ended speech thoughts; long visible roleplay is covered via several individually submitted, ordered complete thought tickets, none exceeding the cap. Never cut a sentence, drop a paragraph, silently truncate, or claim complete HEARD coverage from queue/relay receipts.
+
+**Empirical engine latency, live CPU Normal profile, undelivered isolated Pocket jobs:** 112 characters required 3.62s generation and produced 5.84s speech; 183 chars -> 5.83s generation and 10.08s audio; 289 chars -> 9.25s generation and 13.84s audio. Tentative *authoring* targets: first complete useful thought ~90–140 chars, follow-on naturally ended complete thoughts ~180–300 chars. Submit the first complete thought as soon as finalized while composing the rest to optimize first-audio time. These are not programmatic threshold instructions. Do not promise speech before visible text without end-to-end timestamps.
+
+**Android still not fixed:** 58 completed real physical phone playback pairs gave 1.445s median player API end-to-next-start gap; player-reported lifetimes exceed WAV durations; weak leading audio often ~0.47–0.68s before stronger speech. Retained phone receiver v2 source hash begins `8acd8467`; the GitHub receiver draft may differ and must not be blindly deployed. Read-only diagnostic campaign installed on phone; no live silence cutter. Current user request: repair Android per-file handoff without replacing the approved TTS/relay, losing audio words or replaying queue items. Audit on-device installed source and fail-closed progress markers, stage bounded regression tests, back up and idle-gate any receiver cutover, require user HEARD verdict.
+
+Authoritative follow-on: `docs/RITSU_PHONE_AUDIO_LAWS.md`, `docs/RITSU_PHONE_GAP_CAMPAIGN_CHECKPOINT_20261023.md`, and Google Drive companion ledger titled **Ritsu Voice Embodiment — Complete October 21 Companion Ledger**, now containing an October 23 superseding addendum.
+
 ## Read this first: newest user directive overrides earlier sentence-chunk experiments
 
 The user explicitly corrected the investigation after multiple unsatisfactory tests:
