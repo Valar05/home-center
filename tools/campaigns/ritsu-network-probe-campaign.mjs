@@ -117,30 +117,41 @@ async function probe(){
   const marker='RITSU_NET_'+randomUUID().replace(/-/g,'').slice(0,20).toUpperCase();
   const prompt='Reply with one plain sentence including this marker exactly: '+marker+
     '. This is a network response retrieval canary. Do not use tools.';
-  const sse=new RitsuNetworkSse();
-  let req=null,done=false,armed=false,streamed=false,failure=null;
-  let pending=[],bytes=0,seen=false;
-  function feed(b){try{sse.push(b);bytes+=b.length}catch(e){failure=e.message}}
+  const candidates=new Map();
+  let accepting=false,failure=null,observedAt=0;
+  function feed(row,bytes){
+    try{row.sse.push(bytes);row.bytes+=bytes.length}
+    catch(e){row.error=String(e.message||e)}
+  }
   try{
     await cdp.ready();
     cdp.on((method,p)=>{
-      if(method==='Network.requestWillBeSent'&&p.request?.method==='POST'&&
+      if(method==='Network.requestWillBeSent'&&accepting&&p.request?.method==='POST'&&
         endpoint.test(p.request.url)){
-        if(req&&req!==p.requestId)failure='multiple_conversation_requests';
-        else {req=p.requestId;seen=true}
+        if(!candidates.has(p.requestId)){
+          if(candidates.size>=6){failure='more_than_six_conversation_requests';return}
+          candidates.set(p.requestId,{sse:new RitsuNetworkSse(),buffer:[],
+            armed:false,streamed:false,finished:false,failed:false,error:null,bytes:0});
+        }
+        observedAt=Date.now();
       }
-      if(method==='Network.responseReceived'&&req===p.requestId){
-        cdp.call('Network.streamResourceContent',{requestId:req}).then(r=>{
-          streamed=true;feed(Buffer.from(r.bufferedData||'','base64'));armed=true;
-          for(const b of pending)feed(b);pending=[];
-        }).catch(()=>{failure='cdp_stream_api_unavailable'});
+      const row=candidates.get(p.requestId);
+      if(!row)return;
+      if(method==='Network.responseReceived'){
+        cdp.call('Network.streamResourceContent',{requestId:p.requestId}).then(r=>{
+          row.streamed=true;
+          feed(row,Buffer.from(r.bufferedData||'','base64'));
+          row.armed=true;
+          for(const b of row.buffer)feed(row,b);
+          row.buffer=[];
+        }).catch(()=>{row.error='cdp_stream_api_unavailable'});
       }
-      if(method==='Network.dataReceived'&&req===p.requestId&&p.data){
+      if(method==='Network.dataReceived'&&p.data){
         const b=Buffer.from(p.data,'base64');
-        if(armed)feed(b);else pending.push(b);
+        if(row.armed)feed(row,b);else row.buffer.push(b);
       }
-      if(method==='Network.loadingFinished'&&req===p.requestId)done=true;
-      if(method==='Network.loadingFailed'&&req===p.requestId)failure='response_network_failed';
+      if(method==='Network.loadingFinished')row.finished=true;
+      if(method==='Network.loadingFailed'){row.failed=true;row.finished=true}
     });
     await cdp.call('Network.enable');
     const inspected=await cdp.call('Runtime.evaluate',{expression:before(),returnByValue:true});
@@ -149,6 +160,7 @@ async function probe(){
       (!existingBound()&&p.count!==0))
       throw Error('bound_authenticated_test_tab_preflight_failed');
     await receipt({state:'observer_attached',revision:args.revision,tabId:tab.id});
+    accepting=true;
     const sent=await cdp.call('Runtime.evaluate',
       {expression:send(prompt,existingBound()),returnByValue:true,awaitPromise:true});
     if(sent.result?.value!==true||sent.exceptionDetails)throw Error('send_not_verified');
@@ -157,17 +169,35 @@ async function probe(){
     while(Date.now()<deadline){
       if(existsSync(path.join(state,'stop.json')))throw Error('owner_stopped');
       if(failure)throw Error(failure);
-      if(done&&streamed&&armed){
-        const found=sse.result({marker,requestFinished:true});
+      const matches=[];
+      for(const [requestId,row] of candidates){
+        if(!row.finished||!row.armed||!row.streamed||row.failed||row.error)continue;
+        try{
+          const result=row.sse.result({marker,requestFinished:true});
+          matches.push({requestId,result,bytes:row.bytes});
+        }catch(e){
+          if(!['sse_no_matching_final_canary_text','sse_stream_not_terminal']
+            .includes(String(e.message)))row.error=String(e.message);
+        }
+      }
+      if(matches.length>1)throw Error('multiple_terminal_canary_answers');
+      if(matches.length===1){
+        const found=matches[0];
         return {state:'retrieved',revision:args.revision,jobId:args.jobId,
           source:'authorized_cdp_network_stream',tabId:tab.id,
-          text:found.text,sha256:hash(found.text),messageId:found.messageId,
-          events:found.eventCount,bytes,terminal:true};
+          text:found.result.text,sha256:hash(found.result.text),
+          messageId:found.result.messageId,events:found.result.eventCount,
+          bytes:found.bytes,conversationRequestCount:candidates.size,terminal:true};
       }
+      // A finished unrelated request must not be mistaken for the answer.
+      // Keep bounded wait for the actual marked canary response.
+      if(candidates.size&&Date.now()-observedAt>15000&&
+         [...candidates.values()].every(r=>r.finished||r.failed||r.error))
+        throw Error('no_terminal_network_reply_with_canary_marker');
       await wait(200);
     }
-    throw Error(!seen?'no_conversation_network_request':
-      !streamed?'streaming_api_not_confirmed':'response_not_complete');
+    throw Error(candidates.size===0?'no_conversation_network_request':
+      'network_response_unverified_or_unknown_schema');
   }finally{cdp.close()}
 }
 async function main(){
