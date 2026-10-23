@@ -253,6 +253,7 @@ public final class MainActivity extends Activity {
     private void toggleAdvanced() {
         String[] labels = {
                 "Status and recognition errors",
+                "Speech pause timing (Gboard-like)",
                 "Ask Android to pause media",
                 "Stop conversation",
                 "Enable floating mute bubble",
@@ -269,20 +270,50 @@ public final class MainActivity extends Activity {
                                     .setMessage(diagnosticText())
                                     .setPositiveButton("Close", null).show();
                             break;
-                        case 1: send(RitsuControlService.ACTION_MEDIA_TALK); break;
-                        case 2: send(RitsuControlService.ACTION_STOP); break;
-                        case 3: enableBubble(); break;
-                        case 4: send(RitsuControlService.ACTION_HIDE_BUBBLE); break;
-                        case 5: addQuickTile(); break;
-                        case 6: refreshStatus(); renderFeed(); break;
+                        case 1: selectSpeechTiming(); break;
+                        case 2: send(RitsuControlService.ACTION_MEDIA_TALK); break;
+                        case 3: send(RitsuControlService.ACTION_STOP); break;
+                        case 4: enableBubble(); break;
+                        case 5: send(RitsuControlService.ACTION_HIDE_BUBBLE); break;
+                        case 6: addQuickTile(); break;
+                        case 7: refreshStatus(); renderFeed(); break;
                         default: break;
                     }
                 }).setNegativeButton("Close", null).show();
     }
 
+    private void selectSpeechTiming() {
+        final int[] values = {2000, 3200, 5000};
+        final String[] names = {
+                "Quick · 2 seconds",
+                "Natural · 3.2 seconds (default)",
+                "Thoughtful · 5 seconds"
+        };
+        int selected = 1;
+        for (int i = 0; i < values.length; i++) {
+            if (RitsuControlService.speechPauseMs == values[i]) selected = i;
+        }
+        new AlertDialog.Builder(this).setTitle("Wait after I finish speaking")
+                .setSingleChoiceItems(names, selected, (dialog, index) -> {
+                    Intent intent = new Intent(this, RitsuControlService.class)
+                            .setAction(RitsuControlService.ACTION_PAUSE_WINDOW)
+                            .putExtra(RitsuControlService.EXTRA_PAUSE_MS, values[index]);
+                    try {
+                        if (Build.VERSION.SDK_INT >= 26) startForegroundService(intent);
+                        else startService(intent);
+                    } catch (RuntimeException error) {
+                        headerStatus.setText("Cannot update speech timing: "
+                                + error.getClass().getSimpleName());
+                    }
+                    dialog.dismiss();
+                }).setNegativeButton("Cancel", null).show();
+    }
+
     private String diagnosticText() {
         return "System recognizer: " + RitsuControlService.recognitionStatus
                 + "\nLast recognized: " + RitsuControlService.lastTranscript
+                + "\nPending speech: " + RitsuControlService.pendingSpeechText
+                + "\nSpeech pause: " + RitsuControlService.speechPauseMs + " ms"
                 + "\nMedia guard: " + RitsuControlService.mediaGuardStatus
                 + "\nLast error: " + (RitsuControlService.lastProblem.isEmpty()
                         ? "None" : RitsuControlService.lastProblem)
@@ -335,9 +366,13 @@ public final class MainActivity extends Activity {
             muteButton.setText(mode == ListeningPolicy.Mode.MUTED ? "Resume" : "Mute");
         }
         if (liveWords != null) {
+            String draft = RitsuControlService.pendingSpeechText;
             String interim = RitsuControlService.partialTranscript;
-            if (mode == ListeningPolicy.Mode.RECOGNIZING && !interim.isEmpty()) {
-                liveWords.setText("Hearing: " + interim);
+            String text = draft.isEmpty() ? interim
+                    : interim.isEmpty() ? draft : draft + " " + interim;
+            if (mode == ListeningPolicy.Mode.RECOGNIZING && !text.isEmpty()) {
+                liveWords.setText("Composing: " + text
+                        + (interim.isEmpty() ? "  ·  thinking pause…" : ""));
                 liveWords.setVisibility(View.VISIBLE);
             } else {
                 liveWords.setVisibility(View.GONE);
