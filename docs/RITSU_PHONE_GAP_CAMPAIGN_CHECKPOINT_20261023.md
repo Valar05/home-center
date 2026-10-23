@@ -171,3 +171,16 @@ Human audible confirmation: "I heard them but there was no real diminishment of 
 Technical design limitation identified in deployed v3: at the instant a single WAV first appears, `play_loop` assembles only clips *already* present, then locks the current file in `termux-media-player play` through completion. If second/third WAV arrives *while* first is playing, v3 cannot append them to active MediaPlayer, thus incurs new startup at each boundary. This can explain lack of gain even when model generates audio faster than playback. Actual `batch_playback_started` occurrence in Android trace remains unknown; read-only device trace needed.
 
 Authoritative upstream Termux project confirms `termux-media-player` only accepts one file per play and the underlying Java MediaPlayer `playHandler` calls stop/reset/prepare/start on a new file. This mechanism itself prevents a persistent gapless queue. A different **on-phone playback engine only**, preserving the same canonical Tailscale relay, Pocket voices, text units, FIFO/ACK and Home Center path, is now the next engineering approach. Investigate Termux-packaged mpv using native OpenSL ES output, `--idle=yes`, `--input-ipc-server=<private UNIX path>`, gapless playlist append while the current clip plays; mpv manual warns when the upcoming WAV is not queued or ready before the audio buffer runs dry, audible gaps can remain. No mpv production cutover or alternative transport authorized by source commits alone. Fail closed on ambiguity, tests then opt-in audible comparison and old Termux v3 rollback.
+
+
+## Real phone trace after failed v3 listening test: batching never engaged
+
+Owner pasted the read-only Android event extraction, seq>=121, for the three actual post-activation voice tickets:
+```text
+playback_started seq=121 count=1
+playback_started seq=122 count=1
+playback_started seq=123 count=1
+```
+There are **no `batch_playback_started` events** among these three test playbacks. Each had a separate `termux-media-player play` invocation and thus no opportunity for the v3 exact-sample grouping optimization to reduce the number of player initializations. This fully explains the v3 **mechanism not engaging**, consistent with owner HEARD=true and audible-gap acceptance FAIL. It does not prove the mechanism would have helped if it had engaged, nor quantify acoustic gaps for this specific test.
+
+Owner's pasted message omitted the `mpv --version` / `MPV_NOT_INSTALLED` output from the requested joint mpv and trace probe, so **mpv availability remains unknown**. Next non-disruptive step: query `command -v mpv` or `mpv --version` on the phone, then design a dedicated persistent mpv IPC playlist driver with durable FIFO entries, start/end-file observation and fail-closed uncertain replay. Current receiver v3 remains active. No further sample cutting, phone receiver restart, or audio delivery is authorized by this trace alone. Documentation updated before additional work.
