@@ -1,6 +1,7 @@
 import http from 'node:http';
 import {randomUUID} from 'node:crypto';
 import {createEphemeralState, createPairReceipt, authorizeCommand, revokePairing, sha256, validatePairIntent} from './contract.mjs';
+import {validateRitsuTurn} from './ritsu-turn-protocol.mjs';
 
 const THRONE_MAX_COMMANDS = 64;
 const THRONE_LEASE_MS = 90 * 1000;
@@ -46,9 +47,13 @@ export function createRelay({
         const command = validateThroneCommand(await body(req));
         if (throneCommands.has(command.commandId)) {
           const existing = throneCommands.get(command.commandId);
+          if (command.action === 'chat.turn' &&
+              (existing.action !== 'chat.turn' ||
+              sha256(JSON.stringify(existing.turn)) !== sha256(JSON.stringify(command.turn))))
+            return send(res, 409, {ok: false, error: 'RITSU_TURN_ID_COLLISION'});
           return send(res, 200, {ok: true, commandId: command.commandId, state: existing.state, duplicate: true});
         }
-        if ([...throneCommands.values()].filter((row) => !['completed', 'failed', 'cancelled'].includes(row.state)).length >= THRONE_MAX_COMMANDS) {
+        if ([...throneCommands.values()].filter((row) => !['completed', 'failed', 'cancelled', 'uncertain'].includes(row.state)).length >= THRONE_MAX_COMMANDS) {
           return send(res, 429, {ok: false, error: 'THRONE_QUEUE_FULL'});
         }
         const row = {...command, state: 'queued', createdAtMs: Date.now(), lease: null, result: null};
@@ -67,7 +72,7 @@ export function createRelay({
         row.state = 'leased';
         row.lease = {leasedAtMs: nowMs, expiresAtMs: nowMs + THRONE_LEASE_MS};
         await eventSink({type: 'throne.command.leased', command: publicThroneCommand(row)});
-        return send(res, 200, {command: publicThroneCommand(row)}, extensionOrigin);
+        return send(res, 200, {command: leasedThroneCommand(row)}, extensionOrigin);
       }
       if (req.method === 'POST' && url.pathname === '/v1/throne/complete') {
         requireExtensionAndThrone(req, extensionOrigin, throneCapability);
@@ -88,6 +93,19 @@ export function createRelay({
         const input = await body(req);
         throneSnapshot = sanitizeThroneSnapshot(input);
         return send(res, 200, {ok: true, atMs: throneSnapshot.atMs}, extensionOrigin);
+      }
+      if (req.method === 'GET' && url.pathname === '/v1/throne/result') {
+        requireThrone(req, throneCapability);
+        retireThrone(Date.now());
+        const commandId = safeCommandId(url.searchParams.get('commandId'));
+        const row = throneCommands.get(commandId);
+        if (!row) return send(res, 404, {ok: false, error: 'THRONE_COMMAND_UNKNOWN'});
+        // Results never flow through public/status snapshots; only through bearer-bound readback.
+        return send(res, 200, {
+          ok: true, commandId, state: row.state,
+          result: ['completed', 'failed', 'uncertain'].includes(row.state) ? row.result : null,
+          completedAtMs: Number(row.completedAtMs || 0)
+        });
       }
       if (req.method === 'GET' && url.pathname === '/v1/throne/status') {
         requireThrone(req, throneCapability);
@@ -219,10 +237,19 @@ export function createRelay({
   function retireThrone(nowMs) {
     for (const row of throneCommands.values()) {
       if (row.state === 'leased' && Number(row.lease?.expiresAtMs || 0) <= nowMs) {
-        row.state = 'queued'; row.lease = null;
+        if (row.action === 'chat.turn') {
+          // A browser may already have submitted this text. Never resend after
+          // expiry without independent readback; mark unknown instead.
+          row.state = 'uncertain';
+          row.result = {ok: false, error: 'THRONE_COMPLETION_UNKNOWN'};
+          row.completedAtMs = nowMs;
+          row.lease = null;
+        } else {
+          row.state = 'queued'; row.lease = null;
+        }
       }
     }
-    const terminal = [...throneCommands.values()].filter((row) => ['completed', 'failed', 'cancelled'].includes(row.state)).sort((a, b) => Number(b.completedAtMs || b.cancelledAtMs || b.createdAtMs) - Number(a.completedAtMs || a.cancelledAtMs || a.createdAtMs));
+    const terminal = [...throneCommands.values()].filter((row) => ['completed', 'failed', 'cancelled', 'uncertain'].includes(row.state)).sort((a, b) => Number(b.completedAtMs || b.cancelledAtMs || b.createdAtMs) - Number(a.completedAtMs || a.cancelledAtMs || a.createdAtMs));
     for (const row of terminal.slice(THRONE_MAX_COMMANDS)) throneCommands.delete(row.commandId);
   }
 }
@@ -236,6 +263,13 @@ function safeCommandId(value) {
 function validateThroneCommand(input = {}) {
   const commandId = safeCommandId(input.commandId);
   const action = String(input.action || '').trim();
+  if (action === 'chat.turn') {
+    const turn = validateRitsuTurn(input.turn);
+    if (commandId !== `ritsu.${turn.turnId}`)
+      throw Object.assign(new Error('commandId must match turnId'), {code: 'RITSU_COMMAND_ID_MISMATCH', status: 400});
+    return {commandId, action, turn, jobs: [], source: 'ritsu-cockpit',
+      createdAt: String(input.createdAt || '')};
+  }
   if (!['swarm.enqueue', 'swarm.stop', 'swarm.resume', 'swarm.status'].includes(action)) throw Object.assign(new Error('unsupported throne action'), {code: 'THRONE_ACTION_UNSUPPORTED', status: 400});
   const jobs = Array.isArray(input.jobs) ? input.jobs.slice(0, THRONE_MAX_JOBS).map((job, index) => {
     const commission = String(job?.commission || '').trim();
@@ -247,7 +281,15 @@ function validateThroneCommand(input = {}) {
 }
 
 function publicThroneCommand(row = {}) {
-  return {commandId: row.commandId, action: row.action, jobs: row.jobs || [], source: row.source || '', state: row.state || 'unknown', createdAtMs: Number(row.createdAtMs || 0), lease: row.lease || null, completedAtMs: Number(row.completedAtMs || 0), cancelledAtMs: Number(row.cancelledAtMs || 0)};
+  return {commandId: row.commandId, action: row.action, jobs: row.jobs || [],
+    turn: row.turn ? {sessionId: row.turn.sessionId, turnId: row.turn.turnId,
+      channel: row.turn.channel} : undefined,
+    source: row.source || '', state: row.state || 'unknown',
+    createdAtMs: Number(row.createdAtMs || 0), lease: row.lease || null,
+    completedAtMs: Number(row.completedAtMs || 0), cancelledAtMs: Number(row.cancelledAtMs || 0)};
+}
+function leasedThroneCommand(row = {}) {
+  return {...publicThroneCommand(row), turn: row.turn || undefined};
 }
 
 function sanitizeThroneResult(value) {
