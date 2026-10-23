@@ -53,3 +53,17 @@ After applying patched `2d7dc846` to isolated Windows worktree and restarting **
 5. Keep the initial architecture at one CONTROL main thread and one separate DIALOGUE thread; secondary/worker output remains staged until explicitly published by verified Home Center control turn. Coordinator instances are per namespace and not a singleton. More worker parallelism is deferred until a real conversation works.
 
 No end-to-end user-accepted phone conversation yet. Next test should target exactly the remaining authorization and delivery links, not another simulated run.
+
+
+## On-screen login recovery: October 23 follow-up
+Owner reported **three off-screen Chromium Throne/Chrome windows** and closed them. Do not repeat a browser-session setup solely by opening a new Chrome tab or relying on CDP 'activated' as evidence it is visible.
+
+Real THECAULDRON display inventory: one primary work area `X=0,Y=0,Width=1600,Height=1019` (display bounds 1600x1067). Dedicated Chrome for Testing/profile was no longer listening on debug 9236 after the owner closed its windows. Existing normal Chrome sessions remained separate.
+
+We launched **exactly one** dedicated Chrome for Testing process (PID 15364), with the isolated feature's extension, the existing dedicated `%LOCALAPPDATA%\\HomeCenter\\ChromiumThrone\\profile`, debug `127.0.0.1:9236`, and startup flags `--window-position=90,70 --window-size=1120,820 --new-window https://chatgpt.com/`. Target window handle 4065886 was verified to be owned by PID 15364. Using Win32 `ShowWindow(SW_RESTORE)` + `MoveWindow` + `SetForegroundWindow`, got verified bounds `Left=100,Top=75,Right=1220,Bottom=895`. Independent `screen.capture` verified that **the window was truly visible and on top** without moving ordinary Chrome.
+
+That Chrome for Testing window displayed ChatGPT's authenticated sidebar and full message composer. Independent CDP readback: `composer=true`, `navLibrary=true`, `loginButton=false`. No passwords, cookies or session tokens were copied or manipulated. No user sign-in was required on this recovered profile at that moment.
+
+Using a NEW coordinator namespace `ritsu-visible-session-20261023`, control ID `ritsu-visible-control-20261023`, and dialogue ID `ritsu-visible-dialogue-20261023` to avoid silently recycling the closed tab's mapped session, we submitted ONE new canary `ritsu-visible-auth-test-20261023-01`. Receipts verified `queued` and `leased` from authenticated 9235 relay and Home Center CLI. **Latest verified state: LEASED, not completed**. No duplicate POST; do not retry its ID even if the Chrome wait times out. The current owner-visible window is no longer off-screen. The phone/ChatGPT/TTS full conversational loop remains incomplete.
+
+**Permanent operating gate:** before asking owner to authenticate on THECAULDRON, verify monitor bounds, exact target window PID+handle, actual Win32 position fully inside work area, user-visible screenshot, and one—not multiple—Chrome for Testing windows. An authenticated ChatGPT message composer is checked separately from visibility and from proof of a completed ChatGPT reply.
