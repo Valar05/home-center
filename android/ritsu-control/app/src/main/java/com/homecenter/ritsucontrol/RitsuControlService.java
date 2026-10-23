@@ -148,6 +148,13 @@ public final class RitsuControlService extends Service {
                             "cannot_identify_human_when_media_active");
                     partialTranscript = "";
                     partialRevision++;
+                    // A rejected acoustic fragment must not strand a valid
+                    // older draft whose countdown was canceled on speech start.
+                    if (pendingTurn.hasText()) {
+                        pendingTurn.speechEnded(SystemClock.elapsedRealtime());
+                        schedulePendingCommit();
+                        updateSpeechPreview();
+                    }
                 } else {
                     // Google's onResults finalizes a recognizer fragment,
                     // NOT necessarily the human's complete spoken message.
@@ -171,9 +178,12 @@ public final class RitsuControlService extends Service {
                 if (mode != ListeningPolicy.Mode.RECOGNIZING) return;
                 lastProblem = reason;
                 recognitionStatus = reason;
-                if (pendingTurn.isInSpeech()) {
+                if (pendingTurn.hasText()) {
+                    // No-match and timeout can follow a detected continuation.
+                    // Keep earlier recognized words and restart their delay.
                     pendingTurn.speechEnded(SystemClock.elapsedRealtime());
                     schedulePendingCommit();
+                    updateSpeechPreview();
                 }
                 receipts.append("RECOGNIZER_ERROR", mode, mode, "provider_error");
                 mainHandler.post(() -> completeProviderSession(false));
