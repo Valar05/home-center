@@ -1,4 +1,4 @@
-name: Ritsu Control Android Microphone Contract
+name: Ritsu Control Android Voice and Insets Contract
 on:
   pull_request:
     paths:
@@ -48,24 +48,27 @@ jobs:
           ! grep -q 'android.permission.INTERNET' "$MANIFEST"
           ! grep -q 'BOOT_COMPLETED' "$MANIFEST"
           grep -Fq 'android:foregroundServiceType="specialUse|microphone"' "$MANIFEST"
-          grep -q 'capture.stop()' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
           grep -q 'Settings.canDrawOverlays' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
           grep -q 'android.speech.RecognitionService' "$MANIFEST"
           grep -q 'SpeechRecognizer.createSpeechRecognizer' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/SystemSpeechSession.java
-          grep -q 'capture.stop()' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
           grep -q 'InputType.TYPE_TEXT_FLAG_AUTO_CORRECT' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
           grep -q 'ConversationLedger' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
           grep -q 'ACTION_LISTEN' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
-          grep -q 'automaticUtterance' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
           grep -q 'UtteranceAccumulator' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MicrophoneCapture.java
-          grep -q 'EXTRA_AUDIO_SOURCE' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/SystemSpeechSession.java
-          grep -q 'AUDIO_PLAYBACK_BLOCKED' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
           grep -q 'WAITING_FOR_HOME_CENTER' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/ConversationLedger.java
+          grep -q 'SpeechRecognizer.createSpeechRecognizer' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/SystemSpeechSession.java
+          ! grep -q 'EXTRA_AUDIO_SOURCE' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/SystemSpeechSession.java
+          grep -q 'ListeningPolicy.Event.PROVIDER_STARTED' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
+          grep -q 'mediaObservedInSession' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
+          grep -q 'WindowInsets.Type.ime' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'WindowInsets.Type.systemBars' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'SafeInsets.bottom' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'getWindow().setSoftInputMode' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
 
       - name: Publish isolated Android debug APK (not deployed)
         uses: actions/upload-artifact@v4
         with:
-          name: ritsu-control-v0.6-chat-utterance-debug-apk
+          name: ritsu-control-v0.7-live-google-ime-fix-debug-apk
           path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
