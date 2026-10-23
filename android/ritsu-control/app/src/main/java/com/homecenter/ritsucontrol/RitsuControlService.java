@@ -26,6 +26,7 @@ import android.provider.Settings;
 public final class RitsuControlService extends Service {
     static final String ACTION_START = "com.homecenter.ritsucontrol.START";
     static final String ACTION_LISTEN = "com.homecenter.ritsucontrol.LISTEN";
+    static final String ACTION_TRANSCRIBE = "com.homecenter.ritsucontrol.TRANSCRIBE";
     static final String ACTION_MUTE = "com.homecenter.ritsucontrol.MUTE";
     static final String ACTION_RESUME = "com.homecenter.ritsucontrol.RESUME";
     static final String ACTION_SHOW_BUBBLE = "com.homecenter.ritsucontrol.SHOW_BUBBLE";
@@ -38,12 +39,16 @@ public final class RitsuControlService extends Service {
     static volatile ListeningPolicy.Mode liveMode = ListeningPolicy.Mode.OFF;
     static volatile boolean voiceActivity = false;
     static volatile String lastProblem = "";
+    static volatile String lastTranscript = "";
+    static volatile String recognitionStatus = "Not started";
 
     private ListeningPolicy.Mode mode = ListeningPolicy.Mode.OFF;
     private MicrophoneCapture capture;
     private ControlReceipts receipts;
     private RitsuBubble bubble;
     private Handler mainHandler;
+    private SystemSpeechSession speechSession;
+    private Runnable recognitionTimeout;
 
     @Override public void onCreate() {
         super.onCreate();
@@ -52,6 +57,8 @@ public final class RitsuControlService extends Service {
         liveMode = ListeningPolicy.Mode.OFF;
         voiceActivity = false;
         lastProblem = "";
+        lastTranscript = "";
+        recognitionStatus = "Not started";
         // Clear Stage A's stale "mic requested" marker.
         ControlStore.transition(this, ControlPolicy.ACTION_START);
         getSystemService(NotificationManager.class).createNotificationChannel(
@@ -70,9 +77,29 @@ public final class RitsuControlService extends Service {
                 mainHandler.post(() -> failCapture(reason));
             }
         });
+        speechSession = new SystemSpeechSession(this, new SystemSpeechSession.Observer() {
+            @Override public void status(String message) {
+                recognitionStatus = message;
+                updateNotification();
+            }
+            @Override public void finalTranscript(String text) {
+                lastTranscript = text;
+                recognitionStatus = "Transcript ready for review; NOT sent";
+                receipts.append("ASR_TEXT_READY", mode, mode, "private_transcript_not_logged");
+                // Finish only after the recognizer releases the microphone.
+                mainHandler.post(() -> completeRecognition());
+            }
+            @Override public void failed(String reason) {
+                recognitionStatus = reason;
+                lastProblem = reason;
+                receipts.append("ASR_FAILED", mode, mode, "provider_error_no_text");
+                mainHandler.post(() -> completeRecognition());
+            }
+        });
         bubble = new RitsuBubble(this, new RitsuBubble.Actions() {
             @Override public void toggleMute() {
-                if (mode == ListeningPolicy.Mode.LISTENING) mute();
+                if (mode == ListeningPolicy.Mode.LISTENING ||
+                    mode == ListeningPolicy.Mode.RECOGNIZING) mute();
                 else if (mode == ListeningPolicy.Mode.MUTED) resume();
                 else openApp();
             }
@@ -88,6 +115,7 @@ public final class RitsuControlService extends Service {
     @Override public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent == null ? ACTION_START : intent.getAction();
         if (ACTION_LISTEN.equals(action)) startListening();
+        else if (ACTION_TRANSCRIBE.equals(action)) recognizeOnce();
         else if (ACTION_MUTE.equals(action)) mute();
         else if (ACTION_RESUME.equals(action)) resume();
         else if (ACTION_SHOW_BUBBLE.equals(action)) {
@@ -119,12 +147,57 @@ public final class RitsuControlService extends Service {
     }
 
     private void mute() {
+        if (mode == ListeningPolicy.Mode.RECOGNIZING) {
+            cancelRecognition("User muted during Google recognition");
+            applyTransition(ListeningPolicy.Event.RECOGNITION_FINISHED,
+                    "recognizer_cancelled_audio_released");
+            return;
+        }
         if (mode != ListeningPolicy.Mode.LISTENING) return;
         capture.stop(); // Actual audio hardware capture is stopped BEFORE reporting MUTED.
         voiceActivity = false;
         applyTransition(ListeningPolicy.Event.MUTED_RELEASED, "audio_record_released");
         // Keep existing foreground microphone service, so user can resume from
         // a notification or floating bubble without starting a new background FGS.
+    }
+
+
+    /** Explicit one-shot speech-to-text. This is NOT a continuous
+     * SpeechRecognizer loop: Android's service may limit session duration
+     * and use Google's cloud. AudioRecord is released BEFORE ASR starts. */
+    private void recognizeOnce() {
+        if (mode != ListeningPolicy.Mode.LISTENING || speechSession.isActive()) return;
+        capture.stop();
+        voiceActivity = false;
+        applyTransition(ListeningPolicy.Event.RECOGNITION_STARTED, "vad_released_for_google_asr");
+        lastTranscript = "";
+        if (!speechSession.begin()) {
+            applyTransition(ListeningPolicy.Event.RECOGNITION_FINISHED, "recognizer_unavailable");
+            resume();
+            return;
+        }
+        recognitionTimeout = () -> {
+            if (mode != ListeningPolicy.Mode.RECOGNIZING) return;
+            cancelRecognition("Recognition timeout (45s)");
+            applyTransition(ListeningPolicy.Event.RECOGNITION_FINISHED, "asr_timeout");
+            resume();
+        };
+        mainHandler.postDelayed(recognitionTimeout, 45000);
+        updateNotification();
+    }
+    private void completeRecognition() {
+        if (mode != ListeningPolicy.Mode.RECOGNIZING) return;
+        if (recognitionTimeout != null) mainHandler.removeCallbacks(recognitionTimeout);
+        recognitionTimeout = null;
+        applyTransition(ListeningPolicy.Event.RECOGNITION_FINISHED,
+                "system_recognizer_released");
+        resume(); // Re-arm VAD; do not auto-run another recognition session.
+    }
+    private void cancelRecognition(String reason) {
+        if (recognitionTimeout != null) mainHandler.removeCallbacks(recognitionTimeout);
+        recognitionTimeout = null;
+        if (speechSession != null) speechSession.cancel();
+        recognitionStatus = reason;
     }
 
     private void resume() {
@@ -142,6 +215,7 @@ public final class RitsuControlService extends Service {
     }
 
     private void failCapture(String reason) {
+        cancelRecognition("Recording stopped after error");
         capture.stop();
         voiceActivity = false;
         lastProblem = reason;
@@ -165,6 +239,7 @@ public final class RitsuControlService extends Service {
     }
 
     private void endSession() {
+        cancelRecognition("Session stopped");
         if (capture != null) capture.stop();
         voiceActivity = false;
         ListeningPolicy.Mode previous = mode;
@@ -198,12 +273,13 @@ public final class RitsuControlService extends Service {
                 new Intent(this, MainActivity.class),
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         String detail = mode == ListeningPolicy.Mode.LISTENING ? "Listening locally"
+                : mode == ListeningPolicy.Mode.RECOGNIZING ? "Google speech recognition"
                 : mode == ListeningPolicy.Mode.MUTED ? "Mic muted (hardware released)"
                 : mode == ListeningPolicy.Mode.ERROR ? "Mic error · open to inspect" : "Mic off";
         Notification.Builder builder = new Notification.Builder(this, CHANNEL)
                 .setSmallIcon(android.R.drawable.ic_btn_speak_now)
                 .setContentTitle("Ritsu")
-                .setContentText(detail + " · No transcription or upload")
+                .setContentText(detail + " · No ChatGPT submission")
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .setContentIntent(open)
                 .setShowWhen(false)
@@ -211,6 +287,9 @@ public final class RitsuControlService extends Service {
                 .setOnlyAlertOnce(true);
         if (mode == ListeningPolicy.Mode.LISTENING) {
             builder.addAction(new Notification.Action.Builder(null, "Mute mic",
+                    serviceAction(ACTION_MUTE, 47)).build());
+        } else if (mode == ListeningPolicy.Mode.RECOGNIZING) {
+            builder.addAction(new Notification.Action.Builder(null, "Cancel recognition",
                     serviceAction(ACTION_MUTE, 47)).build());
         } else if (mode == ListeningPolicy.Mode.MUTED) {
             builder.addAction(new Notification.Action.Builder(null, "Resume mic",
@@ -231,6 +310,7 @@ public final class RitsuControlService extends Service {
     }
 
     @Override public void onDestroy() {
+        cancelRecognition("Service destroyed");
         if (capture != null) capture.stop();
         if (bubble != null) bubble.hide();
         voiceActivity = false;
