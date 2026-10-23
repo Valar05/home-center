@@ -51,7 +51,9 @@ test('uncertain dispatch is persisted and never blindly retried',async t=>{
   assert.equal(JSON.parse(await readFile(path.join(dir,'mcp-canary-'+prompt.turnId+'.json'),'utf8')).state,
     'dispatch_unknown');
   await assert.rejects(applyOne({...prompt,stateDirectory:dir,
-    fetchImpl:async()=>existing(),evalImpl}),/existing_authenticated_empty_chat_required/);
+    fetchImpl:async()=>existing(),
+    evalImpl:async()=>JSON.stringify({url:tab.url,ready:true,empty:true,
+      userCount:0,assistantCount:0,loggedOut:false})}),{code:'EEXIST'});
 });
 test('never opens another tab when existing browser ambiguous or signed out',async()=>{
   const dir=path.join(os.tmpdir(),'unused-ritsu-no-tabs');
