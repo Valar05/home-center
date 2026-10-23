@@ -78,6 +78,13 @@ test('Chromium Throne route does one bounded turn rather than automatic swarm co
   assert.doesNotMatch(one,/runStoredSwarm\(/);
   assert.doesNotMatch(one,/planVeniceContinuation|BOOT_ENVELOPE/);
   assert.match(one,/ritsu_session_tab_missing_no_auto_rotation/);
+  assert.match(one,/ritsu_session_unbound_explicit_existing_tab_required/);
+  assert.doesNotMatch(one,/tab = await createWorkerTab\(\)/);
+  assert.match(source,/case 'ritsu\.chat\.bind'/);
+  assert.match(source,/case 'ritsu\.chat\.sessions'/);
+  assert.match(source,/async function bindRitsuChatSession/);
+  assert.match(source,/ritsu_tab_owned_by_another_session/);
+  assert.match(source,/ritsu_binding_requires_empty_authenticated_chatgpt_tab/);
   assert.match(one,/ritsuChatReceipts/);
   const composerCheck=one.indexOf('await requireRitsuPromptComposer(tab.id)');
   const unknownReceipt=one.indexOf("receipts[turnKey] = {state: 'unknown'");
