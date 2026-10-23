@@ -40,6 +40,7 @@ public final class RitsuControlService extends Service {
     static final String ACTION_SPEAKER_PREFERENCE = "com.homecenter.ritsucontrol.SPEAKER_PREFERENCE";
     static final String ACTION_MEDIA_TALK = "com.homecenter.ritsucontrol.MEDIA_TALK";
     static final String ACTION_STOP = "com.homecenter.ritsucontrol.STOP";
+    static final String ACTION_SYNC_NOW = "com.homecenter.ritsucontrol.SYNC_NOW";
     static final String ACTION_PAUSE_WINDOW = "com.homecenter.ritsucontrol.PAUSE_WINDOW";
     static final String EXTRA_PAUSE_MS = "pauseMillis";
     private static final String CHANNEL = "ritsu_control_notification_v2";
@@ -67,6 +68,7 @@ public final class RitsuControlService extends Service {
     private Runnable mediaFocusDeadline;
     private ControlReceipts receipts;
     private ConversationLedger ledger;
+    private HomeCenterSync homeCenterSync;
     private MediaPauseLease mediaPause;
     private RitsuBubble bubble;
     private int consecutiveErrors;
@@ -87,6 +89,10 @@ public final class RitsuControlService extends Service {
         mainHandler = new Handler(Looper.getMainLooper());
         receipts = new ControlReceipts(this);
         ledger = new ConversationLedger(this);
+        homeCenterSync = new HomeCenterSync(this, ledger, () -> {
+            feedRevision++;
+            updateNotification();
+        });
         mediaPause = new MediaPauseLease(this);
         // Upgrade existing v0.8 sessions once to the owner's requested
         // Thoughtful default, without clobbering any later explicit choice.
@@ -210,6 +216,7 @@ public final class RitsuControlService extends Service {
             @Override public ListeningPolicy.Mode mode() { return mode; }
         });
         setForeground(false);
+        homeCenterSync.start();
         receipts.append("SERVICE_CREATED", ListeningPolicy.Mode.OFF, mode, "explicit");
     }
 
@@ -223,6 +230,7 @@ public final class RitsuControlService extends Service {
             if (!bubble.show()) lastProblem = "Android overlay permission not granted";
         } else if (ACTION_HIDE_BUBBLE.equals(action)) bubble.hide();
         else if (ACTION_MEDIA_TALK.equals(action)) requestMediaFocus();
+        else if (ACTION_SYNC_NOW.equals(action)) homeCenterSync.requestNow();
         else if (ACTION_PAUSE_WINDOW.equals(action)) setPauseWindow(
                 intent.getIntExtra(EXTRA_PAUSE_MS, SpokenTurnBuffer.DEFAULT_PAUSE_MS));
         else if (ACTION_SPEAKER_PREFERENCE.equals(action))
@@ -289,9 +297,10 @@ public final class RitsuControlService extends Service {
         if (!pendingTurn.hasText()) return;
         String complete = pendingTurn.flush();
         updateSpeechPreview();
-        ledger.add("dialogue", "You", complete, ConversationLedger.OUTBOX);
+        ledger.add("control", "You", complete, ConversationLedger.OUTBOX);
         feedRevision++;
-        recognitionStatus = "Complete spoken message queued locally; Home Center not connected";
+        homeCenterSync.requestNow();
+        recognitionStatus = "Spoken message saved; submitting to Home Center if paired";
         receipts.append("LOCAL_SPOKEN_MESSAGE", mode, mode, reason);
         updateNotification();
     }
@@ -529,7 +538,7 @@ public final class RitsuControlService extends Service {
         Notification.Builder builder = new Notification.Builder(this, CHANNEL)
                 .setSmallIcon(android.R.drawable.ic_btn_speak_now)
                 .setContentTitle("Ritsu")
-                .setContentText(detail + " · No ChatGPT connection")
+                .setContentText(detail + " · " + HomeCenterSync.status)
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .setContentIntent(open)
                 .setShowWhen(false)
@@ -561,6 +570,7 @@ public final class RitsuControlService extends Service {
         clearCallbacks();
         cancelPendingCommit();
         if (speechSession != null) speechSession.cancel();
+        if (homeCenterSync != null) homeCenterSync.close();
         if (mediaPause != null) mediaPause.release();
         if (bubble != null) bubble.hide();
         voiceActivity = false;
