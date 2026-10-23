@@ -33,7 +33,8 @@ test('MCP registry exposes target-publish and origin-retrieve but no DOM/screen 
   assert.deepEqual(Object.keys(entryList()).sort(),
     ['ritsu.chat.prepare','ritsu.chat.publish','ritsu.chat.result']);
   const source=require('node:fs').readFileSync(__filename.replace(/\.test\.js$/,'.js'),'utf8');
-  assert.doesNotMatch(source,/querySelector\\s*\\(|chrome\\.scripting|page\\.screenshot\\s*\\(|puppeteer\\.launch\\s*\\(/i);
+  for (const forbidden of ['document.querySelector(', 'chrome.scripting', 'page.screenshot(', 'puppeteer.launch('])
+    assert.equal(source.includes(forbidden),false,'MCP backend must not read browser DOM: '+forbidden);
 });
 test('one named ChatGPT worker publishes exact response and initiator retrieves via MCP',async()=>{
   const admin=fakeAdmin();
