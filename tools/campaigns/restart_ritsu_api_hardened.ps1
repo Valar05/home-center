@@ -78,7 +78,7 @@ try {
     $expectedOwner = ($owners[0].OwningProcess -eq $started.Id) -or
                      ($actualOwner.ParentProcessId -eq $started.Id -and
                       $actualOwner.CommandLine.Contains('ritsu_voice_api_warm_v1.py') -and
-                      $actualOwner.ExecutablePath -match 'pythonw\\.exe$')
+                      $actualOwner.ExecutablePath -match 'pythonw\.exe$')
     if(!$expectedOwner){
         throw 'API TCP listener not owned by canonical process or its Python virtualenv child'
     }
