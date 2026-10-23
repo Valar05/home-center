@@ -22,6 +22,7 @@ function VoiceProcesses {
 }
 $hadPause = Test-Path $pause
 $replaced = $false
+$stopped = $false
 try {
     if(!(Test-Path $python) -or !(Test-Path $pythonConsole)){throw 'Canonical Python missing'}
     if(!(Test-Path $api)){throw 'Current Ritsu API source missing'}
@@ -46,6 +47,7 @@ try {
     $processes = @(VoiceProcesses)
     if($processes.Count -lt 1){throw 'No fixed Ritsu API processes identified'}
     foreach($proc in $processes){Stop-Process -Id $proc.ProcessId -Force}
+    $stopped = $true
     Start-Sleep -Seconds 5
     if(Get-NetTCPConnection -LocalAddress 127.0.0.1 -LocalPort 19645 -State Listen -ErrorAction SilentlyContinue){
         throw 'Voice listener remained occupied after stopping known API processes'
@@ -83,10 +85,10 @@ try {
     Record 'failed' $problem
     # Preserve the maintenance lock on error: never release stuck tickets into unknown audio.
     if(!(Test-Path $pause)){New-Item -ItemType File -Force -Path $pause | Out-Null}
-    if($replaced -and (Test-Path $backup)){
+    if($stopped -and (Test-Path $backup)){
         $newProcesses=@(VoiceProcesses)
         foreach($proc in $newProcesses){Stop-Process -Id $proc.ProcessId -Force -ErrorAction SilentlyContinue}
-        Copy-Item -LiteralPath $backup -Destination $api -Force
+        if($replaced){Copy-Item -LiteralPath $backup -Destination $api -Force}
         Start-Process -FilePath $python -ArgumentList ('"'+$api+'"') -WorkingDirectory $root -WindowStyle Hidden
         Record 'rollback' ('Original API restored after: '+$problem)
     }
