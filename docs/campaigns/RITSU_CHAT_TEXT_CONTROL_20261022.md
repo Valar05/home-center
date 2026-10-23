@@ -1,5 +1,14 @@
 # Ritsu Chat Control Transport: Stage C1 (secondary text fallback)
 
+## Gboard transcription and personalized correction preference (2026-10-22)
+The owner reports that **Gboard's built-in dictation works very well**, and wants to preserve its familiar autocorrection/personalized vocabulary rather than replace it with a noticeably worse recognizer.
+
+- **Visible text/inspection mode:** use a normal Android editable text input that invokes the user's existing **Gboard** keyboard. The Gboard microphone, autocorrect, corrections and vocabulary remain under Gboard's control, not a hand-rolled Ritsu keyboard.
+- **Hands-free primary mode:** do **not** promise that an app can silently commandeer Gboard voice typing behind the lock screen. Gboard dictation is an IME feature for an editable focused UI; it is not a supported always-on background microphone API.
+- For eyes-free listening, investigate Android's supported speech-recognition facilities with **on-device availability checked at runtime** and VAD-triggered bounded utterances, without asserting equivalence to Gboard's personalized correction. Android's `SpeechRecognizer` documentation says it is not intended for unbounded continuous recognition; do not run endless recognition calls.
+- Preserve exact ASR text in receipts and keep corrected text distinct if a later explicit correction stage is implemented. Do not silently rewrite proper names, commands, addresses, or personal vocabulary using a generic language model.
+- Device acceptance compares **Gboard dictation quality** with the chosen heads-free ASR on actual frequently used names/terms; ask for fixes only if evidence shows a gap. Gboard stays available as a user-controlled fallback.
+
 ## Voice-first product directive (user-confirmed 2026-10-22)
 **Voice is the PRIMARY user interaction.** The phone should function as an eyes-free Ritsu conversation with optional minimized floating mute/interrupt controls, while ChatGPT/browser work occurs off-screen. Text input is a fallback/debugging/quiet-mode control, and returned transcripts are optionally inspectable, not an attention-demanding chat inbox.
 
