@@ -48,6 +48,23 @@ class SilenceGuardTests(unittest.TestCase):
         self.assertEqual(result["safeCandidateCutMs"], 800)
         self.assertEqual(result["leadingQuietMs"], 2000)
 
+    def test_dither_makes_strict_zero_but_louder_speech_starts_later(self):
+        # Generated audio may contain low-level nonzero PCM before speech.
+        # The old conservative cut detector correctly refuses to cut it.
+        pcm = samples(110, 550) + samples(7000, 900)
+        self.assertEqual(guard.decide(pcm)["leadingQuietMs"], 0)
+        self.assertEqual(guard.decide(pcm)["safeCandidateCutMs"], 0)
+        profile = guard.energy_profile(pcm)
+        self.assertEqual(profile["candidateOnsetMsByThreshold"]["minus40dB"], 550)
+        self.assertEqual(profile["candidateOnsetMsByThreshold"]["adaptive"], 550)
+        self.assertTrue(profile["noAutoCut"])
+
+    def test_instant_onset_and_all_quiet_diagnostics(self):
+        voiced = guard.energy_profile(samples(6000, 800))
+        self.assertEqual(voiced["candidateOnsetMsByThreshold"]["minus30dB"], 0)
+        quiet = guard.energy_profile(samples(0, 800))
+        self.assertIsNone(quiet["candidateOnsetMsByThreshold"]["minus50dB"])
+
     def test_unknown_audio_format_rejected(self):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / "wrong.wav"
