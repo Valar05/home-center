@@ -194,7 +194,12 @@ def collect():
 
 def worker_alive(record):
     pid = record.get("workerPid")
-    if not isinstance(pid, int) or pid <= 0:
+    if not isinstance(pid, int):
+        try:
+            pid = int((STATE / "worker.pid").read_text(encoding="utf-8"))
+        except (ValueError, OSError):
+            return False
+    if pid <= 0:
         return False
     try:
         raw = Path("/proc") / str(pid) / "cmdline"
@@ -209,11 +214,15 @@ def launch():
         copy_receipt("RITSU_GAP_ALREADY_RUNNING\nPID=" + str(existing["workerPid"]))
         return 0
     STATE.mkdir(mode=0o700, parents=True, exist_ok=True)
+    # Parent writes launch state BEFORE spawning, so a fast worker's success
+    # cannot be accidentally overwritten by the launcher.
+    save_status(phase="launching", workerPid=None, startedAt=now(), accepted=False)
+    (STATE / "worker.pid").unlink(missing_ok=True)
     with LOG.open("a", encoding="utf-8") as logfile:
         proc = subprocess.Popen([sys.executable, str(Path(__file__).resolve()), "_collect"],
                                 stdin=subprocess.DEVNULL, stdout=logfile, stderr=subprocess.STDOUT,
                                 start_new_session=True, cwd=str(HOME), close_fds=True)
-    save_status(phase="queued", workerPid=proc.pid, startedAt=now(), accepted=False)
+    (STATE / "worker.pid").write_text(str(proc.pid) + "\n", encoding="utf-8")
     append_receipt({"kind": "launched", "pid": proc.pid})
     copy_receipt("RITSU_GAP_STARTED\nPID=" + str(proc.pid)
                  + "\nSTATUS=python " + str(Path(__file__).resolve()) + " status"
@@ -225,7 +234,7 @@ def stop():
     if not worker_alive(state):
         copy_receipt("RITSU_GAP_NOT_RUNNING\nNO_OTHER_PROCESSES_TOUCHED")
         return 0
-    pid = state["workerPid"]
+    pid = state.get("workerPid") or int((STATE / "worker.pid").read_text(encoding="utf-8"))
     os.killpg(pid, signal.SIGTERM)
     for _ in range(20):
         if not worker_alive(state):
