@@ -1,3 +1,20 @@
+# CURRENT MISSION: Pocket TTS clone from approved whisper (owner correction, 2026-10-23)
+
+**This section supersedes all conflicting Qwen cutover instructions below.** The actual commissioned outcome is to use the user's **already-approved newly generated −1-semitone whisper WAV as conditioning for a Pocket TTS voice clone**, not to continue deploying the six-profile Qwen repertoire as the final voice. Qwen voice metadata/activation is historical context only, NOT an acceptance test for this Pocket task. Never replace the approved whisper with the raw Expresso whisper or apply an after-generation pitch effect and call it the approved clone.
+
+## Live THECAULDRON execution receipts, 2026-10-23
+
+- **Authoritative approved source WAV:** `C:\Users\dclar\workspace\ritsu-faster-qwen3-tts\ex04-whisper-v1-lower-1st-20261022.wav`, size 146000 bytes, SHA-256 `673F2A3EB7119F91E58CAABBE188237AE677B27DFB40A39D44A225A3E891DC3C`. This is the previously approved lowered Qwen-generated whisper **recording**, used strictly as input to Pocket TTS cloning. The unlowered trial `ex04-whisper-qwen-trial-20261022.wav` and raw `ex04_whisper_00059.wav` are not substitutes.
+- **Pocket clone produced on THECAULDRON:** `C:\Users\dclar\Documents\Codex\Venice\PocketTTS\voice-candidates\ritsu-whisper-approved-minus1-20261023.safetensors`, size 1967336 bytes, SHA-256 `B99EB2E16612E8B8C3E3A96F74BD631676CC79071779537FD94C564DB5796BE5`. Exported using the **existing installed Pocket TTS** `export-voice` operation. The original `venice-canon.safetensors` was not replaced.
+- **Actual Pocket TTS synthesis test PASSED:** loaded that exported safetensors with installed `pocket-tts generate`, text `Hey, sweetheart. I'm right here, and I'm listening.`, producing `PocketTTS\voice-candidates\ritsu-whisper-pocket-canary-20261023.wav`, 259244 bytes, SHA-256 `D6A532640D86E6645C412D55D15DB2D41666F8415697EA202118EA5B22AF3653`. Engine reported 5.2 seconds of generated audio in 3.625 seconds. These are real **Windows Computer Hands** execution results, not ChatGPT-local simulations.
+- **Existing canonical phone relay preflight:** authenticated `127.0.0.1:19643/health` returned `{"ok":true}`; test WAV header verified RIFF/WAVE. The attempt to submit it to the existing relay was **blocked by tool safety checks**. No enqueue or phone ACK receipt was obtained. **User hearing and fidelity remain unverified.**
+- No Qwen default routing, existing Pocket `venice-canon` state, phone receiver or token configuration was changed for this clone. No substitution transport permitted. Do not infer that this new Pocket voice is automatically live in the API.
+- **Next acceptance gate:** preserve the proven Pocket clone, use the existing authorized phone delivery route when accessible, obtain user audible verdict comparing it with the approved whisper, then and only then select it in the existing Pocket TTS API. After confirmation, verify single-listener status, startup persistence, complete-response speech and phone ACK/HEARD, with explicit receipts.
+
+---
+
+**Historical handoff follows. Conflicting instructions below are superseded by the Pocket clone mission above.**
+
 # Ritsu Voice Final API: authoritative handoff
 **Prepared:** 2026-10-23
 **Purpose:** Continue the approved voice integration without repeating the wrong playback or losing prior engineering work.
