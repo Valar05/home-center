@@ -34,7 +34,7 @@ final class RitsuPairing {
             URI uri=new URI(text == null ? "" : text.trim());
             if (!"http".equals(uri.getScheme()) ||
                     uri.getRawUserInfo()!=null || uri.getQuery()!=null ||
-                    uri.getFragment()!=null || uri.getPort()!=19645 ||
+                    uri.getFragment()!=null || uri.getPort()!=19646 ||
                     !("".equals(uri.getPath()) || "/".equals(uri.getPath())))
                 throw new IllegalArgumentException("Tailscale address required");
             String host=uri.getHost();
@@ -51,7 +51,7 @@ final class RitsuPairing {
             if(ip[0]!=100 || ip[1]<64 || ip[1]>127)
                 throw new IllegalArgumentException("Only private Tailscale IPv4 is accepted");
             return "http://"+String.format(java.util.Locale.ROOT,"%d.%d.%d.%d",
-                    ip[0],ip[1],ip[2],ip[3])+":19645";
+                    ip[0],ip[1],ip[2],ip[3])+":19646";
         }catch(java.net.URISyntaxException e){
             throw new IllegalArgumentException("Invalid Home Center address");
         }
