@@ -24,7 +24,7 @@ public final class RitsuPairingTest {
                 "http://user@100.100.10.10:19646",
                 "http://100.100.10.10:19646/evil",
                 "http://100.100.10.10:19646?query=1",
-                "http://100.100.10.10:19646"
+                "http://100.100.10.10:19647"
         }) {
             try {
                 RitsuPairing.validateOrigin(value);
