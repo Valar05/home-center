@@ -1,5 +1,17 @@
 # CURRENT MISSION: Pocket TTS voice experiments and accepted voices (updated 2026-10-23)
 
+## Desire source auditions retrieved and played (2026-10-23)
+
+- User wants intimate/flirty loving Ritsu rather than exuberant friendly. Desire is preferred style; owner must audition original ex04 recordings **before** any Pocket cloning. Existing voice states remain unchanged.
+- THECAULDRON Windows Hands recovered online. The dataset server's /filter requests timed out and bulk /rows requests caused HTTP 429; bypassed both using HTTP byte ranges on Hugging Face CDN Parquet shard train-00014.parquet in nytopop/expresso-conversational. Installed pyarrow 23.0.1 in isolated PocketTTS/.desire-audition-deps (Windows Python 3.13). Only approx. 47 MB transferred from a 14.8 GB dataset. Attribution-NonCommercial 4.0 license.
+- Source files saved on THECAULDRON in C:/Users/dclar/workspace/ritsu-expresso-auditions/desire; provenance manifest ex04-desire-audition-20261023.json. All original mono WAV 48kHz, speaker_id=ex04, style=desire; no effects or synthesis.
+- **1** ex04-desire-01-personal-affirmation.wav, 5.325 sec, SHA256 2665C713138D4E51FF6158EA58314C3B984313431685C72D0F53075689A35524; Parquet shard 14 row group 19 row 13. Transcript: “In the end, I wouldn't have thought about it like that, but I really, yeah, I really like it when you put it that way.”
+- **2** ex04-desire-02-ocean-dream.wav, 7.965 sec, SHA256 08364A79C54F806F0714F05A8CCA22A3724AA54B06CCA168657B269ADDA1B40E; Parquet shard 14 row group 5 row 5. Transcript: “And because I've never been to Maine and I would love to be on the coast like that, somewhere by the ocean, with the house overlooking everything.”
+- **3** ex04-desire-03-cheesecake-wish.wav, 3.725 sec, SHA256 C68E97E636F4F460CB0792BE4279F17D9C476C501914E6C15ED778F282061D6C; Parquet shard 14 row group 4 row 8. Transcript: “I would love to be at the Cheesecake Factory.”
+- Extraction receipt: hands-ritsu-expresso-desire-extract-three-20261023, completed, exit 0. Desktop playback receipt: hands-ritsu-expresso-desire-three-source-auditions-20261023, completed, exit 0; interactive Windows session 1, each FFplay -loop 1 with guard and three-second pause, times 08:34:20–08:34:46 CDT. User HEARD and emotional verdict PENDING; one-shot execution receipt is not ear confirmation.
+- Next step is owner selects 1, 2, 3 or neither. Only after choice, run Pocket export-voice and a new generated audition. Do not modify existing Qwen, Warm Pocket, Whisper Pocket or phone routing.
+
+
 ## Pocket Warm affection audition: user-selected reference 2 (2026-10-23)
 
 - Owner preferred **reference 2** among two unmodified original Expresso recordings replayed once each: reference 1 `ex04_happy_00083.wav` (1.53s) vs reference 2 `C:\\Users\\dclar\\workspace\\ritsu-expresso-auditions\\ex04_happy_00111.wav` (3.07s); source 2 SHA-256 `D1A4811384DC02990DC1A931D78B2EC2598730ED70988959E44143CF352B7921`. Chose reference **before** Pocket cloning as owner requested. No new Qwen synthesis, pitch shift or WAV changes to the original.
