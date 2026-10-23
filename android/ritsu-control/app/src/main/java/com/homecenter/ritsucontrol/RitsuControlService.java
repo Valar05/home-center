@@ -33,6 +33,7 @@ public final class RitsuControlService extends Service {
     static final String ACTION_SHOW_BUBBLE = "com.homecenter.ritsucontrol.SHOW_BUBBLE";
     static final String ACTION_HIDE_BUBBLE = "com.homecenter.ritsucontrol.HIDE_BUBBLE";
     static final String ACTION_SPEAKER_PREFERENCE = "com.homecenter.ritsucontrol.SPEAKER_PREFERENCE";
+    static final String ACTION_MEDIA_TALK = "com.homecenter.ritsucontrol.MEDIA_TALK";
     static final String ACTION_STOP = "com.homecenter.ritsucontrol.STOP";
     // Deliberately do not handle Stage A's misleading MIC_REQUEST action.
     private static final String CHANNEL = "ritsu_control_notification_v2";
@@ -56,6 +57,7 @@ public final class RitsuControlService extends Service {
     private MediaPauseLease mediaPause;
     private ConversationLedger chatLedger;
     static volatile long feedRevision = 0;
+    static volatile String mediaGuardStatus = "Not tested";
 
     @Override public void onCreate() {
         super.onCreate();
@@ -63,6 +65,7 @@ public final class RitsuControlService extends Service {
         receipts = new ControlReceipts(this);
         mediaPause = new MediaPauseLease(this);
         chatLedger = new ConversationLedger(this);
+        mediaGuardStatus = "Playback rejection enabled; AEC device-dependent";
         liveMode = ListeningPolicy.Mode.OFF;
         voiceActivity = false;
         lastProblem = "";
@@ -79,6 +82,9 @@ public final class RitsuControlService extends Service {
             @Override public void onSpeechChanged(boolean speaking) {
                 mainHandler.post(() -> {
                     if (mode != ListeningPolicy.Mode.LISTENING) return;
+                    mediaGuardStatus = capture.echoCancellationEnabled()
+                            ? "Android acoustic echo canceller enabled (not guaranteed)"
+                            : "No verified acoustic echo cancellation on current route";
                     if (voiceActivity == speaking) return;
                     voiceActivity = speaking;
                     receipts.append(speaking ? "SPEECH_BEGIN" : "SPEECH_END", mode, mode, "local_energy_gate");
@@ -144,6 +150,13 @@ public final class RitsuControlService extends Service {
         if (ACTION_LISTEN.equals(action)) startListening();
         else if (ACTION_TRANSCRIBE.equals(action)) recognizeOnce();
         else if (ACTION_SPEAK_ONCE.equals(action)) startAndRecognizeOnce();
+        else if (ACTION_MEDIA_TALK.equals(action)) {
+            boolean requested = mediaPause.requestPauseForVerifiedSpeech();
+            mediaGuardStatus = requested
+                    ? "Android pause request via transient audio focus (compliance unverified)"
+                    : "Media focus denied; player may continue";
+            if (requested && mode == ListeningPolicy.Mode.OFF) startListening();
+        }
         else if (ACTION_MUTE.equals(action)) mute();
         else if (ACTION_RESUME.equals(action)) resume();
         else if (ACTION_SHOW_BUBBLE.equals(action)) {
@@ -223,6 +236,7 @@ public final class RitsuControlService extends Service {
             receipts.append("AUDIO_PLAYBACK_BLOCKED", mode, mode,
                     "untrusted_phone_playback_no_human_proof");
             recognitionStatus = "Phone media detected: rejected ambiguous speech";
+            mediaGuardStatus = "Rejected source audio because human-vs-phone playback is not verified";
             capture.stop();
             if (!capture.start()) failCapture("audio_recorder_could_not_rearm");
             updateNotification();
@@ -236,6 +250,9 @@ public final class RitsuControlService extends Service {
         partialTranscript = "";
         partialRevision++;
         recognitionStatus = "Silence detected; sending captured PCM to Android recognizer";
+        mediaGuardStatus = capture.echoCancellationEnabled()
+                ? "AEC enabled (not a verified near-end classifier)"
+                : "Media idle at onset; playback echo protection not verified";
         if (!speechSession.beginCaptured(pcm)) {
             applyTransition(ListeningPolicy.Event.RECOGNITION_FINISHED,
                     "external_audio_recognizer_unavailable");
