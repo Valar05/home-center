@@ -60,7 +60,7 @@ final class SystemSpeechSession {
                 }
                 @Override public void onError(int error) {
                     if (ticket != epoch || !active) return;
-                    observer.failed("Recognition provider error " + error);
+                    observer.failed(explainError(error));
                     finish();
                 }
                 @Override public void onResults(Bundle results) {
@@ -103,6 +103,20 @@ final class SystemSpeechSession {
             observer.failed("Recognition start rejected: " + error.getClass().getSimpleName());
             cleanup();
             return false;
+        }
+    }
+    private static String explainError(int error) {
+        switch (error) {
+            case SpeechRecognizer.ERROR_NO_MATCH: return "Google recognizer heard no matching words";
+            case SpeechRecognizer.ERROR_SPEECH_TIMEOUT: return "No speech detected before timeout";
+            case SpeechRecognizer.ERROR_RECOGNIZER_BUSY: return "System recognizer is busy";
+            case SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS: return "Microphone permission rejected by recognizer";
+            case SpeechRecognizer.ERROR_NETWORK:
+            case SpeechRecognizer.ERROR_NETWORK_TIMEOUT: return "System recognition network error";
+            case SpeechRecognizer.ERROR_AUDIO: return "System recognizer microphone error";
+            case SpeechRecognizer.ERROR_CLIENT: return "System recognizer client error";
+            case SpeechRecognizer.ERROR_SERVER: return "System recognizer service error";
+            default: return "Speech recognizer error code " + error;
         }
     }
     void cancel() {
