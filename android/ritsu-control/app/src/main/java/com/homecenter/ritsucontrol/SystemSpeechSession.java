@@ -22,6 +22,7 @@ import java.util.Arrays;
 final class SystemSpeechSession {
     interface Observer {
         void status(String value);
+        void partialTranscript(String text);
         void finalTranscript(String text);
         void failed(String reason);
     }
@@ -76,8 +77,16 @@ final class SystemSpeechSession {
                 }
                 @Override public void onPartialResults(Bundle partial) {
                     if (ticket != epoch || !active) return;
-                    // Keep private partials ephemeral. Never enqueue them as commands.
-                    observer.status("Listening for complete utterance");
+                    // Partials are display-only, never a command or final turn.
+                    ArrayList<String> options = partial == null ? null :
+                            partial.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                    if (options != null && !options.isEmpty() && options.get(0) != null
+                            && !options.get(0).trim().isEmpty()) {
+                        String text = options.get(0).trim();
+                        observer.partialTranscript(text.substring(0, Math.min(5000, text.length())));
+                    } else {
+                        observer.status("Listening for complete utterance");
+                    }
                 }
                 @Override public void onEvent(int eventType, Bundle params) {}
             });
