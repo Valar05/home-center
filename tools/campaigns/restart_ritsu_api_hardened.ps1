@@ -71,8 +71,37 @@ try {
     }
     if(!$ready){throw 'Canonical API did not reach loaded before deadline'}
     $owners=@(Get-NetTCPConnection -LocalAddress 127.0.0.1 -LocalPort 19645 -State Listen -ErrorAction SilentlyContinue)
-    if($owners.Count -ne 1 -or $owners[0].OwningProcess -ne $started.Id){
-        throw 'API TCP listener owned by unexpected process'
+    if($owners.Count -ne 1){throw 'Expected exactly one Ritsu loopback listener'}
+    # Python virtualenv pythonw.exe is a shim: it spawns the base Python310
+    # pythonw.exe child, and that child legitimately owns the listener.
+    $actualOwner = Get-CimInstance Win32_Process -Filter ("ProcessId=" + $owners[0].OwningProcess)
+    $expectedOwner = $owners[0].OwningProcess -eq $started.Id -or
+                     ($actualOwner.ParentProcessId -eq $started.Id -and
+                      $actualOwner.CommandLine.Contains('ritsu_voice_api_warm_v1.py') -and
+                      $actualOwner.ExecutablePath -match 'pythonw\\.exe
+    $voices=Invoke-RestMethod 'http://127.0.0.1:19645/v1/voices' -Headers $headers -TimeoutSec 6
+    foreach($name in @('normal','whisper','amused','happy','upset','somber')){
+        if($voices.profiles.$name.pitchSemitones -ne -1){throw ('Runtime profile mismatch '+$name)}
+    }
+    if(!$hadPause){Remove-Item -LiteralPath $pause -Force}
+    Record 'ready' ('New canonical API loaded; owner PID '+$started.Id+'; six profiles at -1; maintenance restored')
+}catch{
+    $problem=$_.Exception.Message
+    Record 'failed' $problem
+    # Preserve the maintenance lock on error: never release stuck tickets into unknown audio.
+    if(!(Test-Path $pause)){New-Item -ItemType File -Force -Path $pause | Out-Null}
+    if($stopped -and (Test-Path $backup)){
+        $newProcesses=@(VoiceProcesses)
+        foreach($proc in $newProcesses){Stop-Process -Id $proc.ProcessId -Force -ErrorAction SilentlyContinue}
+        if($replaced){Copy-Item -LiteralPath $backup -Destination $api -Force}
+        Start-Process -FilePath $python -ArgumentList ('"'+$api+'"') -WorkingDirectory $root -WindowStyle Hidden
+        Record 'rollback' ('Original API restored after: '+$problem)
+    }
+    throw
+}
+)
+    if(!$expectedOwner){
+        throw 'API TCP listener not owned by canonical process or its Python venv child'
     }
     $voices=Invoke-RestMethod 'http://127.0.0.1:19645/v1/voices' -Headers $headers -TimeoutSec 6
     foreach($name in @('normal','whisper','amused','happy','upset','somber')){
