@@ -11,7 +11,7 @@ package com.homecenter.ritsucontrol;
  * Times use elapsed realtime milliseconds, never wall clock.
  */
 final class SpokenTurnBuffer {
-    static final int DEFAULT_PAUSE_MS = 3200;
+    static final int DEFAULT_PAUSE_MS = 5000;
     static final int MIN_PAUSE_MS = 1500;
     static final int MAX_PAUSE_MS = 6500;
     static final int MAX_CHARS = 5000;
