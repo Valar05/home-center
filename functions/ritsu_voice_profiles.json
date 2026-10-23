@@ -1,51 +1,46 @@
 {
-  "version": "ritsu-repertoire-v1-20261022",
-  "engine": "Qwen3-TTS 0.6B Base reference clone",
+  "version": "ritsu-pocket-repertoire-v2-20261023",
+  "engine": "Pocket TTS locally cloned state; no Qwen synthesis",
   "defaultProfile": "normal",
   "legacyProfile": "warm-v1",
   "delivery": "phone",
   "profiles": {
     "normal": {
-      "status": "approved",
-      "referenceFile": "ex04_happy_00085.wav",
-      "referenceText": "Would you like some tomato bisque?",
+      "status": "selected_default",
+      "voiceStateSha256": "6D619A92B6F17C4DF4163919E690FAFADD48C285A0773AE01EFDE7BAA510ED07",
       "pitchSemitones": -1,
-      "sourceManifestProfile": "normal"
+      "source": "edited_cheesecake_no_laugh"
     },
     "whisper": {
-      "status": "approved_audition_pitch_candidate",
-      "referenceFile": "ex04_whisper_00059.wav",
-      "referenceText": "He's cool in a brainiac kind of way.",
+      "status": "approved",
+      "voiceStateSha256": "B99EB2E16612E8B8C3E3A96F74BD631676CC79071779537FD94C564DB5796BE5",
       "pitchSemitones": -1,
-      "sourceManifestProfile": "whisper"
+      "source": "approved_whisper"
     },
     "amused": {
       "status": "approved",
-      "referenceFile": "ex04_laughing_00044.wav",
-      "referenceText": "I did actually! the kids were watching \"Animaniacs\" over the weekend. I still love that show!",
+      "voiceStateSha256": "6F878B05D4227E10B43BB0AA8A87C6CBDF909B9CCA0F4A845E28C6541F17D9FE",
       "pitchSemitones": -1,
-      "sourceManifestProfile": "amused"
+      "source": "laughing_00044"
     },
     "happy": {
-      "status": "approved",
-      "referenceFile": "ex04_happy_00112.wav",
-      "referenceText": "It's shaping up to be everything the scroll predicted!",
-      "pitchSemitones": -1,
-      "sourceManifestProfile": "happy"
-    },
-    "upset": {
-      "status": "provisional",
-      "referenceFile": "ex04_confused_00043.wav",
-      "referenceText": "Like it got worse.",
-      "pitchSemitones": -1,
-      "sourceManifestProfile": "upset"
+      "status": "official_existing_pocket",
+      "voiceStateSha256": "47089F6F552D9E8FDEF599C3917B958FE4850CCD9B875662996F77214F5DD3A6",
+      "pitchSemitones": 0,
+      "source": "happy_00112",
+      "alias": "delighted"
     },
     "somber": {
-      "status": "rework_later",
-      "referenceFile": "ex04_sad_00037.wav",
-      "referenceText": "I knew it was a set up!",
+      "status": "selected_for_somber_and_upset",
+      "voiceStateSha256": "51C7B4F55361082ED23ABB56E1F7E9878D4CA26DA5740349858BDBDF2A4CA0BD",
       "pitchSemitones": -1,
-      "sourceManifestProfile": "somber"
+      "source": "personal_affirmation"
+    },
+    "upset": {
+      "status": "alias_only_no_separate_clone",
+      "aliasOf": "somber",
+      "pitchSemitones": -1,
+      "voiceStateSha256": "51C7B4F55361082ED23ABB56E1F7E9878D4CA26DA5740349858BDBDF2A4CA0BD"
     }
   }
 }
