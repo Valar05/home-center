@@ -37,6 +37,14 @@ final class ConversationLedger {
         // Immutable derived ID prevents duplicate messages after reconnect.
         return insert("reply:"+userTurnId,"control","Ritsu",message,VERIFIED,true);
     }
+    Entry insertPublishedOnce(String resultId, String channel, String who, String message) {
+        if(resultId==null || !resultId.matches("[A-Za-z0-9_.:-]{8,100}") ||
+                !("control".equals(channel)||"dialogue".equals(channel)||
+                  "worker".equals(channel)) ||
+                !("Ritsu".equals(who)||"Worker".equals(who)))
+            throw new IllegalArgumentException("invalid signed Home Center feed identity");
+        return insert("published:"+resultId,channel,who,message,VERIFIED,true);
+    }
 
     private Entry insert(String id,String channel,String who,String message,
                          String state,boolean idempotent) {
