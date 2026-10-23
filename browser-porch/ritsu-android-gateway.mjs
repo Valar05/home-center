@@ -55,7 +55,8 @@ function safeRow(row) {
  *  HTTP rides the WireGuard-encrypted tailnet, and never binds to LAN/public.
  */
 export function createRitsuAndroidGateway({
-  host,port=19646,clientBearer,coordinator,allowLoopbackForTests=false,
+  host,port=19646,clientBearer,coordinator,voiceReturn=null,
+  allowLoopbackForTests=false,
 }={}) {
   if(!tailnetIPv4(host) && !(allowLoopbackForTests && host==='127.0.0.1'))
     throw new Error('gateway_must_bind_specific_tailnet_ipv4');
@@ -67,6 +68,18 @@ export function createRitsuAndroidGateway({
       .some(k=>typeof coordinator[k]!=='function'))
     throw new Error('home_center_coordinator_required');
 
+  // The initial release only speaks verified main/control answers.
+  // Replies staged in dialogue/worker lanes remain silent until Home Center
+  // publishes them, and voice is never confused with phone playback proof.
+  let voiceSequence=Promise.resolve();
+  const voiceScheduled=new Set();
+  function scheduleCanonicalVoice(turnId,text) {
+    if(!voiceReturn||!ID.test(String(turnId||''))||
+        typeof text!=='string'||!text.trim()||voiceScheduled.has(turnId))return;
+    voiceScheduled.add(turnId);
+    voiceSequence=voiceSequence.then(()=>
+      voiceReturn.dispatchOnce({turnId,text})).catch(()=>{});
+  }
   const server=http.createServer(async(req,res)=>{
     const token=/^Bearer (\S+)$/.exec(String(req.headers.authorization||''))?.[1]||'';
     if(!constantTimeEqual(token,clientBearer))
@@ -102,6 +115,8 @@ export function createRitsuAndroidGateway({
       if(!ID.test(turnId||''))return response(res,400,{ok:false,error:'invalid_turn_id'});
       try {
         const row=await coordinator.readOneTurn(turnId);
+        if(row.state==='completed'&&row.turn?.channel==='control')
+          scheduleCanonicalVoice(turnId,row.result?.text);
         return response(res,200,{ok:true,receipt:safeRow(row)});
       }catch(e) {
         return response(res,/turn_not_found/.test(e.message)?404:503,
@@ -117,6 +132,10 @@ export function createRitsuAndroidGateway({
         const all=await coordinator.projectedFeed();
         // Only main-owned published feed, never staged dialogue or workers.
         const events=all.filter(e=>Number(e.sequence)>after).slice(0,60);
+        for(const event of events) {
+          if(event.channel==='control'&&event.type==='chat_result')
+            scheduleCanonicalVoice(event.turnId,event.text);
+        }
         return response(res,200,{ok:true,events,
           nextCursor:events.length?events.at(-1).sequence:after});
       }catch{return response(res,503,{ok:false,error:'home_center_feed_unavailable'});}
