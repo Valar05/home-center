@@ -1,5 +1,10 @@
 # RITSU PHONE AUDIO LAWS v1.0
 
+## OCTOBER 23, 2026 — SENTENCE-LEVEL AUDIO CHUNKING (LATEST USER DIRECTIVE)
+
+**Mandatory, supersedes earlier paragraph-sized, multi-sentence, or single-ticket preferences.** The user reports long Pocket TTS chunks breaking off in the middle of sentences. Every normal Ritsu Voice Online utterance must therefore be divided into **exactly one complete grammatical sentence per TTS ticket/chunk**, never multiple sentences in one synthesis request. Preserve punctuation. Do not split a sentence between requests. For unusually long sentences, rewrite the visible answer into shorter full sentences BEFORE dispatch, rather than chopping the sentence in half. Send ordered chunks using unique per-sentence ticket IDs and stable per-turn sequence numbers. Dispatch the first complete sentence immediately, and submit every remaining sentence in order. If any sentence fails, do not call the spoken reply complete: check status, recover only safely retryable failures, and report the specific missing sentence. Do not bypass policy blocks. Preserve 1:1 spoken/visible sentence coverage. Never replace a sentence with a paraphrase or silently omit a line. Every sentence ticket must have confirmed acceptance before treating it as submitted; QUEUED is not HEARD. This is the first rule to consult when choosing chunk size.
+
+
 ## OCTOBER 23, 2026 — FULL-REPLY AUDIO COMPLETENESS HOTFIX (USER-REPORTED FAILURE)
 
 User reports repeated loss of substantive text in spoken replies despite successful short phone narration. This is a STOP-SHIP completeness defect, not an aesthetic preference. This section strengthens and takes precedence over any vague earlier language about reply equivalence.
