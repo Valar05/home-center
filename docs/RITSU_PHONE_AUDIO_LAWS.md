@@ -1,5 +1,25 @@
 # RITSU PHONE AUDIO LAWS v1.0
 
+## 2026-10-23 REAL ANDROID PREFETCH INSTALL + FIRST 10-CLIP REGRESSION (awaiting HEARD verdict)
+
+**Verified from owner's actual Termux output, not a mock:** First `bash /sdcard/Download/ritsu_receiver_upgrade.sh` failed with "No such file or directory" before download completion. Second invocation succeeded and printed:
+- `RITSU_RECEIVER_V2_INSTALLED=1`
+- `NEW_PID=6432`
+- `RECEIVER_SOURCE_SHA256=8acd84673b91420dddac5705829e17997ca9dfcde87e5f3d3f35b872f219322f`
+- `BACKUP_DIRECTORY=/data/data/com.termux/files/home/.ritsu-embodiment/receiver-backups/20261023T194022Z`
+- `TRACE_FILE=/data/data/com.termux/files/home/.ritsu-embodiment/receiver-v2/trace.jsonl`
+- `OLD_RECEIVER_WAS_STOPPED_AT_IDLE=1`
+- Termux shell printed `[1]+ Terminated nohup bash "$DIR/receiver.sh" ...`, consistent with installer intentionally retiring previous shell background job. This is not a failed install. Android foreground/audio audible acceptance **not yet established** from a PID or install receipt.
+
+**Fresh live preflight** Windows canonical relay `19643/health` true, `/next` HTTP 204 empty, Android tailnet endpoint polling regularly; Pocket `10205/health` engine Pocket and Normal voice checksum `043D61FCA49B175C88A41734D1A659ED9655D39BDE8BD5FA2038AFC35D7FBB36` confirms Desire 02 -1 state preserved.
+
+**Fresh ten-sentence real test:** Single Home Center ticket `ritsu-termux-v2-10-sent-audible-fifo-test-20261023-a` (profile Normal, exact 10 complete grammatical sentences, expectedChunks=10) status `enqueued` with ten relay IDs and common sender transcript hash `ced6b23aec96c7e2d5ad974e1b26bf1ca203f19f946414cbf83cd11906f48890`. Windows measured total WAV duration **30.96s**. Android peer 100.117.17.119 `GET /audio` HTTP 200 for **all ten distinct matching IDs**, in cloud relay FIFO order at local 14:42:43, :44, :45, :48, :53, :57, 14:43:03, :09, :14, :20. The early three downloads arrive rapidly, indicating v2 prefetch is operating, then fetches are paced by bounded 3-slot buffer. Not yet evidence of Android `playback_started` / `playback_finished` or audible silence durations. Server logs `GET /next` HTTP 204 afterward, so relay queue drained. Do **not** claim every WAV was heard merely from these 200/ACK events.
+
+**Next:** owner to extract exact Termux `receiver-v2/trace.jsonl` events `playback_started`, `playback_finished` with `deviceMonotonicMs`, compute adjacent `next_start - previous_finish` and validate strict 1..10 order/10 pairs, compare with prior phone retrieval delay proxy median **2.68s** (different metric, label explicitly). Ask whether owner heard all ten complete sentences, in order, and whether gaps are conversational. No further restarts, new synthetic voices or audio tickets before verdict.
+
+---
+
+
 ## PHONE RECEIVER DIRECT INSPECTION AND SAFE REPLACEMENT v1.9 (2026-10-23)
 
 **Decisive installed device evidence:** User ran read-only `grep -n -C 6 -E 'termux-media-player|sleep [0-9]|/ack' "$HOME/.ritsu-embodiment/receiver.sh"` directly on Android. The actual installed receiver contains:
