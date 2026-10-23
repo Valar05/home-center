@@ -1,32 +1,25 @@
-# Ritsu Control v0.4: Android speech recognition + Gboard editing (prototype)
+# Ritsu Control v0.5: fix invisible speech-recognition results
 
-## What changed
-- The app now uses Android's **default system speech recognition service** for **one explicitly requested utterance** at a time. If the Google service is configured as the default, that is the provider used.
-- The existing v0.3 local continuous mic/VAD service remains. Tapping **Use Google speech recognition (one phrase)** releases AudioRecord *first* and hands mic ownership to SpeechRecognizer. After the provider finishes or times out, the app tries to restart VAD, unless the user explicitly muted or stopped. Recognition mode is its own state, never mislabeled "AudioRecord active".
-- The recognizer receives supported Android 13+ context biasing hints for Ritsu, Serin, Chromium Throne and other proper names. A provider may ignore them.
-- A **Gboard-compatible editable transcript field** allows Gboard dictation, your keyboard's suggestions, autocorrection and user correction exactly as they work normally in an Android text field.
-- **See Android spelling suggestions** asks the configured Android system spell checker for optional alternatives. It cannot read Gboard's private learned suggestions; changes are always user-selected, never silently applied.
-- Latest speech transcript is ephemeral display state only, not stored to files, not submitted to ChatGPT, and not injected into its existing remote audio relay.
-- **Privacy:** default speech-recognition services may use cloud processing, independently of Ritsu's no-INTERNET manifest. Do not assume all recognition is on-device.
+## V4 fault diagnosis
+A confirmed owner report from their phone: speech into the installed V4 produced no visible text and no Ritsu spoken reply. Source inspection revealed two concrete UI/flow errors:
+- V4 required **Start local listening** followed by an independent **Use Google speech recognition** tap. The first control only launched AudioRecord's **energy detector** and never generated words.
+- Even a successful `SpeechRecognizer.onResults` wrote a static field, and the editable Gboard text box was only populated by a further **Load recognized transcript** tap. Normal UI refresh didn't pull in the results.
+- V4 had no phone->Home Center->ChatGPT->Ritsu TTS transport, so speech output was not implementable from that app. It cannot be called a voice companion.
 
-## How to test the actual Android recognizer
-1. Install v0.4. If it will not update v0.3 due to different debug signing keys, uninstall only the separate **Ritsu Control** app, then install the new APK. The Termux audio receiver is a different app and remains unaffected.
-2. Open Ritsu Control, select **Start local listening** and grant Android microphone permission.
-3. Tap **Use Google speech recognition (one phrase)** and speak when its status says "Speak now". This is **bounded provider dictation**; do not assume it will automatically recognize later phrases. If no provider is available, the failure appears in the app.
-4. Tap **Refresh live status** then **Load recognized transcript** to place recognized words in an Android editable text field.
-5. Focus the field to use the actual installed Gboard keyboard, dictate or manually correct the transcript, or tap **See Android spelling suggestions** to inspect optional suggestions from the system spellchecker.
-6. Confirm **Mute microphone** and **Stop entire session** cancel current recognition and release the microphone. The floating bubble remains an optional overlay, subject to Android's separate permission rules.
+## V5 repairs
+- One **Talk to Google recognizer (one phrase)** button requests RECORD_AUDIO from the visible activity and then starts mic/ASR handoff in one operation, rather than quietly enabling energy VAD only.
+- The visible Activity updates status and transcript every 300ms **while visible**, with callbacks stopped when paused. No background screen polling.
+- The recognizer's partial results are displayed as interim words immediately when Google returns them, and a final result automatically replaces the preview in the Gboard-compatible editable field.
+- Speech errors, timeouts, busy provider, permission and network errors have **human-readable** diagnostic status (and no false text).
+- All recognized text is local/ephemeral, never automatically treated as a ChatGPT command or routed through a model. The system provider may separately use online recognition.
+- Independent **Start local listening** still runs only the local energy detector and is labeled as such.
 
-## Implemented versus still unverified
-- Source implements Android system SpeechRecognizer, proper microphone handoff, 45-second time limit, local transcript, Gboard editing and spell-checker suggestions.
-- CI compilation/tests establish syntactic and pure-state correctness only. Actual microphone capture handoff, default provider quality, Android privacy indicator, suggestions and locked-screen behavior all require human device verification.
-- Neither Google ASR nor Gboard autocomplete means Ritsu now controls ChatGPT: **authenticated phone -> Home Center ingress**, and real voice-response return through the canonical Tailscale/Termux relay, remain unimplemented.
-- This is **not** continuous Google dictation. The separate continuous local VAD detects energy but cannot hear words; Android SpeechRecognizer explicitly discourages uninterrupted continuous recognition.
-- The source cannot reconstruct the old keyboard from another phone and does not claim to access Gboard's private personalized model.
+## Expected test
+1. Install debug V5 (may need uninstalling only old Ritsu Control if CI ephemeral debug signature differs).
+2. Open Ritsu Control and tap **Talk to Google recognizer (one phrase)** just once. Approve mic permission if asked.
+3. Say a short sentence. Watch interim or final words appear directly in the text field. An explanatory provider error should appear in live status if the recognizer fails. The provider may produce only final results.
+4. Open Gboard in the field to use your normal editing/autocorrect suggestions.
+5. This still does **not** cause Ritsu's voice to speak back. The certified voice-response path requires the authenticated Home Center and Chromium Throne bridge, an existing Ritsu voice worker, and the canonical Windows/Tailscale :19643 -> Termux playback. It must not be simulated with generic Android TTS.
 
-## Security / architecture
-- No automatic microphone start on boot, no Phone Hands audio transport, no change to the approved Windows/Tailscale 19643 receiver.
-- No Android INTERNET permission or transcript upload in the Ritsu app. The system ASR provider may communicate with Google's services according to phone settings and its own permissions.
-- Mic + foreground service, Quick Settings reentry and optional overlay follow the same v0.3 permissions; no global touch interception.
-- Muting is physical release of AudioRecord **and** cancellation of an in-progress recognition session, without rearming after an explicit mute.
-- Turn submission and external command execution are forbidden for raw/unreviewed transcript strings until Home Center's authenticated deterministic coordinator is connected.
+## Verification boundaries
+CI pass == compiled APK + pure-state and manifest/flow contract checks. It is **not** device recognition proof, ChatGPT command delivery proof, or audible feedback proof. The owner must verify phone behavior. The speech provider API is not intended for indefinite continuous recognition, so this button remains single-phrase; full-duplex live voice/barging remains unaccepted.
