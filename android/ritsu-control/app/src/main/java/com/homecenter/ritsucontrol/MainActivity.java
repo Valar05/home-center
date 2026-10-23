@@ -184,7 +184,8 @@ public final class MainActivity extends Activity {
     private void renderFeed() {
         if(transcriptRows==null)return;
         transcriptRows.removeAllViews();
-        List<ConversationLedger.Entry> messages=ledger.list(channel);
+        List<ConversationLedger.Entry> messages=ledger.list(
+                "dialogue".equals(channel) ? "ritsu" : channel);
         if(messages.isEmpty()) {
             TextView empty=label("No verified results in this view yet.\n" +
                 ("worker".equals(channel) ? "Worker results need the authenticated Home Center bridge." :
@@ -216,10 +217,11 @@ public final class MainActivity extends Activity {
     private void queueTyped() {
         String text=composer.getText().toString().trim();
         if(text.isEmpty())return;
-        // This is an honest local outbox until authenticated ingress exists.
-        String destination = "control".equals(channel) ? "control":"dialogue";
-        ledger.add(destination,"You",text,ConversationLedger.OUTBOX);
+        // The main CONTROL thread owns every external user turn.
+        // Secondary dialogue requires an explicit Home Center decision.
+        ledger.add("control","You",text,ConversationLedger.OUTBOX);
         RitsuControlService.feedRevision++;
+        send(RitsuControlService.ACTION_SYNC_NOW);
         composer.setText("");
         renderFeed();
     }
@@ -254,6 +256,8 @@ public final class MainActivity extends Activity {
         String[] labels = {
                 "Status and recognition errors",
                 "Speech pause timing (Gboard-like)",
+                "Connect Home Center (Tailscale)",
+                "Disconnect Home Center",
                 "Ask Android to pause media",
                 "Stop conversation",
                 "Enable floating mute bubble",
@@ -271,15 +275,59 @@ public final class MainActivity extends Activity {
                                     .setPositiveButton("Close", null).show();
                             break;
                         case 1: selectSpeechTiming(); break;
-                        case 2: send(RitsuControlService.ACTION_MEDIA_TALK); break;
-                        case 3: send(RitsuControlService.ACTION_STOP); break;
-                        case 4: enableBubble(); break;
-                        case 5: send(RitsuControlService.ACTION_HIDE_BUBBLE); break;
-                        case 6: addQuickTile(); break;
-                        case 7: refreshStatus(); renderFeed(); break;
+                        case 2: pairHomeCenter(); break;
+                        case 3:
+                            new AlertDialog.Builder(this)
+                                    .setTitle("Disconnect Ritsu from Home Center?")
+                                    .setMessage("Only the local encrypted pairing is erased. Saved messages remain on this phone.")
+                                    .setPositiveButton("Disconnect", (d,w) -> {
+                                        RitsuPairing.disconnect(this);refreshStatus();
+                                    }).setNegativeButton("Cancel",null).show();
+                            break;
+                        case 4: send(RitsuControlService.ACTION_MEDIA_TALK); break;
+                        case 5: send(RitsuControlService.ACTION_STOP); break;
+                        case 6: enableBubble(); break;
+                        case 7: send(RitsuControlService.ACTION_HIDE_BUBBLE); break;
+                        case 8: addQuickTile(); break;
+                        case 9: refreshStatus(); renderFeed(); break;
                         default: break;
                     }
                 }).setNegativeButton("Close", null).show();
+    }
+
+    private void pairHomeCenter() {
+        LinearLayout panel=new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(18),dp(8),dp(18),0);
+        EditText endpoint=new EditText(this);
+        endpoint.setSingleLine(true);
+        endpoint.setHint("http://100.x.y.z:19645");
+        endpoint.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
+        try {
+            RitsuPairing.Pair prior=RitsuPairing.load(this);
+            if(prior!=null)endpoint.setText(prior.origin);
+        } catch(RuntimeException ignored) {}
+        panel.addView(endpoint);
+        EditText token=new EditText(this);
+        token.setSingleLine(true);
+        token.setHint("Separate Home Center phone pairing token");
+        token.setInputType(InputType.TYPE_CLASS_TEXT |
+                InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        panel.addView(token);
+        new AlertDialog.Builder(this)
+                .setTitle("Pair with Home Center on Tailscale")
+                .setMessage("The desktop's private Tailscale address and phone-only token. The token is encrypted with Android Keystore; it is never the Chromium Throne password.")
+                .setView(panel)
+                .setPositiveButton("Pair", (dialog, which) -> {
+                    try {
+                        RitsuPairing.save(this,endpoint.getText().toString(),
+                                token.getText().toString());
+                        send(RitsuControlService.ACTION_SYNC_NOW);
+                        headerStatus.setText("Paired securely; checking Home Center");
+                    } catch(RuntimeException error) {
+                        headerStatus.setText("Not paired: "+error.getMessage());
+                    }
+                }).setNegativeButton("Cancel",null).show();
     }
 
     private void selectSpeechTiming() {
@@ -357,7 +405,7 @@ public final class MainActivity extends Activity {
                 : "Mic off";
         String detail = RitsuControlService.recognitionStatus;
         if (detail.length() > 75) detail = detail.substring(0, 75);
-        headerStatus.setText(state + " · " + detail + "\nChatGPT not connected");
+        headerStatus.setText(state + " · " + detail + "\n" + HomeCenterSync.status);
         if (listenButton != null) {
             listenButton.setText(mode == ListeningPolicy.Mode.RECOGNIZING
                     ? "Listening ●" : "Listen");
