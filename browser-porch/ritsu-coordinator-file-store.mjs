@@ -15,6 +15,33 @@ export function createFileCoordinatorStore({directory}={}) {
       createHash('sha256').update(key).digest('hex')+'.json');
   };
   return Object.freeze({
+    // Each CLI invocation creates its own coordinator instance. Serialize
+    // read/modify/write across independent processes with O_EXCL lock files.
+    // A crashed holder leaves a lock that fails closed, rather than risking
+    // duplicate browser sends or a lost deterministic merge.
+    async withNamespaceLock(namespace, work) {
+      const lockFile=namespacePath(namespace)+'.lock';
+      await mkdir(directory,{recursive:true,mode:0o700});
+      let handle=null;
+      const end=Date.now()+8000;
+      while (!handle) {
+        try { handle=await open(lockFile,'wx',0o600); }
+        catch (error) {
+          if (error.code !== 'EEXIST' || Date.now()>=end)
+            throw new Error(error.code==='EEXIST'
+              ? 'coordinator_locked_manual_recovery_required'
+              : 'coordinator_lock_acquisition_failed');
+          await new Promise(resolve=>setTimeout(resolve,50));
+        }
+      }
+      try {
+        await handle.writeFile(JSON.stringify({pid:process.pid,at:new Date().toISOString()}));
+        await handle.sync();
+        return await work();
+      } finally {
+        try {await handle.close();} finally {await rm(lockFile,{force:true});}
+      }
+    },
     async load(namespace) {
       const file=namespacePath(namespace);
       try {return JSON.parse(await readFile(file,'utf8'));}
