@@ -1,5 +1,18 @@
 # CURRENT MISSION: Pocket TTS voice experiments and accepted voices (updated 2026-10-23)
 
+## Owner verdict: cleaned Cheesecake Warm, content-sensitive affection (2026-10-23)
+
+**Owner's exact spoken feedback:** "So the control one is better. Not super warm by default. The effects from one is better than that one. It actually sounds rather nice. So I guess the content matters." The phrase "effects from one" appears to be dictation of "affection one" (the four auditions named below), but preserve the literal user wording rather than asserting the recognition as certain.
+
+**Most likely comparative interpretation, pending any correction:** cleaned Cheesecake Warm *control* sample (#3 in audition sequence) is an improvement over Ocean Dream Warm baseline (#2), though it is not automatically or excessively warm; the **affectionate sample** (#4), from the **same edited Cheesecake voice state**, is nicer/more expressive than the control. Owner appears favorable towards this revised Warm clone, but did NOT explicitly request switching the live Warm profile. Content/prosody matter strongly even using the same clone. Avoid calling it a permanently warm baked timbre or promising textual sentiment always yields a specific prosody.
+
+Audition sequence in ticket `hands-ritsu-cheesecake-clean-vs-ocean-warm-four-auditions-20261023`: (#1) edited Cheesecake source; (#2) earlier Ocean Dream Warm baseline; (#3) cleaned Cheesecake Warm *control* generated from `ritsu-warm-cheesecake-no-laugh-minus1-pocket.safetensors`, SHA256 `6D619A92B6F17C4DF4163919E690FAFADD48C285A0773AE01EFDE7BAA510ED07`; control words `Good morning. The workshop is quiet, the coffee is ready, and I have a few ideas.` WAV `warm-cheesecake-no-laugh-control-playable.wav` SHA256 `E996F991339FB8A03416AF7DD8E7FD0DB0624E2FCE97DE99042215211FBC187D`; (#4) same state with affectionate content `I really like having you here. Even an ordinary afternoon feels a little more special.` WAV `warm-cheesecake-no-laugh-affection-playable.wav` SHA256 `1B5392A93E08848D594E0D03C98B3E52493EAF8A7A37B8FD4ADAEC8C377BCD92`.
+
+**Next experimental direction, if user asks:** keep this no-laugh Cheesecake candidate intact and compare *content styles* (everyday affectionate, playful, quietly caring) using **identical clone, temperature and pitch**. Prefer warmth that emerges from phrasing and prosody rather than further pitch shifting or different voice identities. Preserve current live Warm/default and all other voices unchanged; the user has not yet explicitly approved profile promotion. Separate prior user's Delighted official choice is recorded in the existing handoff; do not silently substitute an alternate.
+
+---
+
+
 ## Warm: Cheesecake Wish with the laugh section removed (2026-10-23)
 
 User says Delighted voice currently in their main generated folder sounds okay, and explicitly says to **mark that existing Delighted version as official**, despite imperfect similarity to other Ritsu voices. **Do not replace Delighted with a different earlier variant or change live routing by guessing which on-disk path is the main generated version**. Previous experimental Delighted candidates remain archived. Priority shifts to a **new genuinely warm** voice.
