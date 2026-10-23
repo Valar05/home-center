@@ -22,7 +22,7 @@ cleanup() {
 }
 trap cleanup EXIT
 trap 'exit 143' TERM INT
-if [ -f "$STATE/playing" ]; then
+if [ -f "$STATE/playing" ] || [ -f "$STATE/stop.request" ]; then
   echo 'RITSU_V2_AMBIGUOUS_INTERRUPTED_PLAYBACK: refusing automatic replay or skip' >&2
   exit 4
 fi
@@ -98,24 +98,33 @@ play_loop() {
     shopt -s nullglob
     local candidates=("$READY/$(printf '%08d' "$seq")_"*.wav)
     shopt -u nullglob
-    if [ "${#candidates[@]}" -eq 0 ]; then sleep .15; continue; fi
+    if [ -f "$STATE/stop.request" ]; then echo "RITSU_V2_STOP_REQUESTED" >&2; exit 11; fi
+    if [ "${#candidates[@]}" -eq 0 ]; then
+      if ! kill -0 "$fetch_pid" 2>/dev/null; then echo 'RITSU_V2_FETCHER_DIED' >&2; exit 9; fi
+      sleep .15; continue
+    fi
     if [ "${#candidates[@]}" -ne 1 ]; then echo 'RITSU_V2_DUPLICATE_FIFO_SLOT' >&2; exit 5; fi
     item="${candidates[0]}"
     id="${item##*/}"; id="${id#*_}"; id="${id%.wav}"
     [[ "$id" =~ ^[a-f0-9]{24}$ ]] || exit 5
     # Fail closed after interrupted playback instead of replaying or skipping.
     printf '%d %s\n' "$seq" "$id" > "$STATE/playing.tmp.$$"
-    mv -f "$STATE/playing.tmp.$$" "$STATE/playing"
+    mv -f "$STATE/playing.tmp.$" "$STATE/playing"
+    printf '%s' "$item" > "$DIR/current"
     result="$(termux-media-player play "$item")" || { echo "RITSU_V2_PLAY_FAILED $seq" >&2; exit 6; }
     if [[ "$result" != Now\ Playing:* ]]; then echo "RITSU_V2_PLAY_NO_CONFIRMATION $seq" >&2; exit 6; fi
     trace playback_started "$seq" "$id"
     unknown=0
     while :; do
+      if [ -f "$STATE/stop.request" ]; then echo "RITSU_V2_STOP_REQUESTED" >&2; exit 11; fi
       if ! info="$(termux-media-player info 2>/dev/null)"; then
         unknown=$((unknown+1))
       elif [[ "$info" == *'No track currently!'* ]]; then
         break
       elif [[ "$info" == *'Status: Playing'* || "$info" == *'Status: Paused'* ]]; then
+        if [[ "$info" != *"Track: $(basename "$item")"* ]]; then
+          echo "RITSU_V2_PLAYER_TRACK_MISMATCH $seq" >&2; exit 10
+        fi
         unknown=0
       else
         unknown=$((unknown+1))
@@ -126,7 +135,8 @@ play_loop() {
     trace playback_finished "$seq" "$id"
     atomic_number "$STATE/play.seq" "$((seq+1))"
     rm -f "$STATE/playing"
-    # WAVs retained locally for debugging, without any additional transport.
+    # Keep eight recent WAVs as an audio receipt, bound phone storage use.
+    if (( seq > 8 )); then rm -f "$READY/$(printf '%08d' "$((seq-8))")_"*.wav; fi
   done
 }
 
