@@ -1,5 +1,15 @@
 # RITSU PHONE AUDIO LAWS v1.0
 
+## OCTOBER 23, 2026 — OWNER HEARD V3 BUT REJECTED GAP PERFORMANCE
+
+Owner's definitive three-ticket listening result: **"I heard them but there was no real diminishment of the pauses."** Record **HEARD=true** for audible receipt of all three sentences-plus complete-thought units, but **GAP_FIX_ACCEPTANCE=FAILED**. Source SHA `55c0fb71168573145de842bf217a3136d942654053f0f785993de8b23abef015` remains active on Android v3, PID at activation `11198`; original v2 source backup preserved. Do not claim v3 gapless or retry the same three-part audio automatically.
+
+The v3 design only groups WAVs already ready **when play_loop starts playback**; if the next WAV becomes ready during playback, it cannot be appended to the current `termux-media-player` track. Upstream Termux MediaPlayer source confirms `playHandler` calls `stop/reset/prepare/start` for every new file. This recurring per-file restart is a plausible primary latency source, not yet isolated acoustically.
+
+**Next engineering track:** Investigate a persistent on-phone player that can accept new file entries while its current track is playing, such as Termux-packaged `mpv --idle=yes --gapless-audio=yes` with local UNIX IPC `loadfile <file> append-play`, keeping official Tailscale 19643 relay, existing Windows Pocket voices and no-split complete authoring units unchanged. Termux mpv package uses OpenSL ES audio output. This local player backend change must be independently tested and allowed only after actual phone mpv availability check, safe no-duplicate FIFO replay journal, end-of-track observability, sample integrity, idle-only cutover/rollback, and owner HEARD verdict. It does not guarantee no gaps when next generated WAV is not ready before previous finishes. No production mpv switch has occurred.
+
+Continue to enforce **450 chars maximum per complete agent-authored speech ticket**; provisional 90–140 first thought, 180–300 later thoughts are authoring heuristics only, never software slicing. The Android v3 negative outcome must supersede all earlier optimistic 'v3 active' wording.
+
 ## OCTOBER 23, 2026 — VERIFIED ANDROID V3 ACTIVATION AND FIRST THREE-TICKET REGRESSION
 
 **Newer evidence supersedes older 'not live' labels below.** The owner executed the guarded Termux v3 activation script and returned a physical receipt `RITSU_V3_RECEIVER_ACTIVE=1`, exact corrected receiver SHA256 `55c0fb71168573145de842bf217a3136d942654053f0f785993de8b23abef015`, PID `11198`, `PLAY_SEQ=FETCH_SEQ=121`, `RELAY=19643`, unchanged `termux-media-player`, `CUT_SAMPLES=0`. Thus v3 is **activated on the phone**, not merely installed. On-device actual audio continuity and HEARD remain unverified.
