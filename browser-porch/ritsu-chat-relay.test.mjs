@@ -101,3 +101,14 @@ test('Chromium Throne route does one bounded turn rather than automatic swarm co
   assert.doesNotMatch(source,/new KeyboardEvent\('keydown'.*'Enter'/);
   assert.match(source,/ChatGPT send button not enabled; no dispatch/);
 });
+
+test('Ritsu browser tab binding stays explicit and visible to owner',()=>{
+  const markup=fs.readFileSync(new URL('./extension/sidepanel.html',import.meta.url),'utf8');
+  const panel=fs.readFileSync(new URL('./extension/throne-panel.mjs',import.meta.url),'utf8');
+  for (const element of ['ritsuSession','ritsuChannel','ritsuTab','ritsuBind','ritsuFindTabs','ritsuBindingStatus'])
+    assert.match(markup,new RegExp('id="'+element+'"'));
+  assert.match(panel,/chrome\.tabs\.query\(\{url:'https:\/\/chatgpt\.com\/\*'\}\)/);
+  assert.match(panel,/type:'ritsu\.chat\.bind'/);
+  assert.match(panel,/type:'ritsu\.chat\.sessions'/);
+  assert.doesNotMatch(panel,/chrome\.tabs\.create/);
+});
