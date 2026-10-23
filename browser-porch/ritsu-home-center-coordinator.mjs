@@ -199,22 +199,38 @@ export function createRitsuHomeCenterCoordinator({
     /** Only an authenticated Home Center main-thread operation is allowed to
      * call this. A completed CONTROL conversation turn provides provenance,
      * not implicit permission to execute worker content as instructions. */
-    async mainThreadPublish({controlTurnId, resultIds=[]}={}) {
+    async mainThreadPublish({controlTurnId, turnIds=[], resultIds=[]}={}) {
       return exclusive(async () => {
         controlTurnId = id(controlTurnId, 'control_turn_id');
-        if (!Array.isArray(resultIds) || !resultIds.length || resultIds.length > 8 ||
-            new Set(resultIds).size !== resultIds.length)
-          throw new Error('bounded_unique_result_ids_required');
+        if (!Array.isArray(resultIds) || !Array.isArray(turnIds) ||
+            resultIds.length + turnIds.length < 1 ||
+            resultIds.length + turnIds.length > 8 ||
+            new Set(resultIds).size !== resultIds.length ||
+            new Set(turnIds).size !== turnIds.length)
+          throw new Error('bounded_unique_merge_ids_required');
         const state = await load();
         const control = getTurn(state, controlTurnId);
         if (!control || control.turn.channel !== 'control' ||
             control.state !== 'completed')
           throw new Error('verified_main_control_turn_required');
+        const selectedTurns = turnIds.map(turnId => {
+          const row = getTurn(state, id(turnId, 'turn_id'));
+          if (!row || row.turn.channel !== 'dialogue' ||
+              row.state !== 'completed' || row.presented)
+            throw new Error('dialogue_turn_not_staged');
+          return row;
+        });
         const selected = resultIds.map(resultId => {
           const row = getWorker(state, id(resultId, 'result_id'));
           if (!row || row.review !== 'pending') throw new Error('worker_result_not_pending');
           return row;
         }).sort((a,b)=>a.arrivalSequence-b.arrivalSequence);
+        for (const row of selectedTurns) {
+          row.presented = true;
+          row.publishedByTurnId = controlTurnId;
+          row.publicationSequence = receipt(state, 'dialogue_result_published_by_main', {
+            turnId:row.turn.turnId,controlTurnId});
+        }
         for (const row of selected) {
           row.review = 'published';
           row.published = true;
@@ -223,7 +239,15 @@ export function createRitsuHomeCenterCoordinator({
             resultId:row.resultId, controlTurnId});
         }
         await save(state);
-        return selected.map(copy);
+        return [...selectedTurns.map(row => ({
+          type:'chat_result', channel:'dialogue',
+          turnId:row.turn.turnId, text:row.result.text,
+          publishedByTurnId:controlTurnId,
+          sequence:row.publicationSequence,
+        })), ...selected.map(row => ({
+          type:'worker_result', resultId:row.resultId, text:row.text,
+          publishedByTurnId:controlTurnId,sequence:row.publicationSequence,
+        }))].sort((a,b)=>a.sequence-b.sequence);
       });
     },
 
@@ -231,14 +255,28 @@ export function createRitsuHomeCenterCoordinator({
       return exclusive(async () => {
         const state=await load();
         const events=[];
-        // A verified but unreviewed dialogue result is visible with STAGED
-        // provenance for inspection; only the main thread can publish worker
-        // material into the outward user-facing merged view.
+        // Only CONTROL and explicitly approved dialogue/worker results are
+        // projected to the outward merged feed. Other results stay private
+        // staged data until a verified control turn authorizes publication.
         for (const row of state.turns) {
-          if (row.state === 'completed') events.push({
-            type:'chat_result', channel:row.turn.channel, turnId:row.turn.turnId,
-            sessionId:row.turn.sessionId, tabId:row.result.tabId,
-            text:row.result.text, disposition:'staged_for_main_thread'});
+          if (row.state !== 'completed') continue;
+          if (row.turn.channel === 'control') {
+            events.push({
+              type:'chat_result', channel:'control',turnId:row.turn.turnId,
+              sessionId:row.turn.sessionId,tabId:row.result.tabId,
+              text:row.result.text,disposition:'main_thread',
+              sequence:state.timeline.find(e =>
+                e.type==='result_staged_for_main_thread' &&
+                e.turnId===row.turn.turnId)?.sequence || 0,
+            });
+          } else if (row.presented) {
+            events.push({
+              type:'chat_result',channel:'dialogue',turnId:row.turn.turnId,
+              sessionId:row.turn.sessionId,tabId:row.result.tabId,
+              text:row.result.text,publishedByTurnId:row.publishedByTurnId,
+              sequence:row.publicationSequence,
+            });
+          }
         }
         for (const row of state.workerResults) {
           if (row.published) events.push({
@@ -247,7 +285,7 @@ export function createRitsuHomeCenterCoordinator({
             publishedByTurnId:row.publishedByTurnId,
             sequence:row.publicationSequence});
         }
-        return copy(events);
+        return copy(events.sort((a,b)=>a.sequence-b.sequence));
       });
     },
   });
