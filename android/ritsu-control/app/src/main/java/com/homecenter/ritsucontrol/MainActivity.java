@@ -116,6 +116,8 @@ public final class MainActivity extends Activity {
         advanced.setVisibility(View.GONE);
         details=label("",12,false);
         advanced.addView(details);
+        rowButton(advanced,"Ask Android to pause media for speaking",
+                v->send(RitsuControlService.ACTION_MEDIA_TALK));
         rowButton(advanced,"Stop conversation",v->send(RitsuControlService.ACTION_STOP));
         rowButton(advanced,"Floating mute bubble",v->enableBubble());
         rowButton(advanced,"Hide floating bubble",v->send(RitsuControlService.ACTION_HIDE_BUBBLE));
