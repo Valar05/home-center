@@ -57,7 +57,7 @@ async function post(base,turnId,prompt,extra={}) {
 test('gateway refuses public, LAN and generic wildcard binding',()=>{
   for(const host of ['0.0.0.0','192.168.1.5','8.8.8.8','100.63.0.5','100.128.0.1','example.com'])
     assert.throws(()=>createRitsuAndroidGateway({
-      host,clientBearer:token,port:19645,coordinator:fakeCoordinator()
+      host,clientBearer:token,port:19646,coordinator:fakeCoordinator()
     }),/tailnet/);
   assert.throws(()=>createRitsuAndroidGateway({
     host:'127.0.0.1',clientBearer:token,coordinator:fakeCoordinator()
