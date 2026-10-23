@@ -24,11 +24,12 @@
       "source": "laughing_00044"
     },
     "happy": {
-      "status": "official_existing_pocket",
-      "voiceStateSha256": "47089F6F552D9E8FDEF599C3917B958FE4850CCD9B875662996F77214F5DD3A6",
-      "pitchSemitones": 0,
-      "source": "happy_00112",
-      "alias": "delighted"
+      "status": "official_pitch_baked_pocket",
+      "voiceStateSha256": "050A501F67F83A3876183BEFD649806265B844BFC13BB21D967FC37C0456427A",
+      "pitchSemitones": -1,
+      "source": "ex04_happy_00112_pitch_minus1_formant_preserved_reference",
+      "alias": "delighted",
+      "clone": "fullset-20261023/delighted-minus1.safetensors"
     },
     "somber": {
       "status": "selected_for_somber_and_upset",
