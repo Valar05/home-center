@@ -146,6 +146,7 @@ public final class MainActivity extends Activity {
         // Advanced actions live in a dialog: never push the composer
         // or the always-visible Listen/Mute footer under the keyboard.
         setContentView(root);
+        if (Build.VERSION.SDK_INT >= 30) root.requestApplyInsets();
         renderFeed();
         refreshStatus();
     }
