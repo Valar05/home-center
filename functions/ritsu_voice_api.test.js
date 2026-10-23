@@ -58,7 +58,9 @@ test('Pocket-only active voice catalog has exactly five clones and Upset aliases
  assert.deepEqual(Object.keys(catalog.profiles).sort(),['amused','happy','normal','somber','upset','whisper']);
  assert.equal(catalog.profiles.upset.aliasOf,'somber');
  assert.equal(catalog.profiles.upset.voiceStateSha256,catalog.profiles.somber.voiceStateSha256);
- assert.equal(catalog.profiles.happy.pitchSemitones,0);
+ assert.equal(catalog.profiles.happy.pitchSemitones,-1);
+ assert.equal(catalog.profiles.happy.voiceStateSha256,'050A501F67F83A3876183BEFD649806265B844BFC13BB21D967FC37C0456427A');
+ assert.equal(catalog.profiles.happy.clone,'fullset-20261023/delighted-minus1.safetensors');
  for(const name of ['normal','whisper','amused','somber','upset']) assert.equal(catalog.profiles[name].pitchSemitones,-1);
  assert.equal(new Set(Object.values(catalog.profiles).map(p=>p.voiceStateSha256)).size,5);
 });
