@@ -219,9 +219,20 @@ def silence_probe():
         copy_receipt("RITSU_SILENCE_PROBE_INCOMPLETE\nNO_RETAINED_WAVS\nAUDIO_UNCHANGED=1")
         return 4
     reports = []
+    rows, trace_health = events()
+    trace = trace_report(rows)
+    gaps = {g["to"]: g["gapSeconds"] for g in trace["gaps"]}
+    durations = {d["seq"]: d["playerElapsedSeconds"] for d in trace["durations"]}
     for path in candidates:
         try:
-            reports.append(module.inspect(path))
+            item = module.inspect(path)
+            seq = int(path.name.split("_", 1)[0])
+            item["previousFinishedToStartSeconds"] = gaps.get(seq)
+            elapsed = durations.get(seq)
+            item["playerElapsedSeconds"] = elapsed
+            item["playerMinusWavSeconds"] = (round(elapsed - item["durationMs"]/1000, 3)
+                                              if elapsed is not None else None)
+            reports.append(item)
         except (OSError, ValueError, wave.Error) as exc:
             reports.append({"file": path.name, "error": type(exc).__name__})
     report = {
@@ -229,6 +240,7 @@ def silence_probe():
         "collectedAt": now(),
         "device": "ANDROID_TERMUX",
         "wavs": reports,
+        "traceHealth": trace_health,
         "warning": "PCM amplitude estimates, not speech/phoneme recognition; no live audio changes",
         "auditionBeforeAnyTrim": True,
         "livePipelineModified": False,
@@ -239,11 +251,17 @@ def silence_probe():
                     "wavs": len(reports)})
     summary = ["RITSU_SILENCE_PROBE=READ_ONLY", "WAVS=" + str(len(reports))]
     for row in reports:
-        summary.append(row["file"].split("_", 1)[0] + " leading_quiet_ms="
-                       + str(row.get("leadingQuietMs", "UNKNOWN")) + " candidate_cut_ms="
-                       + str(row.get("safeCandidateCutMs", 0)))
+        profile = row.get("energyProfile") or {}
+        onsets = profile.get("candidateOnsetMsByThreshold") or {}
+        summary.append(row["file"].split("_", 1)[0]
+                       + " low_level_ms=" + str(row.get("leadingQuietMs", "unknown"))
+                       + " first_10ms_dbfs=" + str(profile.get("first10msRmsDbfs"))
+                       + " onset_minus40_ms=" + str(onsets.get("minus40dB"))
+                       + " onset_adaptive_ms=" + str(onsets.get("adaptive"))
+                       + " previous_gap_s=" + str(row.get("previousFinishedToStartSeconds"))
+                       + " player_overhead_s=" + str(row.get("playerMinusWavSeconds")))
     summary.extend(["REPORT=" + str(result_path), "AUDIO_UNCHANGED=1",
-                    "NOTE=CAN_CUT_ONLY_AFTER_AUDITION"])
+                    "NOTE=THRESHOLD_CROSSINGS_NOT_TRIM_INSTRUCTIONS"])
     copy_receipt("\n".join(summary))
     return 0 if all("error" not in x for x in reports) else 4
 
