@@ -79,4 +79,11 @@ test('Chromium Throne route does one bounded turn rather than automatic swarm co
   assert.doesNotMatch(one,/planVeniceContinuation|BOOT_ENVELOPE/);
   assert.match(one,/ritsu_session_tab_missing_no_auto_rotation/);
   assert.match(one,/ritsuChatReceipts/);
+  const composerCheck=one.indexOf('await requireRitsuPromptComposer(tab.id)');
+  const unknownReceipt=one.indexOf("receipts[turnKey] = {state: 'unknown'");
+  const chatSend=one.indexOf('func: submitChatGptPrompt');
+  assert.ok(composerCheck>0 && unknownReceipt>composerCheck && chatSend>unknownReceipt,
+    'signed-out ChatGPT must be rejected before the at-most-once send receipt');
+  assert.match(source,/function probeRitsuPromptComposer\(\)/);
+  assert.match(source,/ritsu_chatgpt_login_required/);
 });
