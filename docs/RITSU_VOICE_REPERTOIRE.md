@@ -1,5 +1,23 @@
 # Ritsu registered voice repertoire, 2026-10-22
 
+## Current live Pocket-only repertoire (2026-10-23)
+
+**This section is authoritative over the historical Qwen profile table below.** The user requested that the existing **Pocket TTS clones** be connected to the everyday Ritsu voice path, with **no old Qwen ('Quinn') voices**. A standalone Upset voice is unnecessary: **upset aliases Somber**. The Pocket engine and existing phone relay were wired and tested on THECAULDRON on Oct 23.
+
+| Public profile | Actual engine/state | Pitch preparation | Live status |
+|---|---|---|---|
+| normal, warm (default) | Pocket edited no-laugh Cheesecake clone; SHA256 6D619A92B6F17C4DF4163919E690FAFADD48C285A0773AE01EFDE7BAA510ED07 | -1 baked into reference | Selected live default |
+| happy, delighted | Pocket happy_00112 user-accepted original clone; SHA256 47089F6F552D9E8FDEF599C3917B958FE4850CCD9B875662996F77214F5DD3A6 | Original pitch, no new shift | Official existing Pocket clone |
+| amused | Pocket laughing_00044; SHA256 6F878B05D4227E10B43BB0AA8A87C6CBDF909B9CCA0F4A845E28C6541F17D9FE | -1 baked into reference | Selected |
+| somber, upset | Pocket Personal Affirmation; SHA256 51C7B4F55361082ED23ABB56E1F7E9878D4CA26DA5740349858BDBDF2A4CA0BD | -1 baked into reference | One shared voice state; Upset alias only |
+| whisper | Pocket approved whispered source; SHA256 B99EB2E16612E8B8C3E3A96F74BD631676CC79071779537FD94C564DB5796BE5 | -1 baked into the source | Selected |
+
+**Live API**: 127.0.0.1:10205, Pocket-only /tts and /v1 compatibility routes. Relay: the existing Tailscale 19643 with optional enumerated profile and default normal. Home Center cloud tickets retain fixed compatibility voice ID warm-v1 even though synthesis is Pocket; local ticket worker and sender now route to 10205. Qwen engine port 19645 processes stopped. Profile state SHA is part of the local speech cache key; no stale audio bleed. Source of truth and operational hard gates: docs/RITSU_PHONE_AUDIO_LAWS.md v1.5. Source version control: tools/campaigns/ritsu_pocket_repertoire_server_v2.py and tools/campaigns/ritsu_pocket_v2_deployed/. THECAULDRON at-login scheduled tasks keep the Pocket supervisor and cloud ticket worker available.
+
+**Deployment distinction:** functions/ritsu_voice_profiles.json now reflects this Pocket selection in GitHub. The deployed cloud profile-list operation may still return older labels until the updated Firebase function is deployed. The local cloud ticket worker and relay were verified to synthesize via Pocket, not Qwen. Do not falsely treat a GitHub commit as cloud deployment. User audible HEARD verdict still outstanding for the cutover canaries.
+
+---
+
 ## Authority and scope
 
 Home Center voice identity is versioned in `functions/ritsu_voice_profiles.json`. The catalog was reconstructed from the actual Windows `C:\Users\dclar\workspace\ritsu-voice-repertoire\repertoire-manifest.json` plus `emotion-batch.py` used to produce the upset and somber auditions. Local voice reference WAVs remain exclusively on THECAULDRON, not in GitHub or Firebase. A worker must use the registered IDs and reference texts, not discover or invent settings.
