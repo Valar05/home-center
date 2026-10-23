@@ -220,15 +220,21 @@ public final class RitsuControlService extends Service {
         if (mode != ListeningPolicy.Mode.RECOGNIZING) return;
         if (recognitionTimeout != null) mainHandler.removeCallbacks(recognitionTimeout);
         recognitionTimeout = null;
-        if (success) consecutiveErrors = 0;
-        else ++consecutiveErrors;
+        // Silence/no-match is an expected idle condition, not provider failure.
+        // Re-arm it slowly, without tripping the hardware-failure circuit breaker.
+        boolean expectedIdle = !success && ("No matching words heard".equals(lastProblem)
+                || "No speech detected before timeout".equals(lastProblem)
+                || "No transcript returned by recognizer".equals(lastProblem)
+                || lastProblem.startsWith("Speech session timed out"));
+        if (success) { consecutiveErrors = 0; lastProblem = ""; }
+        else if (!expectedIdle) ++consecutiveErrors;
         if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
             failCapture("Recognition failed repeatedly; reopen Ritsu to try again. "
                     + lastProblem);
             return;
         }
         final int epoch = sessionGeneration;
-        final int delay = success ? 450 : 1800;
+        final int delay = success ? 450 : (expectedIdle ? 1500 : 2300);
         recognitionStatus = success ? "Rearming microphone for next phrase"
                 : "Recognition paused; retrying after provider error";
         nextRecognition = () -> {
