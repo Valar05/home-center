@@ -198,6 +198,55 @@ def collect():
         return 1
     return 0 if complete else 4
 
+
+def silence_probe():
+    """Read-only PCM onset report on the same retained receiver WAVs.
+
+    Silence is not trimmed here. The helper only makes conservative estimates
+    using native audio samples and retains the earlier diagnosis/status.
+    """
+    import importlib.util
+    helper_path = Path(__file__).with_name("ritsu_pcm_silence_guard.py")
+    if not helper_path.is_file():
+        copy_receipt("RITSU_SILENCE_PROBE_UNAVAILABLE\nMISSING=" + str(helper_path)
+                     + "\nAUDIO_UNCHANGED=1")
+        return 5
+    spec = importlib.util.spec_from_file_location("ritsu_pcm_silence_guard", helper_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    candidates = sorted(READY.glob("*.wav"))[-8:] if READY.is_dir() else []
+    if not candidates:
+        copy_receipt("RITSU_SILENCE_PROBE_INCOMPLETE\nNO_RETAINED_WAVS\nAUDIO_UNCHANGED=1")
+        return 4
+    reports = []
+    for path in candidates:
+        try:
+            reports.append(module.inspect(path))
+        except (OSError, ValueError, wave.Error) as exc:
+            reports.append({"file": path.name, "error": type(exc).__name__})
+    report = {
+        "schema": "ritsu.phone-gap.silence-probe.v1",
+        "collectedAt": now(),
+        "device": "ANDROID_TERMUX",
+        "wavs": reports,
+        "warning": "PCM amplitude estimates, not speech/phoneme recognition; no live audio changes",
+        "auditionBeforeAnyTrim": True,
+        "livePipelineModified": False,
+    }
+    result_path = STATE / ("silence-" + dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ") + ".json")
+    dump_atomic(result_path, report)
+    append_receipt({"kind": "silence-probe", "report": str(result_path),
+                    "wavs": len(reports)})
+    summary = ["RITSU_SILENCE_PROBE=READ_ONLY", "WAVS=" + str(len(reports))]
+    for row in reports:
+        summary.append(row["file"].split("_", 1)[0] + " leading_quiet_ms="
+                       + str(row.get("leadingQuietMs", "UNKNOWN")) + " candidate_cut_ms="
+                       + str(row.get("safeCandidateCutMs", 0)))
+    summary.extend(["REPORT=" + str(result_path), "AUDIO_UNCHANGED=1",
+                    "NOTE=CAN_CUT_ONLY_AFTER_AUDITION"])
+    copy_receipt("\n".join(summary))
+    return 0 if all("error" not in x for x in reports) else 4
+
 def worker_alive(record):
     pid = record.get("workerPid")
     if not isinstance(pid, int):
@@ -256,7 +305,7 @@ def stop():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=["run", "resume", "status", "receipts", "follow",
-                                            "stop", "recover", "_collect"])
+                                            "stop", "recover", "silence", "_collect"])
     action = parser.parse_args().action
     if action == "_collect":
         return collect()
@@ -264,6 +313,8 @@ def main():
         return launch()
     if action == "stop":
         return stop()
+    if action == "silence":
+        return silence_probe()
     if action == "status":
         s = read_status()
         copy_receipt("RITSU_GAP_STATUS\nPHASE=" + str(s.get("phase"))
