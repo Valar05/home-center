@@ -54,11 +54,14 @@ jobs:
           grep -q 'SpeechRecognizer.createSpeechRecognizer' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/SystemSpeechSession.java
           grep -q 'capture.stop()' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
           grep -q 'InputType.TYPE_TEXT_FLAG_AUTO_CORRECT' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'ACTION_SPEAK_ONCE' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'transcriptRevision' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'displayHandler.postDelayed' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
 
       - name: Publish isolated Android debug APK (not deployed)
         uses: actions/upload-artifact@v4
         with:
-          name: ritsu-control-v0.4-system-asr-debug-apk
+          name: ritsu-control-v0.5-speech-observability-debug-apk
           path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
