@@ -22,11 +22,28 @@ PAUSE = ROOT / 'RITSU_WARM_ASMR_MAINTENANCE'
 DIRECTORY = Path(os.environ.get('LOCALAPPDATA', str(Path.home()))) / 'RitsuWarmTicketWorker'
 CREDENTIALS = DIRECTORY / 'worker_token.json'
 JOURNAL = DIRECTORY / 'tickets'
+TIMING = DIRECTORY / 'timing'
 SERVER = os.environ.get('RITSU_VOICE_TICKET_ORIGIN', 'https://us-central1-home-center-dclar.cloudfunctions.net/ritsuVoice').rstrip('/')
 WORKER = 'cauldron-ritsu-warm-01'
 RECEIPT = re.compile(r'^ENQUEUED_CHUNK\s+(\d+)\s+of\s+(\d+)\s+relay\s+([a-f0-9]{16,80})\b')
 SAFE_ID = re.compile(r'^[A-Za-z0-9_.:-]{6,160}$')
 REGISTERED_PROFILES = frozenset(('normal', 'whisper', 'amused', 'happy', 'upset', 'somber'))
+
+
+def trace_ticket(ticket_id, event):
+    """Best-effort same-clock trace; do not record text or credentials."""
+    if not SAFE_ID.fullmatch(str(ticket_id)):
+        return
+    try:
+        import datetime
+        TIMING.mkdir(parents=True, exist_ok=True)
+        stamp = {"turnId": ticket_id, "event": event, "seq": 0,
+                 "utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="milliseconds"),
+                 "monotonic_ns": time.monotonic_ns()}
+        with (TIMING / ("worker-" + ticket_id + ".jsonl")).open("a", encoding="utf-8") as out:
+            out.write(json.dumps(stamp, separators=(",", ":")) + "\n")
+    except OSError:
+        pass
 
 
 def post(route, payload, token=None):
@@ -131,9 +148,11 @@ def dispatch(ticket):
         source = Path(temp)/'dialogue.txt'
         source.write_text(text, encoding='utf-8')
         # Fixed program and fixed argument names; dialogue never interpolated into a shell.
-        proc = subprocess.run([str(PYTHON), str(SENDER), '--text-file', str(source), '--profile', profile],
+        trace_ticket(ticket['ticketId'], 'worker_sender_start')
+        proc = subprocess.run([str(PYTHON), str(SENDER), '--text-file', str(source), '--profile', profile, '--turn-id', ticket['ticketId']],
                               cwd=str(ROOT), capture_output=True, text=True, timeout=1100,
                               creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+        trace_ticket(ticket['ticketId'], 'worker_sender_returned')
         if proc.returncode != 0:
             return {'status': 'failed', 'errorCode': 'SENDER_FAILED'}
         ids = []
@@ -167,6 +186,7 @@ def process_ticket(job):
     name = job.get('ticketId', '')
     if not SAFE_ID.fullmatch(name):
         raise RuntimeError('Rejected malformed ticket id')
+    trace_ticket(name, 'worker_claim')
     digest = job.get('textSha256', '')
     record_file = JOURNAL / (name + '.json')
     if record_file.exists():
@@ -186,6 +206,7 @@ def process_ticket(job):
     except Exception:
         result = {'status': 'failed', 'errorCode': 'LOCAL_EXECUTION_ERROR'}
     durable_record(name, {'phase': 'complete', 'textSha256': digest, 'result': result})
+    trace_ticket(name, 'worker_local_complete')
     return result
 
 
@@ -215,6 +236,7 @@ def main():
             name = job.get('ticketId', '')
             result = process_ticket(job)
             post('tickets/' + name + '/complete', result, token)
+            trace_ticket(name, 'worker_cloud_completion_ack')
             print('TICKET', name, result['status'], len(result.get('relayIds', [])), flush=True)
         except KeyboardInterrupt:
             break
