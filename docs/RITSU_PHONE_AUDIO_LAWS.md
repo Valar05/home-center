@@ -1,5 +1,17 @@
 # RITSU PHONE AUDIO LAWS v1.0
 
+## OCTOBER 23, 2026 — GPU AND POCKET TIMING FORENSICS: PAUSE MPV CUTOVER
+
+**Owner asked for GPU occupancy and actual timestamps before further Android player investment. v4 remains STAGED, NOT LIVE, and its cutover is on hold.** Windows nvidia-smi snapshot at `2026-10-23T22:43:36Z`: RTX 3050 Ti 4GB at **0% utilization, 0 MB VRAM used, no GPU compute process**; Pocket CPU model `loaded`, queue=0, main pythonw system RAM ~982MB. This shows no GPU competition *at observation time* and no evidence of GPU contention causing earlier delays.
+
+Canonical immutable Pocket sender/worker trace analysis:
+- Phone HEARD test seq121-123: text 150/196/164 chars; Pocket generation 5.08/6.19/5.30s, audio WAV 7.04/9.44/9.12s; relay enqueue UTC 22:27:30.976, 22:27:38.458, 22:27:45.027. First next WAV relay arrived 7.482s later, **0.442s beyond** prior 7.04s audio; third arrived 6.569s later than second, **2.871s potential overlap**. These are relay timestamps, NOT acoustic gap measurements.
+- Two more real sessions reveal much larger PRE-SYNTH delays for the second unit: `rv-mausoleum-formation-20261023-1739` previous relay to next worker CLAIM **16.657s** and `rv-mausoleum-passage-20261023-1735` **16.552s**. Full relay 1→2 interval **27.482s / 24.968s** against prior initial WAV length **6.24s / 7.12s**. Only **~10.17s / 7.88s** of this was Pocket generation. Later within-session worker claim intervals **0.5–0.9s** and later Pocket render **8–11s** for WAVs lasting **~13–18s**. These upstream delays, possibly agent late ticket creation or queue scheduling, must be checked before calling Android solely responsible. User may have heard roughly five-second local player pauses IN ADDITION to these larger timing holes; don't invent a single total acoustic number.
+
+**IMPORTANT RETUNE:** The prior 90–140-character initial and 180–300-character later composition lengths were *provisional*. A SHORT first clip of ~6s cannot hide the ~9–11s required to synthesize a 250–300-character second clip on the serial CPU Pocket model, even when the next ticket is submitted promptly. Prefer a **continuity-aware agent choice**: next segment predicted render + worker/relay margin should fit within current segment's actual playback duration, or choose a longer first complete thought (~180–230 characters if natural), a shorter immediate second thought, or preprepare/dispatch tickets as early as possible. **These ranges are never automatic text boundaries.** Do not delay or truncate real prose to satisfy a formula; every agent-authored unit ends naturally and at most 450 chars per Pocket ticket.
+
+**Priority repair now:** Determine when subsequent cloud speech tickets were actually CREATED/ENQUEUED relative to previous relay delivery; optimize early dispatch/worker lookahead and avoid a long first-to-second hole. Separately retain Android phone player startup evidence. The real v3 test produced three separate starts; mpv may help THAT transition but cannot make an undelivered recording play. No new voice/relay/TTS/receiver changes during diagnosis; maintain user HEARD acceptance gate.
+
 
 ## OCTOBER 23, 2026 — PERSISTENT ANDROID PLAYER V4 READY FOR GUARDED DEVICE TEST, NOT YET LIVE
 
