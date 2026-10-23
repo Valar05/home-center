@@ -1,5 +1,23 @@
 # CURRENT MISSION: Pocket TTS voice experiments and accepted voices (updated 2026-10-23)
 
+## New Delighted reference experiment, avoiding pitch-only fixes (2026-10-23)
+
+**Owner verdict on prior −1/−2 Delighted pitch comparison:** Delighted still feels like a different person/voice relative to the rest of Ritsu's repertoire, and an additional −1 reference semitone to −2 did **not** improve identity. So **do NOT promote the −2 happy_00112 Delighted state**. A different source performance is more plausible than further pitch adjustment. Owner says other voices mostly sound similar; the Warm/Desire voice still lacks a certain amount of tenderness but is otherwise acceptable at −1. Upset could be reserved for roleplay, not required as everyday personality.
+
+New targeted Delighted candidate from **different** `ex04_happy_00111.wav`, already owner-auditioned earlier as too exuberant/friendly for Warm, therefore plausibly appropriate to Delighted while better anchoring vocal identity. Kept same base pitch: reference −1 semitone via Rubberband formant-preserved directly on ORIGINAL, tempo=1, pitch=0.9438743126816935, output PCM16 mono 48kHz. NO extra/output pitch shift. No original state changed, no live promotion.
+
+Original source: `C:/Users/dclar/workspace/ritsu-expresso-auditions/ex04_happy_00111.wav`, SHA256 `D1A4811384DC02990DC1A931D78B2EC2598730ED70988959E44143CF352B7921`.
+New artifacts under `C:/Users/dclar/Documents/Codex/Venice/PocketTTS/voice-candidates/delighted-alternate-happy00111-20261023/`: (1) `ex04-happy00111-minus1-formant-pcm16.wav` SHA256 `B5E005AA4F5DAE71E8F89FE9425BF36F2DC9D0F3202C838B45B60C53428C33E1`, 3.071292s; (2) `ritsu-delighted-alternate-happy00111-minus1.safetensors` SHA256 `F0136C7AF7424314B3BC51F5234CCE63A95B210372C3D43591E6E6DE207F17C5`; (3) `ritsu-delighted-alternate-happy00111-minus1-test-playable.wav` SHA256 `4385A1261F3F80D1F51DDFB7244255062185339F2D96D60F22916FE32C041155`, 3.16s. Pocket temp=0.7, generated sentence **exactly** `Oh, that's wonderful! I'm so glad it worked out.`. WAV finalizer changed only headers, PCM sample data verified byte-identical.
+
+Waveform QA receipt `hands-ritsu-new-delighted-happy111-threeway-signal-qa-20261023`, exit 0: compare Warm −1 4.84s, previous Delighted happy00112 −1 3.72s, NEW Delighted happy00111 −1 3.16s; new RMS −26.89dBFS, zcr .096, peak .355, no clipping/no noise-like intro.
+
+Desktop auditory comparison played one shot with 3s gaps, *in order*: (1) Warm Ocean Dream −1 baseline, (2) Delighted original source happy00112 −1, (3) **new alternate Delighted happy00111 −1**, on THECAULDRON interactive session 1 at 10:24:05–10:24:24 CDT; each FFplay exit=0. Receipt `hands-ritsu-delighted-happy111-compare-old-and-warm-playonce-20261023`. Owner has **not yet confirmed hearing or new alternate Delighted verdict**, do not mark accepted. Existing prior accepted original-pitch happy00112 Delighted preserved; later shifted happy00112 variants are not automatically approved.
+
+Reference prep receipt `hands-ritsu-delighted-alt-happy111-minus1-prep-20261023`, export `hands-ritsu-delighted-alt-happy111-minus1-export-20261023`, generation `hands-ritsu-delighted-alt-happy111-minus1-synthesis-20261023`. Do not solve identity mismatch by blindly shifting further. Next get owner hearing verdict on new source and compare timbre similarity vs Warm/Amused; if it still sounds dissimilar, try using Warm as common identity anchor or alternative multi-utterance concatenated reference with carefully controlled emotion, but don't overwrite defaults.
+
+---
+
+
 ## Owner correction: −2 experiment is DELIGHTED, not Desire (2026-10-23)
 
 **Explicit newest user correction:** 'Whoops. Not desire, delighted, desire was fine though it is lacking a certain amount of warmth.' This supersedes the previous ambiguous request to shift 'the desire voice' one more semitone. Thus **only DELIGHTED needs the new -2 semitone experiment**, while **Desire/Ocean Dream Warm remains at -1 semitone**. Its warmth/voice-identity concerns should be explored through source/performance selection, not assumed to be solvable with lowering pitch. Upset can remain a roleplay-special-purpose candidate, not ordinary conversation.
