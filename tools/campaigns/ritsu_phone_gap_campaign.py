@@ -172,11 +172,14 @@ def collect():
         }
         receipt_path = STATE / ("result-" + dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ") + ".json")
         dump_atomic(receipt_path, report)
-        append_receipt({"kind": "diagnostic-completed", "path": str(receipt_path),
+        complete = trace_health == "OK" and report["analysis"]["completedPairs"] > 0
+        append_receipt({"kind": "diagnostic-completed" if complete else "diagnostic-incomplete",
+                        "path": str(receipt_path),
                         "medianGapSeconds": report["analysis"]["medianGapSeconds"]})
-        save_status(phase="inspection-complete", report=str(receipt_path), workerPid=None,
-                    lastGoodStage="android-trace-audit", accepted=False)
-        copy_receipt("RITSU_GAP_INSPECTION_COMPLETE\n"
+        save_status(phase="inspection-complete" if complete else "inspection-incomplete",
+                    report=str(receipt_path), workerPid=None,
+                    lastGoodStage="android-trace-audit" if complete else None, accepted=False)
+        copy_receipt(("RITSU_GAP_INSPECTION_COMPLETE" if complete else "RITSU_GAP_INSPECTION_INCOMPLETE") + "\n"
                      + "TRACE=" + trace_health + "\n"
                      + "PAIRS=" + str(report["analysis"]["completedPairs"]) + "\n"
                      + "MEDIAN_GAP_SEC=" + str(report["analysis"]["medianGapSeconds"]) + "\n"
