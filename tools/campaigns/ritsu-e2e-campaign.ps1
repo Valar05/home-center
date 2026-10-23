@@ -93,7 +93,7 @@ try {
   $fromGit=(& git -C $SourceRepo show ($Revision+':tools/campaigns/ritsu-e2e-campaign.ps1')) -join [Environment]::NewLine
   if($LASTEXITCODE -ne 0){throw 'pinned_script_missing'}
   $here=[IO.File]::ReadAllText($PSCommandPath)
-  $normal={param($v) $v.Replace([Environment]::NewLine,[char]10.ToString()).TrimEnd([char]13,[char]10)}
+  $normal={param($v) $v.Replace([Environment]::NewLine,([char]10).ToString()).TrimEnd([char]13,[char]10)}
   if((& $normal $here) -cne (& $normal $fromGit)){throw 'running_script_not_from_pinned_commit'}
   $work=Join-Path $Root ('source-'+$Revision.Substring(0,12))
   if(-not(Test-Path $work)){Git @('-c','filter.lfs.smudge=','-c','filter.lfs.required=false','worktree','add','--detach',$work,$Revision)|Out-Null}
