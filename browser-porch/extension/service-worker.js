@@ -417,23 +417,76 @@ async function requireRitsuPromptComposer(tabId) {
   throw new Error('ritsu_chatgpt_composer_unavailable_before_send');
 }
 function probeRitsuPromptComposer() {
-  const composer = document.querySelector('#prompt-textarea, textarea[data-testid="prompt-textarea"], div[contenteditable="true"][data-testid="prompt-textarea"]');
+  // ChatGPT's current composer is a ProseMirror role=textbox with
+  // data-composer-markdown, NOT necessarily #prompt-textarea.
+  const composer = document.querySelector(
+    '[contenteditable="true"][data-composer-markdown][role="textbox"], ' +
+    '#prompt-textarea, textarea[data-testid="prompt-textarea"], ' +
+    '[contenteditable="true"][data-testid="prompt-textarea"]');
   const loginRequired = !composer &&
     Boolean([...document.querySelectorAll('a,button')].some((node) =>
       /^(log in|sign in)$/i.test((node.textContent || '').trim())));
-  return {ready: Boolean(composer), loginRequired};
+  return {ready: Boolean(composer && composer.getClientRects().length), loginRequired};
 }
 
 async function submitChatGptPrompt(prompt) {
-  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); let composer;
-  for (let i = 0; i < 100; i += 1) { composer = document.querySelector('#prompt-textarea, textarea[data-testid="prompt-textarea"], div[contenteditable="true"][data-testid="prompt-textarea"]'); if (composer) break; await sleep(100); }
-  if (!composer) return {ok: false, error: 'ChatGPT composer not found'};
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const findComposer = () => document.querySelector(
+    '[contenteditable="true"][data-composer-markdown][role="textbox"], ' +
+    '#prompt-textarea, textarea[data-testid="prompt-textarea"], ' +
+    '[contenteditable="true"][data-testid="prompt-textarea"]');
+  let composer;
+  for (let i = 0; i < 60; i += 1) {
+    composer = findComposer();
+    if (composer && composer.getClientRects().length) break;
+    await sleep(100);
+  }
+  if (!composer || !composer.getClientRects().length)
+    return {ok: false, error: 'ChatGPT visible composer not found'};
+  const beforeUserCount = document.querySelectorAll('[data-message-author-role="user"]').length;
   composer.focus();
-  if (composer instanceof HTMLTextAreaElement || composer instanceof HTMLInputElement) { const setter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(composer), 'value')?.set; if (setter) setter.call(composer, prompt); else composer.value = prompt; composer.dispatchEvent(new Event('input', {bubbles: true})); }
-  else { composer.textContent = prompt; composer.dispatchEvent(new InputEvent('input', {bubbles: true, inputType: 'insertText', data: prompt})); }
-  await sleep(100); const send = document.querySelector('button[data-testid="send-button"], button[aria-label*="send" i]');
-  if (send && !send.disabled) { send.click(); return {ok: true, method: 'button'}; }
-  composer.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', code: 'Enter', bubbles: true})); composer.dispatchEvent(new KeyboardEvent('keyup', {key: 'Enter', code: 'Enter', bubbles: true})); return {ok: true, method: 'enter'};
+  if (composer instanceof HTMLTextAreaElement || composer instanceof HTMLInputElement) {
+    const setter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(composer), 'value')?.set;
+    if (setter) setter.call(composer, prompt); else composer.value = prompt;
+    composer.dispatchEvent(new Event('input', {bubbles: true}));
+  } else {
+    // ProseMirror maintains its own document state. Assigning textContent and
+    // synthesizing an input event changes the DOM but NOT the editor state.
+    // insertText goes through Chromium's editing pipeline, letting the
+    // editor receive real beforeinput/input and enable its send button.
+    const selection = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(composer);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    const inserted = document.execCommand('insertText', false, prompt);
+    if (!inserted) return {ok: false, error: 'ProseMirror rejected native insertText'};
+  }
+  const enteredText = (composer.innerText || composer.value || '').trim();
+  if (enteredText !== prompt.trim())
+    return {ok: false, error: 'Visible composer does not contain exact prompt'};
+  let send;
+  for (let i = 0; i < 20; i += 1) {
+    send = document.querySelector(
+      'button[data-testid="send-button"], button[aria-label="Send message"], ' +
+      'button[aria-label="Send prompt"], button[aria-label="Send"]');
+    if (send && !send.disabled && send.getClientRects().length) break;
+    await sleep(100);
+  }
+  if (!send || send.disabled || !send.getClientRects().length)
+    return {ok: false, error: 'ChatGPT send button not enabled; no dispatch'};
+  send.click();
+  // A click is not an acceptance receipt. Wait for the human-message DOM
+  // to contain the exact prompt. If the SPA navigates and context dies,
+  // outer at-most-once handling remains UNKNOWN, never automatically retry.
+  for (let i = 0; i < 80; i += 1) {
+    const users = [...document.querySelectorAll('[data-message-author-role="user"]')];
+    if (users.length > beforeUserCount &&
+        users.some(node => (node.innerText || node.textContent || '').includes(prompt)))
+      return {ok: true, method: 'button', userMessageObserved: true};
+    await sleep(100);
+  }
+  return {ok: false, error: 'Submit click not verified by ChatGPT user-message DOM'};
 }
 function inspectChatGpt() { const selectors = ['[data-message-author-role="assistant"]', 'article[data-turn="assistant"]']; let nodes = []; for (const selector of selectors) { nodes = [...document.querySelectorAll(selector)]; if (nodes.length) break; } const node = nodes.at(-1); const text = (node?.innerText || node?.textContent || '').trim(); const generating = Boolean(document.querySelector('button[data-testid="stop-button"], button[aria-label*="stop generating" i], button[aria-label*="stop streaming" i]')); return {assistantCount: nodes.length, text: text.slice(0, 120000), generating}; }
 function readLatestAssistant() { const selectors = ['[data-message-author-role="assistant"]', 'article[data-turn="assistant"]', '[data-testid^="conversation-turn-"] .markdown']; for (const selector of selectors) { const nodes = [...document.querySelectorAll(selector)]; const node = nodes.at(-1); const text = (node?.innerText || node?.textContent || '').trim(); if (text) return {ok: true, text: text.slice(0, 120000)}; } return {ok: false, error: 'No assistant response found in the selected worker conversation'}; }
