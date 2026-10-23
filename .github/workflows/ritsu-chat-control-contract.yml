@@ -32,6 +32,7 @@ jobs:
           node --check browser-porch/ritsu-initiated-chat.mjs
           node --check browser-porch/ritsu-initiated-chat-cli.mjs
           node --check functions/ritsu_chat_callback_api.js
+          node --check tools/campaigns/ritsu-mcp-chat-initiate.mjs
           node --check functions/home_center_mcp.js
           node --check browser-porch/ritsu-android-gateway.mjs
           node --check browser-porch/ritsu-android-gateway-runner.mjs
@@ -47,6 +48,7 @@ jobs:
           node --test browser-porch/ritsu-android-gateway.test.mjs
           node --test browser-porch/ritsu-initiated-chat.test.mjs
           node --test functions/ritsu_chat_callback_api.test.js
+          node --test tools/campaigns/ritsu-mcp-chat-initiate.test.mjs
           node -e "const fs=require('fs');const s=fs.readFileSync('functions/home_center_mcp.js','utf8');for(const x of ['ritsuChatCallbackOperationEntries()','ritsuChatCallbackRunOperation({admin, user, operation, args: operationArgs})']){if(!s.includes(x))throw Error('missing hosted MCP registration '+x)}"
           node --test browser-porch/ritsu-voice-return.test.mjs
           node --test browser-porch/relay.test.mjs
