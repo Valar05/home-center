@@ -46,3 +46,24 @@ test('redacted shape diagnostic cannot contain message text or canary nonce',()=
   assert.equal(x.diagnostic().terminalDone,true);
   assert.equal(x.diagnostic().textCandidate,true);
 });
+
+test('modern SSE accepted only with visible assistant content and explicit DONE, no legacy status field',()=>{
+  const x=new RitsuNetworkSse();
+  const msg={id:'modern-canary-1',author:{role:'assistant'},recipient:'all',
+    content:{content_type:'text',parts:[`This is the answer ${marker}.`]},metadata:{}};
+  const modern=frame({p:'',o:'add',v:{message:msg},c:0})+
+    frame({type:'message_marker',message_id:'modern-canary-1',marker:'user_visible_token'})+done;
+  for(const byte of Buffer.from(modern))x.push(Buffer.from([byte]));
+  const a=x.result({marker,requestFinished:true});
+  assert.equal(a.text,`This is the answer ${marker}.`);
+  assert.equal(x.diagnostic().finished,false);
+  assert.equal(x.diagnostic().terminalDone,true);
+});
+
+test('terminal DONE without user-visible mark is not a valid answer',()=>{
+  const x=new RitsuNetworkSse();
+  const msg={id:'hidden-1',author:{role:'assistant'},recipient:'all',
+    content:{content_type:'text',parts:[`Private ${marker}`]},metadata:{}};
+  x.push(Buffer.from(frame({p:'',o:'add',v:{message:msg},c:0})+done));
+  assert.throws(()=>x.result({marker,requestFinished:true}),/no_matching_final/);
+});
