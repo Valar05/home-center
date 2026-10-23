@@ -1,0 +1,54 @@
+{
+  "schema": "home-center.ritsu-e2e-campaign.v1",
+  "campaignId": "ritsu-chat-voice-e2e",
+  "mission": "Android speech/text -> Home Center CONTROL -> bound Chromium Throne ChatGPT -> verified CONTROL reply -> published Android feed -> approved Pocket TTS on existing 19643 phone relay",
+  "authority": "CAMPAIGN_ETIQUETTE Git Script Campaign Operating Rules, 2026-10-21; AGENTS.md; RITSU_PHONE_AUDIO_LAWS.md",
+  "execution": {
+    "host": "THECAULDRON",
+    "source": "Exact Git revision in disposable isolated worktree",
+    "entrypoint": "tools/campaigns/ritsu-e2e-campaign.ps1",
+    "controls": [
+      "Plan",
+      "Apply",
+      "Status",
+      "Receipts",
+      "Stop"
+    ],
+    "gateway": "Tailscale IPv4 only port 19646",
+    "originalAudio": "Preserve existing 19643 Pocket TTS",
+    "originalTailscaleServe": "Preserve existing 19645 mapping",
+    "originalBrowser": "Preserve consumer Chrome, primary 9234 and the user's ChatGPT tabs",
+    "isolatedBrowser": "Reuse only current test Chrome and existing explicitly bound chat tab; never auto-create"
+  },
+  "writable": [
+    "%LOCALAPPDATA%\\HomeCenter\\RitsuE2E\\campaign\\**",
+    "%LOCALAPPDATA%\\HomeCenter\\RitsuE2E\\extension\\service-worker.js",
+    "%LOCALAPPDATA%\\HomeCenter\\RitsuE2E\\extension\\sidepanel.html",
+    "%LOCALAPPDATA%\\HomeCenter\\RitsuE2E\\extension\\throne-panel.mjs",
+    "Task Scheduler: HomeCenter-RitsuE2E-PhoneGateway"
+  ],
+  "preserved": [
+    "Main Home Center working tree with local edits",
+    "Original ChatGPT user tabs and profile",
+    "Existing Pocket/Termux/Tailscale audio machinery",
+    "Original Windows services 9234/19643/19645",
+    "Original Android application until explicit install"
+  ],
+  "doneOnlyWhen": [
+    "Exact Git SHA verified",
+    "Local tests passed",
+    "Staged extension and hashes verified",
+    "Detached phone gateway started with no inherited shell",
+    "Bearer health 200 and unauthorized 401 on 19646",
+    "Real ChatGPT submitted user bubble plus verified response",
+    "Android pair plus speech/typed submit plus visible reply",
+    "User confirms original phone audio playback"
+  ],
+  "neverCallAccepted": [
+    "CI green only",
+    "Browser tab opened",
+    "Command leased",
+    "Phone text queued locally",
+    "Audio enqueued without human hearing"
+  ]
+}
