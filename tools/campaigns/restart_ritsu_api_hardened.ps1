@@ -102,27 +102,3 @@ try {
     }
     throw
 }
-)
-    if(!$expectedOwner){
-        throw 'API TCP listener not owned by canonical process or its Python venv child'
-    }
-    $voices=Invoke-RestMethod 'http://127.0.0.1:19645/v1/voices' -Headers $headers -TimeoutSec 6
-    foreach($name in @('normal','whisper','amused','happy','upset','somber')){
-        if($voices.profiles.$name.pitchSemitones -ne -1){throw ('Runtime profile mismatch '+$name)}
-    }
-    if(!$hadPause){Remove-Item -LiteralPath $pause -Force}
-    Record 'ready' ('New canonical API loaded; owner PID '+$started.Id+'; six profiles at -1; maintenance restored')
-}catch{
-    $problem=$_.Exception.Message
-    Record 'failed' $problem
-    # Preserve the maintenance lock on error: never release stuck tickets into unknown audio.
-    if(!(Test-Path $pause)){New-Item -ItemType File -Force -Path $pause | Out-Null}
-    if($stopped -and (Test-Path $backup)){
-        $newProcesses=@(VoiceProcesses)
-        foreach($proc in $newProcesses){Stop-Process -Id $proc.ProcessId -Force -ErrorAction SilentlyContinue}
-        if($replaced){Copy-Item -LiteralPath $backup -Destination $api -Force}
-        Start-Process -FilePath $python -ArgumentList ('"'+$api+'"') -WorkingDirectory $root -WindowStyle Hidden
-        Record 'rollback' ('Original API restored after: '+$problem)
-    }
-    throw
-}
