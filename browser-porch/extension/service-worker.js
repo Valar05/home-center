@@ -64,6 +64,8 @@ async function handle(message = {}) {
     case 'throne.run': return runCommission(String(message.commission || ''), message.newWorker === true, String(message.context || ''), {jobId: String(message.jobId || ''), workerTabId: Number(message.workerTabId || 0) || null});
     case 'throne.swarm.run': return runStoredSwarm({source: String(message.source || 'sidepanel')});
     case 'throne.relay.poll': return pollRelay();
+    case 'ritsu.chat.bind': return bindRitsuChatSession(message);
+    case 'ritsu.chat.sessions': return ritsuChatSessionStatus();
     case 'throne.capture': return captureLatest(Number(message.workerTabId || 0) || null, String(message.jobId || ''));
     case 'throne.inspect': return inspectWorker(Number(message.workerTabId || 0) || null);
     case 'throne.resetContext': await chrome.storage.local.set({throneContext: DEFAULT_CAMPAIGN_CONTEXT}); return {ok: true, context: DEFAULT_CAMPAIGN_CONTEXT};
@@ -154,9 +156,10 @@ async function executeOneRitsuTurn(turn) {
       try { tab = await requireChatTab(sessions[key].tabId); }
       catch { throw new Error('ritsu_session_tab_missing_no_auto_rotation'); }
     } else {
-      tab = await createWorkerTab();
-      sessions[key] = {tabId: tab.id, channel: turn.channel, sessionId: turn.sessionId};
-      await chrome.storage.local.set({ritsuChatSessions: sessions});
+      // Never create a Chrome tab as an accidental side effect of a phone
+      // message. Each conversation must first be assigned to one existing
+      // explicitly inspected tab. This prevents piles of empty ChatGPT tabs.
+      throw new Error('ritsu_session_unbound_explicit_existing_tab_required');
     }
     const before = await inspectWorker(tab.id);
     // Authentication/readiness is checked BEFORE the pre-send unknown receipt.
@@ -189,6 +192,61 @@ async function executeOneRitsuTurn(turn) {
   } finally {
     ritsuOneTurnRunning = false;
   }
+}
+
+/** Bind a trusted, explicitly named ChatGPT tab to one session.
+ * User-visible, deterministic and non-creating. No credentials or prompts.
+ * Caller is the local extension/sidepanel, never an unauthenticated web page. */
+async function bindRitsuChatSession(message = {}) {
+  const channel = String(message.channel || '');
+  const sessionId = String(message.sessionId || '');
+  const tabId = Number(message.tabId);
+  if (!['control','dialogue'].includes(channel) ||
+      !/^[A-Za-z0-9_.:-]{8,100}$/.test(sessionId) ||
+      !Number.isInteger(tabId) || tabId <= 0)
+    throw new Error('ritsu_binding_invalid');
+  const tab = await requireChatTab(tabId);
+  const key = channel + ':' + sessionId;
+  const {ritsuChatSessions = {}} =
+      await chrome.storage.local.get('ritsuChatSessions');
+  if (ritsuChatSessions[key] && ritsuChatSessions[key].tabId !== tabId)
+    throw new Error('ritsu_session_already_bound_no_rotation');
+  for (const [otherKey, other] of Object.entries(ritsuChatSessions)) {
+    if (otherKey !== key && Number(other?.tabId) === tabId)
+      throw new Error('ritsu_tab_owned_by_another_session');
+  }
+  const [probe] = await chrome.scripting.executeScript({
+    target: {tabId}, func: probeRitsuBindingTab
+  });
+  if (!probe?.result?.ready) throw new Error(
+    'ritsu_binding_requires_empty_authenticated_chatgpt_tab');
+  ritsuChatSessions[key] = {tabId, channel, sessionId};
+  await chrome.storage.local.set({ritsuChatSessions});
+  await appendReceipt({type:'ritsu_chat_session_bound',
+    at:new Date().toISOString(),channel,sessionId,tabId});
+  return {ok:true,channel,sessionId,tabId,url:tab.url};
+}
+function probeRitsuBindingTab() {
+  const composer = document.querySelector(
+    '[contenteditable="true"][data-composer-markdown][role="textbox"], ' +
+    '#prompt-textarea, textarea[data-testid="prompt-textarea"]');
+  return {ready: Boolean(composer && composer.getClientRects().length &&
+      !(composer.innerText || composer.value || '').trim() &&
+      document.querySelectorAll('[data-message-author-role="user"]').length === 0 &&
+      document.querySelectorAll('[data-message-author-role="assistant"]').length === 0)};
+}
+async function ritsuChatSessionStatus() {
+  const {ritsuChatSessions = {}, ritsuChatReceipts = {}} =
+      await chrome.storage.local.get(['ritsuChatSessions','ritsuChatReceipts']);
+  const tabs = await chrome.tabs.query({url:CHATGPT_ORIGIN+'/*'});
+  const liveIds = new Set(tabs.map(t=>t.id));
+  return {ok:true,tabCount:tabs.length,
+    sessions:Object.entries(ritsuChatSessions).map(([key,row])=>({
+      key,tabId:row.tabId,live:liveIds.has(Number(row.tabId))
+    })),
+    receiptStates:Object.entries(ritsuChatReceipts).slice(-30).map(([key,row])=>({
+      key,state:row.state,tabId:row.tabId
+    }))};
 }
 
 async function runStoredSwarm(meta = {}) {
