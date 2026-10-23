@@ -149,14 +149,15 @@ def dispatch(ticket):
         source.write_text(text, encoding='utf-8')
         # Fixed program and fixed argument names; dialogue never interpolated into a shell.
         trace_ticket(ticket['ticketId'], 'worker_sender_start')
-        # The agent authors sentence boundaries. Never split an already authored
-        # one-chunk ticket. Historical explicit multi-chunk cloud jobs alone
-        # opt into the original splitter until the cloud accepts chunk manifests.
+        # A cloud ticket is exactly one agent-authored passage, with no
+        # deterministic sentence or paragraph splitting by the sender.
+        # Several paragraphs require separate explicit agent-authored tickets
+        # with ordered delivery, not heuristic text chopping.
+        expected_chunks = ticket.get('expectedChunks')
+        if expected_chunks is not None and expected_chunks != 1:
+            return {'status': 'failed', 'errorCode': 'AGENT_AUTHORED_CHUNKS_REQUIRED'}
         args = [str(PYTHON), str(SENDER), '--text-file', str(source),
                 '--profile', profile, '--turn-id', ticket['ticketId']]
-        expected_chunks = ticket.get('expectedChunks')
-        if expected_chunks is not None and int(expected_chunks) > 1:
-            args.append('--legacy-split')
         proc = subprocess.run(args,
                               cwd=str(ROOT), capture_output=True, text=True, timeout=1100,
                               creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
