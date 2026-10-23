@@ -1,5 +1,12 @@
 # CURRENT MISSION: Pocket TTS voice experiments and accepted voices (updated 2026-10-23)
 
+## Approved Pocket Delighted voice and next Amused experiment (2026-10-23)
+
+- Owner **approved the new Pocket Delighted audition** with the exact words **"That will do very well!"** This is an auditory acceptance, distinct from earlier FFplay-completed receipt. Reference: existing `C:\Users\dclar\workspace\ritsu-expresso-auditions\ex04_happy_00112.wav`, SHA256 `6F5342EC0F32DB5276408ECA182D3CBC32A9F03E46CA6230B4161D4FE802400C`; it also powered the previously owner-approved Qwen Delighted Option 2. Pocket state: `C:\Users\dclar\Documents\Codex\Venice\PocketTTS\voice-candidates\ritsu-delighted-happy00112-pocket-20261023.safetensors`, SHA256 `47089F6F552D9E8FDEF599C3917B958FE4850CCD9B875662996F77214F5DD3A6`. Generated Pocket test words `Oh, that's wonderful! I'm so glad it worked out.` at temperature 0.7; playable WAV `ritsu-delighted-happy00112-test-20261023-playable.wav` SHA256 `C247EE991760DF7760910355CE293079C120C811C354CB3DBF62D5FD99B36423`, 3.72 seconds, nonstatic pass; desktop ticket `hands-ritsu-delighted-happy00112-pocket-playonce-20261023-0950` completed exit 0. Mark **voice accepted/keeper** but **not yet promoted into the live API nor verified on phone**.
+- Owner specifically says **do not add laughter to Delighted**. New separate instruction: **experiment with laughing/Amused Ritsu using the previously approved Amused reference**. Earlier repertoire manifest points at `C:\Users\dclar\workspace\ritsu-expresso-auditions\ex04_laughing_00044.wav`, SHA256 `CE3C953433BA90A82E05B5E0058230A92F510738F8DB91E3090860B88BD7C6FE`; originally approved Qwen amused words: `I did actually! the kids were watching "Animaniacs" over the weekend. I still love that show!`; source original audio in mono PCM16 48kHz, ~7.05 seconds. One new Pocket Amused candidate should be tested independently, with careful laughter quality check and no profile default changes. User is willing to experiment on Amused, not on Delighted.
+
+
+
 ## FINAL USER VERDICT: Pocket Desire clone auditions (2026-10-23)
 
 **Authoritative owner correction: Ocean Dream = Warm, Personal Affirmation = Somber candidate, Cheesecake Wish = REJECTED. This supersedes any earlier swapped descriptions and "verdict pending" text.** The user's numbering here refers to the order in which the three *Pocket clone* candidates were heard, **not** the numbering of the original Expresso source samples. Preserve both numbering systems:
