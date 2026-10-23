@@ -161,10 +161,25 @@ async function probe(){
       throw Error('bound_authenticated_test_tab_preflight_failed');
     await receipt({state:'observer_attached',revision:args.revision,tabId:tab.id});
     accepting=true;
-    const sent=await cdp.call('Runtime.evaluate',
-      {expression:send(prompt,existingBound()),returnByValue:true,awaitPromise:true});
-    if(sent.result?.value!==true||sent.exceptionDetails)throw Error('send_not_verified');
-    await receipt({state:'canary_sent_unverified',revision:args.revision,tabId:tab.id});
+    // Sending may navigate/destroy the page execution context after the
+    // browser already accepted the action. That is an uncertain ACK, never
+    // permission to send the same prompt again. A uniquely marked actual
+    // network answer is the only proof of submission and retrieval.
+    let sent=null,sendError=null;
+    try{
+      sent=await cdp.call('Runtime.evaluate',
+        {expression:send(prompt,existingBound()),returnByValue:true,awaitPromise:true});
+    }catch(e){sendError=String(e.message||e);}
+    if(sendError||sent?.result?.value!==true||sent?.exceptionDetails){
+      const grace=Date.now()+3000;
+      while(!candidates.size&&Date.now()<grace)await wait(100);
+      if(!candidates.size)throw Error('send_ack_unknown_and_no_network_request');
+      await receipt({state:'send_ack_uncertain_observe_only',revision:args.revision,
+        tabId:tab.id,conversationRequestCount:candidates.size,
+        reason:sendError?'cdp_send_context_uncertain':'send_result_unverified'});
+    }else{
+      await receipt({state:'canary_sent_unverified',revision:args.revision,tabId:tab.id});
+    }
     const deadline=Date.now()+90000;
     while(Date.now()<deadline){
       if(existsSync(path.join(state,'stop.json')))throw Error('owner_stopped');
