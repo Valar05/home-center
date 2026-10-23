@@ -1,6 +1,7 @@
 package com.homecenter.ritsucontrol;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.Activity;
 import android.app.StatusBarManager;
 import android.content.ComponentName;
@@ -10,12 +11,15 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.InputType;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /** User-visible gate for Android 14+ microphone foreground service.
  * Bubble permission and RECORD_AUDIO permission are separate opt-ins.
@@ -25,6 +29,8 @@ public final class MainActivity extends Activity {
     private static final int MIC_PERMISSION_REQUEST = 19645;
     private static final int OVERLAY_PERMISSION_REQUEST = 19646;
     private TextView status;
+    private EditText transcriptEditor;
+    private SpellingSuggestions spellchecker;
     private boolean pendingBubbleEnable;
 
     @Override public void onCreate(Bundle savedInstanceState) {
@@ -40,6 +46,28 @@ public final class MainActivity extends Activity {
         status.setTextSize(16);
         status.setPadding(0, dp(14), 0, dp(14));
         layout.addView(status);
+        spellchecker = new SpellingSuggestions(this);
+        transcriptEditor = new EditText(this);
+        transcriptEditor.setHint("Optional transcript or Gboard dictation");
+        transcriptEditor.setTextSize(17);
+        transcriptEditor.setMinLines(2);
+        transcriptEditor.setInputType(InputType.TYPE_CLASS_TEXT |
+                InputType.TYPE_TEXT_FLAG_MULTI_LINE |
+                InputType.TYPE_TEXT_FLAG_CAP_SENTENCES |
+                InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
+        transcriptEditor.setContentDescription("Editable transcript using your normal Gboard keyboard and suggestions");
+        layout.addView(transcriptEditor);
+        button(layout, "Use Google speech recognition (one phrase)",
+                "While local listening runs, hand the microphone to Android's system speech recognition for one utterance",
+                v -> send(RitsuControlService.ACTION_TRANSCRIBE));
+        button(layout, "Load recognized transcript", "Copy the latest recognized words into the editable Gboard text field",
+                v -> {
+                    transcriptEditor.setText(RitsuControlService.lastTranscript);
+                    transcriptEditor.setSelection(transcriptEditor.length());
+                });
+        button(layout, "See Android spelling suggestions",
+                "Show suggestions from the active Android system spellchecker without automatically rewriting words",
+                v -> checkSpellings());
 
         button(layout, "Start local listening", "Grant microphone permission and start local voice activity detection",
                 v -> requestListening());
@@ -61,7 +89,7 @@ public final class MainActivity extends Activity {
                 v -> refresh());
 
         TextView warning = new TextView(this);
-        warning.setText("LOCAL LISTENING ONLY. This build detects voice activity using microphone energy; it does not recognize words, record files, upload audio, send ChatGPT commands, or play Ritsu's voice. The bubble can be dragged and reopened from this screen or the Quick Settings tile. No boot-time microphone activation.");
+        warning.setText("GOOGLE/ANDROID SPEECH TEST. Start local listening, then recognize one phrase. The default Google/system service MAY process audio online; this app does not store audio or submit a ChatGPT command. Gboard autocomplete is available in the editable text field, but its private personal suggestions cannot be exported. Recognition is bounded and does not run continuously. Overlay is optional.");
         warning.setTextSize(14);
         warning.setPadding(0, dp(20), 0, dp(12));
         layout.addView(warning);
@@ -88,6 +116,32 @@ public final class MainActivity extends Activity {
         }
         // This call comes only from the visible Activity, never boot/background.
         send(RitsuControlService.ACTION_LISTEN);
+    }
+
+    private void checkSpellings() {
+        if (spellchecker == null) return;
+        String current = transcriptEditor.getText().toString();
+        spellchecker.check(current, (source, choices) -> runOnUiThread(() -> {
+            if (isFinishing() || isDestroyed()) return;
+            if (!source.equals(transcriptEditor.getText().toString())) return;
+            if (choices.length == 0) {
+                Toast.makeText(this, "No system spelling suggestions available", Toast.LENGTH_LONG).show();
+                return;
+            }
+            new AlertDialog.Builder(this)
+                    .setTitle("Suggested corrections (not Gboard private data)")
+                    .setItems(choices, (dialog, which) -> {
+                        transcriptEditor.setText(choices[which]);
+                        transcriptEditor.setSelection(transcriptEditor.length());
+                    })
+                    .setNegativeButton("Keep original", (dialog, which) -> dialog.dismiss())
+                    .show();
+        }));
+    }
+
+    @Override protected void onDestroy() {
+        if (spellchecker != null) spellchecker.close();
+        super.onDestroy();
     }
 
     private void enableBubble() {
@@ -158,14 +212,16 @@ public final class MainActivity extends Activity {
     private void refresh() {
         ListeningPolicy.Mode mode = RitsuControlService.liveMode;
         String microphone = mode == ListeningPolicy.Mode.LISTENING ? "ACTIVE: local energy detector"
+                : mode == ListeningPolicy.Mode.RECOGNIZING ? "SYSTEM ASR: provider may be capturing"
                 : mode == ListeningPolicy.Mode.MUTED ? "MUTED: audio capture released"
                 : mode == ListeningPolicy.Mode.ERROR ? "ERROR" : "OFF";
         status.setText("Microphone: " + microphone
                 + "\nLocal speech activity: " +
                     (mode == ListeningPolicy.Mode.LISTENING && RitsuControlService.voiceActivity
                         ? "Detected" : "No active speech")
-                + "\nSpeech recognition: NOT CONNECTED"
-                + "\nAudio upload: DISABLED"
+                + "\nSpeech recognition: " + RitsuControlService.recognitionStatus
+                + "\nLatest transcript (not sent): " + RitsuControlService.lastTranscript
+                + "\nChatGPT turn submission: NOT CONNECTED"
                 + "\nLast error: " + (RitsuControlService.lastProblem.isEmpty() ? "none" :
                     RitsuControlService.lastProblem)
                 + "\nFloating overlay permission: " + (Settings.canDrawOverlays(this) ? "granted" : "not granted"));
