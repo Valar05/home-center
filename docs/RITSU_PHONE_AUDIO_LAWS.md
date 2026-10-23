@@ -1,5 +1,17 @@
 # RITSU PHONE AUDIO LAWS v1.0
 
+
+## OCTOBER 23, 2026 — PERSISTENT ANDROID PLAYER V4 READY FOR GUARDED DEVICE TEST, NOT YET LIVE
+
+Owner confirmed Termux `mpv` package installed. Verified failure of prior v3: physical seq121-123 all emitted `playback_started` count1; zero batch starts, owner heard all three but reported no meaningful gap reduction. A replacement local-player path is now staged.
+
+`tools/campaigns/ritsu_phone_mpv_driver_v4.py`: mpv stays alive and accepts each original, ready WAV via private JSON IPC `loadfile append-play` **while the current speech is playing**, using `--gapless-audio=yes` and Termux OpenSL ES. Exact ordered `start-file` and `end-file(eof)` identify each PCM WAV; only an EOF advances canonical `receiver-v2/play.seq`. Fsync durable `playing` journal before sending to player; any uncertainty fails closed, no auto replay or skip. Existing v3 fetch/ACK and Tailscale relay19643 are unchanged, all voice profiles unchanged, Windows no-split sender remains max450 chars per complete agent-written thought. This is a **new local Android playback backend only**, not a new transport/TTS route.
+
+THECAULDRON verified 3 offline Python FIFO/error/format tests, v4 receiver Bash syntax, v4 campaign installer Bash syntax. **Real Termux mpv null-audio IPC self-test still pending and mandatory before live cutover.** The guarded repeatable entrypoint is `tools/campaigns/ritsu_phone_mpv_v4_campaign.sh`; it performs tests in a temporary isolated directory with no speaker audio, exact source SHA readback and original v3 backup, then only at drained/stable idle stops old receiver gracefully and starts v4. It installs `ritsu-mpv run|resume|status|receipts`. On active/ambiguous queues defer; no force stop. Only after user reports device ACTIVE and HEARD quality can we claim fix.
+
+**Hard voice contract unchanged:** one exact agent-authored naturally complete speech unit per Pocket WAV, hard 450 chars max/ticket, approximate first useful thought 90–140 then 180–300 as non-mechanical composition suggestions. No backend text segmentation, no PCM trimming, no invented playback success.
+
+
 ## OCTOBER 23, 2026 — OWNER HEARD V3 BUT REJECTED GAP PERFORMANCE
 
 Owner's definitive three-ticket listening result: **"I heard them but there was no real diminishment of the pauses."** Record **HEARD=true** for audible receipt of all three sentences-plus complete-thought units, but **GAP_FIX_ACCEPTANCE=FAILED**. Source SHA `55c0fb71168573145de842bf217a3136d942654053f0f785993de8b23abef015` remains active on Android v3, PID at activation `11198`; original v2 source backup preserved. Do not claim v3 gapless or retry the same three-part audio automatically.
