@@ -27,6 +27,7 @@ public final class RitsuControlService extends Service {
     static final String ACTION_START = "com.homecenter.ritsucontrol.START";
     static final String ACTION_LISTEN = "com.homecenter.ritsucontrol.LISTEN";
     static final String ACTION_TRANSCRIBE = "com.homecenter.ritsucontrol.TRANSCRIBE";
+    static final String ACTION_SPEAK_ONCE = "com.homecenter.ritsucontrol.SPEAK_ONCE";
     static final String ACTION_MUTE = "com.homecenter.ritsucontrol.MUTE";
     static final String ACTION_RESUME = "com.homecenter.ritsucontrol.RESUME";
     static final String ACTION_SHOW_BUBBLE = "com.homecenter.ritsucontrol.SHOW_BUBBLE";
@@ -40,6 +41,7 @@ public final class RitsuControlService extends Service {
     static volatile boolean voiceActivity = false;
     static volatile String lastProblem = "";
     static volatile String lastTranscript = "";
+    static volatile long transcriptRevision = 0;
     static volatile String recognitionStatus = "Not started";
 
     private ListeningPolicy.Mode mode = ListeningPolicy.Mode.OFF;
@@ -58,6 +60,7 @@ public final class RitsuControlService extends Service {
         voiceActivity = false;
         lastProblem = "";
         lastTranscript = "";
+        transcriptRevision = 0;
         recognitionStatus = "Not started";
         // Clear Stage A's stale "mic requested" marker.
         ControlStore.transition(this, ControlPolicy.ACTION_START);
@@ -84,7 +87,8 @@ public final class RitsuControlService extends Service {
             }
             @Override public void finalTranscript(String text) {
                 lastTranscript = text;
-                recognitionStatus = "Transcript ready for review; NOT sent";
+                transcriptRevision++;
+                recognitionStatus = "Recognized words received; NOT sent";
                 receipts.append("ASR_TEXT_READY", mode, mode, "private_transcript_not_logged");
                 // Finish only after the recognizer releases the microphone.
                 mainHandler.post(() -> completeRecognition());
@@ -116,6 +120,7 @@ public final class RitsuControlService extends Service {
         String action = intent == null ? ACTION_START : intent.getAction();
         if (ACTION_LISTEN.equals(action)) startListening();
         else if (ACTION_TRANSCRIBE.equals(action)) recognizeOnce();
+        else if (ACTION_SPEAK_ONCE.equals(action)) startAndRecognizeOnce();
         else if (ACTION_MUTE.equals(action)) mute();
         else if (ACTION_RESUME.equals(action)) resume();
         else if (ACTION_SHOW_BUBBLE.equals(action)) {
@@ -165,12 +170,31 @@ public final class RitsuControlService extends Service {
     /** Explicit one-shot speech-to-text. This is NOT a continuous
      * SpeechRecognizer loop: Android's service may limit session duration
      * and use Google's cloud. AudioRecord is released BEFORE ASR starts. */
+    /** One visible-user-triggered action, not a second hidden mode button.
+     * Starts an authorized FGS, then immediately hands the microphone to
+     * Android's default speech provider for exactly one utterance. */
+    private void startAndRecognizeOnce() {
+        if (mode == ListeningPolicy.Mode.RECOGNIZING) {
+            recognitionStatus = "Recognition already in progress";
+            return;
+        }
+        if (mode == ListeningPolicy.Mode.MUTED) {
+            recognitionStatus = "Mic muted: resume before recognition";
+            return;
+        }
+        if (mode == ListeningPolicy.Mode.OFF || mode == ListeningPolicy.Mode.ERROR) {
+            startListening();
+        }
+        if (mode == ListeningPolicy.Mode.LISTENING) recognizeOnce();
+    }
+
     private void recognizeOnce() {
         if (mode != ListeningPolicy.Mode.LISTENING || speechSession.isActive()) return;
         capture.stop();
         voiceActivity = false;
         applyTransition(ListeningPolicy.Event.RECOGNITION_STARTED, "vad_released_for_google_asr");
         lastTranscript = "";
+        recognitionStatus = "Requesting system speech recognizer";
         if (!speechSession.begin()) {
             applyTransition(ListeningPolicy.Event.RECOGNITION_FINISHED, "recognizer_unavailable");
             resume();
