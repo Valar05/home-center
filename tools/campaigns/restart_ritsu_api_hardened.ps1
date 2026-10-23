@@ -75,10 +75,13 @@ try {
     # Python virtualenv pythonw.exe is a shim: it spawns the base Python310
     # pythonw.exe child, and that child legitimately owns the listener.
     $actualOwner = Get-CimInstance Win32_Process -Filter ("ProcessId=" + $owners[0].OwningProcess)
-    $expectedOwner = $owners[0].OwningProcess -eq $started.Id -or
+    $expectedOwner = ($owners[0].OwningProcess -eq $started.Id) -or
                      ($actualOwner.ParentProcessId -eq $started.Id -and
                       $actualOwner.CommandLine.Contains('ritsu_voice_api_warm_v1.py') -and
-                      $actualOwner.ExecutablePath -match 'pythonw\\.exe
+                      $actualOwner.ExecutablePath -match 'pythonw\\.exe$')
+    if(!$expectedOwner){
+        throw 'API TCP listener not owned by canonical process or its Python virtualenv child'
+    }
     $voices=Invoke-RestMethod 'http://127.0.0.1:19645/v1/voices' -Headers $headers -TimeoutSec 6
     foreach($name in @('normal','whisper','amused','happy','upset','somber')){
         if($voices.profiles.$name.pitchSemitones -ne -1){throw ('Runtime profile mismatch '+$name)}
