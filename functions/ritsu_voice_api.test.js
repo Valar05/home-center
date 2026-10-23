@@ -50,8 +50,15 @@ test('retry with same id is idempotent and content cannot change',async()=>{
  await assert.rejects(api.runOperation({admin,user,operation:'ritsu.voice.speak',args:{...args,text:'New reply'}}),/Idempotency conflict/);
 });
 
-test('every registered voice receives the user-approved minus-one semitone pitch shift',()=>{
+test('Pocket-only active voice catalog has exactly five clones and Upset aliases Somber',()=>{
  const catalog=require('./ritsu_voice_profiles.json');
+ assert.match(catalog.engine,/Pocket TTS/);
+ assert.doesNotMatch(catalog.engine,/Qwen synthesis/i);
+ assert.equal(catalog.defaultProfile,'normal');
  assert.deepEqual(Object.keys(catalog.profiles).sort(),['amused','happy','normal','somber','upset','whisper']);
- for (const [name,profile] of Object.entries(catalog.profiles)) assert.equal(profile.pitchSemitones,-1,`${name} pitch must be -1 semitone`);
+ assert.equal(catalog.profiles.upset.aliasOf,'somber');
+ assert.equal(catalog.profiles.upset.voiceStateSha256,catalog.profiles.somber.voiceStateSha256);
+ assert.equal(catalog.profiles.happy.pitchSemitones,0);
+ for(const name of ['normal','whisper','amused','somber','upset']) assert.equal(catalog.profiles[name].pitchSemitones,-1);
+ assert.equal(new Set(Object.values(catalog.profiles).map(p=>p.voiceStateSha256)).size,5);
 });
