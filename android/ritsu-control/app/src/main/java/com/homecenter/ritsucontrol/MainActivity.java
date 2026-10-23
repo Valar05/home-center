@@ -2,11 +2,13 @@ package com.homecenter.ritsucontrol;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.StatusBarManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Insets;
 import android.graphics.Typeface;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
@@ -17,6 +19,8 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.text.InputType;
 import android.view.Gravity;
+import android.view.WindowInsets;
+import android.view.WindowManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,13 +37,13 @@ public final class MainActivity extends Activity {
     private static final int REQUEST_NOTIFICATIONS = 19644;
     private TextView headerStatus, details;
     private EditText composer;
-    private LinearLayout transcriptRows, advanced;
+    private LinearLayout transcriptRows;
     private ScrollView feedScroll;
     private ConversationLedger ledger;
     private String channel = "all";
-    private boolean pendingBubbleEnable, advancedVisible;
+    private boolean pendingBubbleEnable;
     private long lastFeedRevision = -1;
-    private long lastTranscriptRevision = -1;
+
     private final Handler updates = new Handler(Looper.getMainLooper());
     private final Runnable redraw = new Runnable() {
         @Override public void run() {
@@ -59,7 +63,29 @@ public final class MainActivity extends Activity {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(Color.rgb(19, 18, 28));
+        // Android 15+ draws behind the system gesture bar and keyboard.
+        // Apply actual status-bar, navigation and IME insets to the *whole*
+        // fixed-footer chat column so its composer/controls remain tappable.
         root.setPadding(dp(12), dp(12), dp(12), dp(8));
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        if (Build.VERSION.SDK_INT >= 30) {
+            getWindow().setDecorFitsSystemWindows(false);
+            root.setOnApplyWindowInsetsListener((view, windowInsets) -> {
+                Insets bars = windowInsets.getInsets(WindowInsets.Type.systemBars());
+                Insets keyboard = windowInsets.getInsets(WindowInsets.Type.ime());
+                Insets cutout = windowInsets.getInsets(WindowInsets.Type.displayCutout());
+                int top = SafeInsets.top(bars.top, cutout.top);
+                int bottom = SafeInsets.bottom(bars.bottom, keyboard.bottom);
+                view.setPadding(dp(12) + Math.max(bars.left, cutout.left),
+                        dp(12) + top,
+                        dp(12) + Math.max(bars.right, cutout.right),
+                        dp(8) + bottom);
+                return windowInsets;
+            });
+            root.requestApplyInsets();
+        } else {
+            root.setFitsSystemWindows(true);
+        }
 
         TextView title = label("Ritsu  ·  Conversation Hub", 21, true);
         root.addView(title);
@@ -111,19 +137,8 @@ public final class MainActivity extends Activity {
                 new LinearLayout.LayoutParams(0,dp(56),1));
         root.addView(controls);
 
-        advanced=new LinearLayout(this);
-        advanced.setOrientation(LinearLayout.VERTICAL);
-        advanced.setVisibility(View.GONE);
-        details=label("",12,false);
-        advanced.addView(details);
-        rowButton(advanced,"Ask Android to pause media for speaking",
-                v->send(RitsuControlService.ACTION_MEDIA_TALK));
-        rowButton(advanced,"Stop conversation",v->send(RitsuControlService.ACTION_STOP));
-        rowButton(advanced,"Floating mute bubble",v->enableBubble());
-        rowButton(advanced,"Hide floating bubble",v->send(RitsuControlService.ACTION_HIDE_BUBBLE));
-        rowButton(advanced,"Pin Quick Settings tile",v->addQuickTile());
-        rowButton(advanced,"Reload feed and status",v->{refreshStatus();renderFeed();});
-        root.addView(advanced);
+        // Advanced actions live in a dialog: never push the composer
+        // or the always-visible Listen/Mute footer under the keyboard.
         setContentView(root);
         renderFeed();
         refreshStatus();
@@ -229,9 +244,43 @@ public final class MainActivity extends Activity {
     }
 
     private void toggleAdvanced() {
-        advancedVisible=!advancedVisible;
-        advanced.setVisibility(advancedVisible?View.VISIBLE:View.GONE);
-        refreshStatus();
+        String[] labels = {
+                "Status and recognition errors",
+                "Ask Android to pause media",
+                "Stop conversation",
+                "Enable floating mute bubble",
+                "Hide floating bubble",
+                "Pin Quick Settings tile",
+                "Reload conversation feed"
+        };
+        new AlertDialog.Builder(this)
+                .setTitle("Ritsu controls")
+                .setItems(labels, (dialog, choice) -> {
+                    switch (choice) {
+                        case 0:
+                            new AlertDialog.Builder(this).setTitle("Voice diagnostics")
+                                    .setMessage(diagnosticText())
+                                    .setPositiveButton("Close", null).show();
+                            break;
+                        case 1: send(RitsuControlService.ACTION_MEDIA_TALK); break;
+                        case 2: send(RitsuControlService.ACTION_STOP); break;
+                        case 3: enableBubble(); break;
+                        case 4: send(RitsuControlService.ACTION_HIDE_BUBBLE); break;
+                        case 5: addQuickTile(); break;
+                        case 6: refreshStatus(); renderFeed(); break;
+                        default: break;
+                    }
+                }).setNegativeButton("Close", null).show();
+    }
+
+    private String diagnosticText() {
+        return "System recognizer: " + RitsuControlService.recognitionStatus
+                + "\\nLast recognized: " + RitsuControlService.lastTranscript
+                + "\\nMedia guard: " + RitsuControlService.mediaGuardStatus
+                + "\\nLast error: " + (RitsuControlService.lastProblem.isEmpty()
+                        ? "None" : RitsuControlService.lastProblem)
+                + "\\nLocal outbox only. Worker replies require Home Center."
+                + "\\nNo Ritsu voice playback in this build.";
     }
 
     private void enableBubble() {
@@ -262,19 +311,15 @@ public final class MainActivity extends Activity {
     }
 
     private void refreshStatus() {
-        ListeningPolicy.Mode mode=RitsuControlService.liveMode;
-        String state=mode==ListeningPolicy.Mode.LISTENING?"Listening for speech and silence"
-                :mode==ListeningPolicy.Mode.RECOGNIZING?"Transcribing finalized utterance"
-                :mode==ListeningPolicy.Mode.MUTED?"Microphone muted"
-                :mode==ListeningPolicy.Mode.ERROR?"Microphone error":"Microphone off";
-        headerStatus.setText(state+" · ChatGPT not connected");
-        if(details!=null)details.setText(
-                "System recognizer: "+RitsuControlService.recognitionStatus+
-                "\nLast recognized: "+RitsuControlService.lastTranscript+
-                "\nMedia/AEC: "+RitsuControlService.mediaGuardStatus+
-                "\nError: "+(RitsuControlService.lastProblem.isEmpty()?"None":RitsuControlService.lastProblem)+
-                "\nLocal outbox only. Worker feed requires Home Center."+
-                "\nNo real Ritsu playback or automatic barge-in yet.");
+        ListeningPolicy.Mode mode = RitsuControlService.liveMode;
+        String state = mode == ListeningPolicy.Mode.RECOGNIZING ? "Google mic on"
+                : mode == ListeningPolicy.Mode.MUTED ? "Mic muted"
+                : mode == ListeningPolicy.Mode.ERROR ? "Recognition error"
+                : mode == ListeningPolicy.Mode.LISTENING ? "Local mic active"
+                : "Mic off";
+        String detail = RitsuControlService.recognitionStatus;
+        if (detail.length() > 75) detail = detail.substring(0, 75);
+        headerStatus.setText(state + " · " + detail + "\\nChatGPT not connected");
     }
 
     @Override protected void onResume(){
