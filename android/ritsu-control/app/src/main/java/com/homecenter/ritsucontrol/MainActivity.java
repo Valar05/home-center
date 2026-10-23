@@ -33,7 +33,7 @@ import java.util.List;
  * while the default operation is continuous mic+silence segmentation.
  * IMPORTANT: local outbox is not remote Home Center / ChatGPT delivery. */
 public final class MainActivity extends Activity {
-    private static final int REQUEST_MIC = 19645;
+    private static final int REQUEST_MIC = 19646;
     private static final int REQUEST_NOTIFICATIONS = 19644;
     private TextView headerStatus, details;
     private EditText composer;
@@ -301,7 +301,7 @@ public final class MainActivity extends Activity {
         panel.setPadding(dp(18),dp(8),dp(18),0);
         EditText endpoint=new EditText(this);
         endpoint.setSingleLine(true);
-        endpoint.setHint("http://100.x.y.z:19645");
+        endpoint.setHint("http://100.x.y.z:19646");
         endpoint.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
         try {
             RitsuPairing.Pair prior=RitsuPairing.load(this);
