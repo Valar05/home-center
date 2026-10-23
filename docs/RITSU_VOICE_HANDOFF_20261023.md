@@ -1,5 +1,36 @@
 # CURRENT MISSION: Pocket TTS voice experiments and accepted voices (updated 2026-10-23)
 
+## Gap-investigation handoff: validated host lookahead; Android gap still open (2026-10-23)
+
+**Latest request:** measure the live per-sentence latency chain, eliminate audible between-sentence pauses with deterministic ordered lookahead, preserve five approved Pocket voice identities and canonical relay, AND switch Normal/Warm back from cleaned Cheesecake to Desire 02 −1-semitone **Pocket** clone.
+
+**Measured before any modifications:**
+- Verified live Windows services, hashes and PIDs for `PocketTTS/ritsu_pocket_repertoire_server_v2.py`, `embodiment_campaign/relay.py`, `tts_adapter.py`, `%LOCALAPPDATA%/RitsuWarmTicketWorker/worker.py`, `workspace/ritsu-faster-qwen3-tts/ritsu_say.py`, and relay stderr actual history.
+- Server uses `TTSModel.to('cpu')`, `ThreadPoolExecutor(max_workers=1)`, model lock. Ten independently queued sentences were accepted in **94ms**, fully synthesized in **17.89s**, duration **25.60s total**, median generated time **1.75s**; so model throughput is faster than playback if requests queued ahead.
+- Historical HTTP 12:30:40–12:31:42: nine relay POST /enqueue, median interval **5.5 seconds**; eight phone GET /audio, median interval **7.0 seconds**. Existing sender waited for sentence completion and relay enqueue BEFORE queuing next; receiver shell calls `termux-media-player play`, waits via `termux-media-player info`, and only then retrieves the next audio. ACK follows download before playback. No phone playback end timestamps; don't equate ACK and heard.
+
+**Smallest deployed Windows change and backups:**
+- Compiled and offline-tested new `ritsu_say.py` 4-sentence bounded queue lookahead while Pocket synthesizes serially; exact grammatical sentence splitting; reject oversized unsplittable sentences without truncating; FIFO `/v1/deliver`; no duplicated/reordered delivery; `test_ritsu_say_lookahead.py` ten-sentence mocked queue PASS. Live sender SHA256 `2922EFE848AAD961C96282EB491E4090FCE9DD0891E67CD01FBE1D357AA24B3D`.
+- Instrumented Windows worker cloud claim/dispatch/completion and sender stage timestamps with common turnID and sequence, UTC wall and per-machine monotonic ns; worker SHA256 `C72A0AC06CB5806D7A4F07A9FD8DE1966979B72CC09EA8E9109C0F157EF43166`. Windows worker restarted as PID 33012; existing Pocket watcher and model lock unchanged.
+- Normal/Warm live switched to `voice-candidates/fullset-20261023/warm-minus1.safetensors` SHA256 `043D61FCA49B175C88A41734D1A659ED9655D39BDE8BD5FA2038AFC35D7FBB36`, source Desire 02 formant-preserved −1 reference SHA `45032B1B34872CBBD671FEAB16431F9BC768BE03582EE0FBC1DBC95DF8905F66`. No other voice/pitch changed. New live server SHA256 `FA679DF591572219AAD33EF958221F2E3A68B2AA7D93AFCCED295968DB5C3B08`, adapter SHA256 `85D6AEE9BD0376ADB516A31394ED55F3EFCC38C61D7029A9FAB36AEA43B74208`. Existing Pocket watchdog needed two startup attempts after restart, but eventually `/health` ready verified exact new normal state and five total states; relay watchdog recovered after queue-empty check. Backups of sender/adapter/server/worker `PocketTTS/gapfix-desire02-cutover-backups-20261023`.
+- No change to Android Termux receiver or Tailscale relay transport; no old Qwen voice engine revived.
+
+**Ten-sentence live regression:** `ritsu-gapfix-live-10sentence-lookahead-20261023`, profile Normal, chunks=10, accepted by Home Center and completed status enqueued 10 ordered IDs. Worker first claim UTC `2026-10-23T17:51:12.712Z`; first relay enqueue `17:51:14.926Z` (**2.214s claim to first relay audio**), worker cloud completion ACK `17:51:29.409Z`. Sender sent first four Pocket jobs within **64ms** of each other, then topped up with each completion. Median recorded Pocket generation **1.485s**, total speech duration **27.44s**, median relay enqueue interarrival **1.371s** (historical 5.5s before). All ten distinct relay IDs were subsequently observed downloaded by Android `GET /audio` between local 12:51:16 and 12:52:03 and ten /ack HTTP200 responses, relay empty HTTP204. Transcript SHA256 matched exact cloud user text `bfd08dda0fb7aca2553bb892b528e97dd5f8a03c99208962c6aaa201fe8eb221`. **No HEARD verdict for this turn as yet**, and cannot automatically prove phonetic completeness despite exact sender text + ten WAVs.
+
+**Remaining measured bottleneck**: Despite continuous host lookahead, phone's next audio download still arrives at 4–7s intervals, compared with preceding WAV lengths 2.24–3.84s. Median **download-to-download interval minus prior audio duration = 2.68s**, range 1.04–3.76s, per 1-sec resolution relay HTTP log. This is only a *retrieval timeline proxy*, not genuine audible gap because phone media-player start/end aren't available. Strongly points to canonical Android receiver's sequential play/poll/download process, not Pocket CPU throughput. The registered Home Center Phone Hands devices have stale heartbeats, so no speculative phone-side shell/restart was queued, and no alternate transport. A carefully validated canonical receiver prefetch + FIFO queue with playback timestamps would be next small step when its live state is accessible. No concurrency on GPU needed.
+
+**Work receipts:**
+- `hands-ritsu-gap-live-files-pids-logs-20261023-01`, `hands-ritsu-gap-live-source-critical-path-20261023-02`, `hands-ritsu-gap-old-relay-interval-baseline-20261023`.
+- `hands-ritsu-gap-10sentence-live-pocket-cpu-baseline-no-phone-20261023`; baseline JSON `PocketTTS/ritsu-pocket-gap-baseline-10sentences-20261023.json`.
+- `hands-ritsu-gap-no-network-ordered-lookahead-tests-20261023`, `hands-ritsu-gapfix-desire02-warm-and-lookahead-stage-20261023`, `hands-ritsu-gapfix-turnid-worker-restart-20261023`, `hands-ritsu-gapfix-desire02-relay-cache-reload-20261023`.
+- `hands-ritsu-gapfix-live-10sentence-stage-timing-readback-20261023`, `hands-ritsu-gapfix-phone-retrieval-10sent-timing-20261023`, `hands-ritsu-gapfix-10-sent-cloud-hash-and-phone-download-integrity-20261023`.
+- Evidence JSONL: `%LOCALAPPDATA%/RitsuWarmTicketWorker/timing/ritsu-gapfix-live-10sentence-lookahead-20261023.jsonl` and `worker-ritsu-gapfix-live-10sentence-lookahead-20261023.jsonl`; cloud ticket ID same.
+
+**Next validation:** user to confirm hearing ALL ten sentences on phone, no missing words/order, compare gaps. To eliminate the remaining Android overhead, inspect actual installed `~/.ritsu-embodiment/receiver.sh` and its logs, introduce bounded prefetch and durable ordered playback with measured starts/ends, test against known canonical relay, and require auditory verdict before promotion. Don't claim receiver-level acceptance yet.
+
+---
+
+
 ## CORRECTION: Delighted is the −1-semitone Pocket clone (2026-10-23, authoritative)
 
 The user explicitly corrected the assistant's misinterpretation of "original": **the official Delighted voice is the clone made by feeding the −1-semitone Happy 00112 reference into Pocket TTS**, not the unshifted Pocket clone and **not any old Qwen/"Quinn" clone**. That adjusted Pocket state **already existed** and its file SHA256, reference SHA256 and source recording have now been verified. No output/post-generation pitch shifting is used.
