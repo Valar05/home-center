@@ -1,5 +1,14 @@
 # Ritsu registered voice repertoire, 2026-10-22
 
+## CURRENT SPEECH UNIT AND EARLY AUDIO CONTRACT (2026-10-23, 17:02 CDT)
+
+**The earlier section describing mandatory sentence-level four-job lookahead is historical and no longer reflects the Windows sender.** Actual Windows sender is installed with SHA256 `3DDA464DF8D5E24D29DB471DF7C7B8D70D28741C98866996A980AFE5443C6AD8`: one complete agent-authored text unit -> one Pocket `/v1/speak` job -> one WAV -> canonical `/v1/deliver`. Sender sentence regex splitting OFF. Its previous exact SHA256 `2922EFE848AAD961C96282EB491E4090FCE9DD0891E67CD01FBE1D357AA24B3D` is backed up. No modification to the five approved Pocket clone states, model server, Windows ticket worker, relay or Android receiver during this cutover. Voice profile mapping below remains authoritative for *voice identity*, while this addendum is authoritative for current chunking policy.
+
+Hard live Pocket `/v1/speak` cap = **450 characters per ticket**, fail closed beyond it. No rigid sentence/character splitter, no mid-sentence cuts and no omitted narration. The agent produces multiple complete, ordered, semantically intentional speech units for longer content and submits each separately. To lower first-audio latency, provisional authoring guideline is a 90–140 character first complete thought, followed by naturally completed ~180–300 character thoughts. Benchmarks (Normal voice on actual Windows Pocket CPU, no phone delivery): 112 chars -> 3.62s render, 5.84s audio; 183 -> 5.83s render, 10.08s audio; 289 -> 9.25s render, 13.84s audio. No character-length breakpoint is guaranteed to be optimal. Generator word completeness and end-to-end phone HEARD remain separate gates.
+
+Android v2 receiver playback gaps remain, with 1.445s median phone API interclip boundary in a 58-completion trace. Do not assume no-split sender cutover fixes the phone player or that a proposed silence cutter is live. See `docs/RITSU_PHONE_AUDIO_LAWS.md` and `docs/RITSU_PHONE_GAP_CAMPAIGN_CHECKPOINT_20261023.md`.
+
+
 ## Normal/Warm switch, Desire 02 -1, plus measured sentence-lookahead (2026-10-23)
 
 **Newest selection overrides earlier table:** Normal/Warm is now the approved Desire 02 Ocean Dream **-1 reference-baked Pocket clone** `voice-candidates/fullset-20261023/warm-minus1.safetensors` SHA256 `043D61FCA49B175C88A41734D1A659ED9655D39BDE8BD5FA2038AFC35D7FBB36`; source pre-bake SHA256 `45032B1B34872CBBD671FEAB16431F9BC768BE03582EE0FBC1DBC95DF8905F66`. The Cheesecake no-laugh Warm remains safely archived, not live. Live Pocket server /health verified exact new Warm state. Delighted -1, Amused -1, Somber -1 (shared with Upset), and Whisper -1 are all unchanged, zero active Qwen voice synthesis.
