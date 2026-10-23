@@ -74,3 +74,17 @@ The owner executed the read-only Termux campaign manually and pasted the full re
 - Validate isolated full paragraph WAV for exact spoken text, words and tail, especially Pocket's internal `split_into_best_sentences` tokenizer. No audio canary unless user consents to hearing it.
 - If tests pass, deploy the minimally changed staged paragraph sender/worker through the authorized runtime lane with backups, idle gate and rollback, and readback. No changes to approved voices or canonical relay.
 - Measure whether clip count per response and meaningful pause shrink, then user HEARD acceptance.
+
+
+## Follow-on: Owner reports approximately five-second perceived pauses and requests silence cutter
+
+Real Android 58-clip trace captured earlier gave median player API interval 1.445s, not acoustic end-to-next-speech-onset. WAVs 51..58 sum 23.12s of samples; their player elapsed sums 29.926s and the intervening seven start/end API intervals sum 9.942s, yielding 39.868s overall API player span for 23.12s of sampled audio. The remaining 16.748s are not independently verified as acoustic silence. Earlier ten Windows source WAVs had low-energy lead 0.02–0.75s, so perceived 5s may reflect player overhead plus padding plus request starvation. Do not claim exact five seconds acoustically measured.
+
+New repository artifacts (source-only):
+- `tools/campaigns/ritsu_pcm_silence_guard.py`, commit `35cedfe35b258edc69b0a6fb73f9aeb1349e08bc`, PCM16 24k mono read-only onset inspector, separately authored non-overwriting candidate writer. Keeps 200ms guard, caps cut at 800ms, never trims tails or touches source.
+- `tools/campaigns/test_ritsu_pcm_silence_guard.py`, commit `dc289df33dbe34407b3ed5cb9172390f4e94cf19`, five synthetic offline tests: suffix/tail intact, soft initial onset, all-silent/short refuse, max cap, unsupported format fail closed. Equivalent local tests were run successfully; GitHub committed test sources not claimed as phone-tested yet.
+- Existing `ritsu_phone_gap_campaign.py` updated at commit `00ab7f1f453847c09f88b830f1259edd8b1c1be3` with `ritsu-gap silence`, which probes up to eight retained real Android WAVs and prints/copies onset metrics only, writing independent JSON receipt and leaving prior gap report and audio untouched.
+- Guarded in-place Termux upgrade `tools/campaigns/upgrade_ritsu_gap_silence_probe.sh`, commit `8ae5f3d73700896e0060cf112c686950147d036c`; pinned sources, compares installed old files to prior approved version, backs up originals, compiles/runs both offline test files, and invokes existing `ritsu-gap silence`. **Not installed or run on actual phone yet.**
+- `docs/RITSU_PHONE_AUDIO_LAWS.md` addendum commit `b1510c51f6b34cc59a1179e9d8e24668984698b8` records owner authorization and speech-integrity gates.
+
+**No live changes:** Do not wire cutter into Pocket, relay, receiver, or sender until actual phone PCM probe and careful listening prove no words or soft syllable onset is cut. Prior downstream MediaPlayer per-file overhead and unapproved upstream sentence splitter remain independent problems. NEXT: obtain `ritsu-gap silence` receipt from actual Termux; compare leading quiet against measured 1.445s phone handoff; prepare minimal opt-in cut/agent-authored-paragraph fix with test/rollback and owner-heard acceptance.
