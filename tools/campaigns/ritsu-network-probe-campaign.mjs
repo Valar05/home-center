@@ -47,14 +47,22 @@ function checkPin(){
   if(execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim())
     throw Error('dirty_checkout');
 }
+function existingBound(){
+  if(args.allowExisting!=='true')return false;
+  return /^[A-Fa-f0-9]{32}$/.test(args.tabId||'') &&
+    /^https:\/\/chatgpt\.com\/c\/[0-9a-f-]{36}$/.test(args.boundUrl||'');
+}
 async function oneTab(){
+  if(args.allowExisting==='true'&&!existingBound())
+    throw Error('existing_test_conversation_requires_exact_url_and_tab_id');
   const response=await fetch('http://127.0.0.1:9236/json/list',
     {signal:AbortSignal.timeout(5000)});
   if(!response.ok)throw Error('isolated_browser_endpoint_offline');
   const all=await response.json();
-  const tabs=all.filter(t=>t.type==='page'&&t.url===target&&
+  const chosenUrl=existingBound()?args.boundUrl:target;
+  const tabs=all.filter(t=>t.type==='page'&&t.url===chosenUrl&&
     (!args.tabId||args.tabId==='*'||t.id===args.tabId));
-  if(tabs.length!==1)throw Error('one_existing_blank_chatgpt_tab_required');
+  if(tabs.length!==1)throw Error('one_exact_bound_test_chatgpt_tab_required');
   const tab=tabs[0];
   if(!/^ws:\/\/(?:127\.0\.0\.1|localhost):9236\/devtools\/page\/[a-zA-Z0-9-]+$/
     .test(tab.webSocketDebuggerUrl||''))throw Error('unauthorized_cdp_target');
@@ -94,10 +102,10 @@ function connection(url){
 function before(){
   return '(()=>{const c=document.querySelector(\'[contenteditable="true"][data-composer-markdown][role="textbox"]\');return JSON.stringify({url:location.href,ready:!!c&&c.getClientRects().length>0,empty:!!c&&!c.innerText.trim(),count:document.querySelectorAll(\'[data-message-author-role]\').length})})()';
 }
-function send(prompt){
+function send(prompt,allowExisting){
   return '(async()=>{const p='+JSON.stringify(prompt)+
   ';const c=document.querySelector(\'[contenteditable="true"][data-composer-markdown][role="textbox"]\');'+
-  'if(!c||c.innerText.trim()||document.querySelectorAll(\'[data-message-author-role]\').length)return false;'+
+  'if(!c||c.innerText.trim()||(!'+(allowExisting?'true':'false')+'&&document.querySelectorAll(\'[data-message-author-role]\').length))return false;'+
   'c.focus();const s=window.getSelection(),r=document.createRange();r.selectNodeContents(c);s.removeAllRanges();s.addRange(r);'+
   'if(!document.execCommand("insertText",false,p))return false;'+
   'let b;for(let i=0;i<20;i++){b=document.querySelector(\'button[aria-label="Send"],button[data-testid="send-button"]\');'+
@@ -137,11 +145,12 @@ async function probe(){
     await cdp.call('Network.enable');
     const inspected=await cdp.call('Runtime.evaluate',{expression:before(),returnByValue:true});
     const p=JSON.parse(inspected.result?.value||'{}');
-    if(p.url!==target||!p.ready||!p.empty||p.count!==0)
-      throw Error('existing_blank_authenticated_tab_required');
+    if(p.url!==(existingBound()?args.boundUrl:target)||!p.ready||!p.empty||
+      (!existingBound()&&p.count!==0))
+      throw Error('bound_authenticated_test_tab_preflight_failed');
     await receipt({state:'observer_attached',revision:args.revision,tabId:tab.id});
     const sent=await cdp.call('Runtime.evaluate',
-      {expression:send(prompt),returnByValue:true,awaitPromise:true});
+      {expression:send(prompt,existingBound()),returnByValue:true,awaitPromise:true});
     if(sent.result?.value!==true||sent.exceptionDetails)throw Error('send_not_verified');
     await receipt({state:'canary_sent_unverified',revision:args.revision,tabId:tab.id});
     const deadline=Date.now()+90000;
@@ -184,18 +193,30 @@ async function main(){
     if(!/^[A-Za-z0-9_.:-]{8,100}$/.test(args.jobId||''))throw Error('job_id_required');
     if(existsSync(path.join(state,'stop.json')))throw Error('previously_stopped_requires_new_campaign');
     await mkdir(state,{recursive:true});
-    const fd=await open(path.join(state,'lock.json'),'wx',0o600);
-    await fd.writeFile(JSON.stringify({revision:args.revision,jobId:args.jobId}));await fd.close();
+    const oldLock=await read('lock.json'),previous=await read('latest.json');
+    const lock={revision:args.revision,jobId:args.jobId,
+      tabId:args.tabId||'*',boundUrl:args.boundUrl||target,allowExisting:args.allowExisting||'false'};
+    if(oldLock){
+      if(previous?.state!=='blocked'||oldLock.jobId===args.jobId)
+        throw Error('prior_campaign_not_terminal_or_job_reused');
+      await atomic(path.join(state,'lock.json'),lock);
+    }else{
+      const fd=await open(path.join(state,'lock.json'),'wx',0o600);
+      await fd.writeFile(JSON.stringify(lock));await fd.close();
+    }
     await receipt({state:'queued',revision:args.revision,jobId:args.jobId});
     const child=spawn(process.execPath,[script,'--mode','Worker','--revision',
-      args.revision,'--jobId',args.jobId,'--tabId',args.tabId||'*'],
+      args.revision,'--jobId',args.jobId,'--tabId',args.tabId||'*',
+      '--boundUrl',args.boundUrl||target,'--allowExisting',args.allowExisting||'false'],
       {cwd:root,detached:true,windowsHide:true,stdio:'ignore'});
     child.unref();
     console.log(JSON.stringify({state:'queued',pid:child.pid,revision:args.revision}));return;
   }
   try{
     const lock=await read('lock.json');
-    if(lock?.revision!==args.revision||lock?.jobId!==args.jobId)
+    if(lock?.revision!==args.revision||lock?.jobId!==args.jobId||
+      lock?.tabId!==(args.tabId||'*')||lock?.boundUrl!==(args.boundUrl||target)||
+      lock?.allowExisting!==(args.allowExisting||'false'))
       throw Error('worker_must_match_persisted_job');
     if(existsSync(path.join(state,'stop.json')))throw Error('owner_stopped');
     await receipt({state:'running',revision:args.revision,jobId:args.jobId});
