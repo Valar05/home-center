@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import org.json.JSONObject;
+import org.json.JSONArray;
+import android.content.SharedPreferences;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -80,8 +82,58 @@ final class HomeCenterSync implements AutoCloseable {
                 processed++;
             }
         }
-        status="Home Center connected; "+processed+" turn(s) checked";
+        int published=consumePublishedFeed(paired);
+        status="Home Center connected; "+processed+" turn(s), "+
+                published+" new published result(s)";
     }
+    /** Home Center alone controls deterministic result publication.
+     * Unreviewed secondary results and unpublished worker material cannot
+     * appear in the endpoint, and the phone cannot request publication. */
+    private int consumePublishedFeed(RitsuPairing.Pair paired) throws Exception {
+        SharedPreferences state=app.getSharedPreferences("ritsu_sync_feed_v1",
+                Context.MODE_PRIVATE);
+        long cursor=state.getLong("cursor",0);
+        JSONObject answer=exchange(paired,"GET",
+                "/v1/ritsu/feed?after="+cursor,null);
+        if(!answer.optBoolean("ok"))throw new IllegalStateException("Feed not verified");
+        JSONArray events=answer.optJSONArray("events");
+        if(events==null)throw new IllegalStateException("Published feed missing");
+        int processed=0;
+        for(int i=0;i<events.length();i++) {
+            JSONObject row=events.optJSONObject(i);
+            if(row==null)throw new IllegalStateException("Invalid published result");
+            long sequence=row.optLong("sequence",-1);
+            if(sequence<=cursor)throw new IllegalStateException("Feed out of order");
+            String type=row.optString("type");
+            String channel=row.optString("channel");
+            String text=row.optString("text");
+            if(text.trim().isEmpty()||text.length()>5000)
+                throw new IllegalStateException("Published content invalid");
+            if("chat_result".equals(type) && "control".equals(channel)) {
+                String turnId=row.optString("turnId");
+                if(!turnId.matches("[A-Za-z0-9_.:-]{8,100}"))
+                    throw new IllegalStateException("Published control turn invalid");
+                ledger.insertReplyOnce(turnId,text);
+            } else if("chat_result".equals(type) && "dialogue".equals(channel)) {
+                String turnId=row.optString("turnId");
+                ledger.insertPublishedOnce("dialogue:"+turnId,"dialogue","Ritsu",text);
+            } else if("worker_result".equals(type) && "worker".equals(channel)) {
+                String resultId=row.optString("resultId");
+                ledger.insertPublishedOnce("worker:"+resultId,"worker","Worker",text);
+            } else {
+                throw new IllegalStateException("Unapproved Home Center feed envelope");
+            }
+            // Commit monotonically AFTER the durable local message insertion.
+            // A network failure can replay the same result without duplicates.
+            if(!state.edit().putLong("cursor",sequence).commit())
+                throw new IllegalStateException("Feed cursor not persisted");
+            cursor=sequence;
+            processed++;
+            main.post(onChange);
+        }
+        return processed;
+    }
+
     private void apply(String turnId, JSONObject receipt) {
         if(receipt==null)throw new IllegalStateException("Missing durable receipt");
         if(!turnId.equals(receipt.optString("turnId")) ||
