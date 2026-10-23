@@ -286,10 +286,10 @@ public final class MainActivity extends Activity {
         final int[] values = {2000, 3200, 5000};
         final String[] names = {
                 "Quick · 2 seconds",
-                "Natural · 3.2 seconds (default)",
-                "Thoughtful · 5 seconds"
+                "Natural · 3.2 seconds",
+                "Thoughtful · 5 seconds (default)"
         };
-        int selected = 1;
+        int selected = 2;
         for (int i = 0; i < values.length; i++) {
             if (RitsuControlService.speechPauseMs == values[i]) selected = i;
         }
