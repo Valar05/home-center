@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.provider.Settings;
 
 /**
@@ -39,6 +40,8 @@ public final class RitsuControlService extends Service {
     static final String ACTION_SPEAKER_PREFERENCE = "com.homecenter.ritsucontrol.SPEAKER_PREFERENCE";
     static final String ACTION_MEDIA_TALK = "com.homecenter.ritsucontrol.MEDIA_TALK";
     static final String ACTION_STOP = "com.homecenter.ritsucontrol.STOP";
+    static final String ACTION_PAUSE_WINDOW = "com.homecenter.ritsucontrol.PAUSE_WINDOW";
+    static final String EXTRA_PAUSE_MS = "pauseMillis";
     private static final String CHANNEL = "ritsu_control_notification_v2";
     private static final int NOTIFICATION_ID = 19644;
     private static final int MAX_CONSECUTIVE_ERRORS = 4;
@@ -53,6 +56,8 @@ public final class RitsuControlService extends Service {
     static volatile String recognitionStatus = "Not started";
     static volatile String mediaGuardStatus = "Playback source not verified";
     static volatile long feedRevision = 0;
+    static volatile String pendingSpeechText = "";
+    static volatile int speechPauseMs = SpokenTurnBuffer.DEFAULT_PAUSE_MS;
 
     private ListeningPolicy.Mode mode = ListeningPolicy.Mode.OFF;
     private Handler mainHandler;
@@ -66,6 +71,8 @@ public final class RitsuControlService extends Service {
     private RitsuBubble bubble;
     private int consecutiveErrors;
     private int sessionGeneration;
+    private SpokenTurnBuffer pendingTurn;
+    private Runnable pendingCommit;
     private boolean mediaObservedInSession;
     private final Runnable playbackProbe = new Runnable() {
         @Override public void run() {
@@ -81,6 +88,14 @@ public final class RitsuControlService extends Service {
         receipts = new ControlReceipts(this);
         ledger = new ConversationLedger(this);
         mediaPause = new MediaPauseLease(this);
+        int storedPause = getSharedPreferences("ritsu_voice_timing_v1", MODE_PRIVATE)
+                .getInt("pauseMs", SpokenTurnBuffer.DEFAULT_PAUSE_MS);
+        if (storedPause < SpokenTurnBuffer.MIN_PAUSE_MS ||
+                storedPause > SpokenTurnBuffer.MAX_PAUSE_MS)
+            storedPause = SpokenTurnBuffer.DEFAULT_PAUSE_MS;
+        pendingTurn = new SpokenTurnBuffer(storedPause);
+        speechPauseMs = storedPause;
+        pendingSpeechText = "";
         ControlStore.transition(this, ControlPolicy.ACTION_START);
         liveMode = ListeningPolicy.Mode.OFF;
         voiceActivity = false;
@@ -97,6 +112,18 @@ public final class RitsuControlService extends Service {
             @Override public void status(String text) {
                 recognitionStatus = text;
                 updateNotification();
+            }
+            @Override public void speechStarted() {
+                if (mode != ListeningPolicy.Mode.RECOGNIZING) return;
+                pendingTurn.speechStarted();
+                cancelPendingCommit();
+                updateSpeechPreview();
+            }
+            @Override public void speechEnded() {
+                if (mode != ListeningPolicy.Mode.RECOGNIZING) return;
+                pendingTurn.speechEnded(SystemClock.elapsedRealtime());
+                // Wait for provider final result before considering a send.
+                updateSpeechPreview();
             }
             @Override public void partialTranscript(String text) {
                 // Preview only. Never treat partial speech as an executable turn.
@@ -122,16 +149,20 @@ public final class RitsuControlService extends Service {
                     partialTranscript = "";
                     partialRevision++;
                 } else {
+                    // Google's onResults finalizes a recognizer fragment,
+                    // NOT necessarily the human's complete spoken message.
+                    if (pendingTurn.wouldOverflow(text)) flushPendingTurn("size_limit");
+                    pendingTurn.appendFinal(text, SystemClock.elapsedRealtime());
                     lastTranscript = text;
                     transcriptRevision++;
                     partialTranscript = "";
                     partialRevision++;
-                    ledger.add("dialogue", "You", text, ConversationLedger.OUTBOX);
-                    feedRevision++;
-                    recognitionStatus = "Text captured locally; Home Center not connected";
+                    updateSpeechPreview();
+                    schedulePendingCommit();
+                    recognitionStatus = "Holding phrase for thinking pause, not sent yet";
                     mediaGuardStatus = "No active media reported (NOT proof of human origin)";
-                    receipts.append("LOCAL_TRANSCRIPT", mode, mode,
-                            "transcript_stored_locally_not_sent");
+                    receipts.append("SPEECH_FRAGMENT", mode, mode,
+                            "provider_final_buffered_waiting_for_user_pause");
                 }
                 consecutiveErrors = 0;
                 mainHandler.post(() -> completeProviderSession(true));
@@ -140,6 +171,10 @@ public final class RitsuControlService extends Service {
                 if (mode != ListeningPolicy.Mode.RECOGNIZING) return;
                 lastProblem = reason;
                 recognitionStatus = reason;
+                if (pendingTurn.isInSpeech()) {
+                    pendingTurn.speechEnded(SystemClock.elapsedRealtime());
+                    schedulePendingCommit();
+                }
                 receipts.append("RECOGNIZER_ERROR", mode, mode, "provider_error");
                 mainHandler.post(() -> completeProviderSession(false));
             }
@@ -171,6 +206,8 @@ public final class RitsuControlService extends Service {
             if (!bubble.show()) lastProblem = "Android overlay permission not granted";
         } else if (ACTION_HIDE_BUBBLE.equals(action)) bubble.hide();
         else if (ACTION_MEDIA_TALK.equals(action)) requestMediaFocus();
+        else if (ACTION_PAUSE_WINDOW.equals(action)) setPauseWindow(
+                intent.getIntExtra(EXTRA_PAUSE_MS, SpokenTurnBuffer.DEFAULT_PAUSE_MS));
         else if (ACTION_SPEAKER_PREFERENCE.equals(action))
             ControlStore.transition(this, ControlPolicy.ACTION_SPEAKER_PREFERENCE);
         else if (ACTION_STOP.equals(action)) {
@@ -181,6 +218,65 @@ public final class RitsuControlService extends Service {
         }
         updateNotification();
         return START_NOT_STICKY;
+    }
+
+    private void setPauseWindow(int millis) {
+        if (millis < SpokenTurnBuffer.MIN_PAUSE_MS ||
+                millis > SpokenTurnBuffer.MAX_PAUSE_MS) {
+            receipts.append("PAUSE_WINDOW_REJECTED", mode, mode, "invalid_duration");
+            return;
+        }
+        pendingTurn.setPauseMs(millis);
+        speechPauseMs = millis;
+        getSharedPreferences("ritsu_voice_timing_v1", MODE_PRIVATE)
+                .edit().putInt("pauseMs", millis).apply();
+        // A changed preference must not instantly send the existing draft.
+        if (pendingTurn.hasText() && !pendingTurn.isInSpeech()) {
+            pendingTurn.speechEnded(SystemClock.elapsedRealtime());
+            schedulePendingCommit();
+        }
+        receipts.append("PAUSE_WINDOW_SET", mode, mode, "user_preference");
+        updateSpeechPreview();
+    }
+
+    private void cancelPendingCommit() {
+        if (pendingCommit != null) mainHandler.removeCallbacks(pendingCommit);
+        pendingCommit = null;
+    }
+
+    private void updateSpeechPreview() {
+        pendingSpeechText = pendingTurn.preview();
+        partialRevision++;
+    }
+
+    /** Wait beyond the provider's end-of-speech event. Restarting Google
+     * recognition quickly lets the next thought cancel this pending send. */
+    private void schedulePendingCommit() {
+        cancelPendingCommit();
+        if (!pendingTurn.hasText() || pendingTurn.isInSpeech()) return;
+        long remaining = pendingTurn.remainingMs(SystemClock.elapsedRealtime());
+        if (remaining < 0) return;
+        final int generation = sessionGeneration;
+        pendingCommit = () -> {
+            pendingCommit = null;
+            if (generation != sessionGeneration) return;
+            if (pendingTurn.ready(SystemClock.elapsedRealtime())) {
+                flushPendingTurn("thought_pause_expired");
+            } else schedulePendingCommit();
+        };
+        mainHandler.postDelayed(pendingCommit, Math.max(1, remaining));
+    }
+
+    private void flushPendingTurn(String reason) {
+        cancelPendingCommit();
+        if (!pendingTurn.hasText()) return;
+        String complete = pendingTurn.flush();
+        updateSpeechPreview();
+        ledger.add("dialogue", "You", complete, ConversationLedger.OUTBOX);
+        feedRevision++;
+        recognitionStatus = "Complete spoken message queued locally; Home Center not connected";
+        receipts.append("LOCAL_SPOKEN_MESSAGE", mode, mode, reason);
+        updateNotification();
     }
 
     private void startListening() {
@@ -285,6 +381,7 @@ public final class RitsuControlService extends Service {
         ++sessionGeneration;
         clearCallbacks();
         speechSession.cancel();
+        flushPendingTurn("explicit_mute");
         mediaPause.release();
         voiceActivity = false;
         partialTranscript = "";
@@ -373,6 +470,7 @@ public final class RitsuControlService extends Service {
         ++sessionGeneration;
         clearCallbacks();
         speechSession.cancel();
+        flushPendingTurn("explicit_stop");
         mediaPause.release();
         if (mediaFocusDeadline != null) mainHandler.removeCallbacks(mediaFocusDeadline);
         mediaFocusDeadline = null;
@@ -444,6 +542,7 @@ public final class RitsuControlService extends Service {
     @Override public void onDestroy() {
         ++sessionGeneration;
         clearCallbacks();
+        cancelPendingCommit();
         if (speechSession != null) speechSession.cancel();
         if (mediaPause != null) mediaPause.release();
         if (bubble != null) bubble.hide();
