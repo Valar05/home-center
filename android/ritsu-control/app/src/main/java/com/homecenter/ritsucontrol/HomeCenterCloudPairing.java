@@ -43,13 +43,18 @@ final class HomeCenterCloudPairing {
         }
     }
     static final class Paired {
-        final String accessToken, refreshToken, email, mcpUrl;
+        final String accessToken, refreshToken, email, mcpUrl, oauthClientId;
         final long accessExpiresAtMs;
         Paired(String accessToken, String refreshToken, String email,
                String mcpUrl, long accessExpiresAtMs) {
+            this(accessToken,refreshToken,email,mcpUrl,accessExpiresAtMs,"");
+        }
+        Paired(String accessToken, String refreshToken, String email,
+               String mcpUrl, long accessExpiresAtMs,String oauthClientId) {
             this.accessToken=accessToken;this.refreshToken=refreshToken;
             this.email=email;this.mcpUrl=mcpUrl;
             this.accessExpiresAtMs=accessExpiresAtMs;
+            this.oauthClientId=oauthClientId;
         }
     }
 
@@ -130,6 +135,11 @@ final class HomeCenterCloudPairing {
     static Paired refreshIfNeeded(Context context, Paired paired) throws Exception {
         if(System.currentTimeMillis()+90000L<paired.accessExpiresAtMs)
             return paired;
+        if(!paired.oauthClientId.isEmpty()) {
+            Paired result=HomeCenterOAuth.refresh(paired);
+            save(context,result);
+            return result;
+        }
         JSONObject request=new JSONObject();
         request.put("refreshToken",paired.refreshToken);
         JSONObject result=call("termuxTokenRefresh",request,null);
@@ -195,6 +205,7 @@ final class HomeCenterCloudPairing {
         obj.put("email",pair.email);
         obj.put("mcp",pair.mcpUrl);
         obj.put("expiresAtMs",pair.accessExpiresAtMs);
+        obj.put("oauthClientId",pair.oauthClientId);
         Cipher cipher=Cipher.getInstance("AES/GCM/NoPadding");
         cipher.init(Cipher.ENCRYPT_MODE,key());
         byte[] iv=cipher.getIV();
@@ -219,7 +230,7 @@ final class HomeCenterCloudPairing {
                     StandardCharsets.UTF_8));
             return new Paired(x.getString("access"),x.getString("refresh"),
                     x.optString("email"),x.getString("mcp"),
-                    x.getLong("expiresAtMs"));
+                    x.getLong("expiresAtMs"),x.optString("oauthClientId",""));
         }catch(Exception e){throw new IllegalStateException("Cloud pairing cannot be opened");}
     }
     static void disconnect(Context context) {
