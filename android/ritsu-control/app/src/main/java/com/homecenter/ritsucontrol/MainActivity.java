@@ -334,6 +334,10 @@ public final class MainActivity extends Activity {
                         Intent view=new Intent(Intent.ACTION_VIEW, Uri.parse(authorize));
                         view.addCategory(Intent.CATEGORY_BROWSABLE);
                         startActivity(view);
+                        // Browser sign-in is independently bound by persisted
+                        // PKCE state. The Activity can be retried if the user
+                        // closes Chrome without completing authorization.
+                        cloudPairActive.set(false);
                         headerStatus.setText("Complete Home Center sign-in in your browser");
                     }catch(RuntimeException browserError){
                         cloudPairActive.set(false);
