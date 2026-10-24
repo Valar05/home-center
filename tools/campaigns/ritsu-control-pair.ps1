@@ -167,5 +167,5 @@ try {
   $token=$null
 }catch{
   Write-Receipt 'blocked' $script:failure
-  exit 1
+  throw ('RITSU_PAIRING_UI_BLOCKED_'+$script:failure)
 }
