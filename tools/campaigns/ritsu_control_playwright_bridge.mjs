@@ -18,6 +18,7 @@ const safe=e=>String(e?.message||e||'unknown').slice(0,220);
 const output=x=>console.log('RITSU_BROWSER_RECEIPT='+JSON.stringify(x));
 function playwright(){
   const probe=[
+    path.join(process.env.LOCALAPPDATA||homedir(),'RitsuControlBridge','package.json'),
     path.join(root,'package.json'),
     path.join(process.cwd(),'browser-worker','package.json'),
     path.join(process.cwd(),'package.json'),
