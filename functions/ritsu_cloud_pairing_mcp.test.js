@@ -9,7 +9,7 @@ const hash=createHash('sha256').update(code).digest('hex');
 function fixture(state='pending',expiresAtMs=Date.now()+600000){
  const docs=new Map([['termuxPairingRequests/'+id,{clientKind:'ritsu-control-android',status:state,
      codeHash:hash,requestedGroups:['drive','docs','github'],expiresAtMs}]]);
- function ref(k){return {k}}
+ function ref(k){return {k,async get(){return {exists:docs.has(k),data:()=>docs.get(k)}}}}
  const db={collection(name){return {doc(key){return ref(name+'/'+key)}}},
  async runTransaction(fn){
   const writes=[];
