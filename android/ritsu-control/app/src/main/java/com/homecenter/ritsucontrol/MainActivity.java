@@ -28,6 +28,9 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Voice-first conversation cockpit. Visible chat results from many channels
  * while the default operation is continuous mic+silence segmentation.
@@ -47,6 +50,8 @@ public final class MainActivity extends Activity {
     private long lastFeedRevision = -1;
 
     private final Handler updates = new Handler(Looper.getMainLooper());
+    private final ExecutorService cloudPairWorker=Executors.newSingleThreadExecutor();
+    private final AtomicBoolean cloudPairActive=new AtomicBoolean(false);
     private final Runnable redraw = new Runnable() {
         @Override public void run() {
             if (headerStatus == null) return;
@@ -256,7 +261,7 @@ public final class MainActivity extends Activity {
         String[] labels = {
                 "Status and recognition errors",
                 "Speech pause timing (Gboard-like)",
-                "Connect Home Center (Tailscale)",
+                "Pair with Home Center (cloud)",
                 "Disconnect Home Center",
                 "Ask Android to pause media",
                 "Stop conversation",
@@ -281,7 +286,9 @@ public final class MainActivity extends Activity {
                                     .setTitle("Disconnect Ritsu from Home Center?")
                                     .setMessage("Only the local encrypted pairing is erased. Saved messages remain on this phone.")
                                     .setPositiveButton("Disconnect", (d,w) -> {
-                                        RitsuPairing.disconnect(this);refreshStatus();
+                                        HomeCenterCloudPairing.disconnect(this);
+                                        RitsuPairing.disconnect(this);
+                                        HomeCenterSync.status="Home Center not paired";refreshStatus();
                                     }).setNegativeButton("Cancel",null).show();
                             break;
                         case 4: send(RitsuControlService.ACTION_MEDIA_TALK); break;
@@ -296,38 +303,86 @@ public final class MainActivity extends Activity {
     }
 
     private void pairHomeCenter() {
+        // This is the actual Home Center CLOUD, not THECAULDRON's
+        // private Tailscale gateway. The old Home Center app approves it.
+        try {
+            HomeCenterCloudPairing.Paired existing=HomeCenterCloudPairing.load(this);
+            if(existing!=null){
+                new AlertDialog.Builder(this)
+                    .setTitle("Home Center cloud already paired")
+                    .setMessage("Your cloud identity is stored securely in Android Keystore. " +
+                        "The direct cloud conversation channel is not deployed yet, " +
+                        "so this confirms account pairing, not message delivery.")
+                    .setPositiveButton("Close",null).show();
+                return;
+            }
+        }catch(RuntimeException error){
+            headerStatus.setText("Cloud pairing needs repair");
+        }
+        if(!cloudPairActive.compareAndSet(false,true)){
+            headerStatus.setText("Home Center cloud pairing already in progress");
+            return;
+        }
+        headerStatus.setText("Requesting cloud approval from Home Center");
+        cloudPairWorker.execute(()->{
+            try {
+                HomeCenterCloudPairing.Pending pending=HomeCenterCloudPairing.start();
+                updates.post(()->showHomeCenterApproval(pending));
+                boolean approved=false;
+                while(System.currentTimeMillis()<pending.expiresAtMs && cloudPairActive.get()){
+                    Thread.sleep(2800);
+                    if(HomeCenterCloudPairing.poll(getApplicationContext(),pending)){
+                        approved=true;break;
+                    }
+                }
+                if(!cloudPairActive.get())return;
+                if(!approved)throw new IllegalStateException("Approval expired");
+                updates.post(()->{
+                    // Cloud credentials are independent of the legacy LAN
+                    // pair. HomeCenterSync will select cloud-first and will NOT
+                    // forward queued messages to the computer gateway.
+                    HomeCenterSync.status="Home Center cloud paired; conversation bridge not deployed";
+                    refreshStatus();
+                    new AlertDialog.Builder(this)
+                        .setTitle("Home Center cloud account connected")
+                        .setMessage("Home Center approved Ritsu Control directly. " +
+                            "ChatGPT replies have not yet been tested from this app.")
+                        .setPositiveButton("Close",null).show();
+                });
+            }catch(InterruptedException ignored){
+                Thread.currentThread().interrupt();
+            }catch(Exception error){
+                updates.post(()->headerStatus.setText(
+                    "Cloud pairing blocked: "+error.getClass().getSimpleName()));
+            }finally{cloudPairActive.set(false);}
+        });
+    }
+
+    private void showHomeCenterApproval(HomeCenterCloudPairing.Pending pending) {
         LinearLayout panel=new LinearLayout(this);
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(18),dp(8),dp(18),0);
-        EditText endpoint=new EditText(this);
-        endpoint.setSingleLine(true);
-        endpoint.setHint("http://100.x.y.z:19646");
-        endpoint.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
-        try {
-            RitsuPairing.Pair prior=RitsuPairing.load(this);
-            if(prior!=null)endpoint.setText(prior.origin);
-        } catch(RuntimeException ignored) {}
-        panel.addView(endpoint);
-        EditText token=new EditText(this);
-        token.setSingleLine(true);
-        token.setHint("Separate Home Center phone pairing token");
-        token.setInputType(InputType.TYPE_CLASS_TEXT |
-                InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        panel.addView(token);
+        TextView instructions=label(
+            "Open the OLD Home Center app, select Pair Termux Codex, " +
+            "and approve this Ritsu Control request. " +
+            "The request expires automatically. Keep Ritsu Control running.",14,false);
+        panel.addView(instructions);
+        TextView id=label("Pairing ID: "+pending.id,15,true);
+        id.setTextIsSelectable(true);
+        panel.addView(id);
+        TextView code=label("Approval code: "+pending.code,22,true);
+        code.setTextIsSelectable(true);
+        panel.addView(code);
         new AlertDialog.Builder(this)
-                .setTitle("Pair with Home Center on Tailscale")
-                .setMessage("The desktop's private Tailscale address and phone-only token. The token is encrypted with Android Keystore; it is never the Chromium Throne password.")
-                .setView(panel)
-                .setPositiveButton("Pair", (dialog, which) -> {
-                    try {
-                        RitsuPairing.save(this,endpoint.getText().toString(),
-                                token.getText().toString());
-                        send(RitsuControlService.ACTION_SYNC_NOW);
-                        headerStatus.setText("Paired securely; checking Home Center");
-                    } catch(RuntimeException error) {
-                        headerStatus.setText("Not paired: "+error.getMessage());
-                    }
-                }).setNegativeButton("Cancel",null).show();
+            .setTitle("Approve Ritsu Control in Home Center")
+            .setView(panel)
+            .setPositiveButton("Continue in Home Center",(dialog,which)->{
+                headerStatus.setText("Waiting for Home Center cloud approval");
+            })
+            .setNegativeButton("Cancel pairing",(dialog,which)->{
+                cloudPairActive.set(false);
+                headerStatus.setText("Cloud pairing canceled");
+            }).show();
     }
 
     private void selectSpeechTiming() {
