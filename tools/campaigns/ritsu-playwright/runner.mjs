@@ -90,7 +90,8 @@ async function currentMetadata(page){
     composerCount:await composer.count(),stopRunning:await stopVisible()};
 }
 async function inspect(){
-  const c=validateConfig(args),{browser,page}=await ownedPage();
+  const c=validateConfig(args);pinned();
+  const {browser,page}=await ownedPage();
   try{
     const meta=await currentMetadata(page);
     return {schema:1,state:'inspect',revision:c.revision,jobId:c.jobId,
@@ -114,6 +115,7 @@ async function apply(){
     throw Error('previous_campaign_not_terminal');
   if(old?.jobId===c.jobId)throw Error('campaign_job_id_reused');
   // Reserve the ID and durable state before the one irreversible prompt.
+  await mkdir(stateDir,{recursive:true});
   const fd=await open(path.join(stateDir,'job-'+c.jobId+'.json'),'wx',0o600);
   try{await fd.writeFile(JSON.stringify(c));await fd.sync()}finally{await fd.close()}
   await receipt({state:'running',...c,phase:'preflight'});
