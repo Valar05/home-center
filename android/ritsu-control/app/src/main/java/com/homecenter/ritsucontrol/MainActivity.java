@@ -154,6 +154,7 @@ public final class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT >= 30) root.requestApplyInsets();
         renderFeed();
         refreshStatus();
+        acceptHomeCenterOAuth(getIntent());
     }
 
     private void addTab(LinearLayout tabs,String label,String id) {
@@ -261,7 +262,7 @@ public final class MainActivity extends Activity {
         String[] labels = {
                 "Status and recognition errors",
                 "Speech pause timing (Gboard-like)",
-                "Pair with Home Center (cloud)",
+                "Connect Home Center account",
                 "Disconnect Home Center",
                 "Ask Android to pause media",
                 "Stop conversation",
@@ -287,6 +288,7 @@ public final class MainActivity extends Activity {
                                     .setMessage("Only the local encrypted pairing is erased. Saved messages remain on this phone.")
                                     .setPositiveButton("Disconnect", (d,w) -> {
                                         cloudPairActive.set(false);
+                                        HomeCenterOAuth.clearPending(this);
                                         HomeCenterCloudPairing.disconnect(this);
                                         RitsuPairing.disconnect(this);
                                         HomeCenterSync.status="Home Center not paired";refreshStatus();
@@ -304,112 +306,95 @@ public final class MainActivity extends Activity {
     }
 
     private void pairHomeCenter() {
-        // This is the actual Home Center CLOUD, not THECAULDRON's
-        // private Tailscale gateway. The old Home Center app approves it.
         try {
             HomeCenterCloudPairing.Paired existing=HomeCenterCloudPairing.load(this);
-            if(existing!=null){
+            if(existing!=null && existing.oauthClientId.length()>0) {
                 new AlertDialog.Builder(this)
-                    .setTitle("Home Center cloud already paired")
-                    .setMessage("Your cloud identity is stored securely in Android Keystore. " +
-                        "The direct cloud conversation channel is not deployed yet, " +
-                        "so this confirms account pairing, not message delivery.")
+                    .setTitle("Home Center account connected")
+                    .setMessage("Your Home Center sign-in is encrypted on this phone. " +
+                        "The cloud conversation reply transport is not yet deployed.")
                     .setPositiveButton("Close",null).show();
                 return;
             }
-        }catch(RuntimeException error){
-            headerStatus.setText("Cloud pairing needs repair");
+        }catch(RuntimeException ignored){
+            headerStatus.setText("Home Center session needs sign-in");
         }
-        if(!cloudPairActive.compareAndSet(false,true)){
-            headerStatus.setText("Home Center cloud pairing already in progress");
+        if(!cloudPairActive.compareAndSet(false,true)) {
+            headerStatus.setText("Home Center sign-in already running");
             return;
         }
-        headerStatus.setText("Requesting cloud approval from Home Center");
+        headerStatus.setText("Preparing Home Center sign-in");
         cloudPairWorker.execute(()->{
-            try {
-                HomeCenterCloudPairing.Pending pending=HomeCenterCloudPairing.start();
-                updates.post(()->showHomeCenterApproval(pending));
-                boolean approved=false;
-                while(System.currentTimeMillis()<pending.expiresAtMs && cloudPairActive.get()){
-                    Thread.sleep(2800);
-                    if(!cloudPairActive.get())return;
-                    if(HomeCenterCloudPairing.poll(getApplicationContext(),pending)){
-                        approved=true;break;
-                    }
-                }
-                if(!cloudPairActive.get())return;
-                if(!approved)throw new IllegalStateException("Approval expired");
+            try{
+                final String authorize=HomeCenterOAuth.begin(getApplicationContext());
                 updates.post(()->{
-                    // Cloud credentials are independent of the legacy LAN
-                    // pair. HomeCenterSync will select cloud-first and will NOT
-                    // forward queued messages to the computer gateway.
-                    HomeCenterSync.status="Home Center cloud paired; conversation bridge not deployed";
-                    refreshStatus();
-                    new AlertDialog.Builder(this)
-                        .setTitle("Home Center cloud account connected")
-                        .setMessage("Home Center approved Ritsu Control directly. " +
-                            "ChatGPT replies have not yet been tested from this app.")
-                        .setPositiveButton("Close",null).show();
+                    try {
+                        // External browser is mandatory. Never collect Google
+                        // passwords in WebView or use a shared APK credential.
+                        Intent view=new Intent(Intent.ACTION_VIEW, Uri.parse(authorize));
+                        view.addCategory(Intent.CATEGORY_BROWSABLE);
+                        startActivity(view);
+                        headerStatus.setText("Complete Home Center sign-in in your browser");
+                    }catch(RuntimeException browserError){
+                        cloudPairActive.set(false);
+                        HomeCenterOAuth.clearPending(getApplicationContext());
+                        headerStatus.setText("Could not open a secure browser");
+                    }
                 });
-            }catch(InterruptedException ignored){
-                Thread.currentThread().interrupt();
             }catch(Exception error){
+                cloudPairActive.set(false);
                 updates.post(()->headerStatus.setText(
-                    "Cloud pairing blocked: "+error.getClass().getSimpleName()));
-            }finally{cloudPairActive.set(false);}
+                    "Home Center sign-in unavailable: "+error.getClass().getSimpleName()));
+            }
         });
     }
 
-    private void showHomeCenterApproval(HomeCenterCloudPairing.Pending pending) {
-        // label() is for the dark cockpit and forces white text. The Android
-        // AlertDialog has a LIGHT background. Make its contrast explicit or
-        // the pairing ID/code render as invisible white-on-white text.
-        LinearLayout panel=new LinearLayout(this);
-        panel.setOrientation(LinearLayout.VERTICAL);
-        panel.setPadding(dp(20),dp(12),dp(20),dp(14));
-        panel.setBackgroundColor(Color.WHITE);
+    /**
+     * Android delivers this intent only after a user-completed Home Center
+     * browser redirect. The short-lived state and PKCE proof prevent another
+     * Android app from completing an unsolicited or replayed login.
+     */
+    private void acceptHomeCenterOAuth(Intent intent) {
+        if(intent==null||intent.getData()==null||
+           !"ritsucontrol".equals(intent.getData().getScheme()))return;
+        Uri callback=intent.getData();
+        intent.setData(null);
+        // The saved OAuth state, rather than an in-memory Activity flag,
+        // establishes whether this callback belongs to this app.
+        cloudPairActive.set(true);
+        headerStatus.setText("Verifying Home Center sign-in");
+        cloudPairWorker.execute(()->{
+            try{
+                HomeCenterCloudPairing.Paired paired=
+                    HomeCenterOAuth.complete(getApplicationContext(),callback);
+                HomeCenterCloudPairing.save(getApplicationContext(),paired);
+                HomeCenterSync.status="Home Center cloud paired; conversation bridge not deployed";
+                updates.post(()->{
+                    cloudPairActive.set(false);
+                    refreshStatus();
+                    new AlertDialog.Builder(this)
+                        .setTitle("Home Center connected")
+                        .setMessage("Ritsu Control signed in directly and stored its " +
+                            "own Home Center credentials securely. No pairing codes " +
+                            "or Termux scripts required. Conversation reply routing " +
+                            "has not yet been deployed.")
+                        .setPositiveButton("Done",null).show();
+                });
+            }catch(Exception error){
+                HomeCenterOAuth.clearPending(getApplicationContext());
+                updates.post(()->{
+                    cloudPairActive.set(false);
+                    headerStatus.setText(
+                        "Home Center sign-in failed: "+error.getClass().getSimpleName());
+                });
+            }
+        });
+    }
 
-        TextView instructions=label(
-            "In Termux, run tools/ritsu_cloud_pair_termux.sh. " +
-            "Enter this ID and six-digit code. " +
-            "Keep this Ritsu Control pairing screen open until approved.",15,false);
-        instructions.setTextColor(Color.rgb(32,35,43));
-        instructions.setPadding(0,0,0,dp(18));
-        panel.addView(instructions);
-
-        TextView id=label("Pairing ID: "+pending.id,16,true);
-        id.setTextColor(Color.rgb(22,25,34));
-        id.setBackgroundColor(Color.rgb(238,242,248));
-        id.setPadding(dp(12),dp(12),dp(12),dp(12));
-        id.setTextIsSelectable(true);
-        id.setContentDescription("Home Center pairing ID, long press to copy");
-        panel.addView(id,new LinearLayout.LayoutParams(-1,-2));
-
-        TextView code=label("Approval code: "+pending.code,23,true);
-        code.setTextColor(Color.rgb(15,40,55));
-        code.setBackgroundColor(Color.rgb(223,240,248));
-        code.setPadding(dp(12),dp(16),dp(12),dp(16));
-        code.setTextIsSelectable(true);
-        code.setContentDescription("Home Center six-digit approval code, long press to copy");
-        LinearLayout.LayoutParams codeLayout=new LinearLayout.LayoutParams(-1,-2);
-        codeLayout.topMargin=dp(10);
-        panel.addView(code,codeLayout);
-
-        TextView expiry=label("Expires in about 10 minutes. The code is not a Git SHA.",13,false);
-        expiry.setTextColor(Color.rgb(62,65,73));
-        expiry.setPadding(0,dp(16),0,0);
-        panel.addView(expiry);
-
-        new AlertDialog.Builder(this)
-            .setTitle("Approve Ritsu Control in Home Center")
-            .setView(panel)
-            .setPositiveButton("I entered the code",(dialog,which)->{
-                headerStatus.setText("Waiting for Home Center cloud approval");
-            })
-            .setNegativeButton("Cancel pairing",(dialog,which)->{
-                cloudPairActive.set(false);
-                headerStatus.setText("Cloud pairing canceled");
-            }).show();
+    @Override protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        acceptHomeCenterOAuth(intent);
     }
 
     private void selectSpeechTiming() {
