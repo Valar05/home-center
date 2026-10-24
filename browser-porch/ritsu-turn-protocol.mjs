@@ -26,7 +26,8 @@ export function readRitsuResult(status, expected) {
   const result = status.result;
   if (!result || result.ok !== true || result.sessionId !== turn.sessionId ||
       result.turnId !== turn.turnId || result.channel !== turn.channel ||
-      !Number.isInteger(result.tabId) || result.tabId <= 0 ||
+      !((Number.isInteger(result.tabId)&&result.tabId>0)||
+        (typeof result.tabId==='string'&&/^[A-Fa-f0-9]{32}$/.test(result.tabId))) ||
       typeof result.text !== 'string' || !result.text.trim())
       throw new Error('reply_receipt_invalid');
   return {state: 'completed', sessionId: result.sessionId, turnId: result.turnId,
