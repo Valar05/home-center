@@ -170,7 +170,7 @@ public final class MainActivity extends Activity {
                 InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         composer.setContentDescription("Optional message with Gboard typing and autocorrect");
         compose.addView(composer,new LinearLayout.LayoutParams(0,dp(56),1));
-        Button send=button("Save locally",v->queueTyped());
+        Button send=button("Send / Save",v->queueTyped());
         compose.addView(send);
         root.addView(compose);
 
@@ -253,7 +253,9 @@ public final class MainActivity extends Activity {
             bubble.addView(content);
             TextView state=label("You".equals(entry.who) &&
                 !"COMPLETED".equals(entry.state)
-                ? "NOT SENT TO CHATGPT · saved only on this phone"
+                ? ("WAITING_FOR_HOME_CENTER".equals(entry.state)
+                    ? "LOCAL ONLY · not sent"
+                    : entry.state)
                 : entry.state,11,false);
             state.setTextColor("You".equals(entry.who) &&
                 !"COMPLETED".equals(entry.state)
@@ -261,6 +263,21 @@ public final class MainActivity extends Activity {
             bubble.addView(state);
         }
         feedScroll.post(()->feedScroll.fullScroll(View.FOCUS_DOWN));
+    }
+
+    private void togglePlaywrightDelivery() {
+        boolean enabled=HomeCenterPlaywrightBridge.enabled(this);
+        new AlertDialog.Builder(this)
+            .setTitle(enabled?"Disable Playwright delivery?":"Enable Playwright delivery?")
+            .setMessage(enabled
+                ? "Already queued turns remain pending on the Home Center worker. New messages will stay local."
+                : "Each Send runs only the fixed reviewed Playwright chat-turn script on THECAULDRON through your authenticated Home Center Computer Hands worker. It operates an existing signed-in ChatGPT browser and returns a verified receipt. This is NOT OpenAI API. The workstation and its Playwright script must be online.")
+            .setNegativeButton("Cancel",null)
+            .setPositiveButton(enabled?"Disable":"Enable",(d,w)->{
+                HomeCenterPlaywrightBridge.enable(this,!enabled);
+                send(RitsuControlService.ACTION_SYNC_NOW);
+                refreshStatus();
+            }).show();
     }
 
     private void queueTyped() {
@@ -273,13 +290,14 @@ public final class MainActivity extends Activity {
         // metadata; do not falsify acceptance by an agent when cloud turn/feed
         // integration is not yet deployed.
         new AlertDialog.Builder(this)
-            .setTitle("Save on phone only?")
-            .setMessage("Home Center account sign-in is connected, but the " +
-                "Playwright ChatGPT message bridge is NOT connected. " +
-                "This text will be preserved in your local outbox and " +
-                "will NOT appear in a ChatGPT conversation.")
+            .setTitle(HomeCenterPlaywrightBridge.enabled(this)
+                ? "Send to ChatGPT via Playwright?" : "Save on phone only?")
+            .setMessage(HomeCenterPlaywrightBridge.enabled(this)
+                ? "Save this turn, then queue the fixed Playwright browser script via Home Center. A queued task is NOT a delivered ChatGPT message until its receipt is verified."
+                : "Playwright delivery is OFF. This text will remain local and will not appear in ChatGPT.")
             .setNegativeButton("Keep editing",null)
-            .setPositiveButton("Save locally",(dialog,which)->{
+            .setPositiveButton(HomeCenterPlaywrightBridge.enabled(this)
+                ? "Send via Playwright" : "Save locally",(dialog,which)->{
                 // Capture the originally selected tab. The dialog must never
                 // silently reroute a message after switching machines.
                 ledger.addInTab(active.id,active.machineId,
@@ -404,16 +422,15 @@ public final class MainActivity extends Activity {
             ConversationLedger.Entry e=pending.get(i);
             String preview=e.text.replace('\n',' ');
             if(preview.length()>70)preview=preview.substring(0,70)+"…";
-            descriptions[i]=e.tabId+" · "+preview;
+            descriptions[i]=e.tabId+" · "+e.state+" · "+preview;
         }
         new AlertDialog.Builder(this)
-            .setTitle("Saved only on this phone ("+pending.size()+")")
-            .setMessage("These messages have NOT been delivered to Playwright " +
-                "or ChatGPT. Select one to view or explicitly copy it.")
+            .setTitle("Pending Playwright turns ("+pending.size()+")")
+            .setMessage("Local-only and remote-pending turns are distinct. A verified browser reply changes its state to COMPLETED. Select to view / copy.")
             .setItems(descriptions,(dialog,index)->{
                 ConversationLedger.Entry entry=pending.get(index);
                 new AlertDialog.Builder(this)
-                    .setTitle("Not sent · "+entry.tabId)
+                    .setTitle(entry.state+" · "+entry.tabId)
                     .setMessage(entry.text)
                     .setNegativeButton("Close",null)
                     .setPositiveButton("Copy text",(d,w)->{
@@ -481,7 +498,8 @@ public final class MainActivity extends Activity {
                 "Reload conversation feed",
                 "Script campaign: toggle this tab",
                 "Request image / file retrieval",
-                "Pending messages (phone only)"
+                "Pending messages (phone only)",
+                "Playwright browser delivery: enable / disable"
         };
         new AlertDialog.Builder(this)
                 .setTitle("Ritsu controls")
@@ -518,6 +536,7 @@ public final class MainActivity extends Activity {
                             break;
                         case 11:requestAssetExplicitly();break;
                         case 12:showPendingMessages();break;
+                        case 13:togglePlaywrightDelivery();break;
                         default: break;
                     }
                 }).setNegativeButton("Close", null).show();
@@ -530,7 +549,7 @@ public final class MainActivity extends Activity {
                 new AlertDialog.Builder(this)
                     .setTitle("Home Center account connected")
                     .setMessage("Your Home Center sign-in is encrypted on this phone. " +
-                        "The cloud conversation reply transport is not yet deployed.")
+                        "Playwright browser control is available only after you enable it in More and the authenticated Windows worker is online.")
                     .setPositiveButton("Close",null).show();
                 return;
             }
@@ -700,10 +719,12 @@ public final class MainActivity extends Activity {
             RitsuWorkspace.machine(selected.machineId).label+
             " · Instant preferred · Script loop "+(selected.scriptCampaign?"ON":"OFF"));
         int unsent=ledger.pendingCount();
-        outboxWarning.setText("ChatGPT browser delivery NOT CONNECTED · "+
-            unsent+" saved locally"+(unsent==0?"":"  ·  Tap to inspect"));
-        outboxWarning.setContentDescription("No ChatGPT browser delivery. "+
-            unsent+" messages saved locally. Tap to inspect.");
+        outboxWarning.setText((HomeCenterPlaywrightBridge.enabled(this)
+            ? "Playwright transport ON · " : "Playwright transport OFF · ")+
+            unsent+" pending"+(unsent==0?"":"  ·  Tap to inspect"));
+        outboxWarning.setContentDescription(
+            "Playwright transport "+(HomeCenterPlaywrightBridge.enabled(this)?"enabled":"disabled")+
+            ". "+unsent+" pending messages. Tap to inspect.");
         if (listenButton != null) {
             listenButton.setText(mode == ListeningPolicy.Mode.RECOGNIZING
                     ? "Listening ●" : "Listen");
