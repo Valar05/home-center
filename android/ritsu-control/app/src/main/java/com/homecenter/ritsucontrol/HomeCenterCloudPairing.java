@@ -100,6 +100,32 @@ final class HomeCenterCloudPairing {
         return true;
     }
 
+    /**
+     * Explicit same-phone Termux handoff. Caller supplies an existing Home
+     * Center account session over authenticated Android loopback. It must
+     * authenticate with the real Home Center cloud before Keystore save.
+     * No old Home Center app or computer participates.
+     */
+    static void importFromTermux(Context context, JSONObject x) throws Exception {
+        if(!"ritsu-home-center-loopback-v1".equals(x.optString("schema")))
+            throw new IllegalArgumentException("Pairing protocol mismatch");
+        String access=x.optString("accessToken","");
+        String refresh=x.optString("refreshToken","");
+        String mcp=x.optString("mcpUrl","");
+        String email=x.optString("email","");
+        long expires=x.optLong("expiresAtMs",0);
+        if(access.length()<32||refresh.length()<32||
+           expires<System.currentTimeMillis()+30000L||
+           !"https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp".equals(mcp))
+            throw new IllegalArgumentException("Termux Home Center credentials invalid");
+        JSONObject proof=call("termuxHubTools",null,access);
+        if(!proof.optBoolean("ok") ||
+           !mcp.equals(proof.optString("mcpUrl","")) ||
+           !email.equalsIgnoreCase(proof.optString("email","")))
+            throw new SecurityException("Home Center owner verification failed");
+        save(context,new Paired(access,refresh,email,mcp,expires));
+    }
+
     /** A paired identity survives short-lived access token expiry. */
     static Paired refreshIfNeeded(Context context, Paired paired) throws Exception {
         if(System.currentTimeMillis()+90000L<paired.accessExpiresAtMs)
