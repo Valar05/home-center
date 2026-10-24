@@ -6,17 +6,18 @@ def parallelInstall = providers.gradleProperty('ritsuParallelInstall').orElse('f
 // Dedicated campaign package can live beside BOTH the old app and the already
 // connected v0.11 package. Never require uninstalling either to try this build.
 def campaignInstall = providers.gradleProperty('ritsuCampaignInstall').orElse('false').get() == 'true'
+def outboxInstall = providers.gradleProperty('ritsuOutboxInstall').orElse('false').get() == 'true'
 
 android {
     namespace 'com.homecenter.ritsucontrol'
     compileSdk 35
     defaultConfig {
-        applicationId campaignInstall ? 'com.homecenter.ritsucontrol.campaign' : (parallelInstall ? 'com.homecenter.ritsucontrol.connected' : 'com.homecenter.ritsucontrol')
-        manifestPlaceholders = [ritsuAppLabel: campaignInstall ? 'Ritsu Control (Campaign)' : (parallelInstall ? 'Ritsu Control (Connected)' : 'Ritsu Control'), ritsuOAuthScheme: campaignInstall ? 'ritsucontrolcampaign' : 'ritsucontrol']
+        applicationId outboxInstall ? 'com.homecenter.ritsucontrol.outbox' : (campaignInstall ? 'com.homecenter.ritsucontrol.campaign' : (parallelInstall ? 'com.homecenter.ritsucontrol.connected' : 'com.homecenter.ritsucontrol'))
+        manifestPlaceholders = [ritsuAppLabel: outboxInstall ? 'Ritsu Control (Outbox)' : (campaignInstall ? 'Ritsu Control (Campaign)' : (parallelInstall ? 'Ritsu Control (Connected)' : 'Ritsu Control')), ritsuOAuthScheme: outboxInstall ? 'ritsucontroloutbox' : (campaignInstall ? 'ritsucontrolcampaign' : 'ritsucontrol')]
         minSdk 26
         targetSdk 35
-        versionCode 13
-        versionName '0.12.0'
+        versionCode 14
+        versionName '0.13.0'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
