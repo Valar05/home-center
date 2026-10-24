@@ -103,7 +103,21 @@ async function inspect(){
         (await meta.composer.innerText()).trim()==='',
       generating:meta.stopRunning,
       playwrightAttached:true,createdBrowser:false,createdTab:false,
-      replyTextRead:false};
+      replyTextRead:false,
+      structuralSelectors:Object.fromEntries(await Promise.all([
+        '[data-message-author-role]', '[data-testid="conversation-turn"]',
+        '[data-testid*="conversation"]','[data-testid*="message"]',
+        '.markdown','article','main',
+        'button[data-testid="send-button"]','button[aria-label="Send"]',
+        'button[data-testid="stop-button"]'
+      ].map(async sel=>[sel,await page.locator(sel).count()]))),
+      mainTextCharacters:await page.locator('main').first().count()===1?
+        (await page.locator('main').first().innerText()).length:0,
+      mainHasCanaryPrefix:await page.locator('main').first().count()===1?
+        (await page.locator('main').first().innerText()).includes('RITSU_PW_'):false,
+      composerTextCharacters:meta.composerCount===1?
+        (await meta.composer.innerText()).length:0
+    };
   }finally{await browser.close().catch(()=>{})}
 }
 async function apply(){
