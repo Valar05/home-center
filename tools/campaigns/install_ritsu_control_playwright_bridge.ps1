@@ -4,7 +4,7 @@ $ProgressPreference="SilentlyContinue"
 $root=Join-Path $env:LOCALAPPDATA "RitsuControlBridge"
 $file=Join-Path $root "ritsu_control_playwright_bridge.mjs"
 $receipt=Join-Path $root "campaign-last-receipt.json"
-$sourceRevision="5d57e79ab025ec6d3b65187176fc7c8357ffa502"
+$sourceRevision="895da47ba2b21d9923c6a3c9c385222f1a1d5eb3"
 $sourceUrl="https://raw.githubusercontent.com/Valar05/home-center/$sourceRevision/tools/campaigns/ritsu_control_playwright_bridge.mjs"
 New-Item -ItemType Directory -Path $root -Force | Out-Null
 function Record([string]$phase,[string]$message,[bool]$ok) {
@@ -32,6 +32,11 @@ try {
     Move-Item $candidate $file -Force
   }
   if(!(Test-Path $file)){throw "Playwright bridge not installed"}
+  if(!(Test-Path (Join-Path $root "node_modules\playwright\package.json"))){
+    $env:PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD="1"
+    & npm install --prefix $root --no-audit --no-fund --ignore-scripts --save-exact playwright@1.55.0
+    if($LASTEXITCODE -ne 0){throw "Playwright npm runtime unavailable"}
+  }
   & node $file --doctor
   if($LASTEXITCODE -ne 0){throw "Playwright browser doctor failed with exit "+$LASTEXITCODE}
   Record "doctor" ("playwright_live_cdp_probe_succeeded;sha256="+(Get-FileHash $file -Algorithm SHA256).Hash) $true
