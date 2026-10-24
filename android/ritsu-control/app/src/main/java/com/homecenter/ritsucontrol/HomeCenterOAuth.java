@@ -32,8 +32,12 @@ final class HomeCenterOAuth {
     static String scheme(Context app) {
         if("com.homecenter.ritsucontrol.outbox".equals(app.getPackageName()))
             return "ritsucontroloutbox";
+        if("com.homecenter.ritsucontrol.bridge".equals(app.getPackageName()))
+            return "ritsucontrolbridge";
         return "com.homecenter.ritsucontrol.campaign".equals(app.getPackageName())
-            ? "ritsucontrolcampaign" : "ritsucontrol";
+            ? "ritsucontrolcampaign"
+            : "com.homecenter.ritsucontrol.outbox".equals(app.getPackageName())
+                ? "ritsucontroloutbox" : "ritsucontrol";
     }
     static String redirect(Context app){return scheme(app)+"://oauth/callback";}
     private static final String STORAGE="ritsu_home_center_native_oauth_v1";
