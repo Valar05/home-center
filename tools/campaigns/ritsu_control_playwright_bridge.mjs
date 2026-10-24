@@ -79,7 +79,20 @@ async function doctor(){
         canaryUser:Array.from(document.querySelectorAll('[data-message-author-role="user"]')).some(e=>
           e.innerText.includes('RITSU_PW_BRIDGE_CANARY_20261024_OK')),
         canaryAssistant:Array.from(document.querySelectorAll('[data-message-author-role="assistant"]')).some(e=>
-          e.innerText.includes('RITSU_PW_BRIDGE_CANARY_20261024_OK'))};
+          e.innerText.includes('RITSU_PW_BRIDGE_CANARY_20261024_OK')),
+        canaryAnywhere:document.body?.innerText?.includes('RITSU_PW_BRIDGE_CANARY_20261024_OK')||false,
+        mainTextLength:document.querySelector('main')?.innerText?.length||0,
+        editorMeta:Array.from(document.querySelectorAll('[contenteditable="true"]')).slice(0,3).map(e=>({
+          tag:e.tagName,id:e.id,role:e.getAttribute('role'),
+          dataTestId:e.getAttribute('data-testid'),
+          placeholder:e.getAttribute('data-placeholder'),
+          charCount:(e.innerText||'').length
+        })),
+        sendControls:Array.from(document.querySelectorAll('button')).map(b=>({
+          aria:b.getAttribute('aria-label'),testId:b.getAttribute('data-testid'),
+          disabled:b.disabled
+        })).filter(b=>/send|submit|stop/i.test((b.aria||'')+' '+(b.testId||''))).slice(0,12)
+      };
     }).catch(()=>({error:'page_evaluation_unavailable'}));
     surfaces.push({path:new URL(page.url()).pathname.slice(0,90),...state});
   }
