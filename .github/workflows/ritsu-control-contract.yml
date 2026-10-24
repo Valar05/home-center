@@ -78,6 +78,7 @@ jobs:
           grep -q 'Home Center cloud paired; conversation bridge not deployed' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
           grep -q 'HomeCenterCloudPairing.load' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
           ! grep -q 'RitsuPairing.save(this' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          ! grep -q 'RitsuPairing.load(app)' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
           grep -q 'Only private Tailscale IPv4 is accepted' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuPairing.java
           grep -q 'class HomeCenterSync' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
           grep -q 'ACTION_SYNC_NOW' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
