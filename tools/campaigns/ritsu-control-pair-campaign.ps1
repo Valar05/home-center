@@ -58,6 +58,8 @@ function Emit([string]$message){
  Write-Output $safe
  if(Get-Command termux-clipboard-set -ErrorAction SilentlyContinue){
   try{$safe | termux-clipboard-set}catch{Write-Output 'RITSU_PAIR CLIPBOARD_UNAVAILABLE'}
+ }elseif(Get-Command Set-Clipboard -ErrorAction SilentlyContinue){
+  try{Set-Clipboard -Value $safe}catch{Write-Output 'RITSU_PAIR CLIPBOARD_UNAVAILABLE'}
  }else{Write-Output 'RITSU_PAIR CLIPBOARD_UNAVAILABLE'}
 }
 function Pinned {
@@ -91,8 +93,10 @@ function Status{
  $state=if($s){$s.state}else{'not_started'}
  $phase=if($s){$s.phase}else{'none'}
  $rid=if($s){$s.runId}else{'none'}
+ $age=if($s){[math]::Max(0,[math]::Round(([DateTime]::UtcNow-[DateTime]::Parse([string]$s.atUtc)).TotalSeconds))}else{-1}
  Emit ('state='+$state+' phase='+$phase+' runId='+$rid+
-  ' workerAlive='+(Is-OwnedAlive $p)+' stopLatch='+(Test-Path $stopFile)+
+  ' workerAlive='+(Is-OwnedAlive $p)+' lastActionAgeSec='+$age+
+  ' stopLatch='+(Test-Path $stopFile)+
   ' phonePaired=UNVERIFIED receipts='+$history)
 }
 function Start-Run([bool]$resume){
@@ -130,10 +134,11 @@ function Worker{
   return
  }
  $file=[string]$job.tokenFile
- Need (-not [string]::IsNullOrWhiteSpace($file)) 'existing_phone_token_not_found_use_resume_with_tokenfile'
- Need (Test-Path -LiteralPath $file -PathType Leaf) 'phone_token_file_missing'
+ if(-not [string]::IsNullOrWhiteSpace($file)){
+  Need (Test-Path -LiteralPath $file -PathType Leaf) 'phone_token_file_missing'
+ }
  $script:phase='owner_pairing'
- Receipt $script:phase 'awaiting_owner' 'validating_gateway_then_displaying_masked_local_ui'
+ Receipt $script:phase 'awaiting_owner' 'choose_existing_token_file_if_needed_then_check_private_gateway'
  # Existing helper checks the token against the existing Tailscale listener.
  # The helper never prints or copies the credential. Its GUI is local to Windows.
  & $helper -Mode Show -TokenFile $file -TailnetHost ([string]$job.host) | Out-Null
