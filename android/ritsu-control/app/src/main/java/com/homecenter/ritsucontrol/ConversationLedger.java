@@ -123,6 +123,40 @@ final class ConversationLedger {
         }
     }
 
+    /** Pending user turns are phone-local until a verified cloud receipt.
+     * Count them across every tab to prevent the selected tab hiding work. */
+    int pendingCount() {
+        synchronized(IO_LOCK) {
+            JSONArray all=rows();
+            int count=0;
+            for(int i=0;i<all.length();i++) {
+                JSONObject row=all.optJSONObject(i);
+                if(row!=null && "You".equals(row.optString("who")) &&
+                    !"COMPLETED".equals(row.optString("state")))count++;
+            }
+            return count;
+        }
+    }
+
+    /** Read-only recovery of locally saved user turns. Does not invent a
+     * remote ChatGPT receipt or silently replay an uncertain message. */
+    List<Entry> unsent() {
+        synchronized(IO_LOCK) {
+            List<Entry> pending=new ArrayList<>();
+            JSONArray all=rows();
+            for(int i=0;i<all.length();i++) {
+                JSONObject row=all.optJSONObject(i);
+                if(row==null||!"You".equals(row.optString("who"))||
+                    "COMPLETED".equals(row.optString("state")))continue;
+                pending.add(new Entry(row.optString("id"),
+                    row.optString("channel"),"You",row.optString("text"),
+                    row.optString("state"),row.optString("tabId","main"),
+                    row.optString("machineId","termux-android")));
+            }
+            return pending;
+        }
+    }
+
     boolean updateState(String id,String state) {
         if(id==null||id.isEmpty()||state==null||
                 !state.matches("[A-Z_]{3,45}"))throw new IllegalArgumentException("invalid receipt state");
