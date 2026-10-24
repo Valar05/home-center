@@ -6,6 +6,7 @@ import {promises as fs} from 'node:fs';
 import {homedir} from 'node:os';
 import path from 'node:path';
 import {createRequire} from 'node:module';
+import {spawn} from 'node:child_process';
 const args=new Map();
 for(let i=2;i<process.argv.length;i+=2)args.set(process.argv[i],process.argv[i+1]??'');
 const sha=s=>createHash('sha256').update(s,'utf8').digest('hex');
@@ -31,20 +32,48 @@ function playwright(){
   throw Error('playwright_not_installed_in_authorized_home_center_worker');
 }
 async function attach(pw){
-  // THECAULDRON's approved Chromium Throne Chrome CDP port was verified
-  // against a live Chrome PID + listening 127.0.0.1 socket on 2026-10-24.
+  // Use only the approved, already-provisioned Chromium Throne profile.
+  // Port 9234 is the protected relay, NOT a Chrome DevTools endpoint.
   const endpoints=[9236,9222,9223,9333].map(port=>'http://127.0.0.1:'+port);
-  for(const url of endpoints){
-    try{
-      const res=await fetch(url+'/json/version',{signal:AbortSignal.timeout(1500)});
-      if(!res.ok)continue;
-      const version=await res.json();
-      if(!String(version.Browser||'').toLowerCase().includes('chrome') &&
-         !String(version.Browser||'').toLowerCase().includes('chromium'))continue;
-      return await pw.chromium.connectOverCDP(url,{timeout:7000});
-    }catch{}
+  const tryAttach=async()=>{
+    for(const url of endpoints){
+      try{
+        const res=await fetch(url+'/json/version',{signal:AbortSignal.timeout(1500)});
+        if(!res.ok)continue;
+        const version=await res.json();
+        if(!/chrome|chromium/i.test(String(version.Browser||'')))continue;
+        return await pw.chromium.connectOverCDP(url,{timeout:7000});
+      }catch{}
+    }
+    return null;
+  };
+  const current=await tryAttach();
+  if(current)return current;
+  // Browser windows/processes are replaceable; account profile and turns are not.
+  // Start only the existing Home Center launcher, without creating a new profile.
+  const existing=path.join(homedir(),'AppData','Local','HomeCenter','ChromiumThrone');
+  const launcher=path.join(existing,'launch-chromium-throne.cmd');
+  const profile=path.join(existing,'profile');
+  let launchText='';
+  try{
+    if(!(await fs.stat(profile)).isDirectory())throw Error('profile_missing');
+    launchText=await fs.readFile(launcher,'utf8');
+  }catch{throw Error('approved_chromium_throne_profile_unavailable');}
+  if(!launchText.includes('--remote-debugging-port=9236') ||
+     !launchText.includes('--remote-debugging-address=127.0.0.1') ||
+     !launchText.includes('--user-data-dir=') ||
+     !launchText.includes('ChromiumThrone'))
+    throw Error('approved_browser_launcher_not_ready');
+  const child=spawn('cmd.exe',['/d','/c',launcher],{
+    cwd:existing,windowsHide:true,detached:true,stdio:'ignore'
+  });
+  child.unref();
+  for(let attempt=0;attempt<24;attempt++){
+    await new Promise(resolve=>setTimeout(resolve,850));
+    const recovered=await tryAttach();
+    if(recovered)return recovered;
   }
-  throw Error('approved_chromium_cdp_session_unavailable');
+  throw Error('approved_chromium_cdp_session_unavailable_after_recovery');
 }
 async function load(){
   try {const value=JSON.parse(await fs.readFile(stateFile,'utf8'));
