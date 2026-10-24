@@ -1,0 +1,92 @@
+name: Deploy Ritsu OAuth Home Center Pairing
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/deploy-ritsu-oauth-pair-mcp.yml'
+  workflow_dispatch:
+    inputs:
+      confirm:
+        required: true
+        type: string
+        description: Type deploy to update Home Center MCP with Ritsu pairing operations
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: home-center-mcp-ritsu-pair-deploy
+  cancel-in-progress: false
+jobs:
+  release-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/heads/main
+          fetch-depth: 0
+      - name: Enforce pinned main and scope ownership without changing the release gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          sh tools/assert_home_center_mcp_main_release.sh "$GITHUB_WORKSPACE"
+          node --check functions/home_center_mcp.js
+          node --check functions/ritsu_cloud_pairing_mcp.js
+          node --test functions/ritsu_cloud_pairing_mcp.test.js
+  deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.confirm == 'deploy' }}
+    needs: release-contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      PROJECT: home-center-dclar
+      REGION: us-central1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/heads/main
+          fetch-depth: 0
+      - name: Validate identical pinned source before release
+        shell: bash
+        run: |
+          set -euo pipefail
+          sh tools/assert_home_center_mcp_main_release.sh "$GITHUB_WORKSPACE"
+          node --check functions/home_center_mcp.js
+          node --test functions/ritsu_cloud_pairing_mcp.test.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - run: npm --prefix functions ci
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Update existing Home Center MCP (preserve environment and secrets)
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha="$(git rev-parse HEAD)"
+          hash="$(node -e "process.stdout.write(require('./contracts/home-center-public-tool-manifest.v1.json').manifestSha256)")"
+          gcloud functions deploy homeCenterMcp \
+            --gen2 --project="$PROJECT" --region="$REGION" \
+            --runtime=nodejs22 --source="$GITHUB_WORKSPACE/functions" \
+            --entry-point=homeCenterMcp --trigger-http \
+            --allow-unauthenticated --timeout=300s --memory=1Gi --cpu=1 \
+            --update-env-vars="HOME_CENTER_SOURCE_REPOSITORY=Valar05/home-center,HOME_CENTER_SOURCE_COMMIT=$sha,HOME_CENTER_SOURCE_REF=refs/heads/main,HOME_CENTER_PUBLIC_MANIFEST_SHA256=$hash"
+      - name: Verify deployed release revision and availability
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://$REGION-$PROJECT.cloudfunctions.net/homeCenterMcp/ready"
+          curl --fail --silent --show-error "$url" -o /tmp/ready.json
+          node - <<'NODE'
+          const fs=require('node:fs');const {execFileSync}=require('node:child_process');
+          const data=JSON.parse(fs.readFileSync('/tmp/ready.json','utf8'));
+          const actual=data.releaseIdentity||{};
+          const sha=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+          if(data.ready!==true||actual.sourceCommit!==sha||actual.sourceRef!=='refs/heads/main')
+            throw Error('Home Center MCP release readback mismatch');
+          console.log('RITSU_OAUTH_HOME_CENTER_MCP_DEPLOY_PASS source='+sha);
+          NODE
