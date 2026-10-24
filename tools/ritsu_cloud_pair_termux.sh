@@ -20,7 +20,7 @@ emit(){
 bad(){ STATE=blocked; emit "reason=$1"; exit 1; }
 trap 'x=$?; if [ "$x" -ne 0 ] && [ "$STATE" != blocked ]; then STATE=blocked; emit "reason=unexpected_failure exit=$x"; fi' EXIT
 if [ "$#" -gt 0 ] && { [ "$1" = --help ] || [ "$1" = -h ]; }; then
-  printf '%s\n' 'Usage: bash tools/ritsu_cloud_pair_termux.sh [PAIRING_ID SIX_DIGIT_CODE]' \
+  printf '%s\n' 'Usage: bash tools/ritsu_cloud_pair_termux.sh [--auth-check | PAIRING_ID SIX_DIGIT_CODE]' \
     'Open Ritsu Control > More > Pair with Home Center (cloud).' \
     'Paste its pairing ID and six-digit code into Termux.' \
     'Uses the already authenticated HOME CENTER CLOUD Termux account, not the desktop or old Android app.'
@@ -29,7 +29,11 @@ fi
 [ "$PREFIX" = /data/data/com.termux/files/usr ] || bad 'run_inside_Termux'
 command -v node >/dev/null 2>&1 || bad 'Termux_nodejs_missing'
 [ -r "$CFG" ] || bad 'existing_Home_Center_Termux_login_missing'
-if [ "$#" -ge 2 ]; then
+AUTH_CHECK=0
+if [ "${1:-}" = '--auth-check' ]; then
+  AUTH_CHECK=1
+  ID='AUTH_CHECK_ONLY_123456'; CODE='000000'
+elif [ "$#" -ge 2 ]; then
   ID="$1"; CODE="$2"
 else
   [ -r /dev/tty ] || bad 'cannot_read_terminal_enter_id_and_code_as_args'
@@ -42,7 +46,12 @@ fi
 [[ "$ID" =~ ^[a-zA-Z0-9_-]{12,160}$ ]] || bad invalid_pairing_id
 [[ "$CODE" =~ ^[0-9]{6}$ ]] || bad invalid_six_digit_code
 STATE=authorizing
-emit 'target=Home_Center_cloud_Ritsu_Control no_Windows=1'
+if [ "$AUTH_CHECK" = 1 ]; then
+  emit 'mode=credential_preflight no_pairing_code_required=1'
+else
+  emit 'target=Home_Center_cloud_Ritsu_Control no_Windows=1'
+fi
+export RITSU_AUTH_CHECK="$AUTH_CHECK"
 export HOME_CENTER_CODEX_CONFIG="$CFG"
 if node --input-type=module - "$ID" "$CODE" <<'RITSU_NODE'
 import fs from 'node:fs';
@@ -118,6 +127,10 @@ if(!tools) {
 if(tools.mcpUrl!=='https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp')
   throw Error('wrong_home_center_cloud_authority');
 console.log('EXISTING_HOME_CENTER_CLOUD_LOGIN_VALID=1');
+if(process.env.RITSU_AUTH_CHECK==='1') {
+  console.log('HOME_CENTER_LOGIN_PREFLIGHT=VALID');
+  process.exit(0);
+}
 const approved=await req('termuxPairingApproveHub',{pairingId:id,code},token);
 if(approved.status!=='approved'||approved.clientKind!=='ritsu-control-android')
   throw Error('cloud_did_not_confirm_approval');
@@ -134,8 +147,13 @@ console.log('RITSU_CLOUD_PAIR_CLAIMED_BY_APP=1');
 console.log('ANDROID_KEYSTORE_SAVE=check_Ritsu_Control_status');
 RITSU_NODE
 then
-  STATE=claimed
-  emit 'cloud_claimed=1 app_local_keystore=verify_in_Ritsu_Control'
+  if [ "$AUTH_CHECK" = 1 ]; then
+    STATE=auth_valid
+    emit 'Home_Center_credentials=valid no_Ritsu_code_consumed=1'
+  else
+    STATE=claimed
+    emit 'cloud_claimed=1 app_local_keystore=verify_in_Ritsu_Control'
+  fi
 else
   bad 'cloud_approval_failed_or_Ritsu_app_not_claimed_see_error_above'
 fi
