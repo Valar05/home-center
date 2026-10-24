@@ -12,7 +12,7 @@ android {
     compileSdk 35
     defaultConfig {
         applicationId campaignInstall ? 'com.homecenter.ritsucontrol.campaign' : (parallelInstall ? 'com.homecenter.ritsucontrol.connected' : 'com.homecenter.ritsucontrol')
-        manifestPlaceholders = [ritsuAppLabel: campaignInstall ? 'Ritsu Control (Campaign)' : (parallelInstall ? 'Ritsu Control (Connected)' : 'Ritsu Control')]
+        manifestPlaceholders = [ritsuAppLabel: campaignInstall ? 'Ritsu Control (Campaign)' : (parallelInstall ? 'Ritsu Control (Connected)' : 'Ritsu Control'), ritsuOAuthScheme: campaignInstall ? 'ritsucontrolcampaign' : 'ritsucontrol']
         minSdk 26
         targetSdk 35
         versionCode 13
