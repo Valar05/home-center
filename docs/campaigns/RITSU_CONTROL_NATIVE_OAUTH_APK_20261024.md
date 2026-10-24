@@ -29,3 +29,11 @@ Open `Ritsu Control (Connected)` if using parallel APK. More → Connect Home Ce
 
 ## Security
 No private Home Center access token, refresh token, Google OAuth client secret or owner password baked into APK. Callback code, client ID and S256 verifier bind the one-time OAuth state. Long-lived refresh token only after owner sign-in, encrypted with Android Keystore and stored in app-private preferences. A ten-minute expiry is for the pending login, not the lifecycle of the renewable session.
+
+## Final verified Android build
+- GitHub Actions build **PASS**: https://github.com/Valar05/home-center/actions/runs/40059842092 (source commit `111aea3e06516fe0c38941194cb2dd747ac0bf7d`)
+- Default `com.homecenter.ritsucontrol` APK artifact `12547365270`.
+- Parallel `com.homecenter.ritsucontrol.connected` APK artifact `12547160921`; aapt package readback PASS, actual APK manifest contains UTF-16 encoded package ID and launcher label `Ritsu Control (Connected)`.
+- Parallel APK SHA-256 `267128d00f33594da7383913715854d98aac7dc296860b95cc348a27c02aa0e6`, 63,365 bytes, APK V2 signature present.
+- Original v0.10.1 debug signer fingerprint `01cb5ea5f3ff303330740a95f226e738edc5906754e2ad82906ca67505f62ce2`; v0.11 standard initial build signer `0994610dc28d8336018e50c42bbb3d66e35cbf9036bf968f1dbd8b05df6a4175`. Existing v0.10.1 cannot upgrade in place; **parallel edition** is the safe installation choice.
+- Live OAuth metadata preflight on THECAULDRON confirmed issuer, register, authorize, token paths and PKCE S256. Physical device browser login/receipt is still **unverified**.
