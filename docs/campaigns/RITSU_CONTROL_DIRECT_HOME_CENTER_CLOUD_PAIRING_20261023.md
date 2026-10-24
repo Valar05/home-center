@@ -16,7 +16,7 @@
 - `HomeCenterSync.java`: **cloud only**; never auto-falls back to the legacy desktop gateway and never falsely announces a delivered conversation. States distinguish `cloud not paired`, `cloud paired; conversation bridge not deployed`, and `cloud session needs re-pairing`.
 - `android/ritsu-control/app/build.gradle`: version 0.10.0 / versionCode 10.
 - `.github/workflows/ritsu-control-contract.yml`: Android Gradle unit build/assembleDebug and cloud-pair/no-PC source checks; `ritsu-control-v0.10-home-center-cloud-pairing-debug-apk` as artifact.
-- Latest source commit for the pairing patch: `c07a788ad5813754038d38f3780661ddc4a9b428` on `feature/ritsu-command-bridge-scavenge-20261022`. Earlier commit `2f17424d4a889ff0828574668acca8721a9af859` passed CI but lacks a last-minute cancel-before-poll guard; prefer the latest source's CI-produced APK.
+- Latest Android pairing source commit: `7e379334dfbc8dff18949a791bad96c5383235d1` on `feature/ritsu-command-bridge-scavenge-20261022`. Earlier commit `2f17424d4a889ff0828574668acca8721a9af859` passed CI but lacks a last-minute cancel-before-poll guard; prefer the latest source's CI-produced APK.
 - NO user-side pairing attempt was made and NO production cloud or Windows gateway was modified. Physical-device approval is a required user consent action and proof is pending.
 
 ## Usage after v0.10 APK installation
@@ -31,3 +31,9 @@ GitHub-hosted Android debug builds may use different debug signing keys from pri
 
 ## After owner approval
 The next slice is a cloud-owned Ritsu Control conversation API/relay that binds Home Center to the already proven Playwright reply path, with explicit delivery receipts, rather than routing the Android app to THECAULDRON's IP directly. Pairing and chat delivery are separate milestones.
+
+## Current CI/artifact receipt
+- `Ritsu Control Android Voice and Insets Contract` (source `7e379334dfbc8dff18949a791bad96c5383235d1`): **PASS** at https://github.com/Valar05/home-center/actions/runs/40050525574.
+- Final debug APK artifact: `ritsu-control-v0.10-home-center-cloud-pairing-debug-apk` artifactId `12543575014`; extracted `app-debug.apk` 60,217 bytes; SHA-256 `fd5572dcc6923bf7e24ad43a7f06c02179ea9f866a5749aebca5d8090eb14635`.
+- Manifest in source blocks cleartext network. Cloud pairing is HTTPS-only; HomeCenterSync cloud-first and **no desktop fallback**.
+- State: CODE_WRITTEN=1 BUILD_TESTED=1 APK_READY=1 PHONE_INSTALLED=UNVERIFIED OWNER_APPROVED=NO_EVIDENCE CHATGPT_CLOUD_DELIVERY=NOT_DEPLOYED. Existing old Home Center Termux device registration is not Ritsu Control app approval.
