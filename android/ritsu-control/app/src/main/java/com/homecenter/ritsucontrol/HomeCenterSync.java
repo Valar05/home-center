@@ -60,7 +60,12 @@ final class HomeCenterSync implements AutoCloseable {
         // Cloud-paired users' outbox to the legacy desktop/Tailscale gateway.
         HomeCenterCloudPairing.Paired cloud=HomeCenterCloudPairing.load(app);
         if(cloud!=null) {
-            status="Home Center cloud paired; conversation bridge not deployed";
+            try {
+                HomeCenterCloudPairing.refreshIfNeeded(app,cloud);
+                status="Home Center cloud paired; conversation bridge not deployed";
+            }catch(Exception cloudError) {
+                status="Home Center cloud session needs re-pairing";
+            }
             return;
         }
         RitsuPairing.Pair paired=RitsuPairing.load(app);
