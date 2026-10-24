@@ -5,6 +5,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.StatusBarManager;
 import android.content.ComponentName;
+import android.content.ClipboardManager;
+import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -41,7 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class MainActivity extends Activity {
     private static final int REQUEST_MIC = 19646;
     private static final int REQUEST_NOTIFICATIONS = 19644;
-    private TextView headerStatus, details;
+    private TextView headerStatus, details, outboxWarning;
     private EditText composer;
     private Button listenButton, muteButton;
     private TextView liveWords;
@@ -107,6 +110,12 @@ public final class MainActivity extends Activity {
         headerStatus.setPadding(0, dp(5), 0, dp(12));
         root.addView(headerStatus);
 
+        outboxWarning=label("",13,true);
+        outboxWarning.setTextColor(Color.rgb(255,193,113));
+        outboxWarning.setPadding(dp(10),dp(8),dp(10),dp(8));
+        outboxWarning.setOnClickListener(view->showPendingMessages());
+        root.addView(outboxWarning);
+
         // These select independently persisted conversations, NOT just the
         // old channel filters. Each conversation carries a machine preset.
         LinearLayout sessions=new LinearLayout(this);
@@ -153,7 +162,7 @@ public final class MainActivity extends Activity {
         composer.setMaxLines(4);
         composer.setTextColor(Color.WHITE);
         composer.setHintTextColor(Color.LTGRAY);
-        composer.setHint("Say something, or type with Gboard…");
+        composer.setHint("Draft for local outbox. ChatGPT send unavailable.");
         composer.setTextSize(15);
         composer.setInputType(InputType.TYPE_CLASS_TEXT |
                 InputType.TYPE_TEXT_FLAG_MULTI_LINE |
@@ -161,7 +170,7 @@ public final class MainActivity extends Activity {
                 InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         composer.setContentDescription("Optional message with Gboard typing and autocorrect");
         compose.addView(composer,new LinearLayout.LayoutParams(0,dp(56),1));
-        Button send=button("Queue text",v->queueTyped());
+        Button send=button("Save locally",v->queueTyped());
         compose.addView(send);
         root.addView(compose);
 
@@ -242,8 +251,13 @@ public final class MainActivity extends Activity {
             TextView content=label(entry.text,16,false);
             content.setPadding(0,dp(4),0,dp(4));
             bubble.addView(content);
-            TextView state=label(entry.state,11,false);
-            state.setTextColor(Color.LTGRAY);
+            TextView state=label("You".equals(entry.who) &&
+                !"COMPLETED".equals(entry.state)
+                ? "NOT SENT TO CHATGPT · saved only on this phone"
+                : entry.state,11,false);
+            state.setTextColor("You".equals(entry.who) &&
+                !"COMPLETED".equals(entry.state)
+                ? Color.rgb(255,193,113) : Color.LTGRAY);
             bubble.addView(state);
         }
         feedScroll.post(()->feedScroll.fullScroll(View.FOCUS_DOWN));
@@ -258,12 +272,24 @@ public final class MainActivity extends Activity {
         // Machine + conversation + Instant preference + loop mode are durable
         // metadata; do not falsify acceptance by an agent when cloud turn/feed
         // integration is not yet deployed.
-        ledger.addInTab(active.id,active.machineId,"control","You",text,
-                ConversationLedger.OUTBOX);
-        RitsuControlService.feedRevision++;
-        send(RitsuControlService.ACTION_SYNC_NOW);
-        composer.setText("");
-        renderFeed();
+        new AlertDialog.Builder(this)
+            .setTitle("Save on phone only?")
+            .setMessage("Home Center account sign-in is connected, but the " +
+                "Playwright ChatGPT message bridge is NOT connected. " +
+                "This text will be preserved in your local outbox and " +
+                "will NOT appear in a ChatGPT conversation.")
+            .setNegativeButton("Keep editing",null)
+            .setPositiveButton("Save locally",(dialog,which)->{
+                // Capture the originally selected tab. The dialog must never
+                // silently reroute a message after switching machines.
+                ledger.addInTab(active.id,active.machineId,
+                    "control","You",text,ConversationLedger.OUTBOX);
+                RitsuControlService.feedRevision++;
+                send(RitsuControlService.ACTION_SYNC_NOW);
+                composer.setText("");
+                renderFeed();
+                refreshStatus();
+            }).show();
     }
 
     /** Cockpit has a dark surface; Android platform dropdown is light. */
@@ -364,6 +390,43 @@ public final class MainActivity extends Activity {
             }).show();
     }
 
+    private void showPendingMessages(){
+        java.util.List<ConversationLedger.Entry> pending=ledger.unsent();
+        if(pending.isEmpty()){
+            new AlertDialog.Builder(this).setTitle("Phone outbox")
+                .setMessage("No pending local messages. Home Center OAuth " +
+                    "does not currently submit to Playwright or ChatGPT.")
+                .setPositiveButton("Close",null).show();
+            return;
+        }
+        String[] descriptions=new String[pending.size()];
+        for(int i=0;i<pending.size();i++){
+            ConversationLedger.Entry e=pending.get(i);
+            String preview=e.text.replace('\n',' ');
+            if(preview.length()>70)preview=preview.substring(0,70)+"…";
+            descriptions[i]=e.tabId+" · "+preview;
+        }
+        new AlertDialog.Builder(this)
+            .setTitle("Saved only on this phone ("+pending.size()+")")
+            .setMessage("These messages have NOT been delivered to Playwright " +
+                "or ChatGPT. Select one to view or explicitly copy it.")
+            .setItems(descriptions,(dialog,index)->{
+                ConversationLedger.Entry entry=pending.get(index);
+                new AlertDialog.Builder(this)
+                    .setTitle("Not sent · "+entry.tabId)
+                    .setMessage(entry.text)
+                    .setNegativeButton("Close",null)
+                    .setPositiveButton("Copy text",(d,w)->{
+                        ClipboardManager clipboard=(ClipboardManager)
+                            getSystemService(Context.CLIPBOARD_SERVICE);
+                        if(clipboard!=null)clipboard.setPrimaryClip(
+                            ClipData.newPlainText("Ritsu unsent message",
+                                entry.text));
+                    }).show();
+            })
+            .setNegativeButton("Close",null).show();
+    }
+
     private void requestAssetExplicitly(){
         new AlertDialog.Builder(this).setTitle("Request retrieval for this turn")
             .setItems(new String[]{"Ask for an image","Ask for a file"},(dialog,which)->{
@@ -417,7 +480,8 @@ public final class MainActivity extends Activity {
                 "Pin Quick Settings tile",
                 "Reload conversation feed",
                 "Script campaign: toggle this tab",
-                "Request image / file retrieval"
+                "Request image / file retrieval",
+                "Pending messages (phone only)"
         };
         new AlertDialog.Builder(this)
                 .setTitle("Ritsu controls")
@@ -453,6 +517,7 @@ public final class MainActivity extends Activity {
                             refreshConversationSelectors();refreshStatus();
                             break;
                         case 11:requestAssetExplicitly();break;
+                        case 12:showPendingMessages();break;
                         default: break;
                     }
                 }).setNegativeButton("Close", null).show();
@@ -634,6 +699,11 @@ public final class MainActivity extends Activity {
             "\nTab: "+selected.title+" · Machine: "+
             RitsuWorkspace.machine(selected.machineId).label+
             " · Instant preferred · Script loop "+(selected.scriptCampaign?"ON":"OFF"));
+        int unsent=ledger.pendingCount();
+        outboxWarning.setText("ChatGPT browser delivery NOT CONNECTED · "+
+            unsent+" saved locally"+(unsent==0?"":"  ·  Tap to inspect"));
+        outboxWarning.setContentDescription("No ChatGPT browser delivery. "+
+            unsent+" messages saved locally. Tap to inspect.");
         if (listenButton != null) {
             listenButton.setText(mode == ListeningPolicy.Mode.RECOGNIZING
                     ? "Listening ●" : "Listen");
