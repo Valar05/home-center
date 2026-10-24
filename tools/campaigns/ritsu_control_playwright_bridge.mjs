@@ -122,7 +122,32 @@ async function main(){
       if(prior.promptSha256!==promptSha256||prior.tabId!==tabId)
         throw Error('turn_id_collision');
       if(prior.state==='complete'){output(prior.receipt);return;}
-      throw Error('dispatch_uncertain_do_not_repost');
+      // Only a specifically requested recovery may advance a still-visible,
+      // exact local draft. Never resend a prompt that might already be posted.
+      if(!args.has('--resume-draft'))throw Error('dispatch_uncertain_do_not_repost');
+      const pw=playwright(),browser=await attach(pw);
+      try {
+        const pages=browser.contexts().flatMap(c=>c.pages());
+        const matches=[];
+        for(const page of pages){
+          if(page.url()!=='https://chatgpt.com/')continue;
+          const editor=page.locator('div[contenteditable="true"][role="textbox"]').first();
+          if(await editor.count() && (await editor.innerText()).trim()===prompt)
+            matches.push(page);
+        }
+        if(matches.length!==1)throw Error('draft_identity_not_uniquely_verified_no_repost');
+        const page=matches[0],send=page.getByRole('button',{name:'Send',exact:true});
+        if(!(await send.isVisible()))throw Error('verified_draft_send_button_missing');
+        await send.click({timeout:10000});
+        await page.waitForURL(/\/c\//,{timeout:35000});
+        state.tabs[tabId]={url:page.url()};
+        prior.state='browser_dispatched_reply_pending';
+        await save(state);
+        output({kind:'dispatch_receipt',turnId,tabId,
+          state:'browser_dispatched_reply_pending',verified:false,
+          source:'playwright-rendered-chatgpt-submit',url:page.url()});
+        return;
+      }finally{await browser.close();}
     }
     const pw=playwright();
     const browser=await attach(pw);
@@ -163,11 +188,17 @@ async function main(){
       state.tabs[tabId]={url:page.url()};
       await save(state);
       await input.fill(prompt);
-      await input.press('Enter');
+      const send=page.getByRole('button',{name:'Send',exact:true});
+      if(!(await send.isVisible()))throw Error('send_button_not_visible_no_submission');
+      await send.click({timeout:10000});
+      // Navigation is real browser submission proof, not proof of an answer.
+      await page.waitForURL(/\/c\//,{timeout:35000});
+      state.tabs[tabId]={url:page.url()};
+      await save(state);
       const answers=page.locator('[data-message-author-role="assistant"]');
       await page.waitForFunction(
         n=>document.querySelectorAll('[data-message-author-role="assistant"]').length>n,
-        before,{timeout:115000});
+        before,{timeout:45000});
       const latest=answers.last();
       let last='',stable=0,finished=false;
       const deadline=Date.now()+150000;
