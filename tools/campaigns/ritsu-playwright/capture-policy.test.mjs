@@ -27,7 +27,7 @@ test('accepted readback preserves exact visible answer and SHA',()=>{
 });
 test('rejects hidden, incomplete, stale, wrong-conversation responses',()=>{
   for(const v of [{text:'unrelated'},{stopVisible:true},{stableSamples:2},
-    {assistantCount:2},{assistantCount:4},{promptObserved:false},
+    {assistantCount:0},{assistantCount:-1},{promptObserved:false},
     {conversationUrl:'https://chatgpt.com/c/bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'}]){
     assert.throws(()=>evidence({...valid,...v}));
   }
@@ -36,4 +36,11 @@ test('private failures never contain the prompt or answer',()=>{
   const r=publicDiagnostic(new Error('DOM changed'));
   assert.equal(r.reason,'DOM changed');
   assert.equal(JSON.stringify(r).includes(marker),false);
+});
+
+test('virtualized message containers can shrink while exact reply nonce still proves freshness',()=>{
+  const a=evidence({...valid,baseline:7,assistantCount:6});
+  assert.equal(a.exactCanaryMatched,true);
+  assert.equal(a.baseline,7);
+  assert.equal(a.assistantCount,6);
 });
