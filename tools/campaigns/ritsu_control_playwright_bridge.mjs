@@ -31,7 +31,9 @@ function playwright(){
   throw Error('playwright_not_installed_in_authorized_home_center_worker');
 }
 async function attach(pw){
-  const endpoints=[9222,9223,9333].map(port=>'http://127.0.0.1:'+port);
+  // THECAULDRON's approved Chromium Throne Chrome CDP port was verified
+  // against a live Chrome PID + listening 127.0.0.1 socket on 2026-10-24.
+  const endpoints=[9236,9222,9223,9333].map(port=>'http://127.0.0.1:'+port);
   for(const url of endpoints){
     try{
       const res=await fetch(url+'/json/version',{signal:AbortSignal.timeout(1500)});
