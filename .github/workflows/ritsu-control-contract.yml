@@ -156,3 +156,20 @@ jobs:
           path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
+      - name: Build Campaign edition, preserving existing connected app
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle -p android/ritsu-control :app:assembleDebug -PritsuCampaignInstall=true --rerun-tasks --no-daemon
+          APK=android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
+          AAPT="$(find "$ANDROID_HOME/build-tools" -name aapt -type f | sort -V | tail -1)"
+          "$AAPT" dump badging "$APK" | grep -F "package: name='com.homecenter.ritsucontrol.campaign'"
+          grep -Fq "'Ritsu Control (Campaign)'" android/ritsu-control/app/build.gradle
+          echo "RITSU_CAMPAIGN_PARALLEL_INSTALL_CONFIRMED=1"
+      - name: Publish isolated v0.12 Campaign APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ritsu-control-v0.12-tabs-machines-campaign-apk
+          path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
