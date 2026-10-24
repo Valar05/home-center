@@ -130,9 +130,20 @@ async function renderedReply(page, prompt, timeoutMs=74000){
   }
   throw Error('rendered_assistant_answer_unverified_no_repost');
 }
-async function locateSentPage(browser,prompt) {
+async function locateSentPage(browser,prompt,knownUrl) {
+  const contexts=browser.contexts();
+  const pages=contexts.flatMap(c=>c.pages());
+  // Rehydrate the saved conversation URL after Chrome/window restarts.
+  // Never re-submit a prompt merely because the page was closed.
+  if(knownUrl && /^https:\/\/chatgpt\.com\/c\/[a-zA-Z0-9-]+$/.test(knownUrl) &&
+     !pages.some(p=>p.url()===knownUrl)) {
+    if(!contexts.length)throw Error('browser_context_unavailable');
+    const restored=await contexts[0].newPage();
+    await restored.goto(knownUrl,{waitUntil:'domcontentloaded',timeout:35000});
+    pages.push(restored);
+  }
   const found=[];
-  for(const page of browser.contexts().flatMap(c=>c.pages())){
+  for(const page of pages){
     if(!/^https:\/\/chatgpt\.com\/c\//.test(page.url()))continue;
     const main=await page.locator('main').innerText().catch(()=>null);
     if(main && main.includes('You said:\n'+prompt+'\nChatGPT said:\n'))
@@ -161,9 +172,28 @@ async function main(){
      Buffer.compare(buffer,Buffer.from(prompt,'utf8'))!==0)
     throw Error('invalid_utf8_prompt');
   // Refuse concurrent browser use. The queue remains serialized in Computer Hands.
+  // A machine crash cannot leave a permanent dead-process lock.
+  // Old owner PID is checked; never override a live worker.
   let lock;
-  try{lock=await fs.open(lockFile,'wx');await lock.writeFile(String(process.pid));}
-  catch(e){if(e.code==='EEXIST')throw Error('another_turn_running_no_duplicate_send');throw e;}
+  try {
+    lock=await fs.open(lockFile,'wx');
+  } catch(e) {
+    if(e.code!=='EEXIST')throw e;
+    const previous=(await fs.readFile(lockFile,'utf8')).trim().split(':')[0];
+    const previousPid=Number(previous);
+    if(!Number.isInteger(previousPid)||previousPid<=0)
+      throw Error('ambiguous_lock_owner_no_duplicate_send');
+    let alive=true;
+    try{process.kill(previousPid,0)}catch(error){
+      if(error.code==='ESRCH')alive=false;
+      else throw Error('cannot_verify_previous_lock_owner');
+    }
+    if(alive)throw Error('another_turn_running_no_duplicate_send');
+    const stale=lockFile+'.stale-'+Date.now();
+    await fs.rename(lockFile,stale);
+    lock=await fs.open(lockFile,'wx');
+  }
+  await lock.writeFile(process.pid+':'+new Date().toISOString());
   try{
     const state=await load(),prior=state.turns[turnId],promptSha256=sha(prompt);
     if(prior){
@@ -173,7 +203,7 @@ async function main(){
       if(args.has('--recover-reply')){
         const pw=playwright(),browser=await attach(pw);
         try{
-          const page=await locateSentPage(browser,prompt);
+          const page=await locateSentPage(browser,prompt,state.tabs[tabId]?.url);
           const answer=await renderedReply(page,prompt,60000);
           const receipt=makeReply(turnId,tabId,page,answer);
           state.turns[turnId]={state:'complete',tabId,promptSha256,receipt};
@@ -220,7 +250,12 @@ async function main(){
       if(!page){
         const chatContext=contexts.find(c=>c.pages().some(p=>/^https:\/\/chatgpt\.com\//.test(p.url())))||contexts[0];
         page=await chatContext.newPage();
-        await page.goto('https://chatgpt.com/',{waitUntil:'domcontentloaded',timeout:35000});
+        // A missing window is not a missing conversation. Reopen its exact URL.
+        const savedUrl=known?.url;
+        const restore=typeof savedUrl==='string' &&
+          /^https:\/\/chatgpt\.com\/c\/[a-zA-Z0-9-]+$/.test(savedUrl);
+        await page.goto(restore?savedUrl:'https://chatgpt.com/',
+          {waitUntil:'domcontentloaded',timeout:35000});
       }
       // ChatGPT's composer varies by currently deployed web UI revision.
       // Select only an actual visible editable composer; never a login box.
@@ -241,7 +276,7 @@ async function main(){
         }
       }
       if(!input)throw Error('chatgpt_composer_not_available_requires_owner_session');
-      const before=await page.locator('[data-message-author-role="assistant"]').count();
+      // Presence of a previous assistant node is not proof a new turn completed.
       // Durable marker precedes dispatch. Never silently re-send on uncertain state.
       state.turns[turnId]={state:'sending',tabId,promptSha256,startedAt:new Date().toISOString()};
       state.tabs[tabId]={url:page.url()};
