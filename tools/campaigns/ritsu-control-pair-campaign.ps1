@@ -101,7 +101,7 @@ function Status{
  $state=if($s){$s.state}else{'not_started'}
  $phase=if($s){$s.phase}else{'none'}
  $rid=if($s){$s.runId}else{'none'}
- $age=if($s){[math]::Max(0,[math]::Round(([DateTime]::UtcNow-[DateTime]::Parse([string]$s.atUtc)).TotalSeconds))}else{-1}
+ $age=if($s){[math]::Max(0,[math]::Round(([DateTimeOffset]::UtcNow-[DateTimeOffset]::Parse([string]$s.atUtc)).TotalSeconds))}else{-1}
  Emit ('state='+$state+' phase='+$phase+' runId='+$rid+
   ' workerAlive='+(Is-OwnedAlive $p)+' lastActionAgeSec='+$age+
   ' stopLatch='+(Test-Path $stopFile)+
