@@ -513,7 +513,7 @@ public final class MainActivity extends Activity {
      */
     private void acceptHomeCenterOAuth(Intent intent) {
         if(intent==null||intent.getData()==null||
-           !"ritsucontrol".equals(intent.getData().getScheme()))return;
+           !HomeCenterOAuth.scheme(this).equals(intent.getData().getScheme()))return;
         Uri callback=intent.getData();
         intent.setData(null);
         // The saved OAuth state, rather than an in-memory Activity flag,
