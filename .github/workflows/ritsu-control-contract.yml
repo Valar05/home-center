@@ -71,26 +71,35 @@ jobs:
           grep -q 'selectSpeechTiming' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
           grep -q 'DEFAULT_PAUSE_MS = 5000' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/SpokenTurnBuffer.java
           grep -q 'AndroidKeyStore' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuPairing.java
-          grep -q 'termuxPairingStart' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterCloudPairing.java
-          grep -q 'termuxPairingPoll' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterCloudPairing.java
-          grep -q 'termuxTokenRefresh' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterCloudPairing.java
-          grep -q 'homeCenterMcp/mcp' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterCloudPairing.java
-          grep -q 'HomeCenterCloudPairing.start' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
-          # Regression: label() uses white text for the dark cockpit; the
-          # light AlertDialog must override every pairing label explicitly.
+          # Native owner sign-in must never embed reusable bearer
+          # credentials or require the old app/Termux approval code.
+          grep -q 'HomeCenterOAuth.begin' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'HomeCenterOAuth.complete' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'Intent.ACTION_VIEW' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'ritsucontrol' "$MANIFEST"
+          grep -q 'android.intent.category.BROWSABLE' "$MANIFEST"
+          grep -q 'android:usesCleartextTraffic="false"' "$MANIFEST"
+          grep -q 'code_challenge_method=S256' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterOAuth.java
+          grep -q '/oauth/userinfo' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterOAuth.java
+          grep -q 'MessageDigest.isEqual' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterOAuth.java
+          grep -q 'AndroidKeyStore' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterCloudPairing.java
+          grep -q 'oauthClientId' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterCloudPairing.java
           python3 - <<'PY'
           from pathlib import Path
-          text=Path('android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java').read_text()
-          dialog=text.split('private void showHomeCenterApproval(',1)[1].split('private void selectSpeechTiming(',1)[0]
-          assert 'panel.setBackgroundColor(Color.WHITE)' in dialog
-          for key in ('instructions','id','code','expiry'):
-              assert f'{key}.setTextColor(Color.rgb(' in dialog, key
-          assert 'Pairing ID: ' in dialog
-          assert 'Approval code: ' in dialog
-          assert 'tools/ritsu_cloud_pair_termux.sh' in dialog
-          assert 'Keep this Ritsu Control pairing screen open' in dialog
-          assert 'Open the OLD Home Center app' not in dialog
-          print('RITSU_PAIRING_DIALOG_VISIBLE_TEXT_CONTRACT=PASS')
+          app=Path('android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java').read_text()
+          oauth=Path('android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterOAuth.java').read_text()
+          login=app.split('private void pairHomeCenter()',1)[1].split('private void selectSpeechTiming()',1)[0]
+          assert 'HomeCenterOAuth.begin' in login
+          assert 'HomeCenterOAuth.complete' in login
+          assert 'showHomeCenterApproval' not in app
+          assert 'old Home Center app' not in login
+          assert 'ritsu_cloud_pair_termux.sh' not in login
+          assert 'android.net.Uri' in app
+          assert 'client_id' in oauth and 'code_verifier' in oauth
+          assert 'token_endpoint_auth_method' in oauth
+          assert 'offline_access' in oauth
+          assert 'accessToken' not in oauth.split('static String begin(',1)[1].split('static HomeCenterCloudPairing.Paired complete',1)[0]
+          print('RITSU_NATIVE_OAUTH_NO_MANUAL_CODE=PASS')
           PY
           grep -q 'Home Center cloud paired; conversation bridge not deployed' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
           grep -q 'HomeCenterCloudPairing.load' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
@@ -105,7 +114,7 @@ jobs:
       - name: Publish isolated Android debug APK (not deployed)
         uses: actions/upload-artifact@v4
         with:
-          name: ritsu-control-v0.10.1-visible-pairing-code-debug-apk
+          name: ritsu-control-v0.11-native-home-center-oauth-debug-apk
           path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
