@@ -3723,6 +3723,102 @@ exports.termuxPairingApprove = onRequest({timeoutSeconds: 30}, async (req, res) 
   }
 });
 
+// Bounded owner-authorized pairing approval from an already authenticated
+// Home Center Termux session. This is NOT an unauthenticated shortcut around
+// owner approval: caller must present a live Home Center hub bearer, the
+// human must provide Ritsu Control's unique pairing ID and six-digit code,
+// and the pending request must name the exact Ritsu Control Android client.
+exports.termuxPairingApproveHub = onRequest({timeoutSeconds: 30}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    if (req.method !== 'POST') {
+      sendJson(res, 405, {ok: false, error: 'post_required'});
+      return;
+    }
+    const identity = await requireTermuxHubAccess(req);
+    const actor = identity.data || {};
+    const email = safeText(actor.email, 320).toLowerCase();
+    const uid = safeText(actor.uid, 160);
+    if (!uid || !email || !actor.googleTokens) {
+      sendJson(res, 403, {ok: false, error: 'existing_home_center_login_insufficient'});
+      return;
+    }
+    const pairingId = safeText(req.body && req.body.pairingId, 160);
+    const code = safeText(req.body && req.body.code, 20);
+    if (!/^[A-Za-z0-9_-]{12,160}$/.test(pairingId) || !/^[0-9]{6}$/.test(code)) {
+      sendJson(res, 400, {ok: false, error: 'pairing_id_or_code_invalid'});
+      return;
+    }
+    const reference = termuxCollections().pairings.doc(pairingId);
+    const now = Date.now();
+    const outcome = await admin.firestore().runTransaction(async (tx) => {
+      const snap = await tx.get(reference);
+      if (!snap.exists) return 'pairing_not_found';
+      const record = snap.data() || {};
+      if (record.status !== 'pending' || Number(record.expiresAtMs || 0) <= now) {
+        return 'pairing_not_pending';
+      }
+      if (record.clientKind !== 'ritsu-control-android') return 'not_ritsu_control';
+      if (hubTokenHash(code) !== record.codeHash) return 'pairing_code_mismatch';
+      const groups = cleanTermuxGroups(record.requestedGroups);
+      const held = Array.isArray(actor.allowedGroups) ? actor.allowedGroups.filter((x) => TERMUX_SAFE_TOOL_GROUPS.includes(x)) : [];
+      if (groups.some((group) => !held.includes(group))) return 'scope_not_authorized';
+      tx.update(reference, {
+        status: 'approved',
+        approvedAtMs: now,
+        uid, email,
+        allowedGroups: groups,
+        clientId: 'ritsu-control-' + pairingId,
+        approvalSource: 'existing_home_center_termux_login',
+      });
+      return 'approved';
+    });
+    if (outcome !== 'approved') {
+      const status = outcome === 'pairing_not_found' ? 404 :
+        outcome === 'pairing_code_mismatch' ? 403 : 409;
+      sendJson(res, status, {ok: false, error: outcome});
+      return;
+    }
+    sendJson(res, 200, {ok: true, status: 'approved', clientKind: 'ritsu-control-android'});
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'ritsu_cloud_pair_approval_failed'});
+  }
+});
+
+// Authenticated Termux-side receipt for the same explicitly approved Ritsu
+// cloud pairing. No credentials or owner email are returned.
+exports.termuxPairingStatusHub = onRequest({timeoutSeconds: 30}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    if (req.method !== 'POST') {
+      sendJson(res, 405, {ok: false, error: 'post_required'});
+      return;
+    }
+    const identity = await requireTermuxHubAccess(req);
+    const id = safeText(req.body && req.body.pairingId, 160);
+    if (!/^[A-Za-z0-9_-]{12,160}$/.test(id)) {
+      sendJson(res, 400, {ok: false, error: 'pairing_id_invalid'});
+      return;
+    }
+    const record = await termuxCollections().pairings.doc(id).get();
+    if (!record.exists) {
+      sendJson(res, 404, {ok: false, error: 'pairing_not_found'});
+      return;
+    }
+    const entry = record.data() || {};
+    if (entry.clientKind !== 'ritsu-control-android' ||
+        entry.uid !== identity.data.uid || entry.email !== identity.data.email ||
+        !['approved', 'claimed'].includes(entry.status)) {
+      sendJson(res, 403, {ok: false, error: 'pairing_not_owned_or_unapproved'});
+      return;
+    }
+    sendJson(res, 200, {ok: true, status: entry.status,
+      claimed: entry.status === 'claimed', clientKind: 'ritsu-control-android'});
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'ritsu_cloud_pair_status_failed'});
+  }
+});
+
 exports.termuxPairingPoll = onRequest({timeoutSeconds: 30}, async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
