@@ -8,6 +8,7 @@ import {createCanonicalVoiceSender} from './ritsu-canonical-voice-sender.mjs';
 import {createRitsuAndroidGateway} from './ritsu-android-gateway.mjs';
 import {createRitsuHomeCenterCoordinator} from './ritsu-home-center-coordinator.mjs';
 import {createLocalThroneTransport} from './ritsu-home-center-throne-transport.mjs';
+import {createRitsuPlaywrightTransport} from '../tools/campaigns/ritsu-playwright/android-transport.mjs';
 import {createFileCoordinatorStore} from './ritsu-coordinator-file-store.mjs';
 function required(name) {
   const v=process.env[name];
@@ -21,11 +22,17 @@ async function main() {
     controlSessionId:required('HOME_CENTER_RITSU_CONTROL_SESSION'),
     dialogueSessionId:required('HOME_CENTER_RITSU_DIALOGUE_SESSION'),
     store:createFileCoordinatorStore({directory:required('HOME_CENTER_RITSU_STATE_DIR')}),
-    transport:createLocalThroneTransport({
-      capability:required('HOME_CENTER_CHROMIUM_THRONE_CAPABILITY'),
-      baseUrl:process.env.HOME_CENTER_RITSU_RELAY_URL||
-        'http://127.0.0.1:9235/v1/throne',
-    }),
+    transport:process.env.HOME_CENTER_RITSU_TRANSPORT==='playwright'
+      ? createRitsuPlaywrightTransport({
+          directory:path.join(required('HOME_CENTER_RITSU_STATE_DIR'),'playwright-jobs'),
+          tabId:required('HOME_CENTER_RITSU_BOUND_TAB_ID'),
+          boundUrl:required('HOME_CENTER_RITSU_BOUND_CONVERSATION_URL'),
+        })
+      : createLocalThroneTransport({
+          capability:required('HOME_CENTER_CHROMIUM_THRONE_CAPABILITY'),
+          baseUrl:process.env.HOME_CENTER_RITSU_RELAY_URL||
+            'http://127.0.0.1:9235/v1/throne',
+        }),
   });
   const voiceReturn=createRitsuVoiceReturn({
     directory:path.join(required('HOME_CENTER_RITSU_STATE_DIR'),'voice-return'),
