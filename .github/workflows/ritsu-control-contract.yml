@@ -46,6 +46,7 @@ jobs:
           grep -q 'android.permission.SYSTEM_ALERT_WINDOW' "$MANIFEST"
           grep -q 'android.permission.BIND_QUICK_SETTINGS_TILE' "$MANIFEST"
           grep -q 'android.permission.INTERNET' "$MANIFEST"
+          grep -q 'android:usesCleartextTraffic="false"' "$MANIFEST"
           ! grep -q 'BOOT_COMPLETED' "$MANIFEST"
           grep -Fq 'android:foregroundServiceType="specialUse|microphone"' "$MANIFEST"
           grep -q 'Settings.canDrawOverlays' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
