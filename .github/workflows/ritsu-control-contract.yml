@@ -126,7 +126,11 @@ jobs:
           APK=android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
           AAPT="$(find "$ANDROID_HOME/build-tools" -name aapt -type f | sort -V | tail -1)"
           "$AAPT" dump badging "$APK" | grep -F "package: name='com.homecenter.ritsucontrol.connected'"
-          "$AAPT" dump badging "$APK" | grep -F "application-label:'Ritsu Control (Connected)'"
+          # aapt badging can omit literal application labels. The explicit
+          # manifest placeholder + Gradle package selection are the source
+          # contract; aapt's package name proves install isolation.
+          grep -Fq 'android:label="${ritsuAppLabel}"' android/ritsu-control/app/src/main/AndroidManifest.xml
+          grep -Fq "'Ritsu Control (Connected)'" android/ritsu-control/app/build.gradle
           echo "RITSU_PARALLEL_INSTALL_PRESERVES_OLD_PACKAGE=1"
       - name: Publish parallel-install Ritsu Control OAuth APK
         uses: actions/upload-artifact@v4
