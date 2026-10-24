@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <!-- The owner explicitly pairs with Home Center on Tailscale. No browser credential. -->
+    <!-- Ritsu Control pairs directly with Home Center cloud via HTTPS owner approval. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
@@ -16,7 +16,7 @@
     </queries>
     <!-- App requires explicit user consent for mic and overlay. No boot receiver. -->
     <application android:allowBackup="false" android:label="Ritsu Control" android:supportsRtl="true"
-         android:usesCleartextTraffic="true" android:theme="@android:style/Theme.Material.Light.NoActionBar">
+         android:usesCleartextTraffic="false" android:theme="@android:style/Theme.Material.Light.NoActionBar">
         <activity android:name=".MainActivity" android:exported="true"
                   android:windowSoftInputMode="adjustResize">
             <intent-filter>
