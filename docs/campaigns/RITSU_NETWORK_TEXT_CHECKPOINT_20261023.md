@@ -1,3 +1,5 @@
+> **SUPERSEDED for the user goal of assistant reply recovery:** The network-only attempt below remains a truthful *historical blocked checkpoint*, but Home Center and Playwright subsequently **retrieved and UTF-8-verified a real assistant reply**. See [RITSU_PLAYWRIGHT_RETURN_PATH_PROVEN_20261023.md](RITSU_PLAYWRIGHT_RETURN_PATH_PROVEN_20261023.md). The Playwright path is primary; do not resume network SSE reverse-engineering before the next structured-output acceptance test.
+
 # Ritsu network text-return: live checkpoint (2026-10-23)
 Mission: Prove a COMPLETE, EXACT ChatGPT assistant-visible answer can be retrieved by a deterministic Home Center-controlled reader from one authorized existing Chromium Throne network stream before enabling speech or autonomous code execution.
 
