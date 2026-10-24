@@ -297,7 +297,12 @@ public final class RitsuControlService extends Service {
         if (!pendingTurn.hasText()) return;
         String complete = pendingTurn.flush();
         updateSpeechPreview();
-        ledger.add("control", "You", complete, ConversationLedger.OUTBOX);
+        // Speech belongs to the currently selected conversation tab.
+        // A tab's machine preset is captured when the spoken turn commits,
+        // not assumed at the moment a remote worker eventually sees it.
+        RitsuWorkspace.Tab active=new RitsuWorkspace(this).active();
+        ledger.addInTab(active.id,active.machineId,"control","You",
+                complete,ConversationLedger.OUTBOX);
         feedRevision++;
         homeCenterSync.requestNow();
         recognitionStatus = "Spoken message saved; submitting to Home Center if paired";

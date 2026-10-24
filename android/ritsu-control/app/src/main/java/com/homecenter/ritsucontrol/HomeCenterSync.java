@@ -65,12 +65,10 @@ final class HomeCenterSync implements AutoCloseable {
             status="Home Center cloud not paired";
             return;
         }
-        try {
+        HomeCenterCloudPairing.Paired current=
             HomeCenterCloudPairing.refreshIfNeeded(app,paired);
-            status="Home Center cloud paired; conversation bridge not deployed";
-        }catch(Exception error){
-            status="Home Center cloud session needs re-pairing";
-        }
+        status=HomeCenterPlaywrightBridge.sync(app,ledger,current);
+        main.post(onChange);
     }
 
     /** Home Center alone controls deterministic result publication.

@@ -5,6 +5,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.StatusBarManager;
 import android.content.ComponentName;
+import android.content.ClipboardManager;
+import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -27,6 +30,9 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Spinner;
+import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
@@ -38,13 +44,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class MainActivity extends Activity {
     private static final int REQUEST_MIC = 19646;
     private static final int REQUEST_NOTIFICATIONS = 19644;
-    private TextView headerStatus, details;
+    private TextView headerStatus, details, outboxWarning;
     private EditText composer;
     private Button listenButton, muteButton;
     private TextView liveWords;
     private LinearLayout transcriptRows;
     private ScrollView feedScroll;
     private ConversationLedger ledger;
+    private RitsuWorkspace workspace;
+    private Spinner tabChooser, machineChooser;
+    private boolean syncingSelectors;
     private String channel = "all";
     private boolean pendingBubbleEnable;
     private long lastFeedRevision = -1;
@@ -67,6 +76,7 @@ public final class MainActivity extends Activity {
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ledger = new ConversationLedger(this);
+        workspace = new RitsuWorkspace(this);
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(Color.rgb(19, 18, 28));
@@ -100,6 +110,32 @@ public final class MainActivity extends Activity {
         headerStatus.setPadding(0, dp(5), 0, dp(12));
         root.addView(headerStatus);
 
+        outboxWarning=label("",13,true);
+        outboxWarning.setTextColor(Color.rgb(255,193,113));
+        outboxWarning.setPadding(dp(10),dp(8),dp(10),dp(8));
+        outboxWarning.setOnClickListener(view->showPendingMessages());
+        root.addView(outboxWarning);
+
+        // These select independently persisted conversations, NOT just the
+        // old channel filters. Each conversation carries a machine preset.
+        LinearLayout sessions=new LinearLayout(this);
+        sessions.setOrientation(LinearLayout.HORIZONTAL);
+        tabChooser=new Spinner(this);
+        sessions.addView(tabChooser,new LinearLayout.LayoutParams(0,dp(48),1));
+        sessions.addView(button("+ Tab",v->createConversationTab()));
+        root.addView(sessions);
+
+        LinearLayout machineRow=new LinearLayout(this);
+        machineRow.setOrientation(LinearLayout.HORIZONTAL);
+        machineRow.setGravity(Gravity.CENTER_VERTICAL);
+        TextView machineTitle=label("Machine",12,true);
+        machineTitle.setPadding(0,0,dp(10),0);
+        machineRow.addView(machineTitle);
+        machineChooser=new Spinner(this);
+        machineRow.addView(machineChooser,new LinearLayout.LayoutParams(0,dp(48),1));
+        root.addView(machineRow);
+        initConversationSelectors();
+
         LinearLayout tabs = new LinearLayout(this);
         tabs.setOrientation(LinearLayout.HORIZONTAL);
         addTab(tabs,"All","all");
@@ -126,7 +162,7 @@ public final class MainActivity extends Activity {
         composer.setMaxLines(4);
         composer.setTextColor(Color.WHITE);
         composer.setHintTextColor(Color.LTGRAY);
-        composer.setHint("Say something, or type with Gboard…");
+        composer.setHint("Draft for local outbox. ChatGPT send unavailable.");
         composer.setTextSize(15);
         composer.setInputType(InputType.TYPE_CLASS_TEXT |
                 InputType.TYPE_TEXT_FLAG_MULTI_LINE |
@@ -134,7 +170,7 @@ public final class MainActivity extends Activity {
                 InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         composer.setContentDescription("Optional message with Gboard typing and autocorrect");
         compose.addView(composer,new LinearLayout.LayoutParams(0,dp(56),1));
-        Button send=button("Queue text",v->queueTyped());
+        Button send=button("Send / Save",v->queueTyped());
         compose.addView(send);
         root.addView(compose);
 
@@ -191,7 +227,8 @@ public final class MainActivity extends Activity {
         if(transcriptRows==null)return;
         transcriptRows.removeAllViews();
         List<ConversationLedger.Entry> messages=ledger.list(
-                "dialogue".equals(channel) ? "ritsu" : channel);
+                "dialogue".equals(channel) ? "ritsu" : channel,
+                workspace.active().id);
         if(messages.isEmpty()) {
             TextView empty=label("No verified results in this view yet.\n" +
                 ("worker".equals(channel) ? "Worker results need the authenticated Home Center bridge." :
@@ -208,16 +245,39 @@ public final class MainActivity extends Activity {
             LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);
             lp.setMargins(dp(4),dp(4),dp(4),dp(9));
             transcriptRows.addView(bubble,lp);
-            TextView origin=label(entry.channel.toUpperCase()+" · "+entry.who,12,true);
+            TextView origin=label(entry.channel.toUpperCase()+" · "+entry.who+
+                    " · "+RitsuWorkspace.machine(entry.machineId).label,12,true);
             bubble.addView(origin);
             TextView content=label(entry.text,16,false);
             content.setPadding(0,dp(4),0,dp(4));
             bubble.addView(content);
-            TextView state=label(entry.state,11,false);
-            state.setTextColor(Color.LTGRAY);
+            TextView state=label("You".equals(entry.who) &&
+                !"COMPLETED".equals(entry.state)
+                ? ("WAITING_FOR_HOME_CENTER".equals(entry.state)
+                    ? "LOCAL ONLY · not sent"
+                    : entry.state)
+                : entry.state,11,false);
+            state.setTextColor("You".equals(entry.who) &&
+                !"COMPLETED".equals(entry.state)
+                ? Color.rgb(255,193,113) : Color.LTGRAY);
             bubble.addView(state);
         }
         feedScroll.post(()->feedScroll.fullScroll(View.FOCUS_DOWN));
+    }
+
+    private void togglePlaywrightDelivery() {
+        boolean enabled=HomeCenterPlaywrightBridge.enabled(this);
+        new AlertDialog.Builder(this)
+            .setTitle(enabled?"Disable Playwright delivery?":"Enable Playwright delivery?")
+            .setMessage(enabled
+                ? "Already queued turns remain pending on the Home Center worker. New messages will stay local."
+                : "Each Send runs only the fixed reviewed Playwright chat-turn script on THECAULDRON through your authenticated Home Center Computer Hands worker. It operates an existing signed-in ChatGPT browser and returns a verified receipt. This is NOT OpenAI API. The workstation and its Playwright script must be online.")
+            .setNegativeButton("Cancel",null)
+            .setPositiveButton(enabled?"Disable":"Enable",(d,w)->{
+                HomeCenterPlaywrightBridge.enable(this,!enabled);
+                send(RitsuControlService.ACTION_SYNC_NOW);
+                refreshStatus();
+            }).show();
     }
 
     private void queueTyped() {
@@ -225,11 +285,177 @@ public final class MainActivity extends Activity {
         if(text.isEmpty())return;
         // The main CONTROL thread owns every external user turn.
         // Secondary dialogue requires an explicit Home Center decision.
-        ledger.add("control","You",text,ConversationLedger.OUTBOX);
-        RitsuControlService.feedRevision++;
-        send(RitsuControlService.ACTION_SYNC_NOW);
-        composer.setText("");
-        renderFeed();
+        RitsuWorkspace.Tab active=workspace.active();
+        // Machine + conversation + Instant preference + loop mode are durable
+        // metadata; do not falsify acceptance by an agent when cloud turn/feed
+        // integration is not yet deployed.
+        new AlertDialog.Builder(this)
+            .setTitle(HomeCenterPlaywrightBridge.enabled(this)
+                ? "Send to ChatGPT via Playwright?" : "Save on phone only?")
+            .setMessage(HomeCenterPlaywrightBridge.enabled(this)
+                ? "Save this turn, then queue the fixed Playwright browser script via Home Center. A queued task is NOT a delivered ChatGPT message until its receipt is verified."
+                : "Playwright delivery is OFF. This text will remain local and will not appear in ChatGPT.")
+            .setNegativeButton("Keep editing",null)
+            .setPositiveButton(HomeCenterPlaywrightBridge.enabled(this)
+                ? "Send via Playwright" : "Save locally",(dialog,which)->{
+                // Capture the originally selected tab. The dialog must never
+                // silently reroute a message after switching machines.
+                ledger.addInTab(active.id,active.machineId,
+                    "control","You",text,ConversationLedger.OUTBOX);
+                RitsuControlService.feedRevision++;
+                send(RitsuControlService.ACTION_SYNC_NOW);
+                composer.setText("");
+                renderFeed();
+                refreshStatus();
+            }).show();
+    }
+
+    /** Cockpit has a dark surface; Android platform dropdown is light. */
+    private ArrayAdapter<String> newReadableSpinner(){
+        return new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item){
+            @Override public View getView(int position,View convertView,
+                                          android.view.ViewGroup parent){
+                View v=super.getView(position,convertView,parent);
+                if(v instanceof TextView)((TextView)v).setTextColor(Color.WHITE);
+                return v;
+            }
+            @Override public View getDropDownView(int position,View convertView,
+                                                   android.view.ViewGroup parent){
+                View v=super.getDropDownView(position,convertView,parent);
+                if(v instanceof TextView)((TextView)v).setTextColor(Color.DKGRAY);
+                v.setBackgroundColor(Color.WHITE);
+                return v;
+            }
+        };
+    }
+
+    private void initConversationSelectors() {
+        ArrayAdapter<String> machines=newReadableSpinner();
+        for(RitsuWorkspace.Machine m:RitsuWorkspace.MACHINES)
+            machines.add(m.label);
+        machineChooser.setAdapter(machines);
+        machineChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+            @Override public void onNothingSelected(AdapterView<?> parent){}
+            @Override public void onItemSelected(AdapterView<?> parent,View view,
+                                                  int position,long id){
+                if(syncingSelectors)return;
+                try{
+                    RitsuWorkspace.Tab t=workspace.active();
+                    workspace.setMachine(t.id,RitsuWorkspace.MACHINES[position].id);
+                    renderFeed();refreshStatus();
+                }catch(RuntimeException error){
+                    headerStatus.setText("Machine selection failed");
+                }
+            }
+        });
+        tabChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+            @Override public void onNothingSelected(AdapterView<?> parent){}
+            @Override public void onItemSelected(AdapterView<?> parent,View view,
+                                                  int position,long id){
+                if(syncingSelectors)return;
+                try{
+                    java.util.List<RitsuWorkspace.Tab> items=workspace.tabs();
+                    if(position>=items.size())return;
+                    workspace.select(items.get(position).id);
+                    refreshConversationSelectors();
+                    renderFeed();refreshStatus();
+                }catch(RuntimeException error){
+                    headerStatus.setText("Tab selection failed");
+                }
+            }
+        });
+        refreshConversationSelectors();
+    }
+
+    private void refreshConversationSelectors(){
+        syncingSelectors=true;
+        try{
+            java.util.List<RitsuWorkspace.Tab> items=workspace.tabs();
+            ArrayAdapter<String> list=newReadableSpinner();
+            int selected=0;
+            String current=workspace.active().id;
+            for(int i=0;i<items.size();i++){
+                RitsuWorkspace.Tab t=items.get(i);
+                list.add(t.title+(t.scriptCampaign?"  ⚙":""));
+                if(t.id.equals(current))selected=i;
+            }
+            tabChooser.setAdapter(list);
+            tabChooser.setSelection(selected);
+            String machine=workspace.active().machineId;
+            for(int i=0;i<RitsuWorkspace.MACHINES.length;i++)
+                if(RitsuWorkspace.MACHINES[i].id.equals(machine))
+                    machineChooser.setSelection(i);
+        }finally{syncingSelectors=false;}
+    }
+
+    private void createConversationTab(){
+        EditText name=new EditText(this);
+        name.setSingleLine(true);name.setTextColor(Color.DKGRAY);
+        name.setHint("Conversation title");
+        LinearLayout panel=new LinearLayout(this);
+        panel.setPadding(dp(16),0,dp(16),0);panel.addView(name);
+        new AlertDialog.Builder(this).setTitle("New conversation tab")
+            .setView(panel).setNegativeButton("Cancel",null)
+            .setPositiveButton("Create",(dialog,which)->{
+                try{
+                    workspace.create(name.getText().toString());
+                    refreshConversationSelectors();
+                    renderFeed();refreshStatus();
+                }catch(RuntimeException error){
+                    headerStatus.setText("Tab not created: "+error.getMessage());
+                }
+            }).show();
+    }
+
+    private void showPendingMessages(){
+        java.util.List<ConversationLedger.Entry> pending=ledger.unsent();
+        if(pending.isEmpty()){
+            new AlertDialog.Builder(this).setTitle("Phone outbox")
+                .setMessage("No pending local messages. Home Center OAuth " +
+                    "does not currently submit to Playwright or ChatGPT.")
+                .setPositiveButton("Close",null).show();
+            return;
+        }
+        String[] descriptions=new String[pending.size()];
+        for(int i=0;i<pending.size();i++){
+            ConversationLedger.Entry e=pending.get(i);
+            String preview=e.text.replace('\n',' ');
+            if(preview.length()>70)preview=preview.substring(0,70)+"…";
+            descriptions[i]=e.tabId+" · "+e.state+" · "+preview;
+        }
+        new AlertDialog.Builder(this)
+            .setTitle("Pending Playwright turns ("+pending.size()+")")
+            .setMessage("Local-only and remote-pending turns are distinct. A verified browser reply changes its state to COMPLETED. Select to view / copy.")
+            .setItems(descriptions,(dialog,index)->{
+                ConversationLedger.Entry entry=pending.get(index);
+                new AlertDialog.Builder(this)
+                    .setTitle(entry.state+" · "+entry.tabId)
+                    .setMessage(entry.text)
+                    .setNegativeButton("Close",null)
+                    .setPositiveButton("Copy text",(d,w)->{
+                        ClipboardManager clipboard=(ClipboardManager)
+                            getSystemService(Context.CLIPBOARD_SERVICE);
+                        if(clipboard!=null)clipboard.setPrimaryClip(
+                            ClipData.newPlainText("Ritsu unsent message",
+                                entry.text));
+                    }).show();
+            })
+            .setNegativeButton("Close",null).show();
+    }
+
+    private void requestAssetExplicitly(){
+        new AlertDialog.Builder(this).setTitle("Request retrieval for this turn")
+            .setItems(new String[]{"Ask for an image","Ask for a file"},(dialog,which)->{
+                // Compose only an explicit owner request. DO NOT silently
+                // retrieve or transfer files in a background poll.
+                String prefix=which==0?
+                    "Please retrieve an image for this request only: ":
+                    "Please retrieve a file for this request only: ";
+                composer.setText(prefix+composer.getText().toString());
+                composer.setSelection(composer.length());
+                composer.requestFocus();
+            }).setNegativeButton("Cancel",null).show();
     }
 
     private void toggleMute() {
@@ -269,7 +495,11 @@ public final class MainActivity extends Activity {
                 "Enable floating mute bubble",
                 "Hide floating bubble",
                 "Pin Quick Settings tile",
-                "Reload conversation feed"
+                "Reload conversation feed",
+                "Script campaign: toggle this tab",
+                "Request image / file retrieval",
+                "Pending messages (phone only)",
+                "Playwright browser delivery: enable / disable"
         };
         new AlertDialog.Builder(this)
                 .setTitle("Ritsu controls")
@@ -300,6 +530,13 @@ public final class MainActivity extends Activity {
                         case 7: send(RitsuControlService.ACTION_HIDE_BUBBLE); break;
                         case 8: addQuickTile(); break;
                         case 9: refreshStatus(); renderFeed(); break;
+                        case 10:
+                            workspace.toggleScriptCampaign(workspace.active().id);
+                            refreshConversationSelectors();refreshStatus();
+                            break;
+                        case 11:requestAssetExplicitly();break;
+                        case 12:showPendingMessages();break;
+                        case 13:togglePlaywrightDelivery();break;
                         default: break;
                     }
                 }).setNegativeButton("Close", null).show();
@@ -312,7 +549,7 @@ public final class MainActivity extends Activity {
                 new AlertDialog.Builder(this)
                     .setTitle("Home Center account connected")
                     .setMessage("Your Home Center sign-in is encrypted on this phone. " +
-                        "The cloud conversation reply transport is not yet deployed.")
+                        "Playwright browser control is available only after you enable it in More and the authenticated Windows worker is online.")
                     .setPositiveButton("Close",null).show();
                 return;
             }
@@ -360,7 +597,7 @@ public final class MainActivity extends Activity {
      */
     private void acceptHomeCenterOAuth(Intent intent) {
         if(intent==null||intent.getData()==null||
-           !"ritsucontrol".equals(intent.getData().getScheme()))return;
+           !HomeCenterOAuth.scheme(this).equals(intent.getData().getScheme()))return;
         Uri callback=intent.getData();
         intent.setData(null);
         // The saved OAuth state, rather than an in-memory Activity flag,
@@ -476,7 +713,18 @@ public final class MainActivity extends Activity {
                 : "Mic off";
         String detail = RitsuControlService.recognitionStatus;
         if (detail.length() > 75) detail = detail.substring(0, 75);
-        headerStatus.setText(state + " · " + detail + "\n" + HomeCenterSync.status);
+        RitsuWorkspace.Tab selected=workspace.active();
+        headerStatus.setText(state + " · " + detail + "\n" + HomeCenterSync.status+
+            "\nTab: "+selected.title+" · Machine: "+
+            RitsuWorkspace.machine(selected.machineId).label+
+            " · Instant preferred · Script loop "+(selected.scriptCampaign?"ON":"OFF"));
+        int unsent=ledger.pendingCount();
+        outboxWarning.setText((HomeCenterPlaywrightBridge.enabled(this)
+            ? "Playwright transport ON · " : "Playwright transport OFF · ")+
+            unsent+" pending"+(unsent==0?"":"  ·  Tap to inspect"));
+        outboxWarning.setContentDescription(
+            "Playwright transport "+(HomeCenterPlaywrightBridge.enabled(this)?"enabled":"disabled")+
+            ". "+unsent+" pending messages. Tap to inspect.");
         if (listenButton != null) {
             listenButton.setText(mode == ListeningPolicy.Mode.RECOGNIZING
                     ? "Listening ●" : "Listen");
