@@ -46,7 +46,7 @@ public final class MainActivity extends Activity {
     private static final int REQUEST_NOTIFICATIONS = 19644;
     private TextView headerStatus, details, outboxWarning;
     private EditText composer;
-    private Button listenButton, muteButton;
+    private Button listenButton, muteButton, sendButton;
     private TextView liveWords;
     private LinearLayout transcriptRows;
     private ScrollView feedScroll;
@@ -170,8 +170,8 @@ public final class MainActivity extends Activity {
                 InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         composer.setContentDescription("Optional message with Gboard typing and autocorrect");
         compose.addView(composer,new LinearLayout.LayoutParams(0,dp(56),1));
-        Button send=button("Send / Save",v->queueTyped());
-        compose.addView(send);
+        sendButton=button("Send",v->queueTyped());
+        compose.addView(sendButton);
         root.addView(compose);
 
         LinearLayout controls=new LinearLayout(this);
@@ -283,31 +283,21 @@ public final class MainActivity extends Activity {
     private void queueTyped() {
         String text=composer.getText().toString().trim();
         if(text.isEmpty())return;
-        // The main CONTROL thread owns every external user turn.
-        // Secondary dialogue requires an explicit Home Center decision.
+        // The operator already pressed Send. No second confirmation:
+        // retain the exact originating tab and durably queue before clearing.
         RitsuWorkspace.Tab active=workspace.active();
-        // Machine + conversation + Instant preference + loop mode are durable
-        // metadata; do not falsify acceptance by an agent when cloud turn/feed
-        // integration is not yet deployed.
-        new AlertDialog.Builder(this)
-            .setTitle(HomeCenterPlaywrightBridge.enabled(this)
-                ? "Send to ChatGPT via Playwright?" : "Save on phone only?")
-            .setMessage(HomeCenterPlaywrightBridge.enabled(this)
-                ? "Save this turn, then queue the fixed Playwright browser script via Home Center. A queued task is NOT a delivered ChatGPT message until its receipt is verified."
-                : "Playwright delivery is OFF. This text will remain local and will not appear in ChatGPT.")
-            .setNegativeButton("Keep editing",null)
-            .setPositiveButton(HomeCenterPlaywrightBridge.enabled(this)
-                ? "Send via Playwright" : "Save locally",(dialog,which)->{
-                // Capture the originally selected tab. The dialog must never
-                // silently reroute a message after switching machines.
-                ledger.addInTab(active.id,active.machineId,
-                    "control","You",text,ConversationLedger.OUTBOX);
-                RitsuControlService.feedRevision++;
-                send(RitsuControlService.ACTION_SYNC_NOW);
-                composer.setText("");
-                renderFeed();
-                refreshStatus();
-            }).show();
+        try {
+            ledger.addInTab(active.id,active.machineId,
+                "control","You",text,ConversationLedger.OUTBOX);
+            RitsuControlService.feedRevision++;
+            composer.setText("");
+            renderFeed();
+            send(RitsuControlService.ACTION_SYNC_NOW);
+            refreshStatus();
+        } catch(RuntimeException error) {
+            // Never discard an unpersisted draft.
+            headerStatus.setText("Message not saved: "+error.getClass().getSimpleName());
+        }
     }
 
     /** Cockpit has a dark surface; Android platform dropdown is light. */
@@ -725,6 +715,13 @@ public final class MainActivity extends Activity {
         outboxWarning.setContentDescription(
             "Playwright transport "+(HomeCenterPlaywrightBridge.enabled(this)?"enabled":"disabled")+
             ". "+unsent+" pending messages. Tap to inspect.");
+        if(sendButton!=null) {
+            boolean delivery=HomeCenterPlaywrightBridge.enabled(this);
+            sendButton.setText(delivery?"Send":"Save locally");
+            sendButton.setContentDescription(delivery
+                ? "Send message to the verified Playwright delivery outbox"
+                : "Save message on this phone. Browser delivery disabled.");
+        }
         if (listenButton != null) {
             listenButton.setText(mode == ListeningPolicy.Mode.RECOGNIZING
                     ? "Listening ●" : "Listen");
