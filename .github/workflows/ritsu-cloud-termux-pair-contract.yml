@@ -10,6 +10,7 @@ on:
     branches:
       - feature/ritsu-cloud-approve-via-termux-20261023
       - fix/ritsu-cloud-pair-refresh401-20261024
+      - fix/ritsu-cloud-pair-authcheck-20261024
     paths:
       - 'tools/ritsu_cloud_pair_termux.sh'
       - 'tools/tests/ritsu-cloud-pair-mock.mjs'
@@ -83,4 +84,13 @@ jobs:
           grep -q 'state=blocked' "$tmp/denied"
           ! grep -q 'RITSU_CLOUD_PAIR_APPROVED=1' "$tmp/denied"
           test -f "$tmp/.config/home-center/codex-hub.json"
+          # Credential-only preflight must not submit a pairing ID or code.
+          HOME="$tmp" PREFIX='/data/data/com.termux/files/usr' NODE_OPTIONS="--import=file://$GITHUB_WORKSPACE/tools/tests/ritsu-cloud-pair-mock.mjs" bash tools/ritsu_cloud_pair_termux.sh --auth-check > "$tmp/auth"
+          grep -q 'HOME_CENTER_LOGIN_PREFLIGHT=VALID' "$tmp/auth"
+          grep -q 'state=auth_valid' "$tmp/auth"
+          ! grep -q 'RITSU_CLOUD_PAIR_APPROVED=1' "$tmp/auth"
+          if HOME="$tmp" PREFIX='/data/data/com.termux/files/usr' RITSU_FAKE_ACCESS_DENY=1 NODE_OPTIONS="--import=file://$GITHUB_WORKSPACE/tools/tests/ritsu-cloud-pair-mock.mjs" bash tools/ritsu_cloud_pair_termux.sh --auth-check > "$tmp/authfail" 2>&1; then
+            echo 'Invalid Home Center login should not pass preflight'; exit 1
+          fi
+          grep -q 'TERMUX_HOME_CENTER_SESSION=REAUTH_REQUIRED' "$tmp/authfail"
           echo 'PAIR_TERMUX_OFFLINE_CONTRACT_PASS=1'
