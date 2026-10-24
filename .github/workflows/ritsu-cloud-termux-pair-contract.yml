@@ -1,0 +1,70 @@
+name: Ritsu Termux Cloud Pair Approval Contract
+on:
+  pull_request:
+    paths:
+      - 'tools/ritsu_cloud_pair_termux.sh'
+      - 'tools/tests/ritsu-cloud-pair-mock.mjs'
+      - 'functions/index.js'
+      - '.github/workflows/ritsu-cloud-termux-pair-contract.yml'
+  push:
+    branches:
+      - feature/ritsu-cloud-approve-via-termux-20261023
+    paths:
+      - 'tools/ritsu_cloud_pair_termux.sh'
+      - 'tools/tests/ritsu-cloud-pair-mock.mjs'
+      - 'functions/index.js'
+      - '.github/workflows/ritsu-cloud-termux-pair-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  policy-and-client:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          distribution: '' # ignored by setup-node; node-version below
+          node-version: '22'
+      - name: Check cloud server + Termux script syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check functions/index.js
+          bash -n tools/ritsu_cloud_pair_termux.sh
+          sed -n '/^import fs from /,/^RITSU_NODE$/p' tools/ritsu_cloud_pair_termux.sh | sed '$d' | node --input-type=module --check
+          node - <<'NODE'
+          const fs=require('fs'),assert=require('assert');
+          const s=fs.readFileSync('functions/index.js','utf8');
+          const approve=s.slice(s.indexOf('exports.termuxPairingApproveHub'),s.indexOf('exports.termuxPairingStatusHub'));
+          assert(approve.includes('requireTermuxHubAccess(req)'));
+          assert(approve.includes("record.clientKind !== 'ritsu-control-android'"));
+          assert(approve.includes('hubTokenHash(code) !== record.codeHash'));
+          assert(approve.includes('runTransaction'));
+          assert(approve.includes('scope_not_authorized'));
+          const status=s.slice(s.indexOf('exports.termuxPairingStatusHub'),s.indexOf('exports.termuxPairingPoll'));
+          assert(status.includes('entry.uid !== identity.data.uid'));
+          assert(status.includes("entry.email !== identity.data.email"));
+          NODE
+      - name: Offline pairing success and missing-login gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+          mkdir -p "$tmp/.config/home-center"
+          cat > "$tmp/.config/home-center/codex-hub.json" <<'JSON'
+          {"gatewayBase":"https://us-central1-home-center-dclar.cloudfunctions.net","accessToken":"test_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789","refreshToken":"test_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789","expiresAtMs":9999999999999}
+          JSON
+          HOME="$tmp" PREFIX='/data/data/com.termux/files/usr' NODE_OPTIONS="--import=file://$GITHUB_WORKSPACE/tools/tests/ritsu-cloud-pair-mock.mjs" bash tools/ritsu_cloud_pair_termux.sh TEST_REAL_RITSU_ID_123456 023456 > "$tmp/output"
+          grep -q 'RITSU_APP_CLAIMED' "$tmp/output" && { echo 'wrong_receipt'; exit 1; } || true
+          grep -q 'RITSU_CLOUD_PAIR_CLAIMED_BY_APP=1' "$tmp/output"
+          grep -q 'state=claimed' "$tmp/.local/state/home-center/ritsu-cloud-pair/latest.txt"
+          ! grep -q 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' "$tmp/output"
+          rm "$tmp/.config/home-center/codex-hub.json"
+          if HOME="$tmp" PREFIX='/data/data/com.termux/files/usr' bash tools/ritsu_cloud_pair_termux.sh TEST_REAL_RITSU_ID_123456 023456 > "$tmp/failure"; then
+            echo 'Expected missing-credential failure'; exit 1
+          fi
+          grep -q 'reason=existing_Home_Center_Termux_login_missing' "$tmp/failure"
+          echo 'PAIR_TERMUX_OFFLINE_CONTRACT_PASS=1'
