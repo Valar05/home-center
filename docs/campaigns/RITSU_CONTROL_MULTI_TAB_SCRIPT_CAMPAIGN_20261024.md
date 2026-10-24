@@ -61,3 +61,30 @@ One live paired phone launches two chat tabs, picks Termux for tab A and THECAUL
 - **Unique OAuth redirect**: `ritsucontrolcampaign://oauth/callback`, includes required app-side check of scheme and manifest intent filter, avoiding collision with the owner's already-connected v0.11 app.
 - Owner installation/sign-in on physical device remains UNVERIFIED. Fresh Campaign installation has separate app-private credentials; owner should connect Home Center account through app browser sign-in again.
 - Campaign features actually in APK: per-tab UI, machine preset selection, per-tab script toggle and user-triggered asset request composer. Runner/journal protocols are tested source only; cloud turn/feed and autonomous script execution remain NOT DELIVERED. No fake completion or shell claims.
+
+
+## Physical Android message-delivery failure, 2026-10-24
+
+**Owner report:** The v0.12 Ritsu Control (Campaign) application successfully completed Home Center browser OAuth. User submitted the spoken/typed message **"hello darling"** and saw no ChatGPT conversation appear, no new answer upon returning to the ChatGPT Android app. This is the first real-phone conversation-delivery acceptance check and it **failed**.
+
+**Root cause verified in source:** `android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java` `syncOnce()` deliberately only loads/refeshes Home Center OAuth and assigns `status="Home Center cloud paired; conversation bridge not deployed"`; it does not iterate pending `ConversationLedger` turns or POST them anywhere. The messages are local `WAITING_FOR_HOME_CENTER` outbox rows. Existing `functions/ritsu_chat_callback_api.js` `ritsu.chat.prepare` explicitly does *not* start a model or open ChatGPT, and `ritsu.chat.result` works only after a model-origin `ritsu.chat.publish` call. No inbound push or native ChatGPT turn creation exists.
+
+**Critical platform boundary:** OpenAI Responses/Conversations API stores its own API conversations and does not provide evidence of writing into the user's native ChatGPT app conversation list. That is a different product surface. A Home Center MCP tool can publish/retrieve a response but cannot spontaneously initiate a ChatGPT native chat just because the phone sent an MCP write. The user expected actual new native ChatGPT threads. No hidden API-key substitution, chargeable API routing, or unapproved screen scraping is authorized.
+
+**Truth states**:
+- Android OAuth ACCOUNT CONNECTED = user confirmed.
+- LOCAL MESSAGE STORED = source path supports; exact row pending still needs readback, but no delete/reinstall.
+- CLOUD MESSAGE DELIVERED = NO.
+- CHATGPT NEW CHAT = NO.
+- CHATGPT ANSWER = NO.
+- AUTOMATIC RETURN = NO.
+- SCRIPT RUNNER END TO END = NO.
+
+**Implementation priority**:
+1. Prove an authorized native ChatGPT conversation ingress and result retrieval channel (Work browser control or other supported method), with nonfaked end-to-end canary and trace. Do not claim a mock result is a native ChatGPT chat.
+2. Build owner-authenticated Home Center turn/enqueue/ack/feed with exact tab, turn and machine IDs; durable, idempotent and preserving queued user turns. The backend returns receipt states only.
+3. Connect worker ChatGPT ingress + model-origin response callback. No new build labeled "chat enabled" until user sees `hello darling` or another explicit canary in ChatGPT chat history and receives authentic response.
+4. Make unsent state prominent: `Saved on phone; NOT sent to ChatGPT` with durable outbox controls. Don't call it "paired and ready" when only OAuth is paired.
+5. Never uninstall or clear v0.12 private storage: the existing unsent message is user data and must be preserved.
+
+**Stop criterion:** An owner-accepted canary proves Ritsu Control phone text is delivered to native ChatGPT as a visible new turn, assistant replies and the actual reply returns to the originating Ritsu tab, with both directions' receipts. Anything less stays INCOMPLETE.
