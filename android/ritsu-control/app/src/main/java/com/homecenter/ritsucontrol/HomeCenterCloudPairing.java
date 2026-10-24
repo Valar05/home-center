@@ -100,9 +100,30 @@ final class HomeCenterCloudPairing {
         return true;
     }
 
+    /** A paired identity survives short-lived access token expiry. */
+    static Paired refreshIfNeeded(Context context, Paired paired) throws Exception {
+        if(System.currentTimeMillis()+90000L<paired.accessExpiresAtMs)
+            return paired;
+        JSONObject request=new JSONObject();
+        request.put("refreshToken",paired.refreshToken);
+        JSONObject result=call("termuxTokenRefresh",request,null);
+        String access=result.optString("access_token","");
+        String refresh=result.optString("refresh_token",paired.refreshToken);
+        long life=result.optLong("expires_in",0);
+        if(access.length()<32 || refresh.length()<32 || life<60)
+            throw new IllegalStateException("Cloud token refresh invalid");
+        Paired updated=new Paired(access,refresh,paired.email,paired.mcpUrl,
+                System.currentTimeMillis()+life*1000L);
+        JSONObject check=call("termuxHubTools",null,updated.accessToken);
+        if(!check.optBoolean("ok") || !paired.mcpUrl.equals(check.optString("mcpUrl")))
+            throw new IllegalStateException("Cloud refreshed token not accepted");
+        save(context,updated);
+        return updated;
+    }
+
     private static JSONObject call(String action, JSONObject body, String bearer)
             throws Exception {
-        if(!action.matches("termuxPairingStart|termuxPairingPoll|termuxHubTools"))
+        if(!action.matches("termuxPairingStart|termuxPairingPoll|termuxHubTools|termuxTokenRefresh"))
             throw new IllegalArgumentException("Unrecognized Home Center route");
         URL url=new URL(BASE+"/"+action);
         HttpURLConnection conn=(HttpURLConnection)url.openConnection();
