@@ -69,7 +69,17 @@ async function doctor(){
         editable:qs('[contenteditable="true"]'),
         textbox:qs('[role="textbox"]'),textarea:qs('textarea'),
         login:qs('a[href*="/auth/login"],a[href*="/login"]'),
-        challenge:qs('#challenge-form, iframe[src*="challenges.cloudflare.com"]')};
+        challenge:qs('#challenge-form, iframe[src*="challenges.cloudflare.com"]'),
+        userNodes:qs('[data-message-author-role="user"]'),
+        assistantNodes:qs('[data-message-author-role="assistant"]'),
+        conversationTurns:qs('[data-testid^="conversation-turn"]'),
+        articles:qs('article'),
+        stopButtons:Array.from(document.querySelectorAll('button')).filter(b=>
+          /stop generating|stop response|stop streaming/i.test(b.getAttribute('aria-label')||'')).length,
+        canaryUser:Array.from(document.querySelectorAll('[data-message-author-role="user"]')).some(e=>
+          e.innerText.includes('RITSU_PW_BRIDGE_CANARY_20261024_OK')),
+        canaryAssistant:Array.from(document.querySelectorAll('[data-message-author-role="assistant"]')).some(e=>
+          e.innerText.includes('RITSU_PW_BRIDGE_CANARY_20261024_OK'))};
     }).catch(()=>({error:'page_evaluation_unavailable'}));
     surfaces.push({path:new URL(page.url()).pathname.slice(0,90),...state});
   }
