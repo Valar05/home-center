@@ -3761,7 +3761,7 @@ exports.termuxPairingApproveHub = onRequest({timeoutSeconds: 30}, async (req, re
       if (record.clientKind !== 'ritsu-control-android') return 'not_ritsu_control';
       if (hubTokenHash(code) !== record.codeHash) return 'pairing_code_mismatch';
       const groups = cleanTermuxGroups(record.requestedGroups);
-      const held = cleanTermuxGroups(actor.allowedGroups);
+      const held = Array.isArray(actor.allowedGroups) ? actor.allowedGroups.filter((x) => TERMUX_SAFE_TOOL_GROUPS.includes(x)) : [];
       if (groups.some((group) => !held.includes(group))) return 'scope_not_authorized';
       tx.update(reference, {
         status: 'approved',
