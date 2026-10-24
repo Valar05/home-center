@@ -7,17 +7,18 @@ def parallelInstall = providers.gradleProperty('ritsuParallelInstall').orElse('f
 // connected v0.11 package. Never require uninstalling either to try this build.
 def campaignInstall = providers.gradleProperty('ritsuCampaignInstall').orElse('false').get() == 'true'
 def outboxInstall = providers.gradleProperty('ritsuOutboxInstall').orElse('false').get() == 'true'
+def bridgeInstall = providers.gradleProperty('ritsuBridgeInstall').orElse('false').get() == 'true'
 
 android {
     namespace 'com.homecenter.ritsucontrol'
     compileSdk 35
     defaultConfig {
-        applicationId outboxInstall ? 'com.homecenter.ritsucontrol.outbox' : (campaignInstall ? 'com.homecenter.ritsucontrol.campaign' : (parallelInstall ? 'com.homecenter.ritsucontrol.connected' : 'com.homecenter.ritsucontrol'))
-        manifestPlaceholders = [ritsuAppLabel: outboxInstall ? 'Ritsu Control (Outbox)' : (campaignInstall ? 'Ritsu Control (Campaign)' : (parallelInstall ? 'Ritsu Control (Connected)' : 'Ritsu Control')), ritsuOAuthScheme: outboxInstall ? 'ritsucontroloutbox' : (campaignInstall ? 'ritsucontrolcampaign' : 'ritsucontrol')]
+        applicationId bridgeInstall ? 'com.homecenter.ritsucontrol.bridge' : (outboxInstall ? 'com.homecenter.ritsucontrol.outbox' : (campaignInstall ? 'com.homecenter.ritsucontrol.campaign' : (parallelInstall ? 'com.homecenter.ritsucontrol.connected' : 'com.homecenter.ritsucontrol')))
+        manifestPlaceholders = [ritsuAppLabel: bridgeInstall ? 'Ritsu Control (Playwright)' : (outboxInstall ? 'Ritsu Control (Outbox)' : (campaignInstall ? 'Ritsu Control (Campaign)' : (parallelInstall ? 'Ritsu Control (Connected)' : 'Ritsu Control'))), ritsuOAuthScheme: bridgeInstall ? 'ritsucontrolbridge' : (outboxInstall ? 'ritsucontroloutbox' : (campaignInstall ? 'ritsucontrolcampaign' : 'ritsucontrol'))]
         minSdk 26
         targetSdk 35
-        versionCode 14
-        versionName '0.13.0'
+        versionCode 15
+        versionName '0.14.0'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
