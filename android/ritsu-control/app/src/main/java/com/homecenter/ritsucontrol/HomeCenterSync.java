@@ -56,48 +56,23 @@ final class HomeCenterSync implements AutoCloseable {
         }
     }
     private void syncOnce() throws Exception {
-        // The owner requested Home Center CLOUD, not the computer. Never send
-        // Cloud-paired users' outbox to the legacy desktop/Tailscale gateway.
-        HomeCenterCloudPairing.Paired cloud=HomeCenterCloudPairing.load(app);
-        if(cloud!=null) {
-            try {
-                HomeCenterCloudPairing.refreshIfNeeded(app,cloud);
-                status="Home Center cloud paired; conversation bridge not deployed";
-            }catch(Exception cloudError) {
-                status="Home Center cloud session needs re-pairing";
-            }
+        // Cloud-only release. The previous desktop relay code remains below
+        // for migration archaeology, but is deliberately NOT called.
+        // The existing Home Center cloud identity does not yet have a deployed
+        // turn/feed API for Ritsu Control. Do not misroute queued messages.
+        HomeCenterCloudPairing.Paired paired=HomeCenterCloudPairing.load(app);
+        if(paired==null) {
+            status="Home Center cloud not paired";
             return;
         }
-        RitsuPairing.Pair paired=RitsuPairing.load(app);
-        if(paired==null){status="Home Center not paired";return;}
-        status="Checking Home Center";
-        List<ConversationLedger.Entry> all=ledger.list("all");
-        int processed=0;
-        for(ConversationLedger.Entry row:all) {
-            if(stopped || processed>=8)break;
-            if(!"You".equals(row.who))continue;
-            if(ConversationLedger.OUTBOX.equals(row.state)) {
-                JSONObject request=new JSONObject();
-                request.put("turnId",row.id);
-                request.put("channel","control");
-                request.put("prompt",row.text);
-                JSONObject received=exchange(paired,"POST","/v1/ritsu/turn",request);
-                if(!received.optBoolean("ok"))throw new IllegalStateException("Gateway did not accept");
-                apply(row.id,received.optJSONObject("receipt"));
-                processed++;
-            } else if(row.state.startsWith("HOME_CENTER_")) {
-                if("HOME_CENTER_FAILED".equals(row.state) ||
-                        "HOME_CENTER_COLLISION".equals(row.state))continue;
-                JSONObject received=exchange(paired,"GET",
-                        "/v1/ritsu/turn?turnId="+row.id,null);
-                if(received.optBoolean("ok"))apply(row.id,received.optJSONObject("receipt"));
-                processed++;
-            }
+        try {
+            HomeCenterCloudPairing.refreshIfNeeded(app,paired);
+            status="Home Center cloud paired; conversation bridge not deployed";
+        }catch(Exception error){
+            status="Home Center cloud session needs re-pairing";
         }
-        int published=consumePublishedFeed(paired);
-        status="Home Center connected; "+processed+" turn(s), "+
-                published+" new published result(s)";
     }
+
     /** Home Center alone controls deterministic result publication.
      * Unreviewed secondary results and unpublished worker material cannot
      * appear in the endpoint, and the phone cannot request publication. */
