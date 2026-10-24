@@ -94,7 +94,11 @@ async function doctor(){
         })).filter(b=>/send|submit|stop/i.test((b.aria||'')+' '+(b.testId||''))).slice(0,12)
       };
     }).catch(()=>({error:'page_evaluation_unavailable'}));
-    surfaces.push({path:new URL(page.url()).pathname.slice(0,90),...state});
+    const canary=state.canaryAnywhere
+       ? await page.locator('main').innerText().then(t=>t.slice(0,800)).catch(()=>null)
+       : null;
+    surfaces.push({path:new URL(page.url()).pathname.slice(0,90),...state,
+      canaryMainPreview:canary});
   }
   output({kind:'doctor',playwright:true,cdp:true,contextCount:contexts.length,
     authorizedChatgptTabs:chat.length,surfaces,signedIn:'unverified',executed:false});
