@@ -50,3 +50,14 @@ The current production `HomeCenterSync` still reports `Home Center cloud paired;
 
 ## Exact acceptance
 One live paired phone launches two chat tabs, picks Termux for tab A and THECAULDRON for tab B, asks for a file only in tab B, sees independent replies, and runs a script-campaign in tab A. The Home Center agent issues script 1; the correct approved host validates and runs it; full bounded stdout/stderr receipt returns without manual copy/paste; agent sends script 2; loop proceeds until explicit final `complete`. Closing the launcher doesn't stop the campaign, and a second terminal can query/stop/resume it. Failure never silently becomes success.
+
+## v0.12 Campaign APK release checkpoint, 2026-10-24
+- Explicit user request: continue campaign until new APK delivered.
+- Source revision for build: `c81cb398a7da429e317e8daffeb1de995e410143`.
+- CI: https://github.com/Valar05/home-center/actions/runs/40091890147 **SUCCESS**, Android Java unit tests + Node loop/journal tests + full Gradle build + Campaign package and callback verification.
+- GitHub Action artifact name: `ritsu-control-v0.12-tabs-machines-campaign-apk`, artifact ID `12559248000`.
+- Produced APK SHA-256: `9da1e8eaaa79fc7b3298bb433fe70c3fa6c209b99f5bb6aebdbef309a6a42136`, 69,913 bytes.
+- **Unique Android identity**: `com.homecenter.ritsucontrol.campaign`, title `Ritsu Control (Campaign)`. This package installs alongside `com.homecenter.ritsucontrol.connected` without uninstalling or overwriting its stored credentials/chat.
+- **Unique OAuth redirect**: `ritsucontrolcampaign://oauth/callback`, includes required app-side check of scheme and manifest intent filter, avoiding collision with the owner's already-connected v0.11 app.
+- Owner installation/sign-in on physical device remains UNVERIFIED. Fresh Campaign installation has separate app-private credentials; owner should connect Home Center account through app browser sign-in again.
+- Campaign features actually in APK: per-tab UI, machine preset selection, per-tab script toggle and user-triggered asset request composer. Runner/journal protocols are tested source only; cloud turn/feed and autonomous script execution remain NOT DELIVERED. No fake completion or shell claims.
