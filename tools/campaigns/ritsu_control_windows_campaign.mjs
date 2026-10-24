@@ -6,7 +6,7 @@ import path from 'node:path';
 import os from 'node:os';
 import {spawn,spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-const SHA='e2e2f20023c50c9d79269d47ae3730f00e893fd6';
+const SHA='a6c42b235232ad8969e358f3e793c7885f686e3e';
 const REPO=path.join(os.homedir(),'workspace','home-center');
 const root=path.join(process.env.LOCALAPPDATA||path.join(os.homedir(),'AppData','Local'),'RitsuControlBridge');
 const stateFile=path.join(root,'campaign-state.json');
@@ -15,7 +15,7 @@ const target=path.join(root,'ritsu_control_playwright_bridge.mjs');
 const worktree=path.join(root,'checkout-'+SHA.slice(0,12));
 const verb=process.argv[2]||'status';
 function read(){try{return JSON.parse(fs.readFileSync(stateFile,'utf8'));}catch{return {stage:'not_started',revision:SHA};}}
-function write(stage,other={}){const s={...read(),...other,stage,revision:SHA,updatedAt:new Date().toISOString()};fs.writeFileSync(stateFile+'.tmp',JSON.stringify(s,null,2));fs.renameSync(stateFile+'.tmp',stateFile);process.stdout.write(JSON.stringify(s)+'\\n');}
+function write(stage,other={}){const s={...read(),...other,stage,revision:SHA,updatedAt:new Date().toISOString()};fs.writeFileSync(stateFile+'.tmp',JSON.stringify(s,null,2));fs.renameSync(stateFile+'.tmp',stateFile);process.stdout.write(JSON.stringify(s)+'\n');}
 function exec(command,args,opts={}) { const r=spawnSync(command,args,{cwd:REPO,encoding:'utf8',timeout:60000,maxBuffer:1500000,windowsHide:true,...opts});if(r.error||r.status!==0)throw Error(command+' '+args[0]+': '+String(r.error?.message||r.stderr||'exit '+r.status).slice(0,700));return String(r.stdout||'');}
 function hash(buf){return createHash('sha256').update(buf).digest('hex');}
 await fsp.mkdir(root,{recursive:true});
@@ -58,9 +58,12 @@ else if(verb==='__worker'){
     // Read-only, connects to the existing signed-in browser. Does not send a prompt.
     write('doctor_running');
     const result=spawnSync('node',[target,'--doctor'],{cwd:worktree,encoding:'utf8',timeout:50000,maxBuffer:500000,windowsHide:true});
-    const raw=(result.stdout||'').split(/\\r?\\n/).find(x=>x.startsWith('RITSU_BROWSER_RECEIPT='));
+    const raw=(result.stdout||'').split(/\r?\n/).find(x=>x.startsWith('RITSU_BROWSER_RECEIPT='));
     if(result.status!==0||!raw)throw Error('doctor_failed: '+String(result.stderr||result.stdout||'no receipt').slice(0,600));
     const doctor=JSON.parse(raw.slice('RITSU_BROWSER_RECEIPT='.length));
+    if(doctor.kind!=='doctor'||doctor.cdp!==true||!Array.isArray(doctor.surfaces)||
+       !doctor.surfaces.some(x=>(x.promptId>0||x.editable>0)&&!x.challenge&&!x.login))
+      throw Error('doctor_has_no_verified_signed_in_composer');
     write('doctor_verified',{doctor,doctorExit:result.status,phoneRoundTripVerified:false,agentComplete:false});
   }catch(e){write(stopped()?'stopped':'failed',{error:String(e.message||e).slice(0,1000),phoneRoundTripVerified:false,agentComplete:false});process.exitCode=1;}
 }
