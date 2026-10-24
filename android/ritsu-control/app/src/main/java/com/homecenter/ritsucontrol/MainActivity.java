@@ -286,6 +286,7 @@ public final class MainActivity extends Activity {
                                     .setTitle("Disconnect Ritsu from Home Center?")
                                     .setMessage("Only the local encrypted pairing is erased. Saved messages remain on this phone.")
                                     .setPositiveButton("Disconnect", (d,w) -> {
+                                        cloudPairActive.set(false);
                                         HomeCenterCloudPairing.disconnect(this);
                                         RitsuPairing.disconnect(this);
                                         HomeCenterSync.status="Home Center not paired";refreshStatus();
@@ -331,6 +332,7 @@ public final class MainActivity extends Activity {
                 boolean approved=false;
                 while(System.currentTimeMillis()<pending.expiresAtMs && cloudPairActive.get()){
                     Thread.sleep(2800);
+                    if(!cloudPairActive.get())return;
                     if(HomeCenterCloudPairing.poll(getApplicationContext(),pending)){
                         approved=true;break;
                     }
