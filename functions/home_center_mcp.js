@@ -1,4 +1,5 @@
 const {createHash, randomBytes, randomUUID, createSign} = require('node:crypto');
+const {runRitsuCloudPairMcp} = require('./ritsu_cloud_pairing_mcp');
 const {Readable, Transform} = require('node:stream');
 const {pipeline} = require('node:stream/promises');
 const {Storage} = require('@google-cloud/storage');
@@ -5079,6 +5080,8 @@ function driveOperationRegistry() {
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
       'time.now': {summary: 'Return the current Home Center runtime time.', write: false, requiredScopes: [], input: {}},
+      'ritsu.cloud.pair.approve': {summary: 'Owner-approved pairing of Ritsu Control Android to Home Center cloud through this authenticated Home Center OAuth connection, without Termux credentials or the old app.', write: true, requiresRequestId: true, requiredScopes: [], input: {pairingId: 'new short-lived Ritsu Control pairing ID', code: 'Ritsu Control six-digit code', approved: 'boolean true', requestId: 'unique audit ID'}},
+      'ritsu.cloud.pair.status': {summary: 'Read whether the newly approved Ritsu Control app has claimed its Home Center cloud pairing credentials.', write: false, requiredScopes: [], input: {pairingId: 'new Ritsu Control pairing ID'}},
       'security.identity_status': {summary: 'Read owner-only revocation status for an identity explicitly blocked by Home Center policy.', write: false, requiredScopes: [], input: {email: 'blocked Home Center email'}},
       'security.revoke_identity': {summary: 'Owner-only fail-closed revocation of every Home Center credential, membership, delegated token, and paired phone device for an identity explicitly blocked by policy.', write: true, requiresRequestId: true, requiredScopes: [], input: {email: 'blocked Home Center email', approved: 'boolean true', requestId: 'string'}},
       ...artifactOperationEntries(),
@@ -6041,6 +6044,11 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   }
   const registry = driveOperationRegistry();
   if (!registry.operations[operation]) throw Object.assign(new Error('Unsupported drive_operation operation: ' + operation), {status: 400});
+  if (operation === 'ritsu.cloud.pair.approve' || operation === 'ritsu.cloud.pair.status') {
+    requireCreditGatedEmail(user && user.email, operation);
+    const result = await runRitsuCloudPairMcp({admin,user,operation,args:safeObject(args.args)});
+    return {operation, registryVersion: registry.version, completed: result.ok === true, result};
+  }
   if (operation === 'time.now') {
     const now = new Date();
     return {operation, registryVersion: registry.version, completed: true, result: {utcIso: now.toISOString(), unixMs: now.getTime()}};
