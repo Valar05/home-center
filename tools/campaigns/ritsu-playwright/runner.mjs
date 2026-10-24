@@ -116,7 +116,31 @@ async function inspect(){
       mainHasCanaryPrefix:await page.locator('main').first().count()===1?
         (await page.locator('main').first().innerText()).includes('RITSU_PW_'):false,
       composerTextCharacters:meta.composerCount===1?
-        (await meta.composer.innerText()).length:0
+        (await meta.composer.innerText()).length:0,
+      canaryNodeChains:await page.evaluate(()=>{
+        const root=document.querySelector('main');
+        if(!root)return [];
+        const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+        const out=[];
+        while(walker.nextNode()&&out.length<8){
+          const n=walker.currentNode;
+          if(!(n.textContent||'').includes('RITSU_PW_'))continue;
+          let p=n.parentElement;const chain=[];
+          for(let i=0;i<9&&p;i++,p=p.parentElement){
+            chain.push({
+              tag:p.tagName.toLowerCase(),
+              cls:typeof p.className==='string'?p.className.slice(0,110):'',
+              testid:(p.getAttribute('data-testid')||'').slice(0,100),
+              role:(p.getAttribute('role')||'').slice(0,50),
+              aria:(p.getAttribute('aria-label')||'').slice(0,60),
+              length:(p.innerText||'').length,
+              siblings:p.parentElement?.children?.length||0
+            });
+          }
+          out.push({nodeTextLength:(n.textContent||'').length,chain});
+        }
+        return out;
+      })
     };
   }finally{await browser.close().catch(()=>{})}
 }
