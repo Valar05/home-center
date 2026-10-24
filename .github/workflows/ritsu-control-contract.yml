@@ -76,6 +76,22 @@ jobs:
           grep -q 'termuxTokenRefresh' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterCloudPairing.java
           grep -q 'homeCenterMcp/mcp' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterCloudPairing.java
           grep -q 'HomeCenterCloudPairing.start' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          # Regression: label() uses white text for the dark cockpit; the
+          # light AlertDialog must override every pairing label explicitly.
+          python3 - <<'PY'
+          from pathlib import Path
+          text=Path('android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java').read_text()
+          dialog=text.split('private void showHomeCenterApproval(',1)[1].split('private void selectSpeechTiming(',1)[0]
+          assert 'panel.setBackgroundColor(Color.WHITE)' in dialog
+          for key in ('instructions','id','code','expiry'):
+              assert f'{key}.setTextColor(Color.rgb(' in dialog, key
+          assert 'Pairing ID: ' in dialog
+          assert 'Approval code: ' in dialog
+          assert 'tools/ritsu_cloud_pair_termux.sh' in dialog
+          assert 'Keep this Ritsu Control pairing screen open' in dialog
+          assert 'Open the OLD Home Center app' not in dialog
+          print('RITSU_PAIRING_DIALOG_VISIBLE_TEXT_CONTRACT=PASS')
+          PY
           grep -q 'Home Center cloud paired; conversation bridge not deployed' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
           grep -q 'HomeCenterCloudPairing.load' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
           ! grep -q 'RitsuPairing.save(this' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
@@ -89,7 +105,7 @@ jobs:
       - name: Publish isolated Android debug APK (not deployed)
         uses: actions/upload-artifact@v4
         with:
-          name: ritsu-control-v0.10-home-center-cloud-pairing-debug-apk
+          name: ritsu-control-v0.10.1-visible-pairing-code-debug-apk
           path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
