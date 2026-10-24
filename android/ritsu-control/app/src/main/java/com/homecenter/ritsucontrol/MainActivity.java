@@ -266,9 +266,28 @@ public final class MainActivity extends Activity {
         renderFeed();
     }
 
+    /** Cockpit has a dark surface; Android platform dropdown is light. */
+    private ArrayAdapter<String> newReadableSpinner(){
+        return new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_item){
+            @Override public View getView(int position,View convertView,
+                                          android.view.ViewGroup parent){
+                View v=super.getView(position,convertView,parent);
+                if(v instanceof TextView)((TextView)v).setTextColor(Color.WHITE);
+                return v;
+            }
+            @Override public View getDropDownView(int position,View convertView,
+                                                   android.view.ViewGroup parent){
+                View v=super.getDropDownView(position,convertView,parent);
+                if(v instanceof TextView)((TextView)v).setTextColor(Color.DKGRAY);
+                v.setBackgroundColor(Color.WHITE);
+                return v;
+            }
+        };
+    }
+
     private void initConversationSelectors() {
-        ArrayAdapter<String> machines=new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> machines=newReadableSpinner();
         for(RitsuWorkspace.Machine m:RitsuWorkspace.MACHINES)
             machines.add(m.label);
         machineChooser.setAdapter(machines);
@@ -309,8 +328,7 @@ public final class MainActivity extends Activity {
         syncingSelectors=true;
         try{
             java.util.List<RitsuWorkspace.Tab> items=workspace.tabs();
-            ArrayAdapter<String> list=new ArrayAdapter<>(this,
-                    android.R.layout.simple_spinner_dropdown_item);
+            ArrayAdapter<String> list=newReadableSpinner();
             int selected=0;
             String current=workspace.active().id;
             for(int i=0;i<items.size();i++){
