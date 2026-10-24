@@ -3,17 +3,20 @@ plugins { id 'com.android.application' }
 // Opt-in separate package for older debug installs with unrelated signing
 // certificates. Preserves the existing app's private files and conversations.
 def parallelInstall = providers.gradleProperty('ritsuParallelInstall').orElse('false').get() == 'true'
+// Dedicated campaign package can live beside BOTH the old app and the already
+// connected v0.11 package. Never require uninstalling either to try this build.
+def campaignInstall = providers.gradleProperty('ritsuCampaignInstall').orElse('false').get() == 'true'
 
 android {
     namespace 'com.homecenter.ritsucontrol'
     compileSdk 35
     defaultConfig {
-        applicationId parallelInstall ? 'com.homecenter.ritsucontrol.connected' : 'com.homecenter.ritsucontrol'
-        manifestPlaceholders = [ritsuAppLabel: parallelInstall ? 'Ritsu Control (Connected)' : 'Ritsu Control']
+        applicationId campaignInstall ? 'com.homecenter.ritsucontrol.campaign' : (parallelInstall ? 'com.homecenter.ritsucontrol.connected' : 'com.homecenter.ritsucontrol')
+        manifestPlaceholders = [ritsuAppLabel: campaignInstall ? 'Ritsu Control (Campaign)' : (parallelInstall ? 'Ritsu Control (Connected)' : 'Ritsu Control')]
         minSdk 26
         targetSdk 35
-        versionCode 12
-        versionName '0.11.0'
+        versionCode 13
+        versionName '0.12.0'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
