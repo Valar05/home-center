@@ -24,7 +24,7 @@ jobs:
       - name: Node syntax and strict proof policy
         run: |
           node --check tools/campaigns/ritsu-playwright/runner.mjs
-          node --test tools/campaigns/ritsu-playwright/capture-policy.test.mjs
+          node --test tools/campaigns/ritsu-playwright/capture-policy.test.mjs tools/campaigns/ritsu-playwright/android-transport.test.mjs
       - name: Assert Playwright core is pinned with no new browser binary
         shell: bash
         run: |
