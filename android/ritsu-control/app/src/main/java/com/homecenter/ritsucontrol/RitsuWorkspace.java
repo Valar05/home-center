@@ -31,9 +31,14 @@ final class RitsuWorkspace {
             "Windows PowerShell. Require a proven host binding before execution.")
     };
     static final class Tab {
-        final String id,title,machineId;
-        Tab(String id,String title,String machineId){
+        final String id,title,machineId,modelPreference;
+        final boolean scriptCampaign;
+        Tab(String id,String title,String machineId,boolean scriptCampaign){
             this.id=id;this.title=title;this.machineId=machineId;
+            this.scriptCampaign=scriptCampaign;
+            // This is a preference carried with the turn, not a promise that
+            // ChatGPT has selected an externally controlled model.
+            this.modelPreference="instant";
         }
     }
     private static final String PREF="ritsu_tabs_v1";
@@ -53,7 +58,8 @@ final class RitsuWorkspace {
             JSONObject first=new JSONObject();
             try{
                 first.put("id","main");first.put("title","Main");
-                first.put("machineId","termux-android");initial.put(first);
+                first.put("machineId","termux-android");
+                first.put("scriptCampaign",false);initial.put(first);
             }catch(Exception error){throw new IllegalStateException(error);}
             return initial;
         }
@@ -71,7 +77,7 @@ final class RitsuWorkspace {
                 machine(machineId);
                 if(!id.matches("[A-Za-z0-9_-]{4,80}")||name.trim().isEmpty())
                     throw new IllegalStateException("Stored tab invalid");
-                out.add(new Tab(id,name,machineId));
+                out.add(new Tab(id,name,machineId,row.optBoolean("scriptCampaign",false)));
             }
             return out;
         }
@@ -101,13 +107,31 @@ final class RitsuWorkspace {
             try{
                 created.put("id",id);created.put("title",name);
                 created.put("machineId",active().machineId);
+                created.put("scriptCampaign",false);
                 raw.put(created);
             }catch(Exception e){throw new IllegalStateException(e);}
             if(!store.edit().putString("tabs",raw.toString()).putString("selected",id).commit())
                 throw new IllegalStateException("New tab not persisted");
-            return new Tab(id,name,created.optString("machineId"));
+            return new Tab(id,name,created.optString("machineId"),false);
         }
     }
+    void toggleScriptCampaign(String tabId){
+        synchronized(LOCK){
+            JSONArray raw=rows();boolean found=false;
+            for(int i=0;i<raw.length();i++){
+                JSONObject row=raw.optJSONObject(i);
+                if(row!=null&&tabId.equals(row.optString("id"))){
+                    try{row.put("scriptCampaign",!row.optBoolean("scriptCampaign",false));}
+                    catch(Exception e){throw new IllegalStateException(e);}
+                    found=true;break;
+                }
+            }
+            if(!found)throw new IllegalArgumentException("Unknown tab");
+            if(!store.edit().putString("tabs",raw.toString()).commit())
+                throw new IllegalStateException("Runner preference not saved");
+        }
+    }
+
     void setMachine(String tabId,String machineId){
         machine(machineId);
         synchronized(LOCK){
