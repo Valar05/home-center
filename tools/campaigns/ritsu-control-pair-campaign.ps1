@@ -67,13 +67,16 @@ function Pinned {
  Need (Test-Path -LiteralPath $helper -PathType Leaf) 'local_pairing_ui_helper_missing'
  $head=(& git -C $root rev-parse HEAD 2>$null)
  Need ($LASTEXITCODE -eq 0 -and [string]$head -ceq $Revision) 'pinned_checkout_mismatch'
- # Verify the exact two executable surfaces, not unrelated LFS media.
- # GitHub checkout on Windows can materialize legacy LFS media as modified.
+ # Verify precisely the two executable surfaces; unrelated old LFS media may
+ # appear dirty in GitHub Actions Windows checkouts.
  foreach($rel in @('tools/campaigns/ritsu-control-pair-campaign.ps1',
                    'tools/campaigns/ritsu-control-pair.ps1')){
   $ref=$Revision+':'+$rel
   $committed=(& git -C $root rev-parse $ref 2>$null)
-  Need ($LASTEXITCODE -eq 0 -and [string]$committed -match '^[a-f0-9]{40}
+  Need ($LASTEXITCODE -eq 0 -and [string]$committed -match '^[a-f0-9]{40}$') 'pinned_source_blob_absent'
+  & git -C $root diff --quiet $Revision -- $rel
+  Need ($LASTEXITCODE -eq 0) 'pairing_source_differs_from_pinned_revision'
+ }
 }
 function Is-OwnedAlive($p){
  if($null -eq $p -or -not $p.pid){return $false}
