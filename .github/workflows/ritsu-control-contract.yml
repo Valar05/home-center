@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - 'feature/ritsu-command-bridge-scavenge-20261022'
+      - 'campaign/ritsu-control-tabs-presets-runner-20261024'
     paths:
       - 'android/ritsu-control/**'
       - '.github/workflows/ritsu-control-contract.yml'
@@ -35,6 +36,15 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Deterministic agent script loop and machine contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tools/ritsu-agent-loop/contract.test.mjs
+          echo RITSU_SCRIPT_LOOP_TESTED=1
       - name: Pure-state tests and Android build
         run: gradle -p android/ritsu-control :app:testDebugUnitTest :app:assembleDebug --no-daemon
       - name: Stage C Android system speech privacy and permission contract
@@ -103,6 +113,13 @@ jobs:
           PY
           grep -q 'Home Center cloud paired; conversation bridge not deployed' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
           grep -q 'HomeCenterCloudPairing.load' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
+          grep -q 'class RitsuWorkspace' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuWorkspace.java
+          grep -q 'addInTab' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/ConversationLedger.java
+          grep -q 'workspace.active().id' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'machineChooser' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'requestAssetExplicitly' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'toggleScriptCampaign' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+
           ! grep -q 'RitsuPairing.save(this' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
           ! grep -q 'RitsuPairing.load(app)' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
           grep -q 'Only private Tailscale IPv4 is accepted' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuPairing.java
