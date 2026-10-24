@@ -70,6 +70,14 @@ jobs:
           grep -q 'selectSpeechTiming' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
           grep -q 'DEFAULT_PAUSE_MS = 5000' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/SpokenTurnBuffer.java
           grep -q 'AndroidKeyStore' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuPairing.java
+          grep -q 'termuxPairingStart' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterCloudPairing.java
+          grep -q 'termuxPairingPoll' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterCloudPairing.java
+          grep -q 'termuxTokenRefresh' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterCloudPairing.java
+          grep -q 'homeCenterMcp/mcp' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterCloudPairing.java
+          grep -q 'HomeCenterCloudPairing.start' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'Home Center cloud paired; conversation bridge not deployed' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
+          grep -q 'HomeCenterCloudPairing.load' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
+          ! grep -q 'RitsuPairing.save(this' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
           grep -q 'Only private Tailscale IPv4 is accepted' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuPairing.java
           grep -q 'class HomeCenterSync' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
           grep -q 'ACTION_SYNC_NOW' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
@@ -79,7 +87,7 @@ jobs:
       - name: Publish isolated Android debug APK (not deployed)
         uses: actions/upload-artifact@v4
         with:
-          name: ritsu-control-v0.9-home-center-text-bridge-debug-apk
+          name: ritsu-control-v0.10-home-center-cloud-pairing-debug-apk
           path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
