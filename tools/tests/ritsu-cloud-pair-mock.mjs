@@ -27,7 +27,11 @@ globalThis.fetch=async(url,opts={})=>{
     seenStatus++;
     return ok({status:seenStatus>=2?'claimed':'approved',claimed:seenStatus>=2});
   }
-  if(path==='/termuxTokenRefresh')
+  if(path==='/termuxTokenRefresh'){
+    if(process.env.RITSU_FAKE_ACCESS_DENY==='1')
+      return new Response(JSON.stringify({ok:false,error:'termux_token_refresh_failed'}),
+          {status:401,headers:{'content-type':'application/json'}});
     throw Error('unexpected_test_refresh');
+  }
   throw Error('unexpected_cloud_route_'+path);
 };
