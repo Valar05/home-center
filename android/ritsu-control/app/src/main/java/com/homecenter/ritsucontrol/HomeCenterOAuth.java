@@ -30,6 +30,8 @@ final class HomeCenterOAuth {
     static final String RESOURCE=ISSUER+"/mcp";
     /** The Campaign APK must never share the Connected APK callback handler. */
     static String scheme(Context app) {
+        if("com.homecenter.ritsucontrol.outbox".equals(app.getPackageName()))
+            return "ritsucontroloutbox";
         return "com.homecenter.ritsucontrol.campaign".equals(app.getPackageName())
             ? "ritsucontrolcampaign" : "ritsucontrol";
     }
