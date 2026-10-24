@@ -30,8 +30,12 @@ export function evidence({marker,text,baseline,assistantCount,stableSamples,stop
   validateConfig(checks);
   if(conversationUrl!==boundUrl)throw Error('conversation_changed');
   if(!promptObserved)throw Error('prompt_not_observed');
-  if(!Number.isInteger(baseline)||assistantCount!==baseline+1)
-    throw Error('assistant_count_changed_unexpectedly');
+  // ChatGPT virtualizes/recycles turn containers: a new reply can replace
+  // an old DOM node, so assistantCount need not increase by exactly one.
+  // Unique prompt + assistant-visible marker is the fresh-turn binding.
+  if(!Number.isInteger(baseline)||baseline<0||
+     !Number.isInteger(assistantCount)||assistantCount<1)
+    throw Error('assistant_container_missing');
   if(stopVisible)throw Error('generation_still_running');
   if(stableSamples<3)throw Error('reply_not_settled');
   if(typeof text!=='string'||!text.trim()||text.length>MAX_TEXT)
