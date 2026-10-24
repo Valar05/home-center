@@ -104,3 +104,19 @@ One live paired phone launches two chat tabs, picks Termux for tab A and THECAUL
 5. Preserve the current Campaign app's private storage and `hello darling` turn. Confirm one physical-phone round trip with no duplicate sends before labeling the next APK chat-ready.
 
 **Stop criterion:** An owner-accepted canary proves Ritsu Control phone text is delivered to native ChatGPT as a visible new turn, assistant replies and the actual reply returns to the originating Ritsu tab, with both directions' receipts. Anything less stays INCOMPLETE.
+
+## October 24, 2026: user-mandated APK delivery gate
+
+**Operator instruction:** During a Ritsu Control coding conversation, do not stop with a plan, status, documentation note or source-only commit. Keep performing callable authorized work and produce a built, tested, downloadable APK before ending the turn. If a safety or infrastructure boundary prevents building, report it explicitly, but do not disguise unbuilt source as a release.
+
+**First enforced example:** v0.13 Outbox diagnostic build, successful GitHub Actions run https://github.com/Valar05/home-center/actions/runs/40107490723, artifact `ritsu-control-v0.13-visible-unsent-outbox-apk` (ID `12565386927`). Downloaded and verified `app-debug.apk`, 72,053 bytes, SHA256 `1003a548731378147d8407a3767fb036d65c006bf2f6987af09bff5cdeee70ed`.
+
+- Added `ConversationLedger.pendingCount()` and `unsent()`, preserving immutable unsent local turns across tabs.
+- Android cockpit now shows amber `ChatGPT browser delivery NOT CONNECTED` warning, cross-tab pending count and accessible unsent outbox reader with user-initiated clipboard copy.
+- Typed message action says `Save locally`, explains this is not ChatGPT delivery, and requires confirmation before saving. Speech transcript remains stored as local-only and is never falsely marked sent.
+- Fresh app identity `com.homecenter.ritsucontrol.outbox`; OAuth redirect `ritsucontroloutbox://oauth/callback`. CI verified both. This safe sidecar package intentionally **cannot automatically see or import** private data from the already-installed `com.homecenter.ritsucontrol.campaign` package. Preserve the original installation and pending `hello darling` message.
+- IMPORTANT: **this build does not yet deliver phone messages to the live Playwright ChatGPT tab**. The authenticated `browser_nerve.worker.status` operation reported registered worker `windows-browser-nerve-01` offline/stale on October 24; this status concerns that named Home Center browser worker, not proof every Playwright installation is offline.
+- Real acceptance still requires user-visible phone-to-Playwright-to-ChatGPT-to-phone end-to-end round trip, including exact tab routing and a verified reply. Do not mark this campaign done just because v0.13 APK exists.
+
+### Persistent future release practice
+Prefer incremental safe changes followed by full Android CI and an APK artifact, then tell the user the truthful delta and current production blockers. Avoid proliferating separate package identities once a durable signing/update identity can be established without exposing any private key in the Git repository; retain installed packages and their private data until an approved migration. Reuse the stable Campaign APK where signature continuity is actually proven. The user expects functioning browser-controlled ChatGPT, not an API substitute.
