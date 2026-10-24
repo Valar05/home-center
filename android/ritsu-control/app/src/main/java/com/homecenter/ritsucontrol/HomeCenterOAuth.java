@@ -28,7 +28,12 @@ import java.security.SecureRandom;
 final class HomeCenterOAuth {
     static final String ISSUER="https://homecentermcp-vxybsaualq-uc.a.run.app";
     static final String RESOURCE=ISSUER+"/mcp";
-    static final String REDIRECT="ritsucontrol://oauth/callback";
+    /** The Campaign APK must never share the Connected APK callback handler. */
+    static String scheme(Context app) {
+        return "com.homecenter.ritsucontrol.campaign".equals(app.getPackageName())
+            ? "ritsucontrolcampaign" : "ritsucontrol";
+    }
+    static String redirect(Context app){return scheme(app)+"://oauth/callback";}
     private static final String STORAGE="ritsu_home_center_native_oauth_v1";
     private static final String STATE="pending_state";
     private static final String VERIFIER="pending_verifier";
@@ -41,9 +46,10 @@ final class HomeCenterOAuth {
     static String begin(Context app) throws Exception {
         // Dynamic registration avoids embedding another application's OAuth
         // client identity or an app-wide secret in the distributable APK.
+        String redirect=redirect(app);
         JSONObject registration=new JSONObject()
             .put("client_name","Ritsu Control for Android")
-            .put("redirect_uris",new JSONArray().put(REDIRECT))
+            .put("redirect_uris",new JSONArray().put(redirect))
             .put("grant_types",new JSONArray().put("authorization_code").put("refresh_token"))
             .put("response_types",new JSONArray().put("code"))
             .put("token_endpoint_auth_method","none");
@@ -62,7 +68,7 @@ final class HomeCenterOAuth {
         if(!stored)throw new IllegalStateException("Cannot save pending sign-in");
         return ISSUER+"/oauth/authorize?response_type=code"+
             "&client_id="+enc(client)+
-            "&redirect_uri="+enc(REDIRECT)+
+            "&redirect_uri="+enc(redirect)+
             "&resource="+enc(RESOURCE)+
             "&scope="+enc("offline_access")+
             "&code_challenge_method=S256"+
@@ -72,7 +78,7 @@ final class HomeCenterOAuth {
 
     static HomeCenterCloudPairing.Paired complete(Context app, Uri callback)
         throws Exception {
-        if(callback==null||!"ritsucontrol".equals(callback.getScheme())||
+        if(callback==null||!scheme(app).equals(callback.getScheme())||
            !"oauth".equals(callback.getHost())||
            !"/callback".equals(callback.getPath()))
             throw new SecurityException("Unexpected OAuth redirect");
@@ -98,7 +104,7 @@ final class HomeCenterOAuth {
             throw new SecurityException("Missing Home Center authorization code");
         JSONObject token=request("POST","/oauth/token",new JSONObject()
             .put("grant_type","authorization_code").put("client_id",client)
-            .put("code",code).put("redirect_uri",REDIRECT)
+            .put("code",code).put("redirect_uri",redirect(app))
             .put("code_verifier",verifier).put("resource",RESOURCE),null);
         return validatedPair(token,client);
     }
