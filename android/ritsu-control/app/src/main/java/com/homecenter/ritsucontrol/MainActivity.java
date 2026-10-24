@@ -27,6 +27,9 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Spinner;
+import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
@@ -45,6 +48,9 @@ public final class MainActivity extends Activity {
     private LinearLayout transcriptRows;
     private ScrollView feedScroll;
     private ConversationLedger ledger;
+    private RitsuWorkspace workspace;
+    private Spinner tabChooser, machineChooser;
+    private boolean syncingSelectors;
     private String channel = "all";
     private boolean pendingBubbleEnable;
     private long lastFeedRevision = -1;
@@ -67,6 +73,7 @@ public final class MainActivity extends Activity {
     @Override public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ledger = new ConversationLedger(this);
+        workspace = new RitsuWorkspace(this);
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(Color.rgb(19, 18, 28));
@@ -99,6 +106,26 @@ public final class MainActivity extends Activity {
         headerStatus = label("Mic off · Home Center not connected", 12, false);
         headerStatus.setPadding(0, dp(5), 0, dp(12));
         root.addView(headerStatus);
+
+        // These select independently persisted conversations, NOT just the
+        // old channel filters. Each conversation carries a machine preset.
+        LinearLayout sessions=new LinearLayout(this);
+        sessions.setOrientation(LinearLayout.HORIZONTAL);
+        tabChooser=new Spinner(this);
+        sessions.addView(tabChooser,new LinearLayout.LayoutParams(0,dp(48),1));
+        sessions.addView(button("+ Tab",v->createConversationTab()));
+        root.addView(sessions);
+
+        LinearLayout machineRow=new LinearLayout(this);
+        machineRow.setOrientation(LinearLayout.HORIZONTAL);
+        machineRow.setGravity(Gravity.CENTER_VERTICAL);
+        TextView machineTitle=label("Machine",12,true);
+        machineTitle.setPadding(0,0,dp(10),0);
+        machineRow.addView(machineTitle);
+        machineChooser=new Spinner(this);
+        machineRow.addView(machineChooser,new LinearLayout.LayoutParams(0,dp(48),1));
+        root.addView(machineRow);
+        initConversationSelectors();
 
         LinearLayout tabs = new LinearLayout(this);
         tabs.setOrientation(LinearLayout.HORIZONTAL);
@@ -191,7 +218,8 @@ public final class MainActivity extends Activity {
         if(transcriptRows==null)return;
         transcriptRows.removeAllViews();
         List<ConversationLedger.Entry> messages=ledger.list(
-                "dialogue".equals(channel) ? "ritsu" : channel);
+                "dialogue".equals(channel) ? "ritsu" : channel,
+                workspace.active().id);
         if(messages.isEmpty()) {
             TextView empty=label("No verified results in this view yet.\n" +
                 ("worker".equals(channel) ? "Worker results need the authenticated Home Center bridge." :
@@ -208,7 +236,8 @@ public final class MainActivity extends Activity {
             LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);
             lp.setMargins(dp(4),dp(4),dp(4),dp(9));
             transcriptRows.addView(bubble,lp);
-            TextView origin=label(entry.channel.toUpperCase()+" · "+entry.who,12,true);
+            TextView origin=label(entry.channel.toUpperCase()+" · "+entry.who+
+                    " · "+RitsuWorkspace.machine(entry.machineId).label,12,true);
             bubble.addView(origin);
             TextView content=label(entry.text,16,false);
             content.setPadding(0,dp(4),0,dp(4));
@@ -225,11 +254,110 @@ public final class MainActivity extends Activity {
         if(text.isEmpty())return;
         // The main CONTROL thread owns every external user turn.
         // Secondary dialogue requires an explicit Home Center decision.
-        ledger.add("control","You",text,ConversationLedger.OUTBOX);
+        RitsuWorkspace.Tab active=workspace.active();
+        // Machine + conversation + Instant preference + loop mode are durable
+        // metadata; do not falsify acceptance by an agent when cloud turn/feed
+        // integration is not yet deployed.
+        ledger.addInTab(active.id,active.machineId,"control","You",text,
+                ConversationLedger.OUTBOX);
         RitsuControlService.feedRevision++;
         send(RitsuControlService.ACTION_SYNC_NOW);
         composer.setText("");
         renderFeed();
+    }
+
+    private void initConversationSelectors() {
+        ArrayAdapter<String> machines=new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_dropdown_item);
+        for(RitsuWorkspace.Machine m:RitsuWorkspace.MACHINES)
+            machines.add(m.label);
+        machineChooser.setAdapter(machines);
+        machineChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+            @Override public void onNothingSelected(AdapterView<?> parent){}
+            @Override public void onItemSelected(AdapterView<?> parent,View view,
+                                                  int position,long id){
+                if(syncingSelectors)return;
+                try{
+                    RitsuWorkspace.Tab t=workspace.active();
+                    workspace.setMachine(t.id,RitsuWorkspace.MACHINES[position].id);
+                    renderFeed();refreshStatus();
+                }catch(RuntimeException error){
+                    headerStatus.setText("Machine selection failed");
+                }
+            }
+        });
+        tabChooser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+            @Override public void onNothingSelected(AdapterView<?> parent){}
+            @Override public void onItemSelected(AdapterView<?> parent,View view,
+                                                  int position,long id){
+                if(syncingSelectors)return;
+                try{
+                    java.util.List<RitsuWorkspace.Tab> items=workspace.tabs();
+                    if(position>=items.size())return;
+                    workspace.select(items.get(position).id);
+                    refreshConversationSelectors();
+                    renderFeed();refreshStatus();
+                }catch(RuntimeException error){
+                    headerStatus.setText("Tab selection failed");
+                }
+            }
+        });
+        refreshConversationSelectors();
+    }
+
+    private void refreshConversationSelectors(){
+        syncingSelectors=true;
+        try{
+            java.util.List<RitsuWorkspace.Tab> items=workspace.tabs();
+            ArrayAdapter<String> list=new ArrayAdapter<>(this,
+                    android.R.layout.simple_spinner_dropdown_item);
+            int selected=0;
+            String current=workspace.active().id;
+            for(int i=0;i<items.size();i++){
+                RitsuWorkspace.Tab t=items.get(i);
+                list.add(t.title+(t.scriptCampaign?"  ⚙":""));
+                if(t.id.equals(current))selected=i;
+            }
+            tabChooser.setAdapter(list);
+            tabChooser.setSelection(selected);
+            String machine=workspace.active().machineId;
+            for(int i=0;i<RitsuWorkspace.MACHINES.length;i++)
+                if(RitsuWorkspace.MACHINES[i].id.equals(machine))
+                    machineChooser.setSelection(i);
+        }finally{syncingSelectors=false;}
+    }
+
+    private void createConversationTab(){
+        EditText name=new EditText(this);
+        name.setSingleLine(true);name.setTextColor(Color.DKGRAY);
+        name.setHint("Conversation title");
+        LinearLayout panel=new LinearLayout(this);
+        panel.setPadding(dp(16),0,dp(16),0);panel.addView(name);
+        new AlertDialog.Builder(this).setTitle("New conversation tab")
+            .setView(panel).setNegativeButton("Cancel",null)
+            .setPositiveButton("Create",(dialog,which)->{
+                try{
+                    workspace.create(name.getText().toString());
+                    refreshConversationSelectors();
+                    renderFeed();refreshStatus();
+                }catch(RuntimeException error){
+                    headerStatus.setText("Tab not created: "+error.getMessage());
+                }
+            }).show();
+    }
+
+    private void requestAssetExplicitly(){
+        new AlertDialog.Builder(this).setTitle("Request retrieval for this turn")
+            .setItems(new String[]{"Ask for an image","Ask for a file"},(dialog,which)->{
+                // Compose only an explicit owner request. DO NOT silently
+                // retrieve or transfer files in a background poll.
+                String prefix=which==0?
+                    "Please retrieve an image for this request only: ":
+                    "Please retrieve a file for this request only: ";
+                composer.setText(prefix+composer.getText().toString());
+                composer.setSelection(composer.length());
+                composer.requestFocus();
+            }).setNegativeButton("Cancel",null).show();
     }
 
     private void toggleMute() {
@@ -269,7 +397,9 @@ public final class MainActivity extends Activity {
                 "Enable floating mute bubble",
                 "Hide floating bubble",
                 "Pin Quick Settings tile",
-                "Reload conversation feed"
+                "Reload conversation feed",
+                "Script campaign: toggle this tab",
+                "Request image / file retrieval"
         };
         new AlertDialog.Builder(this)
                 .setTitle("Ritsu controls")
@@ -300,6 +430,11 @@ public final class MainActivity extends Activity {
                         case 7: send(RitsuControlService.ACTION_HIDE_BUBBLE); break;
                         case 8: addQuickTile(); break;
                         case 9: refreshStatus(); renderFeed(); break;
+                        case 10:
+                            workspace.toggleScriptCampaign(workspace.active().id);
+                            refreshConversationSelectors();refreshStatus();
+                            break;
+                        case 11:requestAssetExplicitly();break;
                         default: break;
                     }
                 }).setNegativeButton("Close", null).show();
@@ -476,7 +611,11 @@ public final class MainActivity extends Activity {
                 : "Mic off";
         String detail = RitsuControlService.recognitionStatus;
         if (detail.length() > 75) detail = detail.substring(0, 75);
-        headerStatus.setText(state + " · " + detail + "\n" + HomeCenterSync.status);
+        RitsuWorkspace.Tab selected=workspace.active();
+        headerStatus.setText(state + " · " + detail + "\n" + HomeCenterSync.status+
+            "\nTab: "+selected.title+" · Machine: "+
+            RitsuWorkspace.machine(selected.machineId).label+
+            " · Instant preferred · Script loop "+(selected.scriptCampaign?"ON":"OFF"));
         if (listenButton != null) {
             listenButton.setText(mode == ListeningPolicy.Mode.RECOGNIZING
                     ? "Listening ●" : "Listen");
