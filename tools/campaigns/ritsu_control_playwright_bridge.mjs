@@ -61,8 +61,20 @@ async function doctor(){
   const pw=playwright();const browser=await attach(pw);
   const contexts=browser.contexts(),pages=contexts.flatMap(c=>c.pages());
   const chat=pages.filter(p=>/^https:\/\/(chatgpt\.com|chat\.openai\.com)\//i.test(p.url()));
+  const surfaces=[];
+  for(const page of chat.slice(0,5)){
+    const state=await page.evaluate(()=>{
+      const qs=s=>document.querySelectorAll(s).length;
+      return {promptId:qs('#prompt-textarea'),
+        editable:qs('[contenteditable="true"]'),
+        textbox:qs('[role="textbox"]'),textarea:qs('textarea'),
+        login:qs('a[href*="/auth/login"],a[href*="/login"]'),
+        challenge:qs('#challenge-form, iframe[src*="challenges.cloudflare.com"]')};
+    }).catch(()=>({error:'page_evaluation_unavailable'}));
+    surfaces.push({path:new URL(page.url()).pathname.slice(0,90),...state});
+  }
   output({kind:'doctor',playwright:true,cdp:true,contextCount:contexts.length,
-    authorizedChatgptTabs:chat.length,signedIn:'unverified',executed:false});
+    authorizedChatgptTabs:chat.length,surfaces,signedIn:'unverified',executed:false});
   await browser.close();
 }
 async function main(){
@@ -103,8 +115,25 @@ async function main(){
         page=await chatContext.newPage();
         await page.goto('https://chatgpt.com/',{waitUntil:'domcontentloaded',timeout:35000});
       }
-      const input=page.locator('#prompt-textarea');
-      await input.waitFor({state:'visible',timeout:20000});
+      // ChatGPT's composer varies by currently deployed web UI revision.
+      // Select only an actual visible editable composer; never a login box.
+      const selectors=['#prompt-textarea','[data-testid="prompt-textarea"]',
+        'div[contenteditable="true"][role="textbox"]',
+        '[contenteditable="true"][data-placeholder]',
+        'textarea[placeholder*="Ask"]'];
+      let input=null;
+      for(const selector of selectors) {
+        const found=page.locator(selector).first();
+        if(await found.isVisible().catch(()=>false)){input=found;break;}
+      }
+      if(!input) {
+        await page.waitForTimeout(1500);
+        for(const selector of selectors) {
+          const found=page.locator(selector).first();
+          if(await found.isVisible().catch(()=>false)){input=found;break;}
+        }
+      }
+      if(!input)throw Error('chatgpt_composer_not_available_requires_owner_session');
       const before=await page.locator('[data-message-author-role="assistant"]').count();
       // Durable marker precedes dispatch. Never silently re-send on uncertain state.
       state.turns[turnId]={state:'sending',tabId,promptSha256,startedAt:new Date().toISOString()};
