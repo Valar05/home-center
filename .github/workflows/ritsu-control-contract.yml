@@ -86,7 +86,8 @@ jobs:
           grep -q 'HomeCenterOAuth.begin' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
           grep -q 'HomeCenterOAuth.complete' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
           grep -q 'Intent.ACTION_VIEW' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
-          grep -q 'ritsucontrol' "$MANIFEST"
+          grep -q 'ritsuOAuthScheme' "$MANIFEST"
+          grep -q 'ritsucontrolcampaign' android/ritsu-control/app/build.gradle
           grep -q 'android.intent.category.BROWSABLE' "$MANIFEST"
           grep -q 'android:usesCleartextTraffic="false"' "$MANIFEST"
           grep -q 'code_challenge_method=S256' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterOAuth.java
