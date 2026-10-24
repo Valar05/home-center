@@ -104,6 +104,50 @@ async function doctor(){
     authorizedChatgptTabs:chat.length,surfaces,signedIn:'unverified',executed:false});
   await browser.close();
 }
+// This installed ChatGPT website renders natural-language conversation labels
+// ("You said:" and "ChatGPT said:") rather than legacy data-message-author-role.
+// Read only a main-scoped response following the user's exact last prompt.
+// Require the standard completed-response footer and stable visible text.
+async function renderedReply(page, prompt, timeoutMs=74000){
+  const deadline=Date.now()+timeoutMs;
+  let previous='',stable=0;
+  const anchor='You said:\n'+prompt+'\nChatGPT said:\n';
+  const footer='\nChatGPT can make mistakes. Check important info.';
+  while(Date.now()<deadline){
+    const mainText=await page.locator('main').innerText().catch(()=>null);
+    const i=mainText?.lastIndexOf('You said:\n')??-1;
+    let value='';
+    if(i>=0&&mainText.slice(i).startsWith(anchor)){
+      const after=mainText.slice(i+anchor.length);
+      const end=after.indexOf(footer);
+      if(end>=0)value=after.slice(0,end).trim();
+    }
+    const busy=await page.getByRole('button',{name:/stop generating|stop streaming|stop response/i}).count().catch(()=>0);
+    if(value && value===previous && busy===0)stable++;else stable=0;
+    previous=value;
+    if(stable>=3)return value;
+    await page.waitForTimeout(700);
+  }
+  throw Error('rendered_assistant_answer_unverified_no_repost');
+}
+async function locateSentPage(browser,prompt) {
+  const found=[];
+  for(const page of browser.contexts().flatMap(c=>c.pages())){
+    if(!/^https:\/\/chatgpt\.com\/c\//.test(page.url()))continue;
+    const main=await page.locator('main').innerText().catch(()=>null);
+    if(main && main.includes('You said:\n'+prompt+'\nChatGPT said:\n'))
+      found.push(page);
+  }
+  if(found.length!==1)throw Error('answered_turn_page_not_unique_no_repost');
+  return found[0];
+}
+function makeReply(turnId,tabId,page,text){
+  if(!text||typeof text!=='string'||text.length>5000)
+    throw Error('rendered_reply_empty_or_oversized');
+  return {kind:'chatgpt_reply',turnId,tabId,verified:true,
+    source:'playwright-rendered-chatgpt-reply',text,sha256:sha(text),
+    url:page.url(),completedAt:new Date().toISOString()};
+}
 async function main(){
   await fs.mkdir(root,{recursive:true});
   if(args.has('--doctor'))return doctor();
@@ -126,6 +170,17 @@ async function main(){
       if(prior.promptSha256!==promptSha256||prior.tabId!==tabId)
         throw Error('turn_id_collision');
       if(prior.state==='complete'){output(prior.receipt);return;}
+      if(args.has('--recover-reply')){
+        const pw=playwright(),browser=await attach(pw);
+        try{
+          const page=await locateSentPage(browser,prompt);
+          const answer=await renderedReply(page,prompt,60000);
+          const receipt=makeReply(turnId,tabId,page,answer);
+          state.turns[turnId]={state:'complete',tabId,promptSha256,receipt};
+          state.tabs[tabId]={url:page.url()};
+          await save(state);output(receipt);return;
+        }finally{await browser.close();}
+      }
       // Only a specifically requested recovery may advance a still-visible,
       // exact local draft. Never resend a prompt that might already be posted.
       if(!args.has('--resume-draft'))throw Error('dispatch_uncertain_do_not_repost');
@@ -199,25 +254,8 @@ async function main(){
       await page.waitForURL(/\/c\//,{timeout:35000});
       state.tabs[tabId]={url:page.url()};
       await save(state);
-      const answers=page.locator('[data-message-author-role="assistant"]');
-      await page.waitForFunction(
-        n=>document.querySelectorAll('[data-message-author-role="assistant"]').length>n,
-        before,{timeout:45000});
-      const latest=answers.last();
-      let last='',stable=0,finished=false;
-      const deadline=Date.now()+150000;
-      while(Date.now()<deadline){
-        await page.waitForTimeout(900);
-        const text=(await latest.innerText()).trim();
-        const busy=await page.getByRole('button',{name:/stop generating|stop streaming|stop response/i}).count();
-        if(text&&text===last&&!busy)stable++;else stable=0;
-        last=text;
-        if(stable>=3){finished=true;break;}
-      }
-      if(!finished||!last)throw Error('chatgpt_reply_not_stably_observed');
-      const receipt={kind:'chatgpt_reply',turnId,tabId,verified:true,
-        source:'playwright-rendered-chatgpt-reply',text:last,sha256:sha(last),
-        url:page.url(),completedAt:new Date().toISOString()};
+      const answer=await renderedReply(page,prompt,70000);
+      const receipt=makeReply(turnId,tabId,page,answer);
       state.turns[turnId]={state:'complete',tabId,promptSha256,receipt};
       state.tabs[tabId]={url:page.url()};
       await save(state);
