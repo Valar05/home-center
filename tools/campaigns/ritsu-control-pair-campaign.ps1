@@ -173,6 +173,7 @@ function Canary{
  Need $alive 'canary_worker_not_detached'
  Stop-Run
  Need (-not(Is-OwnedAlive (Read-Json $owner))) 'canary_worker_not_stopped'
+ if(Test-Path -LiteralPath $stopFile){Remove-Item -LiteralPath $stopFile -Force}
  Receipt 'canary' 'canary_passed' 'detached_process_survived_launcher_then_stopped_out_of_band'
  Emit ('CANARY_PASS runId='+$script:rid+' phoneUntouched=true independentStop=true')
 }
