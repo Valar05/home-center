@@ -74,8 +74,11 @@ async function ownedPage(){
   throw Error('playwright_did_not_bind_exact_target');
 }
 async function currentMetadata(page){
-  const assistant=page.locator('[data-message-author-role="assistant"]');
-  const users=page.locator('[data-message-author-role="user"]');
+  // Current ChatGPT 2026 browser UI no longer exposes the old author-role or
+  // conversation-turn test IDs. These two user/assistant wrappers were measured
+  // directly in the one explicitly bound test tab, without logging text.
+  const assistant=page.locator('main [class*="MarkdownRoot-"]');
+  const users=page.locator('main [class*="bg-user-message"]');
   const composer=page.locator('[contenteditable="true"][data-composer-markdown][role="textbox"]');
   const stops=page.locator(
     'button[data-testid="stop-button"],button[aria-label="Stop generating"],'+
