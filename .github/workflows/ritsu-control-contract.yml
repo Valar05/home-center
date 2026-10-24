@@ -1,16 +1,7 @@
 name: Ritsu Control Android Voice and Insets Contract
 on:
-  pull_request:
-    paths:
-      - 'android/ritsu-control/**'
-      - '.github/workflows/ritsu-control-contract.yml'
-  push:
-    branches:
-      - 'feature/ritsu-command-bridge-scavenge-20261022'
-      - 'campaign/ritsu-control-tabs-presets-runner-20261024'
-    paths:
-      - 'android/ritsu-control/**'
-      - '.github/workflows/ritsu-control-contract.yml'
+  # Private-repository Actions minutes are reserved for an intentional final release.
+  # Intermediate commits and PR updates must not invoke this expensive build.
   workflow_dispatch:
 permissions:
   contents: read
