@@ -1,0 +1,14 @@
+{
+  "name": "ritsu-playwright-reply-campaign",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Authorized existing-tab ChatGPT final response canary for Home Center",
+  "scripts": {
+    "test": "node --test capture-policy.test.mjs",
+    "check": "node --check runner.mjs"
+  },
+  "dependencies": {
+    "playwright-core": "1.64.1"
+  }
+}
