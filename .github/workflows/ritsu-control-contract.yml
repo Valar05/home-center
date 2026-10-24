@@ -115,6 +115,11 @@ jobs:
           grep -q 'Home Center cloud paired; conversation bridge not deployed' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
           grep -q 'HomeCenterCloudPairing.load' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
           grep -q 'class RitsuWorkspace' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuWorkspace.java
+          grep -q 'pendingCount' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/ConversationLedger.java
+          grep -q 'NOT SENT TO CHATGPT' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'showPendingMessages' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'Saved only on this phone' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+
           grep -q 'addInTab' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/ConversationLedger.java
           grep -q 'workspace.active().id' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
           grep -q 'machineChooser' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
@@ -175,6 +180,23 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ritsu-control-v0.12-tabs-machines-campaign-apk
+          path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+      - name: Build Outbox edition with visible unsent-message evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle -p android/ritsu-control :app:assembleDebug -PritsuOutboxInstall=true --rerun-tasks --no-daemon
+          APK=android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
+          AAPT="$(find "$ANDROID_HOME/build-tools" -name aapt -type f | sort -V | tail -1)"
+          "$AAPT" dump badging "$APK" | grep -F "package: name='com.homecenter.ritsucontrol.outbox'"
+          "$AAPT" dump xmltree "$APK" AndroidManifest.xml | grep -F 'ritsucontroloutbox'
+          echo RITSU_LOCAL_OUTBOX_WARNING_APK_BUILT=1
+      - name: Publish v0.13 Outbox diagnostic APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ritsu-control-v0.13-visible-unsent-outbox-apk
           path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
