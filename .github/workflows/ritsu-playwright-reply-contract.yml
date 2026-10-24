@@ -1,0 +1,31 @@
+name: Ritsu Playwright Reply Contract
+on:
+  pull_request:
+    paths:
+      - "tools/campaigns/ritsu-playwright/**"
+      - ".github/workflows/ritsu-playwright-reply-contract.yml"
+  push:
+    paths:
+      - "tools/campaigns/ritsu-playwright/**"
+      - ".github/workflows/ritsu-playwright-reply-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-policy-and-syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Node syntax and strict proof policy
+        run: |
+          node --check tools/campaigns/ritsu-playwright/runner.mjs
+          node --test tools/campaigns/ritsu-playwright/capture-policy.test.mjs
+      - name: Assert Playwright core is pinned with no new browser binary
+        shell: bash
+        run: |
+          node -e "const p=require('./tools/campaigns/ritsu-playwright/package.json');if(p.dependencies['playwright-core']!=='1.64.1'||Object.keys(p.dependencies).length!==1)process.exit(1)"
