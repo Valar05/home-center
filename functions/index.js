@@ -3785,6 +3785,40 @@ exports.termuxPairingApproveHub = onRequest({timeoutSeconds: 30}, async (req, re
   }
 });
 
+// Authenticated Termux-side receipt for the same explicitly approved Ritsu
+// cloud pairing. No credentials or owner email are returned.
+exports.termuxPairingStatusHub = onRequest({timeoutSeconds: 30}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    if (req.method !== 'POST') {
+      sendJson(res, 405, {ok: false, error: 'post_required'});
+      return;
+    }
+    const identity = await requireTermuxHubAccess(req);
+    const id = safeText(req.body && req.body.pairingId, 160);
+    if (!/^[A-Za-z0-9_-]{12,160}$/.test(id)) {
+      sendJson(res, 400, {ok: false, error: 'pairing_id_invalid'});
+      return;
+    }
+    const record = await termuxCollections().pairings.doc(id).get();
+    if (!record.exists) {
+      sendJson(res, 404, {ok: false, error: 'pairing_not_found'});
+      return;
+    }
+    const entry = record.data() || {};
+    if (entry.clientKind !== 'ritsu-control-android' ||
+        entry.uid !== identity.data.uid || entry.email !== identity.data.email ||
+        !['approved', 'claimed'].includes(entry.status)) {
+      sendJson(res, 403, {ok: false, error: 'pairing_not_owned_or_unapproved'});
+      return;
+    }
+    sendJson(res, 200, {ok: true, status: entry.status,
+      claimed: entry.status === 'claimed', clientKind: 'ritsu-control-android'});
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'ritsu_cloud_pair_status_failed'});
+  }
+});
+
 exports.termuxPairingPoll = onRequest({timeoutSeconds: 30}, async (req, res) => {
   if (handleOptions(req, res)) return;
   try {
