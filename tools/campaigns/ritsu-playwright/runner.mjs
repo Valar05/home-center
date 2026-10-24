@@ -184,39 +184,41 @@ async function apply(){
     await receipt({state:'running',...c,phase:'single_send_committed',
       baseline:meta.assistants});
     await send.click({timeout:8000});
-    let stableText=null,stableSamples=0,lastPulse=0;
+    let stableText=null,stableSamples=0,lastPulse=0,promptSeenEver=false;
     const deadline=Date.now()+90000;
     while(Date.now()<deadline){
       if(await isStopped())throw Error('owner_stop_requested');
       if(page.isClosed()||page.url()!==c.boundUrl)
         throw Error('bound_page_changed_or_closed');
       const count=await meta.assistant.count();
-      const userCount=await meta.users.count();
-      let promptObserved=false;
-      if(userCount===meta.usersBefore+1){
-        promptObserved=(await meta.users.last().innerText()).includes(marker);
-      }
+      const userMatches=meta.users.filter({hasText:marker});
+      const promptMatches=await userMatches.count();
+      if(promptMatches===1)promptSeenEver=true;
       const stop=await meta.stopVisible();
-      if(promptObserved&&count===meta.assistants+1){
-        const target=meta.assistant.nth(meta.assistants);
-        const markdown=target.locator('.markdown').first();
-        const body=await markdown.count()===1?markdown:target;
-        const text=await body.innerText();
-        if(text.includes(marker)&&!stop){
-          if(text===stableText)stableSamples++;
-          else{stableText=text;stableSamples=1}
-          if(stableSamples>=3){
-            const proof=evidence({...c,marker,text,baseline:meta.assistants,
-              assistantCount:count,stableSamples,stopVisible:stop,
-              promptObserved,conversationUrl:page.url()});
-            return await receipt({...proof,phase:'complete'});
-          }
-        }else{stableText=null;stableSamples=0}
-      }
+      const assistantMatches=meta.assistant.filter({hasText:marker});
+      const matchingAssistants=await assistantMatches.count();
+      if(promptSeenEver&&matchingAssistants===1){
+        const target=assistantMatches.first();
+        if(!(await target.isVisible())){
+          stableText=null;stableSamples=0;
+        }else{
+          const text=await target.innerText();
+          if(text.includes(marker)&&!stop){
+            if(text===stableText)stableSamples++;
+            else{stableText=text;stableSamples=1}
+            if(stableSamples>=3){
+              const proof=evidence({...c,marker,text,baseline:meta.assistants,
+                assistantCount:count,stableSamples,stopVisible:stop,
+                promptObserved:promptSeenEver,conversationUrl:page.url()});
+              return await receipt({...proof,phase:'complete'});
+            }
+          }else{stableText=null;stableSamples=0}
+        }
+      }else{stableText=null;stableSamples=0}
       if(Date.now()-lastPulse>5000){
         await receipt({state:'running',...c,phase:'waiting_for_visible_final',
-          seenNewAssistant:count>meta.assistants,
-          seenUniqueUserPrompt:promptObserved,stopVisible:stop});
+          assistantCount:count,baseline:meta.assistants,
+          matchingAssistants,seenUniqueUserPrompt:promptSeenEver,stopVisible:stop});
         lastPulse=Date.now();
       }
       await sleep(450);
