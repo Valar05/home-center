@@ -31,7 +31,7 @@ export async function playwrightReply({tabId,boundUrl,prompt,marker,timeoutMs=90
     throw Error('exact_bound_tab_unavailable');
   const browser=await chromium.connectOverCDP('http://127.0.0.1:9236',
     {timeout:10000,noDefaults:true});
-  let dispatched=false;
+  let dispatched=false,composerRef=null;
   try{
     let page=null;
     for(const candidate of browser.contexts().flatMap(c=>c.pages())){
@@ -44,6 +44,7 @@ export async function playwrightReply({tabId,boundUrl,prompt,marker,timeoutMs=90
     }
     if(!page)throw Error('playwright_target_mismatch');
     const composer=page.locator('[contenteditable="true"][data-composer-markdown][role="textbox"]');
+    composerRef=composer;
     if(await composer.count()!==1||!(await composer.isVisible())||
        (await composer.innerText()).trim())throw Error('composer_busy');
     const user=page.locator('main [class*="bg-user-message"]');
@@ -58,7 +59,11 @@ export async function playwrightReply({tabId,boundUrl,prompt,marker,timeoutMs=90
       '\n\nFor this phone-to-ChatGPT delivery, end your final reply with this exact tracking code on its own last line: '+marker+
       '. Do not put the tracking code inside a code block.';
     await composer.fill(wirePrompt);
-    if((await composer.innerText()).trim()!==wirePrompt)
+    const typed=(await composer.innerText()).trim();
+    // ProseMirror may normalize double newlines in a contenteditable composer.
+    // Accept only whitespace normalization, never altered words or marker.
+    const normalize=v=>v.replace(/\s+/g,' ').trim();
+    if(normalize(typed)!==normalize(wirePrompt))
       throw Error('composer_roundtrip_failed');
     const send=page.locator('button[data-testid="send-button"],button[aria-label="Send"],button[aria-label="Send message"]');
     if(await send.count()!==1||!(await send.isVisible())||!(await send.isEnabled()))
@@ -97,7 +102,18 @@ export async function playwrightReply({tabId,boundUrl,prompt,marker,timeoutMs=90
       await sleep(450);
     }
     throw Error('visible_marked_reply_unverified');
-  }catch(e){e.dispatched=dispatched;throw e}
+  }catch(e){
+    if(!dispatched&&composerRef){
+      // A failed pre-send check must not strand our own typed draft.
+      // Never erase another pending human message.
+      try{
+        const contents=await composerRef.innerText();
+        if(contents.includes(marker)&&contents.includes(prompt))
+          await composerRef.fill('');
+      }catch{}
+    }
+    e.dispatched=dispatched;throw e
+  }
   finally{await browser.close().catch(()=>{})}
 }
 
