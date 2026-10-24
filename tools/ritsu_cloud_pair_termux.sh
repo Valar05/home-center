@@ -90,10 +90,31 @@ const refresh=async()=>{
     fs.renameSync(temp,p);fs.chmodSync(p,0o600);
   }finally{try{fs.unlinkSync(temp)}catch{}}
 };
-if(!token||Number(config.expiresAtMs||0)<Date.now()+120000)await refresh();
-let tools;
-try{tools=await req('termuxHubTools',null,token)}
-catch{await refresh();tools=await req('termuxHubTools',null,token)}
+// Always try the server-verified access token first, even if the local
+// expiration timestamp is stale. A 401 refresh is NOT proof that a still-
+// live access token fails. Do not generate/guess or reveal credentials.
+let tools=null;
+if(typeof token==='string' && token.length>=32) {
+  try{tools=await req('termuxHubTools',null,token)}
+  catch(e){
+    if(!String(e?.message||'').includes('termuxHubTools_HTTP_401'))
+      throw e;
+  }
+}
+if(!tools) {
+  try {
+    await refresh();
+    tools=await req('termuxHubTools',null,token);
+  }catch(e){
+    if(String(e?.message||'').includes('HTTP_401')) {
+      console.error('TERMUX_HOME_CENTER_SESSION=REAUTH_REQUIRED');
+      console.error('Existing Home Center access and refresh credentials were rejected. The Ritsu pairing code was NOT sent.');
+      console.error('Keep the saved login file intact; a new authenticated Home Center sign-in is required.');
+      throw Error('home_center_termux_session_requires_reauthorization');
+    }
+    throw e;
+  }
+}
 if(tools.mcpUrl!=='https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp/mcp')
   throw Error('wrong_home_center_cloud_authority');
 console.log('EXISTING_HOME_CENTER_CLOUD_LOGIN_VALID=1');
