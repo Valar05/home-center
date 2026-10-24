@@ -361,24 +361,49 @@ public final class MainActivity extends Activity {
     }
 
     private void showHomeCenterApproval(HomeCenterCloudPairing.Pending pending) {
+        // label() is for the dark cockpit and forces white text. The Android
+        // AlertDialog has a LIGHT background. Make its contrast explicit or
+        // the pairing ID/code render as invisible white-on-white text.
         LinearLayout panel=new LinearLayout(this);
         panel.setOrientation(LinearLayout.VERTICAL);
-        panel.setPadding(dp(18),dp(8),dp(18),0);
+        panel.setPadding(dp(20),dp(12),dp(20),dp(14));
+        panel.setBackgroundColor(Color.WHITE);
+
         TextView instructions=label(
-            "Open the OLD Home Center app, select Pair Termux Codex, " +
-            "and approve this Ritsu Control request. " +
-            "The request expires automatically. Keep Ritsu Control running.",14,false);
+            "In Termux, run tools/ritsu_cloud_pair_termux.sh. " +
+            "Enter this ID and six-digit code. " +
+            "Keep this Ritsu Control pairing screen open until approved.",15,false);
+        instructions.setTextColor(Color.rgb(32,35,43));
+        instructions.setPadding(0,0,0,dp(18));
         panel.addView(instructions);
-        TextView id=label("Pairing ID: "+pending.id,15,true);
+
+        TextView id=label("Pairing ID: "+pending.id,16,true);
+        id.setTextColor(Color.rgb(22,25,34));
+        id.setBackgroundColor(Color.rgb(238,242,248));
+        id.setPadding(dp(12),dp(12),dp(12),dp(12));
         id.setTextIsSelectable(true);
-        panel.addView(id);
-        TextView code=label("Approval code: "+pending.code,22,true);
+        id.setContentDescription("Home Center pairing ID, long press to copy");
+        panel.addView(id,new LinearLayout.LayoutParams(-1,-2));
+
+        TextView code=label("Approval code: "+pending.code,23,true);
+        code.setTextColor(Color.rgb(15,40,55));
+        code.setBackgroundColor(Color.rgb(223,240,248));
+        code.setPadding(dp(12),dp(16),dp(12),dp(16));
         code.setTextIsSelectable(true);
-        panel.addView(code);
+        code.setContentDescription("Home Center six-digit approval code, long press to copy");
+        LinearLayout.LayoutParams codeLayout=new LinearLayout.LayoutParams(-1,-2);
+        codeLayout.topMargin=dp(10);
+        panel.addView(code,codeLayout);
+
+        TextView expiry=label("Expires in about 10 minutes. The code is not a Git SHA.",13,false);
+        expiry.setTextColor(Color.rgb(62,65,73));
+        expiry.setPadding(0,dp(16),0,0);
+        panel.addView(expiry);
+
         new AlertDialog.Builder(this)
             .setTitle("Approve Ritsu Control in Home Center")
             .setView(panel)
-            .setPositiveButton("Continue in Home Center",(dialog,which)->{
+            .setPositiveButton("I entered the code",(dialog,which)->{
                 headerStatus.setText("Waiting for Home Center cloud approval");
             })
             .setNegativeButton("Cancel pairing",(dialog,which)->{
