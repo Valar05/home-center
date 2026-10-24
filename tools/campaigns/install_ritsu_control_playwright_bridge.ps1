@@ -4,7 +4,7 @@ $ProgressPreference="SilentlyContinue"
 $root=Join-Path $env:LOCALAPPDATA "RitsuControlBridge"
 $file=Join-Path $root "ritsu_control_playwright_bridge.mjs"
 $receipt=Join-Path $root "campaign-last-receipt.json"
-$sourceRevision="9000a2d1edf53ca10c38f38b0b41dc5c1e6f86d8"
+$sourceRevision="6dbafa493b961490b604e286fb4149f57495a1cb"
 $sourceUrl="https://raw.githubusercontent.com/Valar05/home-center/$sourceRevision/tools/campaigns/ritsu_control_playwright_bridge.mjs"
 New-Item -ItemType Directory -Path $root -Force | Out-Null
 function Record([string]$phase,[string]$message,[bool]$ok) {
