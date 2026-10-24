@@ -45,6 +45,18 @@
   <div class="hint">Manual campaign work reuses its worker by default; relay swarm jobs receive dedicated visible workers, bounded to four concurrent tabs. Rotation remains an explicit recovery action for a continuing thread. A checkpoint is not stop authority. She-Raw insults are load-bearing only when attached to a real critique/repair action.</div>
   <div class="row"><button id="stop">Stop dispatch</button><button id="resume">Resume</button></div>
   <section><strong>Queue</strong><div id="queue"></div></section>
+  <section style="border:1px solid currentColor;border-radius:8px;padding:10px;display:grid;gap:6px">
+    <strong>Ritsu chat conversations</strong>
+    <div class="hint">Bind an existing empty signed-in ChatGPT tab. Ritsu never opens more tabs automatically.</div>
+    <label for="ritsuSession">Home Center conversation ID</label>
+    <input id="ritsuSession" placeholder="ritsu-dialogue-session-01" autocomplete="off" maxlength="100" />
+    <label for="ritsuChannel">Role</label>
+    <select id="ritsuChannel"><option value="dialogue">Dialogue</option><option value="control">Control (main thread)</option></select>
+    <label for="ritsuTab">Existing ChatGPT tab</label>
+    <select id="ritsuTab"></select>
+    <div class="row"><button id="ritsuFindTabs">Refresh tabs</button><button id="ritsuBind">Bind selected tab</button><button id="ritsuStatus">Check bindings</button></div>
+    <div id="ritsuBindingStatus" class="hint" aria-live="polite">No session selected.</div>
+  </section>
   <section><strong>Latest receipt</strong><div id="output">No receipt yet.</div></section>
   <script type="module" src="throne-panel.mjs"></script>
 </body>
