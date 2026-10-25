@@ -129,7 +129,7 @@ test_aapt2(){
     > "$ROOT/log/aapt2-link-smoke.log" 2>&1
 }
 "$native" version > "$ROOT/log/aapt2.log" 2>&1 || fail 'Native AAPT2 cannot execute'
-previous="$(dpkg-query -W -f='\u0024{Version}' aapt2 2>/dev/null || true)"
+previous="$(dpkg-query -W -f='${Version}' aapt2 2>/dev/null || true)"
 echo "AAPT2_INSTALLED_VERSION=$previous"
 if test_aapt2; then
  echo 'AAPT2_ANDROID35=PASS existing_toolchain'
@@ -144,7 +144,7 @@ else
  pkg install -y aapt aapt2 > "$ROOT/log/aapt2-upgrade.log" 2>&1 ||
    fail 'Official Termux AAPT2 update failed'
  native="$(command -v aapt2)"
- current="$(dpkg-query -W -f='\u0024{Version}' aapt2 2>/dev/null || true)"
+ current="$(dpkg-query -W -f='${Version}' aapt2 2>/dev/null || true)"
  echo "AAPT2_REPAIRED_VERSION=$current"
  dpkg --compare-versions "$current" ge '16.0.0.4' ||
    fail 'Configured Termux repository lacks AAPT2 16.0.0.4; no unofficial binary substituted'
