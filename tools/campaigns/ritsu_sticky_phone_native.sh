@@ -57,12 +57,8 @@ fi
 for p in gh git curl unzip java javac aapt2 apksigner zipalign;do
   has "$p" || fail "missing_dependency:$p"
 done
-# Existing authorized phone build tooling uses GitHub only for a pinned
-# official Termux signing key in the legacy AAPT2 fallback.
-if ! gh auth status >/dev/null 2>&1;then
-  echo 'GH_AUTH_FOR_NATIVE_AAPT_FALLBACK=NEEDED'
-  gh auth login -h github.com -p https --web || fail 'GitHub_auth_required'
-fi
+# GitHub authentication is needed ONLY for a cold official AAPT2 fallback.
+# Reusing the already-verified native toolchain requires no GH sign-in.
 CAMPAIGN_STAGE=pinned_source_materialization
 if [ ! -f "$PROJECT/app/build.gradle" ];then
   mkdir -p "$ROOT/sources/$HEAD"
@@ -186,6 +182,10 @@ elif test_aapt2; then
 else
  echo 'AAPT2_ANDROID35=FAIL older_binary'
  echo 'AAPT2_REPAIR=isolated_signed_upstream_key_and_mirrors'
+ if ! gh auth status >/dev/null 2>&1;then
+   echo 'GH_AUTH_FOR_NEW_NATIVE_AAPT_FALLBACK=NEEDED'
+   gh auth login -h github.com -p https --web || fail 'GitHub_auth_required'
+ fi
  # Separate, trusted-key-pinned repository configuration: not the phone-wide APT.
  # Play Store Termux 2026.10 keyring can omit upstream Termux autobuilds.
  # Retrieve the exact upstream signing key from its immutable, published Git blob.
