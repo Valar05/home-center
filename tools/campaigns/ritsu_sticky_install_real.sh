@@ -36,14 +36,24 @@ src="${RITSU_STICKY_INPUT:-$HOME/storage/downloads/Ritsu-Sticky-v018-unsigned.ap
   echo "EXPECTED_APK=Ritsu-Sticky-v018-unsigned.apk"
   exit 2
 }
-expected="e57a0edf08a01ae0132acef0a885436a5e6c8a02109630ac2279acaf73d97811"
+expected="${RITSU_STICKY_EXPECTED_SHA256:-e57a0edf08a01ae0132acef0a885436a5e6c8a02109630ac2279acaf73d97811}"
+[[ "$expected" =~ ^[0-9a-f]{64}$ ]] || { echo "STICKY_FAIL=invalid_expected_APK_hash";exit 2; }
+if [ -n "${RITSU_STICKY_NATIVE_SOURCE_SHA:-}" ];then
+  [ "$(git rev-parse HEAD)" = "$RITSU_STICKY_NATIVE_SOURCE_SHA" ] ||
+    { echo "STICKY_FAIL=source_revision_mismatch";exit 2; }
+  case "$(realpath "$src")" in
+    "$HOME/.local/share/ritsu-campaigns/sticky-phone-v018/sources/$RITSU_STICKY_NATIVE_SOURCE_SHA/android/ritsu-control/app/build/outputs/apk/release/app-release-unsigned.apk") ;;
+    *) echo "STICKY_FAIL=not_native_android_build_output";exit 2;;
+  esac
+  echo "APK_PROVENANCE=LOCALLY_COMPILED_ON_PHONE"
+fi
 actual="$(sha256sum "$src" | cut -d ' ' -f 1)"
 [ "$actual" = "$expected" ] || {
   echo "STICKY_FAIL=unsigned_apk_checksum_mismatch"
   exit 2
 }
-echo "CLOUD_BUILD_SOURCE_SHA=b27434a1f650aae845d02780d4af09666080165f"
-echo "CLOUD_UNSIGNED_APK_SHA256=$actual"
+echo "APK_SOURCE_SHA=${RITSU_STICKY_NATIVE_SOURCE_SHA:-b27434a1f650aae845d02780d4af09666080165f}"
+echo "BUILD_UNSIGNED_APK_SHA256=$actual"
 if ! command -v java >/dev/null 2>&1 || ! command -v keytool >/dev/null 2>&1;then
   command -v pkg >/dev/null 2>&1 || { echo "STICKY_FAIL=no_termux_package_manager";exit 2; }
   pkg install -y openjdk-21
