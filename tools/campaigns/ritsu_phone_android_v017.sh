@@ -134,25 +134,44 @@ echo "AAPT2_INSTALLED_VERSION=$previous"
 if test_aapt2; then
  echo 'AAPT2_ANDROID35=PASS existing_toolchain'
 else
- echo 'AAPT2_ANDROID35=FAIL older_binary_suspected'
- if ! dpkg --compare-versions "$previous" lt '16.0.0.4'; then
-   fail "AAPT2 version $previous failed real SDK35 test; inspect $ROOT/log/aapt2-link-smoke.log"
- fi
- echo 'AAPT2_REPAIR=official_Termux_packages_only'
- pkg update -y > "$ROOT/log/apt-index.log" 2>&1 ||
-   fail 'Termux package index refresh failed'
- pkg install -y aapt aapt2 > "$ROOT/log/aapt2-upgrade.log" 2>&1 ||
-   fail 'Official Termux AAPT2 update failed'
- native="$(command -v aapt2)"
- current="$(dpkg-query -W -f='${Version}' aapt2 2>/dev/null || true)"
- echo "AAPT2_REPAIRED_VERSION=$current"
- dpkg --compare-versions "$current" ge '16.0.0.4' ||
-   fail 'Configured Termux repository lacks AAPT2 16.0.0.4; no unofficial binary substituted'
+ echo 'AAPT2_ANDROID35=FAIL legacy_binary'
+ echo 'AAPT2_REPAIR=isolated_signed_official_termux_package'
+ # Keep the configured Termux mirror, $PREFIX, and Debian installation unchanged.
+ # Query exactly one official Termux main repo using its existing trusted APT key.
+ # Download is authenticated against the signed APT package index.
+ repair="$ROOT/aapt2-official"
+ lists="$repair/lists"
+ sources="$repair/official-main.list"
+ mkdir -p "$lists/partial" "$repair/unpacked"
+ printf 'deb https://packages.termux.dev/apt/termux-main stable main\n' > "$sources"
+ aptargs=(-o "Dir::Etc::sourcelist=$sources" -o "Dir::Etc::sourceparts=-" -o "Dir::State::lists=$lists" -o "APT::Get::List-Cleanup=0")
+ apt-get "${aptargs[@]}" update > "$ROOT/log/aapt2-signed-apt-index.log" 2>&1 ||
+   fail 'Official signed Termux APT metadata unavailable; no global repository changes performed'
+ candidate="$(apt-cache "${aptargs[@]}" policy aapt2 | awk '/Candidate:/ {print $2;exit}')"
+ echo "AAPT2_OFFICIAL_CANDIDATE=$candidate"
+ [ -n "$candidate" ] && [ "$candidate" != "(none)" ] ||
+   fail 'Official Termux repository provides no AAPT2 candidate'
+ dpkg --compare-versions "$candidate" ge "16.0.0.4" ||
+   fail "Official Termux mirror too old: $candidate"
+ # apt-get download validates the .deb against the signed official package index.
+ (cd "$repair" && apt-get "${aptargs[@]}" download "aapt2=$candidate") > "$ROOT/log/aapt2-signed-download.log" 2>&1 ||
+   fail 'Authenticated official AAPT2 download failed'
+ deb=""
+ for entry in "$repair"/aapt2_*_aarch64.deb; do
+   if [ -f "$entry" ]; then deb="$entry"; break; fi
+ done
+ [ -n "$deb" ] || fail "Verified AAPT2 .deb not found"
+ dpkg-deb -x "$deb" "$repair/unpacked" || fail "Unable to extract verified AAPT2 package"
+ candidatebin="$(find "$repair/unpacked" -type f -name aapt2 -print -quit)"
+ [ -n "$candidatebin" ] && [ -x "$candidatebin" ] ||
+   fail 'No executable aapt2 in verified package'
+ native="$candidatebin"
+ echo "AAPT2_ISOLATED_BINARY=$native"
  "$native" version > "$ROOT/log/aapt2.log" 2>&1 ||
-   fail 'Official AAPT2 binary cannot execute'
+   fail 'Verified official ARM64 AAPT2 cannot start; see aapt2.log'
  test_aapt2 ||
-   fail "Official AAPT2 still cannot read SDK35; inspect $ROOT/log/aapt2-link-smoke.log"
- echo 'AAPT2_ANDROID35=PASS after_official_package_update'
+   fail 'Verified official AAPT2 cannot link SDK35 resources; inspect aapt2-link-smoke.log'
+ echo 'AAPT2_ANDROID35=PASS isolated_official_termux_binary'
 fi
 export JAVA_HOME="$(dirname "$(dirname "$(readlink -f "$(command -v java)")")")"
 printf 'sdk.dir=%s\n' "$ANDROID_HOME" > "$PROJECT/local.properties"
