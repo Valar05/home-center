@@ -202,8 +202,15 @@ else
    fail "Package does not contain executable ARM64 AAPT2"
  native="$candidatebin"
  echo "AAPT2_ISOLATED_BINARY=$native"
- "$native" version > "$ROOT/log/aapt2.log" 2>&1 ||
-   fail "New AAPT2 cannot start; inspect $ROOT/log/aapt2.log for missing libraries"
+ if ! "$native" version > "$ROOT/log/aapt2.log" 2>&1; then
+   echo 'AAPT2_BINARY_STARTUP_DIAGNOSTICS_BEGIN'
+   sed -n '1,35p' "$ROOT/log/aapt2.log" || true
+   if command -v readelf >/dev/null 2>&1; then
+     readelf -d "$native" 2>/dev/null | grep -E 'NEEDED|RUNPATH|RPATH' || true
+   fi
+   echo 'AAPT2_BINARY_STARTUP_DIAGNOSTICS_END'
+   fail "AAPT2 isolated binary startup blocked; distinguish missing ELF dependencies from Android execution restriction before repair"
+ fi
  test_aapt2 ||
    fail "New AAPT2 cannot link SDK 35; inspect $ROOT/log/aapt2-link-smoke.log"
  echo 'AAPT2_ANDROID35=PASS isolated_signed_official_toolchain'
