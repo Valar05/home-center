@@ -46,9 +46,16 @@ fetch(){
 }
 fetch 5b7ccba7c566afb5057eaea1b10b99b083851fe4 "$PROJECT/build.gradle"
 fetch 72e86cba1e17acab412ae145f0c90a1971020b56 "$PROJECT/settings.gradle"
-gh api "repos/Valar05/home-center/git/trees/$TREE" \
-  --jq '.tree[] | select(.type=="blob") | [.sha,.path] | @tsv' > "$ROOT/tree.tsv" ||
-  fail 'Pinned source tree unavailable'
+# The GitHub Trees endpoint is NOT recursive by default. The Android app's
+# files live beneath src/main and src/test; without recursive=1, this yields
+# only build.gradle and silently stops before Gradle. Proven expected 36 blobs.
+gh api "repos/Valar05/home-center/git/trees/$TREE?recursive=1" \
+  --jq 'if .truncated then error("pinned source tree truncated") else .tree[] | select(.type=="blob") | [.sha,.path] | @tsv end' > "$ROOT/tree.tsv.part" ||
+  fail 'Recursive pinned Android source tree unavailable or truncated'
+mv "$ROOT/tree.tsv.part" "$ROOT/tree.tsv"
+declared="$(wc -l < "$ROOT/tree.tsv" | tr -d ' ')"
+[ "$declared" = 36 ] || fail "Pinned Android tree expected 36 files, got $declared"
+echo "RECURSIVE_TREE_VERIFIED=36"
 count=0
 while IFS="$(printf '\t')" read -r hash relative; do
  [ -n "$hash" ] || continue
@@ -56,7 +63,9 @@ while IFS="$(printf '\t')" read -r hash relative; do
  fetch "$hash" "$PROJECT/app/$relative"
  count=$((count+1))
 done < "$ROOT/tree.tsv"
-[ "$count" -ge 30 ] || fail 'Android source tree incomplete'
+[ "$count" -eq 36 ] || fail "Source blob fetch incomplete: $count of 36 files"
+[ -f "$PROJECT/app/src/main/AndroidManifest.xml" ] || fail 'Android manifest missing'
+[ -f "$PROJECT/app/src/main/java/com/homecenter/ritsucontrol/RitsuLocalSync.java" ] || fail 'Direct SSE transport source missing'
 receipt SOURCE_VERIFIED "$count authenticated hash-checked files"
 echo "SOURCES=PASS COUNT=$count"
 if [ -n "${ANDROID_HOME:-}" ] && [ -f "$ANDROID_HOME/platforms/android-35/android.jar" ]; then
