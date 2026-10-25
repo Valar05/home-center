@@ -177,6 +177,8 @@ else
      break
    fi
    echo "AAPT2_APT_UNAVAILABLE=$endpoint"
+   tail -n 5 "$ROOT/log/aapt2-signed-apt-index.log" |
+     sed 's/^/APT_DIAG: /' || true
  done
  [ -n "$selected" ] ||
    fail "No upstream-signed Termux mirror accessible; inspect $ROOT/log/aapt2-signed-apt-index.log"
