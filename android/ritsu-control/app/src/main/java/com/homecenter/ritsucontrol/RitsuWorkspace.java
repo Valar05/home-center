@@ -58,7 +58,7 @@ final class RitsuWorkspace {
             JSONObject first=new JSONObject();
             try{
                 first.put("id","main");first.put("title","Main");
-                first.put("machineId","termux-android");
+                first.put("machineId","windows-cauldron");
                 first.put("scriptCampaign",false);initial.put(first);
             }catch(Exception error){throw new IllegalStateException(error);}
             return initial;
