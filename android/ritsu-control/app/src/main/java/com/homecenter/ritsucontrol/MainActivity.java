@@ -59,8 +59,6 @@ public final class MainActivity extends Activity {
     private long lastFeedRevision = -1;
 
     private final Handler updates = new Handler(Looper.getMainLooper());
-    private final ExecutorService cloudPairWorker=Executors.newSingleThreadExecutor();
-    private final AtomicBoolean cloudPairActive=new AtomicBoolean(false);
     private final Runnable redraw = new Runnable() {
         @Override public void run() {
             if (headerStatus == null) return;
@@ -106,7 +104,7 @@ public final class MainActivity extends Activity {
 
         TextView title = label("Ritsu  ·  Conversation Hub", 21, true);
         root.addView(title);
-        headerStatus = label("Mic off · Home Center not connected", 12, false);
+        headerStatus = label("Mic off · Laptop link not paired", 12, false);
         headerStatus.setPadding(0, dp(5), 0, dp(12));
         root.addView(headerStatus);
 
@@ -190,7 +188,10 @@ public final class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT >= 30) root.requestApplyInsets();
         renderFeed();
         refreshStatus();
-        acceptHomeCenterOAuth(getIntent());
+        send(RitsuControlService.ACTION_SYNC_NOW);
+        updates.post(()->{
+            if(RitsuPairing.load(this)==null)pairTheCauldron();
+        });
     }
 
     private void addTab(LinearLayout tabs,String label,String id) {
@@ -231,7 +232,7 @@ public final class MainActivity extends Activity {
                 workspace.active().id);
         if(messages.isEmpty()) {
             TextView empty=label("No verified results in this view yet.\n" +
-                ("worker".equals(channel) ? "Worker results need the authenticated Home Center bridge." :
+                ("worker".equals(channel) ? "Worker results are not enabled in local conversation mode." :
                 "Your recognized words will appear here once Android returns them."),14,false);
             empty.setPadding(dp(12),dp(18),dp(12),dp(12));
             transcriptRows.addView(empty);
@@ -265,30 +266,18 @@ public final class MainActivity extends Activity {
         feedScroll.post(()->feedScroll.fullScroll(View.FOCUS_DOWN));
     }
 
-    private void togglePlaywrightDelivery() {
-        boolean enabled=HomeCenterPlaywrightBridge.enabled(this);
-        new AlertDialog.Builder(this)
-            .setTitle(enabled?"Disable Playwright delivery?":"Enable Playwright delivery?")
-            .setMessage(enabled
-                ? "Already queued turns remain pending on the Home Center worker. New messages will stay local."
-                : "Each Send runs only the fixed reviewed Playwright chat-turn script on THECAULDRON through your authenticated Home Center Computer Hands worker. It operates an existing signed-in ChatGPT browser and returns a verified receipt. This is NOT OpenAI API. The workstation and its Playwright script must be online.")
-            .setNegativeButton("Cancel",null)
-            .setPositiveButton(enabled?"Disable":"Enable",(d,w)->{
-                HomeCenterPlaywrightBridge.enable(this,!enabled);
-                send(RitsuControlService.ACTION_SYNC_NOW);
-                refreshStatus();
-            }).show();
+    private void showDirectLinkStatus() {
+        new AlertDialog.Builder(this).setTitle("Direct Tailscale link")
+            .setMessage(HomeCenterSync.status.replace("Home Center","Local transport"))
+            .setPositiveButton("Close",null).show();
     }
 
     private void queueTyped() {
         String text=composer.getText().toString().trim();
         if(text.isEmpty())return;
-        if(!HomeCenterPlaywrightBridge.enabled(this)){
-            headerStatus.setText("ChatGPT delivery paused. Resume in More before sending.");
-            return;
-        }
-        if(HomeCenterCloudPairing.load(this)==null){
-            headerStatus.setText("Connect your Home Center account before sending.");
+        if(RitsuPairing.load(this)==null){
+            headerStatus.setText("Pair THECAULDRON to send ChatGPT messages");
+            pairTheCauldron();
             return;
         }
         // The operator already pressed Send. No second confirmation:
@@ -296,7 +285,7 @@ public final class MainActivity extends Activity {
         RitsuWorkspace.Tab active=workspace.active();
         try {
             ledger.addInTab(active.id,active.machineId,
-                "control","You",text,ConversationLedger.OUTBOX);
+                "control","You",text,"LOCAL_QUEUED");
             RitsuControlService.feedRevision++;
             composer.setText("");
             renderFeed();
@@ -410,7 +399,7 @@ public final class MainActivity extends Activity {
         java.util.List<ConversationLedger.Entry> pending=ledger.unsent();
         if(pending.isEmpty()){
             new AlertDialog.Builder(this).setTitle("Phone outbox")
-                .setMessage("No unsent messages. New messages use the authenticated Home Center browser bridge.")
+                .setMessage("No unsent messages. New messages use direct Tailscale streaming.")
                 .setPositiveButton("Close",null).show();
             return;
         }
@@ -422,7 +411,7 @@ public final class MainActivity extends Activity {
             descriptions[i]=e.tabId+" · "+e.state+" · "+preview;
         }
         new AlertDialog.Builder(this)
-            .setTitle("Pending Playwright turns ("+pending.size()+")")
+            .setTitle("Pending conversation turns ("+pending.size()+")")
             .setMessage("Local-only and remote-pending turns are distinct. A verified browser reply changes its state to COMPLETED. Select to view / copy.")
             .setItems(descriptions,(dialog,index)->{
                 ConversationLedger.Entry entry=pending.get(index);
@@ -485,8 +474,8 @@ public final class MainActivity extends Activity {
         String[] labels = {
                 "Status and recognition errors",
                 "Speech pause timing (Gboard-like)",
-                "Connect Home Center account",
-                "Disconnect Home Center",
+                "Pair THECAULDRON",
+                "Unpair THECAULDRON",
                 "Ask Android to pause media",
                 "Stop conversation",
                 "Enable floating mute bubble",
@@ -496,7 +485,7 @@ public final class MainActivity extends Activity {
                 "Script campaign: toggle this tab",
                 "Request image / file retrieval",
                 "Pending and streaming messages",
-                "Pause / resume ChatGPT delivery"
+                "Direct link status"
         };
         new AlertDialog.Builder(this)
                 .setTitle("Ritsu controls")
@@ -508,18 +497,18 @@ public final class MainActivity extends Activity {
                                     .setPositiveButton("Close", null).show();
                             break;
                         case 1: selectSpeechTiming(); break;
-                        case 2: pairHomeCenter(); break;
+                        case 2: pairTheCauldron(); break;
                         case 3:
                             new AlertDialog.Builder(this)
-                                    .setTitle("Disconnect Ritsu from Home Center?")
-                                    .setMessage("Only the local encrypted pairing is erased. Saved messages remain on this phone.")
-                                    .setPositiveButton("Disconnect", (d,w) -> {
-                                        cloudPairActive.set(false);
-                                        HomeCenterOAuth.clearPending(this);
-                                        HomeCenterCloudPairing.disconnect(this);
-                                        RitsuPairing.disconnect(this);
-                                        HomeCenterSync.status="Home Center not paired";refreshStatus();
-                                    }).setNegativeButton("Cancel",null).show();
+                                .setTitle("Unpair THECAULDRON?")
+                                .setMessage("This removes the encrypted local device token. Saved messages remain.")
+                                .setPositiveButton("Unpair",(d,w)->{
+                                    RitsuPairing.disconnect(this);
+                                    getSharedPreferences("ritsu_local_sse_cursor_v1",MODE_PRIVATE)
+                                        .edit().putLong("seq",0).commit();
+                                    HomeCenterSync.status="THECAULDRON unpaired";
+                                    refreshStatus();
+                                }).setNegativeButton("Cancel",null).show();
                             break;
                         case 4: send(RitsuControlService.ACTION_MEDIA_TALK); break;
                         case 5: send(RitsuControlService.ACTION_STOP); break;
@@ -533,104 +522,54 @@ public final class MainActivity extends Activity {
                             break;
                         case 11:requestAssetExplicitly();break;
                         case 12:showPendingMessages();break;
-                        case 13:togglePlaywrightDelivery();break;
+                        case 13:showDirectLinkStatus();break;
                         default: break;
                     }
                 }).setNegativeButton("Close", null).show();
     }
 
-    private void pairHomeCenter() {
-        try {
-            HomeCenterCloudPairing.Paired existing=HomeCenterCloudPairing.load(this);
-            if(existing!=null && existing.oauthClientId.length()>0) {
-                new AlertDialog.Builder(this)
-                    .setTitle("Home Center account connected")
-                    .setMessage("Your Home Center sign-in is encrypted on this phone. " +
-                        "ChatGPT delivery is automatically enabled unless you have explicitly paused it. The Windows worker must be online.")
-                    .setPositiveButton("Close",null).show();
-                return;
-            }
-        }catch(RuntimeException ignored){
-            headerStatus.setText("Home Center session needs sign-in");
-        }
-        if(!cloudPairActive.compareAndSet(false,true)) {
-            headerStatus.setText("Home Center sign-in already running");
-            return;
-        }
-        headerStatus.setText("Preparing Home Center sign-in");
-        cloudPairWorker.execute(()->{
-            try{
-                final String authorize=HomeCenterOAuth.begin(getApplicationContext());
-                updates.post(()->{
-                    try {
-                        // External browser is mandatory. Never collect Google
-                        // passwords in WebView or use a shared APK credential.
-                        Intent view=new Intent(Intent.ACTION_VIEW, Uri.parse(authorize));
-                        view.addCategory(Intent.CATEGORY_BROWSABLE);
-                        startActivity(view);
-                        // Browser sign-in is independently bound by persisted
-                        // PKCE state. The Activity can be retried if the user
-                        // closes Chrome without completing authorization.
-                        cloudPairActive.set(false);
-                        headerStatus.setText("Complete Home Center sign-in in your browser");
-                    }catch(RuntimeException browserError){
-                        cloudPairActive.set(false);
-                        HomeCenterOAuth.clearPending(getApplicationContext());
-                        headerStatus.setText("Could not open a secure browser");
-                    }
-                });
-            }catch(Exception error){
-                cloudPairActive.set(false);
-                updates.post(()->headerStatus.setText(
-                    "Home Center sign-in unavailable: "+error.getClass().getSimpleName()));
-            }
-        });
-    }
-
-    /**
-     * Android delivers this intent only after a user-completed Home Center
-     * browser redirect. The short-lived state and PKCE proof prevent another
-     * Android app from completing an unsolicited or replayed login.
+    /** One-time device pairing. The token is entered on the device and
+     * sealed with Android Keystore. Nothing is sent to Home Center cloud.
      */
-    private void acceptHomeCenterOAuth(Intent intent) {
-        if(intent==null||intent.getData()==null||
-           !HomeCenterOAuth.scheme(this).equals(intent.getData().getScheme()))return;
-        Uri callback=intent.getData();
-        intent.setData(null);
-        // The saved OAuth state, rather than an in-memory Activity flag,
-        // establishes whether this callback belongs to this app.
-        cloudPairActive.set(true);
-        headerStatus.setText("Verifying Home Center sign-in");
-        cloudPairWorker.execute(()->{
-            try{
-                HomeCenterCloudPairing.Paired paired=
-                    HomeCenterOAuth.complete(getApplicationContext(),callback);
-                HomeCenterCloudPairing.save(getApplicationContext(),paired);
-                HomeCenterSync.status="Home Center connected · ChatGPT delivery ready";
-                updates.post(()->{
-                    cloudPairActive.set(false);
+    private void pairTheCauldron() {
+        final EditText server=new EditText(this);
+        server.setSingleLine(true);
+        server.setText("http://100.68.37.106:19646");
+        server.setHint("Tailscale IP and port");
+        final EditText token=new EditText(this);
+        token.setSingleLine(true);
+        token.setHint("Device token from THECAULDRON");
+        token.setInputType(InputType.TYPE_CLASS_TEXT |
+            InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        LinearLayout inputs=new LinearLayout(this);
+        inputs.setOrientation(LinearLayout.VERTICAL);
+        inputs.setPadding(dp(14),dp(6),dp(14),0);
+        inputs.addView(server);
+        inputs.addView(token);
+        new AlertDialog.Builder(this)
+            .setTitle("Pair THECAULDRON")
+            .setMessage("One-time direct Tailscale pairing. No Home Center cloud traffic. The laptop must be online.")
+            .setView(inputs)
+            .setNegativeButton("Cancel",null)
+            .setPositiveButton("Pair",(dialog,which)->{
+                try{
+                    RitsuPairing.save(this,server.getText().toString(),
+                        token.getText().toString());
+                    getSharedPreferences("ritsu_local_sse_cursor_v1",MODE_PRIVATE)
+                        .edit().putLong("seq",0).commit();
+                    HomeCenterSync.status="Paired · connecting to THECAULDRON";
+                    send(RitsuControlService.ACTION_SYNC_NOW);
                     refreshStatus();
-                    new AlertDialog.Builder(this)
-                        .setTitle("Home Center connected")
-                        .setMessage("Ritsu Control signed in directly and stored its " +
-                            "own Home Center credentials securely. ChatGPT messages use the authenticated Playwright bridge automatically; responses appear progressively in this conversation.")
-                        .setPositiveButton("Done",null).show();
-                });
-            }catch(Exception error){
-                HomeCenterOAuth.clearPending(getApplicationContext());
-                updates.post(()->{
-                    cloudPairActive.set(false);
-                    headerStatus.setText(
-                        "Home Center sign-in failed: "+error.getClass().getSimpleName());
-                });
-            }
-        });
+                }catch(RuntimeException error){
+                    headerStatus.setText("Pairing failed: "+error.getMessage());
+                }
+            }).show();
     }
 
     @Override protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        acceptHomeCenterOAuth(intent);
+        // Cloud OAuth retired from the active conversation path.
     }
 
     private void selectSpeechTiming() {
@@ -668,7 +607,7 @@ public final class MainActivity extends Activity {
                 + "\nMedia guard: " + RitsuControlService.mediaGuardStatus
                 + "\nLast error: " + (RitsuControlService.lastProblem.isEmpty()
                         ? "None" : RitsuControlService.lastProblem)
-                + "\nChatGPT text streams into this conversation through Home Center."
+                + "\nChatGPT text streams through THECAULDRON over Tailscale."
                 + "\nNo Ritsu voice playback in this build.";
     }
 
@@ -714,18 +653,13 @@ public final class MainActivity extends Activity {
             RitsuWorkspace.machine(selected.machineId).label+
             " · Instant preferred · Script loop "+(selected.scriptCampaign?"ON":"OFF"));
         int unsent=ledger.pendingCount();
-        outboxWarning.setText((HomeCenterPlaywrightBridge.enabled(this)
-            ? "Playwright transport ON · " : "Playwright transport OFF · ")+
-            unsent+" pending"+(unsent==0?"":"  ·  Tap to inspect"));
-        outboxWarning.setContentDescription(
-            "Playwright transport "+(HomeCenterPlaywrightBridge.enabled(this)?"enabled":"disabled")+
-            ". "+unsent+" pending messages. Tap to inspect.");
-        if(sendButton!=null) {
-            boolean delivery=HomeCenterPlaywrightBridge.enabled(this);
-            sendButton.setText(delivery?"Send":"Delivery paused");
-            sendButton.setContentDescription(delivery
-                ? "Send message through Home Center to ChatGPT"
-                : "Delivery manually paused. Resume browser delivery in More.");
+        outboxWarning.setText("Direct Tailscale · "+unsent+" pending"+
+            (unsent==0?"":" · Tap to inspect"));
+        outboxWarning.setContentDescription("Direct laptop streaming. "+
+            unsent+" pending turns. Tap to inspect.");
+        if(sendButton!=null){
+            sendButton.setText("Send");
+            sendButton.setContentDescription("Send to ChatGPT over the Tailscale laptop connection");
         }
         if (listenButton != null) {
             listenButton.setText(mode == ListeningPolicy.Mode.RECOGNIZING
