@@ -48,3 +48,14 @@ source-equivalent code block in the chat response rather than only a link.
 The cloud script executes the repo-owned doctor, Gradle unit tests and
 `assembleRelease`; the APK remains **unsigned** and no installable upgrade
 will be published until signing identity matches the installed Android app.
+
+## One-paste dirty-worktree-safe bootstrap (2026-10-25 owner correction)
+
+**Never ask the owner to `cd` into `GodotProjects/home-center` or `git pull` in it.** That checkout already has three unrelated modified scripts. They stay untouched.
+
+The repository-owned `tools/campaigns/ritsu_sticky_onepaste.sh` uses a verified immutable commit supplied through `RITSU_STICKY_PIN`. It creates or safely reuses an isolated sparse checkout at `$HOME/.local/share/ritsu-campaigns/sticky-<sourceSHA-prefix>`, verifies origin and exact Git HEAD, rejects dirty private campaign checkouts, and executes `ritsu_sticky_campaign.sh doctor`. It requires only Termux Bash, Git, network access to the public GitHub repository, and ordinary private home storage. It assumes nothing about current working directory.
+
+The **one-paste command in the handoff is the source of this repo-owned bootstrap provided inline via Bash heredoc**, not a second external/downloaded launcher. The script's default `doctor` mode **is real and useful** for verifying exact source and platform-independent contracts; it does not compile, sign, install, or publish an APK. The release signing identity remains unresolved, so no installable in-place upgrade is promised.
+
+Cloud CI test job `isolated-bootstrap` in `.github/workflows/build.yml` tests this exact repo-owned launcher against a synthetic preexisting owner's file fixture, from unrelated directories and on rerun, and verifies it never changes those bytes. The existing `sticky-android-compile` job separately assembles unsigned Android v0.18 and executes JUnit tests in GitHub. No owner's local Android SDK or Gradle is required for the default doctor invocation. Physical phone run remains a separate acceptance gate.
+
