@@ -33,7 +33,11 @@ grep -Fq 'StickyText.compose' android/ritsu-control/app/src/main/java/com/homece
 grep -Fq 'StickyText.compose' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
 grep -Fq 'ACTION_CREATE_DOCUMENT' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
 grep -Fq 'ACTION_OPEN_DOCUMENT' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
-if [ "$mode" = doctor ]; then echo STICKY_PREFLIGHT=PASS; exit 0; fi
+bash -n "$repo/tools/campaigns/ritsu_sticky_install_real.sh" || { echo STICKY_FAIL=installer_syntax; exit 2; }
+grep -Fq 'e57a0edf08a01ae0132acef0a885436a5e6c8a02109630ac2279acaf73d97811' "$repo/tools/campaigns/ritsu_sticky_install_real.sh" || {
+  echo STICKY_FAIL=installer_artifact_hash_not_locked; exit 2;
+}
+if [ "$mode" = doctor ]; then echo STICKY_PREFLIGHT=PASS; echo STICKY_INSTALLER_SCRIPT_SYNTAX=PASS; exit 0; fi
 command -v gradle >/dev/null || { echo STICKY_FAIL=gradle_missing;exit 2; }
 sdk="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
 test -f "$sdk/platforms/android-35/android.jar" || {
