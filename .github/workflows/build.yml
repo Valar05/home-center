@@ -50,8 +50,21 @@ jobs:
         run: |
           set -euo pipefail
           test -n "${ANDROID_HOME:-}"
-          sdkmanager --install 'platforms;android-35' 'build-tools;35.0.0'
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager -print -quit 2>/dev/null || true)"
+          fi
+          [ -n "$SDKMANAGER" ] && [ -x "$SDKMANAGER" ] || {
+            echo "FAIL=android_sdkmanager_not_found_under_ANDROID_HOME"
+            exit 2
+          }
+          if [ ! -f "$ANDROID_HOME/platforms/android-35/android.jar" ] ||
+             [ ! -x "$ANDROID_HOME/build-tools/35.0.0/aapt" ]; then
+            yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+            "$SDKMANAGER" --install 'platforms;android-35' 'build-tools;35.0.0'
+          fi
           test -f "$ANDROID_HOME/platforms/android-35/android.jar"
+          test -x "$ANDROID_HOME/build-tools/35.0.0/apksigner"
 
       - uses: gradle/actions/setup-gradle@v4
         with:
