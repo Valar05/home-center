@@ -59,8 +59,20 @@ done < "$ROOT/tree.tsv"
 [ "$count" -ge 30 ] || fail 'Android source tree incomplete'
 receipt SOURCE_VERIFIED "$count authenticated hash-checked files"
 echo "SOURCES=PASS COUNT=$count"
-export ANDROID_HOME="$HOME/android-sdk" ANDROID_SDK_ROOT="$HOME/android-sdk"
+if [ -n "${ANDROID_HOME:-}" ] && [ -f "$ANDROID_HOME/platforms/android-35/android.jar" ]; then
+  echo "SDK_REUSE=$ANDROID_HOME"
+elif [ -f "$HOME/android-sdk/platforms/android-35/android.jar" ]; then
+  ANDROID_HOME="$HOME/android-sdk"
+elif [ -f "$PREFIX/opt/android-sdk/platforms/android-35/android.jar" ]; then
+  ANDROID_HOME="$PREFIX/opt/android-sdk"
+else
+  ANDROID_HOME="$HOME/android-sdk"
+fi
+export ANDROID_HOME ANDROID_SDK_ROOT="$ANDROID_HOME"
 manager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+if [ ! -f "$manager" ] && has sdkmanager; then
+  manager="$(command -v sdkmanager)"
+fi
 if [ ! -f "$ANDROID_HOME/platforms/android-35/android.jar" ]; then
  if [ ! -f "$manager" ]; then
   curl -fLsS --retry 2 --max-time 360 https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o "$ROOT/tools.zip" || fail 'Official SDK tools download failed'
@@ -73,6 +85,34 @@ if [ ! -f "$ANDROID_HOME/platforms/android-35/android.jar" ]; then
 fi
 [ -f "$ANDROID_HOME/platforms/android-35/android.jar" ] || fail 'SDK35 missing'
 GRADLE="$HOME/.local/share/ritsu-toolchains/gradle-8.11.1/bin/gradle"
+if has gradle && gradle --version 2>/dev/null | grep -q '^Gradle 8.11.1
+if [ ! -f "$GRADLE" ]; then
+ toolroot="$HOME/.local/share/ritsu-toolchains"; mkdir -p "$toolroot"
+ curl -fLsS --retry 2 https://services.gradle.org/distributions/gradle-8.11.1-bin.zip -o "$toolroot/gradle.zip" || fail 'Gradle download failed'
+ curl -fLsS --retry 2 https://services.gradle.org/distributions/gradle-8.11.1-bin.zip.sha256 -o "$toolroot/gradle.sha256" || fail 'Gradle checksum missing'
+ [ "$(sha256sum "$toolroot/gradle.zip" | awk '{print $1}')" = "$(tr -d ' \r\n' < "$toolroot/gradle.sha256")" ] || fail 'Gradle SHA mismatch'
+ unzip -qo "$toolroot/gradle.zip" -d "$toolroot" || fail 'Gradle unzip failed'
+ rm -f "$toolroot/gradle.zip" "$toolroot/gradle.sha256"
+fi
+native="$(command -v aapt2)"
+"$native" version > "$ROOT/log/aapt2.log" 2>&1 || fail 'Native AAPT2 unusable'
+export JAVA_HOME="$(dirname "$(dirname "$(readlink -f "$(command -v java)")")")"
+printf 'sdk.dir=%s\n' "$ANDROID_HOME" > "$PROJECT/local.properties"
+receipt BUILDING 'Gradle tests + APK'
+bash "$GRADLE" -p "$PROJECT" :app:testDebugUnitTest :app:assembleDebug -PritsuPhoneInstall=true "-Pandroid.aapt2FromMavenOverride=$native" --no-daemon --max-workers=2 > "$ROOT/log/gradle.log" 2>&1 ||
+ { tail -n 40 "$ROOT/log/gradle.log"; fail 'Gradle failed'; }
+file="$PROJECT/app/build/outputs/apk/debug/app-debug.apk"
+[ -f "$file" ] || fail 'APK absent'
+mkdir -p "$(dirname "$APK")"
+cp -f "$file" "$APK" || fail 'Downloads storage unavailable'
+apksigner verify "$APK" > "$ROOT/log/signature.log" 2>&1 || fail 'APK signature invalid'
+receipt BUILD_PASS 'com.homecenter.ritsucontrol.phone'
+echo "APK_BUILD_PASS=$APK"
+echo "SHA256=$(sha256sum "$APK" | awk '{print $1}')"
+; then
+  GRADLE="$(command -v gradle)"
+  echo "GRADLE_REUSE=$GRADLE"
+fi
 if [ ! -f "$GRADLE" ]; then
  toolroot="$HOME/.local/share/ritsu-toolchains"; mkdir -p "$toolroot"
  curl -fLsS --retry 2 https://services.gradle.org/distributions/gradle-8.11.1-bin.zip -o "$toolroot/gradle.zip" || fail 'Gradle download failed'
