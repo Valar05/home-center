@@ -10,13 +10,15 @@ def outboxInstall = providers.gradleProperty('ritsuOutboxInstall').orElse('false
 def bridgeInstall = providers.gradleProperty('ritsuBridgeInstall').orElse('false').get() == 'true'
 // v0.15+ canonical install. The existing apps stay untouched during migration.
 def stableInstall = providers.gradleProperty('ritsuStableInstall').orElse('false').get() == 'true'
+// Phone-built ARM64 package owns its signing key; never overwrite Windows-signed live app.
+def phoneInstall = providers.gradleProperty('ritsuPhoneInstall').orElse('false').get() == 'true'
 
 android {
     namespace 'com.homecenter.ritsucontrol'
     compileSdk 35
     defaultConfig {
-        applicationId stableInstall ? 'com.homecenter.ritsucontrol.live' : (bridgeInstall ? 'com.homecenter.ritsucontrol.bridge' : (outboxInstall ? 'com.homecenter.ritsucontrol.outbox' : (campaignInstall ? 'com.homecenter.ritsucontrol.campaign' : (parallelInstall ? 'com.homecenter.ritsucontrol.connected' : 'com.homecenter.ritsucontrol'))))
-        manifestPlaceholders = [ritsuAppLabel: stableInstall ? 'Ritsu Control' : (bridgeInstall ? 'Ritsu Control (Playwright)' : (outboxInstall ? 'Ritsu Control (Outbox)' : (campaignInstall ? 'Ritsu Control (Campaign)' : (parallelInstall ? 'Ritsu Control (Connected)' : 'Ritsu Control')))), ritsuOAuthScheme: stableInstall ? 'ritsucontrollive' : (bridgeInstall ? 'ritsucontrolbridge' : (outboxInstall ? 'ritsucontroloutbox' : (campaignInstall ? 'ritsucontrolcampaign' : 'ritsucontrol')))]
+        applicationId phoneInstall ? 'com.homecenter.ritsucontrol.phone' : (stableInstall ? 'com.homecenter.ritsucontrol.live' : (bridgeInstall ? 'com.homecenter.ritsucontrol.bridge' : (outboxInstall ? 'com.homecenter.ritsucontrol.outbox' : (campaignInstall ? 'com.homecenter.ritsucontrol.campaign' : (parallelInstall ? 'com.homecenter.ritsucontrol.connected' : 'com.homecenter.ritsucontrol')))))
+        manifestPlaceholders = [ritsuAppLabel: phoneInstall ? 'Ritsu Control (Phone)' : (stableInstall ? 'Ritsu Control' : (bridgeInstall ? 'Ritsu Control (Playwright)' : (outboxInstall ? 'Ritsu Control (Outbox)' : (campaignInstall ? 'Ritsu Control (Campaign)' : (parallelInstall ? 'Ritsu Control (Connected)' : 'Ritsu Control'))))), ritsuOAuthScheme: phoneInstall ? 'ritsucontrolphone' : (stableInstall ? 'ritsucontrollive' : (bridgeInstall ? 'ritsucontrolbridge' : (outboxInstall ? 'ritsucontroloutbox' : (campaignInstall ? 'ritsucontrolcampaign' : 'ritsucontrol'))))]
         minSdk 26
         targetSdk 35
         versionCode 18
