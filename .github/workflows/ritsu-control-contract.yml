@@ -1,15 +1,7 @@
 name: Ritsu Control Android Voice and Insets Contract
 on:
-  pull_request:
-    paths:
-      - 'android/ritsu-control/**'
-      - '.github/workflows/ritsu-control-contract.yml'
-  push:
-    branches:
-      - 'feature/ritsu-command-bridge-scavenge-20261022'
-    paths:
-      - 'android/ritsu-control/**'
-      - '.github/workflows/ritsu-control-contract.yml'
+  # Private-repository Actions minutes are reserved for an intentional final release.
+  # Intermediate commits and PR updates must not invoke this expensive build.
   workflow_dispatch:
 permissions:
   contents: read
@@ -35,6 +27,15 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Deterministic agent script loop and machine contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tools/ritsu-agent-loop/contract.test.mjs tools/ritsu-agent-loop/journal.test.mjs
+          echo RITSU_SCRIPT_LOOP_TESTED=1
       - name: Pure-state tests and Android build
         run: gradle -p android/ritsu-control :app:testDebugUnitTest :app:assembleDebug --no-daemon
       - name: Stage C Android system speech privacy and permission contract
@@ -76,7 +77,8 @@ jobs:
           grep -q 'HomeCenterOAuth.begin' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
           grep -q 'HomeCenterOAuth.complete' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
           grep -q 'Intent.ACTION_VIEW' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
-          grep -q 'ritsucontrol' "$MANIFEST"
+          grep -q 'ritsuOAuthScheme' "$MANIFEST"
+          grep -q 'ritsucontrolcampaign' android/ritsu-control/app/build.gradle
           grep -q 'android.intent.category.BROWSABLE' "$MANIFEST"
           grep -q 'android:usesCleartextTraffic="false"' "$MANIFEST"
           grep -q 'code_challenge_method=S256' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterOAuth.java
@@ -101,8 +103,20 @@ jobs:
           assert 'accessToken' not in oauth.split('static String begin(',1)[1].split('static HomeCenterCloudPairing.Paired complete',1)[0]
           print('RITSU_NATIVE_OAUTH_NO_MANUAL_CODE=PASS')
           PY
-          grep -q 'Home Center cloud paired; conversation bridge not deployed' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
+          grep -q 'HomeCenterPlaywrightBridge.sync' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
           grep -q 'HomeCenterCloudPairing.load' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
+          grep -q 'class RitsuWorkspace' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuWorkspace.java
+          grep -q 'pendingCount' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/ConversationLedger.java
+          grep -q 'LOCAL ONLY' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'showPendingMessages' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'Pending Playwright turns' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+
+          grep -q 'addInTab' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/ConversationLedger.java
+          grep -q 'workspace.active().id' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'machineChooser' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'requestAssetExplicitly' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'toggleScriptCampaign' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+
           ! grep -q 'RitsuPairing.save(this' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
           ! grep -q 'RitsuPairing.load(app)' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
           grep -q 'Only private Tailscale IPv4 is accepted' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuPairing.java
@@ -136,6 +150,73 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ritsu-control-v0.11-home-center-oauth-parallel-install-apk
+          path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+      - name: Build Campaign edition, preserving existing connected app
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle -p android/ritsu-control :app:assembleDebug -PritsuCampaignInstall=true --rerun-tasks --no-daemon
+          APK=android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
+          AAPT="$(find "$ANDROID_HOME/build-tools" -name aapt -type f | sort -V | tail -1)"
+          "$AAPT" dump badging "$APK" | grep -F "package: name='com.homecenter.ritsucontrol.campaign'"
+          "$AAPT" dump xmltree "$APK" AndroidManifest.xml | grep -F 'ritsucontrolcampaign'
+          grep -Fq 'android:scheme="${ritsuOAuthScheme}"' android/ritsu-control/app/src/main/AndroidManifest.xml
+          grep -Fq 'HomeCenterOAuth.scheme(this)' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          echo "RITSU_CAMPAIGN_OAUTH_CALLBACK_ISOLATED=1"
+          grep -Fq "'Ritsu Control (Campaign)'" android/ritsu-control/app/build.gradle
+          echo "RITSU_CAMPAIGN_PARALLEL_INSTALL_CONFIRMED=1"
+      - name: Publish isolated v0.12 Campaign APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ritsu-control-v0.12-tabs-machines-campaign-apk
+          path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+      - name: Build Outbox edition with visible unsent-message evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle -p android/ritsu-control :app:assembleDebug -PritsuOutboxInstall=true --rerun-tasks --no-daemon
+          APK=android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
+          AAPT="$(find "$ANDROID_HOME/build-tools" -name aapt -type f | sort -V | tail -1)"
+          "$AAPT" dump badging "$APK" | grep -F "package: name='com.homecenter.ritsucontrol.outbox'"
+          "$AAPT" dump xmltree "$APK" AndroidManifest.xml | grep -F 'ritsucontroloutbox'
+          echo RITSU_LOCAL_OUTBOX_WARNING_APK_BUILT=1
+      - name: Publish v0.13 Outbox diagnostic APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ritsu-control-v0.13-visible-unsent-outbox-apk
+          path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Validate Playwright bridge campaign contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check tools/campaigns/ritsu_control_playwright_bridge.mjs
+          grep -Fq 'HOME_CENTER_UNCERTAIN' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterPlaywrightBridge.java
+          grep -Fq 'computer_hands.request.create' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterPlaywrightBridge.java
+          grep -Fq 'playwright-rendered-chatgpt-reply' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterPlaywrightBridge.java
+          grep -Fq 'ritsucontrolbridge' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterOAuth.java
+          echo RITSU_BROWSER_SCRIPT_SYNTAX_AND_ANDROID_BRIDGE=PASS
+      - name: Build isolated Ritsu Control v0.14 Playwright APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle -p android/ritsu-control :app:testDebugUnitTest :app:assembleDebug -PritsuBridgeInstall=true --rerun-tasks --no-daemon
+          APK=android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
+          AAPT="$(find "$ANDROID_HOME/build-tools" -name aapt -type f | sort -V | tail -1)"
+          "$AAPT" dump badging "$APK" | grep -F "package: name='com.homecenter.ritsucontrol.bridge'"
+          "$AAPT" dump xmltree "$APK" AndroidManifest.xml | grep -F 'ritsucontrolbridge'
+          sha256sum "$APK"
+          echo RITSU_PLAYWRIGHT_ANDROID_APK_COMPILED=1
+      - name: Publish Ritsu Control v0.14 Playwright APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ritsu-control-v0.14-playwright-browser-bridge-apk
           path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14

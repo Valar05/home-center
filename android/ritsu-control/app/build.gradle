@@ -3,17 +3,24 @@ plugins { id 'com.android.application' }
 // Opt-in separate package for older debug installs with unrelated signing
 // certificates. Preserves the existing app's private files and conversations.
 def parallelInstall = providers.gradleProperty('ritsuParallelInstall').orElse('false').get() == 'true'
+// Dedicated campaign package can live beside BOTH the old app and the already
+// connected v0.11 package. Never require uninstalling either to try this build.
+def campaignInstall = providers.gradleProperty('ritsuCampaignInstall').orElse('false').get() == 'true'
+def outboxInstall = providers.gradleProperty('ritsuOutboxInstall').orElse('false').get() == 'true'
+def bridgeInstall = providers.gradleProperty('ritsuBridgeInstall').orElse('false').get() == 'true'
+// v0.15+ canonical install. The existing apps stay untouched during migration.
+def stableInstall = providers.gradleProperty('ritsuStableInstall').orElse('false').get() == 'true'
 
 android {
     namespace 'com.homecenter.ritsucontrol'
     compileSdk 35
     defaultConfig {
-        applicationId parallelInstall ? 'com.homecenter.ritsucontrol.connected' : 'com.homecenter.ritsucontrol'
-        manifestPlaceholders = [ritsuAppLabel: parallelInstall ? 'Ritsu Control (Connected)' : 'Ritsu Control']
+        applicationId stableInstall ? 'com.homecenter.ritsucontrol.live' : (bridgeInstall ? 'com.homecenter.ritsucontrol.bridge' : (outboxInstall ? 'com.homecenter.ritsucontrol.outbox' : (campaignInstall ? 'com.homecenter.ritsucontrol.campaign' : (parallelInstall ? 'com.homecenter.ritsucontrol.connected' : 'com.homecenter.ritsucontrol'))))
+        manifestPlaceholders = [ritsuAppLabel: stableInstall ? 'Ritsu Control' : (bridgeInstall ? 'Ritsu Control (Playwright)' : (outboxInstall ? 'Ritsu Control (Outbox)' : (campaignInstall ? 'Ritsu Control (Campaign)' : (parallelInstall ? 'Ritsu Control (Connected)' : 'Ritsu Control')))), ritsuOAuthScheme: stableInstall ? 'ritsucontrollive' : (bridgeInstall ? 'ritsucontrolbridge' : (outboxInstall ? 'ritsucontroloutbox' : (campaignInstall ? 'ritsucontrolcampaign' : 'ritsucontrol')))]
         minSdk 26
         targetSdk 35
-        versionCode 12
-        versionName '0.11.0'
+        versionCode 17
+        versionName '0.16.0'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17

@@ -1,0 +1,43 @@
+name: Ritsu Control v0.15 manual trial APK
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  android-trial:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Prepare Android 35
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | sort -V | tail -1)"
+          test -n "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" --install 'platforms;android-35' 'build-tools;35.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+      - name: Verify source and build only the permanent-ID trial
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check tools/campaigns/ritsu_control_playwright_bridge.mjs
+          gradle -p android/ritsu-control :app:testDebugUnitTest :app:assembleDebug -PritsuStableInstall=true --no-daemon
+          APK=android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          "$AAPT" dump badging "$APK" | grep -F "package: name='com.homecenter.ritsucontrol.stable'"
+          "$AAPT" dump xmltree "$APK" AndroidManifest.xml | grep -F 'ritsucontrolstable'
+          sha256sum "$APK"
+      - name: Publish Android APK for owner trial
+        uses: actions/upload-artifact@v4
+        with:
+          name: ritsu-control-v0.15-stable-trial-apk
+          path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14

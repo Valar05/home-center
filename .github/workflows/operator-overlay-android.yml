@@ -27,12 +27,19 @@ on:
       - 'functions/phone_hands_relay.js'
       - '.github/workflows/operator-overlay-android.yml'
   workflow_dispatch:
+    inputs:
+      ritsu_trial:
+        description: 'Build Ritsu Control trial APK only'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: write
 
 jobs:
   build:
+    if: github.event.inputs.ritsu_trial != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -110,3 +117,27 @@ jobs:
           git add operator-overlay-debug.apk operator-overlay-receipt.json
           git commit -m "Publish durable-signed operator overlay for ${SOURCE_SHA}"
           git push origin HEAD:refs/heads/generated/operator-overlay-apk
+
+  ritsu-trial:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.ritsu_trial == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Retrieve exactly signed Windows APK, do not rebuild or re-sign
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifact
+          gh release download ritsu-control-v0.15-trial-20261024 -R Valar05/home-center \
+            --pattern 'Ritsu-Control-v0.16.0-Live-Streaming.apk' --dir artifact
+          printf '%s  %s\n' \
+            'e8f5c245da85a70020f1b3ba85ddcb9ef84a764937827f09866a3a0899eab0ad' \
+            'artifact/Ritsu-Control-v0.16.0-Live-Streaming.apk' | sha256sum --check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ritsu-Control-v0.16.0-Live-Streaming
+          path: artifact/Ritsu-Control-v0.16.0-Live-Streaming.apk
+          if-no-files-found: error
+          retention-days: 7
