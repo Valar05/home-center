@@ -214,8 +214,8 @@ final class HomeCenterPlaywrightBridge {
         String encoded=Base64.encodeToString(
             e.text.getBytes(StandardCharsets.UTF_8),Base64.NO_WRAP);
         if(encoded.length()>30000)throw new IllegalArgumentException("Message too long");
-        return "node \""+SCRIPT+"\" --turn "+e.id+" --tab "+e.tabId+
-            " --prompt-b64 "+encoded;
+        return "node \\""+SCRIPT+"\\" "+(launch?"--launch ":"")+"--turn "+e.id+
+            " --tab "+e.tabId+" --prompt-b64 "+encoded;
     }
     private static JSONObject operation(HomeCenterCloudPairing.Paired p,
                                         String operation,JSONObject args) throws Exception {
