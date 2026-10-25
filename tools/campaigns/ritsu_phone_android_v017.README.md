@@ -27,3 +27,22 @@ An APK is **not** proven by a shell syntax pass, verified source count, signed A
 The v6 ChatGPT Downloads launcher sourced an old canonical revision that contained a Bash syntax error: a `>>` redirection was split after the operator. That revision never reached dependency download. The repo-owned script has been corrected to place the redirection and destination together. Never hand out another standalone launcher; advance by updating the Git-owned campaign and read back the new exact revision. Do not assume the user's currently selected Godot project directory is the campaign checkout.
 
 No physical APK acceptance has yet been obtained.
+
+## 2026-10-25 ABI dependency-stage silent exit recovery
+
+The owner ran the pinned repository-owned campaign and confirmed successful signed
+APT retrieval of `abseil-cpp 20260817.0`, `libprotobuf 2:36.2-1`, and
+`fmt 1:12.2.0`. The shell then exited without printing the next package
+(`libc++`) or an error; the receipt remained `SOURCE_VERIFIED`. **The exact
+failing command is not yet proven.**
+
+The repair does not throw away those cached packages or switch to desktop.
+It removes the early-exiting `awk` from the APT version-query pipe while
+`pipefail` is active, captures complete APT policy output first, and reports
+`AAPT2_ABI_RESOLVE`, `AAPT2_ABI_DOWNLOAD`, `AAPT2_ABI_EXTRACT`, and
+`AAPT2_ABI_READY` stages. A top-level ERR handler writes the exit code,
+line number, and named phase to the campaign receipt if any unhandled command
+fails. The repo test suite guards against regressions in this error path.
+Continue with the same pinned repo-owned campaign entrypoint after updating
+its isolated clean checkout; always run `ritsu_phone_android_v017.test.sh`
+before the build. Signed APK and physical test remain **unverified**.
