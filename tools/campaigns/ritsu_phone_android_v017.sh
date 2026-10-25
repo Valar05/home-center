@@ -134,48 +134,77 @@ echo "AAPT2_INSTALLED_VERSION=$previous"
 if test_aapt2; then
  echo 'AAPT2_ANDROID35=PASS existing_toolchain'
 else
- echo 'AAPT2_ANDROID35=FAIL legacy_binary'
- echo 'AAPT2_REPAIR=isolated_signed_official_termux_package'
- # Keep the configured Termux mirror, $PREFIX, and Debian installation unchanged.
- # Query exactly one official Termux main repo using its existing trusted APT key.
- # Download is authenticated against the signed APT package index.
+ echo 'AAPT2_ANDROID35=FAIL older_binary'
+ echo 'AAPT2_REPAIR=isolated_signed_upstream_key_and_mirrors'
+ # Separate, trusted-key-pinned repository configuration: not the phone-wide APT.
+ # Play Store Termux 2026.10 keyring can omit upstream Termux autobuilds.
+ # Retrieve the exact upstream signing key from its immutable, published Git blob.
  repair="$ROOT/aapt2-official"
  lists="$repair/lists"
  sources="$repair/official-main.list"
+ key="$repair/termux-autobuilds.gpg"
  mkdir -p "$lists/partial" "$repair/unpacked"
- printf 'deb https://packages.termux.dev/apt/termux-main stable main\n' > "$sources"
- aptargs=(-o "Dir::Etc::sourcelist=$sources" -o "Dir::Etc::sourceparts=-" -o "Dir::State::lists=$lists" -o "APT::Get::List-Cleanup=0")
- if ! apt-get "${aptargs[@]}" update > "$ROOT/log/aapt2-signed-apt-index.log" 2>&1; then
-   echo 'AAPT2_PRIMARY_OFFICIAL_MIRROR=unavailable_trying_official_cloudflare'
-   printf 'deb https://packages-cf.termux.dev/apt/termux-main stable main\n' > "$sources"
-   apt-get "${aptargs[@]}" update >> "$ROOT/log/aapt2-signed-apt-index.log" 2>&1 ||
-     fail 'Both signed official Termux APT endpoints unavailable; original repos untouched'
+ keysha="c5ed76a1b9a1f2bc2e296bdd5ca50cf1f1f12706"
+ if [ ! -f "$key" ] || [ "$(git hash-object "$key")" != "$keysha" ]; then
+   gh api "repos/termux/termux-packages/git/blobs/$keysha" --jq .content |
+     base64 -d > "$key.tmp" || fail "Cannot retrieve pinned official signing key"
+   [ "$(git hash-object "$key.tmp")" = "$keysha" ] ||
+     fail "Upstream signing key Git blob mismatch"
+   mv "$key.tmp" "$key"
  fi
+ echo "TERMUX_UPSTREAM_SIGNING_KEY_BLOB=$keysha"
+ if command -v gpg >/dev/null 2>&1; then
+   gpg --show-keys --with-colons --fingerprint "$key" > "$ROOT/log/upstream-key.txt" 2>&1 ||
+     fail "Pinned Termux keyring cannot be parsed"
+   grep -q "CC72CF8BA7DBFA0182877D045A897D96E57CF20C" "$ROOT/log/upstream-key.txt" ||
+     fail "Official autobuilds signing key fingerprint mismatch"
+ fi
+ aptargs=(-o "Dir::Etc::sourcelist=$sources" -o "Dir::Etc::sourceparts=-" -o "Dir::State::lists=$lists" -o "APT::Get::List-Cleanup=0")
+ # Additional officially listed mirrors; every candidate must pass the same GPG check.
+ endpoints=(
+   "https://packages.termux.dev/apt/termux-main"
+   "https://packages-cf.termux.dev/apt/termux-main"
+   "https://mirror.freedif.org/termux/apt/termux-main"
+   "https://termux.librehat.com/apt/termux-main"
+   "https://mirrors.aliyun.com/termux/termux-main"
+ )
+ selected=""
+ for endpoint in "${endpoints[@]}"; do
+   printf "deb [signed-by=%s] %s stable main\n" "$key" "$endpoint" > "$sources"
+   echo "AAPT2_APT_TRY=$endpoint"
+   if apt-get "${aptargs[@]}" update > "$ROOT/log/aapt2-signed-apt-index.log" 2>&1; then
+     selected="$endpoint"
+     break
+   fi
+   echo "AAPT2_APT_UNAVAILABLE=$endpoint"
+ done
+ [ -n "$selected" ] ||
+   fail "No upstream-signed Termux mirror accessible; inspect $ROOT/log/aapt2-signed-apt-index.log"
+ echo "AAPT2_SIGNED_MIRROR=$selected"
  candidate="$(apt-cache "${aptargs[@]}" policy aapt2 | awk '/Candidate:/ {print $2;exit}')"
- echo "AAPT2_OFFICIAL_CANDIDATE=$candidate"
+ echo "AAPT2_UPSTREAM_CANDIDATE=$candidate"
  [ -n "$candidate" ] && [ "$candidate" != "(none)" ] ||
-   fail 'Official Termux repository provides no AAPT2 candidate'
+   fail "Signed official mirror offers no AAPT2"
  dpkg --compare-versions "$candidate" ge "16.0.0.4" ||
-   fail "Official Termux mirror too old: $candidate"
- # apt-get download validates the .deb against the signed official package index.
+   fail "Official AAPT2 candidate too old: $candidate"
  (cd "$repair" && apt-get "${aptargs[@]}" download "aapt2=$candidate") > "$ROOT/log/aapt2-signed-download.log" 2>&1 ||
-   fail 'Authenticated official AAPT2 download failed'
+   fail "Verified official AAPT2 .deb fetch failed"
  deb=""
  for entry in "$repair"/aapt2_*_aarch64.deb; do
-   if [ -f "$entry" ]; then deb="$entry"; break; fi
+   [ ! -f "$entry" ] || { deb="$entry"; break; }
  done
- [ -n "$deb" ] || fail "Verified AAPT2 .deb not found"
- dpkg-deb -x "$deb" "$repair/unpacked" || fail "Unable to extract verified AAPT2 package"
+ [ -n "$deb" ] || fail "Downloaded AAPT2 ARM64 package missing"
+ dpkg-deb -x "$deb" "$repair/unpacked" || fail "Official package extraction failed"
  candidatebin="$(find "$repair/unpacked" -type f -name aapt2 -print -quit)"
  [ -n "$candidatebin" ] && [ -x "$candidatebin" ] ||
-   fail 'No executable aapt2 in verified package'
+   fail "Package does not contain executable ARM64 AAPT2"
  native="$candidatebin"
  echo "AAPT2_ISOLATED_BINARY=$native"
  "$native" version > "$ROOT/log/aapt2.log" 2>&1 ||
-   fail 'Verified official ARM64 AAPT2 cannot start; see aapt2.log'
+   fail "New AAPT2 cannot start; inspect $ROOT/log/aapt2.log for missing libraries"
  test_aapt2 ||
-   fail 'Verified official AAPT2 cannot link SDK35 resources; inspect aapt2-link-smoke.log'
- echo 'AAPT2_ANDROID35=PASS isolated_official_termux_binary'
+   fail "New AAPT2 cannot link SDK 35; inspect $ROOT/log/aapt2-link-smoke.log"
+ echo 'AAPT2_ANDROID35=PASS isolated_signed_official_toolchain'
 fi
 export JAVA_HOME="$(dirname "$(dirname "$(readlink -f "$(command -v java)")")")"
 printf 'sdk.dir=%s\n' "$ANDROID_HOME" > "$PROJECT/local.properties"
