@@ -41,7 +41,7 @@ final class HomeCenterSync implements AutoCloseable {
         this.onChange=onChange;
     }
     void start() {
-        queue.scheduleWithFixedDelay(this::safeSync,0,5,TimeUnit.SECONDS);
+        queue.scheduleWithFixedDelay(this::safeSync,0,1200,TimeUnit.MILLISECONDS);
     }
     void requestNow() {
         if(!stopped)queue.execute(this::safeSync);
@@ -51,8 +51,14 @@ final class HomeCenterSync implements AutoCloseable {
         try{syncOnce();}
         catch(Exception error){
             // Never report a queued network request as accepted by ChatGPT.
-            status="Home Center sync unavailable ("+
-                    error.getClass().getSimpleName()+")";
+            // Show actionable failure details. Never include tokens, URLs
+            // with credentials, or complete response bodies in status text.
+            String detail=error.getMessage();
+            if(detail==null)detail=error.getClass().getSimpleName();
+            detail=detail.replaceAll("[^a-zA-Z0-9 _.:()/-]"," ");
+            if(detail.length()>125)detail=detail.substring(0,125);
+            status="Home Center send failed: "+detail;
+            main.post(onChange);
         }
     }
     private void syncOnce() throws Exception {
