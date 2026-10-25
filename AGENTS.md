@@ -161,3 +161,15 @@ Blender is the only active modeling, topology, modifier, hierarchy, pivot, const
 ## Existing worker-profile enforcement
 
 Worker deployment changes remain governed by `ops/worker_profiles.v1.json`. CI is authoritative for that resource contract.
+
+## Campaign Etiquette live-document lock (owner precedence 2026-10-25)
+
+**Authority:** [CAMPAIGN_ETIQUETTE — Git Script Campaign Operating Rules](https://docs.google.com/document/d/1wntegQjw7238dmGqbvs9TQmlsp4uXdXw7_wPciNx6sI/edit), including its latest **2026-10-25 — Owner Lock: Mandatory Fresh Etiquette Read and GitHub-First Cloud Execution** addendum. This is an owner-authorized campaign execution preference and does not override the active safety/authorization boundaries above.
+
+**Mandatory fresh reload, not remembered lore:** Before planning, editing, dispatching, or ending a Git-owned code/build/Android/visual campaign, fetch the live Google Doc through the authenticated Google Drive/Docs connector. At minimum, re-read it on every new thread/worker, context compaction or handoff, execution-lane change, and final release handoff after multi-turn work. Record URL, revisionId/modifiedTime, and applicable precedence in the campaign checkpoint. Do not substitute this AGENTS excerpt, model memory, or prior summaries for a fresh read. If access fails, disclose the exact authority gap and do not infer old policy is current. This is a procedural boot gate, not a claim of background periodic re-reading.
+
+**GITHUB ACTIONS FIRST, OWNER COMMANDS LAST.** Existing successful GitHub Actions workflows and authenticated GitHub connector operations are the **default** for CI-compatible builds, tests, Android APK packaging, artifact verification, and releases. They supersede prior phone-first compilation, "GitHub is emergency/manual only", and blanket avoidance of Actions minutes for these tasks. Agents must investigate and reuse working workflows, commit source/CI in Git, dispatch a bounded run through GitHub, inspect results and deliver the verified APK directly, without repeatedly asking the owner to execute Termux, Linux or Windows commands. Do not assert cloud resources are free or unlimited without verifying allowances. If GitHub dispatch is unavailable, requires paid resources, or lacks authority, report that exact blocker rather than silently switching to another body. Phone-local work requires a specific evidence-backed exception and owner authorization.
+
+**Physical delivery is separate:** A successful GitHub workflow or ZIP artifact does not mean the APK is on the phone. Verify the downloaded APK's source SHA, version/package, signature and checksum, attach the actual APK in chat when possible, and reserve owner action for unavoidable installation, permissions and physical acceptance. Do not claim Android Downloads was written unless there is actual device evidence.
+
+Before any command handoff: check live-doc freshness, registered GitHub workflow availability, dispatch/tool access, artifact retrieval, and APK delivery. Use the live document to resolve conflicts.
