@@ -15,14 +15,14 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 
-/** Android-keystore sealed, opt-in Home Center device pairing.
+/** Android-keystore sealed, owner-operated direct Tailscale pairing.
  * No Chromium Throne capability, browser cookie or default credential in APK.
  * HTTP is allowed ONLY to a literal Tailscale 100.64/10 address: WireGuard
  * provides the transport encryption, and bearer auth is separate from Throne.
  */
 final class RitsuPairing {
-    private static final String ALIAS = "ritsu_home_center_phone_v1";
-    private static final String PREF = "ritsu_phone_home_center_v1";
+    private static final String ALIAS = "ritsu_direct_tailnet_phone_v1";
+    private static final String PREF = "ritsu_phone_direct_tailnet_v1";
     static final class Pair {
         final String origin, token;
         Pair(String origin, String token) { this.origin=origin; this.token=token; }
@@ -48,19 +48,18 @@ final class RitsuPairing {
                 ip[i]=Integer.parseInt(parts[i]);
                 if(ip[i]>255)throw new IllegalArgumentException("Invalid IP");
             }
-            if(ip[0]!=100 || ip[1]<64 || ip[1]>127)
-                throw new IllegalArgumentException("Only private Tailscale IPv4 is accepted");
+            if(ip[0]!=100 || ip[1]!=68 || ip[2]!=37 || ip[3]!=106)
+                throw new IllegalArgumentException("Only the pinned THECAULDRON tailnet address is accepted");
             return "http://"+String.format(java.util.Locale.ROOT,"%d.%d.%d.%d",
                     ip[0],ip[1],ip[2],ip[3])+":19646";
         }catch(java.net.URISyntaxException e){
-            throw new IllegalArgumentException("Invalid Home Center address");
+            throw new IllegalArgumentException("Invalid Tailscale address");
         }
     }
 
     static void save(Context context, String origin, String token) {
         String safe=validateOrigin(origin);
-        if(token==null || token.trim().length()<40 || token.trim().length()>256 ||
-                !token.trim().matches("[A-Za-z0-9_\\-=+/]+"))
+        if(token==null || !token.trim().matches("[a-f0-9]{64}"))
             throw new IllegalArgumentException("Invalid device pairing token");
         try {
             byte[] clear=(safe+"\n"+token.trim()).getBytes(StandardCharsets.UTF_8);
@@ -73,10 +72,9 @@ final class RitsuPairing {
                     .edit().putString("sealed",Base64.encodeToString(data,Base64.NO_WRAP))
                     .commit();
             if(!committed)throw new IllegalStateException("Pairing not saved");
-            // A newly paired Home Center may have an entirely different
-            // journal sequence. Never carry the old publication cursor over.
-            if(!context.getSharedPreferences("ritsu_sync_feed_v1",Context.MODE_PRIVATE)
-                    .edit().putLong("cursor",0).commit())
+            // Always reset the direct journal cursor on device re-pairing.
+            if(!context.getSharedPreferences("ritsu_local_sse_cursor_v1",Context.MODE_PRIVATE)
+                    .edit().putLong("seq",0).commit())
                 throw new IllegalStateException("Feed cursor not reset");
         }catch(IllegalArgumentException e){throw e;}
         catch(Exception e){throw new IllegalStateException("Secure pairing failed");}
