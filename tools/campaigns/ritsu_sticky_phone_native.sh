@@ -151,7 +151,37 @@ test_aapt2(){
 "$native" version > "$ROOT/log/aapt2.log" 2>&1 || fail 'Native AAPT2 cannot execute'
 previous="$(dpkg-query -W -f='${Version}' aapt2 2>/dev/null || true)"
 echo "AAPT2_INSTALLED_VERSION=$previous"
-if test_aapt2; then
+
+# Resume the exact previously proven Android-35 scoped toolchain if present.
+# The first native attempt already verified its signed package, matched ABI
+# libraries and Android-35 framework smoke before Gradle rejected only the
+# *filename* aapt2-scoped. Re-verify executable behavior before reusing.
+old_native="$native"
+recovered=0
+verified_scoped="$ROOT/aapt2-official/aapt2-scoped"
+verified_agp="$ROOT/aapt2-official/aapt2"
+if [ -s "$verified_scoped" ] && [ -x "$verified_scoped" ] &&
+   [ -d "$ROOT/aapt2-official/abi-libs" ]; then
+  if [ ! -e "$verified_agp" ]; then
+    cp -p "$verified_scoped" "$verified_agp" ||
+      fail "could_not_prepare_AGP_named_AAPT2_wrapper"
+    chmod 700 "$verified_agp"
+  fi
+  native="$verified_agp"
+  if [ -x "$native" ] && run_aapt2 version > "$ROOT/log/aapt2-reused.log" 2>&1 &&
+     test_aapt2; then
+    recovered=1
+    echo 'AAPT2_ANDROID35=PASS reused_verified_isolated_toolchain'
+    echo 'AAPT2_GRADLE_WRAPPER=recovered_rename_to_aapt2'
+  else
+    native="$old_native"
+    echo 'AAPT2_CACHED_WRAPPER=not_usable_try_official_recovery'
+  fi
+fi
+
+if [ "$recovered" = 1 ]; then
+ :
+elif test_aapt2; then
  echo 'AAPT2_ANDROID35=PASS existing_toolchain'
 else
  echo 'AAPT2_ANDROID35=FAIL older_binary'
