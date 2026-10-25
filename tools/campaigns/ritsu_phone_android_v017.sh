@@ -2,7 +2,48 @@
 # Ritsu v0.17 phone-first, pinned Android-only GitHub source; modes doctor|build|status
 set -Eeuo pipefail
 umask 077
-MODE="$1"
+# Resolve THIS script's canonical Git checkout, independent of caller cwd.
+# No standalone Downloads launcher or assumed current workspace is acceptable.
+SELF="$(realpath "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(cd -P "$(dirname "$SELF")" && pwd -P)"
+EXPECTED_REL="tools/campaigns/ritsu_phone_android_v017.sh"
+REPO="$(cd -P "$SCRIPT_DIR/../.." && pwd -P)"
+[ "$SELF" = "$REPO/$EXPECTED_REL" ] || {
+  echo 'FAIL=self_location_not_inside_canonical_repo_layout' >&2; exit 2;
+}
+[ -f "$REPO/AGENTS.md" ] && [ -f "$REPO/android/ritsu-control/app/build.gradle" ] || {
+  echo 'FAIL=expected_home_center_files_missing' >&2; exit 2;
+}
+cd "$REPO"
+ACTUAL_TOP="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+[ "$(realpath "$ACTUAL_TOP" 2>/dev/null || true)" = "$REPO" ] || {
+  echo 'FAIL=wrong_git_root' >&2; exit 2;
+}
+ORIGIN="$(git remote get-url origin 2>/dev/null || true)"
+case "$ORIGIN" in
+  'https://github.com/Valar05/home-center'|'https://github.com/Valar05/home-center.git'|'git@github.com:Valar05/home-center.git'|'ssh://git@github.com/Valar05/home-center.git') ;;
+  *) echo "FAIL=unexpected_git_origin:$ORIGIN" >&2; exit 2;;
+esac
+BRANCH="$(git symbolic-ref --quiet --short HEAD 2>/dev/null || true)"
+HEAD="$(git rev-parse HEAD)"
+printf 'RESOLVED_REPO=%s\nEXECUTION_DIR=%s\nBRANCH=%s\nHEAD=%s\n' "$REPO" "$PWD" "$BRANCH" "$HEAD"
+MODE="${1:-doctor}"
+case "$MODE" in build|resume)
+  [ "$BRANCH" = "campaign/ritsu-local-tailnet-20261024" ] || {
+    echo 'FAIL=wrong_campaign_branch' >&2; exit 2;
+  }
+  [ "$(git rev-parse HEAD:android/ritsu-control/app)" = "0c0e30bcfb6908a2835ce87acce63e2869facdb3" ] || {
+    echo 'FAIL=app_source_tree_not_authorized' >&2; exit 2;
+  }
+  DIRTY="$(git status --porcelain=v1 --untracked-files=all)"
+  [ -z "$DIRTY" ] || {
+    echo 'FAIL=dirty_checkout_preserved; use a clean isolated branch/worktree' >&2; exit 2;
+  }
+  ;;
+  doctor|status) ;;
+  *) echo 'FAIL=unsupported_mode; doctor|build|resume|status' >&2; exit 2;;
+esac
+MODE="${MODE/resume/build}"
 TREE=0c0e30bcfb6908a2835ce87acce63e2869facdb3
 ROOT="$HOME/.local/share/ritsu-campaigns/v017-phone"
 PROJECT="$ROOT/android/ritsu-control"
@@ -241,8 +282,7 @@ else
      packageFile=""
    fi
    if [ -z "$packageFile" ]; then
-     (cd "$repair" && apt-get "${aptargs[@]}" download "$dependency=$abiVersion") >>
-       "$ROOT/log/aapt2-signed-download.log" 2>&1 ||
+     (cd "$repair" && apt-get "${aptargs[@]}" download "$dependency=$abiVersion") >> "$ROOT/log/aapt2-signed-download.log" 2>&1 ||
        fail "Signed dependency retrieval failed: $dependency"
      for entry in "$repair"/"$dependency"_*_aarch64.deb; do
        if [ -f "$entry" ] &&
