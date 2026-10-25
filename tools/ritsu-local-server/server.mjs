@@ -20,7 +20,7 @@ export async function tokenAt(root=HOME){
 function tailIp(){const exe=process.platform==='win32'?'tailscale.exe':'tailscale';const out=execFileSync(exe,['ip','-4'],{encoding:'utf8',timeout:9000}).trim().split(/\s+/)[0];if(!tailnet(out))throw Error('tailscale_not_connected');return out;}
 export async function createServer(opts={}){
   const root=opts.root||HOME,host=opts.host||tailIp();
-  if(!tailnet(host)&&!(opts.test&&host==='127.0.0.1'))throw Error('tailnet_only');
+  if(!tailnet(host)&&!(opts.test&&host==='127.0.0.1')&&!(opts.serveOnly&&host==='127.0.0.1'&&opts.port===19647))throw Error('tailnet_or_managed_loopback_only');
   const token=opts.token||await tokenAt(root);await fs.mkdir(root,{recursive:true,mode:0o700});
   const filename=path.join(root,'events.jsonl'),listeners=new Set(),turns=new Map(),history=[];
   let seq=0,writer=Promise.resolve(),busy=false;const jobs=[];
@@ -118,6 +118,8 @@ export async function createServer(opts={}){
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
   const root=process.env.RITSU_LOCAL_ROOT||HOME;
   if(process.argv[2]==='token'){console.log(await tokenAt(root));process.exit(0);}
-  const s=await createServer({root});console.log('RITSU_LINK=http://'+s.host+':'+s.port);
+  const viaServe=process.env.RITSU_TAILSCALE_SERVE==='1';
+  const s=await createServer(viaServe?{root,host:'127.0.0.1',port:19647,serveOnly:true}:{root});
+  console.log('RITSU_LINK=http://'+s.host+':'+s.port);
   process.on('SIGINT',()=>s.close().then(()=>process.exit()));
 }
