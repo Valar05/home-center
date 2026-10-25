@@ -1,5 +1,6 @@
 package com.homecenter.ritsucontrol;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Base64;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -17,6 +18,7 @@ import org.json.JSONArray;
  */
 final class HomeCenterPlaywrightBridge {
     static final String PREF="ritsu_playwright_dispatch_v1";
+    private static final String STREAM_PREF="ritsu_playwright_stream_tickets_v1";
     private static final String WORKER="windows-hands-01";
     private static final String LANE="lane-ritsu-playwright-phone";
     private static final String SCRIPT=
@@ -25,7 +27,7 @@ final class HomeCenterPlaywrightBridge {
     private static final String PREFIX="RITSU_BROWSER_RECEIPT=";
     private HomeCenterPlaywrightBridge(){}
     static boolean enabled(Context app) {
-        return app.getSharedPreferences(PREF,Context.MODE_PRIVATE).getBoolean("enabled",false);
+        return app.getSharedPreferences(PREF,Context.MODE_PRIVATE).getBoolean("enabled",true);
     }
     static void enable(Context app,boolean value){
         if(!app.getSharedPreferences(PREF,Context.MODE_PRIVATE).edit()
@@ -34,28 +36,23 @@ final class HomeCenterPlaywrightBridge {
     }
     static String sync(Context app,ConversationLedger ledger,
                        HomeCenterCloudPairing.Paired paired) throws Exception {
-        if(!enabled(app))return "Playwright delivery OFF; unsent messages stay local";
+        if(!enabled(app))return "Browser delivery manually paused";
         List<ConversationLedger.Entry> entries=ledger.unsent();
         int active=0,uncertain=0,failed=0;
         for(ConversationLedger.Entry e:entries) {
             if("HOME_CENTER_FAILED".equals(e.state)){failed++;continue;}
             if(ConversationLedger.OUTBOX.equals(e.state)) {
+                // A stable Computer Hands request ID prevents duplicate sends,
+                // even if the initial HTTP acknowledgment is lost.
                 ledger.updateState(e.id,"HOME_CENTER_UNCERTAIN");
-                JSONObject args=new JSONObject()
-                    .put("requestId",requestId(e.id)).put("workerId",WORKER)
-                    .put("laneId",LANE).put("action","shell.exec")
-                    .put("arguments",new JSONObject()
-                        .put("command",command(e)).put("workingDirectory",ROOT))
-                    .put("approved",true).put("highRiskApproved",true);
-                JSONObject record=operation(paired,"computer_hands.request.create",args)
-                    .getJSONObject("result");
-                if(!requestId(e.id).equals(record.optString("requestId"))||
-                    !WORKER.equals(record.optString("workerId"))||
-                    !"queued".equals(record.optString("status")))
-                    throw new IllegalStateException("Computer Hands intake not verified");
+                createDispatch(paired,e);
                 ledger.updateState(e.id,"HOME_CENTER_QUEUED");
                 active++;
-                // Preserve ordered turns: one fresh remote dispatch per pass.
+                break;
+            }
+            if("HOME_CENTER_STREAMING".equals(e.state)) {
+                streamStep(app,ledger,paired,e);
+                active++;
                 break;
             }
             if(e.state.startsWith("HOME_CENTER_")) {
@@ -70,23 +67,148 @@ final class HomeCenterPlaywrightBridge {
                     case "leased":case "running":
                         ledger.updateState(e.id,"HOME_CENTER_LEASED");active++;break;
                     case "completed":
-                        applyCompleted(ledger,e,record);break;
+                        JSONObject launch=parseBrowserRecord(record);
+                        if("stream_launch".equals(launch.optString("kind"))) {
+                            if(!e.id.equals(launch.optString("turnId"))||
+                               !e.tabId.equals(launch.optString("tabId")))
+                                throw new SecurityException("Wrong stream launch turn");
+                            ledger.updateState(e.id,"HOME_CENTER_STREAMING");
+                            active++;
+                        } else {
+                            // Legacy synchronous reply, used only for recovery.
+                            applyCompleted(ledger,e,record);
+                        }
+                        break;
                     case "failed":case "cancelled":case "expired":
                         ledger.updateState(e.id,"HOME_CENTER_FAILED");failed++;break;
                     default:
                         ledger.updateState(e.id,"HOME_CENTER_UNCERTAIN");uncertain++;break;
                 }
             }
+            // A whole conversation remains ordered. Never dispatch the next
+            // owner turn while a prior one is still being generated.
+            if(active>0||uncertain>0)break;
         }
-        return "Playwright transport · "+active+" active · "+uncertain+
+        return "ChatGPT delivery · "+active+" active · "+uncertain+
             " uncertain · "+failed+" failed";
     }
+
+    private static void createDispatch(HomeCenterCloudPairing.Paired paired,
+                                       ConversationLedger.Entry e) throws Exception {
+        JSONObject args=workerRequest(requestId(e.id),command(e,true));
+        JSONObject record=operation(paired,"computer_hands.request.create",args)
+            .getJSONObject("result");
+        if(!requestId(e.id).equals(record.optString("requestId"))||
+            !WORKER.equals(record.optString("workerId"))||
+            !("queued".equals(record.optString("status"))||
+              "leased".equals(record.optString("status"))||
+              "running".equals(record.optString("status"))||
+              "completed".equals(record.optString("status"))))
+            throw new IllegalStateException("Computer Hands intake not verified");
+    }
+
+    private static JSONObject workerRequest(String id,String command) throws Exception {
+        return new JSONObject().put("requestId",id).put("workerId",WORKER)
+            .put("laneId",LANE).put("action","shell.exec")
+            .put("arguments",new JSONObject().put("command",command)
+                .put("workingDirectory",ROOT))
+            .put("approved",true).put("highRiskApproved",true);
+    }
+
+    /** Poll a short read-only snapshot task, never a finished-response gate.
+     * The outstanding ticket and next serial survive activity/process restarts. */
+    private static void streamStep(Context app,ConversationLedger ledger,
+                                   HomeCenterCloudPairing.Paired paired,
+                                   ConversationLedger.Entry e) throws Exception {
+        SharedPreferences pref=app.getSharedPreferences(STREAM_PREF,Context.MODE_PRIVATE);
+        String key=e.id;
+        int serial=pref.getInt("serial."+key,0);
+        String ticket=pref.getString("ticket."+key,"");
+        if(ticket.isEmpty()) {
+            if(serial>100000)throw new IllegalStateException("Stream poll limit reached");
+            ticket="ritsu.peek."+key+"."+serial;
+            if(!pref.edit().putString("ticket."+key,ticket).commit())
+                throw new IllegalStateException("Stream poll ticket not persisted");
+            JSONObject record=operation(paired,"computer_hands.request.create",
+                workerRequest(ticket,peekCommand(e))).getJSONObject("result");
+            if(!ticket.equals(record.optString("requestId")))
+                throw new SecurityException("Wrong snapshot poll ticket");
+            return;
+        }
+        JSONObject record;
+        try{
+            record=operation(paired,"computer_hands.request.status",
+                new JSONObject().put("requestId",ticket)).getJSONObject("result");
+        }catch(Exception missing){
+            // Recreate only this exact idempotent READ ticket. Never resubmit
+            // the original ChatGPT turn from an ambiguous state.
+            JSONObject accepted=operation(paired,"computer_hands.request.create",
+                workerRequest(ticket,peekCommand(e))).getJSONObject("result");
+            if(!ticket.equals(accepted.optString("requestId")))throw missing;
+            return;
+        }
+        if(!ticket.equals(record.optString("requestId")))
+            throw new SecurityException("Snapshot ticket mismatch");
+        String state=record.optString("status");
+        if("queued".equals(state)||"leased".equals(state)||"running".equals(state))return;
+        if(!"completed".equals(state)){
+            throw new IllegalStateException("Snapshot read failed: "+state);
+        }
+        JSONObject snap=parseBrowserRecord(record);
+        if(!"stream_snapshot".equals(snap.optString("kind"))||
+           !e.id.equals(snap.optString("turnId"))||
+           !e.tabId.equals(snap.optString("tabId")))
+            throw new SecurityException("Wrong stream identity");
+        int version=snap.optInt("version",-1);
+        String text=snap.optString("text","");
+        if(version<0||version>1000000||text.length()>5000||
+           !sha256(text).equals(snap.optString("sha256")))
+            throw new SecurityException("Stream checksum or sequence invalid");
+        if("error".equals(snap.optString("state"))) {
+            ledger.updateState(e.id,"HOME_CENTER_FAILED");
+            throw new IllegalStateException("ChatGPT worker: "+snap.optString("code","unknown"));
+        }
+        if(version>0 && !text.trim().isEmpty()) {
+            boolean complete=snap.optBoolean("complete",false);
+            if(complete && (!snap.optBoolean("verified")||
+                !"playwright-rendered-chatgpt-reply".equals(snap.optString("source"))||
+                !snap.optString("url").startsWith("https://chatgpt.com/c/")))
+                throw new SecurityException("Final reply source unverified");
+            ledger.upsertStreamingReply(e.id,text,version,complete);
+            if(complete){
+                ledger.updateState(e.id,"COMPLETED");
+                pref.edit().remove("ticket."+key).remove("serial."+key).commit();
+                return;
+            }
+        }
+        if(!pref.edit().putInt("serial."+key,serial+1)
+            .remove("ticket."+key).commit())
+            throw new IllegalStateException("Stream cursor persistence failed");
+    }
+
+    private static JSONObject parseBrowserRecord(JSONObject record) throws Exception {
+        JSONObject outcome=record.optJSONObject("result");
+        if(outcome==null||!outcome.optBoolean("ok")||
+           outcome.optInt("exitCode",-1)!=0)
+            throw new IllegalStateException("Browser worker exit not verified");
+        String stdout=outcome.optString("stdout","");
+        int at=stdout.lastIndexOf(PREFIX);
+        if(at<0)throw new IllegalStateException("Browser receipt missing");
+        int start=at+PREFIX.length(),end=stdout.indexOf('\n',start);
+        return new JSONObject((end<0?stdout.substring(start):
+            stdout.substring(start,end)).trim());
+    }
+
+    private static String peekCommand(ConversationLedger.Entry e) {
+        return "node \\""+SCRIPT+"\\" --peek --turn "+e.id+" --tab "+e.tabId;
+    }
+
     private static String requestId(String turnId){
         if(turnId==null||!turnId.matches("[a-fA-F0-9-]{36}"))
             throw new IllegalArgumentException("Invalid UUID turn");
         return "ritsu.phone."+turnId;
     }
-    private static String command(ConversationLedger.Entry e){
+    private static String command(ConversationLedger.Entry e,boolean launch){
         if(!e.tabId.matches("[A-Za-z0-9_-]{4,80}"))
             throw new IllegalArgumentException("Unsafe tab ID");
         String encoded=Base64.encodeToString(
