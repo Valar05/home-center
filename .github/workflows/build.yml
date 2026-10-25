@@ -21,6 +21,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          # This Android campaign is text-only. Some unrelated historical
+          # repository videos have malformed LFS pointers; never check them out.
+          sparse-checkout: |
+            android/ritsu-control
+            tools/campaigns
+          sparse-checkout-cone-mode: true
+          lfs: false
 
       - name: Verify campaign source and Git revision
         shell: bash
