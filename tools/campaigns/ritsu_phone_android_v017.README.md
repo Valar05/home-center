@@ -1,5 +1,35 @@
 # Ritsu Control v0.17, Android phone build campaign
 
+## Current authority: GitHub Actions first (2026-10-25)
+
+The owner's latest Campaign Etiquette Google Doc is authoritative. **GitHub
+Actions is now the default for Android Ritsu builds.** The historical
+Termux-private AAPT2 campaign documented below remains a *fallback only*,
+not the expected user workflow. Do not ask the owner to run the pasted
+Termux commands below when a GitHub Actions workflow can build the APK.
+Do not execute the phone-local build unless GitHub is proven unavailable
+and the owner specifically authorizes that exception.
+
+Default cloud workflow is the existing registered `.github/workflows/build.yml`
+manually dispatched at branch `campaign/ritsu-local-tailnet-20261024`.
+It builds `-PritsuPhoneInstall=true` with SDK 35 and Gradle 8.11.1,
+tests, verifies the application ID and debug APK signature, and publishes
+artifact `ritsu-control-v017-phone-apk` with APK, SHA256 and receipt.
+The owner must receive the actual verified APK as a chat attachment
+instead of a ZIP-only workflow link when supported. Installation and
+physical Android Downloads evidence remain a separate user/device gate.
+Workflow run #40196443188 failed because full checkout changed malformed
+unrelated LFS video files; subsequent workflow commit
+`cdb33fa61cbd6c8a3e66b054cccc2641ef430827` uses Android-only sparse
+checkout to prevent that unrelated failure.
+
+**Fresh-read lock:** each agent/worker must fetch the current
+[Campaign Etiquette document](https://docs.google.com/document/d/1wntegQjw7238dmGqbvs9TQmlsp4uXdXw7_wPciNx6sI/edit)
+before new campaign work and after context/handoff changes. See AGENTS.md.
+GitHub Actions usage may be subject to repo-plan minutes/storage; do not
+promise unlimited free builds.
+
+
 **Authority:** Campaign Etiquette in Google Drive, including the October 25 rules for repo-owned campaigns and self-locating entrypoints. Source: `Valar05/home-center`, branch `campaign/ritsu-local-tailnet-20261024`.
 
 The **runnable campaign is in this repository**, at `tools/campaigns/ritsu_phone_android_v017.sh`. No downloadable ChatGPT launcher is a permitted execution path. The Android phone is the build machine; THECAULDRON is not a Gradle requirement.
