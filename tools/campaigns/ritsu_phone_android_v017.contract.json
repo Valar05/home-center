@@ -1,0 +1,53 @@
+{
+  "schema": "home-center.campaign.contract.v1",
+  "id": "ritsu-control-android-phone-v017",
+  "mission": "Build, sign, and physically field-test Ritsu Control v0.17 from its pinned Android source tree using an Android Termux phone, without requiring THECAULDRON for compilation.",
+  "repository": "Valar05/home-center",
+  "execution_surface": "Termux aarch64 existing user checkout; repo-owned self-locating entrypoint",
+  "branch": "campaign/ritsu-local-tailnet-20261024",
+  "entrypoint": "tools/campaigns/ritsu_phone_android_v017.sh",
+  "allowed_modes": [
+    "doctor",
+    "build",
+    "resume",
+    "status"
+  ],
+  "pinned_app_tree": "0c0e30bcfb6908a2835ce87acce63e2869facdb3",
+  "writable_paths": [
+    "$HOME/.local/share/ritsu-campaigns/v017-phone/**",
+    "$HOME/.local/share/ritsu-toolchains/gradle-8.11.1/**",
+    "$HOME/android-sdk/**",
+    "$HOME/storage/downloads/Ritsu-Control-v0.17.0-Phone-Local.apk"
+  ],
+  "protected": [
+    "existing home-center checkout uncommitted work",
+    "other Godot/Android repositories and assets",
+    "system Termux package index configuration",
+    "existing installed Ritsu Control apps",
+    "THECAULDRON desktop session"
+  ],
+  "dependencies": [
+    "bash",
+    "git",
+    "gh authenticated",
+    "JDK17",
+    "Gradle 8.11.1",
+    "Android SDK35",
+    "official Termux ARM64 AAPT2 16.0.0.4-4 and matched signed Protobuf/Abseil if legacy package detected",
+    "apksigner"
+  ],
+  "acceptance": [
+    "repo identity and exact branch/tree verified without cwd assumptions",
+    "script parses with bash -n",
+    "all 36 pinned Android app blobs match expected Git hashes",
+    "Android 35 framework AAPT2 link smoke passes",
+    "Gradle unit tests and APK assembly pass",
+    "APK signature and package verified",
+    "APK installed on phone",
+    "physical phone Send streams reply incrementally over direct authenticated Tailscale",
+    "human acceptance"
+  ],
+  "receipt": "$HOME/.local/share/ritsu-campaigns/v017-phone/receipt",
+  "evidence_boundary": "Repository update, source download, SDK linking, successful compile, signed APK, install, streaming roundtrip, and user review are separate claims.",
+  "last_known_issue": "v6 2026-10-25 repo canonical shell had invalid redirection: newline after >> in ABI dependency download command; repaired in repo, phone syntax proof pending."
+}
