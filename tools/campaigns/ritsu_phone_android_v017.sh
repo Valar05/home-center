@@ -106,8 +106,54 @@ if [ ! -f "$GRADLE" ]; then
  unzip -qo "$toolroot/gradle.zip" -d "$toolroot" || fail 'Gradle unzip failed'
  rm -f "$toolroot/gradle.zip" "$toolroot/gradle.sha256"
 fi
+# Android 35 SDK is required and should NOT be downgraded for an obsolete
+# Termux AAPT2. The pre-July-2026 package cannot parse Android 35 resources.
+# Termux shipped a fixed native aapt2 in package 16.0.0.4. Smoke-test the
+# *actual* framework jar, not merely 'aapt2 version', before any Gradle call.
 native="$(command -v aapt2)"
-"$native" version > "$ROOT/log/aapt2.log" 2>&1 || fail 'Native AAPT2 unusable'
+jar="$ANDROID_HOME/platforms/android-35/android.jar"
+unzip -tqq "$jar" > "$ROOT/log/android35-jar-integrity.log" 2>&1 ||
+ fail 'Android 35 framework JAR is not a valid ZIP; refusing to blame AAPT2'
+mkdir -p "$ROOT/aapt2-smoke"
+cat > "$ROOT/aapt2-smoke/AndroidManifest.xml" <<'AAPT2_SMOKE_MANIFEST'
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.homecenter.ritsucontrol.smoke">
+  <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="35"/>
+  <application/>
+</manifest>
+AAPT2_SMOKE_MANIFEST
+test_aapt2(){
+ "$native" link -o "$ROOT/aapt2-smoke/smoke.apk" -I "$jar" \
+    --manifest "$ROOT/aapt2-smoke/AndroidManifest.xml" \
+    --min-sdk-version 26 --target-sdk-version 35 \
+    > "$ROOT/log/aapt2-link-smoke.log" 2>&1
+}
+"$native" version > "$ROOT/log/aapt2.log" 2>&1 || fail 'Native AAPT2 cannot execute'
+previous="$(dpkg-query -W -f='\u0024{Version}' aapt2 2>/dev/null || true)"
+echo "AAPT2_INSTALLED_VERSION=$previous"
+if test_aapt2; then
+ echo 'AAPT2_ANDROID35=PASS existing_toolchain'
+else
+ echo 'AAPT2_ANDROID35=FAIL older_binary_suspected'
+ if ! dpkg --compare-versions "$previous" lt '16.0.0.4'; then
+   fail "AAPT2 version $previous failed real SDK35 test; inspect $ROOT/log/aapt2-link-smoke.log"
+ fi
+ echo 'AAPT2_REPAIR=official_Termux_packages_only'
+ pkg update -y > "$ROOT/log/apt-index.log" 2>&1 ||
+   fail 'Termux package index refresh failed'
+ pkg install -y aapt aapt2 > "$ROOT/log/aapt2-upgrade.log" 2>&1 ||
+   fail 'Official Termux AAPT2 update failed'
+ native="$(command -v aapt2)"
+ current="$(dpkg-query -W -f='\u0024{Version}' aapt2 2>/dev/null || true)"
+ echo "AAPT2_REPAIRED_VERSION=$current"
+ dpkg --compare-versions "$current" ge '16.0.0.4' ||
+   fail 'Configured Termux repository lacks AAPT2 16.0.0.4; no unofficial binary substituted'
+ "$native" version > "$ROOT/log/aapt2.log" 2>&1 ||
+   fail 'Official AAPT2 binary cannot execute'
+ test_aapt2 ||
+   fail "Official AAPT2 still cannot read SDK35; inspect $ROOT/log/aapt2-link-smoke.log"
+ echo 'AAPT2_ANDROID35=PASS after_official_package_update'
+fi
 export JAVA_HOME="$(dirname "$(dirname "$(readlink -f "$(command -v java)")")")"
 printf 'sdk.dir=%s\n' "$ANDROID_HOME" > "$PROJECT/local.properties"
 receipt BUILDING 'Gradle tests + APK'
