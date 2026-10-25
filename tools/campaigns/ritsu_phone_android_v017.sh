@@ -54,7 +54,16 @@ PROJECT="$ROOT/android/ritsu-control"
 APK="$HOME/storage/downloads/Ritsu-Control-v0.17.0-Phone-Local.apk"
 mkdir -p "$ROOT/log"
 receipt(){ printf 'campaign=ritsu-phone-v017\nsource_tree=%s\nstate=%s\ndetail=%s\napk=%s\n' "$TREE" "$1" "$2" "$APK" > "$ROOT/receipt.tmp"; mv "$ROOT/receipt.tmp" "$ROOT/receipt"; }
-fail(){ echo "CAMPAIGN=FAIL REASON=$*"; receipt FAIL "$*"; exit 1; }
+CAMPAIGN_STAGE=initial_preflight
+fail(){ trap - ERR; echo "CAMPAIGN=FAIL REASON=$*"; receipt FAIL "stage=$CAMPAIGN_STAGE; $*"; exit 1; }
+unhandled_error(){
+ local rc="$1" line="$2"
+ trap - ERR
+ echo "CAMPAIGN=FAIL REASON=unhandled_shell_error STAGE=$CAMPAIGN_STAGE LINE=$line EXIT=$rc"
+ receipt FAIL "unhandled_shell_error stage=$CAMPAIGN_STAGE line=$line exit=$rc" || true
+ exit "$rc"
+}
+trap 'unhandled_error "$?" "$LINENO"' ERR
 has(){ command -v "$1" >/dev/null 2>&1; }
 case "$MODE" in status) cat "$ROOT/receipt" 2>/dev/null || echo 'STATUS=unstarted'; exit 0;; doctor|build) ;; *) fail 'usage: doctor|build|status';; esac
 echo "CAMPAIGN=ritsu-phone-v017 MODE=$MODE ARCH=$(uname -m)"
@@ -262,8 +271,19 @@ else
  abiRoot="$repair/abi-prefix"
  isolated_libdir="$repair/abi-libs"
  mkdir -p "$abiRoot" "$isolated_libdir"
+ CAMPAIGN_STAGE=aapt2_abi_resolution
  for dependency in abseil-cpp libprotobuf fmt libc++; do
-   abiVersion="$(apt-cache "${aptargs[@]}" policy "$dependency" | awk '/Candidate:/ {print $2;exit}')"
+   CAMPAIGN_STAGE="aapt2_abi_$dependency"
+   echo "AAPT2_ABI_RESOLVE=$dependency"
+   # Avoid apt-cache | awk ... exit under pipefail: a SIGPIPE from an early
+   # reader can terminate the entire script without a meaningful failure log.
+   # Save producer status and parse the complete output only after it finishes.
+   policy="$ROOT/log/aapt2-abi-policy-${dependency//+/plus}.log"
+   if ! apt-cache "${aptargs[@]}" policy "$dependency" > "$policy" 2>&1; then
+     sed -n '1,25p' "$policy" || true
+     fail "APT policy query failed: $dependency"
+   fi
+   abiVersion="$(awk '$1=="Candidate:" {value=$2} END {print value}' "$policy")"
    echo "AAPT2_ABI_PACKAGE=$dependency VERSION=$abiVersion"
    [ -n "$abiVersion" ] && [ "$abiVersion" != "(none)" ] ||
      fail "No signed ABI dependency candidate for $dependency"
@@ -286,8 +306,11 @@ else
      packageFile=""
    fi
    if [ -z "$packageFile" ]; then
-     (cd "$repair" && apt-get "${aptargs[@]}" download "$dependency=$abiVersion") >> "$ROOT/log/aapt2-signed-download.log" 2>&1 ||
+     echo "AAPT2_ABI_DOWNLOAD=$dependency"
+     if ! (cd "$repair" && apt-get "${aptargs[@]}" download "$dependency=$abiVersion") >> "$ROOT/log/aapt2-signed-download.log" 2>&1; then
+       tail -n 12 "$ROOT/log/aapt2-signed-download.log" || true
        fail "Signed dependency retrieval failed: $dependency"
+     fi
      for entry in "$repair"/"$dependency"_*_aarch64.deb; do
        if [ -f "$entry" ] &&
           [ "$(dpkg-deb -f "$entry" Version 2>/dev/null || true)" = "$abiVersion" ]; then
@@ -297,9 +320,12 @@ else
      done
    fi
    [ -n "$packageFile" ] || fail "Signed ABI package file missing: $dependency"
+   echo "AAPT2_ABI_EXTRACT=$dependency"
    dpkg-deb -x "$packageFile" "$abiRoot" ||
      fail "ABI package extraction failed: $dependency"
+   echo "AAPT2_ABI_READY=$dependency"
  done
+ CAMPAIGN_STAGE=aapt2_abi_overlay
  libs="$abiRoot$PREFIX/lib"
  [ -d "$libs" ] || fail "Official packages did not contain the Termux lib directory"
  cp -a "$libs/." "$isolated_libdir/" ||
@@ -335,6 +361,7 @@ else
 fi
 export JAVA_HOME="$(dirname "$(dirname "$(readlink -f "$(command -v java)")")")"
 printf 'sdk.dir=%s\n' "$ANDROID_HOME" > "$PROJECT/local.properties"
+CAMPAIGN_STAGE=gradle_unit_tests_and_apk
 receipt BUILDING 'Gradle tests + APK'
 bash "$GRADLE" -p "$PROJECT" :app:testDebugUnitTest :app:assembleDebug -PritsuPhoneInstall=true "-Pandroid.aapt2FromMavenOverride=$native" --no-daemon --max-workers=2 > "$ROOT/log/gradle.log" 2>&1 ||
  { tail -n 40 "$ROOT/log/gradle.log"; fail 'Gradle failed'; }
