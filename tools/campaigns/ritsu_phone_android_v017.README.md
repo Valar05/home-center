@@ -50,3 +50,26 @@ fails. The repo test suite guards against regressions in this error path.
 Continue with the same pinned repo-owned campaign entrypoint after updating
 its isolated clean checkout; always run `ritsu_phone_android_v017.test.sh`
 before the build. Signed APK and physical test remain **unverified**.
+
+## 2026-10-25 mandatory phone Downloads delivery + test assertion fix
+
+The physical user run printed `BASH_SYNTAX=PASS` and `CONTRACT_JSON=PASS`,
+then stopped before calling the Android build. Root cause was a stale brittle
+`grep -Fq` assertion for an outdated literal AAPT download command in the
+repo-owned test script; `set -e` caused an unexplained exit. The test now
+reports named missing guards and checks semantically relevant ABI stage and APK
+publication markers, instead of insisting on obsolete shell source spelling.
+
+Gradle output under the private campaign workspace is **not acceptance**. After
+unit tests and assemble pass, the campaign verifies `app-debug.apk` signature
+and ZIP integrity, copies it to the Android **shared Downloads** directory via
+`$HOME/storage/downloads`, verifies the copied SHA256 and signature, and only
+then publishes `Ritsu-Control-v0.17.0-Phone-Local.apk` there. It reports
+`DOWNLOADS_APK_VERIFIED`, `DOWNLOADS_APK_SHA256` and `DOWNLOADS_APK_BYTES`
+before recording `BUILD_PASS`. Existing valid APKs are not replaced until the
+incoming APK passes staging validation. If Downloads is unavailable, the run
+fails explicitly instead of claiming a finished deliverable.
+
+Visible in Android Files / Downloads as **Ritsu-Control-v0.17.0-Phone-Local.apk**.
+The repository source remains pinned and the app's on-device acceptance remains
+separate from successful binary delivery.
