@@ -26,6 +26,10 @@ case "$ORIGIN" in
 esac
 BRANCH="$(git symbolic-ref --quiet --short HEAD 2>/dev/null || true)"
 HEAD="$(git rev-parse HEAD)"
+COMMITTED_SCRIPT="$(git rev-parse "HEAD:$EXPECTED_REL" 2>/dev/null || true)"
+[ -n "$COMMITTED_SCRIPT" ] && [ "$(git hash-object "$SELF")" = "$COMMITTED_SCRIPT" ] || {
+  echo "FAIL=running_file_does_not_match_committed_script" >&2; exit 2;
+}
 printf 'RESOLVED_REPO=%s\nEXECUTION_DIR=%s\nBRANCH=%s\nHEAD=%s\n' "$REPO" "$PWD" "$BRANCH" "$HEAD"
 MODE="${1:-doctor}"
 case "$MODE" in build|resume)
