@@ -15,6 +15,27 @@ const TAB=/^[A-Za-z0-9_-]{4,80}$/;
 const root=path.join(homedir(),'.ritsu-control','playwright-bridge');
 const stateFile=path.join(root,'state.json');
 const lockFile=path.join(root,'lock');
+const streams=path.join(root,'streams');
+function streamPath(turnId){if(!ID.test(turnId))throw Error('invalid_stream_turn');return path.join(streams,turnId+'.json');}
+async function streamWrite(turnId,tabId,kind,text='',extra={}) {
+  await fs.mkdir(streams,{recursive:true});
+  const file=streamPath(turnId),tmp=file+'.'+process.pid+'.new';
+  let previous=null;try{previous=JSON.parse(await fs.readFile(file,'utf8'));}catch(e){if(e.code!=='ENOENT')throw e;}
+  if(previous&&previous.tabId!==tabId)throw Error('stream_tab_collision');
+  const version=(previous?.version||0)+1;
+  const event={kind:'stream_snapshot',turnId,tabId,version,state:kind,text,
+    sha256:sha(text),complete:kind==='complete',verified:kind==='complete',
+    ...extra};
+  await fs.writeFile(tmp,JSON.stringify(event),'utf8');
+  await fs.rename(tmp,file);
+  return event;
+}
+async function streamPeek(turnId,tabId){
+  let value;try{value=JSON.parse(await fs.readFile(streamPath(turnId),'utf8'));}
+  catch(e){if(e.code==='ENOENT')return output({kind:'stream_snapshot',turnId,tabId,version:0,state:'pending',text:'',sha256:sha(''),complete:false,verified:false});throw e;}
+  if(value.tabId!==tabId||value.turnId!==turnId)throw Error('stream_identity_mismatch');
+  output(value);
+}
 const safe=e=>String(e?.message||e||'unknown').slice(0,220);
 const output=x=>console.log('RITSU_BROWSER_RECEIPT='+JSON.stringify(x));
 function playwright(){
@@ -137,7 +158,7 @@ async function doctor(){
 // ("You said:" and "ChatGPT said:") rather than legacy data-message-author-role.
 // Read only a main-scoped response following the user's exact last prompt.
 // Require the standard completed-response footer and stable visible text.
-async function renderedReply(page, prompt, timeoutMs=74000){
+async function renderedReply(page, prompt, timeoutMs=74000, onProgress=async()=>{}){
   const deadline=Date.now()+timeoutMs;
   let previous='',stable=0;
   const anchor='You said:\n'+prompt+'\nChatGPT said:\n';
@@ -149,13 +170,17 @@ async function renderedReply(page, prompt, timeoutMs=74000){
     if(i>=0&&mainText.slice(i).startsWith(anchor)){
       const after=mainText.slice(i+anchor.length);
       const end=after.indexOf(footer);
-      if(end>=0)value=after.slice(0,end).trim();
+      value=(end>=0?after.slice(0,end):after).trim();
+      if(value.length>5000)throw Error('stream_reply_exceeds_limit');
     }
+    // Publish a monotonic growing snapshot before final completion. Never
+    // wait for the standard footer or stop button to show the first words.
+    if(value && value!==previous)await onProgress(value);
     const busy=await page.getByRole('button',{name:/stop generating|stop streaming|stop response/i}).count().catch(()=>0);
     if(value && value===previous && busy===0)stable++;else stable=0;
     previous=value;
     if(stable>=3)return value;
-    await page.waitForTimeout(700);
+    await page.waitForTimeout(350);
   }
   throw Error('rendered_assistant_answer_unverified_no_repost');
 }
@@ -191,6 +216,23 @@ function makeReply(turnId,tabId,page,text){
 async function main(){
   await fs.mkdir(root,{recursive:true});
   if(args.has('--doctor'))return doctor();
+  if(args.has('--peek')) {
+    const turnId=args.get('--turn'),tabId=args.get('--tab');
+    if(!ID.test(turnId||'')||!TAB.test(tabId||''))throw Error('peek_identity_invalid');
+    return streamPeek(turnId,tabId);
+  }
+  if(args.has('--launch')) {
+    const turnId=args.get('--turn'),tabId=args.get('--tab'),encoded=args.get('--prompt-b64');
+    if(!ID.test(turnId||'')||!TAB.test(tabId||'')||
+       !encoded||encoded.length>30000||!/^[a-zA-Z0-9+/]+={0,2}$/.test(encoded))
+      throw Error('launch_identity_invalid');
+    const child=spawn(process.execPath,[process.argv[1],'--turn',turnId,
+      '--tab',tabId,'--prompt-b64',encoded],{detached:true,windowsHide:true,
+      stdio:'ignore',cwd:process.cwd()});
+    child.unref();
+    output({kind:'stream_launch',turnId,tabId,pid:child.pid,verified:false});
+    return;
+  }
   const turnId=args.get('--turn'),tabId=args.get('--tab'),encoded=args.get('--prompt-b64');
   if(!ID.test(turnId||'')||!TAB.test(tabId||'')||!encoded||
      encoded.length>30000||!/^[a-zA-Z0-9+/]+={0,2}$/.test(encoded))
@@ -228,12 +270,16 @@ async function main(){
     if(prior){
       if(prior.promptSha256!==promptSha256||prior.tabId!==tabId)
         throw Error('turn_id_collision');
-      if(prior.state==='complete'){output(prior.receipt);return;}
+      if(prior.state==='complete'){
+        await streamWrite(turnId,tabId,'complete',prior.receipt.text);
+        output(prior.receipt);return;
+      }
       if(args.has('--recover-reply')){
         const pw=playwright(),browser=await attach(pw);
         try{
           const page=await locateSentPage(browser,prompt,state.tabs[tabId]?.url);
-          const answer=await renderedReply(page,prompt,60000);
+          const answer=await renderedReply(page,prompt,60000,
+            text=>streamWrite(turnId,tabId,'streaming',text));
           const receipt=makeReply(turnId,tabId,page,answer);
           state.turns[turnId]={state:'complete',tabId,promptSha256,receipt};
           state.tabs[tabId]={url:page.url()};
@@ -318,16 +364,22 @@ async function main(){
       await page.waitForURL(/\/c\//,{timeout:35000});
       state.tabs[tabId]={url:page.url()};
       await save(state);
-      const answer=await renderedReply(page,prompt,70000);
+      const answer=await renderedReply(page,prompt,70000,
+        text=>streamWrite(turnId,tabId,'streaming',text));
       const receipt=makeReply(turnId,tabId,page,answer);
       state.turns[turnId]={state:'complete',tabId,promptSha256,receipt};
       state.tabs[tabId]={url:page.url()};
       await save(state);
+      await streamWrite(turnId,tabId,'complete',answer);
       output(receipt);
     }finally{await browser.close();}
   }finally{await lock.close();await fs.unlink(lockFile).catch(()=>{});}
 }
-main().catch(error=>{
+main().catch(async error=>{
+  const turnId=args.get('--turn'),tabId=args.get('--tab');
+  if(!args.has('--peek')&&!args.has('--launch')&&ID.test(turnId||'')&&TAB.test(tabId||'')){
+    try{await streamWrite(turnId,tabId,'error','',{code:safe(error)});}catch{}
+  }
   output({kind:'error',verified:false,code:safe(error),executed:false});
   process.exitCode=1;
 });
