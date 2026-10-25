@@ -2,8 +2,8 @@
 # Repo-owned stable Android release. Used inside GitHub Actions.
 set -Eeuo pipefail
 umask 077
-MODE="\${1:-doctor}"
-SELF="$(realpath "\${BASH_SOURCE[0]}")"
+MODE="${1:-doctor}"
+SELF="$(realpath "${BASH_SOURCE[0]}")"
 REPO="$(cd -P "$(dirname "$SELF")/../.." && pwd -P)"
 [ "$SELF" = "$REPO/tools/campaigns/ritsu_release_cloud.sh" ] || {
   echo "RELEASE_FAIL=not_the_repo_owned_entrypoint"; exit 2;
@@ -16,7 +16,7 @@ case "$REMOTE" in
   *) echo "RELEASE_FAIL=wrong_repository"; exit 2;;
 esac
 SOURCE_SHA="$(git rev-parse HEAD)"
-[ -z "\${GITHUB_SHA:-}" ] || [ "$SOURCE_SHA" = "$GITHUB_SHA" ] || {
+[ -z "${GITHUB_SHA:-}" ] || [ "$SOURCE_SHA" = "$GITHUB_SHA" ] || {
   echo "RELEASE_FAIL=source_revision_mismatch"; exit 2;
 }
 echo "RELEASE_REPO=$REPO"
@@ -39,11 +39,11 @@ echo "RELEASE_VERSION_NAME=$VERSION_NAME"
 # Explicit durable identity. No generated debug keys or plaintext in Git.
 for name in RITSU_APK_KEYSTORE_B64 RITSU_APK_KEYSTORE_PASSWORD \
             RITSU_APK_KEY_PASSWORD RITSU_APK_KEY_ALIAS RITSU_APK_SIGNER_SHA256; do
-  [ -n "\${!name:-}" ] || fail "missing_protected_signing_config_$name"
+  [ -n "${!name:-}" ] || fail "missing_protected_signing_config_$name"
 done
 EXPECTED_CERT="$(printf '%s' "$RITSU_APK_SIGNER_SHA256" | tr '[:upper:]' '[:lower:]' | tr -d ':')"
 [[ "$EXPECTED_CERT" =~ ^[0-9a-f]{64}$ ]] || fail invalid_locked_signer_fingerprint
-TEMP="$(mktemp -d "\${RUNNER_TEMP:-/tmp}/ritsu-apk-signing.XXXXXX")"
+TEMP="$(mktemp -d "${RUNNER_TEMP:-/tmp}/ritsu-apk-signing.XXXXXX")"
 KEYFILE="$TEMP/ritsu-upload.jks"
 trap 'rm -rf "$TEMP"' EXIT
 if ! printf '%s' "$RITSU_APK_KEYSTORE_B64" | base64 --decode > "$KEYFILE"; then
@@ -60,22 +60,22 @@ ACTUAL_CERT="$(awk '/SHA256:/ {gsub(":","",$2);print tolower($2);exit}' "$TEMP/k
 echo "RELEASE_SIGNER_SHA256=$ACTUAL_CERT"
 
 # Android does not migrate private data across package names or signer IDs.
-INTENT="\${RITSU_RELEASE_INTENT:-upgrade}"
+INTENT="${RITSU_RELEASE_INTENT:-upgrade}"
 case "$INTENT" in
   upgrade)
-    [ "\${RITSU_INSTALLED_PACKAGE:-}" = "$PKG" ] ||
+    [ "${RITSU_INSTALLED_PACKAGE:-}" = "$PKG" ] ||
       fail unknown_or_mismatched_installed_package
-    INSTALLED_CERT="$(printf '%s' "\${RITSU_INSTALLED_CERT_SHA256:-}" | tr '[:upper:]' '[:lower:]' | tr -d ':')"
+    INSTALLED_CERT="$(printf '%s' "${RITSU_INSTALLED_CERT_SHA256:-}" | tr '[:upper:]' '[:lower:]' | tr -d ':')"
     [ "$INSTALLED_CERT" = "$EXPECTED_CERT" ] ||
       fail installed_certificate_differs_data_preservation_not_proven
-    [[ "\${RITSU_INSTALLED_VERSION_CODE:-}" =~ ^[0-9]+$ ]] ||
+    [[ "${RITSU_INSTALLED_VERSION_CODE:-}" =~ ^[0-9]+$ ]] ||
       fail installed_version_code_unverified
     [ "$VERSION_CODE" -gt "$RITSU_INSTALLED_VERSION_CODE" ] ||
       fail version_code_not_newer_than_installed_app
     echo "RELEASE_UPDATE_IDENTITY_GATE=PASS"
     ;;
   new-install)
-    [ "\${RITSU_CONFIRMED_NOT_INSTALLED:-}" = "true" ] ||
+    [ "${RITSU_CONFIRMED_NOT_INSTALLED:-}" = "true" ] ||
       fail existing_package_presence_unverified
     echo "RELEASE_UPDATE_IDENTITY_GATE=NEW_PACKAGE_NO_DATA_MIGRATION"
     ;;
@@ -87,7 +87,7 @@ if [ "$MODE" = doctor ]; then
   exit 0
 fi
 command -v gradle >/dev/null 2>&1 || fail gradle_missing
-SDK="\${ANDROID_HOME:-\${ANDROID_SDK_ROOT:-}}"
+SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
 [ -d "$SDK/build-tools/35.0.0" ] || fail android_35_build_tools_missing
 SIGNER="$SDK/build-tools/35.0.0/apksigner"
 ALIGN="$SDK/build-tools/35.0.0/zipalign"
@@ -103,7 +103,7 @@ DIST="$REPO/dist/ritsu-v017"
 mkdir -p "$DIST"
 ALIGN_APK="$TEMP/ritsu-aligned.apk"
 "$ALIGN" -f -p 4 "$UNSIGNED" "$ALIGN_APK" || fail zipalign_failed
-FINAL="$DIST/Ritsu-Control-\${VERSION_NAME}-Cloud-Stable.apk"
+FINAL="$DIST/Ritsu-Control-${VERSION_NAME}-Cloud-Stable.apk"
 STAGING="$TEMP/ritsu-signed.apk"
 "$SIGNER" sign --ks "$KEYFILE" --ks-key-alias "$RITSU_APK_KEY_ALIAS" \
   --ks-pass env:RITSU_APK_KEYSTORE_PASSWORD --key-pass env:RITSU_APK_KEY_PASSWORD \
