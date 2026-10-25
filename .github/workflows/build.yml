@@ -30,6 +30,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           git diff --exit-code -- android/ritsu-control tools/campaigns
           bash tools/campaigns/ritsu_sticky_campaign.sh doctor
+          python3 tools/campaigns/validate_ritsu_sticky_contingencies.py
           echo RITSU_CLOUD_RELEASE_CONTRACT=PASS
       - name: Declare outstanding protected signing requirement
         run: |
