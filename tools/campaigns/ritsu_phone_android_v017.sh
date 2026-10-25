@@ -145,8 +145,12 @@ else
  mkdir -p "$lists/partial" "$repair/unpacked"
  printf 'deb https://packages.termux.dev/apt/termux-main stable main\n' > "$sources"
  aptargs=(-o "Dir::Etc::sourcelist=$sources" -o "Dir::Etc::sourceparts=-" -o "Dir::State::lists=$lists" -o "APT::Get::List-Cleanup=0")
- apt-get "${aptargs[@]}" update > "$ROOT/log/aapt2-signed-apt-index.log" 2>&1 ||
-   fail 'Official signed Termux APT metadata unavailable; no global repository changes performed'
+ if ! apt-get "${aptargs[@]}" update > "$ROOT/log/aapt2-signed-apt-index.log" 2>&1; then
+   echo 'AAPT2_PRIMARY_OFFICIAL_MIRROR=unavailable_trying_official_cloudflare'
+   printf 'deb https://packages-cf.termux.dev/apt/termux-main stable main\n' > "$sources"
+   apt-get "${aptargs[@]}" update >> "$ROOT/log/aapt2-signed-apt-index.log" 2>&1 ||
+     fail 'Both signed official Termux APT endpoints unavailable; original repos untouched'
+ fi
  candidate="$(apt-cache "${aptargs[@]}" policy aapt2 | awk '/Candidate:/ {print $2;exit}')"
  echo "AAPT2_OFFICIAL_CANDIDATE=$candidate"
  [ -n "$candidate" ] && [ "$candidate" != "(none)" ] ||
