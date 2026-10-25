@@ -200,7 +200,7 @@ final class HomeCenterPlaywrightBridge {
     }
 
     private static String peekCommand(ConversationLedger.Entry e) {
-        return "node \\""+SCRIPT+"\\" --peek --turn "+e.id+" --tab "+e.tabId;
+        return "node \""+SCRIPT+"\" --peek --turn "+e.id+" --tab "+e.tabId;
     }
 
     private static String requestId(String turnId){
@@ -214,7 +214,7 @@ final class HomeCenterPlaywrightBridge {
         String encoded=Base64.encodeToString(
             e.text.getBytes(StandardCharsets.UTF_8),Base64.NO_WRAP);
         if(encoded.length()>30000)throw new IllegalArgumentException("Message too long");
-        return "node \\""+SCRIPT+"\\" "+(launch?"--launch ":"")+"--turn "+e.id+
+        return "node \""+SCRIPT+"\" "+(launch?"--launch ":"")+"--turn "+e.id+
             " --tab "+e.tabId+" --prompt-b64 "+encoded;
     }
     private static JSONObject operation(HomeCenterCloudPairing.Paired p,
