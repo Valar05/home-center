@@ -304,7 +304,10 @@ else
    fail 'Matched AAPT2 cannot link Android SDK35 after library isolation'
  }
  # Gradle invokes this wrapper; only AAPT2 sees alternate libraries.
- aapt2Wrapper="$repair/aapt2-scoped"
+ # The Android Gradle Plugin validates the override using
+ # path.endsWith("aapt2") at plugin-application time. An executable wrapper
+ # named aapt2-scoped is rejected before build tasks, even if its smoke test passes.
+ aapt2Wrapper="$repair/aapt2"
  {
    printf '#!%s/bin/sh\n' "$PREFIX"
    printf 'export LD_LIBRARY_PATH=%q\n' "$isolated_libdir:${LD_LIBRARY_PATH:-$PREFIX/lib}"
@@ -315,8 +318,16 @@ else
    fail 'Gradle AAPT2 wrapper cannot start'
  native="$aapt2Wrapper"
  echo 'AAPT2_GRADLE_WRAPPER=isolated_library_scope'
+ echo 'AAPT2_GRADLE_OVERRIDE_BASENAME=aapt2'
  echo 'AAPT2_ANDROID35=PASS isolated_signed_official_toolchain'
 fi
+# Fail BEFORE Gradle if the override path violates AGP's literal suffix gate.
+# The executable and Android-35 smoke test above must both have passed.
+case "$native" in
+ */aapt2) ;;
+ *) fail "AAPT2_override_filename_must_be_exactly_aapt2" ;;
+esac
+[ -x "$native" ] || fail "AAPT2_override_not_executable"
 export JAVA_HOME="$(dirname "$(dirname "$(readlink -f "$(command -v java)")")")"
 printf 'sdk.dir=%s\n' "$ANDROID_HOME" > "$PROJECT/local.properties"
 CAMPAIGN_STAGE=phone_gradle
