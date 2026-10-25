@@ -167,15 +167,20 @@ async function renderedReply(page, prompt, timeoutMs=74000, onProgress=async()=>
   const deadline=Date.now()+timeoutMs;
   let previous='',stable=0;
   const anchor='You said:\n'+prompt+'\nChatGPT said:\n';
-  const footer='\nChatGPT can make mistakes. Check important info.';
+  const footer='ChatGPT can make mistakes. Check important info.';
   while(Date.now()<deadline){
     const mainText=await page.locator('main').innerText().catch(()=>null);
     const i=mainText?.lastIndexOf('You said:\n')??-1;
-    let value='';
+    let value='',hasFooter=false;
     if(i>=0&&mainText.slice(i).startsWith(anchor)){
       const after=mainText.slice(i+anchor.length);
       const end=after.indexOf(footer);
-      value=(end>=0?after.slice(0,end):after).trim();
+      hasFooter=end>=0;
+      value=(hasFooter?after.slice(0,end):after).trim();
+      // Never mistake ChatGPT chrome around an empty assistant answer for
+      // assistant text. The footer is present even before tokens arrive.
+      if(/^(Latest response|Thinking effort|ChatGPT can make mistakes)/i.test(value))
+        value='';
       if(value.length>5000)throw Error('stream_reply_exceeds_limit');
     }
     // Publish a monotonic growing snapshot before final completion. Never
@@ -184,7 +189,7 @@ async function renderedReply(page, prompt, timeoutMs=74000, onProgress=async()=>
     const busy=await page.getByRole('button',{name:/stop generating|stop streaming|stop response/i}).count().catch(()=>0);
     if(value && value===previous && busy===0)stable++;else stable=0;
     previous=value;
-    if(stable>=3)return value;
+    if(stable>=3 && hasFooter)return value;
     await page.waitForTimeout(350);
   }
   throw Error('rendered_assistant_answer_unverified_no_repost');
