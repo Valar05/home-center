@@ -86,3 +86,37 @@ jobs:
       - name: Verify one-paste from unrelated directory against preexisting files
         shell: bash
         run: bash tools/campaigns/ritsu_sticky_onepaste.test.sh
+
+
+  sticky-apk-build:
+    needs: release-contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            android/ritsu-control
+            tools/campaigns
+          sparse-checkout-cone-mode: true
+          lfs: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Compile separate package
+        run: |
+          gradle -p android/ritsu-control :app:testDebugUnitTest :app:assembleRelease -PritsuStickyInstall=true --no-daemon
+          mkdir -p dist
+          cp android/ritsu-control/app/build/outputs/apk/release/app-release-unsigned.apk dist/Ritsu-Sticky-v018-unsigned.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging dist/Ritsu-Sticky-v018-unsigned.apk | grep -F "package: name='com.homecenter.ritsucontrol.sticky'"
+          sha256sum dist/Ritsu-Sticky-v018-unsigned.apk > dist/Ritsu-Sticky-v018-unsigned.apk.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ritsu-sticky-v018-unsigned
+          path: dist/
+          if-no-files-found: error
