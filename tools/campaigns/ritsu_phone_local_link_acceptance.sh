@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # Owner-run Termux acceptance for Ritsu Local Link; no Home Center cloud traffic.
-# No secrets logged. Usage: bash ritsu_phone_local_link_acceptance.sh probe|pair|status|canary
+# No secrets logged. Termux Tailscale CLI is optional; Android VPN app owns the tunnel. Usage: bash ritsu_phone_local_link_acceptance.sh probe|pair|status|canary
 set -u
 umask 077
 BASE='http://100.68.37.106:19646'
@@ -12,7 +12,20 @@ MARKER='RITSU_LOCAL_PHONE_CANARY_20261024_OK'
 mode="${1:-probe}"
 say(){ printf '%s\n' "$*"; }
 fail(){ say "RITSU_CAMPAIGN=FAIL" "REASON=$*"; exit 1; }
-need(){ command -v curl >/dev/null 2>&1 || fail 'curl missing; run pkg install curl'; }
+need(){
+  local missing='' tool
+  for tool in curl awk grep mktemp tee date mkdir chmod; do
+    if ! command -v "$tool" >/dev/null 2>&1; then missing="$missing $tool"; fi
+  done
+  [ -z "$missing" ] && return 0
+  say "MISSING_DEPENDENCIES=$missing"
+  command -v pkg >/dev/null 2>&1 || fail 'Termux pkg manager is unavailable'
+  say 'BOOTSTRAP=installing missing Termux tools'
+  pkg install -y curl coreutils gawk grep || fail 'dependency bootstrap failed'
+  for tool in curl awk grep mktemp tee date mkdir chmod; do
+    command -v "$tool" >/dev/null 2>&1 || fail "still missing $tool after install"
+  done
+}
 receipt(){ mkdir -p "$(dirname "$RECEIPT")"; printf 'mode=%s\nresult=%s\nserver=%s\n' "$mode" "$1" "$BASE" > "$RECEIPT"; chmod 600 "$RECEIPT"; }
 health(){
   need
@@ -23,11 +36,11 @@ health(){
 }
 case "$mode" in
  probe)
-  need; say "SERVER=$BASE"
+  need; say 'RITSU_PHONE_CAMPAIGN=v2' 'TAILSCALE_CLI=optional_android_VPN_app' "SERVER=$BASE"
   f="$(mktemp)"
   code="$(curl --noproxy '*' -sS --connect-timeout 5 --max-time 10 -o "$f" -w '%{http_code}' "$BASE/v1/ritsu/status" 2>/dev/null)"; rc=$?
   rm -f "$f"
-  [ "$rc" -eq 0 ] && [ "$code" = 401 ] || fail "local endpoint unreachable or unexpected (HTTP $code, curl $rc)"
+  [ "$rc" -eq 0 ] && [ "$code" = 401 ] || fail "Direct Tailscale endpoint unreachable (HTTP $code, curl $rc); Android Tailscale VPN app is sufficient, Windows phone-only inbound TCP 19646 must be open"
   say 'DIRECT_TAILSCALE=REACHABLE' 'NO_CLOUD_CALLS=1'; receipt 'preflight_pass'
   ;;
  pair)
