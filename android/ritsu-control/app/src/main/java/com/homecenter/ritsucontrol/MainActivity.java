@@ -9,6 +9,10 @@ import android.content.ClipboardManager;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Insets;
@@ -44,9 +48,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class MainActivity extends Activity {
     private static final int REQUEST_MIC = 19646;
     private static final int REQUEST_NOTIFICATIONS = 19644;
+    private static final int REQUEST_SNIPPET_IMPORT = 19652;
+    private static final int REQUEST_SNIPPET_EXPORT = 19653;
     private TextView headerStatus, details, outboxWarning;
     private EditText composer;
-    private Button listenButton, muteButton, sendButton;
+    private Button listenButton, muteButton, sendButton, stickyButton;
+    private StickySnippets stickySnippets;
+    private String pendingSnippetTab;
     private TextView liveWords;
     private LinearLayout transcriptRows;
     private ScrollView feedScroll;
@@ -75,6 +83,9 @@ public final class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         ledger = new ConversationLedger(this);
         workspace = new RitsuWorkspace(this);
+        stickySnippets = new StickySnippets(this);
+        if(savedInstanceState!=null)
+            pendingSnippetTab=savedInstanceState.getString("pendingSnippetTab");
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(Color.rgb(19, 18, 28));
@@ -121,6 +132,9 @@ public final class MainActivity extends Activity {
         tabChooser=new Spinner(this);
         sessions.addView(tabChooser,new LinearLayout.LayoutParams(0,dp(48),1));
         sessions.addView(button("+ Tab",v->createConversationTab()));
+        stickyButton=button("Sticky",v->showStickySnippets());
+        sessions.addView(stickyButton);
+        updateStickyButton();
         root.addView(sessions);
 
         LinearLayout machineRow=new LinearLayout(this);
@@ -285,7 +299,8 @@ public final class MainActivity extends Activity {
         RitsuWorkspace.Tab active=workspace.active();
         try {
             ledger.addInTab(active.id,active.machineId,
-                "control","You",text,"LOCAL_QUEUED");
+                "control","You",StickyText.compose(text,stickySnippets.forTab(active.id)),
+                "LOCAL_QUEUED");
             RitsuControlService.feedRevision++;
             composer.setText("");
             renderFeed();
@@ -374,6 +389,7 @@ public final class MainActivity extends Activity {
                 if(RitsuWorkspace.MACHINES[i].id.equals(machine))
                     machineChooser.setSelection(i);
         }finally{syncingSelectors=false;}
+        updateStickyButton();
     }
 
     private void createConversationTab(){
@@ -393,6 +409,162 @@ public final class MainActivity extends Activity {
                     headerStatus.setText("Tab not created: "+error.getMessage());
                 }
             }).show();
+    }
+
+
+    /** Sticky context belongs to the conversation tab, not channel filters.
+     * It is snapshotted into every outbound turn, typed or spoken.
+     */
+    private void updateStickyButton(){
+        if(stickyButton==null||stickySnippets==null)return;
+        String text=stickySnippets.forTab(workspace.active().id);
+        stickyButton.setText(text.isEmpty()?"Sticky":"Sticky ●");
+        stickyButton.setContentDescription(text.isEmpty()
+            ?"Edit persistent context for this tab"
+            :"Sticky context active in this tab; edit or insert saved snippet");
+    }
+
+    private void stickyFailure(Exception error){
+        headerStatus.setText("Sticky text: "+error.getMessage());
+    }
+
+    private void showStickySnippets(){
+        final String tabId=workspace.active().id;
+        final EditText editor=new EditText(this);
+        editor.setText(stickySnippets.forTab(tabId));
+        editor.setTextColor(Color.DKGRAY);
+        editor.setHint("Read campaign etiquette before every reply...");
+        editor.setSingleLine(false);
+        editor.setMinLines(4);
+        editor.setMaxLines(9);
+        editor.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        final LinearLayout panel=new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(16),dp(8),dp(16),dp(8));
+        TextView help=label("Included with EVERY sent message in this tab, including voice. "
+            +"This is user context, not a guaranteed system lock.",12,false);
+        help.setTextColor(Color.DKGRAY);
+        panel.addView(help);
+        panel.addView(editor);
+        final LinearLayout actions=new LinearLayout(this);
+        actions.setOrientation(LinearLayout.VERTICAL);
+        final LinearLayout first=new LinearLayout(this);
+        first.setOrientation(LinearLayout.HORIZONTAL);
+        first.addView(button("Insert saved",v->chooseQuickSnippet(editor)),
+                new LinearLayout.LayoutParams(0,dp(48),1));
+        first.addView(button("Save quick",v->saveQuickSnippet(editor)),
+                new LinearLayout.LayoutParams(0,dp(48),1));
+        actions.addView(first);
+        final LinearLayout second=new LinearLayout(this);
+        second.setOrientation(LinearLayout.HORIZONTAL);
+        second.addView(button("Import .txt",v->{
+            try{
+                stickySnippets.setForTab(tabId,editor.getText().toString());
+                updateStickyButton();
+                pendingSnippetTab=tabId;
+                Intent pick=new Intent(Intent.ACTION_OPEN_DOCUMENT)
+                    .addCategory(Intent.CATEGORY_OPENABLE).setType("text/plain");
+                startActivityForResult(pick,REQUEST_SNIPPET_IMPORT);
+            }catch(Exception e){stickyFailure(e);}
+        }),new LinearLayout.LayoutParams(0,dp(48),1));
+        second.addView(button("Export .txt",v->{
+            try{
+                stickySnippets.setForTab(tabId,editor.getText().toString());
+                updateStickyButton();
+                pendingSnippetTab=tabId;
+                Intent create=new Intent(Intent.ACTION_CREATE_DOCUMENT)
+                    .addCategory(Intent.CATEGORY_OPENABLE).setType("text/plain");
+                create.putExtra(Intent.EXTRA_TITLE,"ritsu-sticky-"+tabId+".txt");
+                startActivityForResult(create,REQUEST_SNIPPET_EXPORT);
+            }catch(Exception e){stickyFailure(e);}
+        }),new LinearLayout.LayoutParams(0,dp(48),1));
+        actions.addView(second);
+        panel.addView(actions);
+        new AlertDialog.Builder(this).setTitle("Sticky snippets · "+workspace.active().title)
+            .setView(panel).setNegativeButton("Cancel",null)
+            .setPositiveButton("Save for this tab",(d,w)->{
+                try{stickySnippets.setForTab(tabId,editor.getText().toString());
+                    updateStickyButton();
+                }catch(Exception e){stickyFailure(e);}
+            }).show();
+    }
+
+    private void chooseQuickSnippet(EditText editor){
+        final java.util.List<StickySnippets.Item> items;
+        try{items=stickySnippets.library();}
+        catch(Exception e){stickyFailure(e);return;}
+        if(items.isEmpty()){
+            new AlertDialog.Builder(this).setTitle("No quick snippets yet")
+                .setMessage("Save a named snippet, or import a .txt file from Documents.")
+                .setPositiveButton("OK",null).show();
+            return;
+        }
+        String[] names=new String[items.size()];
+        for(int i=0;i<items.size();i++)names[i]=items.get(i).title;
+        new AlertDialog.Builder(this).setTitle("Insert into existing sticky text")
+            .setItems(names,(d,index)->{
+                try{
+                    editor.setText(StickyText.append(editor.getText().toString(),
+                            items.get(index).text));
+                    editor.setSelection(editor.length());
+                }catch(Exception e){stickyFailure(e);}
+            }).setNegativeButton("Cancel",null).show();
+    }
+
+    private void saveQuickSnippet(EditText editor){
+        final EditText name=new EditText(this);
+        name.setSingleLine(true);
+        name.setTextColor(Color.DKGRAY);
+        name.setHint("Snippet title");
+        new AlertDialog.Builder(this).setTitle("Save quick snippet")
+            .setView(name).setNegativeButton("Cancel",null)
+            .setPositiveButton("Save",(d,w)->{
+                try{stickySnippets.addToLibrary(
+                    name.getText().toString(),editor.getText().toString());
+                }catch(Exception e){stickyFailure(e);}
+            }).show();
+    }
+
+    @Override protected void onSaveInstanceState(Bundle out){
+        super.onSaveInstanceState(out);
+        out.putString("pendingSnippetTab",pendingSnippetTab);
+    }
+
+    @Override protected void onActivityResult(int code,int result,Intent data){
+        super.onActivityResult(code,result,data);
+        if(code!=REQUEST_SNIPPET_IMPORT&&code!=REQUEST_SNIPPET_EXPORT)return;
+        final String tabId=pendingSnippetTab;
+        pendingSnippetTab=null;
+        if(result!=RESULT_OK||data==null||data.getData()==null)return;
+        if(tabId==null){headerStatus.setText("Snippet file tab lost; no changes made");return;}
+        try{
+            Uri uri=data.getData();
+            if(code==REQUEST_SNIPPET_EXPORT){
+                byte[] bytes=stickySnippets.forTab(tabId).getBytes(StandardCharsets.UTF_8);
+                if(bytes.length==0)throw new IllegalArgumentException("No text to export");
+                try(OutputStream output=getContentResolver().openOutputStream(uri,"wt")){
+                    if(output==null)throw new IllegalStateException("Cannot open output document");
+                    output.write(bytes);
+                }
+                headerStatus.setText("Sticky text saved as independent .txt file");
+            }else{
+                ByteArrayOutputStream bytes=new ByteArrayOutputStream();
+                try(InputStream input=getContentResolver().openInputStream(uri)){
+                    if(input==null)throw new IllegalStateException("Cannot open document");
+                    byte[] buffer=new byte[1024];int n;
+                    while((n=input.read(buffer))!=-1){
+                        if(bytes.size()+n>16000)
+                            throw new IllegalArgumentException("Snippet file is too large");
+                        bytes.write(buffer,0,n);
+                    }
+                }
+                String imported=bytes.toString(StandardCharsets.UTF_8.name());
+                stickySnippets.setForTab(tabId,
+                    StickyText.append(stickySnippets.forTab(tabId),imported));
+                headerStatus.setText("Snippet inserted into tab without replacing text");
+            }
+            updateStickyButton();
+        }catch(Exception e){stickyFailure(e);}
     }
 
     private void showPendingMessages(){
