@@ -268,7 +268,7 @@ public final class MainActivity extends Activity {
 
     private void showDirectLinkStatus() {
         new AlertDialog.Builder(this).setTitle("Direct Tailscale link")
-            .setMessage(HomeCenterSync.status.replace("Home Center","Local transport"))
+            .setMessage(RitsuLocalSync.status.replace("Home Center","Local transport"))
             .setPositiveButton("Close",null).show();
     }
 
@@ -506,7 +506,7 @@ public final class MainActivity extends Activity {
                                     RitsuPairing.disconnect(this);
                                     getSharedPreferences("ritsu_local_sse_cursor_v1",MODE_PRIVATE)
                                         .edit().putLong("seq",0).commit();
-                                    HomeCenterSync.status="THECAULDRON unpaired";
+                                    RitsuLocalSync.status="THECAULDRON unpaired";
                                     refreshStatus();
                                 }).setNegativeButton("Cancel",null).show();
                             break;
@@ -557,7 +557,7 @@ public final class MainActivity extends Activity {
                         token.getText().toString());
                     getSharedPreferences("ritsu_local_sse_cursor_v1",MODE_PRIVATE)
                         .edit().putLong("seq",0).commit();
-                    HomeCenterSync.status="Paired · connecting to THECAULDRON";
+                    RitsuLocalSync.status="Paired · connecting to THECAULDRON";
                     send(RitsuControlService.ACTION_SYNC_NOW);
                     refreshStatus();
                 }catch(RuntimeException error){
@@ -648,7 +648,7 @@ public final class MainActivity extends Activity {
         String detail = RitsuControlService.recognitionStatus;
         if (detail.length() > 75) detail = detail.substring(0, 75);
         RitsuWorkspace.Tab selected=workspace.active();
-        headerStatus.setText(state + " · " + detail + "\n" + HomeCenterSync.status+
+        headerStatus.setText(state + " · " + detail + "\n" + RitsuLocalSync.status+
             "\nTab: "+selected.title+" · Machine: "+
             RitsuWorkspace.machine(selected.machineId).label+
             " · Instant preferred · Script loop "+(selected.scriptCampaign?"ON":"OFF"));
