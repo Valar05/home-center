@@ -121,21 +121,23 @@ jobs:
   ritsu-trial:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.ritsu_trial == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.11.1'
-      - name: Verify and build Ritsu Control
+      - name: Retrieve exactly signed Windows APK, do not rebuild or re-sign
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gradle -p android/ritsu-control :app:testDebugUnitTest :app:assembleDebug -PritsuStableInstall=true --no-daemon
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
+          mkdir -p artifact
+          gh release download ritsu-control-v0.15-trial-20261024 -R Valar05/home-center \
+            --pattern 'Ritsu-Control-v0.16.0-Live-Streaming.apk' --dir artifact
+          printf '%s  %s\n' \
+            'e8f5c245da85a70020f1b3ba85ddcb9ef84a764937827f09866a3a0899eab0ad' \
+            'artifact/Ritsu-Control-v0.16.0-Live-Streaming.apk' | sha256sum --check
       - uses: actions/upload-artifact@v4
         with:
-          name: Ritsu-Control-v0.15-APK
-          path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
+          name: Ritsu-Control-v0.16.0-Live-Streaming
+          path: artifact/Ritsu-Control-v0.16.0-Live-Streaming.apk
+          if-no-files-found: error
+          retention-days: 7
