@@ -69,3 +69,19 @@ jobs:
           gradle-version: '8.11.1'
       - name: Compile and unit test
         run: bash tools/campaigns/ritsu_sticky_campaign.sh build
+
+  isolated-bootstrap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            android/ritsu-control
+            tools/campaigns
+          sparse-checkout-cone-mode: true
+          lfs: false
+      - name: Verify one-paste from unrelated directory against preexisting files
+        shell: bash
+        run: bash tools/campaigns/ritsu_sticky_onepaste.test.sh
