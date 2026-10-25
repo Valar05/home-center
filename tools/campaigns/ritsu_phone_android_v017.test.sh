@@ -17,6 +17,19 @@ grep -Fq 'git remote get-url origin' "$script"
 grep -Fq 'HEAD:android/ritsu-control/app' "$script"
 grep -Fq 'download "$dependency=$abiVersion") >> "$ROOT/log/aapt2-signed-download.log" 2>&1 ||' "$script"
 echo "ENTRYPOINT_GUARDS=PASS"
+# Regression: silent abort after fmt download was caused by an unreported
+# failure in the APT candidate-query/extract stage. Require bounded stage logs,
+# a fail-closed ERR trap, and no short-circuit awk reader under pipefail.
+grep -Fq 'trap '\''unhandled_error "$?" "$LINENO"'\'' ERR' "$script"
+grep -Fq 'AAPT2_ABI_RESOLVE=$dependency' "$script"
+grep -Fq 'aapt2-abi-policy-' "$script"
+grep -Fq 'AAPT2_ABI_READY=$dependency' "$script"
+grep -Fq 'AAPT2_ABI_DOWNLOAD=$dependency' "$script"
+if grep -Fq 'policy "$dependency" | awk' "$script"; then
+  echo "FAIL=unsafe_apt_cache_short_circuit_pipeline"
+  exit 1
+fi
+echo "ABI_SILENT_EXIT_REGRESSION=PASS"
 # The owner may run this campaign while their current cwd is a different Godot repo.
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
