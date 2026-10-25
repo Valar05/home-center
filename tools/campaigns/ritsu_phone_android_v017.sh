@@ -3,7 +3,7 @@
 set -Eeuo pipefail
 umask 077
 MODE="$1"
-TREE=21a57bffde1019daaac36fb996257c876082be8b
+TREE=0c0e30bcfb6908a2835ce87acce63e2869facdb3
 ROOT="$HOME/.local/share/ritsu-campaigns/v017-phone"
 PROJECT="$ROOT/android/ritsu-control"
 APK="$HOME/storage/downloads/Ritsu-Control-v0.17.0-Phone-Local.apk"
