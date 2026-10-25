@@ -65,6 +65,69 @@ final class ConversationLedger {
         return insert("reply:"+userTurnId,"control","Ritsu",message,VERIFIED,
                 true,route[0],route[1]);
     }
+    /** One mutable in-flight assistant bubble per user turn. Revision and exact
+     * originating tab are checked before a snapshot can appear on screen. */
+    Entry upsertStreamingReply(String userTurnId,String message,int version,boolean complete) {
+        if(version<1||version>1000000||message==null||message.trim().isEmpty()||
+           message.length()>5000)throw new IllegalArgumentException("invalid streaming reply");
+        synchronized(IO_LOCK){
+            JSONArray previous=rows();
+            JSONObject source=null,existing=null;
+            String replyId="reply:"+userTurnId;
+            for(int i=0;i<previous.length();i++){
+                JSONObject row=previous.optJSONObject(i);
+                if(row==null)continue;
+                if(userTurnId.equals(row.optString("id")) && "You".equals(row.optString("who")))source=row;
+                if(replyId.equals(row.optString("id")))existing=row;
+            }
+            if(source==null)throw new IllegalStateException("stream without local user turn");
+            String tab=source.optString("tabId","main");
+            String machine=source.optString("machineId","termux-android");
+            validateTarget(tab,machine);
+            String text=message.trim();
+            if(existing!=null){
+                if(!tab.equals(existing.optString("tabId"))||
+                   !machine.equals(existing.optString("machineId")))
+                    throw new IllegalStateException("stream reply wrong tab");
+                int oldVersion=existing.optInt("streamVersion",0);
+                String prior=existing.optString("text");
+                if(version<oldVersion)return new Entry(replyId,"control","Ritsu",prior,
+                    existing.optString("state"),tab,machine);
+                if(version==oldVersion && !prior.equals(text))
+                    throw new IllegalStateException("stream revision collision");
+                if(VERIFIED.equals(existing.optString("state"))) {
+                    if(!prior.equals(text))throw new IllegalStateException("completed reply immutable");
+                    return new Entry(replyId,"control","Ritsu",prior,VERIFIED,tab,machine);
+                }
+                try{
+                    existing.put("text",text).put("streamVersion",version)
+                        .put("state",complete?VERIFIED:"STREAMING");
+                }catch(Exception e){throw new IllegalStateException("stream update invalid");}
+            } else {
+                JSONObject row=new JSONObject();
+                try {
+                    row.put("id",replyId).put("channel","control").put("who","Ritsu");
+                    row.put("text",text).put("state",complete?VERIFIED:"STREAMING");
+                    row.put("tabId",tab).put("machineId",machine);
+                    row.put("streamVersion",version).put("time",System.currentTimeMillis());
+                }catch(Exception e){throw new IllegalStateException("stream insert invalid");}
+                if(previous.length()>=KEEP) {
+                    JSONObject first=previous.optJSONObject(0);
+                    if(first!=null&&"You".equals(first.optString("who"))&&
+                       !"COMPLETED".equals(first.optString("state")))
+                        throw new IllegalStateException("outbox protected from eviction");
+                    JSONArray bounded=new JSONArray();
+                    for(int i=1;i<previous.length();i++)bounded.put(previous.optJSONObject(i));
+                    previous=bounded;
+                }
+                previous.put(row);
+            }
+            if(!store.edit().putString("entries",previous.toString()).commit())
+                throw new IllegalStateException("stream snapshot persistence failed");
+            return new Entry(replyId,"control","Ritsu",text,complete?VERIFIED:"STREAMING",tab,machine);
+        }
+    }
+
     Entry insertPublishedOnce(String resultId, String channel, String who, String message) {
         if(resultId==null || !resultId.matches("[A-Za-z0-9_.:-]{8,100}") ||
                 !("control".equals(channel)||"dialogue".equals(channel)||
