@@ -1,7 +1,8 @@
 name: Build Android
 
-# GitHub-hosted compute is an emergency/manual lane only.
-# Android truth runs on the phone runner in the private Gitea forge.
+# GitHub-hosted Actions is the default cloud build lane when an authorized
+# campaign build is compatible, per Campaign Etiquette 2026-10-25.
+# This generic manual workflow may be specialized on the campaign ref.
 on:
   workflow_dispatch:
 
