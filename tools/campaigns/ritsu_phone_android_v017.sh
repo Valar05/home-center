@@ -122,8 +122,16 @@ cat > "$ROOT/aapt2-smoke/AndroidManifest.xml" <<'AAPT2_SMOKE_MANIFEST'
   <application/>
 </manifest>
 AAPT2_SMOKE_MANIFEST
+run_aapt2(){
+ # Scope alternate shared libraries exclusively to the AAPT2 child process.
+ if [ -n "${isolated_libdir:-}" ]; then
+   LD_LIBRARY_PATH="$isolated_libdir:${LD_LIBRARY_PATH:-$PREFIX/lib}" "$native" "$@"
+ else
+   "$native" "$@"
+ fi
+}
 test_aapt2(){
- "$native" link -o "$ROOT/aapt2-smoke/smoke.apk" -I "$jar" \
+ run_aapt2 link -o "$ROOT/aapt2-smoke/smoke.apk" -I "$jar" \
     --manifest "$ROOT/aapt2-smoke/AndroidManifest.xml" \
     --min-sdk-version 26 --target-sdk-version 35 \
     > "$ROOT/log/aapt2-link-smoke.log" 2>&1
@@ -202,17 +210,83 @@ else
    fail "Package does not contain executable ARM64 AAPT2"
  native="$candidatebin"
  echo "AAPT2_ISOLATED_BINARY=$native"
- if ! "$native" version > "$ROOT/log/aapt2.log" 2>&1; then
-   echo 'AAPT2_BINARY_STARTUP_DIAGNOSTICS_BEGIN'
-   sed -n '1,35p' "$ROOT/log/aapt2.log" || true
-   if command -v readelf >/dev/null 2>&1; then
-     readelf -d "$native" 2>/dev/null | grep -E 'NEEDED|RUNPATH|RPATH' || true
+ # AAPT2 16 uses Protobuf 36 / Abseil lts_20260817. The installed Termux
+ # libprotobuf is older and cannot provide ZeroCopyInputStream::ReadCord.
+ # All ABI dependencies come from the SAME previously authenticated signed
+ # repository index, extracted into the campaign ONLY. No global pkg upgrade.
+ abiRoot="$repair/abi-prefix"
+ isolated_libdir="$repair/abi-libs"
+ mkdir -p "$abiRoot" "$isolated_libdir"
+ for dependency in abseil-cpp libprotobuf fmt libc++; do
+   abiVersion="$(apt-cache "${aptargs[@]}" policy "$dependency" | awk '/Candidate:/ {print $2;exit}')"
+   echo "AAPT2_ABI_PACKAGE=$dependency VERSION=$abiVersion"
+   [ -n "$abiVersion" ] && [ "$abiVersion" != "(none)" ] ||
+     fail "No signed ABI dependency candidate for $dependency"
+   if [ "$dependency" = "libprotobuf" ]; then
+     dpkg --compare-versions "$abiVersion" ge '2:36.2' ||
+       fail "Protobuf $abiVersion too old for AAPT2 16"
    fi
-   echo 'AAPT2_BINARY_STARTUP_DIAGNOSTICS_END'
-   fail "AAPT2 isolated binary startup blocked; distinguish missing ELF dependencies from Android execution restriction before repair"
+   if [ "$dependency" = "abseil-cpp" ]; then
+     dpkg --compare-versions "$abiVersion" ge '20260817.0' ||
+       fail "Abseil $abiVersion too old for protobuf lts_20260817"
+   fi
+   # Download only named ARM64 packages through GPG-verified APT indexes.
+   packageFile=""
+   for entry in "$repair"/"$dependency"_*_aarch64.deb; do
+     if [ -f "$entry" ]; then packageFile="$entry"; break; fi
+   done
+   # Reuse only if its Debian metadata confirms the exact candidate version.
+   if [ -n "$packageFile" ] &&
+      [ "$(dpkg-deb -f "$packageFile" Version 2>/dev/null || true)" != "$abiVersion" ]; then
+     packageFile=""
+   fi
+   if [ -z "$packageFile" ]; then
+     (cd "$repair" && apt-get "${aptargs[@]}" download "$dependency=$abiVersion") >>
+       "$ROOT/log/aapt2-signed-download.log" 2>&1 ||
+       fail "Signed dependency retrieval failed: $dependency"
+     for entry in "$repair"/"$dependency"_*_aarch64.deb; do
+       if [ -f "$entry" ] &&
+          [ "$(dpkg-deb -f "$entry" Version 2>/dev/null || true)" = "$abiVersion" ]; then
+         packageFile="$entry"
+         break
+       fi
+     done
+   fi
+   [ -n "$packageFile" ] || fail "Signed ABI package file missing: $dependency"
+   dpkg-deb -x "$packageFile" "$abiRoot" ||
+     fail "ABI package extraction failed: $dependency"
+ done
+ libs="$abiRoot$PREFIX/lib"
+ [ -d "$libs" ] || fail "Official packages did not contain the Termux lib directory"
+ cp -a "$libs/." "$isolated_libdir/" ||
+   fail 'Unable to stage matched Protobuf and Abseil shared libraries'
+ [ -e "$isolated_libdir/libprotobuf.so" ] ||
+   fail "Matched libprotobuf.so missing from isolated overlay"
+ [ -e "$isolated_libdir/libabsl_base.so" ] ||
+   fail "Matched Abseil shared libraries missing from isolated overlay"
+ echo 'AAPT2_ABI_OVERLAY=matched_signed_packages_isolated'
+ if ! run_aapt2 version > "$ROOT/log/aapt2.log" 2>&1; then
+   echo 'AAPT2_ABI_LINK_ERROR_BEGIN'
+   sed -n '1,28p' "$ROOT/log/aapt2.log" || true
+   echo 'AAPT2_ABI_LINK_ERROR_END'
+   fail 'Matched AAPT2+Protobuf+Abseil still cannot launch'
  fi
- test_aapt2 ||
-   fail "New AAPT2 cannot link SDK 35; inspect $ROOT/log/aapt2-link-smoke.log"
+ test_aapt2 || {
+   sed -n '1,28p' "$ROOT/log/aapt2-link-smoke.log" || true
+   fail 'Matched AAPT2 cannot link Android SDK35 after library isolation'
+ }
+ # Gradle invokes this wrapper; only AAPT2 sees alternate libraries.
+ aapt2Wrapper="$repair/aapt2-scoped"
+ {
+   printf '#!%s/bin/sh\n' "$PREFIX"
+   printf 'export LD_LIBRARY_PATH=%q\n' "$isolated_libdir:${LD_LIBRARY_PATH:-$PREFIX/lib}"
+   printf 'exec %q "$@"\n' "$native"
+ } > "$aapt2Wrapper"
+ chmod 700 "$aapt2Wrapper"
+ "$aapt2Wrapper" version > "$ROOT/log/aapt2-wrapper.log" 2>&1 ||
+   fail 'Gradle AAPT2 wrapper cannot start'
+ native="$aapt2Wrapper"
+ echo 'AAPT2_GRADLE_WRAPPER=isolated_library_scope'
  echo 'AAPT2_ANDROID35=PASS isolated_signed_official_toolchain'
 fi
 export JAVA_HOME="$(dirname "$(dirname "$(readlink -f "$(command -v java)")")")"
