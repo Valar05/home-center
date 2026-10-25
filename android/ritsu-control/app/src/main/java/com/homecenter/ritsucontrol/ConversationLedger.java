@@ -59,6 +59,22 @@ final class ConversationLedger {
         }
         return new String[]{"main","termux-android"};
     }
+    /** Check turn ownership before consuming shared laptop-journal events.
+     * Termux canaries may share the pairing but must never appear in this UI.
+     */
+    boolean containsUserTurn(String id){
+        if(id==null||id.isEmpty())return false;
+        synchronized(IO_LOCK){
+            JSONArray all=rows();
+            for(int i=0;i<all.length();i++){
+                JSONObject row=all.optJSONObject(i);
+                if(row!=null&&id.equals(row.optString("id"))&&
+                   "You".equals(row.optString("who")))return true;
+            }
+            return false;
+        }
+    }
+
     Entry insertReplyOnce(String userTurnId,String message) {
         // Immutable derived ID prevents duplicate messages after reconnect.
         String[] route=originForTurn(userTurnId);
