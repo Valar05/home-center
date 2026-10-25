@@ -79,7 +79,21 @@ final class HomeCenterPlaywrightBridge {
                             applyCompleted(ledger,e,record);
                         }
                         break;
-                    case "failed":case "cancelled":case "expired":
+                    case "failed":
+                        JSONObject problem=record.optJSONObject("result");
+                        String detail=problem==null?"":problem.optString("detail","");
+                        if(detail.contains("stdout did not close after process exit")) {
+                            // Computer Hands sometimes loses inherited stdout after
+                            // the Windows launcher exits even though its detached
+                            // browser worker continues. Prove the outcome only
+                            // through subsequent signed snapshot reads.
+                            ledger.updateState(e.id,"HOME_CENTER_STREAMING");
+                            active++;
+                        } else {
+                            ledger.updateState(e.id,"HOME_CENTER_FAILED");failed++;
+                        }
+                        break;
+                    case "cancelled":case "expired":
                         ledger.updateState(e.id,"HOME_CENTER_FAILED");failed++;break;
                     default:
                         ledger.updateState(e.id,"HOME_CENTER_UNCERTAIN");uncertain++;break;
@@ -125,7 +139,10 @@ final class HomeCenterPlaywrightBridge {
         int serial=pref.getInt("serial."+key,0);
         String ticket=pref.getString("ticket."+key,"");
         if(ticket.isEmpty()) {
-            if(serial>100000)throw new IllegalStateException("Stream poll limit reached");
+            if(serial>90){
+                ledger.updateState(e.id,"HOME_CENTER_FAILED");
+                throw new IllegalStateException("Browser started but no verified reply; check Windows worker");
+            }
             ticket="ritsu.peek."+key+"."+serial;
             if(!pref.edit().putString("ticket."+key,ticket).commit())
                 throw new IllegalStateException("Stream poll ticket not persisted");
