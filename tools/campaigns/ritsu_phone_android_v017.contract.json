@@ -42,12 +42,12 @@
     "all 36 pinned Android app blobs match expected Git hashes",
     "Android 35 framework AAPT2 link smoke passes",
     "Gradle unit tests and APK assembly pass",
-    "APK signature and package verified",
+    "APK signature and SHA256 match verified against the published .apk in shared Android Downloads",
     "APK installed on phone",
     "physical phone Send streams reply incrementally over direct authenticated Tailscale",
     "human acceptance"
   ],
   "receipt": "$HOME/.local/share/ritsu-campaigns/v017-phone/receipt",
   "evidence_boundary": "Repository update, source download, SDK linking, successful compile, signed APK, install, streaming roundtrip, and user review are separate claims.",
-  "last_known_issue": "2026-10-25 physical Termux build: signed abseil-cpp/libprotobuf/fmt downloads succeeded, shell silently exited before libc++ or APK, receipt remained SOURCE_VERIFIED. Repo repair adds staged ABI logs, safe apt-cache policy file parsing, top-level ERR receipt; physical rerun pending."
+  "last_known_issue": "2026-10-25: real Termux repo-owned test stopped after CONTRACT_JSON=PASS due to stale exact-string assertion on previous download code; fixed. Full test and physical Android build pending. Build PASS requires signed and checksum-verified APK at ~/storage/downloads/Ritsu-Control-v0.17.0-Phone-Local.apk."
 }
