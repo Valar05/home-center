@@ -33,6 +33,8 @@ async function streamWrite(turnId,tabId,kind,text='',extra={}) {
     ...extra};
   await fs.writeFile(tmp,JSON.stringify(event),'utf8');
   await fs.rename(tmp,file);
+  if(process.env.RITSU_LOCAL_STREAM==='1')
+    process.stdout.write('RITSU_STREAM_EVENT='+JSON.stringify(event)+'\n');
   return event;
 }
 async function streamPeek(turnId,tabId){
