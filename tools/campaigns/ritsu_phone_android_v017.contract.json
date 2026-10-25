@@ -49,5 +49,5 @@
   ],
   "receipt": "$HOME/.local/share/ritsu-campaigns/v017-phone/receipt",
   "evidence_boundary": "Repository update, source download, SDK linking, successful compile, signed APK, install, streaming roundtrip, and user review are separate claims.",
-  "last_known_issue": "v6 2026-10-25 repo canonical shell had invalid redirection: newline after >> in ABI dependency download command; repaired in repo, phone syntax proof pending."
+  "last_known_issue": "2026-10-25 physical Termux build: signed abseil-cpp/libprotobuf/fmt downloads succeeded, shell silently exited before libc++ or APK, receipt remained SOURCE_VERIFIED. Repo repair adds staged ABI logs, safe apt-cache policy file parsing, top-level ERR receipt; physical rerun pending."
 }
