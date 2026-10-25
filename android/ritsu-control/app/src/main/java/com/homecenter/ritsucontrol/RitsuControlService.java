@@ -543,7 +543,7 @@ public final class RitsuControlService extends Service {
         Notification.Builder builder = new Notification.Builder(this, CHANNEL)
                 .setSmallIcon(android.R.drawable.ic_btn_speak_now)
                 .setContentTitle("Ritsu")
-                .setContentText(detail + " · " + HomeCenterSync.status)
+                .setContentText(detail + " · " + RitsuLocalSync.status)
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .setContentIntent(open)
                 .setShowWhen(false)
