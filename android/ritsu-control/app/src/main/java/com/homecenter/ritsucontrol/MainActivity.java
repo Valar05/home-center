@@ -162,7 +162,7 @@ public final class MainActivity extends Activity {
         composer.setMaxLines(4);
         composer.setTextColor(Color.WHITE);
         composer.setHintTextColor(Color.LTGRAY);
-        composer.setHint("Draft for local outbox. ChatGPT send unavailable.");
+        composer.setHint("Message Ritsu through ChatGPT…");
         composer.setTextSize(15);
         composer.setInputType(InputType.TYPE_CLASS_TEXT |
                 InputType.TYPE_TEXT_FLAG_MULTI_LINE |
@@ -283,6 +283,14 @@ public final class MainActivity extends Activity {
     private void queueTyped() {
         String text=composer.getText().toString().trim();
         if(text.isEmpty())return;
+        if(!HomeCenterPlaywrightBridge.enabled(this)){
+            headerStatus.setText("ChatGPT delivery paused. Resume in More before sending.");
+            return;
+        }
+        if(HomeCenterCloudPairing.load(this)==null){
+            headerStatus.setText("Connect your Home Center account before sending.");
+            return;
+        }
         // The operator already pressed Send. No second confirmation:
         // retain the exact originating tab and durably queue before clearing.
         RitsuWorkspace.Tab active=workspace.active();
@@ -402,8 +410,7 @@ public final class MainActivity extends Activity {
         java.util.List<ConversationLedger.Entry> pending=ledger.unsent();
         if(pending.isEmpty()){
             new AlertDialog.Builder(this).setTitle("Phone outbox")
-                .setMessage("No pending local messages. Home Center OAuth " +
-                    "does not currently submit to Playwright or ChatGPT.")
+                .setMessage("No unsent messages. New messages use the authenticated Home Center browser bridge.")
                 .setPositiveButton("Close",null).show();
             return;
         }
@@ -488,8 +495,8 @@ public final class MainActivity extends Activity {
                 "Reload conversation feed",
                 "Script campaign: toggle this tab",
                 "Request image / file retrieval",
-                "Pending messages (phone only)",
-                "Playwright browser delivery: enable / disable"
+                "Pending and streaming messages",
+                "Pause / resume ChatGPT delivery"
         };
         new AlertDialog.Builder(this)
                 .setTitle("Ritsu controls")
@@ -539,7 +546,7 @@ public final class MainActivity extends Activity {
                 new AlertDialog.Builder(this)
                     .setTitle("Home Center account connected")
                     .setMessage("Your Home Center sign-in is encrypted on this phone. " +
-                        "Playwright browser control is available only after you enable it in More and the authenticated Windows worker is online.")
+                        "ChatGPT delivery is automatically enabled unless you have explicitly paused it. The Windows worker must be online.")
                     .setPositiveButton("Close",null).show();
                 return;
             }
@@ -599,16 +606,14 @@ public final class MainActivity extends Activity {
                 HomeCenterCloudPairing.Paired paired=
                     HomeCenterOAuth.complete(getApplicationContext(),callback);
                 HomeCenterCloudPairing.save(getApplicationContext(),paired);
-                HomeCenterSync.status="Home Center cloud paired; conversation bridge not deployed";
+                HomeCenterSync.status="Home Center connected · ChatGPT delivery ready";
                 updates.post(()->{
                     cloudPairActive.set(false);
                     refreshStatus();
                     new AlertDialog.Builder(this)
                         .setTitle("Home Center connected")
                         .setMessage("Ritsu Control signed in directly and stored its " +
-                            "own Home Center credentials securely. No pairing codes " +
-                            "or Termux scripts required. Conversation reply routing " +
-                            "has not yet been deployed.")
+                            "own Home Center credentials securely. ChatGPT messages use the authenticated Playwright bridge automatically; responses appear progressively in this conversation.")
                         .setPositiveButton("Done",null).show();
                 });
             }catch(Exception error){
@@ -663,7 +668,7 @@ public final class MainActivity extends Activity {
                 + "\nMedia guard: " + RitsuControlService.mediaGuardStatus
                 + "\nLast error: " + (RitsuControlService.lastProblem.isEmpty()
                         ? "None" : RitsuControlService.lastProblem)
-                + "\nLocal outbox only. Worker replies require Home Center."
+                + "\nChatGPT text streams into this conversation through Home Center."
                 + "\nNo Ritsu voice playback in this build.";
     }
 
@@ -717,10 +722,10 @@ public final class MainActivity extends Activity {
             ". "+unsent+" pending messages. Tap to inspect.");
         if(sendButton!=null) {
             boolean delivery=HomeCenterPlaywrightBridge.enabled(this);
-            sendButton.setText(delivery?"Send":"Save locally");
+            sendButton.setText(delivery?"Send":"Delivery paused");
             sendButton.setContentDescription(delivery
-                ? "Send message to the verified Playwright delivery outbox"
-                : "Save message on this phone. Browser delivery disabled.");
+                ? "Send message through Home Center to ChatGPT"
+                : "Delivery manually paused. Resume browser delivery in More.");
         }
         if (listenButton != null) {
             listenButton.setText(mode == ListeningPolicy.Mode.RECOGNIZING
