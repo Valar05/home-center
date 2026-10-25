@@ -15,8 +15,8 @@ android {
     namespace 'com.homecenter.ritsucontrol'
     compileSdk 35
     defaultConfig {
-        applicationId stableInstall ? 'com.homecenter.ritsucontrol.stable' : (bridgeInstall ? 'com.homecenter.ritsucontrol.bridge' : (outboxInstall ? 'com.homecenter.ritsucontrol.outbox' : (campaignInstall ? 'com.homecenter.ritsucontrol.campaign' : (parallelInstall ? 'com.homecenter.ritsucontrol.connected' : 'com.homecenter.ritsucontrol'))))
-        manifestPlaceholders = [ritsuAppLabel: stableInstall ? 'Ritsu Control' : (bridgeInstall ? 'Ritsu Control (Playwright)' : (outboxInstall ? 'Ritsu Control (Outbox)' : (campaignInstall ? 'Ritsu Control (Campaign)' : (parallelInstall ? 'Ritsu Control (Connected)' : 'Ritsu Control')))), ritsuOAuthScheme: stableInstall ? 'ritsucontrolstable' : (bridgeInstall ? 'ritsucontrolbridge' : (outboxInstall ? 'ritsucontroloutbox' : (campaignInstall ? 'ritsucontrolcampaign' : 'ritsucontrol')))]
+        applicationId stableInstall ? 'com.homecenter.ritsucontrol.live' : (bridgeInstall ? 'com.homecenter.ritsucontrol.bridge' : (outboxInstall ? 'com.homecenter.ritsucontrol.outbox' : (campaignInstall ? 'com.homecenter.ritsucontrol.campaign' : (parallelInstall ? 'com.homecenter.ritsucontrol.connected' : 'com.homecenter.ritsucontrol'))))
+        manifestPlaceholders = [ritsuAppLabel: stableInstall ? 'Ritsu Control' : (bridgeInstall ? 'Ritsu Control (Playwright)' : (outboxInstall ? 'Ritsu Control (Outbox)' : (campaignInstall ? 'Ritsu Control (Campaign)' : (parallelInstall ? 'Ritsu Control (Connected)' : 'Ritsu Control')))), ritsuOAuthScheme: stableInstall ? 'ritsucontrollive' : (bridgeInstall ? 'ritsucontrolbridge' : (outboxInstall ? 'ritsucontroloutbox' : (campaignInstall ? 'ritsucontrolcampaign' : 'ritsucontrol')))]
         minSdk 26
         targetSdk 35
         versionCode 17
