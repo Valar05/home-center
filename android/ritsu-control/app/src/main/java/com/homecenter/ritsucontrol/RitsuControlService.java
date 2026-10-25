@@ -68,7 +68,7 @@ public final class RitsuControlService extends Service {
     private Runnable mediaFocusDeadline;
     private ControlReceipts receipts;
     private ConversationLedger ledger;
-    private HomeCenterSync homeCenterSync;
+    private RitsuLocalSync homeCenterSync;
     private MediaPauseLease mediaPause;
     private RitsuBubble bubble;
     private int consecutiveErrors;
@@ -89,7 +89,7 @@ public final class RitsuControlService extends Service {
         mainHandler = new Handler(Looper.getMainLooper());
         receipts = new ControlReceipts(this);
         ledger = new ConversationLedger(this);
-        homeCenterSync = new HomeCenterSync(this, ledger, () -> {
+        homeCenterSync = new RitsuLocalSync(this, ledger, () -> {
             feedRevision++;
             updateNotification();
         });
@@ -302,10 +302,10 @@ public final class RitsuControlService extends Service {
         // not assumed at the moment a remote worker eventually sees it.
         RitsuWorkspace.Tab active=new RitsuWorkspace(this).active();
         ledger.addInTab(active.id,active.machineId,"control","You",
-                complete,ConversationLedger.OUTBOX);
+                complete,"LOCAL_QUEUED");
         feedRevision++;
         homeCenterSync.requestNow();
-        recognitionStatus = "Spoken message saved; submitting to Home Center if paired";
+        recognitionStatus = "Spoken message queued for direct Tailscale delivery";
         receipts.append("LOCAL_SPOKEN_MESSAGE", mode, mode, reason);
         updateNotification();
     }
