@@ -1,104 +1,36 @@
-name: Build Android — Ritsu Control v0.17 APK
+name: Ritsu APK update-continuity contract
 
-# The main branch registers build.yml; this campaign branch owns its
-# v0.17 variant. Run via workflow_dispatch on the campaign ref.
-# Owner preference (Campaign Etiquette 2026-10-25): GitHub-first cloud builds.
+# The cloud debug trial succeeded at run 40196659002 but had a transient signer.
+# Never silently distribute a different-key APK as a data-preserving upgrade.
+# The protected stable-signer release remains gated pending identity enrollment.
 on:
   workflow_dispatch:
 
 permissions:
   contents: read
 
-concurrency:
-  group: ritsu-control-v017-manual-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
-  android-v017:
+  release-contract:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 6
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-          # This Android campaign is text-only. Some unrelated historical
-          # repository videos have malformed LFS pointers; never check them out.
           sparse-checkout: |
             android/ritsu-control
             tools/campaigns
           sparse-checkout-cone-mode: true
           lfs: false
-
-      - name: Verify campaign source and Git revision
+      - name: Verify committed cloud release script and no-uninstall gates
         shell: bash
         run: |
           set -euo pipefail
-          echo "RITSU_SOURCE_SHA=$GITHUB_SHA"
-          git diff --exit-code
-          grep -Fq "versionName '0.17.0'" android/ritsu-control/app/build.gradle
-          grep -Fq "'com.homecenter.ritsucontrol.phone'" android/ritsu-control/app/build.gradle
-          node --check tools/campaigns/ritsu_control_playwright_bridge.mjs
-          test -f android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuLocalSync.java
-
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Install Android 35 platform and build tools
-        shell: bash
+          bash tools/campaigns/ritsu_release_cloud.test.sh
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git diff --exit-code -- android/ritsu-control tools/campaigns
+          echo RITSU_CLOUD_RELEASE_CONTRACT=PASS
+      - name: Declare outstanding protected signing requirement
         run: |
-          set -euo pipefail
-          test -n "${ANDROID_HOME:-}"
-          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
-          if [ ! -x "$SDKMANAGER" ]; then
-            SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager -print -quit 2>/dev/null || true)"
-          fi
-          [ -n "$SDKMANAGER" ] && [ -x "$SDKMANAGER" ] || {
-            echo "FAIL=android_sdkmanager_not_found_under_ANDROID_HOME"
-            exit 2
-          }
-          if [ ! -f "$ANDROID_HOME/platforms/android-35/android.jar" ] ||
-             [ ! -x "$ANDROID_HOME/build-tools/35.0.0/aapt" ]; then
-            yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
-            "$SDKMANAGER" --install 'platforms;android-35' 'build-tools;35.0.0'
-          fi
-          test -f "$ANDROID_HOME/platforms/android-35/android.jar"
-          test -x "$ANDROID_HOME/build-tools/35.0.0/apksigner"
-
-      - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.11.1'
-
-      - name: Unit tests and isolated v0.17 APK build
-        shell: bash
-        run: |
-          set -euo pipefail
-          gradle -p android/ritsu-control :app:testDebugUnitTest :app:assembleDebug -PritsuPhoneInstall=true --no-daemon --stacktrace
-
-      - name: Verify signed package and prepare directly downloadable APK
-        shell: bash
-        run: |
-          set -euo pipefail
-          apk='android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk'
-          test -s "$apk"
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" |
-            grep -F "package: name='com.homecenter.ritsucontrol.phone'"
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$apk"
-          unzip -tqq "$apk"
-          mkdir -p dist
-          cp "$apk" dist/Ritsu-Control-v0.17.0-Phone-GitHub.apk
-          cd dist
-          sha256sum Ritsu-Control-v0.17.0-Phone-GitHub.apk > Ritsu-Control-v0.17.0-Phone-GitHub.apk.sha256
-          printf 'RITSU_SOURCE_SHA=%s\nAPPLICATION_ID=com.homecenter.ritsucontrol.phone\nVERSION_NAME=0.17.0\nAPK_SHA256=%s\nSIGNING=GitHub Actions Android debug signing (not durable between runs)\n' \
-            "$GITHUB_SHA" "$(cut -d ' ' -f 1 < Ritsu-Control-v0.17.0-Phone-GitHub.apk.sha256)" > Ritsu-Control-v0.17.0-GitHub-receipt.txt
-          cat Ritsu-Control-v0.17.0-GitHub-receipt.txt
-
-      - name: Publish Ritsu Control v0.17 APK and checksum
-        uses: actions/upload-artifact@v4
-        with:
-          name: ritsu-control-v017-phone-apk
-          path: dist/
-          if-no-files-found: error
-          retention-days: 14
-          compression-level: 0
+          echo 'STABLE_SIGNED_UPDATE=NOT_YET_AUTHORIZED'
+          echo 'This contract run does not build an APK or touch Android device data.'
