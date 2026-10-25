@@ -6,13 +6,17 @@ The **runnable campaign is in this repository**, at `tools/campaigns/ritsu_phone
 
 ## One stable repo-owned entrypoint
 
-From any Termux working directory, invoke the actual file in a **clean, verified** `home-center` checkout:
+From any Termux working directory, invoke the actual repository file in the
+**dedicated source checkout created by the 2026-10-25 one-shot command**:
 
 ```sh
-bash /storage/emulated/0/Documents/GodotProjects/home-center/tools/campaigns/ritsu_phone_android_v017.sh build
+bash "$HOME/.local/share/ritsu-campaigns/v017-home-center-repo/tools/campaigns/ritsu_phone_android_v017.sh" build
 ```
 
-This path was an owner-verified Android checkout in August 2026; verify it remains the relevant checkout. The script physically resolves its own path and detects the Git repository root without trusting the caller's `pwd`. Before any build mutation it validates the exact GitHub remote, active campaign branch, pinned Android source tree, and clean Git status. Prints `RESOLVED_REPO`, `EXECUTION_DIR`, `BRANCH`, `HEAD`. **It will not switch, reset, stash, or damage a dirty checkout.** If the existing checkout is on another branch or dirty, use a separate clean Git worktree for this campaign. Follow the same repo-relative invocation targeting that worktree instead. This one-time source checkout is permitted; downloading a script outside the repository is not.
+The earlier guess `/storage/emulated/0/Documents/GodotProjects/home-center`
+was **not present** on the owner's phone. Never give that path as the default or
+imply it was verified. On a new device, establish the dedicated checkout from
+the pinned GitHub commit before invoking the repo-owned entrypoint. The script physically resolves its own path and detects the Git repository root without trusting the caller's `pwd`. Before any build mutation it validates the exact GitHub remote, active campaign branch, pinned Android source tree, and clean Git status. Prints `RESOLVED_REPO`, `EXECUTION_DIR`, `BRANCH`, `HEAD`. **It will not switch, reset, stash, or damage a dirty checkout.** If the existing checkout is on another branch or dirty, use a separate clean Git worktree for this campaign. Follow the same repo-relative invocation targeting that worktree instead. This one-time source checkout is permitted; downloading a script outside the repository is not.
 
 Modes: `doctor`, `build`, `resume`, `status`. The separate repo-owned lint/test entrypoint is `bash tools/campaigns/ritsu_phone_android_v017.test.sh`. It invokes `bash -n` and validates fail-closed wrong-location behavior. Check `ritsu_phone_android_v017.contract.json` for source identity, writable surface, dependencies, and acceptance.
 
