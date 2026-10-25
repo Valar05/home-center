@@ -69,6 +69,9 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.11.1'
+      - name: Reproduce and regress AGP custom AAPT2 basename failure
+        shell: bash
+        run: bash tools/campaigns/ritsu_sticky_aapt2_override.test.sh
       - name: Compile and unit test
         run: bash tools/campaigns/ritsu_sticky_campaign.sh build
 
