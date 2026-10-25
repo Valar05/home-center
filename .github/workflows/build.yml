@@ -115,6 +115,9 @@ jobs:
       - name: Compile separate package
         run: |
           gradle -p android/ritsu-control :app:testDebugUnitTest :app:assembleRelease -PritsuStickyInstall=true --no-daemon
+          # Exercise zipalign, signing and signature verification with a one-run
+          # non-published key. The phone retains its own durable private signer.
+          bash tools/campaigns/ritsu_sticky_signing_smoke.test.sh
           mkdir -p dist
           cp android/ritsu-control/app/build/outputs/apk/release/app-release-unsigned.apk dist/Ritsu-Sticky-v018-unsigned.apk
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging dist/Ritsu-Sticky-v018-unsigned.apk | grep -F "package: name='com.homecenter.ritsucontrol.sticky'"
