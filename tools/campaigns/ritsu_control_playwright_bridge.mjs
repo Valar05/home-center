@@ -8,7 +8,12 @@ import path from 'node:path';
 import {createRequire} from 'node:module';
 import {spawn} from 'node:child_process';
 const args=new Map();
-for(let i=2;i<process.argv.length;i+=2)args.set(process.argv[i],process.argv[i+1]??'');
+for(let i=2;i<process.argv.length;i++){
+  const flag=process.argv[i];
+  if(['--doctor','--peek','--launch','--recover-reply','--resume-draft'].includes(flag))
+    args.set(flag,'');
+  else args.set(flag,process.argv[++i]??'');
+}
 const sha=s=>createHash('sha256').update(s,'utf8').digest('hex');
 const ID=/^[A-Za-z0-9_.:-]{8,100}$/;
 const TAB=/^[A-Za-z0-9_-]{4,80}$/;
