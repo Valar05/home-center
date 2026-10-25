@@ -365,11 +365,37 @@ CAMPAIGN_STAGE=gradle_unit_tests_and_apk
 receipt BUILDING 'Gradle tests + APK'
 bash "$GRADLE" -p "$PROJECT" :app:testDebugUnitTest :app:assembleDebug -PritsuPhoneInstall=true "-Pandroid.aapt2FromMavenOverride=$native" --no-daemon --max-workers=2 > "$ROOT/log/gradle.log" 2>&1 ||
  { tail -n 40 "$ROOT/log/gradle.log"; fail 'Gradle failed'; }
+# Deliver the real, verified APK into the shared Android Download folder.
+# A Gradle output inside ~/.local/share is not a field-testable deliverable.
+CAMPAIGN_STAGE=apk_signature_and_downloads_delivery
 file="$PROJECT/app/build/outputs/apk/debug/app-debug.apk"
-[ -f "$file" ] || fail 'APK absent'
-mkdir -p "$(dirname "$APK")"
-cp -f "$file" "$APK" || fail 'Downloads storage unavailable'
-apksigner verify "$APK" > "$ROOT/log/signature.log" 2>&1 || fail 'APK signature invalid'
-receipt BUILD_PASS 'com.homecenter.ritsucontrol.phone'
+[ -s "$file" ] || fail 'APK absent or empty'
+apksigner verify "$file" > "$ROOT/log/signature.log" 2>&1 ||
+  fail 'Build output APK signature invalid'
+unzip -tqq "$file" > "$ROOT/log/apk-integrity.log" 2>&1 ||
+  fail 'Build output APK ZIP is damaged'
+downloads="$HOME/storage/downloads"
+[ -d "$downloads" ] && [ -w "$downloads" ] ||
+  fail 'Phone Downloads inaccessible: run termux-setup-storage once and grant storage access'
+# Never overwrite a previous usable APK before the replacement is fully signed.
+mkdir -p "$downloads"
+staging="$downloads/.Ritsu-Control-v0.17.0-Phone-Local.apk.incoming"
+cp "$file" "$staging" || fail 'Unable to stage APK in phone Downloads'
+source_sha="$(sha256sum "$file" | cut -d ' ' -f 1)"
+staging_sha="$(sha256sum "$staging" | cut -d ' ' -f 1)"
+[ "$source_sha" = "$staging_sha" ] || fail 'APK checksum mismatch during Downloads copy'
+apksigner verify "$staging" > "$ROOT/log/downloads-signature.log" 2>&1 ||
+  fail 'Staged phone Downloads APK signature invalid'
+mv -f "$staging" "$APK" || fail 'Unable to publish APK into phone Downloads'
+[ -s "$APK" ] || fail 'Published APK absent from phone Downloads'
+final_sha="$(sha256sum "$APK" | cut -d ' ' -f 1)"
+[ "$source_sha" = "$final_sha" ] || fail 'Published Downloads APK checksum mismatch'
+apksigner verify "$APK" > "$ROOT/log/downloads-final-signature.log" 2>&1 ||
+  fail 'Published Downloads APK signature invalid'
+CAMPAIGN_STAGE=apk_delivered
+echo "DOWNLOADS_APK_VERIFIED=$APK"
+echo "DOWNLOADS_APK_SHA256=$final_sha"
+echo "DOWNLOADS_APK_BYTES=$(wc -c < "$APK" | tr -d ' ')"
+receipt BUILD_PASS "signed APK verified in phone Downloads sha256=$final_sha"
 echo "APK_BUILD_PASS=$APK"
-echo "SHA256=$(sha256sum "$APK" | awk '{print $1}')"
+echo "SHA256=$final_sha"
