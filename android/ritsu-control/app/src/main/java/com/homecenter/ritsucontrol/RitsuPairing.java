@@ -104,7 +104,7 @@ final class RitsuPairing {
     static void disconnect(Context context) {
         context.getSharedPreferences(PREF,Context.MODE_PRIVATE).edit().remove("sealed").commit();
         context.getSharedPreferences("ritsu_sync_feed_v1",Context.MODE_PRIVATE)
-                .edit().putLong("cursor",0).commit();
+                .edit().putLong("seq",0).commit();
     }
 
     private static SecretKey key() throws Exception {
