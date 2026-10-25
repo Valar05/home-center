@@ -23,3 +23,28 @@ The campaign builds and tests an unsigned release package to validate source wit
 ## Scope and acceptance
 
 Cloud evidence can prove compilation and unit tests, not runtime UI interaction or whether an AI followed the repeated context. On a real phone verify tab switch isolation, editing/clearing/persisting sticky text, app restarts, import/export, repeated typed and voice sends, no double-appending on retries, and no lost pairing/history. Independent export files can be recovered with Android Files. Review URL: no hosted native Android preview exists for this feature.
+
+
+## Copy-paste runnable GitHub cloud campaign (owner handoff)
+
+The script itself is checked in at `tools/campaigns/ritsu_sticky_cloud_dispatch.sh`.
+It verifies the committed Android source, campaign script and registered workflow
+against known Git blob IDs, checks `gh` authentication, avoids duplicate
+successful same-commit runs, and dispatches `.github/workflows/build.yml`.
+It does NOT build locally and does NOT uninstall an app.
+
+To dispatch the cloud workflow from **any** authenticated shell with GitHub CLI
+(there is no local checkout prerequisite):
+
+```bash
+gh workflow run build.yml --repo Valar05/home-center \
+  --ref campaign/ritsu-local-tailnet-20261024
+```
+
+The direct command is runnable, but it deliberately omits the additional
+source-provenance/idempotence safeguards in the checked-in dispatcher. When a
+user specifically asks for a script, provide the entire copyable, executable
+source-equivalent code block in the chat response rather than only a link.
+The cloud script executes the repo-owned doctor, Gradle unit tests and
+`assembleRelease`; the APK remains **unsigned** and no installable upgrade
+will be published until signing identity matches the installed Android app.
