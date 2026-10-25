@@ -271,7 +271,8 @@ async function main(){
       if(prior.promptSha256!==promptSha256||prior.tabId!==tabId)
         throw Error('turn_id_collision');
       if(prior.state==='complete'){
-        await streamWrite(turnId,tabId,'complete',prior.receipt.text);
+        await streamWrite(turnId,tabId,'complete',prior.receipt.text,
+          {url:prior.receipt.url,source:'playwright-rendered-chatgpt-reply'});
         output(prior.receipt);return;
       }
       if(args.has('--recover-reply')){
@@ -283,7 +284,10 @@ async function main(){
           const receipt=makeReply(turnId,tabId,page,answer);
           state.turns[turnId]={state:'complete',tabId,promptSha256,receipt};
           state.tabs[tabId]={url:page.url()};
-          await save(state);output(receipt);return;
+          await save(state);
+          await streamWrite(turnId,tabId,'complete',answer,
+            {url:page.url(),source:'playwright-rendered-chatgpt-reply'});
+          output(receipt);return;
         }finally{await browser.close();}
       }
       // Only a specifically requested recovery may advance a still-visible,
@@ -370,7 +374,8 @@ async function main(){
       state.turns[turnId]={state:'complete',tabId,promptSha256,receipt};
       state.tabs[tabId]={url:page.url()};
       await save(state);
-      await streamWrite(turnId,tabId,'complete',answer);
+      await streamWrite(turnId,tabId,'complete',answer,
+        {url:page.url(),source:'playwright-rendered-chatgpt-reply'});
       output(receipt);
     }finally{await browser.close();}
   }finally{await lock.close();await fs.unlink(lockFile).catch(()=>{});}
