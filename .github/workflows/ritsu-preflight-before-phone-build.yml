@@ -1,0 +1,56 @@
+name: Ritsu Preflight Before Phone Build
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'android/ritsu-control/**'
+      - 'tools/ritsu-local-server/**'
+      - 'tools/campaigns/ritsu_control_playwright_bridge.mjs'
+      - '.github/workflows/ritsu-preflight-before-phone-build.yml'
+permissions:
+  contents: read
+jobs:
+  android-and-server:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          lfs: false
+          sparse-checkout: |
+            android/ritsu-control
+            tools/ritsu-local-server
+            tools/campaigns/ritsu_control_playwright_bridge.mjs
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Android 35 prerequisites
+        run: |
+          set -euo pipefail
+          sdkmanager --install 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Verify direct local transport contract and test server
+        run: |
+          set -euo pipefail
+          node --check tools/ritsu-local-server/server.mjs
+          node --check tools/campaigns/ritsu_control_playwright_bridge.mjs
+          node --test tools/ritsu-local-server/server.test.mjs
+      - name: Android tests and compile-only debug artifact
+        run: |
+          set -euo pipefail
+          gradle -p android/ritsu-control :app:testDebugUnitTest :app:assembleDebug -PritsuStickyInstall=true --no-daemon
+          apk=android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
+          test -s "$apk"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" | grep -F "package: name='com.homecenter.ritsucontrol.sticky'"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$apk"
+          echo "CLOUD_COMPILE_ONLY=PASS"
+          echo "PHONE_NATIVE_BUILD_REQUIRED=YES"
+          echo "PHONE_BROKER_ACCEPTANCE=UNVERIFIED"
