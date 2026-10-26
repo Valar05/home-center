@@ -10,7 +10,9 @@ OUT=Path.home()/"workspace"/"pose-vision-sam21"/"evidence"/"panzer-sam-probe-202
 AUDIT=OUT.parent/"panzer-source-audit-20261026"/"source-inventory.json"
 OUT.mkdir(parents=True,exist_ok=True)
 report=json.loads(AUDIT.read_text(encoding="utf-8"))
-model=SAM("sam2.1_t.pt")
+weights=Path.home()/"sam2.1_t.pt"
+assert weights.is_file() and weights.stat().st_size > 70_000_000, "Known verified model weights missing; never redownload into inaccessible worker cwd"
+model=SAM(str(weights))
 summary=[]
 for record in report["entries"]:
     name=record["file"]
