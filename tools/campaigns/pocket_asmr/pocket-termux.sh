@@ -6,7 +6,7 @@ CAMPAIGN="$REMOTE/tools/campaigns/pocket_asmr"
 BRANCH="campaign/pocket-asmr-queue-20261026"
 CAULDRON="${POCKET_CAULDRON_COMMAND:-cauldron}"
 command -v "$CAULDRON" >/dev/null || { echo "BLOCKED: cauldron command not found" >&2; exit 2; }
-export POCKET_ASMR_URL="http://127.0.0.1:10215"
+export POCKET_ASMR_URL="https://thecauldron-2.tail574fdf.ts.net:8443"
 export POCKET_ASMR_TOKEN="${POCKET_ASMR_TOKEN:-$HOME/.config/pocket-asmr/token}"
 run_remote() { "$CAULDRON" cmd /d /s /c "$1"; }
 case "${1:-doctor}" in
@@ -28,7 +28,7 @@ case "${1:-doctor}" in
   echo "FILES=present"
   echo "REMOTE_LAUNCHER=$CAULDRON"
   run_remote "call $CAMPAIGN/pocket-service.cmd status"
-  echo "API_TUNNEL=not_provisioned"
+  echo "API_TRANSPORT=Tailscale_Serve_HTTPS_8443"
   ;;
  asmr)
   shift
