@@ -1,69 +1,89 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REMOTE="C:/Users/dclar/PocketASMRGit"
-CAMPAIGN="$REMOTE/tools/campaigns/pocket_asmr"
-BRANCH="campaign/pocket-asmr-queue-20261026"
-CAULDRON="${POCKET_CAULDRON_COMMAND:-cauldron}"
-command -v "$CAULDRON" >/dev/null || { echo "BLOCKED: cauldron command not found" >&2; exit 2; }
-export POCKET_ASMR_URL="https://thecauldron-2.tail574fdf.ts.net:8443"
+export POCKET_ASMR_URL="${POCKET_ASMR_URL:-https://thecauldron-2.tail574fdf.ts.net:8443}"
 export POCKET_ASMR_TOKEN="${POCKET_ASMR_TOKEN:-$HOME/.config/pocket-asmr/token}"
-run_remote() { "$CAULDRON" cmd /d /s /c "$1"; }
-case "${1:-doctor}" in
- pair)
-  mkdir -p "$HOME/.config/pocket-asmr"
-  umask 077
-  tmp="$(mktemp)"
-  trap 'rm -f "$tmp"' EXIT
-  "$CAULDRON" 'cmd /d /c type C:\Users\dclar\PocketASMR\gateway-token.txt' > "$tmp"
-  python - "$tmp" "$HOME/.config/pocket-asmr/token" <<'PY'
-import pathlib,re,sys,os
-data=pathlib.Path(sys.argv[1]).read_text(errors="replace").splitlines()
-matches=[line.strip() for line in data if re.fullmatch(r"[A-Za-z0-9_-]{40,60}",line.strip())]
-if len(matches)!=1: raise SystemExit("BLOCKED: unexpected credential output, token not saved")
-pathlib.Path(sys.argv[2]).write_text(matches[0]+"\n")
-os.chmod(sys.argv[2],0o600)
-print("TOKEN=stored_privately")
+CAULDRON="${POCKET_CAULDRON_COMMAND:-cauldron}"
+CMD='C:\Users\dclar\PocketASMRGit\tools\campaigns\pocket_asmr\pocket-service.cmd'
+step="startup"
+trap 'rc=$?; echo "POCKET_RESULT=FAIL STEP=$step EXIT=$rc" >&2' ERR
+remote(){ command -v "$CAULDRON" >/dev/null || { echo "BLOCKED: cauldron missing" >&2; return 2; }; "$CAULDRON" "$1"; }
+pair(){
+ step=pair
+ mkdir -p "$(dirname "$POCKET_ASMR_TOKEN")"
+ umask 077
+ tmp="$(mktemp)"
+ trap 'rm -f "$tmp"' RETURN
+ remote 'cmd /d /c type C:\Users\dclar\PocketASMR\gateway-token.txt' >"$tmp"
+ python - "$tmp" "$POCKET_ASMR_TOKEN" <<'PY'
+import os,re,sys,pathlib
+raw=pathlib.Path(sys.argv[1]).read_bytes().decode("utf-8","replace")
+clean=re.sub(r"\x1b\[[0-?]*[ -/]*[@-~]","",raw)
+clean=re.sub(r"\x1b\][^\x07]*(?:\x07|\x1b\\)","",clean)
+candidates=re.findall(r"(?<![A-Za-z0-9_+/=-])[A-Za-z0-9_+/=-]{43}(?![A-Za-z0-9_+/=-])",clean)
+unique=list(dict.fromkeys(candidates))
+if len(unique)!=1:
+ raise SystemExit("PAIR=BLOCKED CANDIDATES="+str(len(unique))+" (no credentials displayed)")
+p=pathlib.Path(sys.argv[2])
+temporary=p.with_name(p.name+".new")
+temporary.write_text(unique[0]+"\n")
+os.chmod(temporary,0o600)
+temporary.replace(p)
+print("PAIR=STORED_PRIVATE")
 PY
-  ;;
- install)
-  mkdir -p "${PREFIX:-$HOME/.local}/bin"
-  printf '#!/bin/sh\nexec bash "%s/pocket-termux.sh" "$@"\n' "$HERE" > "${PREFIX:-$HOME/.local}/bin/pocket"
-  chmod 700 "${PREFIX:-$HOME/.local}/bin/pocket"
-  echo "INSTALLED=pocket"
-  ;;
- sync)
-  run_remote "if exist $REMOTE\\.git (git -C $REMOTE fetch origin $BRANCH && git -C $REMOTE checkout $BRANCH && git -C $REMOTE pull --ff-only origin $BRANCH) else git clone -b $BRANCH --single-branch https://github.com/Valar05/home-center.git $REMOTE"
-  ;;
- on|off|service-status)
-  mode="$1"; [[ "$mode" == service-status ]] && mode=status
-  run_remote "call $CAMPAIGN/pocket-service.cmd $mode"
-  ;;
- doctor)
-  echo "API=$POCKET_ASMR_URL"
-  python - "$POCKET_ASMR_URL" "$HOME/.config/pocket-asmr/token" <<'PY'
-import pathlib,sys,urllib.request,urllib.error
-url,path=sys.argv[1:]
-headers={}
-p=pathlib.Path(path)
-if p.is_file(): headers["Authorization"]="Bearer "+p.read_text().strip()
+}
+doctor(){
+ step=doctor
+ python - "$POCKET_ASMR_URL" "$POCKET_ASMR_TOKEN" <<'PY'
+import json,urllib.request,urllib.error,pathlib,sys
+url,tokenfile=sys.argv[1:]
+token=pathlib.Path(tokenfile)
+if not token.is_file():raise SystemExit("DOCTOR=BLOCKED NO_TOKEN; run pocket pair")
+req=urllib.request.Request(url+"/asmr/health",headers={"Authorization":"Bearer "+token.read_text().strip()})
 try:
- r=urllib.request.urlopen(urllib.request.Request(url+"/asmr/health",headers=headers),timeout=12)
- print("HTTP_STATUS",r.status,"BODY",r.read(500).decode(errors="replace"))
+ with urllib.request.urlopen(req,timeout=15) as r:
+  obj=json.load(r)
+  print("HTTPS=PASS CODE="+str(r.status))
+  print("GATEWAY="+str(obj.get("gateway","unknown")))
+  print("UPSTREAM="+str(obj.get("upstream","unknown"))[:250])
 except urllib.error.HTTPError as e:
- print("HTTP_STATUS",e.code,"BODY",e.read(500).decode(errors="replace"))
- if e.code==401: print("NEXT=pocket_pair")
- sys.exit(2)
+ print("DOCTOR=BLOCKED HTTP="+str(e.code))
+ raise SystemExit(2)
+except Exception as e:raise SystemExit("DOCTOR=BLOCKED "+type(e).__name__+" "+str(e)[:120])
 PY
-  ;;
+}
+sample(){
+ step=sample
+ python - "$HERE/pocket-api-client.py" <<'PY'
+import sys,pathlib,subprocess,tempfile
+path=pathlib.Path(tempfile.gettempdir())/"pocket-asmr-probe.txt"
+path.write_text("Hello. This is Ritsu, checking the Pocket ASMR audio connection.",encoding="utf-8")
+subprocess.run([sys.executable,sys.argv[1],"asmr",str(path),"--voice","whisper"],check=True)
+PY
+}
+case "${1:-go}" in
+ install)
+  step=install
+  mkdir -p "${PREFIX:-$HOME/.local}/bin"
+  printf '#!/usr/bin/env bash\nexec bash "%s/pocket-termux.sh" "$@"\n' "$HERE" > "${PREFIX:-$HOME/.local}/bin/pocket"
+  chmod 700 "${PREFIX:-$HOME/.local}/bin/pocket"
+  echo 'POCKET=INSTALLED' ;;
+ go)
+  pair
+  doctor
+  sample
+  echo 'POCKET_GO=SUBMITTED_SAMPLE; use pocket status JOB and pocket pull JOB' ;;
+ pair) pair ;;
+ doctor) doctor ;;
+ on|off|service-status)
+  step=service
+  mode="$1"; [[ "$mode" == service-status ]] && mode=status
+  remote "cmd /d /c call $CMD $mode" ;;
  asmr)
   shift
-  [[ "${1:-}" == "" || "${1:-}" == --voice ]] && set -- "$HERE/asmr.txt" "$@"
-  exec python "$HERE/pocket-api-client.py" asmr "$@"
-  ;;
+  if [[ "${1:-}" == "" || "${1:-}" == --voice ]];then set -- "$HERE/asmr.txt" "$@";fi
+  exec python "$HERE/pocket-api-client.py" asmr "$@" ;;
  status|pull)
-  command="$1"; shift
-  exec python "$HERE/pocket-api-client.py" "$command" "$@"
-  ;;
- *) echo 'Usage: pocket install|sync|on|off|doctor|asmr|status JOB|pull JOB'; exit 2 ;;
+  mode="$1";shift;exec python "$HERE/pocket-api-client.py" "$mode" "$@" ;;
+ *) echo 'Usage: pocket install|go|pair|doctor|on|off|asmr|status JOB|pull JOB';exit 2;;
 esac
