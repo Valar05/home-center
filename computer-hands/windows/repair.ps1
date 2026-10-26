@@ -5,7 +5,8 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 if ($env:OS -ne 'Windows_NT') { throw 'Computer Hands repair requires Windows.' }
-if (-not [Environment]::UserInteractive) { throw 'Run repair from the normal interactive Windows account.' }
+# Repair is intentionally callable through the existing authenticated SSH recovery lane.
+# DPAPI token decryption below remains the authority check for the Windows user.
 
 if ([string]::IsNullOrWhiteSpace($RepoPath)) {
   $candidate = Join-Path (Get-Location) 'home-center'
