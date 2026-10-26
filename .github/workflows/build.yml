@@ -127,3 +127,23 @@ jobs:
           name: ritsu-sticky-v018-unsigned
           path: dist/
           if-no-files-found: error
+
+  downloads-copy-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            tools/campaigns
+          sparse-checkout-cone-mode: true
+          lfs: false
+      - name: Verify copy-only script with synthetic signed-APK destination fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash tools/campaigns/ritsu_sticky_copy_to_downloads.test.sh
+          bash -n tools/campaigns/ritsu_sticky_install_real.sh
+          ! grep -Eq '^[[:space:]]*termux-open[[:space:]]' tools/campaigns/ritsu_sticky_install_real.sh
+          echo RITSU_DOWNLOADS_NO_AUTOLAUNCH=PASS
