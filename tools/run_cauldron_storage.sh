@@ -18,12 +18,14 @@ tmp="$(mktemp "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/cauldron-audit.XXX
 trap 'rm -f "$tmp"' EXIT
 curl --fail --location --silent --show-error --retry 2 "$script_url" -o "$tmp"
 [[ -s "$tmp" ]] || { echo 'Downloaded script is empty.' >&2; exit 3; }
-bootstrap='$src=[Console]::In.ReadToEnd(); & ([scriptblock]::Create($src)) -Mode '${mode}"${venv}"' -Confirm:$false'
+bootstrap='$src=[Console]::In.ReadToEnd(); & ([scriptblock]::Create($src)) -Mode '
+bootstrap+="$mode$venv"
+bootstrap+=' -Confirm:$false'
 # Encode a *short* bootstrap, not the 10KB script, to avoid cmd.exe argument limits.
 encoded="$(printf '%s' "$bootstrap" | iconv -f UTF-8 -t UTF-16LE | base64 | tr -d '\r\n')"
 echo "CAULDRON_STORAGE_MODE=$mode; STREAM=ssh-stdin; NO_SFTP=1"
 echo 'Protecting PocketTTS, its voice profiles, Hugging Face caches, Ollama models and project sources.'
-exec ssh -T -p 10022 \
+ssh -T -p 10022 \
   -o ConnectTimeout=8 -o ServerAliveInterval=15 -o ServerAliveCountMax=3 \
   -o StrictHostKeyChecking=yes \
   dclar@100.68.37.106 \
