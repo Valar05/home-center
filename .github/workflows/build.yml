@@ -144,6 +144,7 @@ jobs:
         run: |
           set -euo pipefail
           bash tools/campaigns/ritsu_sticky_copy_to_downloads.test.sh
+          bash tools/campaigns/refreshmedia.test.sh
           bash -n tools/campaigns/ritsu_sticky_install_real.sh
           ! grep -Eq '^[[:space:]]*termux-open[[:space:]]' tools/campaigns/ritsu_sticky_install_real.sh
           echo RITSU_DOWNLOADS_NO_AUTOLAUNCH=PASS
