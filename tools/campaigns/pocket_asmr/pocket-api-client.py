@@ -4,7 +4,7 @@ import argparse, hashlib, json, os, re, sys, time, urllib.request, wave
 from pathlib import Path
 from io import BytesIO
 
-API = os.environ.get("POCKET_ASMR_URL", "http://127.0.0.1:10215").rstrip("/")
+API = os.environ.get("POCKET_ASMR_URL", "https://thecauldron-2.tail574fdf.ts.net:8443").rstrip("/")
 TOKEN = Path(os.environ.get("POCKET_ASMR_TOKEN", str(Path.home()/".config/pocket-asmr/token")))
 HOME = Path.home()/".local/share/pocket-asmr"
 VOICES = ("whisper","normal","amused","happy","somber","upset")
