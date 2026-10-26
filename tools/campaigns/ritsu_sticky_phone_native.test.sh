@@ -15,6 +15,8 @@ bootstrap="$dir/ritsu_sticky_onepaste.sh"
 bash -n "$bootstrap"
 grep -Fq "doctor|build|install|phone)" "$bootstrap"
 grep -Fq "ritsu_sticky_phone_native.sh" "$bootstrap"
+grep -Fq 'key-pass env:RITSU_STICKY_SIGNING_PASSWORD' "$signer"
+echo PHONE_SIGNING_PASSWORD_FILE_EOF_REGRESSION=FIXED_SCRIPT
 echo PHONE_NATIVE_SCRIPT_SYNTAX=PASS
 echo PHONE_NATIVE_BUILD_AND_SIGN_GATES=PASS
 echo PHONE_PHYSICAL_INSTALL=UNVERIFIED
