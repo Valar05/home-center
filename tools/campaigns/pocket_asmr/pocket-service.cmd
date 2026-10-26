@@ -26,12 +26,15 @@ if errorlevel 1 (
 echo INSTALLED=1
 exit /b 0
 :on
+schtasks /change /tn "%TASK%" /enable >nul
+if errorlevel 1 exit /b 2
 schtasks /run /tn "%TASK%"
 if errorlevel 1 exit /b 2
 echo GATEWAY=start_requested
 exit /b 0
 :off
-schtasks /end /tn "%TASK%"
+schtasks /end /tn "%TASK%" >nul 2>nul
+schtasks /change /tn "%TASK%" /disable >nul
 if errorlevel 1 exit /b 2
 echo GATEWAY=stop_requested
 exit /b 0
