@@ -1,0 +1,26 @@
+name: Pose Vision Script Validation
+on:
+  push:
+    paths:
+      - 'tools/pose_vision_probe.py'
+      - 'tools/install_pose_vision.ps1'
+      - 'tools/run_pose_vision.sh'
+      - '.github/workflows/pose-vision-validation.yml'
+  workflow_dispatch:
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Python and shell parsing
+        run: |
+          python3 -m py_compile tools/pose_vision_probe.py
+          bash -n tools/run_pose_vision.sh
+      - name: Validate PowerShell parser
+        shell: pwsh
+        run: |
+          $tokens=$null
+          $errors=$null
+          [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path tools/install_pose_vision.ps1),[ref]$tokens,[ref]$errors) | Out-Null
+          if($errors.Count -gt 0) { $errors | Format-List | Out-String | Write-Error; exit 1 }
+          'POWERSHELL_PARSE=PASS'
