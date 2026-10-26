@@ -4,7 +4,7 @@
 set -Eeuo pipefail
 umask 077
 mode="${1:-doctor}"
-case "$mode" in doctor|build|install|phone) ;; *) echo "BOOTSTRAP_FAIL=invalid_mode"; exit 2;; esac
+case "$mode" in doctor|build|install|phone|install-media) ;; *) echo "BOOTSTRAP_FAIL=invalid_mode"; exit 2;; esac
 pin="${RITSU_STICKY_PIN:?Set RITSU_STICKY_PIN to the verified 40-character Git commit}"
 [[ "$pin" =~ ^[a-f0-9]{40}$ ]] || { echo "BOOTSTRAP_FAIL=invalid_pin"; exit 2; }
 for executable in git bash; do
@@ -41,7 +41,9 @@ head="$(git -C "$work" rev-parse HEAD)"
 [ "$head" = "$pin" ] || { echo "BOOTSTRAP_FAIL=revision_mismatch";exit 2; }
 echo "SOURCE_SHA_VERIFIED=$head"
 echo "ISOLATED_BRANCH=$(git -C "$work" symbolic-ref --short -q HEAD || echo detached)"
-if [ "$mode" = doctor ]; then
+if [ "$mode" = install-media ]; then
+  bash "$work/tools/campaigns/ritsu_refreshmedia_install.sh"
+elif [ "$mode" = doctor ]; then
   bash "$work/tools/campaigns/ritsu_sticky_campaign.sh" doctor
   echo "BOOTSTRAP_RESULT=SOURCE_AND_STICKY_PREFLIGHT_VERIFIED"
   echo "APK_RELEASE=BLOCKED_PENDING_EXISTING_SIGNING_IDENTITY"
