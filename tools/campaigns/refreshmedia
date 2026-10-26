@@ -1,0 +1,60 @@
+#!/data/data/com.termux/files/usr/bin/bash
+# RITSU_REFRESHMEDIA_MANAGED_V1
+# Request Android MediaStore indexing for shared user files.
+# No arguments: Downloads only. One argument: an explicit file or directory.
+set -Eeuo pipefail
+fail(){ printf 'MEDIA_REFRESH=FAIL REASON=%s\n' "$1" >&2; exit 2; }
+[ "$#" -le 1 ] || fail expected_zero_or_one_path
+if [ "$#" -eq 0 ]; then
+  [ -d "$HOME/storage/downloads" ] || fail downloads_unavailable_run_termux_setup_storage
+  target="$HOME/storage/downloads"
+else
+  target="$1"
+fi
+[ -e "$target" ] || fail file_or_directory_does_not_exist
+canonical="$(realpath "$target")" || fail path_cannot_resolve
+# Scan only the owner's Android shared storage, never Termux-private data.
+case "$canonical" in
+  /storage/*|/sdcard/*) ;;
+  *)
+    if [ "${GITHUB_ACTIONS:-}" != true ] ||
+       [ "${RITSU_REFRESHMEDIA_TEST_MODE:-}" != 1 ] ||
+       [ -z "${RITSU_REFRESHMEDIA_TEST_SHARED_ROOT:-}" ]; then
+      fail refused_private_or_nonshared_path
+    fi
+    shared="$(realpath "$RITSU_REFRESHMEDIA_TEST_SHARED_ROOT")"
+    case "$canonical" in "$shared"|"$shared"/*) ;; *) fail refused_nonshared_test_path;; esac
+    ;;
+esac
+if [ -d "$canonical" ]; then
+  recursive=1
+elif [ -f "$canonical" ]; then
+  recursive=0
+else
+  fail not_a_regular_file_or_directory
+fi
+if [ "${GITHUB_ACTIONS:-}" = true ] && [ "${RITSU_REFRESHMEDIA_TEST_MODE:-}" = 1 ]; then
+  scanner="${RITSU_REFRESHMEDIA_TEST_SCANNER:-}"
+  [ -n "$scanner" ] && [ -x "$scanner" ] ||
+    fail termux_api_unavailable_install_termux_api_package_and_companion
+else
+  scanner="$(command -v termux-media-scan || true)"
+  [ -n "$scanner" ] && [ -x "$scanner" ] ||
+    fail termux_api_unavailable_install_termux_api_package_and_companion
+fi
+command -v timeout >/dev/null 2>&1 || fail missing_timeout_from_coreutils
+printf 'MEDIA_REFRESH_TARGET=%s\n' "$canonical"
+if [ "$recursive" = 1 ]; then
+  if timeout 35 "$scanner" -r "$canonical"; then
+    echo 'MEDIA_REFRESH=REQUESTED_RECURSIVE'
+  else
+    fail termux_api_scan_failed_or_timed_out
+  fi
+else
+  if timeout 35 "$scanner" "$canonical"; then
+    echo 'MEDIA_REFRESH=REQUESTED_FILE'
+  else
+    fail termux_api_scan_failed_or_timed_out
+  fi
+fi
+echo 'MEDIASTORE_VISIBILITY=UNVERIFIED_ANDROID_FILE_PICKER_MAY_REQUIRE_REOPEN'
