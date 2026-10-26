@@ -55,10 +55,23 @@ PY
 sample(){
  step=sample
  python - "$HERE/pocket-api-client.py" <<'PY'
-import sys,pathlib,subprocess,tempfile
+import sys,pathlib,tempfile,time,importlib.util
 path=pathlib.Path(tempfile.gettempdir())/"pocket-asmr-probe.txt"
 path.write_text("Hello. This is Ritsu, checking the Pocket ASMR audio connection.",encoding="utf-8")
-subprocess.run([sys.executable,sys.argv[1],"asmr",str(path),"--voice","whisper"],check=True)
+spec=importlib.util.spec_from_file_location("pocket_api_client",sys.argv[1])
+module=importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+job=module.submit(str(path),"whisper")
+print("CANARY_JOB="+job,flush=True)
+for attempt in range(36):
+ time.sleep(5)
+ if module.check(job):
+  module.pull(job)
+  print("CANARY_AUDIO=DOWNLOADED",flush=True)
+  break
+else:
+ raise SystemExit("CANARY=INCOMPLETE JOB="+job+" (resume: pocket status "+job+")")
+
 PY
 }
 case "${1:-go}" in
@@ -72,7 +85,7 @@ case "${1:-go}" in
   pair
   doctor
   sample
-  echo 'POCKET_GO=SUBMITTED_SAMPLE; use pocket status JOB and pocket pull JOB' ;;
+  echo 'POCKET_GO=PASS_CANARY_DOWNLOADED' ;;
  pair) pair ;;
  doctor) doctor ;;
  on|off|service-status)
