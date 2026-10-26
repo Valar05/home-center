@@ -8,7 +8,9 @@ $head=(& git -C $repo rev-parse HEAD).Trim()
 if ($LASTEXITCODE -ne 0) { throw 'HEAD_UNAVAILABLE' }
 Write-Output "RESOLVED_REPO=$repo"
 Write-Output "EXECUTION_DIR=$repo"
-Write-Output "BRANCH=$((& git -C $repo branch --show-current).Trim())"
+$branchLines=@(& git -C $repo branch --show-current)
+$branch=if($branchLines.Count -and $branchLines[0]) {[string]$branchLines[0]} else {'DETACHED'}
+Write-Output "BRANCH=$branch"
 Write-Output "HEAD=$head"
 $dir=Join-Path $env:LOCALAPPDATA 'RitsuControlBridge\pairing-inspection'
 New-Item -ItemType Directory -Force -Path $dir | Out-Null
