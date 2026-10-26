@@ -29,7 +29,7 @@ ritsupair -Mode Status
 ritsupair -Mode Doctor
 ```
 
-`ritsupair` verifies THECAULDRON's own Tailscale address, reads the **existing** local-link device token without printing it, checks the correct service with a bearer health request, then opens a **masked** local Windows Forms dialog. Only the user can reveal the token locally and enter it in the installed Android app. No password/token is copied to clipboard, regenerated, sent to cloud, or placed in receipts. `Status` does a bounded authenticated service check without showing the token. `Doctor` checks wiring and presence without touching credentials. `-Mode Remove` (run on the original helper) removes only the owned profile block, preserving other profile content.
+`ritsupair` verifies THECAULDRON's own Tailscale address, reads the **existing** local-link device token without printing it, checks the correct service with a bearer health request, then opens a **masked** local Windows Forms dialog. If the Windows self-probe cannot reach the gateway, **Show still opens the dialog with a visible UNVERIFIED warning** so the owner can enter the existing token without any credential rotation. The stricter Status mode reports the failed check. Only the user can reveal the token locally and enter it in the installed Android app. No password/token is copied to clipboard, regenerated, sent to cloud, or placed in receipts. `Status` does a bounded authenticated service check without showing the token. `Doctor` checks wiring and presence without touching credentials. `-Mode Remove` (run on the original helper) removes only the owned profile block, preserving other profile content.
 
 ## Operational boundaries
 
@@ -43,3 +43,11 @@ ritsupair -Mode Doctor
 ## Source of truth
 
 The [live Campaign Etiquette](https://docs.google.com/document/d/1wntegQjw7238dmGqbvs9TQmlsp4uXdXw7_wPciNx6sI/edit) is required at each campaign checkpoint. This document describes the direct-local Ritsu app only.
+
+## 2026-10-26 live deployment observations
+
+- PowerShell alias installed remotely on THECAULDRON into the owner's existing Windows PowerShell profile under their redirected Documents location, with source pinned at `1286797a9b36dba1484b67f910eb713f53c0921a`.
+- Existing local-link device token and Tailscale CLI were present; the profile did not previously exist, so the installer created only its managed alias block.
+- The initial read-only authenticated status test failed. Later read-only checks found a 401 challenge from the loopback listener `127.0.0.1:19647`, Tailscale's own `100.68.37.106` address, and a Serve mapping from TCP `19646` to `127.0.0.1:19647`. A Windows self-HTTP request to the tailnet IP timed out, so **phone-side transport acceptance is NOT proven**. Do not mislabel an offline status result as a missing token or rotate credentials in response.
+- A minimal GUI fallback was authored and CI-tested at commit `bf7d5a088d1c0b6d9c81ced3c0530667d154f937`. The Windows installer verified the older managed helper against the earlier pinned source, preserved a backup of those exact bytes, staged the new script and verified its checksum. Remote receipt `RITSUPAIR_OFFLINE_PAIR_DIALOG_FALLBACK=INSTALLED` and `RITSUPAIR_UPGRADE=PASS`. No unrelated profile text was modified and no service was restarted.
+- Next action: open a new Windows PowerShell and run `ritsupair`, reveal the token locally, and enter it in Android Ritsu Control. Actual pairing is not established until a phone-origin authenticated request receives the expected status/reply. This is deliberately distinct from the Windows's own unsuccessful tailnet self-probe.
