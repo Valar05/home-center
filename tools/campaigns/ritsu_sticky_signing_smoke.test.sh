@@ -21,10 +21,10 @@ keytool -genkeypair -noprompt -storetype PKCS12 \
   -keystore "$temp/test-only.p12" -storepass "$secret" -keypass "$secret" \
   >/dev/null 2>&1
 "$sdk/build-tools/35.0.0/zipalign" -f -p 4 "$src" "$temp/aligned.apk"
-"$sdk/build-tools/35.0.0/apksigner" sign \
+RITSU_STICKY_SMOKE_PASSWORD="$secret" "$sdk/build-tools/35.0.0/apksigner" sign \
   --ks "$temp/test-only.p12" --ks-type PKCS12 \
   --ks-key-alias ritsusticky \
-  --ks-pass "pass:$secret" --key-pass "pass:$secret" \
+  --ks-pass env:RITSU_STICKY_SMOKE_PASSWORD --key-pass env:RITSU_STICKY_SMOKE_PASSWORD \
   --out "$temp/test-signed.apk" "$temp/aligned.apk"
 "$sdk/build-tools/35.0.0/apksigner" verify --verbose --print-certs \
   "$temp/test-signed.apk" > "$temp/cert.log"
