@@ -4,6 +4,7 @@ set "ROOT=%USERPROFILE%\PocketASMRGit\tools\campaigns\pocket_asmr"
 set "HOME_DIR=%USERPROFILE%\PocketASMR"
 set "TOKEN=%USERPROFILE%\PocketASMR\gateway-token.txt"
 set "TASK=Ritsu Pocket ASMR Gateway"
+set "PYTHON=%USERPROFILE%\AppData\Local\Programs\Python\Python310\python.exe"
 if /I "%~1"=="install" goto install
 if /I "%~1"=="on" goto on
 if /I "%~1"=="off" goto off
@@ -17,12 +18,9 @@ if not exist "%TOKEN%" (
   py -3 -c "import pathlib,secrets;pathlib.Path(r'%USERPROFILE%\PocketASMR\gateway-token.txt').write_text(secrets.token_urlsafe(32))"
   if errorlevel 1 exit /b 2
 )
-schtasks /query /tn "%TASK%" >nul 2>nul
-if errorlevel 1 (
-  schtasks /create /f /sc ONLOGON /tn "%TASK%" /tr "py -3 %ROOT%\asmr_api.py" /rl LIMITED
-  if errorlevel 1 exit /b 2
-  schtasks /change /tn "%TASK%" /disable >nul
-)
+if not exist "%PYTHON%" (echo BLOCKED: Python interpreter absent & exit /b 2)
+schtasks /create /f /sc ONLOGON /tn "%TASK%" /tr "%PYTHON% %ROOT%\asmr_api.py" /rl LIMITED
+if errorlevel 1 exit /b 2
 echo INSTALLED=1
 exit /b 0
 :on
