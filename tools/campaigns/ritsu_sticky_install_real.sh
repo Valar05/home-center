@@ -133,16 +133,13 @@ sha256sum "$out" > "$out.sha256"
 echo "SIGNED_APK_CERT_SHA256=$signed"
 echo "SIGNED_APK_SHA256=$(sha256sum "$out" | cut -d ' ' -f 1)"
 echo "SIGNED_APK=$out"
-if [ -d "$HOME/storage/downloads" ] && [ -w "$HOME/storage/downloads" ];then
-  cp "$out" "$HOME/storage/downloads/Ritsu-Sticky-v0.18.0.apk"
-  echo "DOWNLOADS_APK=$HOME/storage/downloads/Ritsu-Sticky-v0.18.0.apk"
-else
-  echo "DOWNLOADS_NOT_GRANTED=APK_REMAINS_PRIVATE"
-fi
+# The user asked for a saved APK in Downloads, not Android intent opening.
+# Only the dedicated copy-only handoff publishes into shared storage.
+RITSU_STICKY_SIGNED_APK="$out" \
+  bash "$repo/tools/campaigns/ritsu_sticky_copy_to_downloads.sh"
 echo "PREVIOUS_PACKAGE_DATA=UNTOUCHED"
 echo "NEW_PACKAGE_PAIRING=SEPARATE_REQUIRES_USER_PAIRING"
 echo "KEEP_SIGNING_KEY_PRIVATE_FOR_FUTURE_UPDATES=$private"
-if command -v termux-open >/dev/null 2>&1;then
-  termux-open --view --content-type application/vnd.android.package-archive "$out" || true
-fi
+echo "APK_SAVED_TO_DOWNLOADS=YES"
+echo "INSTALLER_OPENED=NO"
 echo "ANDROID_INSTALL_APPROVAL_REQUIRED=1"
