@@ -42,6 +42,13 @@ token_fetch() {
   chmod 600 "$TOKEN"
 }
 case "${1:-doctor}" in
+  install)
+    install_dir="${PREFIX:-$HOME/.local}/bin"
+    mkdir -p "$install_dir"
+    printf '#!/usr/bin/env bash\\nexec bash "%s" "$@"\\n' "$HERE/pocket-termux.sh" > "$install_dir/pocket"
+    chmod 700 "$install_dir/pocket"
+    echo "INSTALLED $install_dir/pocket"
+    ;;
   on)
     sync_git
     service install
@@ -75,7 +82,7 @@ case "${1:-doctor}" in
     exec python "$HERE/pocket-api-client.py" "$@"
     ;;
   *)
-    echo "Usage: pocket {on|off|doctor|service-status|asmr [asmr.txt] [--voice whisper]|status JOB|pull JOB}" >&2
+    echo "Usage: pocket {install|on|off|doctor|service-status|asmr [asmr.txt] [--voice whisper]|status JOB|pull JOB}" >&2
     exit 2
     ;;
 esac
