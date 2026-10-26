@@ -10,6 +10,22 @@ export POCKET_ASMR_URL="https://thecauldron-2.tail574fdf.ts.net:8443"
 export POCKET_ASMR_TOKEN="${POCKET_ASMR_TOKEN:-$HOME/.config/pocket-asmr/token}"
 run_remote() { "$CAULDRON" cmd /d /s /c "$1"; }
 case "${1:-doctor}" in
+ pair)
+  mkdir -p "$HOME/.config/pocket-asmr"
+  umask 077
+  tmp="$(mktemp)"
+  trap 'rm -f "$tmp"' EXIT
+  "$CAULDRON" 'cmd /d /c type C:\Users\dclar\PocketASMR\gateway-token.txt' > "$tmp"
+  python - "$tmp" "$HOME/.config/pocket-asmr/token" <<'PY'
+import pathlib,re,sys,os
+data=pathlib.Path(sys.argv[1]).read_text(errors="replace").splitlines()
+matches=[line.strip() for line in data if re.fullmatch(r"[A-Za-z0-9_-]{40,60}",line.strip())]
+if len(matches)!=1: raise SystemExit("BLOCKED: unexpected credential output, token not saved")
+pathlib.Path(sys.argv[2]).write_text(matches[0]+"\n")
+os.chmod(sys.argv[2],0o600)
+print("TOKEN=stored_privately")
+PY
+  ;;
  install)
   mkdir -p "${PREFIX:-$HOME/.local}/bin"
   printf '#!/bin/sh\nexec bash "%s/pocket-termux.sh" "$@"\n' "$HERE" > "${PREFIX:-$HOME/.local}/bin/pocket"
@@ -24,11 +40,21 @@ case "${1:-doctor}" in
   run_remote "call $CAMPAIGN/pocket-service.cmd $mode"
   ;;
  doctor)
-  [[ -f "$HERE/pocket-api-client.py" && -f "$HERE/asmr.txt" ]] || { echo "FILES=missing"; exit 2; }
-  echo "FILES=present"
-  echo "REMOTE_LAUNCHER=$CAULDRON"
-  run_remote "call $CAMPAIGN/pocket-service.cmd status"
-  echo "API_TRANSPORT=Tailscale_Serve_HTTPS_8443"
+  echo "API=$POCKET_ASMR_URL"
+  python - "$POCKET_ASMR_URL" "$HOME/.config/pocket-asmr/token" <<'PY'
+import pathlib,sys,urllib.request,urllib.error
+url,path=sys.argv[1:]
+headers={}
+p=pathlib.Path(path)
+if p.is_file(): headers["Authorization"]="Bearer "+p.read_text().strip()
+try:
+ r=urllib.request.urlopen(urllib.request.Request(url+"/asmr/health",headers=headers),timeout=12)
+ print("HTTP_STATUS",r.status,"BODY",r.read(500).decode(errors="replace"))
+except urllib.error.HTTPError as e:
+ print("HTTP_STATUS",e.code,"BODY",e.read(500).decode(errors="replace"))
+ if e.code==401: print("NEXT=pocket_pair")
+ sys.exit(2)
+PY
   ;;
  asmr)
   shift
