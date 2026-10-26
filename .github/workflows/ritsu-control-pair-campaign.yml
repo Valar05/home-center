@@ -60,3 +60,22 @@ jobs:
             }
           }
           if(-not $ok){throw 'Missing token did not block'}
+
+  direct-tailnet-pair-alias:
+    runs-on: windows-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          lfs: false
+          sparse-checkout: |
+            tools/campaigns
+          sparse-checkout-cone-mode: true
+      - name: Validate current Ritsu local-link pairing, alias and profile preservation
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File tools/campaigns/ritsu_local_pair_cauldron.test.ps1
+          if($LASTEXITCODE -ne 0){throw 'Ritsu pairing alias tests failed'}
+          Write-Output 'RITSUPAIR_DIRECT_WINDOWS_CI=PASS'
