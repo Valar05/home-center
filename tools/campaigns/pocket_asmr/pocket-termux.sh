@@ -2,9 +2,8 @@
 # Phone-side Pocket ASMR operator; Git pulls campaign to Windows through existing SSH.
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-HOST="${POCKET_SSH_HOST:-thecauldron-2.tail574fdf.ts.net}"
-PORT="${POCKET_SSH_PORT:-10022}"
-SSH_OPTS=(-o BatchMode=yes -o ConnectTimeout=8 -o ConnectionAttempts=1 -p "$PORT")
+HOST="${POCKET_SSH_HOST:-cauldron}"
+SSH_OPTS=(-o BatchMode=yes -o ConnectTimeout=8 -o ConnectionAttempts=1)
 REMOTE="C:/Users/dclar/PocketASMRGit"
 FOLDER="$REMOTE/tools/campaigns/pocket_asmr"
 REPO="https://github.com/Valar05/home-center.git"
@@ -70,7 +69,7 @@ case "${1:-doctor}" in
     command -v python >/dev/null || { echo "BLOCKED: Termux python missing"; exit 2; }
     [[ -f "$HERE/pocket-api-client.py" && -f "$HERE/asmr.txt" ]] || { echo "BLOCKED: Git campaign missing files"; exit 2; }
     echo "FILES=present"
-    echo "SSH_TARGET=$HOST:$PORT"
+    echo "SSH_ALIAS=$HOST"
     service status
     python -c 'import json,urllib.request,os,pathlib; t=pathlib.Path(os.environ["POCKET_ASMR_TOKEN"]).read_text().strip();r=urllib.request.Request(os.environ["POCKET_ASMR_URL"]+"/asmr/health",headers={"Authorization":"Bearer "+t});print(json.load(urllib.request.urlopen(r,timeout=8)))'
     ;;
