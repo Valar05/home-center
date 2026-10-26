@@ -88,7 +88,10 @@ printf 'SOURCE_APK=%s\nDOWNLOADS_APK=%s\nSOURCE_SHA256=%s\nDOWNLOADS_SHA256=%s\n
 
 # Index ONLY the verified final file after atomic publication.
 # Media scanning is secondary and cannot invalidate or undo an APK copy.
-media_helper="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/refreshmedia"
+case "${BASH_SOURCE[0]}" in
+  */*) media_helper="${BASH_SOURCE[0]%/*}/refreshmedia" ;;
+  *) media_helper="./refreshmedia" ;;
+esac
 if [ -f "$media_helper" ]; then
   if bash "$media_helper" "$dest"; then
     echo 'DOWNLOADS_MEDIA_REFRESH=REQUESTED'
