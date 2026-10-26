@@ -122,7 +122,7 @@ function VerifyGateway([string]$token){
    }finally{$res.Dispose()}
  }catch{throw 'RITSUPAIR_BLOCKED=local_gateway_unreachable_or_token_rejected'}
 }
-function ShowPairing([string]$token){
+function ShowPairing([string]$token,[string]$gatewayState){
  Add-Type -AssemblyName System.Windows.Forms
  Add-Type -AssemblyName System.Drawing
  Guard ([Threading.Thread]::CurrentThread.GetApartmentState() -eq
@@ -134,7 +134,7 @@ function ShowPairing([string]$token){
  $title=New-Object Windows.Forms.Label
  $title.SetBounds(18,16,655,43)
  $title.Text='On your phone: Ritsu Control > More > Pair THECAULDRON.'+
-     [Environment]::NewLine+'Enter this direct Tailscale address and phone-only token.'
+     [Environment]::NewLine+$(if($gatewayState -eq 'VERIFIED'){'Server answered; enter the private address and token.'}else{'Server not responding: token shown for setup, connection is UNVERIFIED.'})
  $window.Controls.Add($title)
  $address=New-Object Windows.Forms.TextBox
  $address.SetBounds(18,77,652,28)
@@ -175,8 +175,11 @@ switch($Mode){
    Write-Output 'PHONE_PAIRED=NOT_ESTABLISHED_BY_SERVER_STATUS'
  }
  'Show'{
-   $secret=LoadToken;VerifyGateway $secret
-   ShowPairing $secret;$secret=$null
+   $secret=LoadToken
+   $gateway='VERIFIED'
+   try{VerifyGateway $secret}catch{$gateway='UNAVAILABLE'}
+   ShowPairing $secret $gateway;$secret=$null
+   Write-Output ('RITSUPAIR_GATEWAY='+$gateway)
    Write-Output 'RITSUPAIR_DIALOG=CLOSED'
    Write-Output 'PHONE_PAIRED=REQUIRES_ANDROID_CONFIRMATION'
  }
