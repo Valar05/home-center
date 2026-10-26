@@ -39,8 +39,17 @@ src="${RITSU_STICKY_INPUT:-$HOME/storage/downloads/Ritsu-Sticky-v018-unsigned.ap
 expected="${RITSU_STICKY_EXPECTED_SHA256:-e57a0edf08a01ae0132acef0a885436a5e6c8a02109630ac2279acaf73d97811}"
 [[ "$expected" =~ ^[0-9a-f]{64}$ ]] || { echo "STICKY_FAIL=invalid_expected_APK_hash";exit 2; }
 if [ -n "${RITSU_STICKY_NATIVE_SOURCE_SHA:-}" ];then
-  [ "$(git rev-parse HEAD)" = "$RITSU_STICKY_NATIVE_SOURCE_SHA" ] ||
-    { echo "STICKY_FAIL=source_revision_mismatch";exit 2; }
+  currentHead="$(git rev-parse HEAD)"
+  if [ "$currentHead" != "$RITSU_STICKY_NATIVE_SOURCE_SHA" ]; then
+    # A signing-only fix may run after a successful earlier native compile.
+    # The Android app's committed tree must be IDENTICAL, not just its version.
+    verifiedTree="${RITSU_STICKY_NATIVE_APP_TREE:-}"
+    [[ "$verifiedTree" =~ ^[a-f0-9]{40}$ ]] ||
+      { echo "STICKY_FAIL=resume_app_tree_proof_missing";exit 2; }
+    [ "$(git rev-parse HEAD:android/ritsu-control/app)" = "$verifiedTree" ] ||
+      { echo "STICKY_FAIL=resume_app_tree_changed_rebuild_required";exit 2; }
+    echo "RESUME_SIGNING_APP_TREE_IDENTICAL=$verifiedTree"
+  fi
   case "$(realpath "$src")" in
     "$HOME/.local/share/ritsu-campaigns/sticky-phone-v018/sources/$RITSU_STICKY_NATIVE_SOURCE_SHA/android/ritsu-control/app/build/outputs/apk/release/app-release-unsigned.apk") ;;
     *) echo "STICKY_FAIL=not_native_android_build_output";exit 2;;
@@ -104,8 +113,14 @@ aligned="$private/unsigned-aligned.apk"
 zipalign -f -p 4 "$src" "$aligned"
 out="$private/Ritsu-Sticky-v0.18.0.apk"
 temp="$private/staging-signed.apk"
-apksigner sign --ks "$key" --ks-type PKCS12 --ks-key-alias ritsusticky \
-  --ks-pass "file:$secretfile" --key-pass "file:$secretfile" \
+# A one-line file is consumed by apksigner's PasswordRetriever when it
+# reads the store password; a second key-password read of the SAME file reaches
+# EOF. Supply both via a scoped child-process environment variable instead.
+# Never put the password in argv, the Git repository, or output logs.
+RITSU_STICKY_SIGNING_PASSWORD="$(cat "$secretfile")" apksigner sign \
+  --ks "$key" --ks-type PKCS12 --ks-key-alias ritsusticky \
+  --ks-pass env:RITSU_STICKY_SIGNING_PASSWORD \
+  --key-pass env:RITSU_STICKY_SIGNING_PASSWORD \
   --out "$temp" "$aligned"
 apksigner verify --verbose --print-certs "$temp" > "$private/apk-verify.txt"
 signed="$(sed -n 's/.*Signer #1 certificate SHA-256 digest: //p' "$private/apk-verify.txt" | head -n 1)"
