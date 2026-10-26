@@ -18,7 +18,7 @@ sha256sum "$src" > "$src.sha256"
 # Hide optional Android inspectors so the fixture can exercise file delivery
 # deterministically without trying to masquerade as an actual signed APK.
 mkdir -p "$tmp/bin"
-for cmd in bash basename unzip sha256sum wc tr head awk grep mktemp cp mv rm; do
+for cmd in bash basename unzip sha256sum wc tr head awk grep mktemp cp mv rm cmp; do
   ln -s "$(command -v "$cmd")" "$tmp/bin/$cmd"
 done
 export PATH="$tmp/bin"
