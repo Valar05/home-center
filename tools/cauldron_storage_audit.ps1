@@ -64,7 +64,15 @@ function RemoveGuarded([string]$path,[string]$label) {
  )
  foreach($p in $protected){
   $p=[IO.Path]::GetFullPath($p).TrimEnd('\')
-  if($full -ieq $p -or $full.StartsWith($p+'\',[StringComparison]::OrdinalIgnoreCase)){throw "REFUSING protected path: $full"}
+  if($full -ieq $p -or $full.StartsWith($p+'\\',[StringComparison]::OrdinalIgnoreCase)){
+   $allowedChatterVenv=@(
+    (Join-Path $homePath 'workspace\\ritsu-chatterbox-turbo\\.venv'),
+    (Join-Path $homePath 'workspace\\ritsu-chatterbox-turbo\\venv')
+   )
+   if(-not (@($allowedChatterVenv|Where-Object{$full -ieq [IO.Path]::GetFullPath($_).TrimEnd('\\')}).Count -gt 0)){
+    throw "REFUSING protected path: $full"
+   }
+  }
  }
  if($PSCmdlet.ShouldProcess($full,"Delete $label")){
   try{Remove-Item -LiteralPath $full -Force -Recurse -ErrorAction Stop;Say "REMOVED: $label ($full)"}
