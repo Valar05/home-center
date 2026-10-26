@@ -68,7 +68,10 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if not self.auth(): return
-        if self.path == "/asmr/health":\n            try: return self.answer(200, {"gateway":"online","upstream":query("GET","/v1/health")})\n            except Exception: return self.answer(503, {"gateway":"online","upstream":"unavailable"})\n        m = re.fullmatch(r"/asmr/jobs/([a-f0-9]{16,80})(/audio)?", self.path)
+        if self.path == "/asmr/health":
+            try: return self.answer(200, {"gateway":"online","upstream":query("GET","/v1/health")})
+            except Exception: return self.answer(503, {"gateway":"online","upstream":"unavailable"})
+        m = re.fullmatch(r"/asmr/jobs/([a-f0-9]{16,80})(/audio)?", self.path)
         if not m: return self.answer(404, {"error": "Not found"})
         job, audio = m.groups()
         try:
