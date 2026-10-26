@@ -13,7 +13,7 @@ grep -Fq 'APK_PROVENANCE=LOCALLY_COMPILED_ON_PHONE' "$signer"
 grep -Fq 'LOCAL_SIGNING_IDENTITY' "$signer" || grep -Fq 'SIGNING_KEY=REUSED' "$signer"
 bootstrap="$dir/ritsu_sticky_onepaste.sh"
 bash -n "$bootstrap"
-grep -Fq "doctor|build|install|phone)" "$bootstrap"
+grep -Fq "doctor|build|install|phone|install-media)" "$bootstrap"
 grep -Fq "ritsu_sticky_phone_native.sh" "$bootstrap"
 grep -Fq 'key-pass env:RITSU_STICKY_SIGNING_PASSWORD' "$signer"
 echo PHONE_SIGNING_PASSWORD_FILE_EOF_REGRESSION=FIXED_SCRIPT
