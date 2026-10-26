@@ -26,3 +26,22 @@ after="$(cd "$original" && sha256sum tools/* | sha256sum | cut -d ' ' -f 1)"
 echo "ISOLATED_BOOTSTRAP_CI=PASS"
 echo "ORIGINAL_FILES_PRESERVED=PASS"
 echo "ARBITRARY_CWD_AND_RERUN=PASS"
+
+mkdir -p "$root/mock-termux/bin"
+(
+  cd "$root/elsewhere"
+  PREFIX="$root/mock-termux" PATH="$root/mock-termux/bin:$PATH" \
+  RITSU_STICKY_PIN="$pin" RITSU_STICKY_WORKDIR="$root/isolated" \
+    bash "$source/tools/campaigns/ritsu_sticky_onepaste.sh" install-media
+)
+[ -x "$root/mock-termux/bin/refreshmedia" ] || {
+  echo 'REFRESHMEDIA_BOOTSTRAP=NOT_INSTALLED'; exit 2;
+}
+cmp "$root/isolated/tools/campaigns/refreshmedia" "$root/mock-termux/bin/refreshmedia"
+(
+  cd "$root/elsewhere"
+  PREFIX="$root/mock-termux" PATH="$root/mock-termux/bin:$PATH" \
+  RITSU_STICKY_PIN="$pin" RITSU_STICKY_WORKDIR="$root/isolated" \
+    bash "$source/tools/campaigns/ritsu_sticky_onepaste.sh" install-media
+)
+echo 'REFRESHMEDIA_ONEPASTE_INSTALL_PATH=PASS'
