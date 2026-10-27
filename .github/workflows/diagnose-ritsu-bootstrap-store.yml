@@ -1,0 +1,27 @@
+name: Diagnose Ritsu Bootstrap Store
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm --prefix functions ci
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Check Cloud Firestore registration records by hash only
+        run: |
+          TOKEN="$(gcloud auth print-access-token)"
+          for HASH in c5515bf3cd846736e733272ad4aa2494220ffd31ac4df7cb551d24c9c02ef7c4 7ea5cc9690371174107b937d662c51f809f7be51c005d7dc92535bc5d18336ce; do
+            STATUS="$(curl --silent --output /dev/null --write-out '%{http_code}' --header "Authorization: Bearer $TOKEN" "https://firestore.googleapis.com/v1/projects/home-center-dclar/databases/(default)/documents/ritsuWarmVoiceBootstrap/$HASH")"
+            echo "registration record query HTTP $STATUS"
+          done

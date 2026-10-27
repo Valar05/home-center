@@ -1,4 +1,5 @@
 const crypto = require('node:crypto');
+const {assertHomeCenterIdentityAllowed} = require('./home_center_access_policy');
 const {
   createHomeCenterMcpServer,
   createDelegatedHomeCenterAuthContext,
@@ -288,6 +289,7 @@ async function ensureVeniceMcpAccessToken(context) {
   if (context.mcpAccessToken && Number(context.mcpAccessTokenExpiresAtMs || 0) > now + 30 * 1000) return context.mcpAccessToken;
   await ensureVeniceRuntimeAuthorized(context);
   const email = safeText(context.delegatingUser, 320).toLowerCase();
+  assertHomeCenterIdentityAllowed(email, 'Venice Home Center delegation');
   if (!email) {
     const err = new Error('Venice delegated Home Center user is not configured.');
     err.status = 500;

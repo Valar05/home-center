@@ -1,0 +1,48 @@
+{
+  "version": "ritsu-pocket-repertoire-v2-20261023",
+  "engine": "Pocket TTS locally cloned state; no Qwen synthesis",
+  "defaultProfile": "normal",
+  "legacyProfile": "warm-v1",
+  "delivery": "phone",
+  "profiles": {
+    "normal": {
+      "status": "selected_default",
+      "voiceStateSha256": "043D61FCA49B175C88A41734D1A659ED9655D39BDE8BD5FA2038AFC35D7FBB36",
+      "pitchSemitones": -1,
+      "source": "desire_02_ocean_dream_minus1_formant_preserved_pocket",
+      "clone": "fullset-20261023/warm-minus1.safetensors"
+    },
+    "whisper": {
+      "status": "approved",
+      "voiceStateSha256": "B99EB2E16612E8B8C3E3A96F74BD631676CC79071779537FD94C564DB5796BE5",
+      "pitchSemitones": -1,
+      "source": "approved_whisper"
+    },
+    "amused": {
+      "status": "approved",
+      "voiceStateSha256": "6F878B05D4227E10B43BB0AA8A87C6CBDF909B9CCA0F4A845E28C6541F17D9FE",
+      "pitchSemitones": -1,
+      "source": "laughing_00044"
+    },
+    "happy": {
+      "status": "official_pitch_baked_pocket",
+      "voiceStateSha256": "050A501F67F83A3876183BEFD649806265B844BFC13BB21D967FC37C0456427A",
+      "pitchSemitones": -1,
+      "source": "ex04_happy_00112_pitch_minus1_formant_preserved_reference",
+      "alias": "delighted",
+      "clone": "fullset-20261023/delighted-minus1.safetensors"
+    },
+    "somber": {
+      "status": "selected_for_somber_and_upset",
+      "voiceStateSha256": "51C7B4F55361082ED23ABB56E1F7E9878D4CA26DA5740349858BDBDF2A4CA0BD",
+      "pitchSemitones": -1,
+      "source": "personal_affirmation"
+    },
+    "upset": {
+      "status": "alias_only_no_separate_clone",
+      "aliasOf": "somber",
+      "pitchSemitones": -1,
+      "voiceStateSha256": "51C7B4F55361082ED23ABB56E1F7E9878D4CA26DA5740349858BDBDF2A4CA0BD"
+    }
+  }
+}

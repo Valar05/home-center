@@ -1,0 +1,79 @@
+name: Publish Ritsu Repertoire to Home Center MCP (Node24)
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: Type publish
+        required: true
+        type: string
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: deploy-home-center-mcp
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: ${{ inputs.confirm == 'publish' }}
+    runs-on: ubuntu-latest
+    env:
+      PROJECT: home-center-dclar
+      REGION: us-central1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/heads/main
+          fetch-depth: 0
+      - name: Enforce canonical clean main checkout
+        run: |
+          mkdir -p .git/info
+          printf '%s\n' 'experiments/ascii-kinesis/001-backward-stairs/backward-stairs-ascii.mp4 -filter -diff -merge' 'experiments/ascii-kinesis/v2-locomotion-002-overhead-support-handoff/overhead-support-handoff.mp4 -filter -diff -merge' >> .git/info/attributes
+          git reset --hard HEAD
+          git clean -fd
+          sh tools/assert_home_center_mcp_main_release.sh "$GITHUB_WORKSPACE"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - run: npm --prefix functions ci
+      - name: Verify six-profile Home Center operation registration
+        run: |
+          node --check functions/home_center_mcp.js
+          node --check functions/index.js
+          node --test functions/ritsu_voice_api.test.js
+          node - <<'JS'
+          const fs=require('fs');
+          const m=fs.readFileSync('functions/home_center_mcp.js','utf8');
+          const a=require('./functions/ritsu_voice_api');
+          const ops=a.entryList();
+          if(!ops['ritsu.voice.profiles'] || Object.keys(require('./functions/ritsu_voice_profiles.json').profiles).length!==6) throw Error('Six-profile voice registry missing');
+          if(!m.includes('ritsuVoiceOperationEntries()')||!m.includes('ritsuVoiceOperationRunOperation('))throw Error('MCP registration missing');
+          JS
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Prepare isolated Node24 package
+        run: |
+          cp -a functions "$RUNNER_TEMP/ritsu-mcp-node24"
+          node - "$RUNNER_TEMP/ritsu-mcp-node24/package.json" <<'JS'
+          const fs=require('fs'),p=process.argv[2],j=JSON.parse(fs.readFileSync(p,'utf8'));
+          j.engines={node:'24'};
+          fs.writeFileSync(p,JSON.stringify(j,null,2)+'\n');
+          JS
+      - name: Publish Home Center MCP with preserved configuration and secrets
+        env:
+          HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64: ${{ secrets.HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64 }}
+        run: |
+          MANIFEST_SHA="$(node -e 'process.stdout.write(require("./contracts/home-center-public-tool-manifest.v1.json").manifestSha256)')"
+          gcloud functions deploy homeCenterMcp \
+            --gen2 --project="$PROJECT" --region="$REGION" \
+            --runtime=nodejs24 --source="$RUNNER_TEMP/ritsu-mcp-node24" \
+            --entry-point=homeCenterMcp --trigger-http --allow-unauthenticated \
+            --timeout=300s --memory=1Gi --cpu=1 \
+            --set-env-vars="HOME_CENTER_MCP_EXTENDED_TOOLS=true,HOME_CENTER_SOURCE_REPOSITORY=Valar05/home-center,HOME_CENTER_SOURCE_COMMIT=$GITHUB_SHA,HOME_CENTER_SOURCE_REF=refs/heads/main,HOME_CENTER_PUBLIC_MANIFEST_SHA256=$MANIFEST_SHA,HOME_CENTER_GITHUB_ADMIN_ENABLED=true,HOME_CENTER_GITHUB_ADMIN_OWNERS=Valar05,HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64=${HOME_CENTER_GITHUB_ADMIN_USER_PROFILES_B64},COMMAND_CENTER_MCP_URL=https://us-central1-home-center-dclar.cloudfunctions.net/commandCenterMcp/mcp,TVTROPER_RETRIEVAL_URL=https://tvtroper-retrieval-vxybsaualq-uc.a.run.app,BLENDER_WORKSPACE_PROJECT=home-center-dclar,BLENDER_WORKSPACE_QUEUE=blenderWorkspace,BLENDER_WORKSPACE_REGION=us-central1" \
+            --set-secrets="GOOGLE_OAUTH_CLIENT_ID=GOOGLE_OAUTH_CLIENT_ID:latest,GOOGLE_OAUTH_CLIENT_SECRET=GOOGLE_OAUTH_CLIENT_SECRET:latest,GITHUB_TOKEN=GITHUB_TOKEN:latest,GITHUB_BOOTSTRAP_TOKEN=GITHUB_BOOTSTRAP_TOKEN:latest,CARTESIA_API_KEY=CARTESIA_API_KEY:latest,GEMINI_API_KEY=GEMINI_API_KEY:latest,GITHUB_APP_ID=GITHUB_APP_ID:latest,GITHUB_APP_INSTALLATION_ID=GITHUB_APP_INSTALLATION_ID:latest,GITHUB_APP_PRIVATE_KEY=GITHUB_APP_PRIVATE_KEY:latest"
+      - name: Verify deployed Home Center MCP
+        run: gcloud functions describe homeCenterMcp --gen2 --project="$PROJECT" --region="$REGION" --format='value(state,serviceConfig.uri)'

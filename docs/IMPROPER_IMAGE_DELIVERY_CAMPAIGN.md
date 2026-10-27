@@ -49,6 +49,72 @@ Installed commands:
 - `fortress-image-accept [PROMPT] [SEED] [plain|fleshpunk]` — live end-to-end canary.
 - `fortress-image-ui` — optional Termux:API dialog; successful results may open from public Pictures storage when that convenience surface is available.
 
+## Deterministic preset CLI
+
+The neutral `fortress-image` command is now a deterministic CLI compiler in
+front of the same canonical renderer. It does not create a second provider and
+does not expose ComfyUI beyond THECAULDRON loopback.
+
+Preset metadata lives in `tools/fortress_image_presets.json`. THECAULDRON
+execution lives in the versioned `tools/fortress_image_cauldron.ps1`; the
+phone copies that exact runtime over the already-verified SSH Axis on each
+control invocation.
+
+Primary commands:
+
+- `fortress-image presets` — show named presets and their checkpoint/LoRA stack.
+- `fortress-image setup --preset graphic` — download only the managed Hugging
+  Face assets needed by that preset and verify pinned byte length + SHA-256
+  before replacing any destination file.
+- `fortress-image setup --preset all` — provision every currently managed
+  asset. It does not fetch arbitrary model URLs.
+- `fortress-image models --preset graphic` — inspect selected model files and
+  hashes on THECAULDRON.
+- `fortress-image doctor --preset graphic` — verify localhost ComfyUI plus the
+  preset's checkpoint and LoRAs.
+- `fortress-image render "PROMPT" --preset graphic` — render one image.
+- `fortress-image sheet "PROMPT" --preset graphic --count 9 --cols 3` — render
+  sequential source images and compose a labeled contact sheet. Each cell is
+  labeled with its seed; rerender that seed as a single image for deterministic
+  selection.
+- `fortress-image plan "PROMPT" --preset graphic` — print the exact compiled
+  settings without contacting THECAULDRON.
+- Repeat `--lora filename.safetensors@MODEL@CLIP` to append installed SD 1.5
+  LoRAs to a preset. At most four LoRAs are allowed per render.
+
+When no seed is supplied to `render` or `sheet`, the CLI derives it from the
+normalized prompt. This intentionally keeps the default seed stable across
+preset changes so A/B comparisons change the renderer stack rather than both
+the stack and the noise. The legacy `generate "PROMPT" [SEED]` command keeps
+its prior positional behavior.
+
+Current presets:
+
+| Preset | Purpose |
+| --- | --- |
+| `plain` | Legacy SD 1.5 baseline and transport regression target. |
+| `fleshpunk` | Legacy Fleshpunk compatibility behavior. |
+| `dream` | Clean DreamShaper 8 baseline with no LoRA. |
+| `dream-photo` | DreamShaper 8 plus restrained Detail Tweaker for realistic editorial work. |
+| `graphic` | Modern realistic graphic/editorial rendering. |
+| `graphic-thirst` | Adult-only glamorous female editorial/graphic portrait direction. |
+| `fleshpunk-plus` | DreamShaper 8 + Detail Tweaker + the existing Fleshpunk LoRA at reduced strength. |
+
+The managed Hugging Face assets are pinned, not floating:
+
+- `Lykon/DreamShaper` revision
+  `c6565f0dbcab40e8eb7be2d1e54f49cfc5415127`,
+  `DreamShaper_8_pruned.safetensors`, SHA-256
+  `879db523c30d3b9017143d56705015e15a2cb5628762c11d086fed9538abd7fd`.
+- `OedoSoldier/detail-tweaker-lora` revision
+  `d75b249ea117a948e11649bbce7b828117d3ab89`,
+  `add_detail.safetensors`, SHA-256
+  `47aaaf0d2945ca937151d61304946dd229b3f072140b85484bc93e38f2a6e2f7`.
+
+Contact sheets render source cells one at a time. This is deliberate for
+THECAULDRON's constrained GPU memory: contact-sheet breadth must not become
+latent batch VRAM pressure.
+
 ## Acceptance invariant
 
 A run is accepted only when all of these are true:

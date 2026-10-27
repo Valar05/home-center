@@ -1,0 +1,31 @@
+name: Ritsu Framework Dependency Repair
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/ritsu-framework-dependency
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Pin Cloud Functions framework and regenerate consistent lock
+        run: |
+          npm --prefix functions install --package-lock-only --save-exact --no-audit --no-fund @google-cloud/functions-framework@3.4.6
+          npm --prefix functions ci
+          node -e "require('./functions/index.js'); console.log('INDEX_LOAD_OK')"
+          node -e "require.resolve('@google-cloud/functions-framework', {paths:['./functions']});console.log('EXPLICIT_FRAMEWORK_READY')"
+          git status --short
+      - name: Commit validated dependency repair on its branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add functions/package.json functions/package-lock.json
+          if git diff --cached --quiet; then echo 'No dependency changes'; exit 1; fi
+          git commit -m 'Declare Functions Framework runtime explicitly for Ritsu Cloud Run'
+          git push origin HEAD:refs/heads/fix/ritsu-framework-dependency

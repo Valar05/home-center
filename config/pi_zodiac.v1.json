@@ -1,0 +1,27 @@
+{
+  "schema": "pi-zodiac.v1",
+  "epoch_date": "2026-09-16",
+  "epoch_timezone": "America/Chicago",
+  "epoch_provenance": {
+    "status": "INFERRED_REVERSIBLE",
+    "basis": "first marked date visible on Drew's supplied current PI paper tracker",
+    "commissioned_at": "2026-09-21",
+    "correction_rule": "Drew's explicit correction supersedes this inferred epoch"
+  },
+  "digit_stream": "pi_integer_then_fractional",
+  "calendar_rule": "one local calendar day advances one digit; missed/completed status does not shift sequence",
+  "ceremonial": true,
+  "predictive": false,
+  "signs": {
+    "0": {"name": "VOID", "question": "What should be absent today?", "hook": "Headcrab HC-003 no reminder, no clever filler"},
+    "1": {"name": "CRAB", "question": "What must Drew not fail to notice?", "hook": "Headcrab Attention Operator"},
+    "2": {"name": "FORK", "question": "What changes if I take the other branch seriously?", "hook": "framing-fidelity symmetry / alternative-path check"},
+    "3": {"name": "TRAP", "question": "What can I determine before asking a human?", "hook": "Ministry of Alarmingly Safe Traps"},
+    "4": {"name": "FRAME", "question": "What mission boundary must remain intact?", "hook": "Fortress Core mission kernel / cumulative constraint ledger"},
+    "5": {"name": "HAND", "question": "What bounded real action turns intent into observable state?", "hook": "Phone Hands / Computer Hands / commissioned body"},
+    "6": {"name": "SPIRAL", "question": "What did the last loop teach that changes this loop?", "hook": "operator-campaign continuation / bounded retry"},
+    "7": {"name": "JUDGE", "question": "What would reject this if it were trying to fool me?", "hook": "Regnet QA / Judgment-Jar review"},
+    "8": {"name": "LOOP", "question": "What keeps returning because it has not yet been made durable?", "hook": "Home Center persistence / archaeology / skill extraction"},
+    "9": {"name": "GATE", "question": "What still separates this from real delivery or acceptance?", "hook": "delivery-surface supremacy / completion gate"}
+  }
+}

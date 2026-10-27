@@ -1,3 +1,4 @@
+const {assertHomeCenterIdentityAllowed} = require('./home_center_access_policy');
 const {createHash, randomUUID} = require('node:crypto');
 const express = require('express');
 const {z} = require('zod/v4');
@@ -397,6 +398,7 @@ async function callerFromExtra(admin, extra) {
     throw err;
   }
   const email = safeText(data.email, 320).toLowerCase();
+  assertHomeCenterIdentityAllowed(email, 'She-Raw');
   return {authKind: 'home_center_mcp_oauth', tokenHash: shortHash(token, 24), actor: email || `mcp:${shortHash(token, 12)}`};
 }
 

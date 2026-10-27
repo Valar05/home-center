@@ -1,4 +1,5 @@
 const {createHash, randomBytes, randomUUID, createSign} = require('node:crypto');
+const {runRitsuCloudPairMcp} = require('./ritsu_cloud_pairing_mcp');
 const {Readable, Transform} = require('node:stream');
 const {pipeline} = require('node:stream/promises');
 const {Storage} = require('@google-cloud/storage');
@@ -33,6 +34,9 @@ const {renderAudioOperation, audioRenderStatusOperation, inspectAudioArtifactsOp
 const {recoverAudioRenderRegistrationOperation, linkDriveAudioToReaderStageOperation} = require('./audio_catalog_service');
 const {localVoiceOperationEntries, localVoiceOperationRunOperation} = require('./local_voice_farm_api');
 const {computerHandsOperationEntries, computerHandsOperationRunOperation} = require('./computer_hands_api');
+const {entryList: ritsuVoiceOperationEntries, runOperation: ritsuVoiceOperationRunOperation} = require('./ritsu_voice_api');
+const {entryList: ritsuChatCallbackOperationEntries, runOperation: ritsuChatCallbackRunOperation} = require('./ritsu_chat_callback_api');
+const {enqueuePhoneCommand, getPhoneCommand, listPhoneDevices} = require('./phone_hands_relay');
 const {browserNerveOperationEntries, browserNerveOperationRunOperation} = require('./browser_nerve_api');
 const {veniceBodyOperationEntries, veniceBodyOperationRunOperation} = require('./venice_body_router');
 const {veniceNerveOperationEntries, veniceNerveOperationRunOperation} = require('./venice_nerve_api');
@@ -86,13 +90,16 @@ const {
   registry: smsCalendarOperationRegistry,
   runOperation: smsCalendarOperationRunOperation,
 } = require('./sms_calendar_intake');
+const {assertHomeCenterIdentityAllowed} = require('./home_center_access_policy');
+const {registerHeadcrabReminderTools} = require('./headcrab_reminder_store');
+const {homeCenterIdentityStatusOperation, homeCenterIdentityRevokeOperation} = require('./home_center_identity_security');
 
 const DEFAULT_MCP_PUBLIC_BASE = 'https://us-central1-home-center-dclar.cloudfunctions.net/homeCenterMcp';
 const DEFAULT_MCP_AUTHORIZATION_SERVER_BASE = 'https://homecentermcp-vxybsaualq-uc.a.run.app';
 const MCP_PUBLIC_BASE = process.env.HOME_CENTER_MCP_PUBLIC_BASE || DEFAULT_MCP_PUBLIC_BASE;
 const MCP_AUTHORIZATION_SERVER_BASE = process.env.HOME_CENTER_MCP_AUTHORIZATION_SERVER_BASE || DEFAULT_MCP_AUTHORIZATION_SERVER_BASE;
-const HOME_CENTER_MCP_SERVER_VERSION = '0.3.0';
-const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-09-04.browser-nerve-action-surface-v1';
+const HOME_CENTER_MCP_SERVER_VERSION = '0.3.1';
+const HOME_CENTER_CONNECTOR_SCHEMA_REVISION = '2026-10-02.headcrab-durable-reminders-v1';
 const HOME_CENTER_REGISTRY_VERSION = HOME_CENTER_CONNECTOR_SCHEMA_REVISION;
 const HOME_CENTER_DIRECT_FILE_TOOLS = Object.freeze(['drive_ingest_file', 'storage_ingest_artifact']);
 const MCP_RESOURCE = `${MCP_AUTHORIZATION_SERVER_BASE}/mcp`;
@@ -166,14 +173,12 @@ function resolveOAuthGrant(resourceValue, scopeValue) {
 }
 const CREDIT_GATED_EMAILS = Object.freeze([
   'dclarke1005@gmail.com',
-  'junewren28@gmail.com',
   'timothypomeroy07@gmail.com',
 ]);
 const CREDIT_GATED_EMAIL_SET = new Set(CREDIT_GATED_EMAILS);
 
 const GITHUB_ADMIN_ALLOWED_EMAILS = Object.freeze([
   'dclarke1005@gmail.com',
-  'junewren28@gmail.com',
   'timothypomeroy07@gmail.com',
 ]);
 const GITHUB_ADMIN_ALLOWED_EMAIL_SET = new Set(GITHUB_ADMIN_ALLOWED_EMAILS);
@@ -181,6 +186,7 @@ const GITHUB_ADMIN_LEGACY_EMAIL = 'dclarke1005@gmail.com';
 
 function requireCreditGatedEmail(email, surface = 'credit-backed operation') {
   const clean = safeText(email, 320).toLowerCase();
+  assertHomeCenterIdentityAllowed(clean, surface);
   if (CREDIT_GATED_EMAIL_SET.has(clean)) return clean;
   const err = new Error(surface + ' is restricted to approved Home Center accounts.');
   err.status = 403;
@@ -197,6 +203,7 @@ async function requireCreditGatedContext({google, admin, googleClientId, googleC
 
 function requireGitHubAdminUser(user) {
   const email = safeText(user && user.email, 320).toLowerCase();
+  assertHomeCenterIdentityAllowed(email, 'GitHub Admin');
   if (GITHUB_ADMIN_ALLOWED_EMAIL_SET.has(email)) return email;
   const err = new Error('GitHub Admin is restricted to approved Home Center accounts.');
   err.status = 403;
@@ -600,10 +607,40 @@ function oauthResourceMatches(resource, requiredResource) {
   return homeCenterResources.has(resource) && homeCenterResources.has(requiredResource);
 }
 
+function isFullHomeCenterGoogleGrant(resource, tokens) {
+  if (!oauthResourceMatches(resource, MCP_RESOURCE)) return false;
+  const scopes = new Set(safeText(tokens && tokens.scope, 4096).split(/\s+/).filter(Boolean));
+  return !!(tokens && tokens.refresh_token) && MCP_REQUIRED_SCOPES.every((scope) => scopes.has(scope));
+}
+
+function selectHomeCenterGoogleTokens(embeddedTokens, canonicalData, resource = MCP_RESOURCE) {
+  const canonical = safeObject(canonicalData);
+  if (canonical.source === 'home_center_mcp_oauth' &&
+      isFullHomeCenterGoogleGrant(resource, canonical.tokens)) {
+    return safeObject(canonical.tokens);
+  }
+  return safeObject(embeddedTokens);
+}
+
+async function storeHomeCenterGoogleGrant(admin, email, resource, tokens) {
+  if (!isFullHomeCenterGoogleGrant(resource, tokens)) return false;
+  const fields = {
+    tokens,
+    email,
+    source: 'home_center_mcp_oauth',
+    authorizedAtMs: Date.now(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  };
+  await admin.firestore().collection('mcpGoogleGrants').doc(email).set(fields, {merge: true});
+  await admin.firestore().collection('googleToolTokens').doc(email).set(fields, {merge: true});
+  return true;
+}
+
 async function loadMcpAccessContext(admin, google, googleClientId, googleClientSecret, accessToken, requiredResource = MCP_RESOURCE) {
   const snap = await oauthCollection(admin, 'mcpOAuthAccessTokens').doc(tokenHash(accessToken)).get();
   if (!snap.exists) return null;
   const data = snap.data() || {};
+  assertHomeCenterIdentityAllowed(data.email, 'Home Center OAuth token');
   if (data.revokedAtMs || safeNumber(data.expiresAtMs, 0) <= Date.now()) {
     const err = new Error(data.revokedAtMs ? 'Home Center OAuth token was revoked. Reconnect the client.' : 'Home Center OAuth token expired. Reconnect the ChatGPT app.');
     err.status = 401;
@@ -618,20 +655,40 @@ async function loadMcpAccessContext(admin, google, googleClientId, googleClientS
     err.wwwAuthenticate = oauthChallenge();
     throw err;
   }
+  const email = safeText(data.email, 320).toLowerCase();
+  const canonicalRef = admin.firestore().collection('mcpGoogleGrants').doc(email);
+  const canonicalSnap = await canonicalRef.get();
+  let canonicalData = canonicalSnap.exists ? canonicalSnap.data() : null;
+  if (!canonicalData) {
+    const legacySnap = await admin.firestore().collection('googleToolTokens').doc(email).get();
+    canonicalData = legacySnap.exists ? legacySnap.data() : null;
+  }
+  let currentTokens = selectHomeCenterGoogleTokens(data.googleTokens, canonicalData, resource);
   const auth = googleOAuthClient(google, providerValue(googleClientId), providerValue(googleClientSecret));
-  auth.setCredentials(data.googleTokens || {});
-  auth.on('tokens', async (tokens) => {
-    const merged = {...(data.googleTokens || {}), ...tokens};
-    await snap.ref.set({googleTokens: merged, updatedAtMs: Date.now()}, {merge: true});
-    const email = safeText(data.email, 320).toLowerCase();
-    if (email) {
-      await admin.firestore().collection('googleToolTokens').doc(email).set({
-        tokens: merged,
-        email,
-        source: safeText(data.source, 80) || safeText(data.authKind, 80) || 'home_center_mcp_oauth',
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      }, {merge: true});
-    }
+  auth.setCredentials(currentTokens);
+  auth.on('tokens', (tokens) => {
+    const priorRefreshToken = currentTokens.refresh_token;
+    currentTokens = {...currentTokens, ...tokens};
+    void (async () => {
+      await snap.ref.set({googleTokens: currentTokens, updatedAtMs: Date.now()}, {merge: true});
+      if (!isFullHomeCenterGoogleGrant(resource, currentTokens)) return;
+      await admin.firestore().runTransaction(async (transaction) => {
+        const legacyRef = admin.firestore().collection('googleToolTokens').doc(email);
+        const [latest, legacy] = await Promise.all([
+          transaction.get(canonicalRef), transaction.get(legacyRef),
+        ]);
+        const canonical = latest.exists ? latest.data() || {} : {};
+        if (canonical.source !== 'home_center_mcp_oauth' ||
+            !canonical.tokens || canonical.tokens.refresh_token !== priorRefreshToken) return;
+        const update = {tokens: currentTokens, updatedAt: admin.firestore.FieldValue.serverTimestamp()};
+        transaction.set(canonicalRef, update, {merge: true});
+        const legacyData = legacy.exists ? legacy.data() || {} : {};
+        if (legacyData.source === 'home_center_mcp_oauth' &&
+            legacyData.tokens && legacyData.tokens.refresh_token === priorRefreshToken) {
+          transaction.set(legacyRef, update, {merge: true});
+        }
+      });
+    })().catch((err) => connectorLog('google_token_persist_failed', null, {error: safeText(err.message || String(err), 120)}));
   });
   return {
     user: {
@@ -675,6 +732,7 @@ async function createDelegatedHomeCenterAuthContext({
     err.status = 500;
     throw err;
   }
+  assertHomeCenterIdentityAllowed(email, 'delegated Home Center auth');
   const snap = await admin.firestore().collection('googleToolTokens').doc(email).get();
   if (!snap.exists) {
     const err = new Error('Google tools are not connected for the delegated Home Center account.');
@@ -745,12 +803,16 @@ async function googleIdentityFromToken(accessToken) {
     err.status = 401;
     throw err;
   }
+  assertHomeCenterIdentityAllowed(email, 'Google OAuth bearer');
   return {email, authKind: 'google_oauth_bearer'};
 }
 
 async function requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret) {
   const internal = internalHomeCenterAuthFromExtra(extra);
-  if (internal) return internal;
+  if (internal) {
+    assertHomeCenterIdentityAllowed(internal.user && internal.user.email, 'internal Home Center delegation');
+    return internal;
+  }
   const accessToken = bearerTokenFromExtra(extra);
   const proxied = await loadMcpAccessContext(admin, google, googleClientId, googleClientSecret, accessToken);
   if (proxied) return proxied;
@@ -1084,6 +1146,21 @@ async function commandCenterOperationRunOperation({google = null, admin = null, 
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
+
+  // Phone Hands is a Home Center-owned Firestore relay. Keep the legacy operation
+  // names for clients, but never route these calls through Command Center MCP.
+  const phoneOperation = operation.startsWith('command_center.') ? operation.slice('command_center.'.length) : operation;
+  if (['phone_hands.devices', 'phone_hands.enqueue', 'phone_hands.get'].includes(phoneOperation)) {
+    const email = safeText(context.user && context.user.email, 320).toLowerCase();
+    assertHomeCenterIdentityAllowed(email, 'Phone Hands');
+    const caller = {actor: email, ownerKey: 'owner_' + createHash('sha256').update(email).digest('hex').slice(0, 32)};
+    const result = phoneOperation === 'phone_hands.devices'
+      ? await listPhoneDevices(admin, caller)
+      : phoneOperation === 'phone_hands.enqueue'
+        ? await enqueuePhoneCommand(admin, caller, operationArgs)
+        : await getPhoneCommand(admin, caller, operationArgs);
+    return {operation, toolName, commandCenterMcpUrl: null, result};
+  }
 
   const bearerToken = bearerTokenFromExtra(extra);
 
@@ -5003,6 +5080,10 @@ function driveOperationRegistry() {
     cachePolicy: 'New bridge and simulation operations should be invokable through drive_operation so ChatGPT does not need a top-level MCP tool refresh for every backend code change. Cartesia TTS is a direct Home Center MCP provider operation; it must not be routed through Command Center jobs or workers.',
     operations: {
       'time.now': {summary: 'Return the current Home Center runtime time.', write: false, requiredScopes: [], input: {}},
+      'ritsu.cloud.pair.approve': {summary: 'Owner-approved pairing of Ritsu Control Android to Home Center cloud through this authenticated Home Center OAuth connection, without Termux credentials or the old app.', write: true, requiresRequestId: true, requiredScopes: [], input: {pairingId: 'new short-lived Ritsu Control pairing ID', code: 'Ritsu Control six-digit code', approved: 'boolean true', requestId: 'unique audit ID'}},
+      'ritsu.cloud.pair.status': {summary: 'Read whether the newly approved Ritsu Control app has claimed its Home Center cloud pairing credentials.', write: false, requiredScopes: [], input: {pairingId: 'new Ritsu Control pairing ID'}},
+      'security.identity_status': {summary: 'Read owner-only revocation status for an identity explicitly blocked by Home Center policy.', write: false, requiredScopes: [], input: {email: 'blocked Home Center email'}},
+      'security.revoke_identity': {summary: 'Owner-only fail-closed revocation of every Home Center credential, membership, delegated token, and paired phone device for an identity explicitly blocked by policy.', write: true, requiresRequestId: true, requiredScopes: [], input: {email: 'blocked Home Center email', approved: 'boolean true', requestId: 'string'}},
       ...artifactOperationEntries(),
       ...tvtroperOperationEntries(),
       ...blenderWorkspaceOperationEntries(),
@@ -5374,8 +5455,10 @@ function driveOperationRegistry() {
         requiredScopes: ['https://www.googleapis.com/auth/drive'],
         input: {fileId: 'string', newName: 'string', requestId: 'string', callerNote: 'optional string'},
       },
-      ...localVoiceOperationEntries(),
+
     ...computerHandsOperationEntries(),
+    ...ritsuVoiceOperationEntries(),
+    ...ritsuChatCallbackOperationEntries(),
     ...browserNerveOperationEntries(),
     ...veniceBodyOperationEntries(),
     ...veniceNerveOperationEntries(),
@@ -5961,9 +6044,22 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   }
   const registry = driveOperationRegistry();
   if (!registry.operations[operation]) throw Object.assign(new Error('Unsupported drive_operation operation: ' + operation), {status: 400});
+  if (operation === 'ritsu.cloud.pair.approve' || operation === 'ritsu.cloud.pair.status') {
+    requireCreditGatedEmail(user && user.email, operation);
+    const result = await runRitsuCloudPairMcp({admin,user,operation,args:safeObject(args.args)});
+    return {operation, registryVersion: registry.version, completed: result.ok === true, result};
+  }
   if (operation === 'time.now') {
     const now = new Date();
     return {operation, registryVersion: registry.version, completed: true, result: {utcIso: now.toISOString(), unixMs: now.getTime()}};
+  }
+  if (operation === 'security.identity_status') {
+    const result = await homeCenterIdentityStatusOperation({admin, user, args: safeObject(args.args)});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (operation === 'security.revoke_identity') {
+    const result = await homeCenterIdentityRevokeOperation({admin, user, args: safeObject(args.args)});
+    return {operation, registryVersion: registry.version, completed: result.fullyRevoked === true, result};
   }
   if (tvtroperOperationEntries()[operation]) {
     const result = await tvTroperRetrievalOperation({google, args: safeObject(args.args)});
@@ -5974,9 +6070,14 @@ async function driveOperationRunOperation({google, admin, auth, user, extra = nu
   delete operationArgs.type;
   delete operationArgs.toolName;
   delete operationArgs.args;
-  if (localVoiceOperationEntries()[operation]) {
+  if (ritsuVoiceOperationEntries()[operation]) {
     requireCreditGatedEmail(user && user.email, operation);
-    const result = await localVoiceOperationRunOperation({admin, user, operation, args: operationArgs});
+    const result = await ritsuVoiceOperationRunOperation({admin, user, operation, args: operationArgs});
+    return {operation, registryVersion: registry.version, completed: true, result};
+  }
+  if (ritsuChatCallbackOperationEntries()[operation]) {
+    requireCreditGatedEmail(user && user.email, operation);
+    const result = await ritsuChatCallbackRunOperation({admin, user, operation, args: operationArgs});
     return {operation, registryVersion: registry.version, completed: true, result};
   }
   if (computerHandsOperationEntries()[operation]) {
@@ -6478,6 +6579,15 @@ function createHomeCenterMcpServer({google, admin, googleClientId, googleClientS
   const server = new McpServer({
     name: 'home-center-drive-bridge',
     version: HOME_CENTER_MCP_SERVER_VERSION,
+  });
+
+  registerHeadcrabReminderTools(server, {
+    admin,
+    google,
+    z,
+    textResult,
+    securitySchemes: MCP_OAUTH_SECURITY_SCHEMES,
+    requestUserContext: async (extra) => requestGoogleContext(extra, google, admin, googleClientId, googleClientSecret),
   });
 
   server.registerTool('health', {
@@ -7913,12 +8023,14 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         res.redirect(redirectWithParams(stateData.redirectUri, {error: 'access_denied', error_description: 'verified_google_email_required', state: stateData.state}));
         return;
       }
+      assertHomeCenterIdentityAllowed(email, 'Home Center OAuth sign-in');
       const allowedEmails = Array.isArray(stateData.allowedEmails) ? stateData.allowedEmails.map((value) => safeText(value, 320).toLowerCase()) : null;
       if (allowedEmails && !allowedEmails.includes(email)) {
         await stateSnap.ref.delete();
         res.redirect(redirectWithParams(stateData.redirectUri, {error: 'access_denied', error_description: 'grounded_motion_email_not_allowed', state: stateData.state}));
         return;
       }
+      await storeHomeCenterGoogleGrant(admin, email, safeText(stateData.resource, 1200) || MCP_RESOURCE, tokens);
       if (stateData.browserHandoff) {
         await stateSnap.ref.set({
           googleTokens: tokens,
@@ -7952,7 +8064,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       res.redirect(redirectWithParams(stateData.redirectUri, {code, state: stateData.state}));
     } catch (err) {
       connectorLog('google_callback_error', req, {error: safeText(err.message || String(err), 300)});
-      res.status(500).send(err.message || String(err));
+      res.status(err.status || 500).send(err.message || String(err));
     }
   });
 
@@ -8002,6 +8114,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         return;
       }
       const stateData = stateSnap.data() || {};
+      assertHomeCenterIdentityAllowed(stateData.email, 'Home Center OAuth handoff');
       if (stateData.handoffRedirectUrl && safeNumber(stateData.expiresAtMs, 0) > Date.now()) {
         connectorLog('handoff_complete_replay_redirect', req, {clientIdPrefix: safeText(stateData.clientId, 80).slice(0, 28), redirectHost: redirectHost(stateData.redirectUri), oauthFlowId: stateData.oauthFlowId || '', chatgptConnector: !!stateData.chatgptConnector, emailHash: tokenHashPrefix(stateData.email)});
         res.redirect(stateData.handoffRedirectUrl);
@@ -8040,7 +8153,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       res.redirect(handoffRedirectUrl);
     } catch (err) {
       connectorLog('handoff_complete_error', req, {error: safeText(err.message || String(err), 300)});
-      res.status(500).send(err.message || String(err));
+      res.status(err.status || 500).send(err.message || String(err));
     }
   });
 
@@ -8062,6 +8175,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
           return;
         }
         const refreshData = refreshSnap.data() || {};
+        assertHomeCenterIdentityAllowed(refreshData.email, 'Home Center OAuth refresh');
         const refreshResource = safeText(req.body && req.body.resource, 1200);
         const boundRefreshResource = safeText(refreshData.resource, 1200) || MCP_RESOURCE;
         if (refreshData.clientId !== clientId || refreshData.revokedAtMs) {
@@ -8105,6 +8219,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
         return;
       }
       const data = codeSnap.data() || {};
+      assertHomeCenterIdentityAllowed(data.email, 'Home Center OAuth token exchange');
       await codeSnap.ref.delete();
       if (safeNumber(data.expiresAtMs, 0) <= Date.now() || data.clientId !== clientId || data.redirectUri !== redirectUri) {
         connectorLog('token_invalid_grant', req, {clientIdPrefix: safeText(data.clientId || clientId, 80).slice(0, 28), redirectHost: redirectHost(redirectUri), oauthFlowId: data.oauthFlowId || '', chatgptConnector: !!data.chatgptConnector, reason: 'expired_client_or_redirect_mismatch'});
@@ -8156,7 +8271,7 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
       res.json({access_token: accessToken, refresh_token: refreshToken, token_type: 'Bearer', expires_in: 3300, scope: issuedScopes.join(' ')});
     } catch (err) {
       connectorLog('token_error', req, {error: safeText(err.message || String(err), 300)});
-      res.status(500).json({error: 'server_error', error_description: err.message || String(err)});
+      res.status(err.status || 500).json({error: err.status === 403 ? 'access_denied' : 'server_error', error_description: err.message || String(err)});
     }
   });
 
@@ -8227,4 +8342,4 @@ function createHomeCenterMcpApp({google, admin, googleClientId = () => '', googl
   return app;
 }
 
-module.exports = {mcpRequestMountedPath, oauthResourceMatches, TVTROPER_OPERATION_REGISTRY_VERSION, tvtroperOperationEntries, tvTroperRetrievalOperation, resolveOAuthGrant, GROUNDED_MOTION_MCP_RESOURCE, GROUNDED_MOTION_MCP_SCOPE, linkArtifactReviewSuccessorOperation, recordArtifactReviewOperation, materializeReceiptArtifactsOperation, artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, driveIngestFileOperation, driveIngestFileOperationWithUpload, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, materializeSitesSourceVersionOperation, shareDriveFolderOperation, safeSitesSourceRepositoryUrl, safeSitesSourceCommit, safeSitesSourceBranch, safeShareEmail, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, createDelegatedHomeCenterAuthContext, registeredHomeCenterTools, callRegisteredHomeCenterTool, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};
+module.exports = {isFullHomeCenterGoogleGrant, selectHomeCenterGoogleTokens, storeHomeCenterGoogleGrant, mcpRequestMountedPath, oauthResourceMatches, TVTROPER_OPERATION_REGISTRY_VERSION, tvtroperOperationEntries, tvTroperRetrievalOperation, resolveOAuthGrant, GROUNDED_MOTION_MCP_RESOURCE, GROUNDED_MOTION_MCP_SCOPE, linkArtifactReviewSuccessorOperation, recordArtifactReviewOperation, materializeReceiptArtifactsOperation, artifactTransportPreflightOperation, homeCenterReleaseIdentity, artifactTransportStatusOperation, homeCenterHealthPayload, homeCenterReadinessPayload, homeCenterCapabilitiesPayload, operationRegistrySummary, CREDIT_GATED_EMAILS, requireCreditGatedEmail, GITHUB_ADMIN_ALLOWED_EMAILS, requireGitHubAdminUser, HOME_CENTER_MCP_SERVER_VERSION, HOME_CENTER_CONNECTOR_SCHEMA_REVISION, HOME_CENTER_REGISTRY_VERSION, HOME_CENTER_DIRECT_FILE_TOOLS, driveOperationRegistry, uploadVerifiedArtifact, createHomeCenterMcpApp, createHomeCenterMcpServer, createDriveFolderOperation, createGoogleDocOperation, appendGoogleDocOperation, publishContextSnapshotOperation, driveIngestFileOperation, driveIngestFileOperationWithUpload, synthesizeCartesiaAudioArtifactOperation, cartesiaVoicesOperation, createSheetOperation, updateSheetValuesOperation, importXlsxWorkbookOperation, readDriveBinaryChunkOperation, materializeSitesSourceVersionOperation, shareDriveFolderOperation, safeSitesSourceRepositoryUrl, safeSitesSourceCommit, safeSitesSourceBranch, safeShareEmail, compareAudioIngestFileIds, ingestDriveAudioOperation, finalizeDriveAudioIngestBatchOperation, driveOperationRunOperation, driveWorkflowRunOperation, simulationOperationRunOperation, simulationOperationRegistry, droobiedooContextOperationEntries, loadDroobiedooContextIndex, searchDroobiedooContextIndex, runDroobiedooContextOperation, normalizeRecoveryOperation, summarizeRecoveryOperations, loadMcpAccessContext, createDelegatedHomeCenterAuthContext, registeredHomeCenterTools, callRegisteredHomeCenterTool, armoryReceiptOperation, armoryRecountOperation, armoryCasingOperation, renderAudioOperation, inspectAudioArtifactsOperation, githubAdminOperationEntries, githubAdminOperationRunOperation, createGitHubAppJwt};

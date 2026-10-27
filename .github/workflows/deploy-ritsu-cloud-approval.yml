@@ -1,0 +1,76 @@
+name: Deploy Ritsu Home Center Cloud Pairing Approval
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: Type deploy to authorize the isolated cloud pairing service
+        required: true
+        type: string
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: deploy-ritsu-home-center-cloud-approval
+  cancel-in-progress: false
+jobs:
+  deploy:
+    if: ${{ inputs.confirm == 'deploy' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      PROJECT: home-center-dclar
+      REGION: us-central1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/heads/main
+          fetch-depth: 0
+      - name: Require release source and enforce pairing policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          sh tools/assert_home_center_mcp_main_release.sh "$GITHUB_WORKSPACE"
+          node --check functions/index.js
+          bash -n tools/ritsu_cloud_pair_termux.sh
+          grep -q "exports.termuxPairingApproveHub" functions/index.js
+          grep -q "exports.termuxPairingStatusHub" functions/index.js
+          grep -q "requireTermuxHubAccess(req)" functions/index.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - run: npm --prefix functions ci
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Deploy authenticated Ritsu pairing approval (no old app or Windows)
+        shell: bash
+        run: |
+          set -euo pipefail
+          for entry in termuxPairingApproveHub termuxPairingStatusHub; do
+            gcloud functions deploy "$entry" \
+              --gen2 \
+              --project="$PROJECT" \
+              --region="$REGION" \
+              --runtime=nodejs22 \
+              --source="$GITHUB_WORKSPACE/functions" \
+              --entry-point="$entry" \
+              --trigger-http \
+              --allow-unauthenticated \
+              --timeout=30s
+          done
+      - name: Verify both endpoints reject missing Home Center bearer
+        shell: bash
+        run: |
+          set -euo pipefail
+          for entry in termuxPairingApproveHub termuxPairingStatusHub; do
+            url="https://$REGION-$PROJECT.cloudfunctions.net/$entry"
+            code="$(curl --silent --show-error --max-time 20 \
+              -o /dev/null -w '%{http_code}' \
+              -X POST -H 'Content-Type: application/json' -d '{}' "$url")"
+            echo "$entry unauthenticated_http=$code"
+            test "$code" = 401
+          done

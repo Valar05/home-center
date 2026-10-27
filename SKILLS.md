@@ -21,6 +21,66 @@ Procedure:
 
 Done: the deterministic audit, communication codec, and allowed work are evidenced; no invented interpretation was promoted into a safety fact; blocked external action remains blocked; support was not withdrawn merely because Drew was alone/distressed; no ledger exists unless a qualifying explicit refusal occurred.
 
+## 0.25. Headcrab Morning Checklist
+
+Trigger: Drew's first interaction during the local morning, or any later morning response while one or more morning checklist items remain unconfirmed.
+
+Checklist: `pills`, `food`, `inhaler`.
+
+Procedure:
+
+1. Resolve current local date/time when available. Do not fabricate it.
+2. Treat each local date as a fresh checklist day. Confirmation never carries into the next local calendar day.
+3. Before the ordinary answer, surface only the still-pending items in one compact line. This reminder is non-blocking: continue answering the user's actual request normally.
+4. Accept ordinary confirmations such as `pills done`, `ate`, `food done`, `used inhaler`, `all done`, and clear equivalents. Mark only what Drew actually confirmed.
+5. Continue surfacing remaining items on later morning turns until each is confirmed. Never require a special phrase.
+6. Once all three are confirmed for the local date, stop surfacing the checklist for that day.
+7. The deterministic state semantics live in `tools/headcrab_morning.py`. If a runtime persists checklist state, it must preserve the same reset/pending/completion semantics rather than inventing a parallel contract.
+8. This reminder must not block conversation, hijack the response, or suppress a higher-priority urgent reminder.
+
+Done: every pending morning item remains visible without blocking work, confirmed items disappear, and the next local day resets to all three pending.
+
+
+## 0.3. Headcrab Durable Obligation Loop
+
+Trigger: Drew states an obligation in ordinary language, asks Headcrab to remember something, or an already-captured obligation becomes timely.
+
+Examples: `call Cori at 6:30`, `I need to call the credit cards about hardship`, `don't let me forget the psychiatrist records`, `appointment at 1:30`.
+
+Procedure:
+
+1. Capture clear obligations into Home Center's durable reminder store. Do not require a magic phrase.
+2. **Untimed obligations are valid.** If Drew supplied no real date/time and no authoritative source supplies one, persist the obligation with no due time rather than inventing one.
+3. Timed obligations preserve the exact due time and timezone. Five minutes before due, treat them as actionable.
+4. On every conversational preflight where Headcrab state is available, read the durable unresolved stack and surface the smallest materially relevant item before ordinary response content.
+5. At or after due time, keep a timed obligation unresolved on later interactions until Drew explicitly confirms completion, cancellation, or a replacement time.
+6. Untimed obligations remain unresolved until Drew explicitly closes them; rank them behind due/today items but ahead of archaeology and decorative commentary when they are active human/admin commitments.
+7. Ordinary language closes or reschedules the loop. Never require IDs or special syntax from Drew; the assistant may use reminder IDs internally.
+8. Human commitments outrank project archaeology and decorative commentary.
+9. **Do not silently convert conversational reminders into scheduled automations or calendar events.** Scheduled delivery is a separate, explicit channel requested only when Drew asks for an alarm, scheduled reminder, recurring delivery, or future notification.
+10. The MCP runtime surface is `headcrab_remember`, `headcrab_reminders`, `headcrab_close_reminder`, and `headcrab_reschedule_reminder`. State is owner-scoped and persisted in Firestore.
+11. The deterministic Python timed-obligation reference in `tools/headcrab_obligations.py` remains valid for timing semantics; the Firestore store extends it to durable untimed conversational obligations.
+12. External alarms/notifications are delivery aids only. Durable unresolved state is authority and must survive a missed notification, another chat, or a process restart.
+13. A scheduled worker may mine Gmail for high-confidence obligations and write them into the same durable reminder ledger. The worker is intake, not delivery. It must skip ambiguous/promotional mail and must not create Calendar events merely because it found an obligation.
+14. Headcrab should emit an always-on attention pulse: obligation first, then stale email/calendar checkpoint, then an optional non-obligatory maintenance nudge. Maintenance suggestions must never become stored debt unless Drew explicitly adopts them.
+
+Done: Drew can add an obligation just by saying it, the obligation survives beyond the current chat, Headcrab can retrieve it during later conversation, and it disappears only after explicit completion/cancellation. No scheduled event is created unless Drew separately requests one.
+
+## 0.5. Operator Campaign Mandatory Dispatcher
+
+Trigger: Drew says `script campaign`, `campaign script`, `operator campaign`, `startup campaign`, `bootstrap campaign`, `campaign intro`, `campaign launcher`, `durable script`, asks for one reusable command with status/stop/resume/receipts, or otherwise commissions a reusable Termux/Android campaign surface.
+
+Procedure:
+
+1. **Before authoring any script**, read `skills/operator-campaign/SKILL.md` in full.
+2. Treat all trigger phrases above as aliases for the same Operator Campaign contract.
+3. Do not answer with a one-shot launcher if the request is campaign-shaped.
+4. The campaign must implement all materially applicable controls from the canonical skill, including stable run/resume/status/follow/stop/receipts, durable state/history, process isolation, liveness, idempotence, recovery, and clipboard-first success/failure receipts.
+5. If an existing campaign only partially satisfies the contract, update that same campaign rather than inventing a parallel launcher.
+6. Do not report a campaign ready until its campaign acceptance canary is satisfied.
+
+Done: the campaign request has been routed through the canonical Operator Campaign skill before implementation.
+
 ## Remaining local skills
 
 Read `SKILLS.base.md` in full for the preserved reusable procedures. During Manic Accessibility mode, this procedure has precedence over conflicting Venice completion/reviewer procedures. Outside this mode, `SKILLS.base.md` remains the normal local skill body.

@@ -1,0 +1,274 @@
+v2-contact-031-root-clock-custody-fork-running-release-repair
+PRINCIPLE=OBJECT RELEASE IS ORTHOGONAL TO ROOT MOTION
+REVISES=experiments/ascii-kinesis/v2-contact-002-root-clock-custody-fork/
+NEGATIVE_FIXTURE=experiments/ascii-kinesis/v2-contact-002-root-clock-custody-fork/
+SOURCE_CHANGE=false
+SOURCE=TSR asset 52578 | 584x468 RGBA | 52370 bytes | sha256=7aa238a5d3cb74646aa93659241a3f933caea45d7908a27e59fa56a477d33bf6
+SOURCE_TIMING=UNKNOWN | roles=POSE_REFERENCE + CONTACT_TOPOLOGY_REFERENCE
+RIGHTS=evidence-only; no source pixels, palette, costume, exact silhouette, choreography, tracing, or redistribution
+
+================================================================
+C031-K0 RUNNING_GATHER | FOURS | hold=3 | DERIVED_UAT_OPINION
+CUSTODY=A_HAND | CONTACT=HAND_OBJECT | ROOT=A_LOCAL | SUPPORT=RIGHT_DRIVE
+ROLE=Carrier already travels; rear hand owns the object while the stride remains primary.
+ARC=Root advances before throw preparation; object relation is local.
+
+
+
+
+          @
+          |
+          ---
+        ----|
+        -|-|--
+      // | |  -o
+     *    |
+          +
+         / \
+        /   \
+        /   \
+       /     \
+      /       \
+      /        \
+     R         \
+________________L_______________________________________________
+
+
+
+
+
+================================================================
+C031-K1 COUNTERROTATE_LOAD | TWOS | hold=2 | DERIVED_UAT_OPINION
+CUSTODY=A_HAND | CONTACT=HAND_OBJECT | ROOT=A_LOCAL | SUPPORT=LEFT_CATCH
+ROLE=Chest winds against travel while the catching leg accepts weight.
+ARC=Root continues right; rear-side object load does not freeze locomotion.
+
+
+
+
+               @
+        *-     |
+          --------
+            --- |
+             |- |
+             | |--
+              ||  --o
+              +
+             | \
+             |  \
+            |   \
+            |    \
+           /      \
+          /        \
+          /        \
+_________L__________R___________________________________________
+
+
+
+
+
+================================================================
+C031-K2 CROSSSTEP_CARRY | TWOS | hold=2 | DERIVED_UAT_OPINION
+CUSTODY=A_HAND | CONTACT=HAND_OBJECT | ROOT=A_LOCAL | SUPPORT=RIGHT_DRIVE
+ROLE=Cross-step carries the object past the torso without donating root authority to the hand.
+ARC=Pelvis overtakes the loaded hand; custody stays local.
+
+
+
+
+             *-    @
+               ----|
+                  |---
+                --- |
+                 |  |
+                 |\|
+                  ||\-
+                  +   -o
+                 | \
+                 |  \
+                |   \
+                |    \
+               |      \
+               |       \\
+              |          L
+______________R_________________________________________________
+
+
+
+
+
+================================================================
+C031-K3 WHIP_WINDOW | ONES | hold=1 | DERIVED_UAT_OPINION
+CUSTODY=A_HAND | CONTACT=HAND_OBJECT | ROOT=A_LOCAL | SUPPORT=LEFT_CATCH
+ROLE=Throw side whips forward after pelvis lead; opposite arm opens negative space.
+ARC=Hand-object anchor reaches release window while root velocity remains forward.
+
+
+
+
+                       @
+                       |       -*
+                      |--------
+                    --- |
+                   / |  |
+                  /  | |
+                 o    ||
+                      +
+                     | \
+                     |  \
+                    |   \
+                    |    \
+                   /      \
+                  /        \\
+                  /          R
+_________________L______________________________________________
+
+
+
+
+
+================================================================
+C031-K4 RELEASE_FORK | ONES | hold=1 | DERIVED_UAT_OPINION
+CUSTODY=FREE | CONTACT=NONE | ROOT=A_LOCAL | SUPPORT=RIGHT_DRIVE
+ROLE=Custody breaks at full directional commitment, not at a stop pose.
+ARC=A_HAND -> FREE is a hard causal fork; root clock remains continuous.
+
+
+
+
+                           @
+                           |
+                          |----       O
+                        --- |  -.--.o
+                      -- |  |
+                    o-   | |
+                          ||
+                          +
+                         | \
+                         |  \
+                        |   \
+                        |    \
+                       /      \
+                       /       \
+                      R        \
+________________________________L_______________________________
+
+
+
+
+
+================================================================
+C031-K5 RUN_THROUGH_RECOIL | TWOS | hold=3 | DERIVED_UAT_OPINION
+CUSTODY=FREE | CONTACT=NONE | ROOT=A_LOCAL | SUPPORT=LEFT_CATCH
+ROLE=Throw arm overshoots low while the next step catches the still-moving center of mass.
+ARC=Free object gains lead; shoulder recoil lags pelvis instead of reversing release.
+
+
+
+
+                                @
+                                |             O
+                           ---- |       .  .
+                         o-  | --
+                              |  --
+                              |  / \
+                               |/   \
+                               +     \
+                              / \     o
+                             /   \
+                             /    \
+                            /      \
+                           |        \
+                           |         \\
+                          |            R
+__________________________L_____________________________________
+
+
+
+
+
+================================================================
+C031-K6 OBJECT_OUTRUNS_BODY | TWOS | hold=3 | DERIVED_UAT_OPINION
+CUSTODY=FREE | CONTACT=NONE | ROOT=A_LOCAL | SUPPORT=RIGHT_DRIVE
+ROLE=Arm swing re-enters the run cycle while projectile separation keeps increasing.
+ARC=Carrier recovers on its own locomotor phase; object keeps independent clock.
+
+
+
+
+                                    @
+                                    |
+                                    ----              O
+                                 --- -|         .  .
+                                  \-- |
+                                 --\ |--
+                               o-  \ |  --o
+                                    +
+                                   | \
+                                   |  \
+                                  |   \
+                                  |    \
+                                 /      \
+                                /        \
+                               R          \
+___________________________________________L____________________
+
+
+
+
+
+================================================================
+C031-K7 RECOVERY_CROSSING | FOURS | hold=4 | DERIVED_UAT_OPINION
+CUSTODY=FREE | CONTACT=NONE | ROOT=A_LOCAL | SUPPORT=LEFT_CATCH
+ROLE=Recovery is another committed stride, not return-to-idle.
+ARC=Root exits right with asymmetry preserved; free object approaches frame exit.
+
+
+
+
+                                         @
+                                         |
+                                      ---|
+                                     / | ----
+                                    /  |   / \               O
+                                  o-    | /   \-       .  .
+                                        | /     -o
+                                         +
+                                        | \
+                                        |  \
+                                       |    \
+                                       |     \
+                                      /       \
+                                     /         \
+                                     /          \
+____________________________________L____________R______________
+
+
+
+
+
+================================================================
+C031-K8 RUNNING_EXIT | FOURS | hold=5 | DERIVED_UAT_OPINION
+CUSTODY=OUTSIDE | CONTACT=NONE | ROOT=A_LOCAL | SUPPORT=RIGHT_DRIVE
+ROLE=Object has left the frame; carrier continues with unresolved locomotor debt.
+ARC=Release is proven orthogonal to root motion because carrier never stops to complete it.
+
+
+
+
+                                               @
+                                               |
+                                              |---
+                                            ----|
+                                            -|- |
+                                          o- | |--
+                                              ||  --o
+                                              +
+                                             | \
+                                             |  \
+                                            |    \
+                                            |     \
+                                           /       \
+                                          /         \
+                                          /          L
+_________________________________________R______________________

@@ -7,11 +7,13 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const {CREDIT_GATED_EMAILS, requireCreditGatedEmail, createHomeCenterMcpApp, createDriveFolderOperation, createGoogleDocOperation} = require('./home_center_mcp');
+const {assertHomeCenterIdentityAllowed} = require('./home_center_access_policy');
 const {audioLibraryHandler} = require('./audio_library_api');
 const {createCommandCenterMcpApp} = require('./command_center_mcp');
 const {createPhoneHandsRelayHandler} = require('./phone_hands_relay');
 const {createLocalVoiceFarmHandler} = require('./local_voice_farm_api');
 const {createComputerHandsHandler} = require('./computer_hands_api');
+const {handler: createRitsuVoiceHandler} = require('./ritsu_voice_api');
 const {createBrowserNerveHandler} = require('./browser_nerve_api');
 const {createVeniceNerveHandler} = require('./venice_nerve_api');
 const {createSheRawMcpApp} = require('./she_raw_mcp');
@@ -109,7 +111,9 @@ async function requireUser(req) {
     err.status = 401;
     throw err;
   }
-  return admin.auth().verifyIdToken(match[1]);
+  const user = await admin.auth().verifyIdToken(match[1]);
+  assertHomeCenterIdentityAllowed(user && user.email, 'Home Center Firebase app');
+  return user;
 }
 
 async function requireSmokeUser(req) {
@@ -122,7 +126,9 @@ async function requireSmokeUser(req) {
   }
   const token = match[1];
   try {
-    return await admin.auth().verifyIdToken(token);
+    const user = await admin.auth().verifyIdToken(token);
+    assertHomeCenterIdentityAllowed(user && user.email, 'Home Center smoke endpoint');
+    return user;
   } catch (_) {
     const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
       headers: {Authorization: `Bearer ${token}`},
@@ -145,6 +151,7 @@ async function requireSmokeUser(req) {
       err.status = 401;
       throw err;
     }
+    assertHomeCenterIdentityAllowed(email, 'Home Center smoke endpoint');
     try {
       const user = await admin.auth().getUserByEmail(email);
       return {uid: user.uid, email};
@@ -193,6 +200,7 @@ async function requireGoogleOAuthAction(req) {
     err.status = 401;
     throw err;
   }
+  assertHomeCenterIdentityAllowed(email, 'Home Center Google OAuth action');
   let uid = '';
   try {
     const user = await admin.auth().getUserByEmail(email);
@@ -873,6 +881,7 @@ function oauthClient(redirectUri = 'postmessage') {
 
 async function storeGoogleToolTokens(uid, email, tokens, source) {
   const cleanEmail = safeText(email, 320).toLowerCase();
+  assertHomeCenterIdentityAllowed(cleanEmail, 'Home Center Google tool token storage');
   const payload = {
     tokens,
     email: cleanEmail,
@@ -888,6 +897,7 @@ async function storeGoogleToolTokens(uid, email, tokens, source) {
 }
 
 async function loadGoogleToolTokenData(uid, email = '') {
+  if (email) assertHomeCenterIdentityAllowed(email, 'Home Center Google tool token load');
   let snap = uid ? await userTokenRef(uid).get() : null;
   if ((!snap || !snap.exists) && email) {
     snap = await googleEmailTokenRef(email).get();
@@ -950,6 +960,7 @@ async function requireTermuxHubAccess(req) {
     throw err;
   }
   const data = snap.data() || {};
+  assertHomeCenterIdentityAllowed(data.email, 'Home Center hub token');
   if (data.revokedAtMs || Number(data.expiresAtMs || 0) <= Date.now()) {
     const err = new Error('Expired or revoked Home Center hub token.');
     err.status = 401;
@@ -960,6 +971,7 @@ async function requireTermuxHubAccess(req) {
 
 async function issueTermuxHubTokens(pairing, source = 'termux_pairing') {
   const email = safeText(pairing.email, 320).toLowerCase();
+  assertHomeCenterIdentityAllowed(email, 'Home Center Termux pairing');
   const uid = safeText(pairing.uid, 160);
   const tokenData = await loadGoogleToolTokenData(uid, email);
   if (!tokenData || !tokenData.tokens) {
@@ -1024,6 +1036,7 @@ async function issueTermuxAccessFromRefresh(refreshToken) {
     throw err;
   }
   const data = refreshSnap.data() || {};
+  assertHomeCenterIdentityAllowed(data.email, 'Home Center Termux refresh');
   if (data.revokedAtMs || Number(data.expiresAtMs || 0) <= Date.now()) {
     const err = new Error('Expired or revoked Home Center refresh token.');
     err.status = 401;
@@ -3555,6 +3568,7 @@ exports.phoneHandsRelay = onRequest({timeoutSeconds: 120}, createPhoneHandsRelay
 exports.localVoiceFarm = onRequest({timeoutSeconds: 300, memory: '1GiB'}, createLocalVoiceFarmHandler({admin}));
 
 exports.computerHands = onRequest({timeoutSeconds: 300}, createComputerHandsHandler({admin}));
+exports.ritsuVoice = onRequest({timeoutSeconds: 60}, createRitsuVoiceHandler({admin}));
 
 exports.browserNerve = onRequest({timeoutSeconds: 300}, createBrowserNerveHandler({admin}));
 
@@ -3706,6 +3720,102 @@ exports.termuxPairingApprove = onRequest({timeoutSeconds: 30}, async (req, res) 
     sendJson(res, 200, {ok: true, status: 'approved', pairingId, email: approved.email, allowedGroups: approved.allowedGroups});
   } catch (err) {
     sendJson(res, err.status || 500, {ok: false, error: 'termux_pairing_approve_failed', detail: err.message || String(err)});
+  }
+});
+
+// Bounded owner-authorized pairing approval from an already authenticated
+// Home Center Termux session. This is NOT an unauthenticated shortcut around
+// owner approval: caller must present a live Home Center hub bearer, the
+// human must provide Ritsu Control's unique pairing ID and six-digit code,
+// and the pending request must name the exact Ritsu Control Android client.
+exports.termuxPairingApproveHub = onRequest({timeoutSeconds: 30}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    if (req.method !== 'POST') {
+      sendJson(res, 405, {ok: false, error: 'post_required'});
+      return;
+    }
+    const identity = await requireTermuxHubAccess(req);
+    const actor = identity.data || {};
+    const email = safeText(actor.email, 320).toLowerCase();
+    const uid = safeText(actor.uid, 160);
+    if (!uid || !email || !actor.googleTokens) {
+      sendJson(res, 403, {ok: false, error: 'existing_home_center_login_insufficient'});
+      return;
+    }
+    const pairingId = safeText(req.body && req.body.pairingId, 160);
+    const code = safeText(req.body && req.body.code, 20);
+    if (!/^[A-Za-z0-9_-]{12,160}$/.test(pairingId) || !/^[0-9]{6}$/.test(code)) {
+      sendJson(res, 400, {ok: false, error: 'pairing_id_or_code_invalid'});
+      return;
+    }
+    const reference = termuxCollections().pairings.doc(pairingId);
+    const now = Date.now();
+    const outcome = await admin.firestore().runTransaction(async (tx) => {
+      const snap = await tx.get(reference);
+      if (!snap.exists) return 'pairing_not_found';
+      const record = snap.data() || {};
+      if (record.status !== 'pending' || Number(record.expiresAtMs || 0) <= now) {
+        return 'pairing_not_pending';
+      }
+      if (record.clientKind !== 'ritsu-control-android') return 'not_ritsu_control';
+      if (hubTokenHash(code) !== record.codeHash) return 'pairing_code_mismatch';
+      const groups = cleanTermuxGroups(record.requestedGroups);
+      const held = Array.isArray(actor.allowedGroups) ? actor.allowedGroups.filter((x) => TERMUX_SAFE_TOOL_GROUPS.includes(x)) : [];
+      if (groups.some((group) => !held.includes(group))) return 'scope_not_authorized';
+      tx.update(reference, {
+        status: 'approved',
+        approvedAtMs: now,
+        uid, email,
+        allowedGroups: groups,
+        clientId: 'ritsu-control-' + pairingId,
+        approvalSource: 'existing_home_center_termux_login',
+      });
+      return 'approved';
+    });
+    if (outcome !== 'approved') {
+      const status = outcome === 'pairing_not_found' ? 404 :
+        outcome === 'pairing_code_mismatch' ? 403 : 409;
+      sendJson(res, status, {ok: false, error: outcome});
+      return;
+    }
+    sendJson(res, 200, {ok: true, status: 'approved', clientKind: 'ritsu-control-android'});
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'ritsu_cloud_pair_approval_failed'});
+  }
+});
+
+// Authenticated Termux-side receipt for the same explicitly approved Ritsu
+// cloud pairing. No credentials or owner email are returned.
+exports.termuxPairingStatusHub = onRequest({timeoutSeconds: 30}, async (req, res) => {
+  if (handleOptions(req, res)) return;
+  try {
+    if (req.method !== 'POST') {
+      sendJson(res, 405, {ok: false, error: 'post_required'});
+      return;
+    }
+    const identity = await requireTermuxHubAccess(req);
+    const id = safeText(req.body && req.body.pairingId, 160);
+    if (!/^[A-Za-z0-9_-]{12,160}$/.test(id)) {
+      sendJson(res, 400, {ok: false, error: 'pairing_id_invalid'});
+      return;
+    }
+    const record = await termuxCollections().pairings.doc(id).get();
+    if (!record.exists) {
+      sendJson(res, 404, {ok: false, error: 'pairing_not_found'});
+      return;
+    }
+    const entry = record.data() || {};
+    if (entry.clientKind !== 'ritsu-control-android' ||
+        entry.uid !== identity.data.uid || entry.email !== identity.data.email ||
+        !['approved', 'claimed'].includes(entry.status)) {
+      sendJson(res, 403, {ok: false, error: 'pairing_not_owned_or_unapproved'});
+      return;
+    }
+    sendJson(res, 200, {ok: true, status: entry.status,
+      claimed: entry.status === 'claimed', clientKind: 'ritsu-control-android'});
+  } catch (err) {
+    sendJson(res, err.status || 500, {ok: false, error: 'ritsu_cloud_pair_status_failed'});
   }
 });
 

@@ -37,6 +37,29 @@ jobs:
         with:
           ref: refs/heads/main
           fetch-depth: 0
+      - name: Normalize fresh runner checkout and diagnose release tree
+        run: |
+          echo "Checkout status before normalization:"
+          git status --short --untracked-files=all
+          # Ephemeral GitHub-hosted runner: no user files exist to preserve.
+          # Two legacy video blobs are committed as regular Git content even
+          # though inherited .gitattributes marks them LFS. On a fresh runner
+          # Git LFS would rewrite them as pointers and falsely mark checkout
+          # dirty, blocking every main-only Home Center MCP deployment.
+          # Override ONLY these two filters in ephemeral .git/info/attributes.
+          # Never alter tracked .gitattributes, stored media, or local machines.
+          attrs="$(git rev-parse --git-path info/attributes)"
+          mkdir -p "$(dirname "$attrs")"
+          cat >> "$attrs" <<'RITSU_LFS_RAW_LEGACY'
+          experiments/ascii-kinesis/001-backward-stairs/backward-stairs-ascii.mp4 -filter -diff -merge
+          experiments/ascii-kinesis/v2-locomotion-002-overhead-support-handoff/overhead-support-handoff.mp4 -filter -diff -merge
+          RITSU_LFS_RAW_LEGACY
+          # Rehydrate the exact checked-out commit and discard checkout artifacts.
+          git reset --hard HEAD
+          git clean -fd
+          echo "Checkout status after normalization:"
+          git status --short --untracked-files=all
+          test -z "$(git status --porcelain --untracked-files=all)"
       - name: Enforce immutable main release source
         run: sh tools/assert_home_center_mcp_main_release.sh "$GITHUB_WORKSPACE"
       - uses: actions/setup-node@v4

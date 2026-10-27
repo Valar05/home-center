@@ -1,0 +1,90 @@
+{
+  "experiment_id": "v2-contact-032-persistent-relationship-support-transfer-repair",
+  "files": [
+    "build.py",
+    "contact-sheet.txt",
+    "manifest.json",
+    "motion.json",
+    "receipt.json",
+    "persistent-relationship-support-transfer-repair.motion.html"
+  ],
+  "format_version": 2,
+  "gates": {
+    "chat_delivery": "NOT_RUN",
+    "drew_accepted": false,
+    "official_validator": "NOT_RUN",
+    "queen": "NOT_RUN",
+    "tango": "NOT_RUN"
+  },
+  "hashes": {
+    "ascii_sha256": "bf5ba7fca5f49d48810c5af4e3a3d830b78d0f263c43307bb859b89cc0bb14ae",
+    "motion_sha256": "b3260a8bfcf724ccb9012c01658f0eacd0e197fa2d610abd68647e955576f576",
+    "spa_sha256": "0c2941ab08735072a311fff5aa447113a053c723387426aeef13d2e525a4c0a5"
+  },
+  "lane": "contact",
+  "media": {
+    "bytes": 18717,
+    "decode": {
+      "codec": "h264",
+      "duration_seconds": 1.791667,
+      "fps": 24,
+      "frames": 43,
+      "height": 400,
+      "width": 768
+    },
+    "frames": 43,
+    "sha256": "8aac459a805237b1cc224e0e6ffec34bb52595ed52e100256743cba0a81e7b55"
+  },
+  "primary_tabs": [
+    "ASCII",
+    "JSON",
+    "VIDEO"
+  ],
+  "reset_authority": "5634613836",
+  "revision": {
+    "hc_binding": "ascii-kinesis-contact003-successor-identity-correction-20260919-short-v1",
+    "issue_binding": 5746780741,
+    "negative_fixture": "experiments/ascii-kinesis/v2-contact-003-persistent-relationship-support-transfer/",
+    "predecessor_preserved": true,
+    "repair_order": "OLDEST_FIRST",
+    "revises": "experiments/ascii-kinesis/v2-contact-003-persistent-relationship-support-transfer/",
+    "source_change": false
+  },
+  "rights": {
+    "boundary": "evidence-only; no source pixels/audio in output",
+    "source_audio_in_output": false,
+    "source_pixels_in_output": false
+  },
+  "schema": "ascii-kinesis.swarm-manifest.v2",
+  "source": {
+    "asset_id": 46026,
+    "frozen_capture": "experiments/ascii-kinesis/evidence-assets/tsr-46026.png",
+    "game": "Donkey Kong (63)",
+    "platform": "NES",
+    "raw_bytes": 25826,
+    "raw_dimensions": [
+      484,
+      421
+    ],
+    "raw_sha256": "a42d8a37c07e65abbb75c1b10f06212e88b59238ba2cdcb091f8c0fe88540c8a",
+    "region_method": {
+      "atlas_offset": [
+        6,
+        4
+      ],
+      "crop": {
+        "h": 193,
+        "w": 280,
+        "x": 0,
+        "y": 104
+      }
+    },
+    "site": "The Spriters Resource",
+    "source_timing": "UNKNOWN"
+  },
+  "state": "PERSISTED_NOT_DELIVERED",
+  "timing": {
+    "authored": "INFERRED"
+  },
+  "transferable_principle": "RELATIONSHIP FRAME CAN PERSIST ACROSS SUPPORT TRANSFERS."
+}

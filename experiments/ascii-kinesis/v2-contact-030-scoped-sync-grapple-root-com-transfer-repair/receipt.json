@@ -2,7 +2,7 @@
   "schema": "ascii-kinesis.receipt.v2",
   "experiment_id": "v2-contact-030-scoped-sync-grapple-root-com-transfer-repair",
   "lane": "contact",
-  "status": "PERSISTED_NOT_DELIVERED",
+  "status": "DELIVERED_VERIFIED",
   "reset_issue_comment": 5634613836,
   "chronology_bind_issue_comment": 5644669228,
   "successor_churn_rebind_issue_comment": 5645387490,
@@ -30,21 +30,21 @@
     "height": 192,
     "fps": 24,
     "frames": 48,
-    "bytes": 8555,
-    "sha256": "00abdc840fd8accb64dca3607acfd4d92306fe230c28ee21530a1bc16b0475bc",
+    "bytes": 8542,
+    "sha256": "dc20bae2f2e72fa3b0b1dda84f4fcfcf9a07bd898f0649a0de06477925138c2c",
     "source": "abstract ASCII rig + authored hold_frames only",
-    "decode": "PASS_CURRENT_WORKER_RECONSTRUCTION"
+    "decode": "PASS_AUTHORIZED_RECONSTRUCTION_STRICT_DECODE"
   },
   "quality": {
     "tango": {
-      "status": "PASS_R4_CURRENT_WORKER_320X192_ACTUAL_RENDER",
-      "render_media_sha256": "00abdc840fd8accb64dca3607acfd4d92306fe230c28ee21530a1bc16b0475bc",
-      "judgment": "Current-worker actual-render PASS retained only because R4 media bytes are unchanged."
+      "status": "PASS_CURRENT_WORKER_ACTUAL_FINAL_MEDIA",
+      "render_media_sha256": "dc20bae2f2e72fa3b0b1dda84f4fcfcf9a07bd898f0649a0de06477925138c2c",
+      "judgment": "Fresh current-worker visual inspection of the actual final 320x192 H.264 media, all 48 decoded frames from the exact Home Center-exported bytes after authenticated reconstruction: PASS. Separation is readable before root-led close; near-range compression precedes the two-anchor lock; B visibly drops into the load stack before A unweights; transfer carries A left/up while B remains structurally loaded; release is a hard topology break; A and B recover on unequal clocks through airborne departure, low brace, rise, brake, and displaced settle. No inherited old-media PASS was used."
     },
     "noodle_queen": {
-      "status": "PASS_TASTE_FUNCTION_CONTEMPT_SAME_R4_RENDER",
-      "render_media_sha256": "00abdc840fd8accb64dca3607acfd4d92306fe230c28ee21530a1bc16b0475bc",
-      "judgment": "Same-render PASS retained only because R4 media bytes are unchanged."
+      "status": "PASS_TASTE_FUNCTION_CONTEMPT_SAME_FINAL_MEDIA",
+      "render_media_sha256": "dc20bae2f2e72fa3b0b1dda84f4fcfcf9a07bd898f0649a0de06477925138c2c",
+      "judgment": "PASS after Tango on the same exact final media. The grapple reads as custody transfer rather than two mannequins touching: B gets underneath the relationship before A leaves the floor, the middle empties decisively on release, and the recovery does not snap back to mirrored idle. The early approach is intentionally plain, but it earns contact distance instead of counterfeiting complexity; the load ownership and aftermath survive the 320x192 reduction."
     }
   },
   "package": {
@@ -59,24 +59,49 @@
     ],
     "exact_six_files": true,
     "exact_one_spa": true,
-    "spa_tabs": ["ascii", "json", "video"]
+    "spa_tabs": [
+      "ascii",
+      "json",
+      "video"
+    ]
   },
   "official_validator": {
     "path": "tools/test_ascii_kinesis_swarm_contract_v2.py",
-    "result": "PENDING_POST_RECONCILIATION_RUN"
+    "result": "PASS_AUTHORIZED_HOME_CENTER_CANDIDATE_ISOLATED",
+    "command_id": "phc_aaabb269-d0b5-49f5-b6f5-5c26a60d7ef3"
   },
   "persistence": {
     "repo_persisted": true,
-    "repo_readback": false,
-    "issue_pre_delivery_comment": null,
-    "issue_pre_delivery_readback": false,
-    "home_center_pre_delivery_readback": false,
-    "chat_part1_ascii": false,
-    "chat_part2_json": false,
-    "chat_part3_visible_video": false,
-    "issue_terminal_comment": null,
-    "home_center_terminal_binding": false,
-    "home_center_terminal_readback": false
+    "repo_readback": true,
+    "issue_pre_delivery_comment": 5741551862,
+    "issue_pre_delivery_readback": true,
+    "home_center_pre_delivery_readback": true,
+    "chat_part1_ascii": true,
+    "chat_part2_json": true,
+    "chat_part3_visible_video": true,
+    "issue_terminal_comment": 5741623324,
+    "home_center_terminal_binding": true,
+    "home_center_terminal_readback": true,
+    "exact_six_files": true,
+    "exact_one_spa": true,
+    "issue_terminal_readback": true
   },
-  "drew_accepted": false
+  "drew_accepted": false,
+  "authorized_runtime_media_identity_failure_issue_comment": 5737833341,
+  "authorized_runtime_media_identity_failure_marker": "ascii-kinesis-manager-authorized-media-identity-failure-20260918-1925-cdt",
+  "authorized_runtime_proof": {
+    "command_id": "phc_2f481536-9846-4071-95cb-f03597eff2a0",
+    "source_ref": "011f2e9d5efef3f3142a9c7ce7321f21bbd2d658",
+    "media_sha256": "dc20bae2f2e72fa3b0b1dda84f4fcfcf9a07bd898f0649a0de06477925138c2c",
+    "media_bytes": 8542,
+    "strict_decode": true,
+    "stderr_empty": true,
+    "device_id": "primary-phone"
+  },
+  "delivery_media_export_command_id": "phc_7a5bf85e-bad0-413b-8484-597ea6999258",
+  "pre_delivery_issue_comment": 5741551862,
+  "pre_delivery_home_center_marker": "ascii-kinesis-contact030-pre-delivery-binding-20260919-dc20-v1",
+  "terminal_issue_comment": 5741623324,
+  "terminal_home_center_marker": "ascii-kinesis-contact030-terminal-delivery-binding-20260919-dc20-v1",
+  "terminal_delivery_basis_commit": "c20e1028f5e889827c8fdcfd0462b0053e77d418"
 }

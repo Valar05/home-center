@@ -1,0 +1,433 @@
+C009-K00 SEPARATE_SKEW | FOURS/INFERRED | contact=SEPARATE custody=NONE | A=GROUND_LEFT_BIASED B=GROUND_BOTH root=A_SELF|B_SELF | force=A->B
+ROLE: establish unequal distance and opposing readiness
+ARC:  A is lower and left-biased; B stays upright and right-heavy. No contact yet.
+
+
+
+
+
+
+
+
+
+
+
+
+               a                   b
+               |                   |
+            ++---+               +---++|
+          +-  \\|+               +|//  |+
+                A -+            | B    |
+               / \              +/ \   |
+               / \               / \   |___________________
+              +   +             +   +
+             |    |             |   |
+             |     |            |    |
+            |      |            |    |
+        . . # . . .R. . . . . . l    #
+
+
+C009-K01 ASYM_APPROACH_COIL | FOURS/INFERRED | contact=SEPARATE custody=NONE | A=GROUND_REAR_FOOT B=GROUND_BOTH root=A_SELF|B_SELF | force=LOW_LEFT->HIGH_RIGHT
+ROLE: spend A's center before reach; B braces without mirroring
+ARC:  A root drops and travels under the future contact; reaching arm rides a rising arc while B recoils a fraction.
+
+
+
+
+
+
+
+
+
+
+
+
+                        a         b
+                        |         |
+                        |  +---++---+  |
+                      +---+    + |// + |
+                      ||//    /  B    ||
+                      +A     +  / \   +|
+                     // \       / \    |___________________
+                    +    +     +   +
+                   |      |    |   |
+                   |      |   |     |
+                  |        |  |     |
+        . . . . . # . . . .R. l .   #
+
+
+C009-K02 ACQUIRE_LOW | ONES/INFERRED | contact=ONE_ANCHOR custody=SHARED_TRANSITION | A=GROUND_REAR_FOOT B=GROUND_BOTH root=A_SELF|B_SELF | force=A_LOW->B_HIGH
+ROLE: single low anchor becomes explicit before lift
+ARC:  Contact is acquired near the shared center, not at maximum reach; roots have not transferred yet.
+
+
+
+
+
+
+
+
+
+
+
+                                   b
+                         a        |
+                        |    -@   |
+                        | -+- -+----+  |
+                      +--+   -  \\ / + |
+                      |\|    *    B   ||
+                      + A        ||   +|
+                       / \       | |   |___________________
+                      /  \      |  |
+                     +    +     +  +
+                    /      |    |  |
+                    /      R   |    |
+        . . . . . .#. . . . . .l.   #
+
+
+C009-K03 LIFT_BREAK_B_SUPPORT | TWOS/INFERRED | contact=LOCKED_CARRY custody=A_CARRIES_B | A=GROUND_WIDE B=NONE root=A_SUPPORT_FRAME | force=A_UP_IN|B_BACK_OUT
+ROLE: B loses ground only after A's anchor owns the relation
+ARC:  A compresses under the load while B's root arcs up/back; the shared center stays inside A's base.
+
+
+
+
+
+
+
+
+                                    b
+                                    |
+                                   |
+                  +    a    -@-  +----+
+                   \   |   + - +- \ // +
+                    +-  |  | -     B    \
+                      +---+  *    / \  | +
+                       \ /        / \  |
+                        A        +   + |
+                       / \      /     \|
+                      /  \      /      r___________________
+                     +    +    l
+                    |      |
+                    |      |
+                   |        |
+        . . . . . .#. . . . # . .
+
+
+C009-K04 CARRY_COIL_BASE | FOURS/INFERRED | contact=LOCKED_CARRY custody=A_CARRIES_B | A=GROUND_REAR_DOMINANT B=NONE root=A_SUPPORT_FRAME | force=A_DOWN_LEFT|B_UP_RIGHT
+ROLE: load asymmetry before support transfer
+ARC:  A's rear side stores load; B hangs outside the base with visible lag, creating a lever rather than a symmetrical pair.
+
+
+
+
+
+
+
+
+                                       b
+                                     ||
+                       a      @-  +-|
+                       |     /- +- \--+
+                    ++  |  -+ -     \| -+
+                     |  --+    -     B  |
+                      +-  |    *     |\| |
+                       \\|          |  | +
+                         A          +  |+
+                        / \        /   | \
+                       /   \       /   |__r________________
+                       /    +     l
+                      +     |
+                     /       |
+                     /       |
+        . . . . . . # . . . .#. .
+
+
+C009-K05 UPPER_ANCHOR_REACH | ONES/INFERRED | contact=LOCKED_CARRY custody=A_CARRIES_B | A=GROUND_PLUS_UPPER_HAND B=NONE root=A_SUPPORT_FRAME | force=A_HAND_UP_RIGHT|B_TRAIL
+ROLE: new environmental anchor is acquired while custody stays locked
+ARC:  A reaches the higher support with the free hand; B stays on the old relationship arc rather than teleporting upward.
+
+
+
+
+
+
+
+                                        b
+                                      ||
+                          a        + |
+                          |    @-+- \\
+                          |   /-     \+
+                         |  -+  -     B-+
+                        +-+--   *    / \|
+                         \\| -----+- / | +
+                           A        +- | +\
+                          / |       | -#  \
+                         /  |      |   |   r
+                        /    |     l   |___________________
+                       +     +
+                      |      |
+                      |       |
+                     |        |
+        . . . . . . .#. . . . R .
+
+
+C009-K06 HAND_DOMINANT_TRANSFER | TWOS/INFERRED | contact=LOCKED_CARRY custody=A_CARRIES_B | A=UPPER_HAND_DOMINANT B=NONE root=A_SUPPORT_FRAME | force=A_ROOT_SWING|B_LAG
+ROLE: A's support owner changes; relationship frame does not
+ARC:  The upper hand now owns A's root. A begins a pendular root swing while B's root trails farther outside.
+
+
+
+
+
+
+                                          b
+                                        ||
+                            a        +||
+                            |    @-+-|\
+                             |  +-    |\
+                            +--+  -   +-B
+                             \-|--*    -+\\
+                             \|   -+   /|  +
+                              A     \ +| |  \
+                             /|      \\| +  \
+                            /  |     | #     r
+                           /   |     l |
+                          +    +       |___________________
+                         |     |
+                         |      |
+                        |       R
+                        L
+        . . . . . . . . . . . . .
+
+
+C009-K07 ROOT_SWING_UNDER | TWOS/INFERRED | contact=LOCKED_CARRY custody=A_CARRIES_B | A=UPPER_HAND_DOMINANT B=NONE root=A_SUPPORT_FRAME | force=A_INWARD_UP|B_OUTWARD_DOWN
+ROLE: opposing arcs make leverage readable
+ARC:  A root swings inward/up beneath the hand anchor as B overshoots outward/down; shared center follows a smaller arc between them.
+
+
+
+
+
+                                             b
+                               a           ||
+                                |       + |
+                                |   @-+||\
+                                +--+-  |  \
+                                 \-| -|  --B-+
+                                 \| -*+---/ \\\
+                                  A  |    /   +
+                                 /|   |  +     +
+                                /  |  || |     \
+                                /  +   ||       r
+                               +   |   #l
+                              /     |  |
+                              /     R  |___________________
+                             L
+
+
+
+        . . . . . . . . . . . . .
+
+
+C009-K08 UPPER_FOOT_CATCH | ONES/INFERRED | contact=LOCKED_CARRY custody=A_CARRIES_B | A=UPPER_HAND_PLUS_FOOT B=NONE root=A_SUPPORT_FRAME | force=FOOT_CATCH|B_OVERTRAVEL
+ROLE: upper foot earns a new support while relation stays locked
+ARC:  A's foot catches the upper platform before the old hand support is abandoned; B continues past the carrier's catch.
+
+
+
+
+
+                                 a             |b
+                                  |          ||
+                                  |        +|
+                                  +--++@-+/ \
+                                   \-| -//   \
+                                   \|-+/* ---+B
+                                    A +|--    \\\
+                                   | | |     |\  +
+                                   | |  |    + +  \
+                                  |   ||#    |    \
+                                  +   +|    |      r
+                                  |   ||    l
+                                 |     |
+                                 |     #___________________
+                                 R
+
+
+
+        . . . . . . . . . . . . .
+
+
+C009-K09 PARTNER_OVERSHOOT | TWOS/INFERRED | contact=LOCKED_CARRY custody=A_CARRIES_B | A=UPPER_HAND_PLUS_FOOT B=NONE root=A_SUPPORT_FRAME | force=A_CATCH_BACK|B_SWING_FORWARD
+ROLE: secondary lag survives support catch
+ARC:  A settles around the new foot support while B swings ahead; the relationship frame stretches in attitude, not ownership.
+
+
+
+
+
+                                   a
+                                    |              |b
+                                    |          ||||
+                                    +--++  +-+|
+                                     \\| @--  \
+                                     \|+--   --\\--+
+                                      +|--*------B  \
+                                     || |        |-- \
+                                     || |       |   -+
+                                    | ||#       +     +
+                                    + +|        |     \
+                                    | ||       |       r
+                                   |   |       l
+                                   R   #___________________
+
+
+
+
+        . . . . . . . . . . . . .
+
+
+C009-K10 UNLOAD_LEVER | FOURS/INFERRED | contact=LOCKED_CARRY custody=A_CARRIES_B | A=UPPER_FOOT_DOMINANT B=NONE root=A_SUPPORT_FRAME | force=A_BACK_DOWN|B_FORWARD_DOWN
+ROLE: A lowers B through an opposing arc before allowing B support
+ARC:  A's base settles back while B rotates forward/down toward the platform. Release is not yet permitted.
+
+
+
+
+
+
+                                     a
+                                      |
+                                      |          ||b
+                                      +--+   -+||
+                                       \ |+-+- \
+                                      ++|--@-   \
+                                       |A-------\--+
+                                       /|   *  --B  \
+                                      /|+       / \ \
+                                     + +        / \  +
+                                     | |       +   +
+                                    |  ||     |     |
+                                    #  |#_____l_____r______
+
+
+
+
+        . . . . . . . . . . . . .
+
+
+C009-K11 B_FIRST_SUPPORT | ONES/INFERRED | contact=LOCKED_CARRY custody=SHARED_TRANSITION | A=UPPER_FOOT_DOMINANT B=UPPER_PLATFORM_ONE_FOOT root=SHARED_TRANSITION | force=B_SUPPORT_UP|A_RESTRAINT_BACK
+ROLE: B earns ground before custody is destroyed
+ARC:  B's first foot support becomes trustworthy while A still owns one relationship anchor; custody overlaps briefly.
+
+
+
+
+
+
+                                    a
+                                     |
+                                      |           ||b
+                                      +--+   -+|||
+                                      ||/-|--| \
+                                      ++/-+--+  \
+                                       A ---@----\-+
+                                      /||    * ---B \
+                                      /|+        / \\
+                                     + +         / \ +
+                                    /  |        +   +
+                                    /  |       |     |
+                                   R   #_______#_____r_____
+
+
+
+
+        . . . . . . . . . . . . .
+
+
+C009-K12 FINAL_RELEASE_FORK | ONES/INFERRED | contact=RELEASED custody=NONE | A=UPPER_FOOT_BRAKE B=UPPER_PLATFORM_BOTH root=A_SELF|B_SELF | force=A_RECOIL_LEFT|B_MOMENTUM_RIGHT
+ROLE: destroy relationship only after B support exists
+ARC:  The last relationship anchor disappears. A recoils left around its planted foot; B keeps moving right on its own support.
+
+
+
+
+
+
+                                  a
+                                   |                 b
+                                    |               |
+                                    +--+           |
+                                    |\/ +      +-+--+
+                                     |/++     +   \||
+                                     A |          \+
+                                    /|  |          B\
+                                    / ||+         / \
+                                   +  +|          / \+
+                                   |  ||         +   +
+                                  |    |        /     |
+                                  R    #_______#______#____
+
+
+
+
+        . . . . . . . . . . . . .
+
+
+C009-K13 OPPOSITE_RECOIL_LAG | TWOS/INFERRED | contact=RELEASED custody=NONE | A=UPPER_FOOT_BRAKE B=UPPER_PLATFORM_BOTH root=A_SELF|B_SELF | force=A_LEFT_BACK|B_RIGHT_OVER
+ROLE: release consequence splits body clocks
+ARC:  A's torso whips behind its planted foot while B's root overruns to the right; neither reverses the release path.
+
+
+
+
+
+
+                              a
+                               |                         b
+                                |                       |
+                                +-                     |
+                            +-+- |-+                 +--+
+                                 | |+               + \ |-+
+                                  |  |            +-  \|   \
+                                  A  +                 B    +
+                                 / \   |              / \
+                                 / \   |              / \
+                                +   +  |             +   +
+                               |     \\|            /     \
+                               R       #___________#_______#
+
+
+
+
+        . . . . . . . . . . . . .
+
+
+C009-K14 SETTLE_WITH_DEBT | FOURS/INFERRED | contact=SEPARATE_RECOVERY custody=NONE | A=UPPER_PLATFORM_SPLIT B=UPPER_PLATFORM_SPLIT root=A_SELF|B_SELF | force=DAMPED_COUNTERSWING
+ROLE: finish at new root addresses with asymmetric recovery debt
+ARC:  A and B settle at different root addresses with different torso/hand lag. Recovery is not the opening pose played backward.
+
+
+
+
+
+
+
+                                 a                      b
+                                  |                   ||
+                                  |                  |
+                                 ++--+-+           +--+-++
+                               +-  \ |  +         + \ |
+                                   \|            /  \|
+                                    A           +    B
+                                   /|  |             |\
+                                   / | |            |  \
+                                  +  + |            +   +
+                                 |    \|           /     |
+                                 #     #__________#______#_
+
+
+
+
+        . . . . . . . . . . . . .

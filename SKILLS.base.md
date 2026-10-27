@@ -126,3 +126,20 @@ Procedure:
 5. If pending delivery state is corrupt, fail closed and quarantine it; never blindly rerun a potentially side-effecting task.
 
 Done: response delivery is acknowledged exactly once, or durable halted state preserves the unresolved delivery problem.
+
+## 9. PI Zodiac Daily Sign
+
+Trigger: Drew says PI/pie in the daily-sign sense, asks for today's pi digit/sign, asks for the PI zodiac, or asks to route the current digit through Headcrab/skills/Ministry machinery.
+
+Procedure:
+
+1. Load `skills/pi-zodiac/SKILL.md` and `config/pi_zodiac.v1.json`.
+2. Resolve the local calendar date in the configured timezone.
+3. Run `python3 tools/pi_zodiac.py --date YYYY-MM-DD` or equivalent deterministic calculation.
+4. Preserve the result exactly as `π[index] = digit · SIGN`.
+5. Apply the sign as symbolic routing context only. It may suggest a question or existing skill hook, but it cannot override a real obligation, authority, safety gate, evidence standard, or commissioned outcome.
+6. Do not shift the sequence because a day was missed or a tracker box was unchecked.
+7. If the configured epoch is challenged, preserve the old provenance, apply Drew's correction, and update the regression fixture instead of pretending the old inference was certain.
+
+Done: the date deterministically resolves to one pi digit/sign and the corresponding existing system hook, with no invented Ministry identity and no claim that symbolism is evidence.
+

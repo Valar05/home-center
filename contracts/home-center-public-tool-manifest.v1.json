@@ -1,5 +1,5 @@
 {
-  "canonicalToolsSha256": "87c46c9237fb10153d29fa793f3a3694cc265b11281e6b6f993cf5216c660944",
+  "canonicalToolsSha256": "289096f50b978a3ca8dcecf2e39d285e7e26e02248faaf4e39f9c27e51d704c0",
   "entries": [
     {
       "annotations": {
@@ -5236,6 +5236,622 @@
         "openWorldHint": false,
         "readOnlyHint": true
       },
+      "description": "Return the durable unresolved reminder stack, or when no open reminder exists, a tiny fallback attention prompt such as checking email/calendar. Intended for every conversational preflight so Headcrab cannot disappear during deep work.",
+      "fileBearingFields": [],
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "properties": {
+          "limit": {
+            "default": 100,
+            "maximum": 200,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "name": "headcrab_attention_pulse",
+      "schemaHash": "d0c2a74c7fcc22bf3680e08b5871289e953fb3abec73f318fa14e0138e0d72fb",
+      "tool": {
+        "_meta": {
+          "securitySchemes": [
+            {
+              "scopes": [
+                "https://www.googleapis.com/auth/drive",
+                "https://www.googleapis.com/auth/documents",
+                "https://www.googleapis.com/auth/spreadsheets",
+                "https://www.googleapis.com/auth/gmail.readonly",
+                "https://www.googleapis.com/auth/calendar.events"
+              ],
+              "type": "oauth2"
+            }
+          ]
+        },
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": true
+        },
+        "description": "Return the durable unresolved reminder stack, or when no open reminder exists, a tiny fallback attention prompt such as checking email/calendar. Intended for every conversational preflight so Headcrab cannot disappear during deep work.",
+        "execution": {
+          "taskSupport": "forbidden"
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "properties": {
+            "limit": {
+              "default": 100,
+              "maximum": 200,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        },
+        "name": "headcrab_attention_pulse",
+        "securitySchemes": [
+          {
+            "scopes": [
+              "https://www.googleapis.com/auth/drive",
+              "https://www.googleapis.com/auth/documents",
+              "https://www.googleapis.com/auth/spreadsheets",
+              "https://www.googleapis.com/auth/gmail.readonly",
+              "https://www.googleapis.com/auth/calendar.events"
+            ],
+            "type": "oauth2"
+          }
+        ],
+        "title": "Headcrab attention pulse"
+      }
+    },
+    {
+      "annotations": {
+        "openWorldHint": false,
+        "readOnlyHint": false
+      },
+      "description": "Close a durable Headcrab obligation only after Drew explicitly confirms completion or cancellation. Ordinary language is sufficient; never close merely because the reminder was shown.",
+      "fileBearingFields": [],
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "properties": {
+          "reason": {
+            "maxLength": 1000,
+            "type": "string"
+          },
+          "reminderId": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "status": {
+            "default": "done",
+            "enum": [
+              "done",
+              "cancelled"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "reminderId"
+        ],
+        "type": "object"
+      },
+      "name": "headcrab_close_reminder",
+      "schemaHash": "127175c9b3cc6e469ea8eb5e0358d0255940575c97e96f6bdcb4ecabae62dd0a",
+      "tool": {
+        "_meta": {
+          "securitySchemes": [
+            {
+              "scopes": [
+                "https://www.googleapis.com/auth/drive",
+                "https://www.googleapis.com/auth/documents",
+                "https://www.googleapis.com/auth/spreadsheets",
+                "https://www.googleapis.com/auth/gmail.readonly",
+                "https://www.googleapis.com/auth/calendar.events"
+              ],
+              "type": "oauth2"
+            }
+          ]
+        },
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false
+        },
+        "description": "Close a durable Headcrab obligation only after Drew explicitly confirms completion or cancellation. Ordinary language is sufficient; never close merely because the reminder was shown.",
+        "execution": {
+          "taskSupport": "forbidden"
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "properties": {
+            "reason": {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            "reminderId": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string"
+            },
+            "status": {
+              "default": "done",
+              "enum": [
+                "done",
+                "cancelled"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "reminderId"
+          ],
+          "type": "object"
+        },
+        "name": "headcrab_close_reminder",
+        "securitySchemes": [
+          {
+            "scopes": [
+              "https://www.googleapis.com/auth/drive",
+              "https://www.googleapis.com/auth/documents",
+              "https://www.googleapis.com/auth/spreadsheets",
+              "https://www.googleapis.com/auth/gmail.readonly",
+              "https://www.googleapis.com/auth/calendar.events"
+            ],
+            "type": "oauth2"
+          }
+        ],
+        "title": "Headcrab close reminder"
+      }
+    },
+    {
+      "annotations": {
+        "openWorldHint": false,
+        "readOnlyHint": false
+      },
+      "description": "Record that Drew actually checked a recurring attention surface such as personal email, work email, calendar, records, or bills. Do not mark a surface checked merely because Headcrab asked about it.",
+      "fileBearingFields": [],
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "properties": {
+          "checkedAt": {
+            "description": "Optional ISO-8601 timestamp with timezone; defaults to now.",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "email",
+              "work_email",
+              "calendar",
+              "records",
+              "bills"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "type": "object"
+      },
+      "name": "headcrab_mark_checked",
+      "schemaHash": "c3b7310b3acae03809220b8c0e04f521f8ad443f49d059320d792bb836db229a",
+      "tool": {
+        "_meta": {
+          "securitySchemes": [
+            {
+              "scopes": [
+                "https://www.googleapis.com/auth/drive",
+                "https://www.googleapis.com/auth/documents",
+                "https://www.googleapis.com/auth/spreadsheets",
+                "https://www.googleapis.com/auth/gmail.readonly",
+                "https://www.googleapis.com/auth/calendar.events"
+              ],
+              "type": "oauth2"
+            }
+          ]
+        },
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false
+        },
+        "description": "Record that Drew actually checked a recurring attention surface such as personal email, work email, calendar, records, or bills. Do not mark a surface checked merely because Headcrab asked about it.",
+        "execution": {
+          "taskSupport": "forbidden"
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "properties": {
+            "checkedAt": {
+              "description": "Optional ISO-8601 timestamp with timezone; defaults to now.",
+              "type": "string"
+            },
+            "kind": {
+              "enum": [
+                "email",
+                "work_email",
+                "calendar",
+                "records",
+                "bills"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "type": "object"
+        },
+        "name": "headcrab_mark_checked",
+        "securitySchemes": [
+          {
+            "scopes": [
+              "https://www.googleapis.com/auth/drive",
+              "https://www.googleapis.com/auth/documents",
+              "https://www.googleapis.com/auth/spreadsheets",
+              "https://www.googleapis.com/auth/gmail.readonly",
+              "https://www.googleapis.com/auth/calendar.events"
+            ],
+            "type": "oauth2"
+          }
+        ],
+        "title": "Headcrab mark checked"
+      }
+    },
+    {
+      "annotations": {
+        "openWorldHint": true,
+        "readOnlyHint": false
+      },
+      "description": "Scan recent non-promotional Gmail for high-confidence actionable obligations and persist them into the same durable Headcrab reminder ledger. This is a worker/intake operation, not a reminder delivery channel. Ambiguous mail is skipped; it does not create Calendar events.",
+      "fileBearingFields": [],
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "properties": {
+          "defaultOffset": {
+            "default": "-05:00",
+            "maxLength": 16,
+            "type": "string"
+          },
+          "maxResults": {
+            "default": 50,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "query": {
+            "maxLength": 500,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "name": "headcrab_mine_email",
+      "schemaHash": "9d48fa7a1cb3405bc09e4bc36a00ca2277b9f4e0ff5a310bfe17779b479b17be",
+      "tool": {
+        "_meta": {
+          "securitySchemes": [
+            {
+              "scopes": [
+                "https://www.googleapis.com/auth/drive",
+                "https://www.googleapis.com/auth/documents",
+                "https://www.googleapis.com/auth/spreadsheets",
+                "https://www.googleapis.com/auth/gmail.readonly",
+                "https://www.googleapis.com/auth/calendar.events"
+              ],
+              "type": "oauth2"
+            }
+          ]
+        },
+        "annotations": {
+          "openWorldHint": true,
+          "readOnlyHint": false
+        },
+        "description": "Scan recent non-promotional Gmail for high-confidence actionable obligations and persist them into the same durable Headcrab reminder ledger. This is a worker/intake operation, not a reminder delivery channel. Ambiguous mail is skipped; it does not create Calendar events.",
+        "execution": {
+          "taskSupport": "forbidden"
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "properties": {
+            "defaultOffset": {
+              "default": "-05:00",
+              "maxLength": 16,
+              "type": "string"
+            },
+            "maxResults": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "query": {
+              "maxLength": 500,
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "name": "headcrab_mine_email",
+        "securitySchemes": [
+          {
+            "scopes": [
+              "https://www.googleapis.com/auth/drive",
+              "https://www.googleapis.com/auth/documents",
+              "https://www.googleapis.com/auth/spreadsheets",
+              "https://www.googleapis.com/auth/gmail.readonly",
+              "https://www.googleapis.com/auth/calendar.events"
+            ],
+            "type": "oauth2"
+          }
+        ],
+        "title": "Headcrab mine email"
+      }
+    },
+    {
+      "annotations": {
+        "openWorldHint": false,
+        "readOnlyHint": false
+      },
+      "description": "Persist an unresolved Drew-facing obligation in Home Center. Use this when Drew says ordinary things like \"remember this\", \"don't let me forget\", \"I need to\", \"I have to\", or otherwise clearly asks Headcrab to keep an obligation in view. This is durable conversational reminder state, NOT a scheduled job or calendar event. dueAt is optional; never invent a due time.",
+      "fileBearingFields": [],
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "properties": {
+          "dueAt": {
+            "description": "Optional ISO-8601 timestamp with explicit timezone. Omit when Drew gave no real time.",
+            "type": "string"
+          },
+          "label": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "notes": {
+            "maxLength": 2000,
+            "type": "string"
+          },
+          "source": {
+            "maxLength": 120,
+            "type": "string"
+          }
+        },
+        "required": [
+          "label"
+        ],
+        "type": "object"
+      },
+      "name": "headcrab_remember",
+      "schemaHash": "4629619e4793c7c088cdd4d821c21d63afb7c5e43dc3e42a7608bac21c18a403",
+      "tool": {
+        "_meta": {
+          "securitySchemes": [
+            {
+              "scopes": [
+                "https://www.googleapis.com/auth/drive",
+                "https://www.googleapis.com/auth/documents",
+                "https://www.googleapis.com/auth/spreadsheets",
+                "https://www.googleapis.com/auth/gmail.readonly",
+                "https://www.googleapis.com/auth/calendar.events"
+              ],
+              "type": "oauth2"
+            }
+          ]
+        },
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false
+        },
+        "description": "Persist an unresolved Drew-facing obligation in Home Center. Use this when Drew says ordinary things like \"remember this\", \"don't let me forget\", \"I need to\", \"I have to\", or otherwise clearly asks Headcrab to keep an obligation in view. This is durable conversational reminder state, NOT a scheduled job or calendar event. dueAt is optional; never invent a due time.",
+        "execution": {
+          "taskSupport": "forbidden"
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "properties": {
+            "dueAt": {
+              "description": "Optional ISO-8601 timestamp with explicit timezone. Omit when Drew gave no real time.",
+              "type": "string"
+            },
+            "label": {
+              "maxLength": 500,
+              "minLength": 1,
+              "type": "string"
+            },
+            "notes": {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            "source": {
+              "maxLength": 120,
+              "type": "string"
+            }
+          },
+          "required": [
+            "label"
+          ],
+          "type": "object"
+        },
+        "name": "headcrab_remember",
+        "securitySchemes": [
+          {
+            "scopes": [
+              "https://www.googleapis.com/auth/drive",
+              "https://www.googleapis.com/auth/documents",
+              "https://www.googleapis.com/auth/spreadsheets",
+              "https://www.googleapis.com/auth/gmail.readonly",
+              "https://www.googleapis.com/auth/calendar.events"
+            ],
+            "type": "oauth2"
+          }
+        ],
+        "title": "Headcrab remember"
+      }
+    },
+    {
+      "annotations": {
+        "openWorldHint": false,
+        "readOnlyHint": true
+      },
+      "description": "Read the durable unresolved Headcrab reminder stack for the authenticated user. Use during conversational preflight so open obligations can surface in the current chat instead of relying on another reminder chat or scheduled event.",
+      "fileBearingFields": [],
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "properties": {
+          "limit": {
+            "default": 100,
+            "maximum": 200,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "name": "headcrab_reminders",
+      "schemaHash": "d0c2a74c7fcc22bf3680e08b5871289e953fb3abec73f318fa14e0138e0d72fb",
+      "tool": {
+        "_meta": {
+          "securitySchemes": [
+            {
+              "scopes": [
+                "https://www.googleapis.com/auth/drive",
+                "https://www.googleapis.com/auth/documents",
+                "https://www.googleapis.com/auth/spreadsheets",
+                "https://www.googleapis.com/auth/gmail.readonly",
+                "https://www.googleapis.com/auth/calendar.events"
+              ],
+              "type": "oauth2"
+            }
+          ]
+        },
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": true
+        },
+        "description": "Read the durable unresolved Headcrab reminder stack for the authenticated user. Use during conversational preflight so open obligations can surface in the current chat instead of relying on another reminder chat or scheduled event.",
+        "execution": {
+          "taskSupport": "forbidden"
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "properties": {
+            "limit": {
+              "default": 100,
+              "maximum": 200,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        },
+        "name": "headcrab_reminders",
+        "securitySchemes": [
+          {
+            "scopes": [
+              "https://www.googleapis.com/auth/drive",
+              "https://www.googleapis.com/auth/documents",
+              "https://www.googleapis.com/auth/spreadsheets",
+              "https://www.googleapis.com/auth/gmail.readonly",
+              "https://www.googleapis.com/auth/calendar.events"
+            ],
+            "type": "oauth2"
+          }
+        ],
+        "title": "Headcrab reminders"
+      }
+    },
+    {
+      "annotations": {
+        "openWorldHint": false,
+        "readOnlyHint": false
+      },
+      "description": "Replace the due time of an existing durable Headcrab obligation. This updates reminder state; it does not create a scheduled automation or calendar event.",
+      "fileBearingFields": [],
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "properties": {
+          "dueAt": {
+            "maxLength": 160,
+            "minLength": 1,
+            "type": "string"
+          },
+          "reminderId": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "reminderId",
+          "dueAt"
+        ],
+        "type": "object"
+      },
+      "name": "headcrab_reschedule_reminder",
+      "schemaHash": "88dcef28fe3de59dcb9b3b009fdb44aa0ea8d465cafb41d8359ee05113c153f2",
+      "tool": {
+        "_meta": {
+          "securitySchemes": [
+            {
+              "scopes": [
+                "https://www.googleapis.com/auth/drive",
+                "https://www.googleapis.com/auth/documents",
+                "https://www.googleapis.com/auth/spreadsheets",
+                "https://www.googleapis.com/auth/gmail.readonly",
+                "https://www.googleapis.com/auth/calendar.events"
+              ],
+              "type": "oauth2"
+            }
+          ]
+        },
+        "annotations": {
+          "openWorldHint": false,
+          "readOnlyHint": false
+        },
+        "description": "Replace the due time of an existing durable Headcrab obligation. This updates reminder state; it does not create a scheduled automation or calendar event.",
+        "execution": {
+          "taskSupport": "forbidden"
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "properties": {
+            "dueAt": {
+              "maxLength": 160,
+              "minLength": 1,
+              "type": "string"
+            },
+            "reminderId": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "reminderId",
+            "dueAt"
+          ],
+          "type": "object"
+        },
+        "name": "headcrab_reschedule_reminder",
+        "securitySchemes": [
+          {
+            "scopes": [
+              "https://www.googleapis.com/auth/drive",
+              "https://www.googleapis.com/auth/documents",
+              "https://www.googleapis.com/auth/spreadsheets",
+              "https://www.googleapis.com/auth/gmail.readonly",
+              "https://www.googleapis.com/auth/calendar.events"
+            ],
+            "type": "oauth2"
+          }
+        ],
+        "title": "Headcrab reschedule reminder"
+      }
+    },
+    {
+      "annotations": {
+        "openWorldHint": false,
+        "readOnlyHint": true
+      },
       "description": "Check whether the Home Center MCP process is alive.",
       "fileBearingFields": [],
       "inputSchema": {
@@ -7522,8 +8138,8 @@
       }
     }
   ],
-  "manifestSha256": "91617e301b8021d9d365d495ab0fa1e9a13e467b0a143b5d41e652332cd5c142",
-  "registryRevision": "2026-09-04.browser-nerve-action-surface-v1",
+  "manifestSha256": "1d93471baf8757f720c934936c6d8dad47150f26b1c2acc3adbd34190e7f8d31",
+  "registryRevision": "2026-10-02.headcrab-durable-reminders-v1",
   "schemaVersion": "home-center.public-tool-manifest.v1",
-  "toolCount": 62
+  "toolCount": 69
 }

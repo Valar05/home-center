@@ -1,0 +1,37 @@
+name: Historical Raw MP4 Checkout Integrity
+on:
+  pull_request:
+    paths:
+      - '.gitattributes'
+      - '.github/workflows/raw-mp4-checkout-integrity.yml'
+  push:
+    branches:
+      - fix/ritsu-cloud-release-legacy-lfs-20261023
+    paths:
+      - '.gitattributes'
+      - '.github/workflows/raw-mp4-checkout-integrity.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify two legacy raw Git MP4 blobs are byte exact
+        shell: bash
+        run: |
+          set -euo pipefail
+          for p in \
+            experiments/ascii-kinesis/001-backward-stairs/backward-stairs-ascii.mp4 \
+            experiments/ascii-kinesis/v2-locomotion-002-overhead-support-handoff/overhead-support-handoff.mp4; do
+            attr="$(git check-attr filter -- "$p")"
+            echo "$attr"
+            test "$attr" = "$p: filter: unset"
+            committed="$(git rev-parse "HEAD:$p")"
+            checkout="$(git hash-object "$p")"
+            test "$committed" = "$checkout"
+          done
+          test -z "$(git status --porcelain --untracked-files=all)"
+          echo HISTORICAL_RAW_MP4_CHECKOUT_PASS=1

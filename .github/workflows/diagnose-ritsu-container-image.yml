@@ -1,0 +1,34 @@
+name: Diagnose Ritsu Container Image
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  examine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOY_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Pull failed Cloud Run image and inspect launch error
+        run: |
+          set -e
+          gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+          IMAGE='us-central1-docker.pkg.dev/home-center-dclar/gcf-artifacts/home--center--dclar__us--central1__ritsu_voice@sha256:3faea8006a8fd6b0d5b3e3951061e90f5a4a2c73832093a3c865dbdab20f9b10'
+          docker pull "$IMAGE"
+          docker image inspect "$IMAGE" --format 'ENTRY={{json .Config.Entrypoint}} CMD={{json .Config.Cmd}}'
+          ID="$(docker run -d --memory=1g --cpus=1 -e PORT=8080 -p 18080:8080 "$IMAGE")"
+          OK=0
+          for i in $(seq 1 20); do
+            if curl --silent --fail http://127.0.0.1:18080/health >/tmp/ritsu-container-health.json; then OK=1; break; fi
+            if [ "$(docker inspect -f '{{.State.Running}}' "$ID")" = false ]; then break; fi
+            sleep 1
+          done
+          echo "LOCAL_IMAGE_HEALTH=$OK"
+          cat /tmp/ritsu-container-health.json 2>/dev/null || true
+          docker inspect "$ID" --format 'EXIT={{.State.ExitCode}} OOM={{.State.OOMKilled}} ERROR={{.State.Error}}'
+          docker logs "$ID" 2>&1 | tail -c 8000
+          docker rm -f "$ID" >/dev/null 2>&1 || true

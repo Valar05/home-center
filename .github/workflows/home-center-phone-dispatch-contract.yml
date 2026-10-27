@@ -1,0 +1,24 @@
+name: Home Center Phone Dispatch Contract
+on:
+  pull_request:
+    paths:
+      - 'functions/home_center_mcp.js'
+      - 'functions/phone_hands_relay.js'
+      - 'functions/home_center_phone_dispatch.test.js'
+      - '.github/workflows/home-center-phone-dispatch-contract.yml'
+  workflow_dispatch:
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check
+        run: |
+          node --check functions/home_center_mcp.js
+          node --check functions/phone_hands_relay.js
+          node --check functions/home_center_phone_dispatch.test.js
+      - name: Native Phone Hands dispatch regression
+        run: node --test functions/home_center_phone_dispatch.test.js

@@ -31,7 +31,13 @@ else
   [ "$HEAD_SHA" = "$MAIN_SHA" ] || fail "HEAD $HEAD_SHA is not the current origin/main commit $MAIN_SHA"
 fi
 
-[ -z "$(git -C "$ROOT" status --porcelain --untracked-files=all)" ] || fail "working tree is not clean"
+DIRTY_STATUS="$(git -C "$ROOT" status --porcelain --untracked-files=all)"
+if [ -n "$DIRTY_STATUS" ]; then
+  echo "homeCenterMcp publish gate: dirty checkout paths (status porcelain):" >&2
+  printf '%s\n' "$DIRTY_STATUS" >&2
+  git -C "$ROOT" diff --name-only >&2 || true
+  fail "working tree is not clean"
+fi
 
 if [ "$RELEASE_MODE" = "github-main-pin" ] && [ "$HEAD_SHA" != "$MAIN_SHA" ]; then
   printf '%s\n' "homeCenterMcp publish gate: verified pinned main release $HEAD_SHA; current origin/main advanced safely to descendant $MAIN_SHA"

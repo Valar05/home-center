@@ -32,20 +32,34 @@ Whenever the user must touch Termux manually, the handoff is not complete until 
 - If a handed-off command fails, fix the canonical script or command in the repository first, update this skill with the lesson, then give the corrected executable handoff. Do not leave the fix only in chat.
 - Do not paste multi-screen heredocs or installers into the user's interactive Termux shell. Long scripts belong in the durable repository and must be delivered by a short pull-and-run command or by Phone Hands. Chat is not a file-transfer protocol.
 
-## One-command relay recovery
-When the primary phone still appears registered but `lastSeenAtMs` stops advancing and newly enqueued commands remain untouched, treat that as a relay-consumption failure rather than repeatedly polling stale command records.
+## Relay watchdog and one-command recovery
 
-The canonical recovery entrypoint is:
+The primary-phone Home Center relay is expected to self-heal. Manual Termux recovery is a break-glass fallback, not normal operation.
+
+The canonical watchdog is `tools/phone_hands_watchdog.sh`. Its installer is `tools/install_phone_hands_watchdog.sh`.
+
+Watchdog law:
+- exactly one watchdog implementation owns relay liveness;
+- a Termux:Boot hook starts its resident loop, while the persisted JobScheduler entry is only a backstop for Android killing that loop;
+- both triggers share one run lock and call the same canonical recovery primitive;
+- no global wake lock, persistent notification, overlay resurrection, Android settings launch, Shizuku/rish dependency, or second relay implementation;
+- an absent relay is recovered automatically;
+- a fresh current-source heartbeat is healthy;
+- a live relay with a bounded in-flight command is protected from restart for the configured busy grace;
+- stale idle heartbeat, PID mismatch, or source-hash mismatch routes through `sh tools/home_center_phone_relay_recover.sh`;
+- duplicate relay processes fail closed for inspection rather than guessing which active command may be safe to kill.
+
+The canonical recovery entrypoint remains:
 
 `sh tools/home_center_phone_relay_recover.sh`
 
-Run it from the phone repo. It is idempotent: if the relay process is alive it leaves it alone; if absent it starts exactly one fresh relay, waits only on local process/log evidence, and prints a machine-readable receipt. Do not manually reconstruct the old `nohup python ...` incantation unless this script itself is broken.
+Run it from the phone repo only when the watchdog itself is absent/broken or during bounded maintenance. It verifies current source identity and requires a fresh Home Center poll before reporting recovery.
 
-The preferred full user handoff is:
+The preferred full break-glass handoff is:
 
-`cd /storage/emulated/0/Documents/GodotProjects/home-center-phone-hands && git pull --ff-only origin main && sh tools/home_center_phone_relay_recover.sh`
+`cd /storage/emulated/0/Documents/GodotProjects/home-center && sh tools/home_center_phone_relay_recover.sh`
 
-After recovery, use one fresh Home Center command to verify command consumption. If that command is consumed, continue the original job from actual phone state rather than rerunning completed installation steps.
+After watchdog installation or break-glass recovery, use one fresh Home Center command to verify command consumption. If that command is consumed, continue the original job from actual phone state rather than rerunning completed installation steps.
 
 ## Long-running job discipline
 Compilation, package builds, model downloads, installs, renders, and other expensive phone-side jobs must be launched once and then left alone.

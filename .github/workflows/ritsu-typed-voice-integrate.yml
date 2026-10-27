@@ -1,0 +1,58 @@
+name: Ritsu Typed Voice Integration
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/ritsu-typed-voice-v1
+    paths:
+      - 'functions/ritsu_voice_api.js'
+      - 'functions/ritsu_voice_api.test.js'
+      - 'workers/ritsu_warm_ticket_worker.py'
+      - 'tools/apply_ritsu_voice_patch.mjs'
+      - '.github/workflows/ritsu-typed-voice-integrate.yml'
+permissions:
+  contents: write
+jobs:
+  test-and-integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/ritsu-typed-voice-v1
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply deterministic Home Center wiring
+        run: node tools/apply_ritsu_voice_patch.mjs
+      - name: Syntax checks and unit tests
+        run: |
+          node --check functions/ritsu_voice_api.js
+          node --check functions/home_center_mcp.js
+          node --check functions/index.js
+          node --test functions/ritsu_voice_api.test.js
+          python -m py_compile workers/ritsu_warm_ticket_worker.py
+          python -m unittest discover -s workers -p 'test_ritsu_warm_ticket_worker.py'
+      - name: Confirm no legacy voice exposure and no arbitrary action
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          mcp=Path('functions/home_center_mcp.js').read_text()
+          js=Path('functions/ritsu_voice_api.js').read_text()
+          assert '...ritsuVoiceOperationEntries(),' in mcp
+          assert '...localVoiceOperationEntries(),' not in mcp
+          assert 'shell.exec' not in js
+          assert 'fixed:kokoro:af_heart' not in js
+          print('RITSU_TYPED_VOICE_INTEGRATION_OK')
+          PY
+      - name: Commit generated wiring
+        run: |
+          if [ -z "$(git status --porcelain functions/home_center_mcp.js functions/index.js)" ]; then
+            echo 'Integration already committed.'
+          else
+            git config user.name 'home-center-actions'
+            git config user.email 'home-center-actions@users.noreply.github.com'
+            git add functions/home_center_mcp.js functions/index.js
+            git commit -m 'Wire typed Ritsu voice, retire Kokoro operation exposure'
+            git push origin HEAD:feature/ritsu-typed-voice-v1
+          fi

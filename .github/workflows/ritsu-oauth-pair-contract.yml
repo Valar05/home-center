@@ -1,0 +1,43 @@
+name: Ritsu OAuth Cloud Pairing Contract
+on:
+  pull_request:
+    paths:
+      - 'functions/ritsu_cloud_pairing_mcp.js'
+      - 'functions/ritsu_cloud_pairing_mcp.test.js'
+      - 'functions/home_center_mcp.js'
+      - '.github/workflows/ritsu-oauth-pair-contract.yml'
+  push:
+    branches:
+      - feature/ritsu-pair-via-chatgpt-homecenter-oauth-20261023
+    paths:
+      - 'functions/ritsu_cloud_pairing_mcp.js'
+      - 'functions/ritsu_cloud_pairing_mcp.test.js'
+      - 'functions/home_center_mcp.js'
+      - '.github/workflows/ritsu-oauth-pair-contract.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify Home Center pairing source syntax and authenticated dispatcher
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check functions/ritsu_cloud_pairing_mcp.js
+          node --check functions/home_center_mcp.js
+          grep -q "'ritsu.cloud.pair.approve'" functions/home_center_mcp.js
+          grep -q "'ritsu.cloud.pair.status'" functions/home_center_mcp.js
+          grep -q 'requireCreditGatedEmail(user && user.email, operation)' functions/home_center_mcp.js
+          grep -q 'runRitsuCloudPairMcp({admin,user,operation,args:safeObject(args.args)})' functions/home_center_mcp.js
+      - name: Owner approval, negative cases and claim status
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test functions/ritsu_cloud_pairing_mcp.test.js
+          echo RITSU_MCP_CLOUD_PAIR_CONTRACT_PASS=1

@@ -1,0 +1,753 @@
+{
+  "compile": {
+    "connector_rule": "Interpolate coordinates only while custody/contact topology is unchanged; custody fork hard-cuts.",
+    "fps": 24,
+    "frames_total": 45,
+    "media": {
+      "bytes": 8665,
+      "decoded_frames": 45,
+      "probe": {
+        "avg_frame_rate": "24/1",
+        "codec_name": "h264",
+        "height": 192,
+        "nb_frames": "45",
+        "pix_fmt": "yuv420p",
+        "width": 320
+      },
+      "sha256": "35656408bef2d777ad1787de884abc7afb2c1cbb80d2179ba1da40851cf4542a",
+      "strict_decode": "PASS"
+    },
+    "method": "AUTHORED ASCII KEYS + DIRECTION PROFILE -> DETERMINISTIC CONNECTIVE MOTION -> ASCII-ONLY FRAME RENDER -> MP4 -> SPA",
+    "source_sprite_pixels_used": false
+  },
+  "correction_hooks": [
+    "KEEP",
+    "REJECT",
+    "EXAGGERATE",
+    "COMPRESS",
+    "RETIME",
+    "CHANGE SOURCE",
+    "FIX BLOCKER",
+    "RERUN"
+  ],
+  "direction": {
+    "sentence": "Run through the throw: pelvis and support keep traveling while the hand-object constraint loads, releases, recoils, and the free object outruns the body."
+  },
+  "experiment_id": "v2-contact-031-root-clock-custody-fork-running-release-repair",
+  "format_version": 2,
+  "keys": [
+    {
+      "A": {
+        "elbow_l": [
+          12,
+          8
+        ],
+        "elbow_r": [
+          8,
+          8
+        ],
+        "foot_l": [
+          16,
+          19
+        ],
+        "foot_r": [
+          5,
+          18
+        ],
+        "hand_l": [
+          15,
+          9
+        ],
+        "hand_r": [
+          5,
+          10
+        ],
+        "head": [
+          10,
+          4
+        ],
+        "knee_l": [
+          13,
+          15
+        ],
+        "knee_r": [
+          7,
+          15
+        ],
+        "root": [
+          10,
+          11
+        ],
+        "shoulder_l": [
+          8,
+          7
+        ],
+        "shoulder_r": [
+          12,
+          6
+        ]
+      },
+      "causal_role": "Carrier already travels; rear hand owns the object while the stride remains primary.",
+      "contact_state": "HAND_OBJECT",
+      "custody": "A_HAND",
+      "hold_frames": 3,
+      "key_id": "C031-K0",
+      "motion_arc_root_note": "Root advances before throw preparation; object relation is local.",
+      "name": "RUNNING_GATHER",
+      "object": {
+        "glyph": "o",
+        "position": [
+          5,
+          10
+        ],
+        "state": "ANCHORED"
+      },
+      "root": [
+        10,
+        11
+      ],
+      "root_owner": "A_LOCAL",
+      "support_A": "RIGHT_DRIVE",
+      "timing_class": "FOURS",
+      "timing_provenance": "DERIVED_UAT_OPINION"
+    },
+    {
+      "A": {
+        "elbow_l": [
+          16,
+          9
+        ],
+        "elbow_r": [
+          10,
+          6
+        ],
+        "foot_l": [
+          9,
+          19
+        ],
+        "foot_r": [
+          20,
+          19
+        ],
+        "hand_l": [
+          20,
+          10
+        ],
+        "hand_r": [
+          8,
+          5
+        ],
+        "head": [
+          15,
+          4
+        ],
+        "knee_l": [
+          12,
+          15
+        ],
+        "knee_r": [
+          17,
+          15
+        ],
+        "root": [
+          14,
+          11
+        ],
+        "shoulder_l": [
+          12,
+          7
+        ],
+        "shoulder_r": [
+          17,
+          6
+        ]
+      },
+      "causal_role": "Chest winds against travel while the catching leg accepts weight.",
+      "contact_state": "HAND_OBJECT",
+      "custody": "A_HAND",
+      "hold_frames": 2,
+      "key_id": "C031-K1",
+      "motion_arc_root_note": "Root continues right; rear-side object load does not freeze locomotion.",
+      "name": "COUNTERROTATE_LOAD",
+      "object": {
+        "glyph": "o",
+        "position": [
+          8,
+          5
+        ],
+        "state": "ANCHORED"
+      },
+      "root": [
+        14,
+        11
+      ],
+      "root_owner": "A_LOCAL",
+      "support_A": "LEFT_CATCH",
+      "timing_class": "TWOS",
+      "timing_provenance": "DERIVED_UAT_OPINION"
+    },
+    {
+      "A": {
+        "elbow_l": [
+          20,
+          10
+        ],
+        "elbow_r": [
+          15,
+          5
+        ],
+        "foot_l": [
+          25,
+          18
+        ],
+        "foot_r": [
+          14,
+          19
+        ],
+        "hand_l": [
+          23,
+          11
+        ],
+        "hand_r": [
+          13,
+          4
+        ],
+        "head": [
+          19,
+          4
+        ],
+        "knee_l": [
+          21,
+          15
+        ],
+        "knee_r": [
+          16,
+          15
+        ],
+        "root": [
+          18,
+          11
+        ],
+        "shoulder_l": [
+          16,
+          7
+        ],
+        "shoulder_r": [
+          21,
+          6
+        ]
+      },
+      "causal_role": "Cross-step carries the object past the torso without donating root authority to the hand.",
+      "contact_state": "HAND_OBJECT",
+      "custody": "A_HAND",
+      "hold_frames": 2,
+      "key_id": "C031-K2",
+      "motion_arc_root_note": "Pelvis overtakes the loaded hand; custody stays local.",
+      "name": "CROSSSTEP_CARRY",
+      "object": {
+        "glyph": "o",
+        "position": [
+          13,
+          4
+        ],
+        "state": "ANCHORED"
+      },
+      "root": [
+        18,
+        11
+      ],
+      "root_owner": "A_LOCAL",
+      "support_A": "RIGHT_DRIVE",
+      "timing_class": "TWOS",
+      "timing_provenance": "DERIVED_UAT_OPINION"
+    },
+    {
+      "A": {
+        "elbow_l": [
+          18,
+          9
+        ],
+        "elbow_r": [
+          29,
+          6
+        ],
+        "foot_l": [
+          17,
+          19
+        ],
+        "foot_r": [
+          29,
+          18
+        ],
+        "hand_l": [
+          17,
+          10
+        ],
+        "hand_r": [
+          32,
+          5
+        ],
+        "head": [
+          23,
+          4
+        ],
+        "knee_l": [
+          20,
+          15
+        ],
+        "knee_r": [
+          25,
+          15
+        ],
+        "root": [
+          22,
+          11
+        ],
+        "shoulder_l": [
+          20,
+          7
+        ],
+        "shoulder_r": [
+          25,
+          6
+        ]
+      },
+      "causal_role": "Throw side whips forward after pelvis lead; opposite arm opens negative space.",
+      "contact_state": "HAND_OBJECT",
+      "custody": "A_HAND",
+      "hold_frames": 1,
+      "key_id": "C031-K3",
+      "motion_arc_root_note": "Hand-object anchor reaches release window while root velocity remains forward.",
+      "name": "WHIP_WINDOW",
+      "object": {
+        "glyph": "o",
+        "position": [
+          32,
+          5
+        ],
+        "state": "ANCHORED"
+      },
+      "root": [
+        22,
+        11
+      ],
+      "root_owner": "A_LOCAL",
+      "support_A": "LEFT_CATCH",
+      "timing_class": "ONES",
+      "timing_provenance": "DERIVED_UAT_OPINION"
+    },
+    {
+      "A": {
+        "elbow_l": [
+          22,
+          8
+        ],
+        "elbow_r": [
+          33,
+          7
+        ],
+        "foot_l": [
+          32,
+          19
+        ],
+        "foot_r": [
+          22,
+          18
+        ],
+        "hand_l": [
+          20,
+          9
+        ],
+        "hand_r": [
+          36,
+          7
+        ],
+        "head": [
+          27,
+          4
+        ],
+        "knee_l": [
+          29,
+          15
+        ],
+        "knee_r": [
+          24,
+          15
+        ],
+        "root": [
+          26,
+          11
+        ],
+        "shoulder_l": [
+          24,
+          7
+        ],
+        "shoulder_r": [
+          29,
+          6
+        ]
+      },
+      "causal_role": "Custody breaks at full directional commitment, not at a stop pose.",
+      "contact_state": "NONE",
+      "custody": "FREE",
+      "hold_frames": 1,
+      "key_id": "C031-K4",
+      "motion_arc_root_note": "A_HAND -> FREE is a hard causal fork; root clock remains continuous.",
+      "name": "RELEASE_FORK",
+      "object": {
+        "glyph": "o",
+        "position": [
+          38,
+          6
+        ],
+        "state": "FREE"
+      },
+      "root": [
+        26,
+        11
+      ],
+      "root_owner": "A_LOCAL",
+      "support_A": "RIGHT_DRIVE",
+      "timing_class": "ONES",
+      "timing_provenance": "DERIVED_UAT_OPINION"
+    },
+    {
+      "A": {
+        "elbow_l": [
+          27,
+          6
+        ],
+        "elbow_r": [
+          36,
+          10
+        ],
+        "foot_l": [
+          26,
+          19
+        ],
+        "foot_r": [
+          39,
+          18
+        ],
+        "hand_l": [
+          25,
+          7
+        ],
+        "hand_r": [
+          38,
+          12
+        ],
+        "head": [
+          32,
+          4
+        ],
+        "knee_l": [
+          28,
+          15
+        ],
+        "knee_r": [
+          35,
+          15
+        ],
+        "root": [
+          31,
+          11
+        ],
+        "shoulder_l": [
+          29,
+          6
+        ],
+        "shoulder_r": [
+          34,
+          8
+        ]
+      },
+      "causal_role": "Throw arm overshoots low while the next step catches the still-moving center of mass.",
+      "contact_state": "NONE",
+      "custody": "FREE",
+      "hold_frames": 3,
+      "key_id": "C031-K5",
+      "motion_arc_root_note": "Free object gains lead; shoulder recoil lags pelvis instead of reversing release.",
+      "name": "RUN_THROUGH_RECOIL",
+      "object": {
+        "glyph": "o",
+        "position": [
+          46,
+          5
+        ],
+        "state": "FREE"
+      },
+      "root": [
+        31,
+        11
+      ],
+      "root_owner": "A_LOCAL",
+      "support_A": "LEFT_CATCH",
+      "timing_class": "TWOS",
+      "timing_provenance": "DERIVED_UAT_OPINION"
+    },
+    {
+      "A": {
+        "elbow_l": [
+          38,
+          9
+        ],
+        "elbow_r": [
+          34,
+          9
+        ],
+        "foot_l": [
+          43,
+          19
+        ],
+        "foot_r": [
+          31,
+          18
+        ],
+        "hand_l": [
+          42,
+          10
+        ],
+        "hand_r": [
+          31,
+          10
+        ],
+        "head": [
+          36,
+          4
+        ],
+        "knee_l": [
+          39,
+          15
+        ],
+        "knee_r": [
+          34,
+          15
+        ],
+        "root": [
+          36,
+          11
+        ],
+        "shoulder_l": [
+          33,
+          7
+        ],
+        "shoulder_r": [
+          39,
+          6
+        ]
+      },
+      "causal_role": "Arm swing re-enters the run cycle while projectile separation keeps increasing.",
+      "contact_state": "NONE",
+      "custody": "FREE",
+      "hold_frames": 3,
+      "key_id": "C031-K6",
+      "motion_arc_root_note": "Carrier recovers on its own locomotor phase; object keeps independent clock.",
+      "name": "OBJECT_OUTRUNS_BODY",
+      "object": {
+        "glyph": "o",
+        "position": [
+          54,
+          6
+        ],
+        "state": "FREE"
+      },
+      "root": [
+        36,
+        11
+      ],
+      "root_owner": "A_LOCAL",
+      "support_A": "RIGHT_DRIVE",
+      "timing_class": "TWOS",
+      "timing_provenance": "DERIVED_UAT_OPINION"
+    },
+    {
+      "A": {
+        "elbow_l": [
+          36,
+          8
+        ],
+        "elbow_r": [
+          46,
+          9
+        ],
+        "foot_l": [
+          36,
+          19
+        ],
+        "foot_r": [
+          49,
+          19
+        ],
+        "hand_l": [
+          34,
+          9
+        ],
+        "hand_r": [
+          49,
+          10
+        ],
+        "head": [
+          41,
+          4
+        ],
+        "knee_l": [
+          39,
+          15
+        ],
+        "knee_r": [
+          45,
+          15
+        ],
+        "root": [
+          41,
+          11
+        ],
+        "shoulder_l": [
+          38,
+          6
+        ],
+        "shoulder_r": [
+          44,
+          7
+        ]
+      },
+      "causal_role": "Recovery is another committed stride, not return-to-idle.",
+      "contact_state": "NONE",
+      "custody": "FREE",
+      "hold_frames": 4,
+      "key_id": "C031-K7",
+      "motion_arc_root_note": "Root exits right with asymmetry preserved; free object approaches frame exit.",
+      "name": "RECOVERY_CROSSING",
+      "object": {
+        "glyph": "o",
+        "position": [
+          61,
+          8
+        ],
+        "state": "FREE"
+      },
+      "root": [
+        41,
+        11
+      ],
+      "root_owner": "A_LOCAL",
+      "support_A": "LEFT_CATCH",
+      "timing_class": "FOURS",
+      "timing_provenance": "DERIVED_UAT_OPINION"
+    },
+    {
+      "A": {
+        "elbow_l": [
+          48,
+          9
+        ],
+        "elbow_r": [
+          45,
+          8
+        ],
+        "foot_l": [
+          53,
+          18
+        ],
+        "foot_r": [
+          41,
+          19
+        ],
+        "hand_l": [
+          52,
+          10
+        ],
+        "hand_r": [
+          42,
+          9
+        ],
+        "head": [
+          47,
+          4
+        ],
+        "knee_l": [
+          50,
+          15
+        ],
+        "knee_r": [
+          44,
+          15
+        ],
+        "root": [
+          46,
+          11
+        ],
+        "shoulder_l": [
+          44,
+          7
+        ],
+        "shoulder_r": [
+          49,
+          6
+        ]
+      },
+      "causal_role": "Object has left the frame; carrier continues with unresolved locomotor debt.",
+      "contact_state": "NONE",
+      "custody": "OUTSIDE",
+      "hold_frames": 5,
+      "key_id": "C031-K8",
+      "motion_arc_root_note": "Release is proven orthogonal to root motion because carrier never stops to complete it.",
+      "name": "RUNNING_EXIT",
+      "object": {
+        "glyph": "o",
+        "position": null,
+        "state": "OUTSIDE"
+      },
+      "root": [
+        46,
+        11
+      ],
+      "root_owner": "A_LOCAL",
+      "support_A": "RIGHT_DRIVE",
+      "timing_class": "FOURS",
+      "timing_provenance": "DERIVED_UAT_OPINION"
+    }
+  ],
+  "lane": "contact",
+  "principle": "OBJECT RELEASE IS ORTHOGONAL TO ROOT MOTION",
+  "revision": {
+    "negative_fixture": "experiments/ascii-kinesis/v2-contact-002-root-clock-custody-fork/",
+    "reset_issue_comment": 5634613836,
+    "revises": "experiments/ascii-kinesis/v2-contact-002-root-clock-custody-fork/",
+    "source_change": false,
+    "successor_identity_issue_comment": 5744486433
+  },
+  "schema": "ascii-kinesis.motion.v2",
+  "source": {
+    "asset_id": 52578,
+    "game": "Super Mario Bros. 2: The Lost Levels (JPN)",
+    "name": "Mario & Luigi",
+    "platform": "NES",
+    "raw_bytes": 52370,
+    "raw_dimensions": [
+      584,
+      468
+    ],
+    "raw_sha256": "7aa238a5d3cb74646aa93659241a3f933caea45d7908a27e59fa56a477d33bf6",
+    "region": [
+      12,
+      300,
+      250,
+      103
+    ],
+    "rights": "evidence-only; no source pixels, palette, costume, exact silhouette, choreography, tracing, or redistribution",
+    "site": "The Spriters Resource",
+    "source_timing": "UNKNOWN",
+    "whole_sheet_inspected": true
+  },
+  "source_roles": [
+    "POSE_REFERENCE",
+    "CONTACT_TOPOLOGY_REFERENCE"
+  ],
+  "timing": {
+    "authority": "worker-authored",
+    "fps": 24,
+    "provenance": "DERIVED_UAT_OPINION"
+  }
+}

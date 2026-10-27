@@ -11,6 +11,10 @@ ACCEPT=ROOT/'tools'/'accept_fortress_image_phone.sh'
 CAMPAIGN=ROOT/'tools'/'improper_image_delivery_campaign.sh'
 SSH_AXIS=ROOT/'tools'/'ssh_axis.py'
 RESOLVER=ROOT/'tools'/'resolve_cauldron_ssh.py'
+CLI=ROOT/'tools'/'fortress_image_cli.py'
+PRESETS=ROOT/'tools'/'fortress_image_presets.json'
+CAULDRON=ROOT/'tools'/'fortress_image_cauldron.ps1'
+CLI_TEST=ROOT/'tools'/'test_fortress_image_cli.py'
 DOC=ROOT/'docs'/'IMPROPER_IMAGE_DELIVERY_CAMPAIGN.md'
 RELAY_TEST=ROOT/'tools'/'test_phone_relay_shizuku_independence.py'
 
@@ -27,24 +31,35 @@ def forbid(text, needle, owner):
 
 def main():
     for shell in (GEN,ENTRY,INSTALL,ACCEPT,CAMPAIGN):
-        subprocess.run(['bash','-n',str(shell)],check=True)
-    subprocess.run([sys.executable,'-m','py_compile',str(SSH_AXIS),str(RESOLVER)],check=True)
+        rel=shell.relative_to(ROOT).as_posix()
+        subprocess.run(
+            ['bash','-lc',f'git show HEAD:{rel} | bash -n'],
+            cwd=ROOT,
+            check=True,
+        )
+    subprocess.run([sys.executable,'-m','py_compile',str(SSH_AXIS),str(RESOLVER),str(CLI)],check=True)
     subprocess.run([sys.executable,str(RELAY_TEST)],check=True)
+    subprocess.run([sys.executable,str(CLI_TEST)],check=True)
 
-    gen=GEN.read_text()
-    entry=ENTRY.read_text()
-    install=INSTALL.read_text()
-    accept=ACCEPT.read_text()
-    campaign=CAMPAIGN.read_text()
-    resolver=RESOLVER.read_text()
-    doc=DOC.read_text()
+    gen=GEN.read_text(encoding="utf-8")
+    entry=ENTRY.read_text(encoding="utf-8")
+    install=INSTALL.read_text(encoding="utf-8")
+    accept=ACCEPT.read_text(encoding="utf-8")
+    campaign=CAMPAIGN.read_text(encoding="utf-8")
+    resolver=RESOLVER.read_text(encoding="utf-8")
+    cli=CLI.read_text(encoding="utf-8")
+    presets=PRESETS.read_text(encoding="utf-8")
+    cauldron=CAULDRON.read_text(encoding="utf-8")
+    doc=DOC.read_text(encoding="utf-8")
 
     for fragment in (
         "FORTRESS_IMAGE_PROFILE:-fleshpunk",
-        "fleshpunk|plain",
-        "http://127.0.0.1:8188",
         "v1-5-pruned-emaonly.safetensors",
         "drw_fleshpunk_v1.safetensors",
+        "fortress_image_cauldron.ps1",
+        "FORTRESS_IMAGE_LORAS_JSON",
+        "FORTRESS_IMAGE_MODE",
+        "FORTRESS_IMAGE_COUNT",
         "publicPhonePath",
         "publicPhoneSha256",
         "/storage/emulated/0/Pictures/Fortress",
@@ -52,6 +67,32 @@ def main():
         "public image final readback mismatch",
     ):
         require(gen,fragment,'generator')
+    for fragment in (
+        "http://127.0.0.1:8188",
+        "CheckpointLoaderSimple",
+        "LoraLoader",
+        "New-ContactSheet",
+        "huggingface.co",
+        "Get-FileHash -Algorithm SHA256",
+        "fortress-image-phone-receipt.v2",
+    ):
+        require(cauldron,fragment,'cauldron runtime')
+    for fragment in (
+        "DreamShaper_8_pruned.safetensors",
+        "add_detail.safetensors",
+        "graphic-thirst",
+        "fleshpunk-plus",
+        "879db523c30d3b9017143d56705015e15a2cb5628762c11d086fed9538abd7fd",
+        "47aaaf0d2945ca937151d61304946dd229b3f072140b85484bc93e38f2a6e2f7",
+    ):
+        require(presets,fragment,'preset registry')
+    for fragment in (
+        "deterministic_seed",
+        "at most four LoRAs",
+        "fortress_image_entry.sh",
+        "FORTRESS_IMAGE_LORAS_JSON",
+    ):
+        require(cli,fragment,'deterministic CLI')
     forbid(gen,'100.68.37.106','generator')
     forbid(gen,'0.0.0.0:8188','generator')
 
@@ -67,6 +108,9 @@ def main():
         'fortress-image',
         'fortress-image-accept',
         'fortress-image-ui',
+        'fortress_image_cli.py',
+        'fortress_image_presets.json',
+        'fortress_image_cauldron.ps1',
         'Improper Image',
         'Pictures/Fortress',
         'export FORTRESS_IMAGE_PROFILE=fleshpunk',

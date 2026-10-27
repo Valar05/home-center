@@ -1,0 +1,34 @@
+name: Home Center MCP LFS Checkout Preflight
+on:
+  push:
+    branches: ['fix/home-center-deploy-lfs-checkout-20261023']
+    paths:
+      - '.github/workflows/deploy-home-center-mcp-only.yml'
+      - '.github/workflows/home-center-mcp-lfs-preflight.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/deploy-home-center-mcp-only.yml'
+      - '.github/workflows/home-center-mcp-lfs-preflight.yml'
+permissions:
+  contents: read
+jobs:
+  clean-checkout:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate narrowly scoped legacy media filter override
+        run: |
+          attrs="$(git rev-parse --git-path info/attributes)"
+          mkdir -p "$(dirname "$attrs")"
+          cat >> "$attrs" <<'RITSU_LFS_RAW_LEGACY'
+          experiments/ascii-kinesis/001-backward-stairs/backward-stairs-ascii.mp4 -filter -diff -merge
+          experiments/ascii-kinesis/v2-locomotion-002-overhead-support-handoff/overhead-support-handoff.mp4 -filter -diff -merge
+          RITSU_LFS_RAW_LEGACY
+          git reset --hard HEAD
+          git clean -fd
+          git status --short --untracked-files=all
+          test -z "$(git status --porcelain --untracked-files=all)"
+          test -z "$(git diff --name-only)"
+          echo 'EXACT_RELEASE_CHECKOUT_CLEAN'

@@ -1,24 +1,230 @@
 {
-  "schema":"ascii-kinesis.motion.v2",
-  "experiment_id":"v2-video-motion-013-black-pirate-compression-release-repair",
-  "lane":"video-motion",
-  "format_version":2,
-  "revision":{"authoritative_reset":"5634613836","revises":"experiments/ascii-kinesis/v2-video-motion-001-black-pirate-compression-release/","negative_fixture":"experiments/ascii-kinesis/v2-video-motion-001-black-pirate-compression-release/","negative_fixture_status":"REVISE_REQUIRED_LOW_EFFORT","source_change":false,"predecessor_preserved":true},
-  "source":{"title":"He'll walk the plank.webm","origin":"The Black Pirate (1926)","rights":"PD-US","home_center_document":"1LSyS83R9ekKhepMwR38iv2P29giqUoOLJyeMyFAtbpA","sha1":"249a58eaf8ea1c3fe2c4232e23184f757a1ad80c","bytes":1281353,"duration_s":19.017,"dimensions":[640,480],"roles":["POSE_REFERENCE","CONTACT_REFERENCE"],"timing_authority":false,"full_performance_authority":false,"source_pixels_audio_in_output":false},
-  "direction_profile":{"owner":"AUTHORED_WORKER_DIRECTION","transport_cadence_is_not_performance_cadence":true,"source_timing_leak":false,"performance_goal":"crooked rear-load -> COM transfer -> toe-off -> unsupported commitment -> costly catch -> distal overshoot -> second-foot brake -> displaced recovery debt"},
-  "keys":[
-    {"key_id":"K0","causal_role":"SET_TENSION","timing_class":"FOURS","timing_provenance":"INFERRED","hold_frames":8,"source_locator_s":15.0,"source_locator_provenance":"OBSERVED","support_contact":"A bilateral support; B rear/right dominant.","motion_note":"Wide crooked rear-loaded coil; distal arm late."},
-    {"key_id":"K1","causal_role":"DEEP_COIL","timing_class":"FOURS","timing_provenance":"INFERRED","hold_frames":6,"source_locator_s":16.0,"source_locator_provenance":"OBSERVED","support_contact":"B rear/right support remains load-bearing.","motion_note":"Pelvis sinks/advances while head and rear hand lag."},
-    {"key_id":"K2","causal_role":"COM_TRANSFER","timing_class":"TWOS","timing_provenance":"INFERRED","hold_frames":2,"source_locator_s":17.0,"source_locator_provenance":"OBSERVED","support_contact":"B lead/left accepts load; rear heel peels.","motion_note":"COM moves toward lead support before launch."},
-    {"key_id":"K3","causal_role":"TOE_OFF_IGNITION","timing_class":"ONES","timing_provenance":"INFERRED","hold_frames":1,"source_locator_s":17.75,"source_locator_provenance":"OBSERVED","support_contact":"Final lead-foot drive then support releases.","motion_note":"Pelvis launches left while distal mass lags."},
-    {"key_id":"K4","causal_role":"BALLISTIC_CROSS","timing_class":"ONES","timing_provenance":"INFERRED","hold_frames":1,"source_locator_s":17.917,"source_locator_provenance":"OBSERVED","support_contact":"B unsupported for one decisive state; A grounded.","motion_note":"A yields right to preserve crossing corridor."},
-    {"key_id":"K5","causal_role":"CATCH_CONTACT","timing_class":"ONES","timing_provenance":"INFERRED","hold_frames":2,"source_locator_s":18.25,"source_locator_provenance":"OBSERVED","support_contact":"B left foot catches; knee bends; pelvis keeps traveling.","motion_note":"Contact stops foot before root."},
-    {"key_id":"K6","causal_role":"OVERSHOOT","timing_class":"TWOS","timing_provenance":"INFERRED","hold_frames":2,"source_locator_s":18.5,"source_locator_provenance":"OBSERVED","support_contact":"Left support persists; right foot not yet load-bearing.","motion_note":"Root overshoots catch; trailing arm whips high."},
-    {"key_id":"K7","causal_role":"BRAKE_REACQUIRE","timing_class":"TWOS","timing_provenance":"INFERRED","hold_frames":4,"source_locator_s":null,"source_locator_provenance":"NONE_EXACT","support_contact":"Second/right foot plants; two-point base brakes travel.","motion_note":"Torso uncoils later than feet."},
-    {"key_id":"K8","causal_role":"RECOVERY_DEBT","timing_class":"FOURS","timing_provenance":"INFERRED","hold_frames":12,"source_locator_s":18.75,"source_locator_provenance":"OBSERVED","support_contact":"Bilateral support restored; stance displaced/crooked.","motion_note":"No idle reset; high arm and asymmetric base retain debt."}
+  "schema": "ascii-kinesis.motion.v2",
+  "experiment_id": "v2-video-motion-013-black-pirate-compression-release-repair",
+  "lane": "video-motion",
+  "format_version": 2,
+  "revision": {
+    "authoritative_reset": "5634613836",
+    "revises": "experiments/ascii-kinesis/v2-video-motion-001-black-pirate-compression-release/",
+    "negative_fixture": "experiments/ascii-kinesis/v2-video-motion-001-black-pirate-compression-release/",
+    "negative_fixture_status": "REVISE_REQUIRED_LOW_EFFORT",
+    "source_change": false,
+    "predecessor_preserved": true
+  },
+  "source": {
+    "title": "He'll walk the plank.webm",
+    "origin": "The Black Pirate (1926)",
+    "rights": "PD-US",
+    "home_center_document": "1LSyS83R9ekKhepMwR38iv2P29giqUoOLJyeMyFAtbpA",
+    "sha1": "249a58eaf8ea1c3fe2c4232e23184f757a1ad80c",
+    "bytes": 1281353,
+    "duration_s": 19.017,
+    "dimensions": [
+      640,
+      480
+    ],
+    "roles": [
+      "POSE_REFERENCE",
+      "CONTACT_REFERENCE"
+    ],
+    "timing_authority": false,
+    "full_performance_authority": false,
+    "source_pixels_audio_in_output": false
+  },
+  "direction_profile": {
+    "owner": "AUTHORED_WORKER_DIRECTION",
+    "transport_cadence_is_not_performance_cadence": true,
+    "source_timing_leak": false,
+    "performance_goal": "crooked rear-load -> COM transfer -> toe-off -> unsupported commitment -> costly catch -> distal overshoot -> second-foot brake -> displaced recovery debt"
+  },
+  "keys": [
+    {
+      "key_id": "K0",
+      "causal_role": "SET_TENSION",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED",
+      "hold_frames": 8,
+      "source_locator_s": 15.0,
+      "source_locator_provenance": "OBSERVED",
+      "support_contact": "A bilateral support; B rear/right dominant.",
+      "motion_note": "Wide crooked rear-loaded coil; distal arm late."
+    },
+    {
+      "key_id": "K1",
+      "causal_role": "DEEP_COIL",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED",
+      "hold_frames": 6,
+      "source_locator_s": 16.0,
+      "source_locator_provenance": "OBSERVED",
+      "support_contact": "B rear/right support remains load-bearing.",
+      "motion_note": "Pelvis sinks/advances while head and rear hand lag."
+    },
+    {
+      "key_id": "K2",
+      "causal_role": "COM_TRANSFER",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED",
+      "hold_frames": 2,
+      "source_locator_s": 17.0,
+      "source_locator_provenance": "OBSERVED",
+      "support_contact": "B lead/left accepts load; rear heel peels.",
+      "motion_note": "COM moves toward lead support before launch."
+    },
+    {
+      "key_id": "K3",
+      "causal_role": "TOE_OFF_IGNITION",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED",
+      "hold_frames": 1,
+      "source_locator_s": 17.75,
+      "source_locator_provenance": "OBSERVED",
+      "support_contact": "Final lead-foot drive then support releases.",
+      "motion_note": "Pelvis launches left while distal mass lags."
+    },
+    {
+      "key_id": "K4",
+      "causal_role": "BALLISTIC_CROSS",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED",
+      "hold_frames": 1,
+      "source_locator_s": 17.917,
+      "source_locator_provenance": "OBSERVED",
+      "support_contact": "B unsupported for one decisive state; A grounded.",
+      "motion_note": "A yields right to preserve crossing corridor."
+    },
+    {
+      "key_id": "K5",
+      "causal_role": "CATCH_CONTACT",
+      "timing_class": "ONES",
+      "timing_provenance": "INFERRED",
+      "hold_frames": 2,
+      "source_locator_s": 18.25,
+      "source_locator_provenance": "OBSERVED",
+      "support_contact": "B left foot catches; knee bends; pelvis keeps traveling.",
+      "motion_note": "Contact stops foot before root."
+    },
+    {
+      "key_id": "K6",
+      "causal_role": "OVERSHOOT",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED",
+      "hold_frames": 2,
+      "source_locator_s": 18.5,
+      "source_locator_provenance": "OBSERVED",
+      "support_contact": "Left support persists; right foot not yet load-bearing.",
+      "motion_note": "Root overshoots catch; trailing arm whips high."
+    },
+    {
+      "key_id": "K7",
+      "causal_role": "BRAKE_REACQUIRE",
+      "timing_class": "TWOS",
+      "timing_provenance": "INFERRED",
+      "hold_frames": 4,
+      "source_locator_s": null,
+      "source_locator_provenance": "NONE_EXACT",
+      "support_contact": "Second/right foot plants; two-point base brakes travel.",
+      "motion_note": "Torso uncoils later than feet."
+    },
+    {
+      "key_id": "K8",
+      "causal_role": "RECOVERY_DEBT",
+      "timing_class": "FOURS",
+      "timing_provenance": "INFERRED",
+      "hold_frames": 12,
+      "source_locator_s": 18.75,
+      "source_locator_provenance": "OBSERVED",
+      "support_contact": "Bilateral support restored; stance displaced/crooked.",
+      "motion_note": "No idle reset; high arm and asymmetric base retain debt."
+    }
   ],
-  "bridges":[{"from":"K0","to":"K1","frames":6,"easing":"compress"},{"from":"K1","to":"K2","frames":5,"easing":"compress"},{"from":"K2","to":"K3","frames":3,"easing":"accelerate"},{"from":"K3","to":"K4","frames":2,"easing":"snap"},{"from":"K4","to":"K5","frames":2,"easing":"ballistic"},{"from":"K5","to":"K6","frames":4,"easing":"catch"},{"from":"K6","to":"K7","frames":4,"easing":"overshoot"},{"from":"K7","to":"K8","frames":6,"easing":"damped"}],
-  "media":{"mime":"video/mp4","encoding":"H.264 yuv420p","dimensions":[352,112],"embedded":"data_uri_in_spa","sha256":"3f783b749ad86b36ba12051e53380cbfb4bfa2d4762f94e04a75e4b565ffda61","bytes":12782,"frame_count":70,"compile_fps":24,"duration_s":2.9166666666666665,"source_pixels":false,"source_audio":false},
-  "quality_gates":{"tango":{"status":"PASS","current_worker":true,"final_render_sha256":"3f783b749ad86b36ba12051e53380cbfb4bfa2d4762f94e04a75e4b565ffda61","prior_revise_required":"Crossing K5-K7 stacked B over A, reading as merged collision.","same_body_correction":"A root stayed planted while torso/head/arms yielded screen-right to open negative-space corridor."},"queen":{"status":"PASS","after_tango_pass":true,"same_final_render_sha256":"3f783b749ad86b36ba12051e53380cbfb4bfa2d4762f94e04a75e4b565ffda61"}},
-  "status":"QUALITY_GATES_PASS_READY_FOR_REPO_PERSISTENCE"
+  "bridges": [
+    {
+      "from": "K0",
+      "to": "K1",
+      "frames": 6,
+      "easing": "compress"
+    },
+    {
+      "from": "K1",
+      "to": "K2",
+      "frames": 5,
+      "easing": "compress"
+    },
+    {
+      "from": "K2",
+      "to": "K3",
+      "frames": 3,
+      "easing": "accelerate"
+    },
+    {
+      "from": "K3",
+      "to": "K4",
+      "frames": 2,
+      "easing": "snap"
+    },
+    {
+      "from": "K4",
+      "to": "K5",
+      "frames": 2,
+      "easing": "ballistic"
+    },
+    {
+      "from": "K5",
+      "to": "K6",
+      "frames": 4,
+      "easing": "catch"
+    },
+    {
+      "from": "K6",
+      "to": "K7",
+      "frames": 4,
+      "easing": "overshoot"
+    },
+    {
+      "from": "K7",
+      "to": "K8",
+      "frames": 6,
+      "easing": "damped"
+    }
+  ],
+  "media": {
+    "mime": "video/mp4",
+    "encoding": "H.264 yuv420p",
+    "dimensions": [
+      352,
+      112
+    ],
+    "embedded": "data_uri_in_spa",
+    "sha256": "6422ea5998d8e94a4f1d4ca107b66b36d329ce2ef382f82b3eb9ac0e847d4a10",
+    "bytes": 12090,
+    "frame_count": 70,
+    "compile_fps": 24,
+    "duration_s": 2.9166666666666665,
+    "source_pixels": false,
+    "source_audio": false
+  },
+  "quality_gates": {
+    "tango": {
+      "status": "PENDING_RERUN_MEDIA_CHANGED",
+      "required_media_sha256": "6422ea5998d8e94a4f1d4ca107b66b36d329ce2ef382f82b3eb9ac0e847d4a10",
+      "historical_declared_media_evidence": {
+        "status": "PASS",
+        "current_worker": true,
+        "final_render_sha256": "3f783b749ad86b36ba12051e53380cbfb4bfa2d4762f94e04a75e4b565ffda61",
+        "prior_revise_required": "Crossing K5-K7 stacked B over A, reading as merged collision.",
+        "same_body_correction": "A root stayed planted while torso/head/arms yielded screen-right to open negative-space corridor."
+      }
+    },
+    "queen": {
+      "status": "PENDING_AFTER_TANGO_PASS",
+      "required_media_sha256": "6422ea5998d8e94a4f1d4ca107b66b36d329ce2ef382f82b3eb9ac0e847d4a10",
+      "historical_declared_media_evidence": {
+        "status": "PASS",
+        "after_tango_pass": true,
+        "same_final_render_sha256": "3f783b749ad86b36ba12051e53380cbfb4bfa2d4762f94e04a75e4b565ffda61"
+      }
+    }
+  },
+  "status": "PERSISTED_NOT_DELIVERED_MEDIA_REPAIRED_PENDING_VISIBLE_QUALITY_GATES"
 }

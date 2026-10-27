@@ -14,35 +14,61 @@ const statusMenu = read('tools/home_center_status_menu.sh');
 const overlayRecovery = read('tools/recover_adam_overlay_phone.sh');
 const decommission = read('tools/decommission_termux_legacy.sh');
 
-// A background health worker must not pin Termux's global process wake lock or
-// emit persistent UI/notification surfaces as a side effect of health checks.
-assert(!watchdog.includes('termux-wake-lock'), 'legacy Phone Hands watchdog must not acquire Termux global wake lock');
-assert(!watchdog.includes('termux-notification '), 'legacy Phone Hands watchdog must not create Termux notifications');
-assert(!watchdog.includes('android.settings'), 'legacy Phone Hands watchdog must not launch Android settings UI');
+for (const forbidden of [
+  'termux-wake-lock',
+  'termux-notification ',
+  'android.settings',
+  'SYSTEM_ALERT_WINDOW',
+  'operator_overlay',
+  'functions/phone_hands_relay.js',
+]) {
+  assert(!watchdog.includes(forbidden), `canonical Phone Hands watchdog must not contain legacy/visible side effect: ${forbidden}`);
+}
 
-// Overlapping resurrection mechanisms are forbidden by default. Archaeology is
-// allowed only through an explicit opt-in environment variable.
-assert(installer.includes('HC_ENABLE_LEGACY_PHONE_HANDS_WATCHDOG'), 'legacy watchdog installer must remain explicit opt-in');
-assert(installer.includes('decommission_termux_legacy.sh'), 'accidental legacy watchdog install must route to decommissioning');
-assert(statusMenu.includes('HC_ENABLE_LEGACY_STATUS_MENU'), 'persistent Home Center status menu must remain explicit opt-in');
-assert(overlayRecovery.includes('HC_ENABLE_LEGACY_OPERATOR_OVERLAY'), 'operator overlay recovery must remain explicit opt-in');
+for (const required of [
+  'home_center_phone_relay_recover.sh',
+  'phone-relay-heartbeat.json',
+  'phone-hands-watchdog.run.lock',
+  'BUSY_PROTECTED',
+  'relay_absent',
+  'idle_heartbeat_stale',
+  'heartbeat_pid_mismatch',
+  'source_hash_mismatch',
+]) {
+  assert(watchdog.includes(required), `canonical watchdog missing deterministic liveness/recovery marker: ${required}`);
+}
 
-// Decommissioning is reversible and must preserve the break-glass shell while
-// removing the known resurrection/UI sources.
+// Clean-slate permits multiple launch triggers only when they invoke one canonical
+// watchdog implementation behind the same lock and recovery primitive.
+for (const required of [
+  '20-phone-hands-watchdog',
+  'termux-job-scheduler',
+  '--job-id',
+  '900000',
+  'PHONE_HANDS_WATCHDOG_ACTIVE',
+]) {
+  assert(installer.includes(required), `watchdog installer missing durable trigger: ${required}`);
+}
+assert(!installer.includes('HC_ENABLE_LEGACY_PHONE_HANDS_WATCHDOG'), 'canonical watchdog must not require legacy opt-in');
+assert(!installer.includes('exec "$DECOMMISSION"'), 'watchdog installation must never decommission itself');
+assert(!installer.includes('termux-wake-lock'), 'watchdog installer must not take a global wake lock');
+assert(!installer.includes('termux-notification'), 'watchdog installer must not create persistent notifications');
+
+assert(statusMenu.includes('HC_ENABLE_LEGACY_STATUS_MENU'), 'persistent Home Center status menu remains explicit opt-in');
+assert(overlayRecovery.includes('HC_ENABLE_LEGACY_OPERATOR_OVERLAY'), 'operator overlay resurrection remains explicit opt-in');
+
+// Explicit decommissioning remains reversible and preserves the independent SSH
+// break-glass lane. It is a user-requested cleanup path, not the default runtime.
 for (const needle of [
   'Fortress-Graveyard/Termux/legacy-decommission-',
   '20-phone-hands-watchdog',
   '--cancel --job-id 6405',
   'termux-wake-unlock',
-  'SYSTEM_ALERT_WINDOW deny',
-  'pm disable-user --user 0',
   'fortress-sshd-guardian',
   'sshd',
 ]) {
   assert(decommission.includes(needle), `decommission campaign missing required policy marker: ${needle}`);
 }
-
-// The cleanup campaign must never kill the preserved SSH maintenance lane.
 assert(decommission.includes('*fortress-sshd-guardian*|*sshd*) continue'), 'decommission campaign must explicitly exempt sshd and guardian');
 
 if (failures.length) {

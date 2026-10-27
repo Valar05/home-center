@@ -22,9 +22,6 @@ BASE = os.getenv(
 )
 DEVICE_ID = os.getenv("HC_PHONE_DEVICE_ID", "primary-phone")
 POLL = float(os.getenv("HC_PHONE_RELAY_POLL_SECONDS", "2.0"))
-OVERLAY_HEARTBEAT_SECONDS = float(
-    os.getenv("HC_OPERATOR_OVERLAY_HEARTBEAT_SECONDS", "10.0")
-)
 
 STATE_DIR = Path(
     os.getenv(
@@ -369,23 +366,8 @@ def loop(once=False):
         flush=True,
     )
 
-    last_overlay_heartbeat = 0.0
     while True:
         try:
-            now = time.monotonic()
-            if now - last_overlay_heartbeat >= OVERLAY_HEARTBEAT_SECONDS:
-                try:
-                    from android_operator_overlay import heartbeat as overlay_heartbeat
-
-                    overlay_heartbeat()
-                except Exception as exc:
-                    print(
-                        "operator-overlay heartbeat warning: " + str(exc),
-                        file=sys.stderr,
-                        flush=True,
-                    )
-                last_overlay_heartbeat = now
-
             pulled = http(
                 "/pull",
                 {
