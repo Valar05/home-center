@@ -1,0 +1,49 @@
+{
+  "acceptance": [
+    "Probe uses echo, accepts Windows CRLF, rejects nonzero and SSH 255, existing quarantine contract stays green, live production Axis returns callable, hostname is TheCauldron, status reports not_installed without bootstrap or generation."
+  ],
+  "blockers": [
+    "unresolved material QA issue: Repair is isolated and unpromoted; ComfyUI is not installed; no generation exists."
+  ],
+  "can_grant_final_stop": false,
+  "capability_state": "callable",
+  "claim": "The isolated recovered clean Comfy campaign has a cross-platform SSH Axis probe that preserves failure classification, passes deterministic tests, and proves authenticated callability to TheCauldron; clean Comfy remains not installed.",
+  "created_at": "2026-09-18T21:56:35.534576+00:00",
+  "dissent": [
+    "Do not round callable SSH up to deployed ComfyUI."
+  ],
+  "evidence": [
+    {
+      "exists": true,
+      "path": ".codex/tmp/organ-game-dev-plan-review/repair-evidence.json",
+      "size": 1788
+    }
+  ],
+  "evidence_refs": [
+    "Drive retrieval map 10bMnUw7Przds345xpK3yY7pQR_m2uCT2xETiU9j0c0M"
+  ],
+  "next_gate": "repair current QA slice",
+  "provenance": "SYNTHETIC_REGNET",
+  "questions": [
+    "What exactly are we claiming?",
+    "What evidence proves that exact claim on the commissioned surface?",
+    "What reachable path did we not test?",
+    "What happens when the dependency, input, user, network, state, or timing is wrong?",
+    "Can another person reproduce the result from the receipt?",
+    "Did we deliver the requested thing or an adjacent substitute?",
+    "What changed, and what can regress because of it?",
+    "Are we laundering intended, implemented, tested, deployed, callable, delivered, or accepted into one state?",
+    "What dissent or uncertainty must remain attached to the claim?"
+  ],
+  "reachable_failure_paths": [
+    "Nonzero remote command stays command_failed; SSH 255 stays authentication_failed; missing clean install stays not_installed."
+  ],
+  "receipt_id": "rqa-63b0fffc6d37c1b118fd",
+  "reviewer": "Regnet QA",
+  "schema": "home-center.regnet-qa.review.v1",
+  "unresolved": [
+    "Repair is isolated and unpromoted; ComfyUI is not installed; no generation exists."
+  ],
+  "verdict": "REVISE_REQUIRED",
+  "warnings": []
+}

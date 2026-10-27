@@ -1,0 +1,61 @@
+{
+  "apk": {
+    "bytes": 241763411,
+    "path": "/storage/emulated/0/Download/HomeCenter-0.2.85-v85-native-pocket-tts.apk",
+    "sha256": "07b910050fec14e5be57bb324463e966be3cc3853d0dc21b0c1aa804776a530d"
+  },
+  "capabilityState": "installed-not-user-accepted",
+  "checks": {
+    "allUnitsAtMost50Tokens": true,
+    "apkNativeLibraryContract": "PASS",
+    "assembleDebug": "PASS",
+    "exactProductionFixture": "PASS",
+    "focusedDspTest": "PASS",
+    "homeCenterRegression": "PASS",
+    "install": "PASS",
+    "nativeAssetContract": "PASS",
+    "normalizedTextPreserved": true,
+    "ordinarySentenceControl": "PASS",
+    "signatureV2": "PASS",
+    "targetedDiffCheck": "PASS"
+  },
+  "createdAtEpoch": 1789735751,
+  "diagnosis": "Sentence-first native splitting lacked the v3 renderer token-hard fallback, so an exceptional punctuation-free section entered generateChunk above the bounded model input contract. Playback state was not causal.",
+  "postInstall": {
+    "appLaunchedByAgent": false,
+    "appProcessRunning": false,
+    "externalWorker": "stopped",
+    "installedVersionCode": 85,
+    "installedVersionName": "0.2.85",
+    "lastUpdateTime": "2026-09-18 07:48:11",
+    "preservedCompletedWavs": 14,
+    "readAloudTmuxSessionPresent": false,
+    "section15Exists": false
+  },
+  "productionFailure": {
+    "book": "20k leagues.txt",
+    "displaySection": 15,
+    "error": "KV cache overflow at 512",
+    "fileId": "1B_nUq6e7sLGwOuI8zeJegftMTDzCWuWX",
+    "inputChars": 663,
+    "inputKind": "punctuation-free table of contents",
+    "inputWords": 120,
+    "repeatedAt": [
+      "2026-09-18 07:34:17",
+      "2026-09-18 07:36:55",
+      "2026-09-18 07:37:41",
+      "2026-09-18 07:39:32"
+    ],
+    "sectionIndex": 14
+  },
+  "remainingAcceptance": "User presses Render, leaves playback paused or backgrounds Home Center, and progress continues beyond section 15.",
+  "repair": {
+    "algorithm": "word-boundary binary search using the real SpTokenizer and prepared generation prompt",
+    "maxTokensPerUnit": 50,
+    "ordinarySentenceBehavior": "unchanged unless a generated chunk exceeds 50 tokens",
+    "owner": "PocketTtsSynthesizer",
+    "versionCode": 85,
+    "versionName": "0.2.85"
+  },
+  "schema": "home-center-native-token-overflow-repair-v1"
+}

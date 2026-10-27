@@ -1,0 +1,58 @@
+{
+  "antagonismSha256": "d646086890d98e417fe37f1229eac4981c15ea3cecf1cce40009379fb8e72c95",
+  "commission": "Wire the user-accepted Pocket TTS Vera voice and exact Venice close-mic DSP into Home Center production while preserving every old clip in place.",
+  "commissionSha256": "169f2a6f2da203a6086ef6c8db434a10218b95f10e56b81045937d3e49fc930d",
+  "createdAtEpoch": 1789694910,
+  "directive": "PLAN_ALLOWED",
+  "durableMemoryEntriesWritten": 1,
+  "externalReviewGateSatisfied": true,
+  "findings": [
+    "None."
+  ],
+  "independentReviewPass": true,
+  "jarSelectionRationale": "Mission boundary prevents old-clip cleanup and UI operation; embodied voices binds Vera through all layers; repository truth preserves existing owners; change discipline protects dirty work; failure recovery rejects filter/profile failures without destructive fallback.",
+  "judgmentJarApplied": [
+    "Mission boundary - the plan wires only the accepted Vera profile and explicitly forbids app operation, old-clip cleanup, and automatic book rendering.",
+    "Repository truth - every changed boundary is an existing Pocket TTS owner and the exact Venice source/filter provenance is pinned.",
+    "Embodied voices - voice, filter, profile, request, receipt, and cache identity remain aligned end to end.",
+    "Change discipline - expected-before edits and exact-file diffs protect the heavily dirty narration worktree.",
+    "Failure recovery - filter, FFmpeg, clipping, profile mismatch, and stale receipt paths fail closed while old clips remain recoverable."
+  ],
+  "legacyWireModeNote": "judgment_jar_emulation is retained as the stable wire identifier for primary ChatGPT Judgment-Jar Venice; it is not fallback semantics.",
+  "model": null,
+  "ollama": null,
+  "planPermissionGranted": true,
+  "planSha256": "096732300737d39c04677af57b1fccfd29ad5a9be3101848e7d588ee3c23710c",
+  "repo": "/storage/emulated/0/Documents/GodotProjects/home-center",
+  "researchSha256": "558f3f63982378e2131799b9fb733e4e834dd127cbb8db8857d0abd40162333e",
+  "reviewText": "VERDICT: PASS\nDIRECTIVE: PLAN_ALLOWED\nJAR: Mission boundary - the plan wires only the accepted Vera profile and explicitly forbids app operation, old-clip cleanup, and automatic book rendering.\nJAR: Repository truth - every changed boundary is an existing Pocket TTS owner and the exact Venice source/filter provenance is pinned.\nJAR: Embodied voices - voice, filter, profile, request, receipt, and cache identity remain aligned end to end.\nJAR: Change discipline - expected-before edits and exact-file diffs protect the heavily dirty narration worktree.\nJAR: Failure recovery - filter, FFmpeg, clipping, profile mismatch, and stale receipt paths fail closed while old clips remain recoverable.\nFINDING: None.\nNOTE: The revised plan directly honors the confirmed requirement that old clips continue to exist and proves that with before-after inventories.\n",
+  "reviewer": "chatgpt-current-worker-venice-distinct-pass",
+  "reviewerMode": "judgment_jar_emulation",
+  "reviewerPrecedentSha256": "e8e0f72da83aedfd636cbb1392b20332d5362648ff7be540c1307f2ab7931789",
+  "reviewerSemantics": "primary-judgment-jar",
+  "schema": "venice-plan-review-v2-judgment-jar-primary",
+  "selectedJudgmentJars": [
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/.continue/rules/00-judgement-jar-mission-boundary.md",
+      "sha256": "245e34c3368cae5bc71d2d99fa1737b66ff5c880c6ec5c586445d97f1af0ec7f"
+    },
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/.continue/rules/06-judgement-jar-embodied-kinesis-voices.md",
+      "sha256": "6a1468a9bb6bbce77e7fa07b015395c49191870e337de0cd6bfdb427353c12c5"
+    },
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/.continue/rules/20-judgement-jar-repository-truth.md",
+      "sha256": "cea3a81fa5be7d6a8c7e314d6d18217bcd7a70bafca829f9b9abccdb8e0da5f0"
+    },
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/.continue/rules/30-judgement-jar-change-discipline.md",
+      "sha256": "fd6a361aa6b1576050ea653e75ce9f8c58f057c6381ed54f52c7ad3361a6073d"
+    },
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/.continue/rules/40-judgement-jar-failure-recovery.md",
+      "sha256": "fe64f821668c2b385a8c9a4de6fc711ebdcbaae5b4ce9783688489d84c44030c"
+    }
+  ],
+  "veniceReviewGateSatisfied": true,
+  "verdict": "PASS"
+}

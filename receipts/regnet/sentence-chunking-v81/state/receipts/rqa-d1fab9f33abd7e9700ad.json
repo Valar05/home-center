@@ -1,0 +1,47 @@
+{
+  "acceptance": [
+    "Sentence-aligned semantic tests and focused production-path checks pass; APK 0.2.81 is installed without launch. Audible 20k acceptance remains user-owned."
+  ],
+  "blockers": [
+    "unresolved material QA issue: Fresh user-operated 20k leagues.txt playback and listening verdict."
+  ],
+  "can_grant_final_stop": false,
+  "capability_state": "deployed",
+  "claim": "Home Center 0.2.81 sentence-aligned Pocket TTS startup is deployed, while 20k audible acceptance remains pending.",
+  "created_at": "2026-09-17T23:37:17.451306+00:00",
+  "dissent": [
+    "Machine checks cannot establish audible continuity or perceived startup speed."
+  ],
+  "evidence": [
+    {
+      "exists": true,
+      "path": "receipts/regnet/sentence-chunking-v81/evidence.json",
+      "size": 4919
+    }
+  ],
+  "evidence_refs": [],
+  "next_gate": "repair current QA slice",
+  "provenance": "SYNTHETIC_REGNET",
+  "questions": [
+    "What exactly are we claiming?",
+    "What evidence proves that exact claim on the commissioned surface?",
+    "What reachable path did we not test?",
+    "What happens when the dependency, input, user, network, state, or timing is wrong?",
+    "Can another person reproduce the result from the receipt?",
+    "Did we deliver the requested thing or an adjacent substitute?",
+    "What changed, and what can regress because of it?",
+    "Are we laundering intended, implemented, tested, deployed, callable, delivered, or accepted into one state?",
+    "What dissent or uncertainty must remain attached to the claim?"
+  ],
+  "reachable_failure_paths": [
+    "Abbreviations, quoted attribution, speaker ownership, long sentences, stale v7 cache, and one-sentence startup each have a deterministic guard."
+  ],
+  "receipt_id": "rqa-d1fab9f33abd7e9700ad",
+  "reviewer": "Regnet QA",
+  "schema": "home-center.regnet-qa.review.v1",
+  "unresolved": [
+    "Fresh user-operated 20k leagues.txt playback and listening verdict."
+  ],
+  "verdict": "REVISE_REQUIRED",
+  "warnings": []
+}

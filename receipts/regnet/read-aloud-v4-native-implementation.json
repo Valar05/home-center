@@ -1,0 +1,75 @@
+{
+  "apk": {
+    "bytes": 217153920,
+    "downloadPath": "/storage/emulated/0/Download/HomeCenter-0.2.83-v83-native-pocket-tts.apk",
+    "installedAt": "2026-09-18 06:34:55",
+    "launchedByAgent": false,
+    "path": "app/build/outputs/apk/debug/app-debug.apk",
+    "sha256": "64395e37abed3fa732709d81538fd4ebab1c8f943759b5ef10d2e2b00c25a250",
+    "versionCode": 83,
+    "versionName": "0.2.83"
+  },
+  "capabilityState": "installed-not-user-accepted",
+  "checks": [
+    {
+      "name": "home_center_regression_tests",
+      "result": "PASS"
+    },
+    {
+      "bytes": 209038278,
+      "files": 9,
+      "name": "pocket_tts_native_contract_test",
+      "result": "PASS"
+    },
+    {
+      "name": "VeniceCloseMicFilterTest",
+      "result": "PASS"
+    },
+    {
+      "name": "assembleDebug Gradle 8.14.3",
+      "result": "PASS"
+    },
+    {
+      "name": "Shizuku pm install -r",
+      "result": "PASS"
+    },
+    {
+      "name": "app process after install",
+      "result": "NOT_RUNNING"
+    }
+  ],
+  "claim": "Home Center 0.2.83 renders exact built-in Vera locally inside Android through LiteRT, applies the Venice close-mic profile, preserves v3 clips, uses sentence sections, and has no production dependency on Termux or Cauldron.",
+  "createdAtEpoch": 1789731347,
+  "negativeControl": {
+    "externalWorker": "stopped backend=local",
+    "readAloudTmuxSessionPresent": false
+  },
+  "productionBoundary": {
+    "nativeRendererBridgeReferenceCount": 0,
+    "oldClipContractsAccepted": [
+      "pocket-tts-render-v3",
+      "pocket-tts-render-v4-native"
+    ],
+    "serializedInference": true
+  },
+  "promptContract": {
+    "acceptedEvidenceLane": "user presses Home Center Render and Play with the external worker stopped; audible Vera result and continued progress",
+    "confirmedPlan": "receipts/venice/2026-09-18-home-center-permanent-renderer-plan.json",
+    "currentUserCommand": "confirm",
+    "falseGreen": "build, install, hashes, or UI status without audible user acceptance",
+    "forbiddenStalePremise": "Termux/tmux or Cauldron owns production rendering"
+  },
+  "schema": "home-center-native-pocket-tts-implementation-v1",
+  "sourceHashes": {
+    "app/src/main/java/com/dclar/homecenter/MainActivity.java": "360edfcce4987fbd7d95b790b34649e059377c0774b4a819bc8d2a4a930e3aa4",
+    "app/src/main/java/com/dclar/homecenter/NarrationForegroundService.java": "8111d2914a6c3dc3df5faaecab59b85c291eee36ffe1d106f6a78e6fd3048c1b",
+    "app/src/main/java/com/dclar/homecenter/PocketTtsAssets.kt": "21357bf7245962b11c655337557607ee919ce60cb33d98ae2bf129be1e6857f2",
+    "app/src/main/java/com/dclar/homecenter/PocketTtsNativeRenderer.kt": "1a8046c2b7708d039b89f6e523d7e4bb0f87a10c425a0f9ab1437182dc2b2c7a",
+    "app/src/main/java/com/dclar/homecenter/PocketTtsSynthesizer.kt": "8023cba9e7c484d4326c85e3164aa84860efd987b91a54174acae298d045c0b6",
+    "app/src/main/java/com/dclar/homecenter/VeniceCloseMicFilter.kt": "76bf8b655ae3ef249a935644c3d27a7b243943737010f7cb42c22e6f7c3ad988",
+    "tools/home_center_regression_tests.py": "3a6ff00eac85e33612687bc6168572ab9a7a1a80a64c881321bb1586a9607b81"
+  },
+  "unresolved": [
+    "Fresh user-operated Render/Play canary is required to establish audible acceptance and real-device model execution."
+  ]
+}

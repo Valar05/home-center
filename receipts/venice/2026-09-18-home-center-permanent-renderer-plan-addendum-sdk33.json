@@ -1,0 +1,46 @@
+{
+  "antagonismSha256": "46b413ba99c44bf8bd37dca2cc881c203041e68400e790c6f9766f859ec2f07f",
+  "commission": "Replan the confirmed permanent native Pocket TTS repair after LiteRT optional transitive dependencies conflict with Home Center compileSdk 33.",
+  "commissionSha256": "9712cb0bc379d75abc74aa80fb96939f7472bdcd4610e9d3d8ed7d436702865a",
+  "createdAtEpoch": 1789730373,
+  "directive": "PLAN_ALLOWED",
+  "durableMemoryEntriesWritten": 0,
+  "externalReviewGateSatisfied": true,
+  "findings": [],
+  "independentReviewPass": true,
+  "jarSelectionRationale": "Execution truth requires device proof; phone runtime protects the SDK lane; correction ratchet forbids reintroducing the external worker.",
+  "judgmentJarApplied": [
+    "execution truth - dependency exclusion requires an installed graph-load and render canary",
+    "phone runtime - preserve the proven SDK 33 Android build lane",
+    "correction ratchet - do not repair a dead-worker failure with a hidden fallback or new background dependency"
+  ],
+  "legacyWireModeNote": "judgment_jar_emulation is retained as the stable wire identifier for primary ChatGPT Judgment-Jar Venice; it is not fallback semantics.",
+  "model": null,
+  "ollama": null,
+  "planPermissionGranted": true,
+  "planSha256": "093976822520290141fb9deb8666dc609bc223ebedacc68d06e9e4157c24934c",
+  "repo": "/storage/emulated/0/Documents/GodotProjects/home-center",
+  "researchSha256": "b8c0ef079421e6493432cf5af289927ad827ee8e768616a249649e7fda0c3ac1",
+  "reviewText": "VERDICT: PASS\nDIRECTIVE: PLAN_ALLOWED\nJAR: execution truth - dependency exclusion requires an installed graph-load and render canary\nJAR: phone runtime - preserve the proven SDK 33 Android build lane\nJAR: correction ratchet - do not repair a dead-worker failure with a hidden fallback or new background dependency\nNOTE: Direct local-file LiteRT with optional delivery and lifecycle integrations excluded is bounded, falsifiable, and preserves the confirmed architecture.\n",
+  "reviewer": "chatgpt-venice-judgment-jar",
+  "reviewerMode": "judgment_jar_emulation",
+  "reviewerPrecedentSha256": "e8e0f72da83aedfd636cbb1392b20332d5362648ff7be540c1307f2ab7931789",
+  "reviewerSemantics": "primary-judgment-jar",
+  "schema": "venice-plan-review-v2-judgment-jar-primary",
+  "selectedJudgmentJars": [
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/skills/execution-truth/SKILL.md",
+      "sha256": "e7b54e946ce65422d00ed35444a5210c82956d41ddcd6d563a87a1129a10e537"
+    },
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/skills/phone-runtime/SKILL.md",
+      "sha256": "1ae13adb9dfce597e3b82ef446c24088debe070a157aaa8a1a3a13d5cf5d55dd"
+    },
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/skills/correction-ratchet/SKILL.md",
+      "sha256": "6fc2f5e1389b7b9f479b9f12bf59f4c1cc4e495b493d695e07a6f29bf3dff45c"
+    }
+  ],
+  "veniceReviewGateSatisfied": true,
+  "verdict": "PASS"
+}

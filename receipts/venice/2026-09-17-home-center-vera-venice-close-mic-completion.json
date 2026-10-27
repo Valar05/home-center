@@ -1,0 +1,57 @@
+{
+  "base": "HEAD",
+  "baseCommit": "57b946c0ee6812f53b68c71afec627fb7e1a7555",
+  "continuationRequired": false,
+  "createdAtEpoch": 1789693606,
+  "deterministicChecks": [
+    {
+      "detail": "",
+      "name": "git_diff_check",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "conflict_markers",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "obvious_embedded_secrets",
+      "ok": true
+    }
+  ],
+  "diffTruncated": false,
+  "directive": "STOP_ALLOWED",
+  "durableMemoryEntriesWritten": 0,
+  "durableMemoryFingerprints": [],
+  "durableMemoryPath": "/data/data/com.termux/files/home/.local/state/home-center/venice/review-memory.jsonl",
+  "externalReviewGateSatisfied": true,
+  "files": [],
+  "findings": [],
+  "fullDiffChars": 0,
+  "fullDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "haltRequired": false,
+  "head": "HEAD",
+  "headCommit": "57b946c0ee6812f53b68c71afec627fb7e1a7555",
+  "independentReviewPass": true,
+  "judgmentJarApplied": [
+    "Observable evidence - the output and receipt hashes, WAV metrics, source preservation, and Android delivery directly prove the bounded mechanical slice.",
+    "Mission boundary - no reader, cache, APK, or book mutation occurred, and the work stops before perceptual acceptance or profile wiring.",
+    "Provenance survives transformation - the receipt binds Vera, the exact Venice filter, the custody commit, the live source hash, and both artifact hashes.",
+    "Aftermath exists - the original remains a negative control, the transformed sibling is reversible, and the next decision is an explicit human A/B verdict."
+  ],
+  "legacyWireModeNote": "judgment_jar_emulation is retained as the stable wire identifier for primary ChatGPT Judgment-Jar Venice; it is not fallback semantics.",
+  "model": null,
+  "ollama": null,
+  "precedentLoaded": "(no durable Venice review precedent available on this runtime)",
+  "repo": "/storage/emulated/0/Documents/GodotProjects/home-center",
+  "reviewPromptDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "reviewText": "VERDICT: PASS\nDIRECTIVE: STOP_ALLOWED\nJAR: Observable evidence - the output and receipt hashes, WAV metrics, source preservation, and Android delivery directly prove the bounded mechanical slice.\nJAR: Mission boundary - no reader, cache, APK, or book mutation occurred, and the work stops before perceptual acceptance or profile wiring.\nJAR: Provenance survives transformation - the receipt binds Vera, the exact Venice filter, the custody commit, the live source hash, and both artifact hashes.\nJAR: Aftermath exists - the original remains a negative control, the transformed sibling is reversible, and the next decision is an explicit human A/B verdict.\nNOTE: Stop is allowed for preview generation and delivery only; it does not certify that the voice sounds close-mic or authorize reader integration.\n",
+  "reviewer": "chatgpt-current-worker-venice-distinct-completion-pass",
+  "reviewerMode": "judgment_jar_emulation",
+  "reviewerSemantics": "primary-judgment-jar",
+  "schema": "venice-code-review-v4-judgment-jar-primary",
+  "stopPermissionGranted": true,
+  "veniceReviewGateSatisfied": true,
+  "verdict": "PASS"
+}

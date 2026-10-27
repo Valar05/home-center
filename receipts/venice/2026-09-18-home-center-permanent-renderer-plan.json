@@ -1,0 +1,46 @@
+{
+  "antagonismSha256": "eeaf20a2d30de1ed3148087775735a65cf329003985551f02aff34379137cf96",
+  "commission": "Permanently remove Home Center read-aloud dead-worker no-op while preserving exact Vera close-mic audio, old clips, sentence boundaries, user-owned controls, and no Cauldron.",
+  "commissionSha256": "053b06285976661bc49de8fd1032d8645a7666af25c8c6010298c72281f6d70a",
+  "createdAtEpoch": 1789729644,
+  "directive": "PLAN_ALLOWED",
+  "durableMemoryEntriesWritten": 0,
+  "externalReviewGateSatisfied": true,
+  "findings": [],
+  "independentReviewPass": true,
+  "jarSelectionRationale": "Execution truth prevents build-only claims; phone runtime governs Android lifecycle ownership; correction ratchet prevents another dead-worker spinner recurrence.",
+  "judgmentJarApplied": [
+    "execution truth - require the real installed Android effect and Termux-absent negative control",
+    "phone runtime - Android service lifecycle owns production and Shizuku or Termux cannot be durability dependencies",
+    "correction ratchet - the repeated dead-worker no-op must become impossible or explicit"
+  ],
+  "legacyWireModeNote": "judgment_jar_emulation is retained as the stable wire identifier for primary ChatGPT Judgment-Jar Venice; it is not fallback semantics.",
+  "model": null,
+  "ollama": null,
+  "planPermissionGranted": true,
+  "planSha256": "d20f5f1ca885e75c7de379023e2a2195fd18633f69018d6fff12fe0172527e15",
+  "repo": "/storage/emulated/0/Documents/GodotProjects/home-center",
+  "researchSha256": "c9124cc9b986f66edb93b6af0821ecd854095ffbe0a9b16b16e0223a532687da",
+  "reviewText": "VERDICT: PASS\nDIRECTIVE: PLAN_ALLOWED\nJAR: execution truth - require the real installed Android effect and Termux-absent negative control\nJAR: phone runtime - Android service lifecycle owns production and Shizuku or Termux cannot be durability dependencies\nJAR: correction ratchet - the repeated dead-worker no-op must become impossible or explicit\nNOTE: The phased plan preserves exact Vera, old media, user-owned controls, and evidence boundaries while making feasibility failure explicit instead of substituting a voice.\n",
+  "reviewer": "chatgpt-venice-judgment-jar",
+  "reviewerMode": "judgment_jar_emulation",
+  "reviewerPrecedentSha256": "e8e0f72da83aedfd636cbb1392b20332d5362648ff7be540c1307f2ab7931789",
+  "reviewerSemantics": "primary-judgment-jar",
+  "schema": "venice-plan-review-v2-judgment-jar-primary",
+  "selectedJudgmentJars": [
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/skills/execution-truth/SKILL.md",
+      "sha256": "e7b54e946ce65422d00ed35444a5210c82956d41ddcd6d563a87a1129a10e537"
+    },
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/skills/phone-runtime/SKILL.md",
+      "sha256": "1ae13adb9dfce597e3b82ef446c24088debe070a157aaa8a1a3a13d5cf5d55dd"
+    },
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/skills/correction-ratchet/SKILL.md",
+      "sha256": "6fc2f5e1389b7b9f479b9f12bf59f4c1cc4e495b493d695e07a6f29bf3dff45c"
+    }
+  ],
+  "veniceReviewGateSatisfied": true,
+  "verdict": "PASS"
+}

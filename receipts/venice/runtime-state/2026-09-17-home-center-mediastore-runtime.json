@@ -1,0 +1,60 @@
+{
+  "acceptanceScope": "Installed production transport and continued validated import. Audible playback and 20k-specific completion remain user-visible acceptance.",
+  "createdAt": "2026-09-17T21:10:45.180426+00:00",
+  "document": {
+    "downloadedIndexes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "fileId": "1MtT1Oc9P9Jxuiy8OjPQkgU8Vm6bSB5_TI7iV1gkjXtU",
+    "rendering": true,
+    "sectionCount": 14,
+    "title": "CANON CANDIDATE \u2014 Thirdskin Commander \u2014 The Last Bare Hand"
+  },
+  "installed": {
+    "package": "com.dclar.homecenter",
+    "versionCode": 77,
+    "versionName": "0.2.77"
+  },
+  "privateImports": [
+    {
+      "bytes": 238124,
+      "section": 0
+    },
+    {
+      "bytes": 134444,
+      "section": 1
+    }
+  ],
+  "schema": "home-center.pocket-tts-mediastore-runtime-evidence.v1",
+  "screenControlUsed": false,
+  "sourceSha256": {
+    "app/src/main/java/com/dclar/homecenter/PocketTtsWorkerBridge.java": "22fb8ec7b4b5b01387922231c899be5c1ffb579f35a7aa2396bef9ea16cdc359",
+    "tools/pocket_tts_home_center_worker.py": "2f7fcaa78c9b89d6bf1eb3d93d2340c93ec66c2c93562dd9f47c857001a47278",
+    "tools/pocket_tts_worker_contract_test.py": "8c8dcb1681b4841b4116394448edbede555d1759d50a15db500ce763d3fdced7"
+  },
+  "tests": [
+    "tools/home_center_regression_tests.py",
+    "tools/pocket_tts_worker_contract_test.py",
+    "tools/pocket_tts_continuous_playback_test.py",
+    "tools/pocket_tts_render_v2_test.py",
+    "tools/pocket_tts_manifest_batch_benchmark.py",
+    "python3 -m py_compile tools/pocket_tts_home_center_worker.py"
+  ],
+  "worker": {
+    "activeBackend": "cauldron",
+    "configuredBackend": "auto",
+    "contractVersion": "pocket-tts-render-v2",
+    "lastAccepted": "hc-v2-1MtT1Oc9P9Jxuiy8OjPQkgU8Vm6bSB5_TI7iV1gkjXtU-b3077806a9e8637d-000005-1b1586859681ead9",
+    "lastBackendError": "",
+    "lastError": "",
+    "modelLoaded": false,
+    "pid": 12077,
+    "status": "running",
+    "updatedAtMs": 1789679444540
+  }
+}

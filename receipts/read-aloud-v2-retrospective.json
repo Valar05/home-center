@@ -1,0 +1,33 @@
+{
+  "classificationReason": "Exact local Codex input/output/total token deltas are UNKNOWN, so this run cannot update three-axis par history even though production-path soundness evidence is valid.",
+  "createdAtMs": 1789670844576,
+  "frontierClassification": "INVALID",
+  "nextImprovement": "Use the declared Drive-sync file layer for multi-megabyte Cauldron WAV transfer while retaining whole-file SHA verification.",
+  "productionResult": {
+    "allEosObserved": true,
+    "artifactSha256": "9c2fc5e441cc527e66e749e521709d3fa9bc1cd169dba3a26270fe672992ff2d",
+    "durationSeconds": 103.44,
+    "exactTokenizerTokens": 632,
+    "installedVersionCode": 73,
+    "liveQueueBackend": "cauldron",
+    "maxUnitTokens": 50,
+    "rendererRealTimeFactor": 0.391986,
+    "unitCount": 14
+  },
+  "schema": "home-center-three-axis-retrospective-v1",
+  "scope": "Pocket TTS read-aloud v2",
+  "wastedTime": [
+    "shared-storage apply_patch rejection before switching to controlled writer",
+    "stale expected-before hash prevented one worker rewrite",
+    "single-command Cauldron staging exceeded Windows command length",
+    "synchronous bootstrap exceeded Computer Hands 120-second limit",
+    "initial audio chunks exceeded 120000-character stdout cap"
+  ],
+  "wastedTokens": "UNKNOWN",
+  "weakestSoundnessClauses": [
+    "no human audible 12-minute acceptance",
+    "no 30-minute screen-off/background acceptance",
+    "current full book not completely rerendered and receipt-audited",
+    "full repository regression has unrelated Venice classifier-order failure"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "causalChain": [
+    "Render creates app-owned WAV and receipt rows in MediaStore Downloads",
+    "The existing request queue passes their physical output path to the existing worker",
+    "The existing worker renders through Cauldron and fills those paths",
+    "Home Center reads its owned URIs through ContentResolver",
+    "The v2 receipt, hash, WAV header, and cancellation checks validate the result",
+    "NarrationForegroundService imports the private section and advances the manifest"
+  ],
+  "commission": "Repair the confirmed no-op by replacing the inaccessible public Documents bridge with app-owned MediaStore result entries while preserving Cauldron.",
+  "confirmation": "User replied confirm to the five-clause MediaStore bridge plan.",
+  "createdAt": "2026-09-17T14:55:00-05:00",
+  "currentCommand": "confirm",
+  "directive": "PLAN_ALLOWED",
+  "existingOwner": "PocketTtsWorkerBridge, NarrationForegroundService, and tools/home_center_read_aloud.sh",
+  "forbiddenStalePremise": "Do not remove or bypass Cauldron; the worker is live and accepted output exists. Do not treat source tests as installed acceptance.",
+  "guards": [
+    "No MANAGE_EXTERNAL_STORAGE permission",
+    "No direct public Documents read from the Android app",
+    "No new shell controller or renderer",
+    "Timeout instead of silent queueing when the worker is unavailable",
+    "Failed receipts surface their worker error",
+    "Explicit Stop still cancels rendering and playback",
+    "No screen operation during acceptance; the user presses controls"
+  ],
+  "schema": "venice-plan-review-v2-judgment-jar-primary",
+  "selectedJudgmentJars": [
+    "mission-boundary",
+    "repository-truth",
+    "change-discipline",
+    "failure-recovery",
+    "daemon-backoff-persistence",
+    "venice-review-gate"
+  ],
+  "verdict": "PASS"
+}

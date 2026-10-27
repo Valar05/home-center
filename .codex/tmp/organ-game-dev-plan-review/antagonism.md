@@ -1,0 +1,13 @@
+Attack on the plan:
+- Duplicate Fortress and Diorama imports could cause a convincing but wrong canonical link. Guard: stable IDs plus explicit canonical/candidate labels; do not reorganize.
+- The Drive shell bootstrap could be uploaded or installed instead of the commissioned Python artifact. Guard: require exact filename, local path, and expected SHA-256 at ingress.
+- A Drive document could become retrieval theater. Guard: every entry carries direct link, state, local counterpart, and next action; readback is required.
+- Native Docs smart-link requirements could be silently lost if a plain-text bridge is used. Guard: use the approved native Docs route or disclose connector fidelity; verify content and links.
+- The RED Throne swarm could burn compute through retries. Guard: no swarm dispatch in this slice; one bounded connector probe and manual Codex fallback only after exact failure.
+- Old Venice training scripts could masquerade as the clean Comfy owner. Guard: hard quarantine and source identity check against clean commits/bundle.
+- Missing LoRA bytes could be inferred from logs. Guard: keep LoRA bytes BAD/UNKNOWN until current file existence, size, and hash are observed.
+- Writing into dirty canonical repositories could destroy unrelated work. Guard: no code mutation in this slice; later isolated worktrees only.
+- Upload retry could duplicate the artifact. Guard: stable request ID and metadata readback before any retry.
+- A source/test pass could be rounded up to deployed, callable, generated, delivered, or accepted. Guard: explicit state ladder in the retrieval map and receipts.
+- She-Raw wrong-layer scar: Drive is navigation, Thunder is intake, Fortress is execution, Organ is promotion, Diorama is product. Do not collapse these owners.
+- Queen B baseline scar: unproven premises remain quarantined even when preserving their useful signals.

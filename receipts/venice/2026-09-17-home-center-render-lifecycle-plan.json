@@ -1,0 +1,40 @@
+{
+  "antagonism": "The tempting one-line onDestroy fix would keep the current process alive in common cases but still leaves rendering activity-owned, non-resumable after process loss, and capable of false-zero UI. The repair must transfer ownership and persist the plan rather than merely weakening cleanup.",
+  "causalChain": [
+    "Render tap persists an atomic per-document plan",
+    "NarrationForegroundService owns the render lifecycle",
+    "PocketTtsWorkerBridge submits one missing section",
+    "The existing Termux worker routes through Computer Hands windows-hands-01",
+    "A v2 receipt and artifact hash validate the WAV",
+    "The service atomically imports the section and checkpoints the manifest",
+    "The activity observes manifest progress and playback starts only after validated lead audio"
+  ],
+  "commission": "Fix Home Center so 20k leagues rendering continues off-app, imports Cauldron output, updates durable progress, and resumes after lifecycle interruption.",
+  "confirmation": "User replied confirm to the revised seven-step plan.",
+  "createdAt": "2026-09-17T14:35:00-05:00",
+  "currentCommand": "fix it",
+  "directive": "PLAN_ALLOWED",
+  "existingOwner": "NarrationForegroundService plus GoogleDocAudioLibrary, PocketTtsWorkerBridge, and tools/home_center_read_aloud.sh",
+  "forbiddenStalePremise": "Do not treat Cauldron routing as broken; fresh production evidence proves windows-hands-01 rendered an accepted section.",
+  "guards": [
+    "Activity destruction cannot stop an accepted render",
+    "Service restart resumes the first missing section from the persisted plan",
+    "Duplicate starts converge on one active plan token",
+    "Completed output is imported before another request is queued",
+    "STOP cancels rendering and playback",
+    "Corrupt or stale output remains rejected by the v2 receipt and hash contract",
+    "No fixed IP, alternate renderer, or second shell controller is introduced"
+  ],
+  "reviewer": "chatgpt-codex-venice-judgment-jar",
+  "reviewerMode": "primary-judgment-jar",
+  "schema": "venice-plan-review-v2-judgment-jar-primary",
+  "selectedJudgmentJars": [
+    "mission-boundary",
+    "repository-truth",
+    "change-discipline",
+    "failure-recovery",
+    "daemon-backoff-persistence",
+    "venice-review-gate"
+  ],
+  "verdict": "PASS"
+}

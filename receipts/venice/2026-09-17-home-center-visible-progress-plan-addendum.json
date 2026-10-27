@@ -1,0 +1,19 @@
+{
+  "antagonism": "Trusting manifest.downloadedSections alone would be faster but could expose Play for missing or unvalidated files. The snapshot overload retains file, status, contract, and artifact-hash checks while eliminating repeated parses.",
+  "causalGuard": "One refresh performs one manifest parse, bounded section metadata checks, and file existence checks; no section may bypass the existing local-only receipt/hash contract.",
+  "createdAt": "2026-09-17T18:09:00-05:00",
+  "directive": "PLAN_ALLOWED",
+  "negativeControl": "Regression must reject the old count loop that calls isDownloaded(i) and require snapshot-aware validation.",
+  "newEvidence": "countDownloadedSections loops over 1652 sections and Entry.isDownloaded reparses manifest.json on every iteration; the same repeated parse exists in playback-lead checks.",
+  "reviewerProvenance": "ChatGPT current worker, separate adversarial Judgment-Jar replan pass",
+  "revisedOwnerPath": "GoogleDocAudioLibrary.Entry exposes validation against one caller-supplied manifest snapshot; MainActivity count and contiguous-lead helpers reuse that single snapshot.",
+  "schema": "venice-plan-review-v2-judgment-jar-primary",
+  "selectedJudgmentJars": [
+    "repository-truth",
+    "change-discipline",
+    "failure-recovery",
+    "venice-review-gate"
+  ],
+  "supersedesOnly": "The implementation detail for visible progress counting in 2026-09-17-home-center-visible-progress-plan.json; all five user-confirmed outcomes and exclusions remain unchanged.",
+  "verdict": "PASS"
+}

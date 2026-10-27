@@ -1,0 +1,65 @@
+{
+  "antagonismSha256": "e3c39501d46bc50d817037c9c1b7de1dc43312318f81a6b3aaf5f725edaf0510",
+  "commission": "Implement the confirmed Home Center Pocket TTS read-aloud reliability plan, including corruption repair, service playback, durable shell controller, and Computer Hands Cauldron routing.",
+  "commissionSha256": "9e985bfc1df4ff940b1d36d2d41dfe36d217c8a92bdb9b46cb4c46b2eee54201",
+  "createdAtEpoch": 1789667679,
+  "directive": "PLAN_ALLOWED",
+  "durableMemoryEntriesWritten": 0,
+  "externalReviewGateSatisfied": true,
+  "findings": [],
+  "independentReviewPass": true,
+  "jarSelectionRationale": "Corruption, dirty-state preservation, durable operator control, bounded recovery, and completion evidence are all material.",
+  "judgmentJarApplied": [
+    "Mission Boundary - preserves Pocket TTS, Home Center ownership, Cauldron lane, and requested shell surface.",
+    "Repository Truth - exact log and WAV evidence identify the production failure rather than trusting source tests.",
+    "Change Discipline - renderer canary is the first mandatory slice and unrelated dirty state is excluded.",
+    "Failure Recovery - invalid artifacts fail closed and repair is recoverable.",
+    "Daemon Persistence - campaign status, receipts, backoff, and stop controls remain durable.",
+    "Venice Review Gate - Regnet QA and completion review remain mandatory after the actual diff."
+  ],
+  "legacyWireModeNote": "judgment_jar_emulation is retained as the stable wire identifier for primary ChatGPT Judgment-Jar Venice; it is not fallback semantics.",
+  "model": null,
+  "ollama": null,
+  "planPermissionGranted": true,
+  "planSha256": "e33a7925d9f3e72dc3197b5fb07b5e81d25db3649a0d6cf355b8d09d3d1e03ab",
+  "repo": "/storage/emulated/0/Documents/GodotProjects/home-center",
+  "researchSha256": "fd590ce8f94e745562c51a77f001daf25c75379ad9a814c41db66f52ca57a75f",
+  "reviewText": "VERDICT: PASS\nDIRECTIVE: PLAN_ALLOWED\nJAR: Mission Boundary - preserves Pocket TTS, Home Center ownership, Cauldron lane, and requested shell surface.\nJAR: Repository Truth - exact log and WAV evidence identify the production failure rather than trusting source tests.\nJAR: Change Discipline - renderer canary is the first mandatory slice and unrelated dirty state is excluded.\nJAR: Failure Recovery - invalid artifacts fail closed and repair is recoverable.\nJAR: Daemon Persistence - campaign status, receipts, backoff, and stop controls remain durable.\nJAR: Venice Review Gate - Regnet QA and completion review remain mandatory after the actual diff.\nNOTE: Plan is allowed only in the stated order; do not expand remote orchestration before the exact corruption fixture is green.\n",
+  "reviewer": "chatgpt-codex-venice-judgment-jar",
+  "reviewerMode": "judgment_jar_emulation",
+  "reviewerPrecedentSha256": "e8e0f72da83aedfd636cbb1392b20332d5362648ff7be540c1307f2ab7931789",
+  "reviewerSemantics": "primary-judgment-jar",
+  "schema": "venice-plan-review-v2-judgment-jar-primary",
+  "selectedJudgmentJars": [
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/.continue/rules/00-judgement-jar-mission-boundary.md",
+      "sha256": "245e34c3368cae5bc71d2d99fa1737b66ff5c880c6ec5c586445d97f1af0ec7f"
+    },
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/.continue/rules/10-judgement-jar-local-first.md",
+      "sha256": "4e31a568067a597b05962c2273edb64824b4176bd9427841fbdb149732f52afc"
+    },
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/.continue/rules/20-judgement-jar-repository-truth.md",
+      "sha256": "cea3a81fa5be7d6a8c7e314d6d18217bcd7a70bafca829f9b9abccdb8e0da5f0"
+    },
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/.continue/rules/30-judgement-jar-change-discipline.md",
+      "sha256": "fd6a361aa6b1576050ea653e75ce9f8c58f057c6381ed54f52c7ad3361a6073d"
+    },
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/.continue/rules/40-judgement-jar-failure-recovery.md",
+      "sha256": "fe64f821668c2b385a8c9a4de6fc711ebdcbaae5b4ce9783688489d84c44030c"
+    },
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/.continue/rules/70-judgement-jar-venice-review-gate.md",
+      "sha256": "be6ef048f5f2c2362bf2f513d947b30adf8bb7f7c6b6cba061ccf42723891aeb"
+    },
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/.continue/rules/80-judgement-jar-daemon-backoff-persistence.md",
+      "sha256": "ac1332379a8d40d2c0ef5388879aaf2fdc881f5c11e90bb1e63c40869bdc4701"
+    }
+  ],
+  "veniceReviewGateSatisfied": true,
+  "verdict": "PASS"
+}

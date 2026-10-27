@@ -1,0 +1,52 @@
+{
+  "schema": "organ-game-dev-comfy-ssh-repair-evidence-v1",
+  "claim": "Isolated recovered clean Comfy campaign now has a cross-platform SSH Axis probe and read-only runtime status.",
+  "source": {
+    "bundleSha256": "21b871f39a75a66585f799c949957644b37db0f65d9ab04519921308894cb13a",
+    "head": "7576e21117e6ba514b42361e989889d58d47d48b",
+    "implementation": "c2af04c0ba146a7bde97a809aaaced22bc4bc734"
+  },
+  "changes": [
+    {
+      "path": "tools/ssh_axis.py",
+      "sha256": "ebc29269eac1ab7ee104630b9b8ca1ab6293963c3c12aa3412f30d104355b042",
+      "change": "printf probe replaced with echo"
+    },
+    {
+      "path": "tools/test_ssh_axis.py",
+      "sha256": "4a135e779e3e87a42a0262e74be124aafe751e52e40cad2d3f1bf755fe81d5df",
+      "change": "three cross-platform and negative-path regressions"
+    }
+  ],
+  "checks": {
+    "pyCompile": "PASS",
+    "sshAxisUnit": "PASS 3 tests",
+    "cleanCampaignContract": "PASS all declared clauses",
+    "liveAxis": {
+      "state": "callable",
+      "endpoint": "dclar@100.68.37.106",
+      "hostname": "TheCauldron"
+    },
+    "cleanComfyStatus": {
+      "state": "not_installed",
+      "installed": false,
+      "running": false,
+      "installRoot": "C:\\Users\\dclar\\AppData\\Local\\FleshpunkComfy"
+    }
+  },
+  "prohibitedEffects": {
+    "veniceRuntimeTouched": false,
+    "bootstrapRun": false,
+    "modelsDownloaded": false,
+    "generationRun": false,
+    "processStopped": false,
+    "canonicalRepoChanged": false,
+    "remotePush": false
+  },
+  "unresolved": [
+    "The repair exists only in an isolated recovered clone.",
+    "Clean ComfyUI is not installed.",
+    "Fortress Python Drive upload is blocked by connector approval policy.",
+    "Human image acceptance is not applicable because no image was generated."
+  ]
+}

@@ -1,0 +1,231 @@
+{
+  "acceptanceCriteria": [
+    "Pocket TTS built-in voice is vera",
+    "exact Venice filter is applied locally",
+    "Android request and receipt require pocket-tts-render-v3 plus vera-venice-close-mic-v1",
+    "new cache and request namespaces cannot collide with old clips",
+    "old WAV inventories remain unchanged",
+    "0.2.82 is built, signed, installed without launching the app",
+    "existing worker restarts and reports the v3 profile",
+    "audible 20k Leagues acceptance remains with the user"
+  ],
+  "actualDiff": {
+    "diffTruncated": true,
+    "reason": "The repository was already heavily dirty and five newly owned narration files are untracked, so the HEAD worktree diff is not an isolated commission diff. Exact expected-before and current hashes plus full current file sizes are provided for every touched file; the tracked worktree diff hash covers tracked targets without claiming unrelated hunks as this commission.",
+    "trackedWorktreeDiffBytes": 165080,
+    "trackedWorktreeDiffSha256": "1a6cb9e6586345821e1223740ac819f72fa0ab161297d967763b34e0f4e04886"
+  },
+  "apk": {
+    "downloadSha256": "813f4ded141757d92a70e9b68d89f0688f2269d779669acb46efd955c59b55b7",
+    "installed": true,
+    "sha256": "813f4ded141757d92a70e9b68d89f0688f2269d779669acb46efd955c59b55b7",
+    "versionCode": 82,
+    "versionName": "0.2.82"
+  },
+  "capabilityState": {
+    "audiblyAccepted": false,
+    "deployed": true,
+    "implemented": true,
+    "requested": true,
+    "tested": true,
+    "workerCallable": true
+  },
+  "changedFiles": [
+    {
+      "bytes": 12366,
+      "currentSha256": "510fa1e4d1516d71da446cb284a9be9b67fe89e78daf4e43cde81e2b86d387cd",
+      "expectedBeforeSha256": "8ca96a316552c70dd92fb02439f51248d8a75b61bc328e9f474eeb68dd3a3ee6",
+      "path": "tools/pocket_tts_render_v2.py"
+    },
+    {
+      "bytes": 10033,
+      "currentSha256": "f2f8b8e2abda1fb68c8d39bd81ea5a13005d8b1291fad87390d5c11e918503f8",
+      "expectedBeforeSha256": "d9d41775eda857423dcc5885e647b719911390db8b637cb284a3e0add2cf8988",
+      "path": "tools/pocket_tts_home_center_worker.py"
+    },
+    {
+      "bytes": 3922,
+      "currentSha256": "bfa0cd47c7b68cd37cc7a26f7a6c4bdaf25e67479b18ec0fc1e50c4c5b4e84e2",
+      "expectedBeforeSha256": "ba9e0cc4ac3924d8ff5d44fb97abbe851895d8a4252864a5f82d125942e43064",
+      "path": "tools/pocket_tts_render_v2_test.py"
+    },
+    {
+      "bytes": 4406,
+      "currentSha256": "8565ffea66c65756fb0034452e1acd9a2497c05fafef14be830844563b0f551f",
+      "expectedBeforeSha256": "15f9da758b952cd620b8fac86015217acf04ae15b4a8b0dfb0362a77b9b34881",
+      "path": "tools/pocket_tts_worker_contract_test.py"
+    },
+    {
+      "bytes": 5237,
+      "currentSha256": "2aeb043e95be86acb56cc8f5a7121be444844d6d221f507134eeb63dffe84806",
+      "expectedBeforeSha256": "0da43ea494f22be242b98774a22544a20c1505874c09cbd7945e18fe37b56346",
+      "path": "tools/home_center_read_aloud.sh"
+    },
+    {
+      "bytes": 267480,
+      "currentSha256": "78a21d65135b9d927936c06080d4d1608dd5895e8126ab90fd2c2f866902cf84",
+      "expectedBeforeSha256": "803314f8c1fb5c73d50b6c45f56ea2caa810c2c6570ea31a58f7eafdd0888c6b",
+      "path": "tools/home_center_regression_tests.py"
+    },
+    {
+      "bytes": 14159,
+      "currentSha256": "a192816ed98c3913846c59f4c647ca14054a00d114c7983028bf2586c5fc2f53",
+      "expectedBeforeSha256": "3008f45f27552a978807304568614d8e97d628706bd5d9be0e0b5eec731fedb0",
+      "path": "app/src/main/java/com/dclar/homecenter/PocketTtsWorkerBridge.java"
+    },
+    {
+      "bytes": 573477,
+      "currentSha256": "3b8e7ceeb623b69ee4125e7dab03d5483d3e1be5006e96f697122ecb3cc0ab5b",
+      "expectedBeforeSha256": "b94e868059705305ae807045fb01f9da553f89e7722662118a66775a71eed4c1",
+      "path": "app/src/main/java/com/dclar/homecenter/MainActivity.java"
+    },
+    {
+      "bytes": 46547,
+      "currentSha256": "4d8dda687e66d00899ce820757729774e85c151f999d460cf282d79fe18127c6",
+      "expectedBeforeSha256": "060e8098763254b78b34ea5d4f011c41b1bbc1ebd3671ca4bac336b0d4a4748d",
+      "path": "app/src/main/java/com/dclar/homecenter/GoogleDocAudioLibrary.java"
+    },
+    {
+      "bytes": 2225,
+      "currentSha256": "da1890f3cc4ca4ef949202b42c74ffbab9792a957de2a2b58d3c83746af0cb41",
+      "expectedBeforeSha256": "707c410518e9f2e6f7212320639fd5e7b2498ace415585f34590a8b519e4cc8f",
+      "path": "app/build.gradle"
+    },
+    {
+      "bytes": 4519,
+      "currentSha256": "5207886265001d99ba26f694d4d01e1291e473b7025b0da7445170f7e9931b55",
+      "expectedBeforeSha256": "15e69182df5d64db7ee782800f305507b3a947b9f681040a60dd2c0d8e4ec211",
+      "path": "PROJECT_ORIENTATION.md"
+    },
+    {
+      "bytes": 21939,
+      "currentSha256": "b03aad633b503f8f198b8e9c2a2ea751b013ad454e7d873314c9782a094df185",
+      "expectedBeforeSha256": "40401c06b0e753186d94d48aacce8e204a07a7fece980427a61e8274087b778e",
+      "path": "docs/CURRENT_TROUBLESHOOTING_STATE.md"
+    }
+  ],
+  "checks": [
+    {
+      "name": "python_compile",
+      "status": "PASS"
+    },
+    {
+      "name": "renderer_v3_profile_filter_ablation_stale_receipts_missing_ffmpeg_no_publish",
+      "status": "PASS"
+    },
+    {
+      "name": "worker_heartbeat_stale_request_cauldron_rejection_inode_preservation",
+      "status": "PASS"
+    },
+    {
+      "name": "home_center_regression",
+      "status": "PASS"
+    },
+    {
+      "name": "manifest_1870_sections",
+      "status": "PASS",
+      "writeReductionPercent": 96.84
+    },
+    {
+      "name": "java_compile",
+      "status": "PASS"
+    },
+    {
+      "name": "apk_assemble",
+      "status": "PASS"
+    },
+    {
+      "name": "apk_signature_v2",
+      "status": "PASS"
+    },
+    {
+      "name": "shizuku_install",
+      "status": "PASS"
+    },
+    {
+      "name": "installed_package",
+      "status": "PASS",
+      "versionCode": 82,
+      "versionName": "0.2.82"
+    },
+    {
+      "name": "app_not_launched",
+      "status": "PASS"
+    },
+    {
+      "name": "targeted_git_diff_check",
+      "status": "PASS"
+    }
+  ],
+  "commission": "Wire accepted built-in Vera voice through the exact Venice close-mic DSP into Home Center production while leaving old clips in place.",
+  "createdAtEpoch": 1789695710,
+  "currentTargetSnapshotSha256": "c67b647c307e98d14fbb4ffc064799acce6a69eefd04b8631e589615f7432335",
+  "failurePathsExercised": [
+    "missing ffmpeg rejects without artifact or receipt",
+    "filter ablation changes output",
+    "stale renderer contract rejected",
+    "wrong voice profile rejected",
+    "artifact hash mismatch rejected",
+    "no-EOS retries twice then rejects",
+    "Cauldron backend rejected",
+    "stale Android worker request identity rejected",
+    "known corrupt-tail fixture rejected when present"
+  ],
+  "historicalFailedRequests": 6,
+  "knownGaps": [
+    "No audible acceptance is claimed; the user must press the existing controls and listen to 20k leagues.txt.",
+    "The full build wrapper remains red at the pre-existing unrelated test_venice_review_memory.py category assertion; narration-specific tests and direct production build/install passed.",
+    "The newest screenshot is unrelated to Home Center and is not visual acceptance evidence."
+  ],
+  "oldClipInventories": [
+    {
+      "afterNameSizeSha256": "e99a70eb8a4011d282dec7eee36b784398449c1a1101faa7ab14c92819a731e6",
+      "afterWavCount": 231,
+      "beforeNameSizeSha256": "e99a70eb8a4011d282dec7eee36b784398449c1a1101faa7ab14c92819a731e6",
+      "beforeWavCount": 231,
+      "path": "/storage/emulated/0/Download/HomeCenter/pocket-tts-results",
+      "unchanged": true
+    },
+    {
+      "afterNameSizeSha256": "bf2b7c0758482870b72428622db6df0f10660bf5a91aa835ee02d857bd70bbeb",
+      "afterWavCount": 610,
+      "beforeNameSizeSha256": "bf2b7c0758482870b72428622db6df0f10660bf5a91aa835ee02d857bd70bbeb",
+      "beforeWavCount": 610,
+      "path": "/storage/emulated/0/Documents/FortressAudio/HomeCenterPocketTts",
+      "unchanged": true
+    }
+  ],
+  "pendingRequests": 0,
+  "planReceipt": "receipts/venice/2026-09-17-home-center-vera-production-wiring-plan.json",
+  "planSha256": "096732300737d39c04677af57b1fccfd29ad5a9be3101848e7d588ee3c23710c",
+  "reproduce": [
+    "python3 tools/pocket_tts_render_v2_test.py",
+    "python3 tools/pocket_tts_worker_contract_test.py",
+    "python3 tools/home_center_regression_tests.py",
+    "python3 tools/pocket_tts_home_center_worker.py doctor",
+    "sh tools/home_center_read_aloud.sh status"
+  ],
+  "schema": "home-center.regnet-evidence.v1",
+  "sourceProvenance": {
+    "audioFilter": "highpass=f=90,lowpass=f=7800,equalizer=f=260:t=q:w=1:g=2,equalizer=f=3200:t=q:w=1:g=3,acompressor=threshold=-28dB:ratio=3:attack=10:release=120,volume=1.18",
+    "profile": "vera-venice-close-mic-v1",
+    "veniceSourceCommit": "48adffbbafe96d8e68595839438cd65b90020e18",
+    "veniceSourceSha256": "1B8993BAE19EB58E4EE0A5A064848D34BA34AC36D4B2A3AA158ACDAD329C2BDE",
+    "voice": "vera"
+  },
+  "workerHeartbeat": {
+    "activeBackend": "",
+    "audioFilter": "highpass=f=90,lowpass=f=7800,equalizer=f=260:t=q:w=1:g=2,equalizer=f=3200:t=q:w=1:g=3,acompressor=threshold=-28dB:ratio=3:attack=10:release=120,volume=1.18",
+    "configuredBackend": "local",
+    "contractVersion": "pocket-tts-render-v3",
+    "lastAccepted": "",
+    "lastBackendError": "",
+    "lastError": "",
+    "modelLoaded": false,
+    "pid": 3288,
+    "status": "running",
+    "updatedAtMs": 1789695709255,
+    "voice": "vera",
+    "voiceProfileId": "vera-venice-close-mic-v1"
+  }
+}

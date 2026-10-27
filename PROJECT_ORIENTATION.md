@@ -35,6 +35,29 @@ sh tools/build_debug_apk.sh
 
 This script builds, verifies, copies to Downloads, and installs through Shizuku. Use direct Gradle only for compile-only diagnostics.
 
+## Pocket TTS Drive reader
+
+Home Center read-aloud is Pocket TTS-only and Android-owned. Version 0.2.83 uses the native contract `pocket-tts-render-v4-native`: `NarrationForegroundService` owns the render plan, one serialized LiteRT Pocket TTS model, exact built-in voice `vera`, Venice close-mic PCM processing, atomic section publication, playback, audio focus, MediaSession, notification, wake lock, and process-death intent redelivery. Production rendering must work with Termux and every read-aloud tmux session stopped.
+
+The pinned native runtime assets live under `app/src/main/assets/pockettts/` with exact hashes and provenance in `manifest.json`. The runtime source is `john-rocky/LiteRT-Models` commit `b669b3c04e09295e629f4cbe6111c8e94202b9d7`; converted graphs are pinned to `mlboydaisuke/Pocket-TTS-LiteRT` revision `66c9d2fb05fc44cc69cb14c15cff9574c4381788`; Vera is Kyutai's published preset. `docs/THIRD_PARTY_POCKET_TTS_NATIVE.md` carries attribution and licenses.
+
+`MainActivity` remains a controller/observer and must not reclaim the Pocket TTS track or synthesize concurrently. Playback becomes available after the first contiguous validated sentence. Render sections are sentence-aligned; the model's 50-token split is only the internal safety bound for an exceptional long sentence.
+
+Old v3 worker clips and manifests remain in place and readable when their artifact receipt is valid. New native requests use the separate `hc-v4-native-vera-close-mic-v1-` namespace and v4 receipts, so they cannot overwrite or impersonate old results.
+
+The Termux operator is now a compatibility and diagnostic lane only:
+
+```sh
+sh tools/home_center_read_aloud.sh start local
+sh tools/home_center_read_aloud.sh status
+sh tools/home_center_read_aloud.sh doctor
+sh tools/home_center_read_aloud.sh repair --file-id DRIVE_FILE_ID
+sh tools/home_center_read_aloud.sh benchmark
+sh tools/home_center_read_aloud.sh receipts
+```
+
+It must never be an automatic production fallback. Home Center narration never imports, calls, or falls back to Cauldron. Existing Render, Play, Pause, and Stop controls remain unchanged. Do not claim a whole book rendered until every section is accepted, and do not claim audible acceptance without Drew's real listen.
+
 ## Secrets
 
 Do not commit TickTick tokens, Firebase service account files, keystores, or `app/google-services.json`.

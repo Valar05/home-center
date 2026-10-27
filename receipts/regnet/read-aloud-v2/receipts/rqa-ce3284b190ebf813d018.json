@@ -1,0 +1,63 @@
+{
+  "acceptance": [
+    "Exact 632-token real-model canary has no unit above 50 tokens, all units observe EOS, and whole-file SHA validates.",
+    "Android build compiles and versionCode 73 installs through Shizuku without downgrade.",
+    "Only one canonical queue consumer remains and auto backend heartbeat declares pocket-tts-render-v2.",
+    "Legacy 20k leagues artifacts are recoverably quarantined and cannot enter the v2 private cache."
+  ],
+  "blockers": [],
+  "can_grant_final_stop": false,
+  "capability_state": "deployed",
+  "claim": "Home Center Pocket TTS v2 implementation is deployed: fail-closed rendering, Computer Hands Cauldron routing, service-owned playback, recoverable book repair, and canonical operator script; human audible and full-book completion remain explicitly open.",
+  "created_at": "2026-09-17T18:44:48.225525+00:00",
+  "dissent": [
+    "Do not call the whole 20k leagues book complete until every current-source section has an accepted v2 receipt."
+  ],
+  "evidence": [
+    {
+      "exists": true,
+      "path": "/storage/emulated/0/Documents/FortressAudio/HomeCenterPocketTts/hc-v2-exact-632-token-production-canary.json",
+      "size": 7205
+    },
+    {
+      "exists": true,
+      "path": "/storage/emulated/0/Documents/FortressAudio/HomeCenterPocketTts/campaign/repair-1B_nUq6e7sLGwOuI8zeJegftMTDzCWuWX.json",
+      "size": 7199
+    },
+    {
+      "exists": true,
+      "path": "/storage/emulated/0/Download/HomeCenter-debug.apk",
+      "size": 6840295
+    },
+    {
+      "exists": true,
+      "path": "receipts/venice/2026-09-17-home-center-read-aloud-plan.json",
+      "size": 4620
+    }
+  ],
+  "evidence_refs": [],
+  "next_gate": "Venice",
+  "provenance": "SYNTHETIC_REGNET",
+  "questions": [
+    "What exactly are we claiming?",
+    "What evidence proves that exact claim on the commissioned surface?",
+    "What reachable path did we not test?",
+    "What happens when the dependency, input, user, network, state, or timing is wrong?",
+    "Can another person reproduce the result from the receipt?",
+    "Did we deliver the requested thing or an adjacent substitute?",
+    "What changed, and what can regress because of it?",
+    "Are we laundering intended, implemented, tested, deployed, callable, delivered, or accepted into one state?",
+    "What dissent or uncertainty must remain attached to the claim?"
+  ],
+  "reachable_failure_paths": [
+    "Acoustic gates can miss intelligible-word substitutions; requires human listening acceptance.",
+    "Computer Hands chunk transport is integrity-safe but slower than Drive sync for multi-megabyte WAVs.",
+    "Full repository regression is red in unrelated Venice classification test; focused read-aloud tests and Gradle build are green."
+  ],
+  "receipt_id": "rqa-ce3284b190ebf813d018",
+  "reviewer": "Regnet QA",
+  "schema": "home-center.regnet-qa.review.v1",
+  "unresolved": [],
+  "verdict": "PASS",
+  "warnings": []
+}

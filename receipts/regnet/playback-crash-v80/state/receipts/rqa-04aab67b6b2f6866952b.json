@@ -1,0 +1,41 @@
+{
+  "acceptance": [
+    "One explicit Play command, no Pocket automatic restart, no sticky background crash, installed v80, user acceptance not claimed."
+  ],
+  "blockers": [],
+  "can_grant_final_stop": false,
+  "capability_state": "delivered",
+  "claim": "Home Center 0.2.80 implements and installs the service-owned Pocket TTS replay/crash repair; visual and audible acceptance remain pending user.",
+  "created_at": "2026-09-17T23:11:06.112566+00:00",
+  "dissent": [],
+  "evidence": [
+    {
+      "exists": true,
+      "path": "receipts/regnet/playback-crash-v80/evidence.json",
+      "size": 4249
+    }
+  ],
+  "evidence_refs": [],
+  "next_gate": "Venice",
+  "provenance": "SYNTHETIC_REGNET",
+  "questions": [
+    "What exactly are we claiming?",
+    "What evidence proves that exact claim on the commissioned surface?",
+    "What reachable path did we not test?",
+    "What happens when the dependency, input, user, network, state, or timing is wrong?",
+    "Can another person reproduce the result from the receipt?",
+    "Did we deliver the requested thing or an adjacent substitute?",
+    "What changed, and what can regress because of it?",
+    "Are we laundering intended, implemented, tested, deployed, callable, delivered, or accepted into one state?",
+    "What dissent or uncertainty must remain attached to the claim?"
+  ],
+  "reachable_failure_paths": [
+    "Null/stale/failed service cursor and foreground-start rejection must fail closed without replay or process crash."
+  ],
+  "receipt_id": "rqa-04aab67b6b2f6866952b",
+  "reviewer": "Regnet QA",
+  "schema": "home-center.regnet-qa.review.v1",
+  "unresolved": [],
+  "verdict": "PASS",
+  "warnings": []
+}

@@ -1,0 +1,43 @@
+{
+  "capabilityState": "deployed-not-user-accepted",
+  "createdAtEpoch": 1789734287,
+  "directive": "STOP_ALLOWED",
+  "evidence": {
+    "apkSha256": "a58a52cb1ff6d6d64d94a8d3336715466030c36553596794a92aeaed3db38528",
+    "confirmedPlan": "receipts/venice/2026-09-18-home-center-v84-linkage-crash-repair-plan.json",
+    "incidentReceipt": "receipts/regnet/read-aloud-v84-linkage-crash-repair.json",
+    "installedVersion": "0.2.84 (84)",
+    "v83NegativeControl": "FAIL missing libLiteRt.so and libLiteRtClGlAccelerator.so",
+    "v84PositiveControl": "PASS all three ARM64 libraries"
+  },
+  "evidenceIdentity": "ff96d68a89f73d4c864a0294ec3ecff885333750e48b452b98929637a4193046",
+  "findings": [],
+  "independentReviewPass": true,
+  "judgmentJarApplied": [
+    "repository truth",
+    "failure recovery",
+    "negative control",
+    "capability-state discipline",
+    "change discipline"
+  ],
+  "knownGap": "The user has not yet pressed Render/Play on v84, so real-device inference and audible playback are not accepted.",
+  "precedentLoaded": [
+    "mission boundary preserves exact Vera, old clips, and user-operated buttons",
+    "repository evidence cannot be promoted to runtime acceptance"
+  ],
+  "regnetReceiptId": "rqa-704a850c3c7ae356cd62",
+  "repo": "/storage/emulated/0/Documents/GodotProjects/home-center",
+  "retrospective": {
+    "exactCodexTokenDelta": "UNKNOWN_NO_PAR_UPDATE",
+    "frontierClassification": "FRONTIER_EXPANSION_FOR_DEPLOYMENT_ONLY",
+    "improvement": "A post-build contract now asserts the JNI shim, implementation runtime, and GPU accelerator together; the build wrapper runs it before install.",
+    "wastedTime": "v83 shipped with an API-only AAR because the first APK inspection asserted liblitert_jni.so but not its ELF dependencies.",
+    "weakestSoundnessClause": "No pre-install dependency-closure check existed for JNI NEEDED libraries."
+  },
+  "reviewText": "VERDICT: PASS\nDIRECTIVE: STOP_ALLOWED\nJAR: repository truth - the crash stack, JNI NEEDED table, AAR contents, and APK contents identify and close the exact missing-library edge.\nJAR: failure recovery - LinkageError is converted to IOException, preventing a renderer linkage fault from killing Home Center.\nJAR: negative control - v83 fails and v84 passes the same post-build native-library contract.\nJAR: capability-state discipline - installation is not audible acceptance.\nNOTE: Stop is allowed for the deployed linkage-repair slice only; user Render/Play remains required.\n",
+  "reviewer": "chatgpt-venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "schema": "venice-code-review-v4-judgment-jar-primary",
+  "stopPermissionGranted": true,
+  "verdict": "PASS"
+}

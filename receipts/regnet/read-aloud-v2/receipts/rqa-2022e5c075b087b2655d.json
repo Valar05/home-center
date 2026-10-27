@@ -1,0 +1,54 @@
+{
+  "acceptance": [
+    "Installed package is version 0.2.77.",
+    "Existing worker reports activeBackend cauldron with no backend error.",
+    "Installed production manifest advances through at least two distinct downloaded sections without another button press.",
+    "Android-private section WAVs exist and are non-empty.",
+    "Regression proves Android-owned WAV and receipt inodes survive worker publication."
+  ],
+  "blockers": [],
+  "can_grant_final_stop": false,
+  "capability_state": "delivered",
+  "claim": "Home Center 0.2.77 no longer stalls at Rendering because the existing Cauldron worker preserves Android-owned MediaStore result slots and the installed foreground service imports sequential validated WAV sections.",
+  "created_at": "2026-09-17T21:11:10.818443+00:00",
+  "dissent": [
+    "Audible playback quality and 20k-specific full completion remain user-visible acceptance, not inferred from transport proof."
+  ],
+  "evidence": [
+    {
+      "exists": true,
+      "path": "receipts/venice/runtime-state/2026-09-17-home-center-mediastore-runtime.json",
+      "size": 1983
+    },
+    {
+      "exists": true,
+      "path": "receipts/venice/2026-09-17-home-center-mediastore-bridge-plan.json",
+      "size": 1822
+    }
+  ],
+  "evidence_refs": [],
+  "next_gate": "Venice",
+  "provenance": "SYNTHETIC_REGNET",
+  "questions": [
+    "What exactly are we claiming?",
+    "What evidence proves that exact claim on the commissioned surface?",
+    "What reachable path did we not test?",
+    "What happens when the dependency, input, user, network, state, or timing is wrong?",
+    "Can another person reproduce the result from the receipt?",
+    "Did we deliver the requested thing or an adjacent substitute?",
+    "What changed, and what can regress because of it?",
+    "Are we laundering intended, implemented, tested, deployed, callable, delivered, or accepted into one state?",
+    "What dissent or uncertainty must remain attached to the claim?"
+  ],
+  "reachable_failure_paths": [
+    "Missing or invalid v2 receipt is rejected before import.",
+    "Timeout exposes the exact Home Center read-aloud recovery command.",
+    "Worker publication preserves MediaStore ownership instead of replacing the row-backed inode."
+  ],
+  "receipt_id": "rqa-2022e5c075b087b2655d",
+  "reviewer": "Regnet QA",
+  "schema": "home-center.regnet-qa.review.v1",
+  "unresolved": [],
+  "verdict": "PASS",
+  "warnings": []
+}

@@ -1,0 +1,97 @@
+{
+  "acceptanceCriteria": [
+    "First four compiled sections contain exactly one complete sentence each.",
+    "Later sections greedily pack whole sentences toward 1400 characters without cutting a sentence.",
+    "Every section derived from a speaker turn repeats its hidden speaker tag.",
+    "Exceptional long sentences remain whole for the tokenizer-hard 50-token renderer.",
+    "Pocket TTS UI and service playback use the same one-validated-sentence gate.",
+    "Compiler v8 cannot restore v7 character-cut cache artifacts.",
+    "Pocket TTS inference remains single-model; no concurrent inference or worker processes were added.",
+    "APK 0.2.81 installs without launching; 20k visual and audible acceptance remains the user."
+  ],
+  "acceptedLane": {
+    "audible": "PENDING_USER",
+    "fileId": "1B_nUq6e7sLGwOuI8zeJegftMTDzCWuWX",
+    "latestOverallScreenshot": "/storage/emulated/0/Pictures/Screenshots/Screenshot_20260917-182635.png",
+    "latestOverallScreenshotFinding": "Unrelated localhost infinite-brutality page with HOLOGRAPHIC ASSEMBLY BOOT FAILED; not Home Center acceptance evidence.",
+    "latestRelevantScreenshot": "/storage/emulated/0/Pictures/Screenshots/Screenshot_20260917-181513.png",
+    "screenOperatedByAgent": false,
+    "status": "PENDING_USER_20K"
+  },
+  "artifactSha256": "8639d9e44d2a189ab0a7e95196405f9fa992ae004f6c83a7c77db3d9a25b8ce5",
+  "claim": "Home Center 0.2.81 replaces character-cut narration sections with sentence-aligned startup and steady-state chunks, exposes Play after the first validated sentence, retains one Pocket TTS model using existing PyTorch CPU threading, and is installed without launch.",
+  "createdAt": "2026-09-17T18:37:03-05:00",
+  "deterministicChecks": [
+    {
+      "command": "sh tools/test_markdown_sentence_chunker.sh",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 tools/home_center_regression_tests.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 tools/pocket_tts_continuous_playback_test.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 tools/pocket_tts_worker_contract_test.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 tools/pocket_tts_manifest_batch_benchmark.py",
+      "result": "PASS; 0.692 seconds; 59 writes vs 1870 projected; 96.84 percent reduction"
+    },
+    {
+      "command": "git diff --check",
+      "result": "PASS"
+    },
+    {
+      "command": "Gradle 8.14.3 assembleDebug",
+      "result": "PASS; 53 seconds"
+    },
+    {
+      "command": "apksigner verify --verbose",
+      "result": "PASS; APK Signature Scheme v2"
+    },
+    {
+      "command": "aapt dump badging",
+      "result": "PASS; versionCode 81 versionName 0.2.81"
+    },
+    {
+      "command": "Shizuku pm install -r plus dumpsys package",
+      "result": "PASS; installed 0.2.81"
+    },
+    {
+      "command": "pidof plus dumpsys activity services after install",
+      "result": "PASS; no process/service; app not launched"
+    }
+  ],
+  "failurePaths": [
+    "Common abbreviations and decimal periods are protected before sentence iteration.",
+    "Quoted questions are merged with recognized dialogue attribution.",
+    "A long punctuation-poor sentence stays one compiler section and is token-split only inside validated Pocket TTS rendering.",
+    "A cache compiler identity mismatch forces new section artifacts."
+  ],
+  "frontierClassification": "FRONTIER_EXPANSION",
+  "knownGap": "No post-install Home Center UI or audible run was performed because the user reserved button and screen operation. The latest overall screenshot is unrelated; 20k acceptance remains pending.",
+  "negativeControls": [
+    "MainActivity contains no splitLongChunk character fallback.",
+    "DOC_READER_FIRST_CHUNK_CHARS and v7 compiler identity are absent.",
+    "Pocket TTS startup gate does not call NarrationBufferPolicy.requiredAheadSeconds.",
+    "No new executor, worker process, or concurrent Pocket TTS model inference was added.",
+    "Cauldron remains outside the narration path."
+  ],
+  "retrospective": {
+    "improvement": "Keep the pure Java sentence primitive independently compilable before Android integration.",
+    "wastedTime": "One failed shared-storage apply_patch attempt and one atomic regression-update attempt rejected by an exact-string mismatch; neither produced partial mutation.",
+    "wastedTokens": "Exact local Codex token deltas unavailable; does not update par history.",
+    "weakestSoundnessClause": "Audible 20k acceptance remains user-owned and unobserved after install."
+  },
+  "schema": "home-center-regnet-evidence-v1",
+  "sourceIdentity": {
+    "MainActivity.java": "b94e868059705305ae807045fb01f9da553f89e7722662118a66775a71eed4c1",
+    "MarkdownSentenceChunker.java": "f21691ef2385a394571e6b1f11dddff0fa72fcc3f4897df0094e8b5ed1ee11b1",
+    "MarkdownSentenceChunkerTest.java": "950cfdb23b89f2aa497f3294db99dc9836df5b324782b5c1fc6a5ced341e2aff"
+  }
+}

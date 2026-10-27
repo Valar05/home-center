@@ -1,0 +1,67 @@
+{
+  "createdAt": "2026-09-17T22:32:29.794895+00:00",
+  "entries": [
+    {
+      "bytes": 6882,
+      "sha256": "eb4912fccba73f00f5e54f415c277e6c26b2f1815a515195b50b925e2f06d6b0",
+      "source": "tools/pocket_tts_cauldron_backend.py"
+    },
+    {
+      "bytes": 2989,
+      "sha256": "1dfe14c2ca1c20e514f28a49b0959afc9c43aaf99f642427c33609077ae22a01",
+      "source": "tools/pocket_tts_cauldron_backend_test.py"
+    },
+    {
+      "bytes": 997,
+      "sha256": "32ca069cd03443632f22dbab248de8dfa5e05d75a30ad6bc004e4f31f8ea0b24",
+      "source": "tools/cauldron_pocket_tts_launcher_test.py"
+    },
+    {
+      "bytes": 2704,
+      "sha256": "5a74b356d0f5a23360e1f6276c9f87cc3620f1f777ef40439847eab440192497",
+      "source": "tools/install_cauldron_pocket_tts.py"
+    },
+    {
+      "bytes": 610,
+      "sha256": "07fee2b5abddda7b88ff5b54f0dac4a96383d56b2451f39af117ab047b3a9707",
+      "source": "tools/start_cauldron_pocket_tts.sh"
+    },
+    {
+      "bytes": 1164,
+      "sha256": "aa48f35c041f0957ddc17f27e5f39f631275703158f9fff261b3bdedd9af6247",
+      "source": "workers/cauldron_pocket_tts_worker/README.md"
+    },
+    {
+      "bytes": 19427,
+      "sha256": "68fc121d5ff0ddc6cedebb21616320741f5af77fe185155d5eab93e4518a276c",
+      "source": "workers/cauldron_pocket_tts_worker/__pycache__/pocket_tts_render_v2.cpython-313.pyc"
+    },
+    {
+      "bytes": 2373,
+      "sha256": "374f3034dfba61c53cb56d16a388eb01aea6790c1d844205793a827be8ece7b4",
+      "source": "workers/cauldron_pocket_tts_worker/__pycache__/render_section.cpython-313.pyc"
+    },
+    {
+      "bytes": 1063,
+      "sha256": "933319e9667d0a0b6d3993d1f8df9d2084925ef36deb5d96ad12985ac84e00d5",
+      "source": "workers/cauldron_pocket_tts_worker/bootstrap.ps1"
+    },
+    {
+      "bytes": 9759,
+      "sha256": "8ca96a316552c70dd92fb02439f51248d8a75b61bc328e9f474eeb68dd3a3ee6",
+      "source": "workers/cauldron_pocket_tts_worker/pocket_tts_render_v2.py"
+    },
+    {
+      "bytes": 1069,
+      "sha256": "959f09c6da8c0957f3d6d832429c23cdd37c0e42144cb8597885dc2a0e576749",
+      "source": "workers/cauldron_pocket_tts_worker/render_section.py"
+    },
+    {
+      "bytes": 18,
+      "sha256": "34b5f1b386e2922465e40a670166e619372014a1665d947fff574c3d4c8a02a2",
+      "source": "workers/cauldron_pocket_tts_worker/requirements.txt"
+    }
+  ],
+  "reason": "User explicitly removed Cauldron from Home Center read-aloud. Files are recoverable but outside active tools/workers paths.",
+  "schema": "home-center.cauldron-read-aloud-quarantine.v1"
+}

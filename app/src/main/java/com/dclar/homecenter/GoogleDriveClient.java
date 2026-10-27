@@ -29,6 +29,7 @@ final class GoogleDriveClient {
     private static final String DOCS_URL = "https://docs.googleapis.com/v1/documents";
     private static final String FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
     private static final String DOC_MIME_TYPE = "application/vnd.google-apps.document";
+    private static final String TEXT_MIME_TYPE = "text/plain";
 
     private final Context context;
 
@@ -62,14 +63,14 @@ final class GoogleDriveClient {
         TokenResult token = tokenForTool(account, "drive.search");
         if (!token.ok) return DriveResult.error(token.json.optString("error", "drive_error"), token.json.optString("detail", "Drive failed."));
         List<String> clauses = new ArrayList<>();
-        clauses.add("mimeType='" + DOC_MIME_TYPE + "'");
+        clauses.add("(mimeType='" + FOLDER_MIME_TYPE + "' or mimeType='" + DOC_MIME_TYPE + "' or mimeType='" + TEXT_MIME_TYPE + "')");
         clauses.add("trashed=false");
         String cleanFolderId = folderId == null ? "" : folderId.trim();
         if (!cleanFolderId.isEmpty()) clauses.add("'" + escapeQuery(cleanFolderId) + "' in parents");
         String cleanQuery = queryText == null ? "" : queryText.trim();
         if (!cleanQuery.isEmpty()) clauses.add("name contains '" + escapeQuery(cleanQuery) + "'");
         String orderBy = "name_asc".equals(sortMode) ? "name" : "modifiedTime desc";
-        return requestFiles(token.value, joinClauses(clauses), "Narratable Google Docs", pageSize, orderBy);
+        return requestFiles(token.value, joinClauses(clauses), "Narratable Drive documents", pageSize, orderBy);
     }
 
     DriveResult listFolderChildren(GoogleSignInAccount account, String folderId, int pageSize) {
@@ -231,8 +232,13 @@ final class GoogleDriveClient {
         String fileId = cleanArg(arguments, "fileId");
         if (fileId.isEmpty()) return toolError("docs.read", "missing_file_id", "docs.read requires fileId from a prior docs.search result.");
         String name = cleanArg(arguments, "name");
+        String mimeType = cleanArg(arguments, "mimeType");
+        if (mimeType.isEmpty()) mimeType = DOC_MIME_TYPE;
+        if (!DOC_MIME_TYPE.equals(mimeType) && !TEXT_MIME_TYPE.equals(mimeType)) {
+            return toolError("docs.read", "unsupported_document_type", "Narration supports Google Docs and Drive text files.");
+        }
         try {
-            DriveFile file = new DriveFile(fileId, name, DOC_MIME_TYPE, "", "");
+            DriveFile file = new DriveFile(fileId, name, mimeType, "", "");
             return resultJson("docs.read", true, "", "", new ArrayList<>(), readDocumentText(token.value, file)).put("file", fileJson(file));
         } catch (Exception ex) {
             return toolError("docs.read", "document_read_error", safe(ex.getMessage()));

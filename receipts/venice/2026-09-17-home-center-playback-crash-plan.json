@@ -1,0 +1,71 @@
+{
+  "acceptedEvidenceLane": "Crash-buffer negative control, focused service/playback contract tests, build/install guardrails, then newest user screenshot and user listening. No agent screen operation.",
+  "antagonism": "Merely catching the service exception would leave the replay loop. Merely disabling reconciliation would hide service failures. The fix must both remove the wrong Activity liveness oracle and explicitly project service terminal states, while retaining a user-owned restart path through Play.",
+  "causalPremortem": [
+    {
+      "edge": "Play to service start",
+      "guard": "explicit foreground path calls startForegroundService directly and catches failure",
+      "silentNoOp": "executor delay or exception drops Play"
+    },
+    {
+      "edge": "service playback to Activity observation",
+      "guard": "matching fresh service cursor active states return live; no Pocket restart path",
+      "silentNoOp": "Activity checks its null legacy track and restarts section"
+    },
+    {
+      "edge": "service completion/failure to UI",
+      "guard": "terminal service states clear request and surface complete or failure",
+      "silentNoOp": "stale playbackRequested keeps button in playing state"
+    },
+    {
+      "edge": "system process restart to foreground service",
+      "guard": "START_NOT_STICKY plus guarded foreground promotion",
+      "silentNoOp": "START_STICKY null intent crashes in background"
+    },
+    {
+      "edge": "Activity destroy to delayed callback",
+      "guard": "destroyed-state and executor-shutdown gates",
+      "silentNoOp": "terminated executor rejects queued work and crashes main thread"
+    },
+    {
+      "edge": "delivery",
+      "guard": "version 0.2.80 verification and package readback; no launch",
+      "silentNoOp": "tests pass but old APK remains installed"
+    }
+  ],
+  "commission": "Stop repeated single-section Pocket TTS playback, restore direct Play control, and prevent Home Center background service crashes while preserving the confirmed visible-progress fixes.",
+  "confirmation": "User explicitly confirmed the revised nine-clause playback/crash plan.",
+  "createdAt": "2026-09-17T18:18:00-05:00",
+  "currentCommand": "confiem",
+  "directive": "PLAN_ALLOWED",
+  "evidence": [
+    "Newest screenshot remains Screenshot_20260917-174337.png and is still visually red.",
+    "Installed 0.2.79 crash at 17:58:08 is ForegroundServiceStartNotAllowedException from NarrationForegroundService.onStartCommand.",
+    "Pocket TTS service playback is always classified dead by MainActivity because isDocumentAudioPlaybackLive checks activeHostedSpeechTrack, so the 1.5-second reconciler restarts the same section.",
+    "No Home Center process or service was active after the crash; 0.2.80 was not installed."
+  ],
+  "existingOwner": "NarrationForegroundService owns Pocket TTS AudioTrack, MediaSession, cursor and lifecycle; MainActivity is only the explicit control and observer.",
+  "forbiddenStalePremise": "Activity-owned hosted AudioTrack state can judge service-owned Pocket TTS playback, or START_STICKY may safely recreate a foreground service from the background on this Android runtime.",
+  "orderedPlan": [
+    "Make the narration-service cursor and state the sole liveness/progress truth for Pocket TTS.",
+    "Remove automatic Pocket TTS false-playing restarts; explicit Play/Resume is the only playback start.",
+    "Map starting, playing, waiting, paused, complete, failed, and stopped service states into reader UI state without recursive restart.",
+    "Start the service synchronously from the explicit foreground button path and surface start failure instead of silently queueing it.",
+    "Use START_NOT_STICKY and fail closed if Android forbids foreground promotion; resume durable rendering only from a later foreground Activity restore.",
+    "Prevent delayed Activity callbacks from dispatching onto terminated executors.",
+    "Preserve Section 1 reset, immediate validated progress, two-contiguous-section Play visibility, and one-manifest-snapshot refresh.",
+    "Run focused negative/positive playback tests, regression, Gradle 8.14.3 build, signature/version verification and install without launching.",
+    "Visual and audible acceptance remain the user through the newest screenshot and button press."
+  ],
+  "reviewerProvenance": "ChatGPT current worker, separate adversarial Judgment-Jar plan pass",
+  "schema": "venice-plan-review-v2-judgment-jar-primary",
+  "selectedJudgmentJars": [
+    "mission-boundary",
+    "repository-truth",
+    "change-discipline",
+    "failure-recovery",
+    "daemon-backoff-persistence",
+    "venice-review-gate"
+  ],
+  "verdict": "PASS"
+}

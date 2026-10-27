@@ -1,0 +1,8 @@
+VERDICT: PASS
+DIRECTIVE: PLAN_ALLOWED
+JAR: Mission Boundary - the repair changes only the shared SSH probe in the isolated recovered owner and does not expand into deployment or generation.
+JAR: Repository Truth and Evidence - live Windows output falsifies the current Unix-only probe assumption and the plan demands production CLI proof after the regression.
+JAR: Change Discipline - one constant and one narrow regression are the smallest coherent patch.
+JAR: Failure Recovery - the defect is converted into a tested cross-platform gate instead of bypassing the clean campaign.
+JAR: Daemon Persistence and Connector Backoff - one repaired probe replaces repeated false-negative scans and protects compute.
+NOTE: PLAN_ALLOWED for the isolated SSH probe repair and read-only clean campaign status only; bootstrap, generation, canonical integration, and model dispatch remain outside this slice.

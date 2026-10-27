@@ -1,0 +1,46 @@
+{
+  "capabilityState": "deployed-not-user-accepted",
+  "createdAtEpoch": 1789735796,
+  "directive": "STOP_ALLOWED",
+  "evidence": {
+    "apkSha256": "07b910050fec14e5be57bb324463e966be3cc3853d0dc21b0c1aa804776a530d",
+    "confirmedPlan": "receipts/venice/2026-09-18-home-center-v85-native-token-split-plan.json",
+    "exactFixtureTests": "2 tests, 0 failures, 0 errors",
+    "incidentReceipt": "receipts/regnet/read-aloud-v85-token-overflow-repair.json",
+    "installedVersion": "0.2.85 (85)",
+    "preservedWavs": 14,
+    "section15Exists": false
+  },
+  "evidenceIdentity": "3ed140bb7362a89b466c1548703eb91b14beddce36f876199ce7d9d6189db8ef",
+  "findings": [],
+  "independentReviewPass": true,
+  "judgmentJarApplied": [
+    "repository truth",
+    "source reuse",
+    "negative control and ordinary variation",
+    "failure recovery",
+    "capability-state discipline",
+    "change discipline"
+  ],
+  "knownGap": "No post-install user render has yet advanced beyond section 15 while playback is inactive.",
+  "precedentLoaded": [
+    "preserve exact Vera, old clips, and user-operated controls",
+    "repository evidence cannot be laundered into runtime proof",
+    "MVP before empire"
+  ],
+  "regnetReceiptId": "rqa-6d9c5fd3be974e9ca29c",
+  "repo": "/storage/emulated/0/Documents/GodotProjects/home-center",
+  "retrospective": {
+    "exactCodexTokenDelta": "UNKNOWN_NO_PAR_UPDATE",
+    "frontierClassification": "FRONTIER_EXPANSION_FOR_DEPLOYMENT_ONLY",
+    "improvement": "The exact production input and ordinary control now run in every APK build, with real-tokenizer preconditions and postconditions.",
+    "wastedTime": "The first native port copied sentence packing but omitted the existing v3 hard-token fallback, causing repeated retries against an invariant deterministic failure.",
+    "weakestSoundnessClause": "The initial native tests did not include punctuation-free text above the model cache budget."
+  },
+  "reviewText": "VERDICT: PASS\nDIRECTIVE: STOP_ALLOWED\nJAR: repository truth - repeated live failures identify section 15 and KV position 512, while the persisted plan supplies the exact 663-character input.\nJAR: source reuse - native code ports the already accepted v3 split_token_hard word-boundary algorithm rather than inventing another splitter.\nJAR: negative control and ordinary variation - the exact over-limit input splits under the real tokenizer while ordinary sentence-sized text remains one unit.\nJAR: failure recovery - normalized text equality and the 50-token postcondition fail closed before inference.\nJAR: capability-state discipline - installed v85 and preserved WAVs do not prove background continuation.\nNOTE: Stop is allowed for the deployed repair slice only; the user must run Render beyond section 15 with playback inactive.\n",
+  "reviewer": "chatgpt-venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "schema": "venice-code-review-v4-judgment-jar-primary",
+  "stopPermissionGranted": true,
+  "verdict": "PASS"
+}

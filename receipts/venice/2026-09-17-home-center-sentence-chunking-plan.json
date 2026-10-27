@@ -1,0 +1,77 @@
+{
+  "acceptedEvidenceLane": "Semantic compiler tests, focused regression/build/install guardrails, then newest 20k screenshot and user listening. The 18:15 Thirdskin screenshot is control proof only.",
+  "antagonism": "One sentence per section for the entire book would inflate section count and manifest writes. Four sentence-sized startup sections lower first-audio latency and build runway, while later whole-sentence packing preserves steady-state efficiency. Character limits remain packing targets only and never become cut points.",
+  "causalPremortem": [
+    {
+      "edge": "Drive text to sentence units",
+      "guard": "BreakIterator plus semantic tests for abbreviations and closing punctuation",
+      "silentNoOp": "regex or locale parser cuts abbreviations/quotes incorrectly"
+    },
+    {
+      "edge": "sentence units to startup",
+      "guard": "first four output sections are exactly one sentence and Play threshold is one",
+      "silentNoOp": "second 1400-character chunk still delays Play"
+    },
+    {
+      "edge": "speaker block splitting",
+      "guard": "speaker prefix is reattached to every emitted group",
+      "silentNoOp": "later sentences lose voice ownership"
+    },
+    {
+      "edge": "long punctuation-poor input",
+      "guard": "whole block remains intact; tokenizer-hard renderer owns internal safety",
+      "silentNoOp": "fallback silently returns to character cuts"
+    },
+    {
+      "edge": "new boundaries to cache",
+      "guard": "compiler ID bump and section hashes force a separate cache namespace",
+      "silentNoOp": "v7 WAVs are misbound to v8 text"
+    },
+    {
+      "edge": "delivery",
+      "guard": "v81 APK/package readback without launch",
+      "silentNoOp": "tests pass but installed app remains v80"
+    }
+  ],
+  "commission": "Reduce Home Center narration startup latency and replace character-cut sections with sentence-aligned sections.",
+  "confirmation": "User explicitly confirmed the exact nine-clause sentence-aligned v8 plan.",
+  "createdAt": "2026-09-17T18:24:00-05:00",
+  "currentCommand": "confirm",
+  "directive": "PLAN_ALLOWED",
+  "existingOwner": "MainActivity.MarkdownNarrationDocument owns markdown-to-speech blocks, speaker tags, chunk boundaries, hashes, labels and compiler cache identity.",
+  "forbiddenStalePremise": "Fixed character offsets are acceptable speech boundaries, or the non-20k 18:15 screenshot proves 20k performance.",
+  "highTreason": [
+    "character fallback presented as sentence alignment",
+    "reuse of v7 WAVs under changed section hashes",
+    "another document presented as 20k speed acceptance",
+    "agent screen operation",
+    "machine checks presented as audible acceptance"
+  ],
+  "orderedPlan": [
+    "Use locale-aware sentence boundaries inside the existing compiler.",
+    "Emit the first four sections as one complete sentence each.",
+    "Expose Play after the first validated sentence.",
+    "After startup, greedily pack complete sentences toward the existing target without splitting a sentence.",
+    "Repeat speaker tags on every section derived from a speaker turn.",
+    "Keep exceptional long sentences intact and rely on the existing tokenizer-hard 50-token renderer internally.",
+    "Bump compiler identity to v8 and leave v7 cache recoverable but incompatible.",
+    "Add semantic Java tests and focused regressions for boundaries, reconstruction, speakers, long sentences and startup readiness.",
+    "Build and install 0.2.81 without launching; visual and audible acceptance remain the user on 20k."
+  ],
+  "repeatedPromptContract": [
+    "still pretty slow",
+    "break on sentence not char count",
+    "inspect newest Screenshots file first",
+    "user operates the Android buttons"
+  ],
+  "reviewerProvenance": "ChatGPT current worker, separate adversarial Judgment-Jar plan pass",
+  "schema": "venice-plan-review-v2-judgment-jar-primary",
+  "selectedJudgmentJars": [
+    "mission-boundary",
+    "repository-truth",
+    "change-discipline",
+    "failure-recovery",
+    "venice-review-gate"
+  ],
+  "verdict": "PASS"
+}

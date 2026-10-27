@@ -1,0 +1,63 @@
+{
+  "antagonism": [
+    "A passing source contract cannot prove sound from the phone speaker.",
+    "The app was intentionally not launched, so no fresh 0.2.80 screenshot or crash-free interaction tape exists.",
+    "The current newest screenshot is the old 0.2.79 red baseline and cannot be used as green evidence.",
+    "The full repository regression still stops on the unrelated Venice-memory category assertion.",
+    "A stale service cursor after an unobserved OS kill is handled as stopped-responding, but only a user Play run can prove the actual Android timing."
+  ],
+  "artifactIdentity": {
+    "apkSha256": "a92c7f6435b329304cbd81d2d0e97356a8eb984b1a03c9f349a0452ffc189e8c",
+    "installedVersion": "0.2.80",
+    "versionCode": 80
+  },
+  "capabilityState": {
+    "audibleAccepted": false,
+    "callable": "UNKNOWN until user opens the app",
+    "implemented": true,
+    "installed": true,
+    "tested": true,
+    "visualAccepted": false
+  },
+  "commission": "Stop repeated single-section Pocket TTS playback, restore direct user Play control, prevent the observed background service crash, and preserve the visible-progress fixes.",
+  "createdAt": "2026-09-17T18:13:00-05:00",
+  "deterministicEvidence": [
+    "Focused Home Center regression PASS",
+    "Pocket TTS service-owned playback contract PASS",
+    "Pocket TTS worker heartbeat contract PASS",
+    "Manifest benchmark PASS at 96.84 percent fewer writes than naive projection",
+    "Gradle 8.14.3 assembleDebug PASS",
+    "APK v2 signature PASS",
+    "Shizuku install and installed package readback PASS for 0.2.80",
+    "Post-install Home Center process and services absent; agent did not launch or operate UI"
+  ],
+  "directive": "STOP_ALLOWED",
+  "missionFidelity": [
+    "Pocket TTS Play now dispatches directly once to NarrationForegroundService.",
+    "Pocket TTS reconciliation observes service cursor and returns before the legacy hosted-audio restart path.",
+    "START_STICKY is absent; null-intent resurrection and foreground-promotion rejection fail closed.",
+    "Section 1 reset, immediate progress, two-contiguous-section Play and one-manifest-snapshot counting remain present.",
+    "Cauldron narration remains absent."
+  ],
+  "regnetReceipt": "receipts/regnet/playback-crash-v80/state/receipts/rqa-04aab67b6b2f6866952b.json",
+  "regnetVerdict": "PASS",
+  "retrospective": {
+    "concreteImprovement": "Future narration fixes should begin by comparing playback ownership with the liveness oracle and reject cross-owner watchdogs.",
+    "frontierClassification": "UNDER_PAR until user-visible and audible acceptance",
+    "wastedTime": "The project-native build wrapper reran the known unrelated Venice-memory failure before compilation; the compatible direct Gradle lane was then used.",
+    "wastedTokens": "Exact local Codex token delta is unavailable, so no token par is updated.",
+    "weakestSoundnessClause": "No post-install user interaction, screenshot, audible playback, or crash-free background transition yet."
+  },
+  "reviewerProvenance": "ChatGPT current worker, separate adversarial Judgment-Jar completion pass",
+  "schema": "venice-completion-review-v2-judgment-jar-primary",
+  "selectedJudgmentJars": [
+    "mission-boundary",
+    "repository-truth",
+    "change-discipline",
+    "failure-recovery",
+    "daemon-backoff-persistence",
+    "venice-review-gate"
+  ],
+  "stopScope": "Implementation, deterministic validation, installation and handoff may stop. Functional/visual/audible success must not be claimed until the user opens 0.2.80, presses Play and supplies the newest screenshot or report.",
+  "verdict": "PASS"
+}

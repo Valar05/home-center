@@ -1,0 +1,82 @@
+{
+  "receiptType": "home_center_pocket_tts_completion",
+  "createdAt": "2026-09-17T00:25:36.819402+00:00",
+  "commission": "Replace the Home Center Drive reader TTS provider with local Pocket TTS while preserving progressive section playback, saved files, pause, and resume.",
+  "state": "deployed",
+  "installedPackage": {
+    "package": "com.dclar.homecenter",
+    "versionCode": 65,
+    "versionName": "0.2.60"
+  },
+  "worker": {
+    "tmuxSession": "home-center-pocket-tts",
+    "status": "running",
+    "startCommand": "sh /storage/emulated/0/Documents/GodotProjects/home-center/tools/home_center_pocket_tts.sh start"
+  },
+  "evidence": {
+    "apk": {
+      "path": "/storage/emulated/0/Download/HomeCenter-debug.apk",
+      "sha256": "db4cd91225b3b4dcf5a70941ca5da43b95e136c71f7e5031d1e596263be1b767",
+      "bytes": 6819636
+    },
+    "queueRender": {
+      "path": "/storage/emulated/0/Documents/FortressAudio/HomeCenterPocketTts/home-center-queue-smoke.wav",
+      "sampleRate": 24000,
+      "channels": 1,
+      "frames": 123840,
+      "durationSeconds": 5.16
+    },
+    "queueReceipt": "/storage/emulated/0/Documents/FortressAudio/HomeCenterPocketTts/home-center-queue-smoke.json"
+  },
+  "checks": [
+    {
+      "name": "Pocket TTS direct render",
+      "result": "pass",
+      "detail": "24 kHz mono WAV generated faster than real time"
+    },
+    {
+      "name": "Persistent queue render",
+      "result": "pass",
+      "detail": "tmux worker consumed request, deleted request, saved valid WAV, and remained running"
+    },
+    {
+      "name": "Pocket TTS source contract regression",
+      "result": "pass",
+      "command": "python3 tools/home_center_regression_tests.py"
+    },
+    {
+      "name": "Android compile",
+      "result": "pass",
+      "detail": "Gradle assembleDebug completed successfully"
+    },
+    {
+      "name": "APK signature",
+      "result": "pass",
+      "detail": "apksigner verified v2 signature"
+    },
+    {
+      "name": "Shizuku install",
+      "result": "pass",
+      "detail": "pm install -r returned Success"
+    },
+    {
+      "name": "Full project regression",
+      "result": "blocked_by_unrelated_existing_failure",
+      "detail": "tools/test_venice_review_memory.py assertion at correction_regression; reproduced alone"
+    },
+    {
+      "name": "Configured installed-app probe",
+      "result": "blocked_at_user_boundary",
+      "detail": "Gateway-configured APK installed; Android lock screen prevented selecting a private book for audible playback verification."
+    }
+  ],
+  "limitations": [
+    "Installed-app playback, pause, and resume against an existing private Google Doc remain unverified because the phone locked during the authorized foreground test."
+  ],
+  "retrospective": {
+    "wastedTime": "RUN_COMMAND was implemented before checking the installed Google Play Termux component inventory.",
+    "improvement": "Probe the installed carrier before coding the bridge.",
+    "tokenUsage": "UNKNOWN",
+    "classification": "FRONTIER_EXPANSION"
+  }
+}

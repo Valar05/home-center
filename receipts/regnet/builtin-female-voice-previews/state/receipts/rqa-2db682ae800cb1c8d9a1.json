@@ -1,0 +1,43 @@
+{
+  "acceptance": [
+    "Five named built-in preview WAVs are valid, distinct, provenance-bound, byte-identically delivered, and Android-indexed; subjective voice selection is explicitly not claimed."
+  ],
+  "blockers": [],
+  "can_grant_final_stop": false,
+  "capability_state": "delivered",
+  "claim": "The five-voice built-in Pocket TTS audition pack is delivered for user listening without changing Home Center reader behavior.",
+  "created_at": "2026-09-18T00:13:24.561450+00:00",
+  "dissent": [
+    "Built-in names and machine audio metrics cannot establish that a voice sounds female, intimate, or ASMR."
+  ],
+  "evidence": [
+    {
+      "exists": true,
+      "path": "receipts/regnet/builtin-female-voice-previews/evidence.json",
+      "size": 6283
+    }
+  ],
+  "evidence_refs": [],
+  "next_gate": "Venice",
+  "provenance": "SYNTHETIC_REGNET",
+  "questions": [
+    "What exactly are we claiming?",
+    "What evidence proves that exact claim on the commissioned surface?",
+    "What reachable path did we not test?",
+    "What happens when the dependency, input, user, network, state, or timing is wrong?",
+    "Can another person reproduce the result from the receipt?",
+    "Did we deliver the requested thing or an adjacent substitute?",
+    "What changed, and what can regress because of it?",
+    "Are we laundering intended, implemented, tested, deployed, callable, delivered, or accepted into one state?",
+    "What dissent or uncertainty must remain attached to the claim?"
+  ],
+  "reachable_failure_paths": [
+    "Generation rejects invalid audio; delivered hash comparison rejects copy drift; MediaStore query rejects invisible delivery."
+  ],
+  "receipt_id": "rqa-2db682ae800cb1c8d9a1",
+  "reviewer": "Regnet QA",
+  "schema": "home-center.regnet-qa.review.v1",
+  "unresolved": [],
+  "verdict": "PASS",
+  "warnings": []
+}

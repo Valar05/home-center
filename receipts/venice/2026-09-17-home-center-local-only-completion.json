@@ -1,0 +1,95 @@
+{
+  "adversarialFindings": [
+    {
+      "question": "Can any active narration route still call Cauldron?",
+      "result": "No. Worker imports no Cauldron adapter, accepts only local, operator accepts only local, and active source scan is empty."
+    },
+    {
+      "question": "Can old valid-looking Cauldron audio return from cache?",
+      "result": "No. New local-only document namespace plus Android receipt backend check reject it; repair moved the old public 20k artifact to recoverable quarantine."
+    },
+    {
+      "question": "Was another document substituted for 20k proof?",
+      "result": "No. Both canaries use fileId 1B_nUq6e7sLGwOuI8zeJegftMTDzCWuWX and textHash 91ffc9b759063b31."
+    },
+    {
+      "question": "Does local Pocket TTS actually import the installed package?",
+      "result": "Yes. The workspace helper shadow was removed; model loaded and exact 20k receipts report backend local, package 2.1.0."
+    },
+    {
+      "question": "Is playback audibly proven?",
+      "result": "No. The user retained button and speaker acceptance; this limitation remains explicit."
+    }
+  ],
+  "commission": "Remove Cauldron from Home Center read-aloud and make the exact 20k path local-only without operating the user screen.",
+  "createdAt": "2026-09-17T22:42:00.050705+00:00",
+  "deterministicChecks": [
+    "focused Pocket TTS suite PASS",
+    "Gradle 8.14.3 assembleDebug PASS",
+    "APK signature v2 PASS",
+    "installed package 0.2.79",
+    "git diff --check PASS",
+    "removed backend and mode negative controls PASS",
+    "worker heartbeat activeBackend local"
+  ],
+  "directive": "STOP_ALLOWED",
+  "judgmentJarsApplied": [
+    "mission-boundary",
+    "repository-truth",
+    "change-discipline",
+    "failure-recovery",
+    "daemon-backoff-persistence",
+    "venice-review-gate"
+  ],
+  "limitations": [
+    "No screen operation was performed.",
+    "Full 1,652-section book completion is not claimed.",
+    "Audible playback is not claimed until the user presses Play.",
+    "The repository-wide wrapper has a previously documented unrelated Venice-memory assertion failure; focused narration checks are green."
+  ],
+  "plan": {
+    "addendum": "receipts/venice/2026-09-17-home-center-local-only-plan-addendum.json",
+    "addendumSha256": "8c526be509edc4cf67e76f97993cc60376300f0153628238139853429754d29c",
+    "confirmation": "User replied confirm.",
+    "path": "receipts/venice/2026-09-17-home-center-local-only-plan.json",
+    "sha256": "416c567b9093d6dc2d090446a611bb1ca88a8f3e3af202f80e141742158c8f17"
+  },
+  "recovery": "Narration-specific Cauldron code is recoverably archived at quarantine/home-center-read-aloud-cauldron-20260917; old 20k Cauldron audio is under FortressAudio quarantine. Neither archive is reachable by active narration.",
+  "regnet": {
+    "path": "receipts/regnet/read-aloud-v2/receipts/rqa-6d2be99c5c0d970cda02.json",
+    "sha256": "667c420a180410afd29935cf29a44a28b31b6613db00125283fd4e4ad5e47456",
+    "verdict": "PASS"
+  },
+  "retrospective": {
+    "exactLocalCodexTokens": "UNKNOWN; exact par history not updated.",
+    "frontierClassification": "FRONTIER_EXPANSION",
+    "improvement": "Backend identity is now enforced at worker selection, Android cache materialization, and repair recovery.",
+    "wastedTime": "The earlier remote transport work hid the local Python namespace collision and cache backend ambiguity.",
+    "weakestClause": "Audible AudioTrack output remains user acceptance."
+  },
+  "reviewIdentity": {
+    "combinedSourceSha256": "00901598b020451e97f0b0703c13eff9a7ea1d37c0d53663e168108b75ccf6d7",
+    "files": {
+      "PROJECT_ORIENTATION.md": "15e69182df5d64db7ee782800f305507b3a947b9f681040a60dd2c0d8e4ec211",
+      "app/build.gradle": "7f6d0b47c76a119c4461e9dd31640455a7c9ea371e531dfc9946eff22b80191b",
+      "app/src/main/java/com/dclar/homecenter/GoogleDocAudioLibrary.java": "51d3ae2558b0f8defcdd0fcb22810f1c81fd07d977860681d8e3424b723dae41",
+      "app/src/main/java/com/dclar/homecenter/MainActivity.java": "421e72a530e3dde3b16ec704df5d47dc852d7c39464b92eb320df09453a917a3",
+      "app/src/main/java/com/dclar/homecenter/PocketTtsWorkerBridge.java": "3008f45f27552a978807304568614d8e97d628706bd5d9be0e0b5eec731fedb0",
+      "docs/CURRENT_TROUBLESHOOTING_STATE.md": "8e9ce26dba0e742743dc362ca108939cf7d1e816ff35d41d046dfc7971b3208e",
+      "tools/home_center_read_aloud.sh": "0da43ea494f22be242b98774a22544a20c1505874c09cbd7945e18fe37b56346",
+      "tools/home_center_regression_tests.py": "b73f95936901f6a5703c4aa09c38957b706bdf515349025871af46b96eb8e884",
+      "tools/pocket_tts_home_center_worker.py": "d9d41775eda857423dcc5885e647b719911390db8b637cb284a3e0add2cf8988",
+      "tools/pocket_tts_worker_contract_test.py": "15f9da758b952cd620b8fac86015217acf04ae15b4a8b0dfb0362a77b9b34881",
+      "tools/run_regression_tests.sh": "2e665fbe23d5ee1dec6116bee9d956550f25eede4fd6da25905815a330c8badf"
+    },
+    "workingTreeNote": "Review is bounded to the local-only narration slice; the dirty worktree contains earlier continuous narration changes and unrelated user files."
+  },
+  "reviewer": "chatgpt-venice-judgment-jar-separate-pass",
+  "runtimeEvidence": {
+    "path": "receipts/venice/runtime-state/2026-09-17-home-center-local-only-20k.json",
+    "sha256": "69d3966168ee07f93288204ff21ff760533d79e421711c9f2f5d62fdcd9c5aa7"
+  },
+  "schema": "venice-completion-review-v1-working-tree",
+  "stopPermissionGranted": true,
+  "verdict": "PASS"
+}

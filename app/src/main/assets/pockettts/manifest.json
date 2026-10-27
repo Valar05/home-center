@@ -1,0 +1,80 @@
+{
+  "files": [
+    {
+      "bytes": 169234128,
+      "name": "pt_flowlm_fused_fp16.tflite",
+      "sha256": "3e9297e8c997226941b6d21149e7dec96168e08207a07e5a5d972da7d85574a7"
+    },
+    {
+      "bytes": 17431184,
+      "name": "pt_mimi_dec_tx_fp16.tflite",
+      "sha256": "5e4b277385bb7a2e5c7475d7421479a4b77431d6aa0ded535ae8c067c6edfa38"
+    },
+    {
+      "bytes": 10550208,
+      "name": "pt_mimi_deconly_fp16.tflite",
+      "sha256": "ea7bd858b8e2841b30be7599e4bfedce7a751d23a9e1946d14101b0440de4e7e"
+    },
+    {
+      "bytes": 8194048,
+      "name": "pt_embed_f16.bin",
+      "sha256": "82c06e512863fc5b45b14e55e55a911fa2bede6df50e2a7472206af74fc0ac78"
+    },
+    {
+      "bytes": 131072,
+      "name": "pt_input_linear_f32.bin",
+      "sha256": "5f4738bbdba5b4c75ab64c5dfae1e37b884b5e1c7f93c0a1d487dcd5250f17fb"
+    },
+    {
+      "bytes": 4096,
+      "name": "pt_bos_input_f32.bin",
+      "sha256": "184ae4fee2f3c629cc9908a351c8152204c5c076ea1ceae36c23badf8e7cacc8"
+    },
+    {
+      "bytes": 128,
+      "name": "pt_neutral_latent_f32.bin",
+      "sha256": "d5f0df1e55dcfcc01ab1f9e7ec41e799bad751911e3adda7f3833cfb7d0aa596"
+    },
+    {
+      "bytes": 126498,
+      "name": "pt_tokenizer.tsv",
+      "sha256": "459022ec19619b30fa5cc807c2c756bf19cbfc14571e64f9fe51e20807a33092"
+    },
+    {
+      "bytes": 3366916,
+      "name": "pt_voice_vera.bin",
+      "sha256": "5d7154ac6cd31f33dc6b63ac9bf0e5401bdfae47c7c89747a786779d4fb0ee15"
+    }
+  ],
+  "modelSource": {
+    "license": "CC-BY-4.0",
+    "repo": "mlboydaisuke/Pocket-TTS-LiteRT",
+    "revision": "66c9d2fb05fc44cc69cb14c15cff9574c4381788",
+    "url": "https://huggingface.co/mlboydaisuke/Pocket-TTS-LiteRT"
+  },
+  "profileId": "vera-venice-close-mic-v1",
+  "runtimeContract": "pocket-tts-render-v4-native",
+  "runtimeSource": {
+    "commit": "b669b3c04e09295e629f4cbe6111c8e94202b9d7",
+    "license": "MIT",
+    "path": "pockettts",
+    "repo": "john-rocky/LiteRT-Models",
+    "url": "https://github.com/john-rocky/LiteRT-Models/tree/b669b3c04e09295e629f4cbe6111c8e94202b9d7/pockettts"
+  },
+  "sampleRate": 24000,
+  "schema": "home-center-pocket-tts-native-assets-v1",
+  "voice": "vera",
+  "voiceConversion": {
+    "algorithm": "LiteRT-Models pockettts/scripts/build_pockettts.py load_voice_state plus deint_perm and fp16 pack",
+    "control": "generated Alba was byte-identical to published pt_voice_alba.bin",
+    "controlSha256": "f0f15ebfae5aa690ed3a3f25b478198d1892bd3022f39ca738ced07fcaec8e7b"
+  },
+  "voiceSource": {
+    "file": "languages/english/embeddings/vera.safetensors",
+    "license": "CC-BY-4.0",
+    "originalVoice": "kyutai/tts-voices/vctk/p229_023_enhanced.wav",
+    "preset": "vera",
+    "repo": "kyutai/pocket-tts-without-voice-cloning",
+    "revision": "e81d79e8194ad4c7ce879c87a4258ef20cbf2487"
+  }
+}

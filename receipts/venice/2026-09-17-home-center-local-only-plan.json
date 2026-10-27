@@ -1,0 +1,74 @@
+{
+  "acceptedEvidenceLane": "local worker heartbeat, exact 20k request/manifest and validated imported WAVs, focused tests, installed app state, and user audible confirmation.",
+  "accessibilitySuccessEnvelope": "No hidden backend choice, no additional timing or mode burden, existing Render/Play/Stop buttons only, explicit failures, resumable section progress.",
+  "antagonism": "Local synthesis may be slower than Cauldron and removal alone cannot prove playback. The slice is only successful if no remote route remains and the exact 20k production chain advances locally without stale-cache laundering.",
+  "causalPremortem": [
+    {
+      "edge": "request to synthesis",
+      "guard": "only local is accepted and heartbeat must say local",
+      "silentNoOp": "stale auto mode still routes remotely"
+    },
+    {
+      "edge": "synthesis to publication",
+      "guard": "text-bound v2 receipt, SHA, EOS and WAV validation",
+      "silentNoOp": "stale or corrupt WAV is reused"
+    },
+    {
+      "edge": "publication to Android import",
+      "guard": "in-place inode-preserving publication regression",
+      "silentNoOp": "MediaStore ownership is lost"
+    },
+    {
+      "edge": "Android import to playback",
+      "guard": "installed manifest/import proof; user owns audible Play acceptance",
+      "silentNoOp": "valid WAV exists but AudioTrack never advances"
+    },
+    {
+      "edge": "20k identity",
+      "guard": "file id 1B_nUq6e7sLGwOuI8zeJegftMTDzCWuWX required in evidence",
+      "silentNoOp": "another document is used as proxy proof"
+    },
+    {
+      "edge": "recovery",
+      "guard": "preserve queue and existing artifacts; archive rather than delete adapters",
+      "silentNoOp": "pending request is deleted"
+    }
+  ],
+  "classification": "repair of the existing local Pocket TTS path, not a new renderer",
+  "commission": "Remove Cauldron from Home Center read-aloud and restore 20k through the existing local Pocket TTS path.",
+  "confirmation": "User confirmed the six-clause local-only plan.",
+  "createdAt": "2026-09-17T22:30:46.172766+00:00",
+  "currentCommand": "confirm",
+  "directive": "PLAN_ALLOWED",
+  "existingOwner": "PocketTtsEngine through tools/pocket_tts_home_center_worker.py, controlled by tools/home_center_read_aloud.sh; NarrationForegroundService remains Android playback owner.",
+  "forbiddenStalePremise": "Cauldron may remain preferred, available as fallback, or count as 20k proof.",
+  "highTreason": [
+    "any reachable Cauldron narration path",
+    "another document presented as 20k evidence",
+    "screen control",
+    "machine evidence presented as audible acceptance"
+  ],
+  "orderedPlan": [
+    "Stop the active Cauldron-backed worker while preserving queues and existing artifacts.",
+    "Remove Cauldron imports, backend modes, retry state, and fallback from the canonical narration worker.",
+    "Make the canonical operator local-only and recoverably archive narration-specific Cauldron adapters.",
+    "Restart the canonical worker locally and preserve/resume valid pending v2 requests.",
+    "Validate local synthesis plus exact 20k manifest/receipt/WAV progression and Android import.",
+    "Run focused regression, Regnet QA, and a separate Venice completion review; audible acceptance remains the user."
+  ],
+  "repeatedPromptContract": [
+    "20k took roughly ten minutes to produce twenty-eight seconds that would not play",
+    "take out cauldron",
+    "the user presses the buttons; no screen operation"
+  ],
+  "schema": "venice-plan-review-v2-judgment-jar-primary",
+  "selectedJudgmentJars": [
+    "mission-boundary",
+    "repository-truth",
+    "change-discipline",
+    "failure-recovery",
+    "daemon-backoff-persistence",
+    "venice-review-gate"
+  ],
+  "verdict": "PASS"
+}

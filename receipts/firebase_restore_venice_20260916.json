@@ -1,0 +1,27 @@
+{
+  "schema": "home-center.venice-judgment-jar.completion.v1",
+  "reviewer": "chatgpt-venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "independentReviewPass": true,
+  "code_review_first": true,
+  "verdict": "approve",
+  "directive": "STOP_ALLOWED",
+  "quality": "good",
+  "boundedCommission": "Restore Firebase configuration, rebuild Home Center, reinstall, and verify login/Drive recovery.",
+  "selectedJars": [
+    "mission boundary",
+    "repository truth",
+    "change discipline",
+    "observable evidence",
+    "failure recovery"
+  ],
+  "evidenceIdentity": {
+    "regnetReceipt": "rqa-ace5abac32a52e85ff42",
+    "runtimeReceipt": "receipts/firebase_restore_20260916.json",
+    "installedVersion": "0.2.60 (65)"
+  },
+  "critique": "The repair uses the existing Firebase project and documented Android app identity, keeps google-services.json ignored, verifies generated OAuth/Firebase resources before install, and proves the installed app restored the authenticated Drive library. It does not claim the separate Pocket TTS playback acceptance test completed.",
+  "findings": [],
+  "next": "Return control during the active phone call. Resume the separate existing-book playback, pause, and resume acceptance test when the phone is available.",
+  "createdAtEpoch": 1789605382
+}

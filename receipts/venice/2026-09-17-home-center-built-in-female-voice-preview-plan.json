@@ -1,0 +1,73 @@
+{
+  "acceptedEvidenceLane": "Machine validation establishes valid artifacts; user listening selects whether any voice sounds female and intimate enough.",
+  "causalPremortem": [
+    {
+      "edge": "built-in id to conditioning state",
+      "guard": "receipt and deterministic per-voice state identity",
+      "silentNoOp": "voice id falls back to alba"
+    },
+    {
+      "edge": "conditioning to WAV",
+      "guard": "artifact hashes and audible selection; identical hashes fail preview set",
+      "silentNoOp": "different filenames contain identical audio"
+    },
+    {
+      "edge": "WAV quality",
+      "guard": "existing v2 EOS, duration, clipping and corrupt-tail gates",
+      "silentNoOp": "voice sounds corrupt or truncated"
+    },
+    {
+      "edge": "project output to Android visibility",
+      "guard": "Shizuku copy, readback, per-file media scan",
+      "silentNoOp": "files exist but Files app cannot see them"
+    },
+    {
+      "edge": "labels to acceptance",
+      "guard": "user listening remains authoritative",
+      "silentNoOp": "female/ASMR claimed from voice name"
+    }
+  ],
+  "commission": "Generate five built-in Pocket TTS audition previews for a convincingly female, intimate reader voice.",
+  "confirmation": "User explicitly confirmed the five-preview plan after rejecting the current alba result as not sounding female.",
+  "createdAt": "2026-09-17T19:09:37-05:00",
+  "currentCommand": "confirm",
+  "directive": "PLAN_ALLOWED",
+  "existingOwner": "PocketTtsEngine voice conditioning and the existing Pocket TTS v2 validation contract own this capability.",
+  "forbiddenStalePremise": "The internal alba label proves audible femininity, or a metadata label can substitute for the user listening.",
+  "highTreason": [
+    "calling alba acceptable after the user rejected it",
+    "changing the active reader before a voice is chosen",
+    "rerendering any book during audition",
+    "claiming ASMR quality from filenames or metadata",
+    "voice cloning or Cauldron use",
+    "touching the Android screen"
+  ],
+  "orderedPlan": [
+    "Use official built-in Pocket TTS voices anna, vera, fantine, mary, and eve; exclude alba.",
+    "Render the same two-sentence audition text through the existing single-model v2 engine.",
+    "Validate every WAV for PCM format, duration, clipping, EOS and corruption tail using the existing contract.",
+    "Record exact voice ids, pinned Hugging Face source revision, installed package version, audition text hash, artifact hashes and metrics in a sibling manifest.",
+    "Generate inside the writable Home Center project, then publish non-destructive copies through Shizuku to Download/HomeCenter/voice-previews.",
+    "Refresh Android indexing for every final WAV and the manifest.",
+    "Do not modify Home Center settings, cache identity, reader code, active render, or existing audio.",
+    "Ask the user to listen and choose; wiring the winner requires a separately confirmed plan."
+  ],
+  "repeatedPromptContract": [
+    "built-in",
+    "the current voice does not sound female",
+    "female close mic ASMR reader voice",
+    "user operates the Android screen and buttons"
+  ],
+  "requiredArtifact": "Five same-text validated WAV previews plus a provenance manifest under Download/HomeCenter/voice-previews.",
+  "reviewerProvenance": "ChatGPT current worker, separate adversarial Judgment-Jar plan pass",
+  "schema": "venice-plan-review-v2-judgment-jar-primary",
+  "selectedJudgmentJars": [
+    "mission-boundary",
+    "repository-truth",
+    "change-discipline",
+    "asset-provenance",
+    "failure-recovery",
+    "venice-review-gate"
+  ],
+  "verdict": "PASS"
+}

@@ -1,0 +1,39 @@
+{
+  "schema": "home-center.venice-plan-review.v1",
+  "reviewer": "chatgpt-venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "commission": "Fix Pocket TTS falling behind and continue rendering/saving when not actively playing.",
+  "confirmation": "User explicitly replied confirm to the revised ordered plan.",
+  "plan": [
+    "Narrate or Render queues every missing deterministic section into the persistent Termux request queue.",
+    "One MainActivity render coordinator imports completed WAVs and updates GoogleDocAudioLibrary; playback does not synthesize sections independently.",
+    "Initial playback waits for at least two contiguous sections and 15 seconds of saved PCM, or all remaining audio for a short document.",
+    "The coordinator continues to the final saved WAV while playback is paused or the Activity is backgrounded.",
+    "Pending public WAVs remain recoverable by deterministic request identity after process loss.",
+    "Acceptance uses an existing book and checks lead, paused/background progress, dedupe, saved manifest, and resume offset."
+  ],
+  "planIdentity": "f0fd0072c5a49a621264d38b57869ad18c637e9614bb5b907778c6d684805b05",
+  "selectedJars": [
+    "mission boundary",
+    "local first",
+    "repository truth",
+    "change discipline",
+    "failure recovery",
+    "observable evidence"
+  ],
+  "antagonism": [
+    "Playback and full render currently race on sections.",
+    "Paused state currently blocks prefetch.",
+    "Three chunks do not express an audio-time lead.",
+    "Activity destruction can interrupt private-cache import even though the Termux queue can keep rendering."
+  ],
+  "evidenceIdentity": [
+    "MainActivity.ensurePlaybackBufferAhead",
+    "MainActivity.renderDocumentAudio",
+    "GoogleDocAudioLibrary.Entry",
+    "PocketTtsWorkerBridge",
+    "worker.log duplicate section receipts"
+  ],
+  "directive": "PLAN_ALLOWED",
+  "createdAtEpoch": 1789609769
+}

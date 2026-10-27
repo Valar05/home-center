@@ -1,0 +1,50 @@
+{
+  "capabilityState": "deployed-not-audibly-accepted",
+  "checks": {
+    "apkV2Signature": "PASS",
+    "appLaunchedByAgent": false,
+    "assembleDebug": "PASS",
+    "externalWorker": "STOPPED",
+    "focusedDspTest": "PASS",
+    "nativeAssetContract": "PASS",
+    "regression": "PASS",
+    "shizukuInstall": "PASS",
+    "targetedDiffCheck": "PASS"
+  },
+  "createdAtEpoch": 1789731502,
+  "directive": "STOP_ALLOWED",
+  "editJournal": "receipts/regnet/read-aloud-v4-native-edit-journal.json",
+  "evidenceIdentity": "29ce40b09326c229eb0a93ff2ad9244bdf3b4d72f65cf328f8b55b9d633280c1",
+  "findings": [],
+  "implementationEvidence": "receipts/regnet/read-aloud-v4-native-implementation.json",
+  "independentReviewPass": true,
+  "judgmentJarApplied": [
+    "Repository truth: inspected native renderer, asset installer, synthesizer, tokenizer, DSP, activity-service lifecycle, manifest compatibility, build configuration, provenance, and APK contents.",
+    "Actor before artifact: Home Center Android foreground service owns production rendering; PocketTtsWorkerBridge remains outside the native renderer boundary.",
+    "Capability-state discipline: source, tests, APK, and install prove deployment only; they do not prove audible device execution.",
+    "Failure closes toward autonomy: native failures mark the exact section failed and do not fall back to Termux or Cauldron.",
+    "Aftermath and recovery: v3 clips remain accepted, v4 results are hash-bound, active plans are persisted, and the external worker is stopped for the user canary."
+  ],
+  "knownGap": "No fresh audible canary has run against the newly installed v83 APK.",
+  "note": "STOP_ALLOWED applies only to the deployed implementation slice. Fresh user-operated Render and Play on 20k leagues is still required before callable or accepted claims.",
+  "precedentLoaded": [
+    "repository evidence cannot be laundered into runtime proof",
+    "MVP before empire",
+    "operator owns Home Center button actions",
+    "prior Vera plan allowed with old-clip preservation"
+  ],
+  "regnetReceiptId": "rqa-a10fc0c0087fc65945b8",
+  "repo": "/storage/emulated/0/Documents/GodotProjects/home-center",
+  "retrospective": {
+    "exactCodexTokenDelta": "UNKNOWN_NO_PAR_UPDATE",
+    "frontierClassification": "INVALID_FOR_PAR_UNTIL_USER_CANARY",
+    "improvement": "Use the project pinned Gradle 8.14.3 path immediately and keep worker-bridge type isolation as a regression assertion.",
+    "wastedTime": "One rejected shared-storage apply_patch attempt and one incompatible Gradle 9.6 launch; both failed before product mutation/build output.",
+    "weakestSoundnessClause": "real-device native model execution and audible close-mic acceptance"
+  },
+  "reviewer": "chatgpt-venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "schema": "venice-code-review-v4-judgment-jar-primary",
+  "stopPermissionGranted": true,
+  "verdict": "PASS"
+}

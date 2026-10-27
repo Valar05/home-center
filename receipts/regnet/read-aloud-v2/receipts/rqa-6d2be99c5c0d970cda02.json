@@ -1,0 +1,60 @@
+{
+  "acceptance": [
+    "Installed package is version 0.2.79.",
+    "Canonical worker and operator reject Cauldron and auto modes.",
+    "Android bridge accepts cached Pocket TTS receipts only when backend is exactly local.",
+    "Exact 20k section 0 and section 1 render locally with accepted v2 receipts, EOS, hashes, and no corrupt tail.",
+    "Old Cauldron 20k artifact and narration adapters are recoverably quarantined."
+  ],
+  "blockers": [],
+  "can_grant_final_stop": false,
+  "capability_state": "delivered",
+  "claim": "Home Center 0.2.79 removes every reachable Cauldron narration path, rejects non-local cached receipts, and renders the exact 20k sections through the installed local Pocket TTS package.",
+  "created_at": "2026-09-17T22:41:16.005101+00:00",
+  "dissent": [
+    "Audible Play acceptance remains user-owned because no screen or speaker operation was authorized.",
+    "A 1,652-section full-book render was not completed; exact first-section local latency and correctness were measured."
+  ],
+  "evidence": [
+    {
+      "exists": true,
+      "path": "receipts/venice/runtime-state/2026-09-17-home-center-local-only-20k.json",
+      "size": 3373
+    },
+    {
+      "exists": true,
+      "path": "receipts/venice/2026-09-17-home-center-local-only-plan.json",
+      "size": 3756
+    },
+    {
+      "exists": true,
+      "path": "receipts/venice/2026-09-17-home-center-local-only-plan-addendum.json",
+      "size": 1093
+    }
+  ],
+  "evidence_refs": [],
+  "next_gate": "Venice",
+  "provenance": "SYNTHETIC_REGNET",
+  "questions": [
+    "What exactly are we claiming?",
+    "What evidence proves that exact claim on the commissioned surface?",
+    "What reachable path did we not test?",
+    "What happens when the dependency, input, user, network, state, or timing is wrong?",
+    "Can another person reproduce the result from the receipt?",
+    "Did we deliver the requested thing or an adjacent substitute?",
+    "What changed, and what can regress because of it?",
+    "Are we laundering intended, implemented, tested, deployed, callable, delivered, or accepted into one state?",
+    "What dissent or uncertainty must remain attached to the claim?"
+  ],
+  "reachable_failure_paths": [
+    "Workspace helper package shadowing the installed Pocket TTS library is regression-blocked.",
+    "Valid-looking non-local cache receipts are rejected before Android import.",
+    "Repair quarantines non-local artifacts instead of certifying them."
+  ],
+  "receipt_id": "rqa-6d2be99c5c0d970cda02",
+  "reviewer": "Regnet QA",
+  "schema": "home-center.regnet-qa.review.v1",
+  "unresolved": [],
+  "verdict": "PASS",
+  "warnings": []
+}

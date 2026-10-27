@@ -1,0 +1,15 @@
+{
+  "acceptedEvidenceLane": "Exact production log and plan input, deterministic token test and negative regression, build/install proof, then user-operated background render beyond section 15.",
+  "clauses": [
+    "Port the existing word-boundary binary-search split_token_hard contract to the native synthesizer.",
+    "Preserve ordinary sentence segmentation and invoke hard token splitting only for an over-limit synthesized chunk.",
+    "Test the exact 663-character 20k table-of-contents failure with every generated unit at or below 50 tokens and exact normalized text preservation.",
+    "Preserve sections 1 through 14 and resume at section 15 without deleting old clips.",
+    "Build and install 0.2.85 without launching; keep the external worker stopped; leave background Render verification to the user."
+  ],
+  "confirmationText": "confirm",
+  "confirmedBy": "user",
+  "createdAtEpoch": 1789735571,
+  "rootCause": "Native PocketTtsSynthesizer did not apply the proven 50-token hard fallback to punctuation-free overlong text; section index 14 overflowed the 512-position KV cache and stopped the render service.",
+  "schema": "home-center-confirmed-plan-v1"
+}

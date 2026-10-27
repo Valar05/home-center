@@ -1,0 +1,18 @@
+{
+  "antagonism": "Namespace rotation alone is insufficient because the bridge cache exists outside the document cache namespace.",
+  "causalFalsifier": "A valid artifact-bound Cauldron receipt with the same request ID must produce no completed-output result and must be replaced by a local request.",
+  "confirmedScope": "Remove every reachable Cauldron path from Home Center read-aloud and validate exact 20k locally.",
+  "createdAt": "2026-09-17T22:38:39.315422+00:00",
+  "directive": "PLAN_ALLOWED",
+  "newEvidence": "The app-owned MediaStore result cache is keyed by request ID, not speech profile; a v2 Cauldron receipt could be found before v3 enqueue deletes it.",
+  "parentPlan": "receipts/venice/2026-09-17-home-center-local-only-plan.json",
+  "revisedGuard": "PocketTtsWorkerBridge must reject every accepted receipt whose backend is not exactly local before cache materialization.",
+  "schema": "venice-plan-review-addendum-v1",
+  "scopeChange": false,
+  "selectedJudgmentJars": [
+    "repository-truth",
+    "failure-recovery",
+    "venice-review-gate"
+  ],
+  "verdict": "PASS"
+}

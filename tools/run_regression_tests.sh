@@ -6,6 +6,7 @@ cd "$ROOT"
 
 sh tools/check_no_secrets.sh
 sh tools/test_voice_script_planner.sh
+sh tools/test_markdown_sentence_chunker.sh
 sh -n tools/install_debug_apk_shizuku.sh
 sh -n tools/home_center_shizuku_setup_probe.sh
 sh -n tools/home_drive_profile_refresh_loop.sh
@@ -16,6 +17,12 @@ node --check tools/home_center_backend_automation_introspect.mjs
 python3 -m py_compile tools/home_drive_speaker_profile_scan.py
 sh -n tools/docker_install_smoke.sh
 python3 tools/home_center_regression_tests.py
+python3 -m py_compile tools/pocket_tts_home_center_worker.py
+python3 tools/pocket_tts_worker_contract_test.py
+python3 tools/pocket_tts_native_contract_test.py
+sh -n tools/home_center_pocket_tts.sh
+python3 tools/pocket_tts_manifest_batch_benchmark.py
+python3 tools/pocket_tts_continuous_playback_test.py
 python3 -m py_compile tools/venice_review_memory.py
 python3 tools/test_venice_review_memory.py
 node --check tools/operator_ingress_queue_contract_test.mjs
@@ -91,10 +98,13 @@ javac -d "$tmp/classes" \
   app/src/main/java/com/dclar/homecenter/CommandParser.java \
   app/src/main/java/com/dclar/homecenter/SmsCalendarIngestionContract.java \
   app/src/main/java/com/dclar/homecenter/SmsReminderClassifier.java \
+  app/src/main/java/com/dclar/homecenter/NarrationBufferPolicy.java \
   tools/CommandParserHarness.java \
-  tools/SmsReminderClassifierHarness.java
+  tools/SmsReminderClassifierHarness.java \
+  tools/NarrationBufferPolicyHarness.java
 java -cp "$tmp/classes" com.dclar.homecenter.CommandParserHarness
 java -cp "$tmp/classes" com.dclar.homecenter.SmsReminderClassifierHarness
+java -cp "$tmp/classes" com.dclar.homecenter.NarrationBufferPolicyHarness
 rm -rf "$tmp"
 
 echo "Home Center regression harness: OK"

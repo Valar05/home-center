@@ -1,0 +1,83 @@
+{
+  "adapterArchive": {
+    "manifestSha256": "34338985b5633c732b0c0fb98d894a06516dccfd640a77f376a39706278b0cb4",
+    "path": "quarantine/home-center-read-aloud-cauldron-20260917"
+  },
+  "cacheIsolation": {
+    "oldCauldronArtifactQuarantine": "/storage/emulated/0/Documents/FortressAudio/HomeCenterPocketTts/quarantine/20260917T223954Z/1B_nUq6e7sLGwOuI8zeJegftMTDzCWuWX",
+    "receiptBackendRequired": "local",
+    "speechProfileKeyPrefix": "pocket-tts-local-only-v3|"
+  },
+  "capabilityState": "installed and locally callable; audible Play acceptance remains user-owned",
+  "createdAt": "2026-09-17T22:41:04.184187+00:00",
+  "document": {
+    "fileId": "1B_nUq6e7sLGwOuI8zeJegftMTDzCWuWX",
+    "sectionCount": 1652,
+    "textHash": "91ffc9b759063b31",
+    "title": "20k leagues.txt"
+  },
+  "exact20kCanaries": [
+    {
+      "allEosObserved": true,
+      "artifactSha256": "5202b4b7561b5eebea8f619915f6831007fba55e37b4d4a676d9f246ee1009d5",
+      "backend": "local",
+      "corruptTail": false,
+      "durationSeconds": 28.72,
+      "maxReceiptTokenCount": 50,
+      "realTimeFactor": 0.501298,
+      "renderSeconds": 14.397274,
+      "section": 0,
+      "textSha256": "17553a750d3fbfd9ef889b23928fd3e5e602bf42af702d0c5dc08c52c5776ddc",
+      "wallSeconds": 19.356
+    },
+    {
+      "allEosObserved": true,
+      "artifactSha256": "d9855ecde4a7ccda754fbb3191d534ee9dadbd3a3d8b9ce3c841ad9209532b21",
+      "backend": "local",
+      "corruptTail": false,
+      "durationSeconds": 1.12,
+      "maxReceiptTokenCount": 5,
+      "realTimeFactor": 0.828856,
+      "renderSeconds": 0.928319,
+      "section": 1,
+      "textSha256": "b12b090acf3829e0e26a289ef752b2636a041ae4d4286531224554869538091d"
+    }
+  ],
+  "installed": {
+    "package": "com.dclar.homecenter",
+    "versionCode": 79,
+    "versionName": "0.2.79"
+  },
+  "negativeControls": [
+    "worker rejects HOME_CENTER_POCKET_TTS_BACKEND=cauldron",
+    "operator rejects auto mode",
+    "Android bridge rejects cached receipts unless backend is exactly local",
+    "repair quarantines non-local receipts"
+  ],
+  "schema": "home-center.local-only-20k-runtime-evidence.v1",
+  "screenControlUsed": false,
+  "sourceSha256": {
+    "app/src/main/java/com/dclar/homecenter/GoogleDocAudioLibrary.java": "51d3ae2558b0f8defcdd0fcb22810f1c81fd07d977860681d8e3424b723dae41",
+    "app/src/main/java/com/dclar/homecenter/MainActivity.java": "421e72a530e3dde3b16ec704df5d47dc852d7c39464b92eb320df09453a917a3",
+    "app/src/main/java/com/dclar/homecenter/PocketTtsWorkerBridge.java": "3008f45f27552a978807304568614d8e97d628706bd5d9be0e0b5eec731fedb0",
+    "tools/home_center_read_aloud.sh": "0da43ea494f22be242b98774a22544a20c1505874c09cbd7945e18fe37b56346",
+    "tools/pocket_tts_home_center_worker.py": "d9d41775eda857423dcc5885e647b719911390db8b637cb284a3e0add2cf8988"
+  },
+  "tests": [
+    "home_center_regression_tests.py",
+    "pocket_tts_worker_contract_test.py",
+    "pocket_tts_continuous_playback_test.py",
+    "pocket_tts_render_v2_test.py",
+    "pocket_tts_manifest_batch_benchmark.py",
+    "Gradle 8.14.3 assembleDebug",
+    "APK v2 signature verification"
+  ],
+  "worker": {
+    "activeBackend": "local",
+    "configuredBackend": "local",
+    "lastAccepted": "hc-v2-1B_nUq6e7sLGwOuI8zeJegftMTDzCWuWX-91ffc9b759063b31-000001-b12b090acf3829e0",
+    "lastBackendError": "",
+    "lastError": "",
+    "modelLoaded": true
+  }
+}

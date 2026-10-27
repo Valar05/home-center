@@ -1,0 +1,45 @@
+{
+  "acceptance": [
+    "Changed only the isolated probe and its regression; py_compile passes; 3 negative/positive SSH tests pass; clean campaign contract passes; production Axis returns callable; hostname returns TheCauldron; clean owner returns not_installed."
+  ],
+  "blockers": [],
+  "can_grant_final_stop": false,
+  "capability_state": "tested",
+  "claim": "The bounded diagnostic slice repaired and tested the isolated clean-campaign SSH probe, proved authenticated callability to TheCauldron, and correctly classified the clean Comfy runtime as not_installed without executing bootstrap or generation.",
+  "created_at": "2026-09-18T21:56:47.018914+00:00",
+  "dissent": [
+    "This review does not promote the repair into canonical Home Center and does not claim ComfyUI installed, generated, delivered, or accepted."
+  ],
+  "evidence": [
+    {
+      "exists": true,
+      "path": ".codex/tmp/organ-game-dev-plan-review/repair-evidence.json",
+      "size": 1788
+    }
+  ],
+  "evidence_refs": [
+    "Drive retrieval map 10bMnUw7Przds345xpK3yY7pQR_m2uCT2xETiU9j0c0M"
+  ],
+  "next_gate": "Venice",
+  "provenance": "SYNTHETIC_REGNET",
+  "questions": [
+    "What exactly are we claiming?",
+    "What evidence proves that exact claim on the commissioned surface?",
+    "What reachable path did we not test?",
+    "What happens when the dependency, input, user, network, state, or timing is wrong?",
+    "Can another person reproduce the result from the receipt?",
+    "Did we deliver the requested thing or an adjacent substitute?",
+    "What changed, and what can regress because of it?",
+    "Are we laundering intended, implemented, tested, deployed, callable, delivered, or accepted into one state?",
+    "What dissent or uncertainty must remain attached to the claim?"
+  ],
+  "reachable_failure_paths": [
+    "Nonzero remote command remains command_failed; SSH 255 remains authentication_failed; absent clean root remains not_installed."
+  ],
+  "receipt_id": "rqa-1045e1bafe9308554d3e",
+  "reviewer": "Regnet QA",
+  "schema": "home-center.regnet-qa.review.v1",
+  "unresolved": [],
+  "verdict": "PASS",
+  "warnings": []
+}

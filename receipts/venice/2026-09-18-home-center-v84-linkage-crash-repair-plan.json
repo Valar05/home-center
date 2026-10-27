@@ -1,0 +1,16 @@
+{
+  "acceptedEvidenceLane": "v83 APK contract negative control, v84 APK contract positive control, JNI NEEDED inspection, signed build, installed package readback, then user-operated Render/Play canary",
+  "clauses": [
+    "Replace litert-api with pinned full litert 2.1.6 implementation while retaining SDK-33 exclusions.",
+    "Package and assert liblitert_jni.so, libLiteRt.so, and libLiteRtClGlAccelerator.so for arm64-v8a.",
+    "Convert LinkageError into an explicit render IOException so native runtime failure cannot kill Home Center.",
+    "Bump to 0.2.84/versionCode 84; rebuild, inspect, export, and install without launching.",
+    "Keep external worker stopped, preserve old clips/app data, and leave Render/Play to the user."
+  ],
+  "confirmationText": "confirm",
+  "confirmedBy": "user",
+  "createdAtEpoch": 1789734234,
+  "rootCause": "liblitert_jni.so declared NEEDED libLiteRt.so, but the API-only AAR omitted libLiteRt.so and libLiteRtClGlAccelerator.so from the APK",
+  "schema": "home-center-confirmed-plan-v1",
+  "supersedesPremise": "0.2.83 build and install evidence implied the native runtime was package-complete"
+}

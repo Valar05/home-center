@@ -1,0 +1,33 @@
+{
+  "schema": "home-center.venice-judgment-jar.checkpoint.v1",
+  "reviewer": "chatgpt-venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "independentReviewPass": true,
+  "code_review_first": true,
+  "verdict": "fail",
+  "directive": "CONTINUE_REQUIRED",
+  "quality": "mixed",
+  "selectedJars": [
+    "mission boundary",
+    "local first",
+    "repository truth",
+    "change discipline",
+    "failure recovery",
+    "observable evidence",
+    "no Venice receipt no stop"
+  ],
+  "evidenceIdentity": {
+    "completionReceipt": "receipts/pocket_tts_reader_completion_20260916.json",
+    "regnetReceipt": "rqa-7704e545cd44432a6353",
+    "apkSha256": "db4cd91225b3b4dcf5a70941ca5da43b95e136c71f7e5031d1e596263be1b767",
+    "installedVersion": "com.dclar.homecenter 0.2.60 (65)"
+  },
+  "critique": "Code, local queue rendering, APK build, installation, recovery command, and persistent worker are evidenced. The commission repeatedly required proof with an existing book and the user previously reported playback failure. The phone lock prevented that final production-path proof, so STOP_ALLOWED would launder deployed code into accepted playback.",
+  "findings": [
+    "Existing-book playback not observed",
+    "Pause byte offset persistence not exercised in the installed UI",
+    "Resume from saved position not exercised in the installed UI"
+  ],
+  "next": "After the phone is unlocked, open Home Center, select an existing narratable book, press Play, confirm a Pocket TTS section is saved and audible, pause, relaunch or resume, and verify the saved position advances.",
+  "createdAtEpoch": 1789605022
+}

@@ -1,0 +1,52 @@
+{
+  "adversarialFindings": [
+    "The current alba voice remains rejected; it was not included.",
+    "Five valid previews do not prove any one sounds female or ASMR; that claim remains with user listening.",
+    "No Home Center reader/cache setting was changed, matching the confirmed audition-only boundary.",
+    "Every external copy was revalidated and byte-compared; delivery is not inferred from local generation.",
+    "Pinned source revision, CC-BY-4.0 attribution and per-embedding/artifact hashes prevent anonymous asset drift.",
+    "The newest screenshot is unrelated and was not laundered into audio acceptance."
+  ],
+  "capabilityState": {
+    "androidIndexed": true,
+    "asmrAccepted": false,
+    "delivered": true,
+    "femaleAccepted": false,
+    "generated": true,
+    "readerConfigured": false,
+    "validated": true
+  },
+  "commission": "Generate the confirmed five built-in Pocket TTS voice previews for user audition without changing the reader.",
+  "createdAt": "2026-09-17T19:14:08-05:00",
+  "directive": "STOP_ALLOWED",
+  "evidenceIdentity": {
+    "deliveredManifest": "/storage/emulated/0/Download/HomeCenter/voice-previews/2026-09-17-built-in-female-v1/manifest.json",
+    "deliveredManifestSha256": "77ebfcaabf888e3c857f2220553377c0039f635c3458b30bcbc0b8a16eb167cb",
+    "evidenceReceipt": "receipts/regnet/builtin-female-voice-previews/evidence.json",
+    "evidenceReceiptSha256": "7817ea38c95a1bd32fff3faaee2e470aa250d390b876c99f7dd4965a8d4c256f",
+    "regnetReceipt": "receipts/regnet/builtin-female-voice-previews/state/receipts/rqa-2db682ae800cb1c8d9a1.json",
+    "regnetReceiptSha256": "df6d5a277d1aa6c3dc7e7a425f08667694e2d41708b28b928046cf7763b6a1a7"
+  },
+  "missionFidelity": [
+    "Exactly anna, vera, fantine, mary and eve were rendered with identical text.",
+    "Alba, cloning, Cauldron, parallel inference, book rerender and screen operation were excluded.",
+    "The user can now make the audible choice the machine cannot make."
+  ],
+  "regnetVerdict": "PASS",
+  "reviewerMode": "judgment_jar",
+  "reviewerProvenance": "ChatGPT current worker, separate adversarial completion pass",
+  "reviewerRole": "venice-judgment-jar",
+  "runtimeReviewMemory": "No runtime Venice memory file was present; repository seed scars were loaded. No new blocking scar was produced.",
+  "schema": "venice-completion-review-v2-judgment-jar-primary",
+  "selectedJudgmentJars": [
+    "mission-boundary",
+    "repository-truth",
+    "change-discipline",
+    "asset-provenance",
+    "failure-recovery",
+    "venice-review-gate"
+  ],
+  "stopScope": "The preview-generation and Android-delivery slice may stop. Selecting and wiring a winning reader voice remains a new user-confirmed slice.",
+  "typedJarReceipt": "Unavailable because the vlad-jars registry cache/CLI is absent; this durable Venice receipt is the governing local review record.",
+  "verdict": "PASS"
+}

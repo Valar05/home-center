@@ -1,0 +1,11 @@
+{
+  "reviewerRole": "venice-judgment-jar",
+  "reviewerMode": "judgment_jar",
+  "worker": "Codex GPT-5",
+  "directive": "PLAN_ALLOWED",
+  "mission": "Replace Home Center Drive reader narration with local Pocket TTS while preserving GoogleDocAudioLibrary and AudioTrack ownership.",
+  "selectedJars": ["mission-boundary", "local-first", "repository-truth", "change-discipline", "failure-recovery", "venice-review-gate"],
+  "antagonism": ["Reject shell prose payloads", "Bind results to section hashes", "Keep one playback owner", "No hosted fallback", "Preserve pause and resume"],
+  "capabilityState": "planned",
+  "timestamp": "2026-09-16T00:00:00-05:00"
+}

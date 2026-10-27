@@ -1,0 +1,59 @@
+{
+  "base": "HEAD~1",
+  "baseCommit": "9cdeca9ed485592a3ecb9b29806e79b3bfaddd8d",
+  "continuationRequired": false,
+  "createdAtEpoch": 1789670732,
+  "deterministicChecks": [
+    {
+      "detail": "",
+      "name": "git_diff_check",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "conflict_markers",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "obvious_embedded_secrets",
+      "ok": true
+    }
+  ],
+  "diffTruncated": false,
+  "directive": "STOP_ALLOWED",
+  "durableMemoryEntriesWritten": 0,
+  "durableMemoryFingerprints": [],
+  "durableMemoryPath": "/storage/emulated/0/Documents/GodotProjects/home-center/receipts/venice/runtime-state/venice/review-memory.jsonl",
+  "externalReviewGateSatisfied": true,
+  "files": [
+    "tools/home_center_mcp_client.py"
+  ],
+  "findings": [],
+  "fullDiffChars": 603,
+  "fullDiffSha256": "168cfc5e11a22fcfd1d46d76fb08449aa3f0434b36b8e1bea8d8bf63db74aecb",
+  "haltRequired": false,
+  "head": "HEAD",
+  "headCommit": "57b946c0ee6812f53b68c71afec627fb7e1a7555",
+  "independentReviewPass": true,
+  "judgmentJarApplied": [
+    "Observable evidence: the exact 632-token production artifact is accepted only after 14 units at max 50 tokens, all EOS, acoustic gates, bounded transfer, and whole-file SHA verification.",
+    "Actor before artifact: Pocket TTS rendering remains Pocket TTS; Computer Hands owns Cauldron execution; NarrationForegroundService owns Android playback; MainActivity is the controller.",
+    "Failure closes toward autonomy: legacy artifacts are quarantined recoverably, v1 cannot enter the v2 cache, Cauldron is async beyond 120 seconds, chunks retry once, and only one queue consumer remains.",
+    "Unknowns remain unknown: no human audible or 30-minute background verdict and no full-book completion are claimed."
+  ],
+  "legacyWireModeNote": "judgment_jar_emulation is retained as the stable wire identifier for primary ChatGPT Judgment-Jar Venice; it is not fallback semantics.",
+  "model": null,
+  "ollama": null,
+  "precedentLoaded": "(no durable Venice review precedent available on this runtime)",
+  "repo": "/storage/emulated/0/Documents/GodotProjects/home-center",
+  "reviewPromptDiffSha256": "168cfc5e11a22fcfd1d46d76fb08449aa3f0434b36b8e1bea8d8bf63db74aecb",
+  "reviewText": "VERDICT: PASS\nDIRECTIVE: STOP_ALLOWED\nJAR: Observable evidence: the exact 632-token production artifact is accepted only after 14 units at max 50 tokens, all EOS, acoustic gates, bounded transfer, and whole-file SHA verification.\nJAR: Actor before artifact: Pocket TTS rendering remains Pocket TTS; Computer Hands owns Cauldron execution; NarrationForegroundService owns Android playback; MainActivity is the controller.\nJAR: Failure closes toward autonomy: legacy artifacts are quarantined recoverably, v1 cannot enter the v2 cache, Cauldron is async beyond 120 seconds, chunks retry once, and only one queue consumer remains.\nJAR: Unknowns remain unknown: no human audible or 30-minute background verdict and no full-book completion are claimed.\nNOTE: The implemented and deployed v2 reliability slice may stop; the explicitly open human-listening and full-book acceptance lanes remain separate follow-up work.\n",
+  "reviewer": "chatgpt-venice-judgment-jar",
+  "reviewerMode": "judgment_jar_emulation",
+  "reviewerSemantics": "primary-judgment-jar",
+  "schema": "venice-code-review-v4-judgment-jar-primary",
+  "stopPermissionGranted": true,
+  "veniceReviewGateSatisfied": true,
+  "verdict": "PASS"
+}

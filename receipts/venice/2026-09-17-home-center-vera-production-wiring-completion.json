@@ -1,0 +1,58 @@
+{
+  "base": "HEAD",
+  "baseCommit": "57b946c0ee6812f53b68c71afec627fb7e1a7555",
+  "continuationRequired": false,
+  "createdAtEpoch": 1789695775,
+  "deterministicChecks": [
+    {
+      "detail": "",
+      "name": "git_diff_check",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "conflict_markers",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "obvious_embedded_secrets",
+      "ok": true
+    }
+  ],
+  "diffTruncated": false,
+  "directive": "STOP_ALLOWED",
+  "durableMemoryEntriesWritten": 0,
+  "durableMemoryFingerprints": [],
+  "durableMemoryPath": "/data/data/com.termux/files/home/.local/state/home-center/venice/review-memory.jsonl",
+  "externalReviewGateSatisfied": true,
+  "files": [],
+  "findings": [],
+  "fullDiffChars": 0,
+  "fullDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "haltRequired": false,
+  "head": "HEAD",
+  "headCommit": "57b946c0ee6812f53b68c71afec627fb7e1a7555",
+  "independentReviewPass": true,
+  "judgmentJarApplied": [
+    "Mission boundary - the commissioned production wiring is installed and callable, old clips remain in place, the app was not launched, no book was auto-rendered, and human listening remains explicitly OPEN.",
+    "Repository truth - Regnet PASS rqa-867a7423cce792c5a522, evidence SHA 9d7c14ee85b302403109b92bc5c699a7be7fa7bb52a49ee318b9e1af8000cd73, APK SHA 813f4ded141757d92a70e9b68d89f0688f2269d779669acb46efd955c59b55b7, installed 0.2.82 readback, and v3 worker heartbeat support only the deployed/callable claim.",
+    "Embodied voice provenance - built-in vera, profile vera-venice-close-mic-v1, exact Venice filter, custody commit, and source hash remain bound through renderer, worker, Android request/receipt, cache, and request namespace.",
+    "Change discipline - expected-before guards, exact current hashes, targeted tests, profile-isolated namespaces, and unchanged legacy inventories preserve unrelated dirty work and existing audio.",
+    "Failure recovery - missing FFmpeg, stale identities, invalid receipts, no EOS, Cauldron, clipping/corrupt-tail paths fail closed without publishing or deleting old clips."
+  ],
+  "legacyWireModeNote": "judgment_jar_emulation is retained as the stable wire identifier for primary ChatGPT Judgment-Jar Venice; it is not fallback semantics.",
+  "model": null,
+  "ollama": null,
+  "precedentLoaded": "- [review_finding] occurrence=1 classOccurrence=1 finding=None. rule=Prevent recurrence of this reviewed failure: None. recovery=Apply the repair and preserve enough structured precedent that a later analogous failure can be corrected from the smallest new delta rather than a full restatement. regression=future worker test/contract rejects recurrence category=review_finding before Venice allows the relevant gate",
+  "repo": "/storage/emulated/0/Documents/GodotProjects/home-center",
+  "reviewPromptDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "reviewText": "VERDICT: PASS\nDIRECTIVE: STOP_ALLOWED\nJAR: Mission boundary - the commissioned production wiring is installed and callable, old clips remain in place, the app was not launched, no book was auto-rendered, and human listening remains explicitly OPEN.\nJAR: Repository truth - Regnet PASS rqa-867a7423cce792c5a522, evidence SHA 9d7c14ee85b302403109b92bc5c699a7be7fa7bb52a49ee318b9e1af8000cd73, APK SHA 813f4ded141757d92a70e9b68d89f0688f2269d779669acb46efd955c59b55b7, installed 0.2.82 readback, and v3 worker heartbeat support only the deployed/callable claim.\nJAR: Embodied voice provenance - built-in vera, profile vera-venice-close-mic-v1, exact Venice filter, custody commit, and source hash remain bound through renderer, worker, Android request/receipt, cache, and request namespace.\nJAR: Change discipline - expected-before guards, exact current hashes, targeted tests, profile-isolated namespaces, and unchanged legacy inventories preserve unrelated dirty work and existing audio.\nJAR: Failure recovery - missing FFmpeg, stale identities, invalid receipts, no EOS, Cauldron, clipping/corrupt-tail paths fail closed without publishing or deleting old clips.\nNOTE: Stop is allowed for the implemented, tested, deployed, and callable production wiring; audible acceptance of 20k leagues.txt is reserved for Drew's button press and listen, and the unrelated Venice-memory regression remains disclosed.\n",
+  "reviewer": "chatgpt-current-worker-venice-production-wiring-completion",
+  "reviewerMode": "judgment_jar_emulation",
+  "reviewerSemantics": "primary-judgment-jar",
+  "schema": "venice-code-review-v4-judgment-jar-primary",
+  "stopPermissionGranted": true,
+  "veniceReviewGateSatisfied": true,
+  "verdict": "PASS"
+}

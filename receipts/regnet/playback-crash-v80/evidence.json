@@ -1,0 +1,85 @@
+{
+  "acceptanceCriteria": [
+    "Pocket TTS explicit Play dispatches one direct foreground-service playback command.",
+    "Pocket TTS service cursor is the liveness/progress oracle and returns before legacy automatic restart.",
+    "Null-intent/sticky restart and foreground-promotion refusal cannot crash onStartCommand.",
+    "Destroyed Activity callbacks cannot reach the legacy retry dispatcher.",
+    "Large-book refresh reads one manifest snapshot and Play requires two contiguous validated sections.",
+    "APK 0.2.80 installs without launching; newest screenshot remains red until user retest."
+  ],
+  "acceptedLane": {
+    "audible": "PENDING_USER",
+    "screenOperatedByAgent": false,
+    "screenshot": "/storage/emulated/0/Pictures/Screenshots/Screenshot_20260917-174337.png",
+    "status": "RED_STALE_BASELINE"
+  },
+  "artifactSha256": "a92c7f6435b329304cbd81d2d0e97356a8eb984b1a03c9f349a0452ffc189e8c",
+  "claim": "Home Center 0.2.80 implements a tested repair for repeated Pocket TTS section playback and the observed background foreground-service crash; installed and callable are proven, visual and audible acceptance are pending the user.",
+  "createdAt": "2026-09-17T18:12:00-05:00",
+  "deterministicChecks": [
+    {
+      "command": "python3 tools/home_center_regression_tests.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 tools/pocket_tts_continuous_playback_test.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 tools/pocket_tts_worker_contract_test.py",
+      "result": "PASS"
+    },
+    {
+      "command": "python3 tools/pocket_tts_manifest_batch_benchmark.py",
+      "result": "PASS; 59 writes vs 1870 projected; 96.84 percent reduction"
+    },
+    {
+      "command": "git diff --check",
+      "result": "PASS"
+    },
+    {
+      "command": "Gradle 8.14.3 assembleDebug",
+      "result": "PASS"
+    },
+    {
+      "command": "apksigner verify --verbose",
+      "result": "PASS; APK Signature Scheme v2"
+    },
+    {
+      "command": "aapt dump badging",
+      "result": "PASS; versionCode 80 versionName 0.2.80"
+    },
+    {
+      "command": "Shizuku pm install -r plus dumpsys package",
+      "result": "PASS; installed 0.2.80"
+    },
+    {
+      "command": "pidof plus dumpsys activity services after install",
+      "result": "PASS; no process/service; app not launched"
+    }
+  ],
+  "diffDisclosure": "Working-tree diff contains the preceding uncommitted local-only narration campaign plus this bounded repair: 1166 insertions and 186 deletions across the scoped tracked files. Review identity is therefore source hashes plus exact focused tests, not a claim that the full dirty diff originated in this slice.",
+  "failurePaths": [
+    "Service null-intent restart returns START_NOT_STICKY.",
+    "startForeground RuntimeException is caught and service stops.",
+    "Explicit service start RuntimeException clears playback request and surfaces status.",
+    "Stale/missing cursor becomes stopped-responding state without replay.",
+    "failed cursor becomes visible failure without replay.",
+    "Activity destroyed state blocks delayed reconciliation."
+  ],
+  "knownGap": "No post-install UI or audible run was performed because the user reserved button/screen operation. Full repository regression remains blocked by the documented unrelated Venice-memory category assertion.",
+  "negativeControls": [
+    "START_STICKY absent.",
+    "Legacy Activity WAV sequence cannot call startNarrationServicePlayback.",
+    "Pocket service reconciliation returns before restartDocumentPlaybackFromSavedPosition.",
+    "One/disconnected saved section does not expose Play.",
+    "Count loop cannot call per-section manifest-reparsing isDownloaded(i)."
+  ],
+  "observedCrash": "Installed 0.2.79 at 2026-09-17 17:58:08: ForegroundServiceStartNotAllowedException in NarrationForegroundService.onStartCommand line 70.",
+  "schema": "home-center-regnet-evidence-v1",
+  "sourceIdentity": {
+    "GoogleDocAudioLibrary.java": "060e8098763254b78b34ea5d4f011c41b1bbc1ebd3671ca4bac336b0d4a4748d",
+    "MainActivity.java": "f7c45b67010dd48e2cbb8c74c4893e5f103036e9a7a9a42febacb3df77be0713",
+    "NarrationForegroundService.java": "f19ee59b9201e56fb26b7f6403da608b42048646ffea6864ab5a5097872cb731"
+  }
+}

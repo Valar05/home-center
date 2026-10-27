@@ -1,0 +1,101 @@
+{
+  "canonicalToolConstraint": "tools/venice_review.py reviews committed base..head only and cannot see this uncommitted working-tree slice; it was not used to produce a false-green receipt. This separate pass reviewed the exact working-tree files, hashes, tests, and runtime receipt.",
+  "causalReview": {
+    "failureBehavior": "Invalid/missing receipt is rejected; failed receipt surfaces worker error; timeout names the existing recovery command; explicit Stop remains cancellation authority.",
+    "negativeControl": "Regression asserts target WAV and receipt inode identity is unchanged while contents become valid output.",
+    "ownership": "PocketTtsWorkerBridge, NarrationForegroundService, and tools/home_center_read_aloud.sh remain the owners; no new renderer or controller was introduced.",
+    "repair": "Render atomically in worker staging, then overwrite and fsync the existing app-owned WAV and receipt slots in place.",
+    "rootCause": "Atomic replacement of app-created result placeholders detached their MediaStore rows, leaving ContentResolver polling at Rendering despite successful Cauldron output."
+  },
+  "commission": "Fix the Home Center Pocket TTS Rendering no-op while keeping Cauldron and leaving all button presses to the user.",
+  "confirmedPlan": {
+    "confirmation": "User replied confirm.",
+    "path": "receipts/venice/2026-09-17-home-center-mediastore-bridge-plan.json",
+    "sha256": "94ec5dea324477b0fde773e4f8c389660ec4732fe6d4681e19936eb52fde8ac7"
+  },
+  "createdAt": "2026-09-17T21:15:08.282981+00:00",
+  "deterministicChecks": [
+    {
+      "detail": "regression, inode/heartbeat, continuous playback, render-v2, 1870-section batching, py_compile",
+      "name": "focused_python_suite",
+      "status": "PASS"
+    },
+    {
+      "detail": "Gradle 8.14.3 :app:compileDebugJavaWithJavac BUILD SUCCESSFUL",
+      "name": "android_compile",
+      "status": "PASS"
+    },
+    {
+      "detail": "git diff --check on exact tracked commission paths",
+      "name": "working_tree_diff_check",
+      "status": "PASS"
+    },
+    {
+      "detail": "7 exact untracked commission files; no conflict markers or obvious embedded secrets",
+      "name": "conflict_and_secret_scan",
+      "status": "PASS"
+    },
+    {
+      "detail": "version 0.2.77, Cauldron healthy, observed sequential imports 0-8 without screen control",
+      "name": "installed_runtime",
+      "status": "PASS"
+    }
+  ],
+  "directive": "STOP_ALLOWED",
+  "evidence": {
+    "activeBackend": "cauldron",
+    "installedVersion": "0.2.77",
+    "latestObservedDownloadedIndexes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "regnet": {
+      "path": "receipts/regnet/read-aloud-v2/receipts/rqa-2022e5c075b087b2655d.json",
+      "sha256": "bf9389e30bb6db1cf34207d9876e9968ec98bbbf3c5878685ddd51ee833a7440",
+      "verdict": "PASS"
+    },
+    "runtime": {
+      "path": "receipts/venice/runtime-state/2026-09-17-home-center-mediastore-runtime.json",
+      "sha256": "7816c8d672a0e266e312c1f40bc554f8342a088b8b1c077366b683bce72bc96a"
+    },
+    "screenControlUsed": false
+  },
+  "judgmentJars": [
+    "mission-boundary",
+    "repository-truth",
+    "change-discipline",
+    "failure-recovery",
+    "daemon-backoff-persistence",
+    "venice-review-gate"
+  ],
+  "limitations": [
+    "No claim of audible acceptance; only the user can confirm speaker output.",
+    "The live proof used the user-selected CANON CANDIDATE document, not a fresh 20k leagues rerun.",
+    "The selected 14-section render was still active at the last snapshot; nine sections had imported.",
+    "Generic Gradle 9.6 is incompatible with this AGP; the project-pinned Gradle 8.14.3 lane is green."
+  ],
+  "retrospective": {
+    "exactLocalCodexTokens": "UNKNOWN; exact par history not updated.",
+    "frontierClassification": "FRONTIER_EXPANSION",
+    "improvement": "The inode-preservation regression now guards the exact silent no-op failure.",
+    "wastedTime": "The first lifecycle fix did not account for Android scoped storage; the first MediaStore bridge attempt missed that atomic replace destroys row ownership.",
+    "weakestClause": "Audible output remains user-visible acceptance."
+  },
+  "reviewScope": [
+    "app-owned MediaStore request/result bridge",
+    "existing Pocket TTS worker in-place publication",
+    "foreground-service continued imports",
+    "focused regression and installed runtime evidence"
+  ],
+  "reviewer": "chatgpt-venice-judgment-jar-separate-pass",
+  "schema": "venice-completion-review-v1-working-tree",
+  "stopPermissionGranted": true,
+  "verdict": "PASS"
+}

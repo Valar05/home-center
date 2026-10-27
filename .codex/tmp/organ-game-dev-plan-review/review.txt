@@ -1,0 +1,8 @@
+VERDICT: PASS
+DIRECTIVE: PLAN_ALLOWED
+JAR: Mission Boundary - the slice preserves the confirmed Drive map, exact artifact, clean Comfy owner, manual fallback, and explicit exclusions.
+JAR: Repository Truth and Evidence - stable IDs, exact hashes, readback, and state separation prevent source presence from impersonating runtime proof.
+JAR: Change Discipline - the first slice is limited to one document, one exact upload, bounded recovery checks, and no repository code mutation.
+JAR: Failure Recovery - the plan converts missing source or connector failure into typed recovery state without retry storms or lane substitution.
+JAR: Daemon Persistence and Connector Backoff - idempotent request identity and material-change retries protect cost and prevent duplicate side effects.
+NOTE: PLAN_ALLOWED for the bounded first slice only; any source-owner contradiction, hash mismatch, quarantine crossing, or changed mutation boundary requires replanning before continuation.

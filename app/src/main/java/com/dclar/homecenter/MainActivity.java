@@ -95,6 +95,8 @@ import java.net.HttpURLConnection;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -120,15 +122,18 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private static final int MAX_AGENT_TOOL_STEPS = 8;
     private static final int MAX_ATTACHMENT_PREVIEW_CHARS = 20000;
     private static final int MAX_IMAGE_ATTACHMENT_BYTES = 8 * 1024 * 1024;
-    private static final int DOC_READER_FIRST_CHUNK_CHARS = 520;
     private static final int DOC_READER_TARGET_CHARS = 1400;
-    private static final int DOC_READER_MIN_CHARS = 420;
+    private static final int DOC_READER_STARTUP_SENTENCE_SECTIONS = 4;
     private static final int DOC_READER_PREVIEW_CHARS = 700;
     private static final int DOC_READER_AUTOPLAY_MAX_CHUNKS = 3;
-    private static final int DOC_READER_PLAYBACK_BUFFER_CHUNKS = 3;
+    private static final int DOC_READER_INITIAL_BUFFER_SECTIONS = 1;
     private static final long DOC_READER_PLAYBACK_RETRY_DELAY_MS = 2500L;
     private static final long DOC_READER_FALSE_PLAYING_RECHECK_MS = 350L;
     private static final long DOC_READER_FALSE_PLAYING_COOLDOWN_MS = 1500L;
+    private static final long DOC_READER_SERVICE_CURSOR_STALE_MS = 5000L;
+    private static final long DOC_READER_PLAYBACK_CHECKPOINT_MS = 120_000L;
+    private static final int DOC_READER_AUDIO_BUFFER_BYTES = 65_536;
+    private static final int DOC_READER_PLAYBACK_IMPORT_LEAD_SECTIONS = 8;
     private static final long DRIVE_BROWSER_POLL_INTERVAL_MS = 30000L;
     private static final String WALMART_PACKAGE = "com.walmart.android";
     private static final String TERMUX_PACKAGE = "com.termux";
@@ -177,6 +182,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             "99 Failed Runs"
     };
     private static final String DEFAULT_DRIVE_SPEECH_PROVIDER = "cartesia";
+    private static final boolean USE_POCKET_TTS_READER = true;
     private static final String DEFAULT_DRIVE_SPEECH_MODEL = "sonic-3.5";
     private static final String DEFAULT_DRIVE_NARRATOR_VOICE = "Skylar - Friendly Guide";
     private static final String DEFAULT_DRIVE_NARRATOR_VOICE_ID = "db6b0ed5-d5d3-463d-ae85-518a07d3c2b4";
@@ -374,6 +380,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final ExecutorService documentAudioExecutor = Executors.newSingleThreadExecutor();
     private final ExecutorService documentRenderExecutor = Executors.newSingleThreadExecutor();
+    private volatile boolean activityDestroyed = false;
     private final TickTickClient tickTickClient = new TickTickClient();
     private boolean visualEvidenceEnabled = false;
     private boolean thinkingHapticsActive = false;
@@ -395,6 +402,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
         @Override
         public void run() {
             refreshCurrentDriveBrowserFromPoll();
+        }
+    };
+    private final Runnable pocketTtsRenderProgressRunnable = new Runnable() {
+        @Override
+        public void run() {
+            syncPocketTtsRenderProgress();
         }
     };
 
@@ -504,10 +517,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if (activeDocumentReader != null) {
             if (activeDocumentReader.paused || !activeDocumentReader.playbackRequested) {
                 resumeDocumentReader();
-            } else if (!isDocumentAudioPlaybackLive(activeDocumentReader)) {
-                reconcileDocumentPlaybackIfNeeded(activeDocumentReader, "media_button_false_playing");
-            } else {
+            } else if (USE_POCKET_TTS_READER || isDocumentAudioPlaybackLive(activeDocumentReader)) {
                 pauseDocumentReader();
+            } else {
+                reconcileDocumentPlaybackIfNeeded(activeDocumentReader, "media_button_false_playing");
             }
             refreshDriveReaderPlayer();
             return;
@@ -557,6 +570,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     protected void onResume() {
         super.onResume();
         scheduleDriveBrowserPoll();
+        if (USE_POCKET_TTS_READER && activeDocumentReader != null) startPocketTtsRenderProgressObserver();
         if (lastDriveHandoffAtMs > 0L && SystemClock.elapsedRealtime() - lastDriveHandoffAtMs > 400L) {
             scheduleDriveRefreshAfterHandoff("resume_after_browser_handoff");
         }
@@ -565,6 +579,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     @Override
     protected void onPause() {
         stopDriveBrowserPolling();
+        main.removeCallbacks(pocketTtsRenderProgressRunnable);
         super.onPause();
     }
 
@@ -951,7 +966,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         driveFoldersButton = button("Sort", 13, "Sort narratable Google Docs");
         driveDocsButton = button("Filter", 13, "Filter narratable Google Docs");
         driveParentButton = button("Refresh", 13, "Refresh narratable Google Docs");
-        driveSpeechSettingsButton = button("Skylar", 13, "Drive Narrate renders with Skylar only");
+        driveSpeechSettingsButton = button("Pocket TTS", 13, "Drive Narrate renders locally with Pocket TTS");
         driveModeRow.addView(driveRecentButton, weightedHeight(dp(40)));
         driveModeRow.addView(driveFoldersButton, weightedHeight(dp(40)));
         driveModeRow.addView(driveDocsButton, weightedHeight(dp(40)));
@@ -959,7 +974,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         loginShellPanel.addView(driveModeRow, matchWrap());
 
         driveBrowserStatusView = new TextView(this);
-        driveBrowserStatusView.setText("Google Docs only. Tap a card to narrate with " + driveVoiceSummary() + ".");
+        driveBrowserStatusView.setText("Google Docs and Drive .txt files. Tap a card to narrate with " + driveVoiceSummary() + ".");
         driveBrowserStatusView.setTextSize(13);
         driveBrowserStatusView.setTextColor(COLOR_SECONDARY);
         driveBrowserStatusView.setPadding(0, 0, 0, dp(4));
@@ -980,13 +995,13 @@ public final class MainActivity extends Activity implements RecognitionListener,
         driveReaderPlayerPlayPauseButton.setTypeface(Typeface.DEFAULT_BOLD);
         driveReaderPlayerPanel.addView(driveReaderPlayerPlayPauseButton, matchHeight(dp(70)));
 
-        driveReaderPlayerDownloadButton = button("RENDER", 24, "Render the full Google Doc audio artifact with Skylar");
+        driveReaderPlayerDownloadButton = button("RENDER", 24, "Render the full Google Doc audio artifact with Pocket TTS");
         driveReaderPlayerDownloadButton.setTextColor(COLOR_BACKGROUND);
         driveReaderPlayerDownloadButton.setBackgroundColor(COLOR_ACCENT);
         driveReaderPlayerDownloadButton.setTypeface(Typeface.DEFAULT_BOLD);
         driveReaderPlayerPanel.addView(driveReaderPlayerDownloadButton, matchHeight(dp(82)));
 
-        driveReaderPlayerRerenderButton = button("RERENDER", 18, "Discard cached sections and rerender this Google Doc with Skylar");
+        driveReaderPlayerRerenderButton = button("RERENDER", 18, "Discard cached sections and rerender this Google Doc with Pocket TTS");
         driveReaderPlayerRerenderButton.setTextColor(COLOR_TEXT);
         driveReaderPlayerRerenderButton.setBackgroundColor(COLOR_CARD);
         driveReaderPlayerRerenderButton.setTypeface(Typeface.DEFAULT_BOLD);
@@ -1153,7 +1168,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         driveFoldersButton.setOnClickListener(v -> cycleDriveSortMode());
         driveDocsButton.setOnClickListener(v -> cycleDriveFilterMode());
         driveParentButton.setOnClickListener(v -> manualRefreshDriveBrowser("button"));
-        driveSpeechSettingsButton.setOnClickListener(v -> setDriveBrowserStatus("Drive Narrate renders with Skylar only.", false));
+        driveSpeechSettingsButton.setOnClickListener(v -> setDriveBrowserStatus("Drive Narrate renders locally with Pocket TTS. Sections are saved as they finish.", false));
         driveReaderPlayerPlayPauseButton.setOnClickListener(v -> toggleDriveReaderPlayback());
         driveReaderPlayerDownloadButton.setOnClickListener(v -> renderDocumentAudio());
         driveReaderPlayerRerenderButton.setOnClickListener(v -> rerenderDocumentAudio());
@@ -1468,11 +1483,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if (driveReaderPlayerSeekBar != null && !driveReaderUserSeeking) driveReaderPlayerSeekBar.setProgress(Math.max(0, Math.min(1000, seekProgress)));
         if (driveReaderPlayerTimeView != null) driveReaderPlayerTimeView.setText(playbackTimeLabel(offset, pcmBytes, activeTargetSampleRate(reader)));
         if (driveReaderPlayerPlayheadView != null) {
-            String state = reader.paused ? "Paused" : (reader.playbackRequested ? "Playing" : "Ready");
+            String playbackState = reader.paused ? "playback paused" : (reader.playbackRequested ? "playing" : "playback ready");
+            String state = reader.renderRequested ? "Rendering; " + playbackState : playbackState;
             driveReaderPlayerPlayheadView.setText(safeDisplayName(reader.name) + " | " + state + " | " + activeTargetLabel(reader) + " | " + reader.downloadedSections + "/" + total);
         }
         if (driveReaderPlayerPlayPauseButton != null) {
-            boolean playable = reader.downloadedSections > 0 || reader.playbackRequested;
+            boolean playable = reader.playbackRequested || hasPocketTtsUiPlaybackLead(reader);
             driveReaderPlayerPlayPauseButton.setVisibility(playable ? View.VISIBLE : View.GONE);
             driveReaderPlayerPlayPauseButton.setText(!reader.paused && reader.playbackRequested ? "PAUSE" : "PLAY");
             driveReaderPlayerPlayPauseButton.setEnabled(!reader.needsDriveRead && playable);
@@ -1630,10 +1646,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
             return;
         }
         if (!reader.paused && reader.playbackRequested) {
-            if (!isDocumentAudioPlaybackLive(reader)) {
-                reconcileDocumentPlaybackIfNeeded(reader, "play_button_false_playing");
-            } else {
+            if (USE_POCKET_TTS_READER || isDocumentAudioPlaybackLive(reader)) {
                 pauseDocumentReader();
+            } else {
+                reconcileDocumentPlaybackIfNeeded(reader, "play_button_false_playing");
             }
         } else {
             resumeDocumentReader();
@@ -1709,7 +1725,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         GradientDrawable drawable = new GradientDrawable();
         drawable.setCornerRadius(dp(8));
         drawable.setColor(COLOR_CARD);
-        int stroke = isDriveFolder(file) ? COLOR_ACCENT : (isDriveGoogleDoc(file) ? COLOR_PRIMARY : COLOR_SURFACE);
+        int stroke = isDriveFolder(file) ? COLOR_ACCENT : (isDriveNarratableDocument(file) ? COLOR_PRIMARY : COLOR_SURFACE);
         drawable.setStroke(dp(1), stroke);
         return drawable;
     }
@@ -1720,9 +1736,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
             loadDriveFolder(file.id, file.name, true);
             return;
         }
-        if (isDriveGoogleDoc(file)) {
+        if (isDriveNarratableDocument(file)) {
             replaceActiveDocumentReader("switching documents");
-            showSelectedDocumentReader(file.id, file.name);
+            showSelectedDocumentReader(file);
             return;
         }
         if (file.webViewLink != null && !file.webViewLink.trim().isEmpty()) {
@@ -1744,9 +1760,18 @@ public final class MainActivity extends Activity implements RecognitionListener,
         return file != null && "application/vnd.google-apps.document".equals(file.mimeType);
     }
 
+    private boolean isDriveTextFile(GoogleDriveClient.DriveFile file) {
+        return file != null && "text/plain".equals(file.mimeType);
+    }
+
+    private boolean isDriveNarratableDocument(GoogleDriveClient.DriveFile file) {
+        return isDriveGoogleDoc(file) || isDriveTextFile(file);
+    }
+
     private String driveFileIcon(GoogleDriveClient.DriveFile file) {
         if (isDriveFolder(file)) return "[Folder]";
         if (isDriveGoogleDoc(file)) return "[Doc]";
+        if (isDriveTextFile(file)) return "[TXT]";
         String mime = file == null || file.mimeType == null ? "" : file.mimeType;
         if (mime.startsWith("image/")) return "[Image]";
         if (mime.startsWith("audio/")) return "[Audio]";
@@ -1757,6 +1782,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private String driveKindLabel(GoogleDriveClient.DriveFile file) {
         if (isDriveFolder(file)) return "Folder";
         if (isDriveGoogleDoc(file)) return "Google Doc";
+        if (isDriveTextFile(file)) return "Text file";
         String mime = file == null || file.mimeType == null || file.mimeType.trim().isEmpty() ? "file" : file.mimeType.trim();
         return mime;
     }
@@ -1849,6 +1875,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
     private String driveSpeechProviderLabel() {
+        if (USE_POCKET_TTS_READER) return "Pocket TTS local";
         return "elevenlabs".equals(driveSpeechProvider) ? "ElevenLabs render-only" : "Cartesia";
     }
 
@@ -1900,7 +1927,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
     private String driveVoiceSummary() {
-        return "Skylar only";
+        return USE_POCKET_TTS_READER ? "Pocket TTS local" : "Skylar only";
     }
 
     private String driveSpeechProfileKey() {
@@ -3457,7 +3484,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
         }
         JSONObject readArgs = new JSONObject()
                 .put("fileId", fileId)
-                .put("name", file == null ? "" : file.optString("name", ""));
+                .put("name", file == null ? "" : file.optString("name", ""))
+                .put("mimeType", file == null ? "application/vnd.google-apps.document" : file.optString("mimeType", "application/vnd.google-apps.document"));
         JSONObject read = googleDriveClient.runTool("docs.read", readArgs, account);
         if (!read.optBoolean("ok", false)) {
             handleDocumentReaderFailure("docs.read", read, queryLabel);
@@ -3507,22 +3535,37 @@ public final class MainActivity extends Activity implements RecognitionListener,
         try {
             JSONObject file = new JSONObject()
                     .put("id", fileId == null ? "" : fileId.trim())
-                    .put("name", name == null ? "" : name.trim());
+                    .put("name", name == null ? "" : name.trim())
+                    .put("mimeType", "application/vnd.google-apps.document");
             showSelectedDocumentReader(file);
         } catch (Exception ex) {
             setDriveBrowserStatus("Opening document reader...", false);
         }
     }
 
+    private void showSelectedDocumentReader(GoogleDriveClient.DriveFile driveFile) {
+        if (driveFile == null) return;
+        try {
+            showSelectedDocumentReader(new JSONObject()
+                    .put("id", driveFile.id)
+                    .put("name", driveFile.name)
+                    .put("mimeType", driveFile.mimeType)
+                    .put("modifiedTime", driveFile.modifiedTime)
+                    .put("webViewLink", driveFile.webViewLink));
+        } catch (Exception ex) {
+            setDriveBrowserStatus("Could not open that Drive text file: " + shortMessage(ex.getMessage()), true);
+        }
+    }
+
     private void showSelectedDocumentReader(JSONObject file) {
         DocumentReaderState loading = DocumentReaderState.selected(file);
         forceSkylarOnlyDriveSpeechSettings();
-        loading.applySpeechProfile(driveSpeechProvider, driveSpeechModelId, skylarOnlyVoiceName(), skylarOnlyVoiceName(), skylarOnlyVoiceName(), driveSpeechProfileKey(false), false);
+        configureReaderSpeechProfile(loading, false);
         activeDocumentReader = loading;
         lastDriveDocumentId = loading.fileId;
         lastDriveDocumentName = loading.name;
         setBusy(false);
-        setDriveBrowserStatus("Selected " + safeDisplayName(loading.name) + ". Press Render to read and render with Skylar.", false);
+        setDriveBrowserStatus("Selected " + safeDisplayName(loading.name) + ". Press Play to hear it as Pocket TTS sections are saved.", false);
         refreshDriveReaderPlayer();
     }
 
@@ -3577,7 +3620,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             activeDocumentReader.playbackRequested = true;
             activeDocumentReader.paused = false;
             activeDocumentReader.previewOnlyPlayback = false;
-            setDriveBrowserStatus("Reading title for " + activeDocumentReader.name + ".", false);
+            setDriveBrowserStatus(USE_POCKET_TTS_READER ? "Preparing the first saved Pocket TTS section for " + activeDocumentReader.name + "." : "Reading title for " + activeDocumentReader.name + ".", false);
             playDocumentTitleIntroThenContinue(activeDocumentReader);
         } else {
             appendStatus("Indexed " + activeDocumentReader.name + ". Use Render to save the audio artifact.");
@@ -3950,7 +3993,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
     private MarkdownNarrationDocument compileDriveMarkdownNarration(String text) {
-        return MarkdownNarrationDocument.compile(text, DOC_READER_FIRST_CHUNK_CHARS, DOC_READER_TARGET_CHARS, DOC_READER_MIN_CHARS);
+        return MarkdownNarrationDocument.compile(text, DOC_READER_TARGET_CHARS, DOC_READER_STARTUP_SENTENCE_SECTIONS);
     }
 
     private List<String> chunkDocumentReaderText(String text) {
@@ -4058,20 +4101,65 @@ public final class MainActivity extends Activity implements RecognitionListener,
         JSONObject manifest = reader.audioEntry.readManifest();
         reader.downloadedSections = manifest.optInt("downloadedSections", countDownloadedSections(reader));
         restoreDocumentPlaybackPosition(reader, manifest);
-        reader.status = driveReaderReadyStatus(reader);
+        restorePocketTtsRenderState(reader, manifest);
+        if (!reader.renderRequested) reader.status = driveReaderReadyStatus(reader);
+    }
+
+    private void restorePocketTtsRenderState(DocumentReaderState reader, JSONObject manifest) {
+        if (!USE_POCKET_TTS_READER || reader == null || reader.audioEntry == null || manifest == null) return;
+        JSONObject intent = manifest.optJSONObject("renderIntent");
+        String status = intent == null ? "" : intent.optString("status", "");
+        boolean running = manifest.optBoolean("rendering", false) && ("accepted".equals(status) || "running".equals(status));
+        reader.renderRequested = running;
+        reader.renderWorkerScheduled = running;
+        reader.downloadedSections = Math.max(manifest.optInt("downloadedSections", 0), countDownloadedSections(reader));
+        if (running) {
+            reader.status = "rendering audio artifact with Pocket TTS: " + reader.downloadedSections + " of " + reader.chunkCount() + " sections saved";
+            String planPath = intent.optString("planPath", "");
+            File plan = planPath.isEmpty() ? null : new File(planPath);
+            if (plan != null && plan.isFile()) {
+                startPocketTtsRenderService(reader, plan);
+            } else {
+                LocalLog.warn("doc_audio", "render_plan_missing_recovered fileId=" + shortMessage(reader.fileId));
+                reader.status = "recovering interrupted Pocket TTS render";
+                startPocketTtsRenderCampaign(reader);
+            }
+        } else if ("failed".equals(status)) {
+            int section = Math.max(0, intent.optInt("failedSection", 0));
+            reader.status = "Pocket TTS failed at section " + (section + 1) + ": " + shortMessage(intent.optString("error", "unknown render failure"));
+        } else if ("complete".equals(status)) {
+            reader.status = "rendered audio artifact complete";
+        }
     }
 
     private int countDownloadedSections(DocumentReaderState reader) {
-        if (reader == null || reader.audioEntry == null) {
-            return 0;
-        }
+        if (reader == null || reader.audioEntry == null) return 0;
+        JSONObject manifest = reader.audioEntry.readManifest();
         int count = 0;
         for (int i = 0; i < reader.chunkCount(); i++) {
-            if (reader.audioEntry.isDownloaded(i)) {
-                count += 1;
-            }
+            if (reader.audioEntry.isDownloaded(manifest, i)) count += 1;
         }
         return count;
+    }
+
+    private int contiguousDownloadedSections(DocumentReaderState reader, int startIndex) {
+        if (reader == null || reader.audioEntry == null) return 0;
+        JSONObject manifest = reader.audioEntry.readManifest();
+        int start = Math.max(0, Math.min(reader.chunkCount() - 1, startIndex));
+        int contiguous = 0;
+        for (int i = start; i < reader.chunkCount(); i++) {
+            if (!reader.audioEntry.isDownloaded(manifest, i)) break;
+            contiguous += 1;
+        }
+        return contiguous;
+    }
+
+    private boolean hasPocketTtsUiPlaybackLead(DocumentReaderState reader) {
+        if (!USE_POCKET_TTS_READER) return reader != null && reader.downloadedSections > 0;
+        if (reader == null || reader.audioEntry == null) return false;
+        int start = Math.max(0, Math.min(reader.chunkCount() - 1, reader.playbackTargetIndex));
+        int contiguous = contiguousDownloadedSections(reader, start);
+        return contiguous == reader.chunkCount() - start || contiguous >= DOC_READER_INITIAL_BUFFER_SECTIONS;
     }
 
     private void restoreDocumentPlaybackPosition(DocumentReaderState reader, JSONObject manifest) {
@@ -4091,10 +4179,13 @@ public final class MainActivity extends Activity implements RecognitionListener,
         int downloaded = Math.max(manifest.optInt("downloadedSections", 0), countDownloadedSections(reader));
         if (downloaded <= 0) return;
         int firstMissing = firstMissingRenderedSection(reader);
-        int section = firstMissing >= 0 ? firstMissing : Math.max(0, Math.min(reader.chunkCount() - 1, downloaded - 1));
-        String status = firstMissing >= 0
-                ? "restored partial render at section " + (section + 1)
-                : "restored completed render at section " + (section + 1);
+        int section = USE_POCKET_TTS_READER ? 0
+                : (firstMissing >= 0 ? firstMissing : Math.max(0, Math.min(reader.chunkCount() - 1, downloaded - 1)));
+        String status = USE_POCKET_TTS_READER
+                ? "restored " + downloaded + " saved sections; playback starts at section 1"
+                : (firstMissing >= 0
+                        ? "restored partial render at section " + (section + 1)
+                        : "restored completed render at section " + (section + 1));
         applyRestoredPlaybackTarget(reader, section, 0L, status);
         persistDocumentPlaybackPosition(reader, status);
         LocalLog.info("doc_audio", "partial_render_checkpoint_restored fileId=" + shortMessage(reader.fileId) + " section=" + section + " downloaded=" + downloaded);
@@ -4102,8 +4193,9 @@ public final class MainActivity extends Activity implements RecognitionListener,
 
     private int firstMissingRenderedSection(DocumentReaderState reader) {
         if (reader == null || reader.audioEntry == null) return -1;
+        JSONObject manifest = reader.audioEntry.readManifest();
         for (int i = 0; i < reader.chunkCount(); i++) {
-            if (!reader.audioEntry.isDownloaded(i)) return i;
+            if (!reader.audioEntry.isDownloaded(manifest, i)) return i;
         }
         return -1;
     }
@@ -4148,8 +4240,14 @@ public final class MainActivity extends Activity implements RecognitionListener,
         reader.cancelRequested = false;
         reader.previewOnlyPlayback = false;
         reader.paused = false;
+        reader.playbackStartPending = USE_POCKET_TTS_READER;
         refreshDriveReaderPlayer();
-        playOrDownloadCurrentSection(true);
+        if (USE_POCKET_TTS_READER) {
+            ensurePlaybackBufferAhead(reader);
+            maybeStartBufferedPocketTtsPlayback(reader);
+        } else {
+            playOrDownloadCurrentSection(true);
+        }
     }
 
     private void downloadDocumentVoice() {
@@ -4159,18 +4257,29 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private void configureReaderSpeechProfile(DocumentReaderState reader, boolean voiceSplitRendering) {
         if (reader == null) return;
         if (!voiceSplitRendering) forceSkylarOnlyDriveSpeechSettings();
-        String nextKey = driveSpeechProfileKey(voiceSplitRendering);
-        String narrator = voiceSplitRendering ? driveNarratorVoiceName : skylarOnlyVoiceName();
-        String dialogue = voiceSplitRendering ? driveDialogueVoiceName : skylarOnlyVoiceName();
-        String notes = voiceSplitRendering ? driveNotesVoiceName : skylarOnlyVoiceName();
+        String nextKey = USE_POCKET_TTS_READER ? "pocket-tts-local-only-v4|vera-venice-close-mic-v1|" + MarkdownNarrationDocument.COMPILER_ID : driveSpeechProfileKey(voiceSplitRendering);
+        String narrator = USE_POCKET_TTS_READER ? "Vera close-mic" : (voiceSplitRendering ? driveNarratorVoiceName : skylarOnlyVoiceName());
+        String dialogue = USE_POCKET_TTS_READER ? "Vera close-mic" : (voiceSplitRendering ? driveDialogueVoiceName : skylarOnlyVoiceName());
+        String notes = USE_POCKET_TTS_READER ? "Vera close-mic" : (voiceSplitRendering ? driveNotesVoiceName : skylarOnlyVoiceName());
         if (!nextKey.equals(reader.speechProfileKey) || reader.voiceSplitRenderingMode != voiceSplitRendering) {
-            reader.applySpeechProfile(driveSpeechProvider, driveSpeechModelId, narrator, dialogue, notes, nextKey, voiceSplitRendering);
+            reader.applySpeechProfile(USE_POCKET_TTS_READER ? "pocket_tts" : driveSpeechProvider, USE_POCKET_TTS_READER ? "local-pocket-tts" : driveSpeechModelId, narrator, dialogue, notes, nextKey, voiceSplitRendering);
             reader.audioEntry = null;
             reader.downloadedSections = 0;
             reader.exportedWavPath = "";
-            reader.playbackOffsetBytes = 0L;
-            reader.playbackTargetIndex = Math.max(0, Math.min(reader.chunkCount() - 1, reader.currentIndex));
+            resetReaderPlaybackToFirstSection(reader);
         }
+    }
+
+    private void resetReaderPlaybackToFirstSection(DocumentReaderState reader) {
+        if (reader == null) return;
+        reader.currentIndex = 0;
+        reader.playbackTargetKind = "section";
+        reader.playbackTargetIndex = 0;
+        reader.playbackOffsetBytes = 0L;
+        reader.activePlaybackStartOffsetBytes = 0L;
+        reader.activePlaybackWrittenBytes = 0L;
+        reader.activePlaybackPcmBytes = 0L;
+        reader.playbackRestoredFromManifest = false;
     }
 
     private String voiceSplitUnresolvedSummary(DocumentReaderState reader) {
@@ -4210,7 +4319,8 @@ public final class MainActivity extends Activity implements RecognitionListener,
                         .put("name", selectedReader.name);
                 JSONObject readArgs = new JSONObject()
                         .put("fileId", selectedReader.fileId)
-                        .put("name", selectedReader.name);
+                        .put("name", selectedReader.name)
+                        .put("mimeType", selectedReader.sourceMimeType);
                 JSONObject read = googleDriveClient.runTool("docs.read", readArgs, account);
                 if (!read.optBoolean("ok", false)) {
                     handleDocumentReaderFailure("docs.read", read, selectedReader.name);
@@ -4283,29 +4393,148 @@ public final class MainActivity extends Activity implements RecognitionListener,
             reader.downloadedSections = 0;
             LocalLog.info("doc_audio", "doc_audio_rerender_requested fileId=" + shortMessage(reader.fileId) + " textHash=" + reader.textHash + " profile=" + reader.speechProfileKey);
         }
+        if (forceRerender || countDownloadedSections(reader) == 0) {
+            resetReaderPlaybackToFirstSection(reader);
+            persistDocumentPlaybackPosition(reader, forceRerender ? "rerender reset to section 1" : "render starts at section 1");
+        }
         reader.renderRequested = true;
         reader.downloadRequested = false;
-        reader.status = forceRerender ? "rerendering audio artifact with Skylar" : "rendering audio artifact with Skylar";
+        reader.status = forceRerender ? "rerendering audio artifact with Pocket TTS" : "rendering audio artifact with Pocket TTS";
         reader.audioEntry.markRendering(true, true);
         refreshDriveReaderPlayer();
-        setDriveBrowserStatus((forceRerender ? "Rerendering and saving " : "Rendering and saving ") + reader.name + " with Skylar.", false);
+        setDriveBrowserStatus((forceRerender ? "Rerendering and saving " : "Rendering and saving ") + reader.name + " with Pocket TTS.", false);
         appendStatus((forceRerender ? "Rerendering and saving " : "Rendering and saving ") + reader.name + ". You can listen or leave; the audio artifact remains the work product.");
-        documentRenderExecutor.execute(() -> {
+        if (USE_POCKET_TTS_READER) {
+            startPocketTtsRenderCampaign(reader);
+            return;
+        }
+        startDocumentRenderCoordinator(reader, forceRerender, renderUsesVoicePlan);
+    }
+
+    private void startPocketTtsRenderCampaign(DocumentReaderState reader) {
+        if (reader == null || reader.audioEntry == null || reader.cancelRequested) return;
+        try {
+            List<String> texts = new ArrayList<>();
+            List<String> requestIds = new ArrayList<>();
             for (int i = 0; i < reader.chunkCount(); i++) {
-                if (reader != activeDocumentReader || reader.cancelRequested || !reader.renderRequested) break;
+                texts.add(sectionSpeechText(reader, i));
+                requestIds.add(pocketTtsRequestId(reader, i));
+            }
+            File plan = reader.audioEntry.writePocketTtsRenderPlan(texts, requestIds);
+            reader.renderRequested = true;
+            reader.renderWorkerScheduled = true;
+            startPocketTtsRenderService(reader, plan);
+        } catch (Exception ex) {
+            reader.renderRequested = false;
+            reader.renderWorkerScheduled = false;
+            reader.status = "Pocket TTS render plan failed: " + shortMessage(ex.getMessage());
+            reader.audioEntry.markRenderFailed(0, reader.status);
+            setDriveBrowserStatus(reader.status, true);
+            refreshDriveReaderPlayer();
+        }
+    }
+
+    private void startPocketTtsRenderService(DocumentReaderState reader, File plan) {
+        if (reader == null || plan == null || !plan.isFile()) return;
+        Intent intent = new Intent(this, NarrationForegroundService.class)
+                .setAction(NarrationForegroundService.ACTION_RENDER)
+                .putExtra(NarrationForegroundService.EXTRA_TITLE, safeDisplayName(reader.name))
+                .putExtra(NarrationForegroundService.EXTRA_RENDER_PLAN, plan.getAbsolutePath());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(intent); else startService(intent);
+        driveNarrationForegroundRunning = true;
+        driveNarrationForegroundTitle = safeDisplayName(reader.name);
+        LocalLog.info("doc_audio", "service_render_requested fileId=" + shortMessage(reader.fileId) + " plan=" + shortMessage(plan.getAbsolutePath()));
+        startPocketTtsRenderProgressObserver();
+    }
+
+    private void ensurePocketTtsRenderService(DocumentReaderState reader) {
+        if (reader == null || reader.audioEntry == null || reader.cancelRequested) return;
+        JSONObject manifest = reader.audioEntry.readManifest();
+        JSONObject intent = manifest.optJSONObject("renderIntent");
+        String status = intent == null ? "" : intent.optString("status", "");
+        File plan = intent == null ? null : new File(intent.optString("planPath", ""));
+        if (plan != null && plan.isFile() && manifest.optBoolean("rendering", false) && ("accepted".equals(status) || "running".equals(status))) {
+            reader.renderRequested = true;
+            reader.renderWorkerScheduled = true;
+            startPocketTtsRenderService(reader, plan);
+            return;
+        }
+        startPocketTtsRenderCampaign(reader);
+    }
+
+    private void startPocketTtsRenderProgressObserver() {
+        main.removeCallbacks(pocketTtsRenderProgressRunnable);
+        main.post(pocketTtsRenderProgressRunnable);
+    }
+
+    private void syncPocketTtsRenderProgress() {
+        DocumentReaderState reader = activeDocumentReader;
+        if (!USE_POCKET_TTS_READER || reader == null || reader.audioEntry == null) return;
+        JSONObject manifest = reader.audioEntry.readManifest();
+        JSONObject intent = manifest.optJSONObject("renderIntent");
+        String status = intent == null ? "" : intent.optString("status", "");
+        int downloaded = Math.max(manifest.optInt("downloadedSections", 0), countDownloadedSections(reader));
+        boolean rendering = manifest.optBoolean("rendering", false) && ("accepted".equals(status) || "running".equals(status));
+        reader.downloadedSections = downloaded;
+        reader.renderRequested = rendering;
+        reader.renderWorkerScheduled = rendering;
+        if (rendering) {
+            reader.status = "rendering audio artifact with Pocket TTS: " + downloaded + " of " + reader.chunkCount() + " sections saved";
+        } else if ("failed".equals(status)) {
+            int section = Math.max(0, intent.optInt("failedSection", 0));
+            reader.status = "Pocket TTS failed at section " + (section + 1) + ": " + shortMessage(intent.optString("error", "unknown render failure"));
+        } else if ("complete".equals(status)) {
+            reader.status = "rendered audio artifact complete";
+        }
+        maybeStartBufferedPocketTtsPlayback(reader);
+        refreshDriveReaderPlayer();
+        if (reader == activeDocumentReader && (rendering || reader.playbackStartPending)) {
+            main.postDelayed(pocketTtsRenderProgressRunnable, 500L);
+        }
+    }
+
+    private void startDocumentRenderCoordinator(DocumentReaderState reader, boolean forceRerender, boolean renderUsesVoicePlan) {
+        if (reader == null || reader.renderWorkerScheduled) return;
+        reader.renderWorkerScheduled = true;
+        documentRenderExecutor.execute(() -> {
+            String coordinatorError = "";
+            long nextUiRefreshAtMs = 0L;
+            for (int i = 0; i < reader.chunkCount(); i++) {
+                if (!coordinatorError.isEmpty() || reader.cancelRequested || !reader.renderRequested) break;
+                while (!reader.cancelRequested && reader.renderRequested
+                        && reader.playbackRequested && !reader.paused
+                        && i > reader.playbackTargetIndex + DOC_READER_PLAYBACK_IMPORT_LEAD_SECTIONS) {
+                    SystemClock.sleep(100L);
+                }
+                if (reader.cancelRequested || !reader.renderRequested) break;
                 if (!reader.audioEntry.isDownloaded(i)) {
                     boolean generated = generateDocumentSection(reader, i, false);
                     if (!generated) {
+                        coordinatorError = reader.status == null || reader.status.trim().isEmpty()
+                                ? "Pocket TTS failed at section " + (i + 1)
+                                : reader.status;
                         break;
                     }
                 }
-                if (reader != activeDocumentReader || reader.cancelRequested || !reader.renderRequested) break;
-                reader.downloadedSections = countDownloadedSections(reader);
-                reader.status = forceRerender ? "rerendering audio artifact with Skylar" : "rendering audio artifact with Skylar";
-                main.post(() -> { if (reader == activeDocumentReader) refreshDriveReaderPlayer(); });
+                if (reader.cancelRequested || !reader.renderRequested) break;
+                reader.downloadedSections = Math.max(reader.downloadedSections, i + 1);
+                reader.status = (forceRerender ? "rerendering" : "rendering") + " audio artifact with Pocket TTS: "
+                        + reader.downloadedSections + " of " + reader.chunkCount() + " sections saved";
+                long now = SystemClock.elapsedRealtime();
+                if (reader.downloadedSections <= 2 || now >= nextUiRefreshAtMs) {
+                    nextUiRefreshAtMs = now + 500L;
+                    main.post(() -> {
+                        if (reader == activeDocumentReader) {
+                            refreshDriveReaderPlayer();
+                            maybeStartBufferedPocketTtsPlayback(reader);
+                        }
+                    });
+                }
             }
+            reader.audioEntry.flushDeferredSectionMarks();
             reader.downloadedSections = countDownloadedSections(reader);
             reader.renderRequested = false;
+            reader.renderWorkerScheduled = false;
             String savedWavPath = "";
             String exportError = "";
             if (reader.downloadedSections >= reader.chunkCount()) {
@@ -4318,20 +4547,20 @@ public final class MainActivity extends Activity implements RecognitionListener,
                     reader.status = "render complete; WAV export failed";
                     LocalLog.warn("doc_audio", "document_wav_export_failed fileId=" + shortMessage(reader.fileId) + " textHash=" + reader.textHash + " detail=" + exportError);
                 }
-            } else if (reader.status == null || !reader.status.startsWith("render blocked,")) {
+            } else if (!coordinatorError.isEmpty()) {
+                reader.status = coordinatorError;
+            } else {
                 reader.status = "render incomplete";
             }
             if (reader.audioEntry != null) {
-                if (reader.downloadedSections >= reader.chunkCount() && exportError.isEmpty()) {
-                    reader.audioEntry.markRenderComplete();
-                } else {
-                    reader.audioEntry.markRendering(false);
-                }
+                if (reader.downloadedSections >= reader.chunkCount() && exportError.isEmpty()) reader.audioEntry.markRenderComplete();
+                else reader.audioEntry.markRendering(false);
             }
             String finalSavedWavPath = savedWavPath;
             String finalExportError = exportError;
             main.post(() -> {
                 if (reader != activeDocumentReader) return;
+                maybeStartBufferedPocketTtsPlayback(reader);
                 refreshDriveReaderPlayer();
                 boolean danger = reader.downloadedSections < reader.chunkCount() || !finalExportError.isEmpty();
                 setDriveBrowserStatus(reader.status + ": " + reader.name + (finalSavedWavPath.isEmpty() ? "." : ". Saved WAV: " + finalSavedWavPath), danger);
@@ -4499,6 +4728,11 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if (reader == null) return;
         configureReaderSpeechProfile(reader, false);
         ensureGoogleDocAudioEntry(reader);
+        if (USE_POCKET_TTS_READER) {
+            reader.titleIntroPlayed = true;
+            playOrDownloadCurrentSection(true);
+            return;
+        }
         if (reader.titleIntroPlayed) {
             playOrDownloadCurrentSection(true);
             return;
@@ -4564,13 +4798,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
     private void playDocumentAudioTarget(DocumentReaderState reader, String kind, int index, long offsetBytes) {
         if (reader == null) return;
         ensureGoogleDocAudioEntry(reader);
-        File wav;
         int section = Math.max(0, Math.min(reader.chunkCount() - 1, index));
         if (reader.audioEntry == null || !reader.audioEntry.isDownloaded(section)) {
             appendStatus("That audio is not rendered yet.");
             return;
         }
-        wav = reader.audioEntry.sectionFile(section);
+        File wav = reader.audioEntry.sectionFile(section);
         reader.currentIndex = section;
         reader.playbackTargetKind = "section";
         reader.playbackTargetIndex = section;
@@ -4590,20 +4823,28 @@ public final class MainActivity extends Activity implements RecognitionListener,
         reader.activePlaybackPcmBytes = pcmBytes;
         reader.activePlaybackSampleRate = GoogleDocAudioLibrary.DEFAULT_SAMPLE_RATE;
         reader.status = "playing " + activeTargetLabel(reader);
+        if (USE_POCKET_TTS_READER) {
+            startNarrationServicePlayback(reader, section, offset);
+            refreshDriveReaderPlayer();
+            ensurePlaybackBufferAhead(reader);
+            return;
+        }
         requestSpeechFocus();
         long sequence = beginSpeechSequence("new_google_doc_audio_playback");
         setSpeechPlaying(true);
         refreshDriveReaderPlayer();
         ensurePlaybackBufferAhead(reader);
-        String label = "section=" + reader.playbackTargetIndex;
         final long playbackOffset = offset;
-        documentAudioExecutor.execute(() -> playWavFile(wav, GoogleDocAudioLibrary.DEFAULT_SAMPLE_RATE, utteranceId, sequence, label, playbackOffset));
+        final int playbackSection = section;
+        documentAudioExecutor.execute(() -> playDocumentWavSequence(reader, playbackSection, playbackOffset, utteranceId, sequence));
     }
 
-    private void playWavFile(File wav, int sampleRate, String utteranceId, long sequence, String label, long offsetBytes) {
+    private void playDocumentWavSequence(DocumentReaderState reader, int startSection, long offsetBytes, String utteranceId, long sequence) {
         AudioTrack track = null;
+        int lastSection = startSection - 1;
+        long totalWritten = 0L;
         try {
-            track = createHostedSpeechTrack(sampleRate);
+            track = createHostedSpeechTrack(GoogleDocAudioLibrary.DEFAULT_SAMPLE_RATE);
             synchronized (this) {
                 if (!isCurrentSpeechSequence(sequence)) {
                     track.release();
@@ -4612,16 +4853,38 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 activeHostedSpeechTrack = track;
                 track.play();
             }
-            long written = writeWavPcmToTrack(track, wav, sequence, offsetBytes);
-            waitForHostedSpeechPlaybackDrain(track, written, sampleRate, sequence);
+            for (int section = startSection; section < reader.chunkCount(); section++) {
+                if (!isCurrentSpeechSequence(sequence) || reader != activeDocumentReader
+                        || reader.paused || !reader.playbackRequested || reader.cancelRequested) break;
+                File wav = reader.audioEntry == null ? null : reader.audioEntry.sectionFile(section);
+                if (wav == null || !wav.exists() || wav.length() <= 44L || !reader.audioEntry.isDownloaded(section)) break;
+                long sectionOffset = section == startSection ? offsetBytes : 0L;
+                long pcmBytes = Math.max(0L, wav.length() - 44L);
+                reader.currentIndex = section;
+                reader.playbackTargetKind = "section";
+                reader.playbackTargetIndex = section;
+                reader.playbackOffsetBytes = sectionOffset;
+                reader.activePlaybackStartOffsetBytes = sectionOffset;
+                reader.activePlaybackWrittenBytes = 0L;
+                reader.activePlaybackPcmBytes = pcmBytes;
+                reader.activePlaybackSampleRate = GoogleDocAudioLibrary.DEFAULT_SAMPLE_RATE;
+                reader.status = "playing " + activeTargetLabel(reader);
+                long written = writeWavPcmToTrack(track, wav, sequence, sectionOffset);
+                totalWritten += written;
+                lastSection = section;
+            }
+            waitForHostedSpeechPlaybackDrain(track, totalWritten, GoogleDocAudioLibrary.DEFAULT_SAMPLE_RATE, sequence);
             if (isCurrentSpeechSequence(sequence)) {
-                long finalWritten = written;
+                int finalSection = lastSection;
+                long finalTotalWritten = totalWritten;
                 main.post(() -> {
-                    LocalLog.info("doc_audio", "doc_audio_play_local label=" + label + " writtenBytes=" + finalWritten);
-                    DocumentReaderState reader = activeDocumentReader;
-                    if (reader != null && utteranceId.equals(reader.utteranceId)) {
-                        reader.playbackOffsetBytes = Math.max(0L, Math.min(reader.activePlaybackPcmBytes, reader.activePlaybackStartOffsetBytes + finalWritten));
-                        persistDocumentPlaybackPosition(reader, "played section");
+                    LocalLog.info("doc_audio", "doc_audio_play_continuous startSection=" + startSection
+                            + " lastSection=" + finalSection + " writtenBytes=" + finalTotalWritten);
+                    if (reader == activeDocumentReader && utteranceId.equals(reader.utteranceId) && finalSection >= startSection) {
+                        reader.currentIndex = finalSection;
+                        reader.playbackTargetIndex = finalSection;
+                        reader.playbackOffsetBytes = reader.activePlaybackPcmBytes;
+                        persistDocumentPlaybackPosition(reader, "played contiguous sections");
                     }
                     refreshDriveReaderPlayer();
                     finishSpeechPlaybackFor(utteranceId, "stream_complete");
@@ -4629,14 +4892,37 @@ public final class MainActivity extends Activity implements RecognitionListener,
             }
         } catch (Exception ex) {
             if (isCurrentSpeechSequence(sequence)) {
+                int failedAfterSection = lastSection;
                 main.post(() -> {
-                    appendStatus("Could not play " + label + ": " + shortMessage(ex.getMessage()));
+                    appendStatus("Continuous narration failed after section " + (failedAfterSection + 1) + ": " + shortMessage(ex.getMessage()));
                     refreshDriveReaderPlayer();
                     finishSpeechPlaybackFor(utteranceId, "hosted_speech_error");
                 });
             }
         } finally {
             releaseHostedTrackIfActive(track);
+        }
+    }
+
+    private void startNarrationServicePlayback(DocumentReaderState reader, int startSection, long offsetBytes) {
+        if (reader == null || reader.audioEntry == null || activityDestroyed) return;
+        Intent intent = new Intent(this, NarrationForegroundService.class)
+                .setAction(NarrationForegroundService.ACTION_PLAY)
+                .putExtra(NarrationForegroundService.EXTRA_TITLE, safeDisplayName(reader.name))
+                .putExtra(NarrationForegroundService.EXTRA_DIRECTORY, reader.audioEntry.dir.getAbsolutePath())
+                .putExtra(NarrationForegroundService.EXTRA_SECTION, startSection)
+                .putExtra(NarrationForegroundService.EXTRA_SECTION_COUNT, reader.chunkCount())
+                .putExtra(NarrationForegroundService.EXTRA_OFFSET_BYTES, Math.max(0L, offsetBytes));
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(intent); else startService(intent);
+            driveNarrationForegroundRunning = true;
+            driveNarrationForegroundTitle = safeDisplayName(reader.name);
+            LocalLog.info("doc_audio", "service_playback_owner section=" + startSection + " offsetBytes=" + offsetBytes);
+        } catch (RuntimeException ex) {
+            reader.playbackRequested = false;
+            reader.paused = true;
+            reader.status = "Pocket TTS playback could not start: " + shortMessage(ex.getMessage());
+            LocalLog.warn("doc_audio", "service_playback_start_failed " + shortMessage(ex.getMessage()));
         }
     }
 
@@ -4673,6 +4959,12 @@ public final class MainActivity extends Activity implements RecognitionListener,
 
     private boolean isDocumentAudioPlaybackLive(DocumentReaderState reader) {
         if (reader == null || reader != activeDocumentReader || reader.paused || !reader.playbackRequested || reader.cancelRequested) return false;
+        if (USE_POCKET_TTS_READER) {
+            NarrationForegroundService.Cursor cursor = NarrationForegroundService.cursor(this);
+            if (reader.audioEntry == null || !reader.audioEntry.dir.getAbsolutePath().equals(cursor.directory)) return false;
+            boolean fresh = cursor.updatedAtMs > 0L && System.currentTimeMillis() - cursor.updatedAtMs <= DOC_READER_SERVICE_CURSOR_STALE_MS;
+            return fresh && ("starting".equals(cursor.state) || "playing".equals(cursor.state) || "waiting_for_render".equals(cursor.state));
+        }
         if (!speechPlaying || reader.utteranceId == null || !reader.utteranceId.equals(activeSpeechUtteranceId)) return false;
         synchronized (this) {
             if (activeHostedSpeechTrack == null) return false;
@@ -4684,10 +4976,47 @@ public final class MainActivity extends Activity implements RecognitionListener,
         }
     }
 
-    private void reconcileDocumentPlaybackIfNeeded(DocumentReaderState reader, String reason) {
-        if (reader == null || reader != activeDocumentReader || reader.paused || !reader.playbackRequested || reader.cancelRequested) return;
+    private void reconcilePocketTtsServicePlayback(DocumentReaderState reader) {
+        if (reader == null || reader.audioEntry == null) return;
+        NarrationForegroundService.Cursor cursor = NarrationForegroundService.cursor(this);
+        if (!reader.audioEntry.dir.getAbsolutePath().equals(cursor.directory)) {
+            reader.playbackRequested = false;
+            reader.paused = true;
+            reader.status = "Pocket TTS playback service did not start";
+            return;
+        }
+        reader.currentIndex = Math.max(0, Math.min(reader.chunkCount() - 1, cursor.section));
+        reader.playbackTargetIndex = reader.currentIndex;
+        reader.playbackOffsetBytes = Math.max(0L, cursor.offsetBytes);
         if (isDocumentAudioPlaybackLive(reader)) return;
+        if ("complete".equals(cursor.state)) {
+            reader.playbackRequested = false;
+            reader.paused = true;
+            reader.status = "complete";
+        } else if (cursor.state.startsWith("failed:")) {
+            reader.playbackRequested = false;
+            reader.paused = true;
+            reader.status = "Pocket TTS playback failed: " + shortMessage(cursor.state.substring("failed:".length()));
+        } else if ("paused".equals(cursor.state) || "stopped".equals(cursor.state)) {
+            reader.playbackRequested = false;
+            reader.paused = true;
+            reader.status = cursor.state;
+        } else {
+            reader.playbackRequested = false;
+            reader.paused = true;
+            reader.status = "Pocket TTS playback service stopped responding";
+        }
+    }
+
+    private void reconcileDocumentPlaybackIfNeeded(DocumentReaderState reader, String reason) {
+        if (activityDestroyed || reader == null || reader != activeDocumentReader || reader.paused || !reader.playbackRequested || reader.cancelRequested) return;
         long now = SystemClock.elapsedRealtime();
+        if (USE_POCKET_TTS_READER) {
+            if (reader.nextPlaybackReconcileAtMs > now) return;
+            reconcilePocketTtsServicePlayback(reader);
+            return;
+        }
+        if (isDocumentAudioPlaybackLive(reader)) return;
         if (reader.playbackReconcileScheduled || reader.nextPlaybackReconcileAtMs > now) return;
         reader.playbackReconcileScheduled = true;
         reader.nextPlaybackReconcileAtMs = now + DOC_READER_FALSE_PLAYING_COOLDOWN_MS;
@@ -4697,7 +5026,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 + " reason=" + shortMessage(reason));
         main.postDelayed(() -> {
             reader.playbackReconcileScheduled = false;
-            if (reader != activeDocumentReader || reader.paused || !reader.playbackRequested || reader.cancelRequested) return;
+            if (activityDestroyed || reader != activeDocumentReader || reader.paused || !reader.playbackRequested || reader.cancelRequested) return;
             if (isDocumentAudioPlaybackLive(reader)) return;
             restartDocumentPlaybackFromSavedPosition(reader, reason);
         }, DOC_READER_FALSE_PLAYING_RECHECK_MS);
@@ -4714,6 +5043,13 @@ public final class MainActivity extends Activity implements RecognitionListener,
         reader.playbackTargetKind = "section";
         reader.playbackTargetIndex = Math.max(0, Math.min(reader.chunkCount() - 1, section));
         if (reader.audioEntry.isDownloaded(section)) {
+            if (USE_POCKET_TTS_READER && reader.playbackStartPending && !hasPocketTtsPlaybackLead(reader)) {
+                ensurePlaybackBufferAhead(reader);
+                reader.status = "buffering saved audio before playback";
+                refreshDriveReaderPlayer();
+                return;
+            }
+            reader.playbackStartPending = false;
             long offset = reader.playbackTargetIndex == section ? reader.playbackOffsetBytes : 0L;
             playDocumentAudioTarget(reader, "section", section, offset);
             return;
@@ -4725,9 +5061,14 @@ public final class MainActivity extends Activity implements RecognitionListener,
         reader.playbackOffsetBytes = 0L;
         persistDocumentPlaybackPosition(reader, "waiting for section render");
         refreshDriveReaderPlayer();
-        setDriveBrowserStatus("Rendering audio for " + reader.name + " with Skylar.", false);
-        appendStatus("Rendering audio for " + reader.name + " with Skylar.");
-        documentAudioExecutor.execute(() -> generateDocumentSection(reader, section, true));
+        setDriveBrowserStatus("Rendering the next saved section of " + reader.name + " with Pocket TTS.", false);
+        appendStatus("Rendering the next saved section of " + reader.name + " with Pocket TTS.");
+        if (USE_POCKET_TTS_READER) {
+            reader.playbackStartPending = true;
+            ensurePlaybackBufferAhead(reader);
+        } else {
+            documentAudioExecutor.execute(() -> generateDocumentSection(reader, section, true));
+        }
     }
 
     private void playDownloadedDocumentSection(DocumentReaderState reader, int sectionIndex) {
@@ -4738,7 +5079,68 @@ public final class MainActivity extends Activity implements RecognitionListener,
         playDocumentAudioTarget(reader, "section", reader.playbackTargetIndex, 0L);
     }
 
+
+    private boolean generatePocketTtsDocumentSection(DocumentReaderState reader, int sectionIndex, boolean playAfterDownload) {
+        try {
+            if (reader == null || reader.audioEntry == null || reader.cancelRequested || reader.audioEntry.isDownloaded(sectionIndex)) {
+                if (reader != null && playAfterDownload && reader.audioEntry != null && reader.audioEntry.isDownloaded(sectionIndex)) {
+                    main.post(() -> playDocumentAudioTarget(reader, "section", sectionIndex, reader.playbackOffsetBytes));
+                }
+                return true;
+            }
+            if (reader != activeDocumentReader && playAfterDownload) return false;
+            String speechText = sectionSpeechText(reader, sectionIndex);
+            String requestId = pocketTtsRequestId(reader, sectionIndex);
+            boolean importingExisting = PocketTtsNativeRenderer.hasCompletedOutput(this, requestId);
+            if (!importingExisting) reader.audioEntry.flushDeferredSectionMarks();
+            reader.status = "rendering section " + (sectionIndex + 1) + " of " + reader.chunkCount() + " with Pocket TTS";
+            if (!importingExisting) {
+                main.post(() -> {
+                    if (reader == activeDocumentReader) {
+                        setDriveBrowserStatus(reader.status, false);
+                        refreshDriveReaderPlayer();
+                    }
+                });
+            }
+            PocketTtsNativeRenderer.Result result = PocketTtsNativeRenderer.render(this, requestId, speechText,
+                    () -> reader.cancelRequested || Thread.currentThread().isInterrupted());
+            File wav = reader.audioEntry.sectionFile(sectionIndex);
+            File parent = wav.getParentFile();
+            if (parent != null && !parent.exists()) parent.mkdirs();
+            File part = reader.audioEntry.partFile(sectionIndex);
+            Files.copy(result.wav.toPath(), part.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            Files.move(part.toPath(), wav.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            long pcmBytes = Math.max(0L, wav.length() - 44L);
+            reader.audioEntry.markDownloadedValidated(sectionIndex, pcmBytes, result.sampleRate, result.artifactSha256, result.realTimeFactor, importingExisting);
+            reader.downloadedSections = Math.max(reader.downloadedSections, sectionIndex + 1);
+            main.post(() -> {
+                if (reader == activeDocumentReader && !reader.cancelRequested) refreshDriveReaderPlayer();
+                if (playAfterDownload && reader == activeDocumentReader && reader.playbackRequested && !reader.paused && !reader.cancelRequested) {
+                    setDriveBrowserStatus("Playing " + reader.name + " with Pocket TTS.", false);
+                    playDownloadedDocumentSection(reader, sectionIndex);
+                    ensurePlaybackBufferAhead(reader);
+                }
+            });
+            return true;
+        } catch (Exception ex) {
+            if (reader != null && reader.audioEntry != null) reader.audioEntry.markFailed(sectionIndex, shortMessage(ex.getMessage()));
+            LocalLog.warn("doc_audio", "pocket_tts_section_failed section=" + sectionIndex + " detail=" + shortMessage(ex.getMessage()));
+            main.post(() -> {
+                if (reader == activeDocumentReader) {
+                    reader.status = "Pocket TTS failed at section " + (sectionIndex + 1) + ": " + shortMessage(ex.getMessage());
+                    setDriveBrowserStatus(reader.status, true);
+                    setSpeechPlaying(false);
+                    refreshDriveReaderPlayer();
+                }
+            });
+            return false;
+        }
+    }
+
     private boolean generateDocumentSection(DocumentReaderState reader, int sectionIndex, boolean playAfterDownload) {
+        if (USE_POCKET_TTS_READER) {
+            return generatePocketTtsDocumentSection(reader, sectionIndex, playAfterDownload);
+        }
         HttpURLConnection connection = null;
         RandomAccessFile output = null;
         File part = null;
@@ -4878,18 +5280,36 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
     private void ensurePlaybackBufferAhead(DocumentReaderState reader) {
-        if (reader == null || reader.audioEntry == null || reader.paused || !reader.playbackRequested || reader.cancelRequested) return;
-        int start = Math.max(0, reader.playbackTargetIndex + 1);
-        int end = Math.min(reader.chunkCount() - 1, reader.playbackTargetIndex + DOC_READER_PLAYBACK_BUFFER_CHUNKS);
-        if (start > end) return;
-        documentRenderExecutor.execute(() -> {
-            for (int i = start; i <= end; i++) {
-                if (reader != activeDocumentReader || reader.paused || !reader.playbackRequested || reader.cancelRequested) return;
-                if (reader.audioEntry != null && !reader.audioEntry.isDownloaded(i)) {
-                    generateDocumentSection(reader, i, false);
-                }
-            }
-        });
+        if (reader == null || reader.audioEntry == null || reader.cancelRequested) return;
+        reader.renderRequested = true;
+        reader.audioEntry.markRendering(true, true);
+        if (USE_POCKET_TTS_READER) {
+            ensurePocketTtsRenderService(reader);
+            return;
+        }
+        startDocumentRenderCoordinator(reader, false, false);
+    }
+
+    private String pocketTtsRequestId(DocumentReaderState reader, int sectionIndex) {
+        String speechText = sectionSpeechText(reader, sectionIndex);
+        return "hc-v4-native-vera-close-mic-v1-" + reader.fileId + "-" + reader.textHash + "-"
+                + String.format(Locale.US, "%06d", sectionIndex) + "-" + stableTextHash(speechText);
+    }
+
+    private boolean hasPocketTtsPlaybackLead(DocumentReaderState reader) {
+        return hasPocketTtsUiPlaybackLead(reader);
+    }
+
+    private void maybeStartBufferedPocketTtsPlayback(DocumentReaderState reader) {
+        if (!USE_POCKET_TTS_READER || reader == null || reader != activeDocumentReader
+                || !reader.playbackStartPending || reader.paused || !reader.playbackRequested || reader.cancelRequested) return;
+        if (!hasPocketTtsPlaybackLead(reader)) {
+            reader.status = "buffering " + reader.downloadedSections + " of " + reader.chunkCount() + " saved sections";
+            refreshDriveReaderPlayer();
+            return;
+        }
+        reader.playbackStartPending = false;
+        playOrDownloadCurrentSection(false);
     }
 
     private void retryDocumentPlayback(DocumentReaderState reader, String reason) {
@@ -4951,6 +5371,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             persistDocumentPlaybackPosition(reader, "waiting for section render");
             refreshDriveReaderPlayer();
             appendStatus("Waiting for section " + (next + 1) + " to download.");
+            reader.playbackStartPending = USE_POCKET_TTS_READER;
             playOrDownloadCurrentSection(true);
             return;
         }
@@ -4969,13 +5390,27 @@ public final class MainActivity extends Activity implements RecognitionListener,
             showAssistantMessage("No Google Doc is indexed yet.");
             return;
         }
-        activeDocumentReader.playbackOffsetBytes = Math.max(0L, Math.min(activeDocumentReader.activePlaybackPcmBytes, activeDocumentReader.activePlaybackStartOffsetBytes + activeDocumentReader.activePlaybackWrittenBytes));
+        if (USE_POCKET_TTS_READER && activeDocumentReader.audioEntry != null) {
+            NarrationForegroundService.Cursor cursor = NarrationForegroundService.cursor(this);
+            if (activeDocumentReader.audioEntry.dir.getAbsolutePath().equals(cursor.directory)) {
+                activeDocumentReader.currentIndex = Math.max(0, Math.min(activeDocumentReader.chunkCount() - 1, cursor.section));
+                activeDocumentReader.playbackTargetIndex = activeDocumentReader.currentIndex;
+                activeDocumentReader.playbackOffsetBytes = cursor.offsetBytes;
+            }
+        } else {
+            activeDocumentReader.playbackOffsetBytes = Math.max(0L, Math.min(activeDocumentReader.activePlaybackPcmBytes, activeDocumentReader.activePlaybackStartOffsetBytes + activeDocumentReader.activePlaybackWrittenBytes));
+        }
         activeDocumentReader.paused = true;
         activeDocumentReader.playbackRequested = false;
         activeDocumentReader.status = "paused at " + activeTargetLabel(activeDocumentReader) + " " + playbackClock(activeDocumentReader.playbackOffsetBytes, activeDocumentReader.activePlaybackSampleRate);
         persistDocumentPlaybackPosition(activeDocumentReader, activeDocumentReader.status);
         refreshDriveReaderPlayer();
-        stopSpeechPlayback();
+        if (USE_POCKET_TTS_READER) {
+            startService(new Intent(this, NarrationForegroundService.class).setAction(NarrationForegroundService.ACTION_PAUSE));
+            setSpeechPlaying(false);
+        } else {
+            stopSpeechPlayback();
+        }
         appendStatus(activeDocumentReader.status + ".");
     }
 
@@ -4989,6 +5424,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         reader.paused = false;
         reader.cancelRequested = false;
         reader.playbackReconcileScheduled = false;
+        ensurePlaybackBufferAhead(reader);
         long total = visiblePlayheadPcmBytes(reader);
         if (total > 0L) {
             long visible = Math.max(0L, Math.min(total, visiblePlayheadOffsetBytes(reader, total)));
@@ -5030,6 +5466,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         reader.playbackReconcileScheduled = false;
         reader.status = status == null ? "closed" : status;
         persistDocumentPlaybackPosition(reader, reader.status);
+        stopNarrationForegroundServiceExplicitly("document_reader_close");
         finishSpeechPlayback("document_reader_close");
         activeDocumentReader = null;
         refreshDriveReaderPlayer();
@@ -5067,7 +5504,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         }
         return new AudioTrack.Builder()
                 .setAudioAttributes(new AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
                         .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                         .build())
                 .setAudioFormat(new AudioFormat.Builder()
@@ -5076,7 +5513,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                         .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
                         .build())
                 .setTransferMode(AudioTrack.MODE_STREAM)
-                .setBufferSizeInBytes(Math.max(minBufferSize * 2, 8192))
+                .setBufferSizeInBytes(Math.max(minBufferSize * 4, DOC_READER_AUDIO_BUFFER_BYTES))
                 .build();
     }
 
@@ -5117,7 +5554,11 @@ public final class MainActivity extends Activity implements RecognitionListener,
         if (reader == null || !isCurrentSpeechSequence(sequence)) return;
         reader.activePlaybackWrittenBytes = Math.max(0L, writtenBytes);
         reader.playbackOffsetBytes = Math.max(0L, Math.min(reader.activePlaybackPcmBytes, reader.activePlaybackStartOffsetBytes + reader.activePlaybackWrittenBytes));
-        persistDocumentPlaybackPosition(reader, "playing");
+        long now = SystemClock.elapsedRealtime();
+        if (now >= reader.nextPlaybackCheckpointAtMs) {
+            reader.nextPlaybackCheckpointAtMs = now + DOC_READER_PLAYBACK_CHECKPOINT_MS;
+            persistDocumentPlaybackPosition(reader, "playing");
+        }
         main.post(this::refreshDriveReaderPlayer);
     }
 
@@ -8064,7 +8505,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 }
                 track = new AudioTrack.Builder()
                         .setAudioAttributes(new AudioAttributes.Builder()
-                                .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
+                                .setUsage(AudioAttributes.USAGE_MEDIA)
                                 .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                                 .build())
                         .setAudioFormat(new AudioFormat.Builder()
@@ -8073,7 +8514,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                                 .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
                                 .build())
                         .setTransferMode(AudioTrack.MODE_STREAM)
-                        .setBufferSizeInBytes(Math.max(minBufferSize * 2, 8192))
+                        .setBufferSizeInBytes(Math.max(minBufferSize * 4, DOC_READER_AUDIO_BUFFER_BYTES))
                         .build();
                 synchronized (this) {
                     if (!isCurrentSpeechSequence(sequence)) {
@@ -8327,7 +8768,20 @@ public final class MainActivity extends Activity implements RecognitionListener,
         }
     }
 
+    private void stopNarrationForegroundServiceExplicitly(String reason) {
+        if (!USE_POCKET_TTS_READER) return;
+        try {
+            startService(new Intent(this, NarrationForegroundService.class).setAction(NarrationForegroundService.ACTION_STOP));
+        } catch (Exception ignored) {
+            stopService(new Intent(this, NarrationForegroundService.class));
+        }
+        driveNarrationForegroundRunning = false;
+        driveNarrationForegroundTitle = "";
+        LocalLog.info("doc_audio", "drive_narration_explicit_stop reason=" + shortMessage(reason));
+    }
+
     private void stopSpeechPlayback() {
+        stopNarrationForegroundServiceExplicitly("user_stop");
         synchronized (this) {
             speechSequence += 1L;
             LocalLog.info("speech", "stop_reason=user_stop sequence=" + speechSequence);
@@ -8362,7 +8816,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         }
         if (speechFocusRequest == null) {
             AudioAttributes attributes = new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
                     .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                     .build();
             speechFocusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
@@ -8477,16 +8931,20 @@ public final class MainActivity extends Activity implements RecognitionListener,
             }
             return;
         }
-        if (driveNarrationForegroundRunning) {
-            Intent intent = new Intent(this, NarrationForegroundService.class).setAction(NarrationForegroundService.ACTION_STOP);
-            try {
-                startService(intent);
-            } catch (Exception ignored) {
-                stopService(new Intent(this, NarrationForegroundService.class));
-            }
+        if (driveNarrationForegroundRunning && USE_POCKET_TTS_READER) {
+            // The service owns durable render/playback lifetime. Activity state can be briefly
+            // empty while Drive refreshes or the process is recreated, so detaching must not
+            // be interpreted as an explicit user stop.
             driveNarrationForegroundRunning = false;
             driveNarrationForegroundTitle = "";
-            LocalLog.info("doc_audio", "drive_narration_foreground_stop");
+            LocalLog.info("doc_audio", "drive_narration_activity_detached_without_stop");
+            return;
+        }
+        if (driveNarrationForegroundRunning) {
+            stopService(new Intent(this, NarrationForegroundService.class));
+            driveNarrationForegroundRunning = false;
+            driveNarrationForegroundTitle = "";
+            LocalLog.info("doc_audio", "drive_narration_foreground_stop_legacy");
         }
     }
 
@@ -10584,7 +11042,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
     }
 
     private static final class MarkdownNarrationDocument {
-        static final String COMPILER_ID = "drive-markdown-narrator-v7-preserve-speaker-split-chunks";
+        static final String COMPILER_ID = "drive-markdown-narrator-v8-sentence-aligned-startup";
         private static final Pattern SPEAKER_CUE_PATTERN = Pattern.compile("^\\s*([A-Za-z][A-Za-z0-9 .\\'\\-]{1,48})\\s*:\\s+(.+)$");
         private static final Pattern SPEAKER_DASH_PATTERN = Pattern.compile("^\\s*([A-Za-z][A-Za-z0-9 .\\'\\-]{1,48})\\s*(?:[-–—]|\\|)\\s+(.+)$");
         private static final String DIALOGUE_VERBS = "said|says|asked|asks|replied|replies|answered|answers|called|calls|whispered|whispers|shouted|shouts|muttered|mutters|continued|continues|snapped|snaps|sighed|sighs|said softly|said quietly";
@@ -10607,7 +11065,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             this.semanticCueCount = Math.max(0, semanticCueCount);
         }
 
-        static MarkdownNarrationDocument compile(String markdown, int firstChunkChars, int targetChars, int minChars) {
+        static MarkdownNarrationDocument compile(String markdown, int targetChars, int startupSentenceSections) {
             String raw = markdown == null ? "" : markdown.replace("\r\n", "\n").replace('\r', '\n');
             List<String> speechBlocks = new ArrayList<>();
             int cues = 0;
@@ -10717,7 +11175,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
             }
             flushParagraph(paragraph, speechBlocks);
             String speech = joinBlocks(speechBlocks);
-            List<String> chunks = chunkSpeechBlocks(speechBlocks, firstChunkChars, targetChars, minChars);
+            List<String> chunks = MarkdownSentenceChunker.chunkSpeechBlocks(speechBlocks, targetChars, startupSentenceSections);
             List<String> labels = new ArrayList<>();
             List<String> hashes = new ArrayList<>();
             for (int i = 0; i < chunks.size(); i++) {
@@ -10794,72 +11252,6 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 out.append(clean);
             }
             return out.toString().trim();
-        }
-
-        private static List<String> chunkSpeechBlocks(List<String> blocks, int firstChunkChars, int targetChars, int minChars) {
-            List<String> chunks = new ArrayList<>();
-            StringBuilder current = new StringBuilder();
-            if (blocks != null) {
-                for (String block : blocks) {
-                    String clean = block == null ? "" : block.replaceAll("\\s+", " ").trim();
-                    if (clean.isEmpty()) continue;
-                    boolean speakerTurn = clean.toLowerCase(Locale.US).startsWith("[speaker:");
-                    if (speakerTurn) {
-                        flushChunk(current, chunks);
-                        chunks.addAll(splitLongChunk(clean, chunks.isEmpty() ? firstChunkChars : targetChars, minChars));
-                        continue;
-                    }
-                    int target = chunks.isEmpty() && current.length() == 0 ? firstChunkChars : targetChars;
-                    if (current.length() > 0 && current.length() + 1 + clean.length() > target) {
-                        flushChunk(current, chunks);
-                    }
-                    if (clean.length() > targetChars) {
-                        flushChunk(current, chunks);
-                        chunks.addAll(splitLongChunk(clean, chunks.isEmpty() ? firstChunkChars : targetChars, minChars));
-                    } else {
-                        if (current.length() > 0) current.append(' ');
-                        current.append(clean);
-                    }
-                }
-            }
-            flushChunk(current, chunks);
-            return chunks.isEmpty() ? Collections.singletonList("") : chunks;
-        }
-
-        private static void flushChunk(StringBuilder current, List<String> chunks) {
-            String clean = current == null ? "" : current.toString().replaceAll("\\s+", " ").trim();
-            if (!clean.isEmpty()) chunks.add(clean);
-            if (current != null) current.setLength(0);
-        }
-
-        private static List<String> splitLongChunk(String speech, int targetChars, int minChars) {
-            List<String> chunks = new ArrayList<>();
-            String clean = speech == null ? "" : speech.replaceAll("\\s+", " ").trim();
-            String speakerPrefix = "";
-            Matcher speaker = Pattern.compile("^\\s*(\\[speaker:[^\\]]+\\])\\s+(.+)$", Pattern.CASE_INSENSITIVE).matcher(clean);
-            if (speaker.matches()) {
-                speakerPrefix = speaker.group(1);
-                clean = speaker.group(2).trim();
-            }
-            int index = 0;
-            while (index < clean.length()) {
-                int target = chunks.isEmpty() ? Math.max(180, targetChars) : targetChars;
-                int minimum = chunks.isEmpty() ? Math.min(180, target) : minChars;
-                int prefixReserve = speakerPrefix.isEmpty() ? 0 : speakerPrefix.length() + 1;
-                int bodyTarget = Math.max(180, target - prefixReserve);
-                int bodyMinimum = Math.min(minimum, bodyTarget);
-                int end = Math.min(clean.length(), index + bodyTarget);
-                if (end < clean.length()) {
-                    int sentence = Math.max(clean.lastIndexOf(". ", end), Math.max(clean.lastIndexOf("! ", end), clean.lastIndexOf("? ", end)));
-                    if (sentence > index + bodyMinimum) end = sentence + 1;
-                }
-                String body = clean.substring(index, end).trim();
-                String chunk = speakerPrefix.isEmpty() ? body : (speakerPrefix + " " + body).trim();
-                if (!chunk.isEmpty()) chunks.add(chunk);
-                index = end;
-                while (index < clean.length() && Character.isWhitespace(clean.charAt(index))) index++;
-            }
-            return chunks;
         }
 
         private static String cleanInlineMarkdownForSpeech(String text) {
@@ -10939,6 +11331,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         final String name;
         final String modifiedTime;
         final String webViewLink;
+        String sourceMimeType = "application/vnd.google-apps.document";
         final int charCount;
         final String textHash;
         final List<String> chunks;
@@ -10955,7 +11348,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
         boolean playbackRestoredFromManifest;
         boolean playbackRetryScheduled;
         boolean playbackReconcileScheduled;
+        boolean renderWorkerScheduled;
+        boolean playbackStartPending;
         long nextPlaybackReconcileAtMs;
+        long nextPlaybackCheckpointAtMs;
         boolean titleIntroPlayed;
         int downloadedSections;
         String playbackTargetKind = "section";
@@ -10999,6 +11395,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                     0,
                     "selected; press Render",
                     previews);
+            state.sourceMimeType = file == null ? "application/vnd.google-apps.document" : file.optString("mimeType", "application/vnd.google-apps.document");
             state.needsDriveRead = true;
             return state;
         }
@@ -11008,10 +11405,11 @@ public final class MainActivity extends Activity implements RecognitionListener,
             this.name = file == null ? "Google Doc" : firstNonEmptyStatic(file.optString("name", ""), "Google Doc");
             this.modifiedTime = file == null ? "" : file.optString("modifiedTime", "").trim();
             this.webViewLink = file == null ? "" : file.optString("webViewLink", "").trim();
+            this.sourceMimeType = file == null ? "application/vnd.google-apps.document" : file.optString("mimeType", "application/vnd.google-apps.document");
             String clean = content == null ? "" : content.trim();
             this.charCount = clean.length();
             this.textHash = stableTextHash(clean);
-            MarkdownNarrationDocument compiled = narrationDocument == null ? MarkdownNarrationDocument.compile(clean, DOC_READER_FIRST_CHUNK_CHARS, DOC_READER_TARGET_CHARS, DOC_READER_MIN_CHARS) : narrationDocument;
+            MarkdownNarrationDocument compiled = narrationDocument == null ? MarkdownNarrationDocument.compile(clean, DOC_READER_TARGET_CHARS, DOC_READER_STARTUP_SENTENCE_SECTIONS) : narrationDocument;
             this.chunks = compiled.chunks == null || compiled.chunks.isEmpty() ? Collections.singletonList(compiled.speechText) : compiled.chunks;
             this.semanticCueCount = compiled.semanticCueCount;
             this.sectionLabels = compiled.sectionLabels == null ? new ArrayList<>() : compiled.sectionLabels;
@@ -11027,7 +11425,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
             this.playbackRestoredFromManifest = false;
             this.playbackRetryScheduled = false;
             this.playbackReconcileScheduled = false;
+            this.renderWorkerScheduled = false;
+            this.playbackStartPending = false;
             this.nextPlaybackReconcileAtMs = 0L;
+            this.nextPlaybackCheckpointAtMs = 0L;
             this.titleIntroPlayed = false;
             this.downloadedSections = 0;
             this.playbackTargetKind = "section";
@@ -11051,6 +11452,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
         }
 
         String voiceProviderLabel() {
+            if ("pocket_tts".equals(voiceProvider)) return "Pocket TTS local";
             return "elevenlabs".equals(voiceProvider) ? "ElevenLabs render-only" : "Cartesia";
         }
 
@@ -11082,7 +11484,10 @@ public final class MainActivity extends Activity implements RecognitionListener,
             this.playbackRestoredFromManifest = false;
             this.playbackRetryScheduled = false;
             this.playbackReconcileScheduled = false;
+            this.renderWorkerScheduled = false;
+            this.playbackStartPending = false;
             this.nextPlaybackReconcileAtMs = 0L;
+            this.nextPlaybackCheckpointAtMs = 0L;
             this.titleIntroPlayed = false;
             this.downloadedSections = 0;
             this.playbackTargetKind = "section";
@@ -11158,6 +11563,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                 json.put("name", name);
                 json.put("modifiedTime", modifiedTime);
                 json.put("webViewLink", webViewLink);
+                json.put("sourceMimeType", sourceMimeType);
                 json.put("charCount", charCount);
                 json.put("textHash", textHash);
                 json.put("chunkCount", chunkCount());
@@ -11213,6 +11619,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
                     json.optInt("currentIndex", 0),
                     json.optString("status", "restored"),
                     json.optJSONArray("chunkPreviews"));
+            state.sourceMimeType = json.optString("sourceMimeType", "application/vnd.google-apps.document");
             JSONObject roles = json.optJSONObject("voiceRoles");
             state.applySpeechProfile(
                     json.optString("voiceProvider", DEFAULT_DRIVE_SPEECH_PROVIDER),
@@ -11237,6 +11644,7 @@ public final class MainActivity extends Activity implements RecognitionListener,
 
     private static String normalizeDriveSpeechProviderStatic(String provider) {
         String clean = provider == null ? "" : provider.trim().toLowerCase(Locale.US);
+        if ("pocket_tts".equals(clean)) return "pocket_tts";
         return "elevenlabs".equals(clean) ? "elevenlabs" : DEFAULT_DRIVE_SPEECH_PROVIDER;
     }
 
@@ -11354,14 +11762,22 @@ public final class MainActivity extends Activity implements RecognitionListener,
 
     @Override
     protected void onDestroy() {
+        activityDestroyed = true;
         if (recognizer != null) {
             recognizer.destroy();
         }
         updateThinkingHaptics(false);
         stopDriveBrowserPolling();
+        main.removeCallbacks(pocketTtsRenderProgressRunnable);
         stopHostedSpeechPlayback("activity_destroy");
-        stopService(new Intent(this, NarrationForegroundService.class));
-        driveNarrationForegroundRunning = false;
+        boolean preserveNarration = USE_POCKET_TTS_READER && activeDocumentReader != null
+                && !activeDocumentReader.cancelRequested
+                && (activeDocumentReader.renderRequested
+                || (activeDocumentReader.playbackRequested && !activeDocumentReader.paused));
+        if (!USE_POCKET_TTS_READER && !preserveNarration) {
+            stopService(new Intent(this, NarrationForegroundService.class));
+            driveNarrationForegroundRunning = false;
+        }
         updateSpeechMediaSession(false);
         abandonSpeechFocus();
         if (deviceTextToSpeech != null) {

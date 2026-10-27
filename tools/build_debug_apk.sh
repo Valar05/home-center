@@ -19,7 +19,8 @@ if [ -x /data/data/com.termux/files/usr/bin/aapt2 ]; then
   AAPT_ARGS="-Pandroid.aapt2FromMavenOverride=/data/data/com.termux/files/usr/bin/aapt2"
 fi
 
-"$GRADLE_BIN" assembleDebug --no-daemon $AAPT_ARGS
+"$GRADLE_BIN" :app:testDebugUnitTest --tests com.dclar.homecenter.PocketTtsTextSplitTest --tests com.dclar.homecenter.VeniceCloseMicFilterTest :app:assembleDebug --no-daemon $AAPT_ARGS
+python3 tools/pocket_tts_apk_contract_test.py app/build/outputs/apk/debug/app-debug.apk
 apksigner verify --verbose app/build/outputs/apk/debug/app-debug.apk
 aapt dump badging app/build/outputs/apk/debug/app-debug.apk | sed -n '1,12p'
 cp app/build/outputs/apk/debug/app-debug.apk /storage/emulated/0/Download/HomeCenter-debug.apk

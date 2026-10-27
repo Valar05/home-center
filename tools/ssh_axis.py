@@ -29,7 +29,7 @@ import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-PROBE = "printf FORTRESS_SSH_AXIS_OK"
+PROBE = "echo FORTRESS_SSH_AXIS_OK"
 CAULDRON_STATE = Path.home() / '.local/state/fortress-online/cauldron-ssh-endpoint.json'
 
 

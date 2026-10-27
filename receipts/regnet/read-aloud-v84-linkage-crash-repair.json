@@ -1,0 +1,66 @@
+{
+  "apk": {
+    "bytes": 241763411,
+    "path": "/storage/emulated/0/Download/HomeCenter-0.2.84-v84-native-pocket-tts.apk",
+    "sha256": "a58a52cb1ff6d6d64d94a8d3336715466030c36553596794a92aeaed3db38528"
+  },
+  "capabilityState": "installed-not-user-accepted",
+  "crash": {
+    "cause": "UnsatisfiedLinkError: library libLiteRt.so not found",
+    "exception": "NoClassDefFoundError: com.google.ai.edge.litert.CompiledModel",
+    "observedTimes": [
+      "2026-09-18 07:13:00",
+      "2026-09-18 07:13:03",
+      "2026-09-18 07:13:32",
+      "2026-09-18 07:13:37",
+      "2026-09-18 07:13:40",
+      "2026-09-18 07:13:43",
+      "2026-09-18 07:16:47",
+      "2026-09-18 07:16:53"
+    ]
+  },
+  "createdAtEpoch": 1789734234,
+  "negativeControl": {
+    "apkVersion": "0.2.83",
+    "missing": [
+      "lib/arm64-v8a/libLiteRt.so",
+      "lib/arm64-v8a/libLiteRtClGlAccelerator.so"
+    ],
+    "result": "FAIL"
+  },
+  "positiveControl": {
+    "apkContract": "PASS",
+    "assembleDebug": "PASS",
+    "focusedDspTest": "PASS",
+    "install": "PASS",
+    "jniNeeded": "libLiteRt.so",
+    "libraries": [
+      "lib/arm64-v8a/liblitert_jni.so",
+      "lib/arm64-v8a/libLiteRt.so",
+      "lib/arm64-v8a/libLiteRtClGlAccelerator.so"
+    ],
+    "regression": "PASS",
+    "signatureV2": "PASS"
+  },
+  "postInstall": {
+    "appLaunchedByAgent": false,
+    "appProcessRunning": false,
+    "externalWorker": "stopped",
+    "installedVersionCode": 84,
+    "installedVersionName": "0.2.84",
+    "lastUpdateTime": "2026-09-18 07:22:44",
+    "readAloudTmuxSessionPresent": false
+  },
+  "preservation": {
+    "appDataCleared": false,
+    "oldClipsDeleted": false
+  },
+  "remainingAcceptance": "User-operated Render/Play must prove real-device model load, synthesis, and audible playback.",
+  "repair": {
+    "dependency": "com.google.ai.edge.litert:litert:2.1.6",
+    "linkageGuard": "LinkageError converted to IOException",
+    "versionCode": 84,
+    "versionName": "0.2.84"
+  },
+  "schema": "home-center-linkage-crash-repair-v1"
+}

@@ -1,0 +1,56 @@
+{
+  "antagonismSha256": "ef3dc1a00847c7453a71d497aade06c2c081566f22afc8694567d83f1260230c",
+  "commission": "Execute the confirmed 12-step Organ game-development bootstrap plan beginning with the Drive human retrieval map, exact Fortress artifact preservation, clean Comfy recovery, and bounded Cauldron classification.",
+  "commissionSha256": "8be5641fbf8f753d33ecc80f5d7d51a2da82aa66c519000a78480a1b5deff556",
+  "createdAtEpoch": 1789768116,
+  "directive": "PLAN_ALLOWED",
+  "durableMemoryEntriesWritten": 0,
+  "externalReviewGateSatisfied": true,
+  "findings": [],
+  "independentReviewPass": true,
+  "jarSelectionRationale": "Mission fidelity, exact source identity, minimal mutation, bounded recovery, and cost-safe connector behavior are the material risks.",
+  "judgmentJarApplied": [
+    "Mission Boundary - the slice preserves the confirmed Drive map, exact artifact, clean Comfy owner, manual fallback, and explicit exclusions.",
+    "Repository Truth and Evidence - stable IDs, exact hashes, readback, and state separation prevent source presence from impersonating runtime proof.",
+    "Change Discipline - the first slice is limited to one document, one exact upload, bounded recovery checks, and no repository code mutation.",
+    "Failure Recovery - the plan converts missing source or connector failure into typed recovery state without retry storms or lane substitution.",
+    "Daemon Persistence and Connector Backoff - idempotent request identity and material-change retries protect cost and prevent duplicate side effects."
+  ],
+  "legacyWireModeNote": "judgment_jar_emulation is retained as the stable wire identifier for primary ChatGPT Judgment-Jar Venice; it is not fallback semantics.",
+  "model": null,
+  "ollama": null,
+  "planPermissionGranted": true,
+  "planSha256": "0f5c0fba2cb36846bf7197fe9e6a217302ef65d8686edf1342083d66e1dd4882",
+  "repo": "/storage/emulated/0/Documents/GodotProjects/home-center",
+  "researchSha256": "a0bb55f1701072f3371166460336ce1cdb7f8cad5265247d1720199e5df193fd",
+  "reviewText": "VERDICT: PASS\nDIRECTIVE: PLAN_ALLOWED\nJAR: Mission Boundary - the slice preserves the confirmed Drive map, exact artifact, clean Comfy owner, manual fallback, and explicit exclusions.\nJAR: Repository Truth and Evidence - stable IDs, exact hashes, readback, and state separation prevent source presence from impersonating runtime proof.\nJAR: Change Discipline - the first slice is limited to one document, one exact upload, bounded recovery checks, and no repository code mutation.\nJAR: Failure Recovery - the plan converts missing source or connector failure into typed recovery state without retry storms or lane substitution.\nJAR: Daemon Persistence and Connector Backoff - idempotent request identity and material-change retries protect cost and prevent duplicate side effects.\nNOTE: PLAN_ALLOWED for the bounded first slice only; any source-owner contradiction, hash mismatch, quarantine crossing, or changed mutation boundary requires replanning before continuation.\n",
+  "reviewer": "chatgpt-venice-judgment-jar",
+  "reviewerMode": "judgment_jar_emulation",
+  "reviewerPrecedentSha256": "e8e0f72da83aedfd636cbb1392b20332d5362648ff7be540c1307f2ab7931789",
+  "reviewerSemantics": "primary-judgment-jar",
+  "schema": "venice-plan-review-v2-judgment-jar-primary",
+  "selectedJudgmentJars": [
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/.continue/rules/00-judgement-jar-mission-boundary.md",
+      "sha256": "245e34c3368cae5bc71d2d99fa1737b66ff5c880c6ec5c586445d97f1af0ec7f"
+    },
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/.continue/rules/20-judgement-jar-repository-truth.md",
+      "sha256": "cea3a81fa5be7d6a8c7e314d6d18217bcd7a70bafca829f9b9abccdb8e0da5f0"
+    },
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/.continue/rules/30-judgement-jar-change-discipline.md",
+      "sha256": "fd6a361aa6b1576050ea653e75ce9f8c58f057c6381ed54f52c7ad3361a6073d"
+    },
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/.continue/rules/40-judgement-jar-failure-recovery.md",
+      "sha256": "fe64f821668c2b385a8c9a4de6fc711ebdcbaae5b4ce9783688489d84c44030c"
+    },
+    {
+      "path": "/storage/emulated/0/Documents/GodotProjects/home-center/.continue/rules/80-judgement-jar-daemon-backoff-persistence.md",
+      "sha256": "ac1332379a8d40d2c0ef5388879aaf2fdc881f5c11e90bb1e63c40869bdc4701"
+    }
+  ],
+  "veniceReviewGateSatisfied": true,
+  "verdict": "PASS"
+}

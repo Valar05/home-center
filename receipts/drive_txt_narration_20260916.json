@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "feature": "Google Drive plain-text narration",
+  "appVersion": "0.2.62",
+  "fileObserved": "Courterier.txt",
+  "folderObserved": "Gutenburg",
+  "mimeType": "text/plain",
+  "compiledSectionCount": 1870,
+  "queuedRequestsObserved": 307,
+  "completedSectionReceiptsObserved": 9,
+  "workerStatus": "home-center-pocket-tts running",
+  "acceptedEvidence": [
+    "installed UI showed [TXT] Courterier.txt",
+    "installed UI showed [Folder] Gutenburg",
+    "Render changed the real file from 1 placeholder section to 1870 compiled sections",
+    "Pocket TTS completion receipts appeared while Home Center was backgrounded",
+    "targeted regression passed",
+    "assembleDebug passed",
+    "APK install succeeded"
+  ],
+  "limitations": [
+    "Full 1870-section render remains in progress; final combined WAV is not yet complete."
+  ],
+  "retrospective": {
+    "wastedTime": "Initial foreground tap was interrupted by the notification shade; fresh bounds and status-bar collapse recovered.",
+    "wastedTokens": "Exact local Codex token delta unavailable, so no par update.",
+    "weakestSoundnessClause": "Full-book completion is pending because the selected TXT contains 1870 sections.",
+    "improvement": "Preserve MIME type at selection and test the actual Drive media path before synthesis.",
+    "frontierClassification": "FRONTIER_EXPANSION"
+  }
+}

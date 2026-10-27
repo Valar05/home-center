@@ -1,0 +1,64 @@
+{
+  "changes": {
+    "app/build.gradle": {
+      "afterSha256": "3a74c29ae4abe2d618b1cdf9058d43847f131c24effb25cc41722f8cb0a8d718",
+      "beforeSha256": "da1890f3cc4ca4ef949202b42c74ffbab9792a957de2a2b58d3c83746af0cb41"
+    },
+    "app/src/main/assets/pockettts/manifest.json": {
+      "afterSha256": "e7e1121abdc4abc264b930ab2fc8ba5ae1cefc362837626168b50aa91b481c3b"
+    },
+    "app/src/main/java/com/dclar/homecenter/GoogleDocAudioLibrary.java": {
+      "afterSha256": "917848d832e3cd8ed37b828847ff7617676f623638e043fb7ad6ddd5f0e874bc",
+      "beforeSha256": "4d8dda687e66d00899ce820757729774e85c151f999d460cf282d79fe18127c6"
+    },
+    "app/src/main/java/com/dclar/homecenter/MainActivity.java": {
+      "afterSha256": "360edfcce4987fbd7d95b790b34649e059377c0774b4a819bc8d2a4a930e3aa4",
+      "beforeSha256": "3b8e7ceeb623b69ee4125e7dab03d5483d3e1be5006e96f697122ecb3cc0ab5b"
+    },
+    "app/src/main/java/com/dclar/homecenter/NarrationForegroundService.java": {
+      "afterSha256": "8111d2914a6c3dc3df5faaecab59b85c291eee36ffe1d106f6a78e6fd3048c1b",
+      "beforeSha256": "f19ee59b9201e56fb26b7f6403da608b42048646ffea6864ab5a5097872cb731"
+    },
+    "app/src/main/java/com/dclar/homecenter/PocketTtsAssets.kt": {
+      "afterSha256": "21357bf7245962b11c655337557607ee919ce60cb33d98ae2bf129be1e6857f2"
+    },
+    "app/src/main/java/com/dclar/homecenter/PocketTtsNativeRenderer.kt": {
+      "afterSha256": "1a8046c2b7708d039b89f6e523d7e4bb0f87a10c425a0f9ab1437182dc2b2c7a"
+    },
+    "app/src/main/java/com/dclar/homecenter/PocketTtsSynthesizer.kt": {
+      "afterSha256": "8023cba9e7c484d4326c85e3164aa84860efd987b91a54174acae298d045c0b6"
+    },
+    "app/src/main/java/com/dclar/homecenter/SpTokenizer.kt": {
+      "afterSha256": "528fbfe241ab0691b4d5d409a630e0c69bf917aacb91cdc9df237313661c14dc"
+    },
+    "app/src/main/java/com/dclar/homecenter/VeniceCloseMicFilter.kt": {
+      "afterSha256": "76bf8b655ae3ef249a935644c3d27a7b243943737010f7cb42c22e6f7c3ad988"
+    },
+    "app/src/test/java/com/dclar/homecenter/VeniceCloseMicFilterTest.kt": {
+      "afterSha256": "3b89c246dda89f411147535799079bcf72d160297b8165fd2103e1e1b3a826a3"
+    },
+    "build.gradle": {
+      "afterSha256": "3f7e954e4a633a767c8472443f7f07981ac7b95772d68c6def4022b40f7d2c13",
+      "beforeSha256": "62731638059dbd7334391f7b6f24c0d27dc7fce9731752f2c99a299f7cf5cd3e"
+    },
+    "docs/THIRD_PARTY_POCKET_TTS_NATIVE.md": {
+      "afterSha256": "571ee827f65f3cc9873c20cae3fc57a7f89e3bc92f37550535aa1e97393b35d6"
+    },
+    "tools/home_center_regression_tests.py": {
+      "afterSha256": "3a6ff00eac85e33612687bc6168572ab9a7a1a80a64c881321bb1586a9607b81"
+    },
+    "tools/pocket_tts_native_contract_test.py": {
+      "afterSha256": "465f53087112698122f9c144ade3ba45a6278c2521e9433cdc045ad6bab2cc66"
+    }
+  },
+  "commission": "Android-owned native Pocket TTS Vera renderer",
+  "createdAtEpoch": 1789730223,
+  "finalApk": {
+    "bytes": 217153920,
+    "installedAt": "2026-09-18 06:34:55",
+    "sha256": "64395e37abed3fa732709d81538fd4ebab1c8f943759b5ef10d2e2b00c25a250",
+    "versionCode": 83
+  },
+  "finalizedAtEpoch": 1789731502,
+  "schema": "home-center-controlled-edit-journal-v1"
+}

@@ -1,0 +1,120 @@
+{
+  "acceptanceCriteria": [
+    "Exactly anna, vera, fantine, mary, and eve are present; alba is excluded.",
+    "All voices speak identical normalized audition text.",
+    "Every WAV passes the production v2 PCM, duration, clipping, EOS and corruption-tail contract.",
+    "Every delivered WAV matches its local artifact SHA-256 and all five WAV hashes are distinct.",
+    "Pinned model source, revision, CC-BY-4.0 attribution, embedding hash, generator version and metrics are recorded.",
+    "Android MediaStore exposes every WAV and manifest under the final Download folder.",
+    "Home Center reader settings, cache identity, book audio and runtime code are not changed by this preview slice."
+  ],
+  "artifacts": [
+    {
+      "artifactSha256": "516379df04a4612e00f3bc1435532dc96770da9362431b82c632da3cb33f48bf",
+      "durationSeconds": 6.32,
+      "embeddingSha256": "5ea82f78db006c9fd34e32ddd5aae82674b5b32646097977436458d00af80dfa",
+      "embeddingSource": "hf://kyutai/pocket-tts-without-voice-cloning/languages/english/embeddings/anna.safetensors@e041936c75475d350b405bc870bcf7c22da4e9e6",
+      "output": "01-anna-female-reader-preview.wav",
+      "realTimeFactor": 0.773729,
+      "renderSeconds": 4.889967,
+      "voiceId": "anna"
+    },
+    {
+      "artifactSha256": "55f102a9888843f84844aaad84d626e704703aaaeb902b82df26cd543386df60",
+      "durationSeconds": 6.32,
+      "embeddingSha256": "4bf50ddd957b5d218b264fdcf18efbbc7384d12da3eca98ca19b9e8dd6976acc",
+      "embeddingSource": "hf://kyutai/pocket-tts-without-voice-cloning/languages/english/embeddings/vera.safetensors@e041936c75475d350b405bc870bcf7c22da4e9e6",
+      "output": "02-vera-female-reader-preview.wav",
+      "realTimeFactor": 0.719272,
+      "renderSeconds": 4.545796,
+      "voiceId": "vera"
+    },
+    {
+      "artifactSha256": "2b47b1584a31012e0f0a221304a9129acf95d02110e129fe5725c0c370bd4322",
+      "durationSeconds": 6.16,
+      "embeddingSha256": "51a8a4355d7f912d4959e4b1918314fda85ad47eba0a33a1d78a4a505d3465f5",
+      "embeddingSource": "hf://kyutai/pocket-tts-without-voice-cloning/languages/english/embeddings/fantine.safetensors@e041936c75475d350b405bc870bcf7c22da4e9e6",
+      "output": "03-fantine-female-reader-preview.wav",
+      "realTimeFactor": 0.750078,
+      "renderSeconds": 4.620482,
+      "voiceId": "fantine"
+    },
+    {
+      "artifactSha256": "d0baec7951b2919164f6c41f840eb56c02f74391864f8c55de93eb511a97c9f8",
+      "durationSeconds": 6.16,
+      "embeddingSha256": "a8f2adf260cab966fe0a113d6b549d6efdeaa79de544ae0ff34b5b6a41445a59",
+      "embeddingSource": "hf://kyutai/pocket-tts-without-voice-cloning/languages/english/embeddings/mary.safetensors@e041936c75475d350b405bc870bcf7c22da4e9e6",
+      "output": "04-mary-female-reader-preview.wav",
+      "realTimeFactor": 0.732542,
+      "renderSeconds": 4.512459,
+      "voiceId": "mary"
+    },
+    {
+      "artifactSha256": "066b228a7e85ad42147080ccdaa353e3aa4681cc8746a2dc36e28206b0c26b11",
+      "durationSeconds": 6.24,
+      "embeddingSha256": "ea9c2faf862a6c9d2cb61910fdf02842ae56940382cc8c1000fdb1b43269692b",
+      "embeddingSource": "hf://kyutai/pocket-tts-without-voice-cloning/languages/english/embeddings/eve.safetensors@e041936c75475d350b405bc870bcf7c22da4e9e6",
+      "output": "05-eve-female-reader-preview.wav",
+      "realTimeFactor": 0.736253,
+      "renderSeconds": 4.59422,
+      "voiceId": "eve"
+    }
+  ],
+  "auditionText": "The room is quiet now, and the lamp is low. Settle in; we can read one page at a time.",
+  "auditionTextSha256": "cd695a413f71cdf5c6d234d357511714dc49d91cdba7ff94024ca8878b580737",
+  "capabilityState": "delivered",
+  "claim": "Five official built-in Pocket TTS audition previews are validated, provenance-bound, byte-identically delivered to Android Downloads, and indexed. No claim is made that any preview satisfies female or ASMR quality until the user listens.",
+  "createdAt": "2026-09-17T19:13:23-05:00",
+  "deliveredDirectory": "/storage/emulated/0/Download/HomeCenter/voice-previews/2026-09-17-built-in-female-v1",
+  "deterministicChecks": [
+    {
+      "command": "PocketTtsEngine.render plus validate_receipt for each voice",
+      "result": "PASS; five accepted sequential renders"
+    },
+    {
+      "command": "Distinct artifact SHA-256 set",
+      "result": "PASS; 5 of 5 distinct"
+    },
+    {
+      "command": "doctor_wav on delivered files",
+      "result": "PASS; five PCM16 mono 24kHz artifacts accepted"
+    },
+    {
+      "command": "Local versus delivered SHA-256 comparison",
+      "result": "PASS; byte-identical"
+    },
+    {
+      "command": "Android MediaStore content query",
+      "result": "PASS; five WAVs, five receipts and manifest indexed"
+    }
+  ],
+  "failurePaths": [
+    "Missing/gated embedding fails generation before publication.",
+    "Any invalid or corrupt WAV fails v2 validation before publication.",
+    "Any copy mismatch fails the delivered hash comparison.",
+    "Any missing media row fails Android visibility proof."
+  ],
+  "knownGap": "Female, intimate, close-mic and ASMR qualities are subjective and remain pending user listening; filenames and built-in ids are not acceptance evidence.",
+  "latestScreenshot": "/storage/emulated/0/Pictures/Screenshots/Screenshot_20260917-182635.png",
+  "latestScreenshotFinding": "Unrelated Infinite Brutality localhost failure screen; not used as voice-preview evidence.",
+  "localDirectory": "/storage/emulated/0/Documents/GodotProjects/home-center/generated/voice-previews/2026-09-17-built-in-female",
+  "manifestSha256": "77ebfcaabf888e3c857f2220553377c0039f635c3458b30bcbc0b8a16eb167cb",
+  "negativeControls": [
+    "alba absent",
+    "no voice cloning",
+    "no Cauldron",
+    "no parallel inference",
+    "no app source/settings/cache mutation",
+    "no book rerender",
+    "no screen operation"
+  ],
+  "planReceipt": "receipts/venice/2026-09-17-home-center-built-in-female-voice-preview-plan.json",
+  "planReceiptSha256": "cbd49df77b79d122f8d0aec4f5552ad1825a9b16fc68b2ef7dd4700d9ed57745",
+  "schema": "home-center-regnet-evidence-v1",
+  "source": {
+    "attribution": "Kyutai Pocket TTS and predefined voice embeddings.",
+    "license": "CC-BY-4.0",
+    "repo": "kyutai/pocket-tts-without-voice-cloning",
+    "revision": "e041936c75475d350b405bc870bcf7c22da4e9e6"
+  }
+}

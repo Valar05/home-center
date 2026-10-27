@@ -2,6 +2,7 @@ import groovy.json.JsonSlurper
 
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
 }
 
 if (file('google-services.json').exists()) {
@@ -40,14 +41,22 @@ android {
         applicationId 'com.dclar.homecenter'
         minSdk 26
         targetSdk 33
-        versionCode 63
-        versionName '0.2.59'
+        versionCode 85
+        versionName '0.2.85'
 
         buildConfigField 'String', 'GEMINI_API_KEY', "\"${geminiApiKey.replace('\\', '\\\\').replace('\"', '\\\"')}\""
         buildConfigField 'String', 'OPENAI_API_KEY', "\"${openAiApiKey.replace('\\', '\\\\').replace('\"', '\\"')}\""
         buildConfigField 'String', 'GEMINI_MODEL', "\"${geminiModel.replace('\\', '\\\\').replace('\"', '\\\"')}\""
         buildConfigField 'String', 'AGENT_GATEWAY_BASE_URL', "\"${agentGatewayBaseUrl.replace('\\', '\\\\').replace('\"', '\\"')}\""
     }
+
+    kotlinOptions { jvmTarget = '1.8' }
+    packaging {
+        jniLibs {
+            pickFirsts += ['**/libc++_shared.so', '**/libtensorflowlite_jni.so', '**/libtensorflowlite_gpu_jni.so']
+        }
+    }
+    androidResources { noCompress += ['tflite', 'bin', 'tsv'] }
 }
 
 dependencies {
@@ -55,6 +64,10 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-firestore'
     implementation 'com.google.android.gms:play-services-auth:20.7.0'
+    implementation('com.google.ai.edge.litert:litert:2.1.6') {
+        exclude group: 'com.google.android.play', module: 'ai-delivery'
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-runtime'
+    }
 
     testImplementation 'junit:junit:4.13.2'
 }

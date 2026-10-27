@@ -1,0 +1,19 @@
+{
+  "classificationReason": "No three-axis par is established because the required human audible production result has not yet been accepted; the bounded implemented/tested/deployed/callable claim is independently green.",
+  "concreteImprovement": "Generate mutation and regression replacement payloads as data structures with compile validation before execution, and teach the build wrapper to distinguish known unrelated gate failures from narration-lane failures without weakening either gate.",
+  "createdAtEpoch": 1789695801,
+  "frontierClassification": "INVALID",
+  "regnetPassReceipt": "/data/data/com.termux/files/home/.home-center/renee-qa/receipts/rqa-867a7423cce792c5a522.json",
+  "result": "Home Center 0.2.82 Vera Venice close-mic production wiring",
+  "schema": "home-center.three-axis-retrospective.v1",
+  "veniceStopReceipt": "receipts/venice/2026-09-17-home-center-vera-production-wiring-completion.json",
+  "wastedTime": [
+    "The first controlled mutation writer had two quoting defects and was repaired before production files changed.",
+    "The full build wrapper repeated a known unrelated Venice-memory regression before direct build/install continued."
+  ],
+  "wastedTokens": "Exact local Codex input/output/total token deltas are unavailable in this runtime, so no exact par history is updated.",
+  "weakestSoundnessClauses": [
+    "Human audible acceptance for 20k leagues.txt remains open.",
+    "The dirty worktree prevents an isolated commission-only Git diff; expected-before/current hashes and explicit truncation were used instead."
+  ]
+}

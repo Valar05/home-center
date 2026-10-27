@@ -1,0 +1,81 @@
+{
+  "acceptedEvidenceLane": "Newest user screenshot in /storage/emulated/0/Pictures/Screenshots for visible state; focused deterministic tests and build/install are guardrails; audible acceptance remains the user.",
+  "accessibilitySuccessEnvelope": "No timing, mode, cursor, or hidden backend burden. A fresh render reads Section 1, saved count advances automatically, Play becomes discoverable at two contiguous validated sections, and controls remain user-driven.",
+  "antagonism": "The screenshot could be dismissed as early timing, but Section 6 paired with 0/1652 proves a deterministic stale-cursor contradiction. Immediate import persistence is already present, so changing the service would add risk and duplicate ownership. A static string test alone could still lie; focused semantic source checks plus compile/build are required, while only a new user screenshot can turn the visual lane green.",
+  "causalPremortem": [
+    {
+      "assumption": "old saved currentIndex is not meaningful in a new empty namespace",
+      "edge": "profile/cache switch to visible cursor",
+      "falsifier": "source/test permits profile reset target other than zero",
+      "guard": "reset currentIndex, playbackTargetIndex, and offset together",
+      "silentNoOp": "new render starts at stale Section 6"
+    },
+    {
+      "assumption": "service nondeferred validated mark is durable before the observer refresh",
+      "edge": "validated import to visible progress",
+      "falsifier": "fresh manifest says downloaded > 0 while UI source projects zero",
+      "guard": "use one validated contiguous-count helper consistently for display and readiness",
+      "silentNoOp": "manifest has saved WAVs but UI remains 0/N"
+    },
+    {
+      "assumption": "two contiguous validated sections are the confirmed discoverability threshold",
+      "edge": "saved lead to Play visibility",
+      "falsifier": "one/disconnected section makes Play visible or two contiguous sections do not",
+      "guard": "button readiness calls the same contiguous-lead predicate",
+      "silentNoOp": "render advances but Play remains absent, or appears on a disconnected section"
+    },
+    {
+      "assumption": "user alone operates controls and judges sound",
+      "edge": "user interaction",
+      "falsifier": "any app launch/tap/screencap used as acceptance",
+      "guard": "install only; request newest user screenshot after build",
+      "silentNoOp": "agent foreground manipulation creates false acceptance"
+    },
+    {
+      "assumption": "Cauldron stays absent",
+      "edge": "backend boundary",
+      "falsifier": "diff introduces Cauldron narration reference",
+      "guard": "touch MainActivity and focused regression only",
+      "silentNoOp": "UI fix revives remote renderer"
+    }
+  ],
+  "classification": "repair of existing reader state projection, not a new renderer or progress system",
+  "commission": "Implement the exact confirmed five-clause Home Center visible-progress fix for 20k leagues.txt.",
+  "confirmation": "User explicitly confirmed the exact five-clause plan after the newest screenshot was inspected.",
+  "createdAt": "2026-09-17T18:02:00-05:00",
+  "currentCommand": "confirm",
+  "directive": "PLAN_ALLOWED",
+  "existingOwner": "MainActivity reader/controller state owns visible section/progress/button state; NarrationForegroundService and GoogleDocAudioLibrary already own immediate validated import persistence.",
+  "forbiddenStalePremise": "Backend progress, files, receipts, or passing tests prove the reader UI works; the screenshot is red until a fresh user screenshot shows the corrected controls.",
+  "highTreason": [
+    "claiming visible green from manifest/tests without a new user screenshot",
+    "operating or foregrounding the Android app",
+    "reintroducing Cauldron narration",
+    "using another document as the visible acceptance case",
+    "adding a parallel progress subsystem when existing owners suffice"
+  ],
+  "jarRationale": "These jars cover exact screenshot-bound mission scope, existing-owner reuse, minimal state mutation, restart/cache recovery, and prohibition on evidence laundering.",
+  "orderedPlan": [
+    "Reset currentIndex and playbackTargetIndex to zero when entering a new speech-profile/cache namespace.",
+    "Project visible saved progress from validated local cache state without allowing a later-section/zero-progress contradiction.",
+    "Expose Play only when two contiguous validated sections exist from the playback target, or every remaining section is available for a shorter document.",
+    "Add focused regression checks for all three state invariants while preserving local-only and existing service ownership.",
+    "Build/install through the project-native script, then leave screen operation and audible acceptance to the user; judge visual success only from the newest user screenshot."
+  ],
+  "repeatedPromptContract": [
+    "inspect the newest file in /storage/emulated/0/Pictures/Screenshots first",
+    "the user presses the buttons; no Android screen operation",
+    "20k leagues.txt must visibly progress and become playable",
+    "leave Cauldron removed from narration"
+  ],
+  "reviewerProvenance": "ChatGPT current worker, separate adversarial Judgment-Jar plan pass",
+  "schema": "venice-plan-review-v2-judgment-jar-primary",
+  "selectedJudgmentJars": [
+    "mission-boundary",
+    "repository-truth",
+    "change-discipline",
+    "failure-recovery",
+    "venice-review-gate"
+  ],
+  "verdict": "PASS"
+}

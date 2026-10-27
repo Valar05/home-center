@@ -1,0 +1,28 @@
+{
+  "schema": "home-center.firebase-restore.v1",
+  "createdAtEpoch": 1789605366,
+  "firebaseProject": "home-center-dclar",
+  "androidPackage": "com.dclar.homecenter",
+  "configPath": "app/google-services.json",
+  "configIgnoredByGit": true,
+  "generatedResources": [
+    "default_web_client_id",
+    "gcm_defaultSenderId",
+    "google_app_id",
+    "project_id"
+  ],
+  "build": "BUILD SUCCESSFUL",
+  "install": "Success",
+  "installedVersion": "0.2.60 (65)",
+  "apk": {
+    "path": "/storage/emulated/0/Download/HomeCenter-debug.apk",
+    "sha256": "1f2d84a48a9e6fb4e22eb274fd10cf392e10ca6fae31a0942cfbf724e2f03c86",
+    "bytes": 6819636
+  },
+  "installedUi": {
+    "title": "Narratable Docs",
+    "driveStatus": "40 narratable docs | Google Docs | date modified | Pocket TTS local",
+    "firebaseNotConfiguredAbsent": true
+  },
+  "foregroundNote": "Incoming phone call took focus after Firebase/Drive verification; screen automation stopped."
+}

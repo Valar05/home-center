@@ -17,12 +17,16 @@ log(){ printf '%s %s\n' "$(date '+%Y-%m-%dT%H:%M:%S%z')" "$*" >> "$LOG"; }
 # keeping Termux visibly alive and repeatedly presenting recovery surfaces.
 find_worker(){
   local root f
+  # The only valid cloud-polling worker is the Python relay. Never select
+  # functions/phone_hands_relay.js: that file is a Firebase/Command Center
+  # server module, not a standalone Termux worker.
   for root in \
     "/storage/emulated/0/Documents/GodotProjects/home-center" \
+    "/storage/emulated/0/Documents/GodotProjects/home-center-phone-hands" \
     "$HOME/home-center"; do
     [ -d "$root" ] || continue
-    f="$(find "$root" -maxdepth 5 -type f \( -iname '*phone*hands*.sh' -o -iname '*phone*hands*.js' -o -iname '*phone*worker*.sh' -o -iname '*phone*worker*.js' \) 2>/dev/null | grep -v 'phone_hands_watchdog.sh' | head -1)"
-    [ -n "$f" ] && { printf '%s\n' "$f"; return 0; }
+    f="$root/tools/android_phone_home_center_relay.py"
+    [ -f "$f" ] && { printf '%s\n' "$f"; return 0; }
   done
   return 1
 }
@@ -37,9 +41,8 @@ worker_alive(){
 start_worker(){
   local f="$1" pid
   case "$f" in
-    *.js) nohup node "$f" >>"$WORKER_LOG" 2>&1 & ;;
-    *.sh) nohup bash "$f" >>"$WORKER_LOG" 2>&1 & ;;
-    *) nohup "$f" >>"$WORKER_LOG" 2>&1 & ;;
+    *.py) nohup python "$f" >>"$WORKER_LOG" 2>&1 & ;;
+    *) log "DEGRADED refusing non-relay worker=$f"; return 1 ;;
   esac
   pid=$!
   printf '%s\n' "$pid" > "$PIDFILE"

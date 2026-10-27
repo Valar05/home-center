@@ -21,7 +21,9 @@ import java.util.Locale;
 
 final class GoogleDocAudioLibrary {
     static final int DEFAULT_SAMPLE_RATE = 24000;
-    private static final String PROVIDER = "Cartesia";
+    private static final String PROVIDER = "Pocket TTS";
+    private static final int SECTION_IMPORT_BATCH_SIZE = 32;
+    private static final String POCKET_TTS_RENDER_PLAN = "pocket-tts-render-plan.json";
 
     private final File root;
     private final File indexFile;
@@ -68,6 +70,8 @@ final class GoogleDocAudioLibrary {
                 JSONObject json = new JSONObject(new String(readAll(input), StandardCharsets.UTF_8));
                 if (!target.fileId.equals(json.optString("fileId", ""))) continue;
                 if (!target.textHash.equals(json.optString("textHash", ""))) continue;
+                String candidateProfileKey = json.optString("speechProfileKey", "default-cartesia");
+                if (target.speechProfileKey.startsWith("pocket-tts-") && !target.speechProfileKey.equals(candidateProfileKey)) continue;
                 int sectionCount = Math.max(1, json.optInt("sectionCount", target.sectionCount));
                 String candidateProfileJson = json.optJSONObject("speechProfile") == null ? "{}" : json.optJSONObject("speechProfile").toString();
                 if (!partialRenderProfilesCompatible(target.speechProfileJson, candidateProfileJson)) continue;
@@ -125,7 +129,7 @@ final class GoogleDocAudioLibrary {
                         json.optJSONObject("speechProfile") == null ? "{}" : json.optJSONObject("speechProfile").toString());
                 boolean complete = true;
                 for (int i = 0; i < sectionCount; i++) {
-                    if (!entry.isDownloaded(i)) {
+                    if (!entry.isDownloaded(json, i)) {
                         complete = false;
                         break;
                     }
@@ -140,6 +144,29 @@ final class GoogleDocAudioLibrary {
         if (children == null) return;
         for (File child : children) {
             if (child != null && child.isDirectory()) collectCompletedEntries(child, entries);
+        }
+    }
+
+    Entry openExisting(File dir) throws IOException {
+        if (dir == null) throw new IOException("Pocket TTS entry directory is missing");
+        File manifestFile = new File(dir, "manifest.json");
+        if (!manifestFile.isFile()) throw new IOException("Pocket TTS manifest is missing");
+        try (FileInputStream input = new FileInputStream(manifestFile)) {
+            JSONObject json = new JSONObject(new String(readAll(input), StandardCharsets.UTF_8));
+            return new Entry(
+                    dir,
+                    json.optString("fileId", ""),
+                    json.optString("title", "Google Doc"),
+                    json.optString("modifiedTime", ""),
+                    json.optString("textHash", ""),
+                    json.optInt("charCount", 0),
+                    Math.max(1, json.optInt("sectionCount", 1)),
+                    json.optString("speechProfileKey", "default-cartesia"),
+                    json.optJSONObject("speechProfile") == null ? "{}" : json.optJSONObject("speechProfile").toString());
+        } catch (IOException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new IOException("Pocket TTS manifest is invalid: " + safe(ex.getMessage()), ex);
         }
     }
 
@@ -246,6 +273,8 @@ final class GoogleDocAudioLibrary {
         final int sectionCount;
         final String speechProfileKey;
         final String speechProfileJson;
+        private JSONObject deferredManifest;
+        private int deferredSectionMarks;
 
         Entry(File dir, String fileId, String title, String modifiedTime, String textHash, int charCount, int sectionCount, String speechProfileKey, String speechProfileJson) {
             this.dir = dir;
@@ -324,6 +353,7 @@ final class GoogleDocAudioLibrary {
 
         synchronized JSONObject readManifest() {
             try {
+                if (deferredManifest != null) return deferredManifest;
                 if (!manifestFile.exists()) return new JSONObject();
                 try (FileInputStream input = new FileInputStream(manifestFile)) {
                     return new JSONObject(new String(readAll(input), StandardCharsets.UTF_8));
@@ -371,14 +401,29 @@ final class GoogleDocAudioLibrary {
         }
 
         int downloadedFileCount() {
+            JSONObject manifest = readManifest();
             int count = 0;
-            for (int i = 0; i < sectionCount; i++) if (isDownloaded(i)) count += 1;
+            for (int i = 0; i < sectionCount; i++) if (isDownloaded(manifest, i)) count += 1;
             return count;
         }
 
         boolean isDownloaded(int index) {
+            return isDownloaded(readManifest(), index);
+        }
+
+        boolean isDownloaded(JSONObject manifest, int index) {
             File file = sectionFile(index);
-            return file.exists() && file.length() > 44L;
+            if (!file.exists() || file.length() <= 44L) return false;
+            if (!speechProfileKey.startsWith("pocket-tts-")) return true;
+            try {
+                JSONArray sections = manifest == null ? null : manifest.optJSONArray("sections");
+                JSONObject section = sections == null ? null : sections.optJSONObject(index);
+                return section != null && "downloaded".equals(section.optString("audioStatus"))
+                        && PocketTtsNativeRenderer.acceptsContract(section.optString("validationContract"))
+                        && !section.optString("artifactSha256", "").isEmpty();
+            } catch (Exception ex) {
+                return false;
+            }
         }
 
         File sectionFile(int index) {
@@ -395,6 +440,52 @@ final class GoogleDocAudioLibrary {
 
         File samplePartFile() {
             return new File(dir, "sample.wav.part");
+        }
+
+        File renderPlanFile() {
+            return new File(dir, POCKET_TTS_RENDER_PLAN);
+        }
+
+        synchronized File writePocketTtsRenderPlan(List<String> speechTexts, List<String> requestIds) throws IOException {
+            if (speechTexts == null || requestIds == null || speechTexts.size() != sectionCount || requestIds.size() != sectionCount) {
+                throw new IOException("Pocket TTS render plan does not match the document section count");
+            }
+            try {
+                JSONArray planned = new JSONArray();
+                for (int i = 0; i < sectionCount; i++) {
+                    planned.put(new JSONObject()
+                            .put("index", i)
+                            .put("requestId", requestIds.get(i) == null ? "" : requestIds.get(i))
+                            .put("text", speechTexts.get(i) == null ? "" : speechTexts.get(i)));
+                }
+                File plan = renderPlanFile();
+                JSONObject payload = new JSONObject()
+                        .put("schema", "home-center-pocket-tts-render-plan-v1")
+                        .put("contractVersion", PocketTtsNativeRenderer.CONTRACT_VERSION)
+                        .put("entryDirectory", dir.getAbsolutePath())
+                        .put("fileId", fileId)
+                        .put("title", title)
+                        .put("textHash", textHash)
+                        .put("sectionCount", sectionCount)
+                        .put("createdAt", now())
+                        .put("sections", planned);
+                writeTextAtomic(plan, payload.toString());
+                JSONObject manifest = readManifest();
+                manifest.put("rendering", true)
+                        .put("renderIntent", new JSONObject()
+                                .put("status", "accepted")
+                                .put("planPath", plan.getAbsolutePath())
+                                .put("cloudside", true)
+                                .put("persistAudioRegardlessOfPlayback", true)
+                                .put("requestedAt", now()))
+                        .put("updatedAt", now());
+                writeManifest(manifest);
+                return plan;
+            } catch (IOException ex) {
+                throw ex;
+            } catch (Exception ex) {
+                throw new IOException("could not persist Pocket TTS render plan: " + safe(ex.getMessage()), ex);
+            }
         }
 
         boolean isSampleDownloaded() {
@@ -515,15 +606,63 @@ final class GoogleDocAudioLibrary {
             }
         }
 
+        synchronized void markRenderProgress(int sectionIndex) {
+            try {
+                JSONObject manifest = readManifest();
+                JSONObject intent = manifest.optJSONObject("renderIntent");
+                if (intent == null) intent = new JSONObject();
+                intent.put("status", "running")
+                        .put("nextSection", Math.max(0, sectionIndex))
+                        .put("updatedAt", now());
+                manifest.put("rendering", true).put("renderIntent", intent).put("updatedAt", now());
+                writeManifest(manifest);
+            } catch (Exception ex) {
+                LocalLog.warn("doc_audio", "render_progress_mark_failed " + safe(ex.getMessage()));
+            }
+        }
+
         synchronized void markRenderComplete() {
             try {
                 JSONObject manifest = readManifest();
+                JSONObject intent = manifest.optJSONObject("renderIntent");
+                if (intent == null) intent = new JSONObject();
+                intent.put("status", "complete").put("completedAt", now());
                 manifest.put("rendering", false)
+                        .put("renderIntent", intent)
                         .put("renderedAt", now())
                         .put("updatedAt", now());
                 writeManifest(manifest);
             } catch (Exception ex) {
                 LocalLog.warn("doc_audio", "render_complete_mark_failed " + safe(ex.getMessage()));
+            }
+        }
+
+        synchronized void markRenderFailed(int sectionIndex, String detail) {
+            try {
+                JSONObject manifest = readManifest();
+                JSONObject intent = manifest.optJSONObject("renderIntent");
+                if (intent == null) intent = new JSONObject();
+                intent.put("status", "failed")
+                        .put("failedSection", Math.max(0, sectionIndex))
+                        .put("error", safe(detail))
+                        .put("updatedAt", now());
+                manifest.put("rendering", false).put("renderIntent", intent).put("updatedAt", now());
+                writeManifest(manifest);
+            } catch (Exception ex) {
+                LocalLog.warn("doc_audio", "render_failure_mark_failed " + safe(ex.getMessage()));
+            }
+        }
+
+        synchronized void markRenderStopped() {
+            try {
+                JSONObject manifest = readManifest();
+                JSONObject intent = manifest.optJSONObject("renderIntent");
+                if (intent == null) intent = new JSONObject();
+                intent.put("status", "stopped").put("stoppedAt", now());
+                manifest.put("rendering", false).put("renderIntent", intent).put("updatedAt", now());
+                writeManifest(manifest);
+            } catch (Exception ex) {
+                LocalLog.warn("doc_audio", "render_stop_mark_failed " + safe(ex.getMessage()));
             }
         }
 
@@ -544,6 +683,62 @@ final class GoogleDocAudioLibrary {
             LocalLog.info("doc_audio", "doc_audio_section_downloaded fileId=" + fileId + " textHash=" + textHash + " section=" + index + " pcmBytes=" + pcmBytes + " characterId=" + safe(characterId) + " requestedVoice=" + safe(voiceAlias) + " resolvedVoice=" + safe(resolvedVoiceName) + " resolvedVoiceId=" + safe(resolvedVoiceId));
         }
 
+        synchronized void markDownloadedDeferred(int index, long pcmBytes, int sampleRate, String characterId, String voiceAlias, String acousticDirection, String resolvedVoiceName, String resolvedVoiceId) {
+            mark(index, "downloaded", pcmBytes, sampleRate, "", characterId, voiceAlias, acousticDirection, resolvedVoiceName, resolvedVoiceId, true);
+        }
+
+        synchronized void markDownloadedValidated(int index, long pcmBytes, int sampleRate, String artifactSha256, double realTimeFactor, boolean deferWrite) {
+            mark(index, "downloaded", pcmBytes, sampleRate, "", "narrator", "Pocket TTS", "local", "Pocket TTS", "local-pocket-tts", deferWrite);
+            try {
+                JSONObject manifest = readManifest();
+                JSONArray sections = manifest.optJSONArray("sections");
+                JSONObject section = sectionAt(sections == null ? new JSONArray() : sections, index);
+                section.put("validationContract", PocketTtsNativeRenderer.CONTRACT_VERSION)
+                        .put("artifactSha256", artifactSha256 == null ? "" : artifactSha256)
+                        .put("renderRealTimeFactor", Math.max(0.0, realTimeFactor));
+                if (sections == null) sections = new JSONArray();
+                sections.put(index, section); manifest.put("sections", sections);
+                if (deferWrite) deferredManifest = manifest; else writeManifest(manifest);
+            } catch (Exception ex) {
+                LocalLog.warn("doc_audio", "validated_section_mark_failed " + safe(ex.getMessage()));
+            }
+        }
+
+        synchronized List<Double> recentProductionRatios() {
+            List<Double> ratios = new ArrayList<>();
+            JSONArray sections = readManifest().optJSONArray("sections");
+            if (sections == null) return ratios;
+            for (int i = Math.max(0, sections.length() - 8); i < sections.length(); i++) {
+                JSONObject section = sections.optJSONObject(i);
+                double rtf = section == null ? 0.0 : section.optDouble("renderRealTimeFactor", 0.0);
+                if (Double.isFinite(rtf) && rtf > 0.0) ratios.add(1.0 / rtf);
+            }
+            return ratios;
+        }
+
+        synchronized double estimatedRemainingAudioSeconds(int startIndex) {
+            JSONArray sections = readManifest().optJSONArray("sections");
+            if (sections == null) return Math.max(1, sectionCount - startIndex) * 12.0;
+            double known = 0.0; int count = 0;
+            for (int i = 0; i < sections.length(); i++) {
+                JSONObject section = sections.optJSONObject(i);
+                long pcmBytes = section == null ? 0L : section.optLong("pcmBytes", 0L);
+                int rate = section == null ? DEFAULT_SAMPLE_RATE : section.optInt("sampleRate", DEFAULT_SAMPLE_RATE);
+                if (pcmBytes > 0L && rate > 0) { known += pcmBytes / (2.0 * rate); count++; }
+            }
+            double average = count > 0 ? known / count : 12.0;
+            return Math.max(1, sectionCount - startIndex) * average;
+        }
+
+        synchronized void flushDeferredSectionMarks() {
+            if (deferredManifest == null) return;
+            try {
+                writeManifest(deferredManifest);
+            } catch (Exception ex) {
+                LocalLog.warn("doc_audio", "deferred_section_flush_failed " + safe(ex.getMessage()));
+            }
+        }
+
         synchronized void markFailed(int index, String detail) {
             mark(index, "failed", 0L, DEFAULT_SAMPLE_RATE, detail);
         }
@@ -557,11 +752,16 @@ final class GoogleDocAudioLibrary {
         }
 
         private void mark(int index, String status, long pcmBytes, int sampleRate, String error, String characterId, String voiceAlias, String acousticDirection, String resolvedVoiceName, String resolvedVoiceId) {
+            mark(index, status, pcmBytes, sampleRate, error, characterId, voiceAlias, acousticDirection, resolvedVoiceName, resolvedVoiceId, false);
+        }
+
+        private void mark(int index, String status, long pcmBytes, int sampleRate, String error, String characterId, String voiceAlias, String acousticDirection, String resolvedVoiceName, String resolvedVoiceId, boolean deferWrite) {
             try {
                 JSONObject manifest = readManifest();
                 JSONArray sections = manifest.optJSONArray("sections");
                 if (sections == null) sections = new JSONArray();
                 JSONObject section = sectionAt(sections, index);
+                boolean wasDownloaded = "downloaded".equals(section.optString("audioStatus", ""));
                 section.put("index", index)
                         .put("label", section.optString("label", "section " + (index + 1)))
                         .put("capstone", section.optString("capstone", "body"))
@@ -579,10 +779,22 @@ final class GoogleDocAudioLibrary {
                 if (acousticDirection != null && !acousticDirection.trim().isEmpty()) section.put("acousticDirection", safe(acousticDirection));
                 if (error != null && !error.trim().isEmpty()) section.put("error", safe(error));
                 sections.put(index, section);
+                int downloaded = manifest.has("downloadedSections")
+                        ? manifest.optInt("downloadedSections", 0)
+                        : downloadedCount(sections);
+                boolean isDownloaded = "downloaded".equals(status);
+                if (!wasDownloaded && isDownloaded) downloaded += 1;
+                else if (wasDownloaded && !isDownloaded) downloaded = Math.max(0, downloaded - 1);
                 manifest.put("sections", sections)
-                        .put("downloadedSections", downloadedCount(sections))
+                        .put("downloadedSections", downloaded)
                         .put("updatedAt", now());
-                writeManifest(manifest);
+                if (deferWrite) {
+                    deferredManifest = manifest;
+                    deferredSectionMarks += 1;
+                    if (deferredSectionMarks >= SECTION_IMPORT_BATCH_SIZE) writeManifest(manifest);
+                } else {
+                    writeManifest(manifest);
+                }
             } catch (Exception ex) {
                 LocalLog.warn("doc_audio", "section_mark_failed " + safe(ex.getMessage()));
             }
@@ -590,6 +802,10 @@ final class GoogleDocAudioLibrary {
 
         private void writeManifest(JSONObject manifest) throws Exception {
             writeTextAtomic(manifestFile, manifest.toString(2));
+            if (manifest == deferredManifest) {
+                deferredManifest = null;
+                deferredSectionMarks = 0;
+            }
         }
 
         JSONObject toIndexJson() throws Exception {

@@ -1,7 +1,8 @@
 #!/system/bin/sh
 set -eu
 
-ROOT="${HC_PHONE_REPO:-/storage/emulated/0/Documents/GodotProjects/home-center-phone-hands}"
+SCRIPT_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+ROOT="${HC_PHONE_REPO:-$SCRIPT_ROOT}"
 STATE_DIR="${HC_PHONE_STATE_DIR:-$HOME/.local/state/home-center}"
 LOG="$STATE_DIR/phone-relay.log"
 PIDFILE="$STATE_DIR/phone-relay.pid"
