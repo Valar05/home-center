@@ -1,0 +1,178 @@
+{
+  "schema": "ritsu.sticky.contingency-plan.v1",
+  "date": "2026-10-25",
+  "mission": "Produce a data-preserving, installable, signed Ritsu Control APK with Sticky Snippets; prove app ID/signer/version compatibility and retain the existing phone app's data.",
+  "authority": "https://docs.google.com/document/d/1wntegQjw7238dmGqbvs9TQmlsp4uXdXw7_wPciNx6sI/edit",
+  "nonnegotiable": [
+    "Never uninstall or clear data as upgrade workaround",
+    "Never modify owner's dirty GodotProjects/home-center checkout",
+    "Never log or publish raw signing keys",
+    "Never claim a distinct Android package inherits old app's AndroidKeyStore secrets",
+    "Cloud-first; no owner debugging known blockers",
+    "A preflight-only SUCCESS is NOT an installable APK"
+  ],
+  "presentEvidence": {
+    "source": "campaign/ritsu-local-tailnet-20261024",
+    "versionCode": 19,
+    "versionName": "0.18.0",
+    "targetPackage": "com.homecenter.ritsucontrol.phone",
+    "lastFullCompile": {
+      "run": "40204408112",
+      "result": "success",
+      "signed": false
+    },
+    "verifiedPhoneBootstrap": {
+      "sha": "89c76fb2b0c102b1853d2b45549557a258b882a6",
+      "receipt": "STICKY_PREFLIGHT=PASS",
+      "installableApk": false
+    },
+    "signingIdentityStatus": "unknown",
+    "installedPackageMetadataStatus": "unknown",
+    "installerCanPreserveOldPackageData": "unverified",
+    "fullCampaignStatus": "BLOCKED_NOT_COMPLETED"
+  },
+  "gates": [
+    {
+      "id": "preflight",
+      "required": "exact pinned Git SHA and repo-owned tests passed",
+      "status": "PASS_CLOUD"
+    },
+    {
+      "id": "cloud-compile",
+      "required": "tests/lint/release compile",
+      "status": "PASS_UNSIGNED"
+    },
+    {
+      "id": "signer-inventory",
+      "required": "matching installed Android cert and accessible durable private key",
+      "status": "UNKNOWN"
+    },
+    {
+      "id": "release",
+      "required": "GitHub signed build signature/version/hash/source receipts",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "delivery",
+      "required": "direct verified APK for user's Android Downloads",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "device-acceptance",
+      "required": "non-destructive installation, pairing/history/settings preserved, sticky typed/voice pass",
+      "status": "NOT_RUN"
+    }
+  ],
+  "branches": [
+    {
+      "id": "working-tree-conflict",
+      "detect": "git status reports dirty or owner checkout differs",
+      "recover": "Never fetch/merge/reset in owner working tree; create sparse isolated checkout pinned to SHA",
+      "responsibility": "Cloud/local automated; owner untouched",
+      "failClosed": "fail when isolated checkout is dirty/wrong remote"
+    },
+    {
+      "id": "git-lfs",
+      "detect": "Git LFS pointer missing / fetch 404",
+      "recover": "Disable LFS smudge only for this text/Android-only sparse checkout; verify all required Android assets separately",
+      "responsibility": "Cloud automated",
+      "failClosed": "stop if required binary missing"
+    },
+    {
+      "id": "missing-local-sdk",
+      "detect": "Termux Android compiler/Gradle absent",
+      "recover": "Use preexisting successful GitHub Actions SDK35 builder, no owner local build",
+      "responsibility": "Cloud automated",
+      "failClosed": "explain cloud quota/permission denial"
+    },
+    {
+      "id": "network-or-github-auth",
+      "detect": "Github fetch/dispatch denied or quota exhausted",
+      "recover": "Inspect authenticated runner status and credentials; retry bounded once with same intent; do not incur unauthorized paid resources",
+      "responsibility": "Cloud automated; only credentials/charges require owner approval",
+      "failClosed": "durable blocked receipt; preserve owner checkout"
+    },
+    {
+      "id": "source-test-lint",
+      "detect": "Gradle tests, Android build or lint fail",
+      "recover": "Fetch exact CI log, fix smallest scoped source/lint issue in branch, commit and retry bounded cloud job",
+      "responsibility": "Cloud automated",
+      "failClosed": "report exact failing task and source SHA"
+    },
+    {
+      "id": "signing-preflight",
+      "detect": "Durable signing key existence, matching fingerprint, installed app certificate unknown",
+      "recover": "Check authorized protected GitHub signer metadata, legacy build provenance and device package public metadata; match signature and package BEFORE build",
+      "responsibility": "Cloud investigation first; narrowly scoped device inspection if unavoidable",
+      "failClosed": "no installable upgrade claim until identity verified"
+    },
+    {
+      "id": "matching-key-available",
+      "detect": "Installed app package ID and public signer digest match safely retained key",
+      "recover": "Use protected durable GitHub signer; build sign verify package versionCode APK SHA source SHA; deliver direct APK",
+      "responsibility": "Cloud automated",
+      "failClosed": "withhold artifact on digest mismatch"
+    },
+    {
+      "id": "key-exists-on-authorized-device-only",
+      "detect": "Protected key found on authorized device but not cloud",
+      "recover": "Run narrow device signer operation or approved secure transfer without disclosing raw key, only with owner authorization",
+      "responsibility": "Agent-managed if authorized, else owner consent",
+      "failClosed": "do not export raw private key into chat/logs"
+    },
+    {
+      "id": "key-irrevocably-lost",
+      "detect": "Matching Android package cert has no accessible private key or valid lineage",
+      "recover": "In-place upgrade impossible; preserve installed app and choose new distinct signed package only with explicit consent, plan export/import or re-pair",
+      "responsibility": "Owner decides migration/new-install; agent implements alternative",
+      "failClosed": "no uninstall, no false automatic data transfer"
+    },
+    {
+      "id": "install-app-id-mismatch",
+      "detect": "Old and proposed Android applicationId differ",
+      "recover": "Do not call it an upgrade; side-by-side install with new app data and explicit migration support",
+      "responsibility": "Cloud can build safe package; owner accepts distinct identity",
+      "failClosed": "block takeover of old app's private storage"
+    },
+    {
+      "id": "version-regression",
+      "detect": "proposed versionCode is not greater than installed",
+      "recover": "Bump versionCode in source, rerun GitHub build and signer proofs",
+      "responsibility": "Cloud automated",
+      "failClosed": "never downgrade/clear existing app"
+    },
+    {
+      "id": "install-failure",
+      "detect": "Android package manager reports signature mismatch, parse error or rejection",
+      "recover": "No uninstall/reset; compare package metadata, signers, min/target SDK, output digest; rebuild only if compatible",
+      "responsibility": "Cloud investigate; owner device acceptance required",
+      "failClosed": "keep old app operational"
+    },
+    {
+      "id": "migration-backup",
+      "detect": "Fresh package cannot read prior AndroidKeyStore-sealed secrets",
+      "recover": "Before proposed migration verify supported opt-in export/import; never transfer private keystore material or assume data moved",
+      "responsibility": "Agent implements, owner consents and approves backup",
+      "failClosed": "retain old app and mark transfer unsupported"
+    },
+    {
+      "id": "runtime-acceptance",
+      "detect": "APK installs but tab sticky, import/export, voice, SSE, outbox or pairing fails",
+      "recover": "Preserve prior working install and logs, repair smallest code surface and repeat signer-consistent release; human final validation",
+      "responsibility": "Cloud tests + owner physical checks",
+      "failClosed": "no DONE claim from green CI"
+    },
+    {
+      "id": "partial-operation",
+      "detect": "GitHub dispatch succeeds but response ambiguous or artifact missing",
+      "recover": "Reconcile job/run ID, source SHA and artifact hash; avoid duplicated dispatch; resume verified stage only",
+      "responsibility": "Cloud automated",
+      "failClosed": "record uncertainty and skip speculative retry"
+    }
+  ],
+  "terminalOutcomes": {
+    "COMPLETE": "direct signed APK provided, matching installed package cert and higher version, device data preserved by observed update and owner accepts behavior",
+    "BLOCKED": "operator exhausts allowed recovery paths and names physically missing signer/credential/device approval; prior installation and data kept intact; no preflight presented as fulfillment",
+    "ALTERNATIVE_WITH_CONSENT": "new package signed with durable new key and intentionally separate storage; explicit user-approved migration/re-pair if supported; never called in-place upgrade"
+  }
+}

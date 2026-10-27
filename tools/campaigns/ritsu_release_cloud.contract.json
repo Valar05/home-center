@@ -1,0 +1,22 @@
+{
+  "schema": "ritsu.cloud-release.v1",
+  "documentation": "https://docs.google.com/document/d/1wntegQjw7238dmGqbvs9TQmlsp4uXdXw7_wPciNx6sI/edit",
+  "workflow": ".github/workflows/build.yml",
+  "entrypoint": "tools/campaigns/ritsu_release_cloud.sh",
+  "testEntrypoint": "tools/campaigns/ritsu_release_cloud.test.sh",
+  "packageId": "com.homecenter.ritsucontrol.phone",
+  "signingStrategy": "Durable privately retained signer in GitHub Actions protected settings with locked certificate digest.",
+  "releaseIntentDefault": "upgrade",
+  "upgradeRequirements": [
+    "exact installed package identity",
+    "matching current signing certificate",
+    "monotonically increasing versionCode"
+  ],
+  "newInstallNotice": "Separate package identities do not automatically carry Android private preferences or Keystore-sealed tokens.",
+  "outputs": [
+    "APK",
+    "SHA256 checksum",
+    "JSON receipt with source SHA, app identity and signing digest"
+  ],
+  "acceptance": "Physical device upgrade and preserved pairings and messages remain unverified until observed."
+}
