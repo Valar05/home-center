@@ -1,0 +1,141 @@
+name: Ritsu Control Android Voice and Insets Contract
+on:
+  pull_request:
+    paths:
+      - 'android/ritsu-control/**'
+      - '.github/workflows/ritsu-control-contract.yml'
+  push:
+    branches:
+      - 'feature/ritsu-command-bridge-scavenge-20261022'
+    paths:
+      - 'android/ritsu-control/**'
+      - '.github/workflows/ritsu-control-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-and-unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      # Ubuntu GitHub-hosted runners already include Android command-line tools.
+      # android-actions/setup-android@v3 tries to install the removed "tools"
+      # SDK package and fails before any Gradle source validation.
+      - name: Install Android SDK platform and accept licenses
+        run: |
+          test -n "$ANDROID_HOME"
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | sort -V | tail -1)"
+          test -n "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" --install 'platforms;android-35' 'build-tools;35.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+      - name: Pure-state tests and Android build
+        run: gradle -p android/ritsu-control :app:testDebugUnitTest :app:assembleDebug --no-daemon
+      - name: Stage C Android system speech privacy and permission contract
+        run: |
+          set -euo pipefail
+          MANIFEST=android/ritsu-control/app/src/main/AndroidManifest.xml
+          grep -q 'android.permission.RECORD_AUDIO' "$MANIFEST"
+          grep -q 'android.permission.FOREGROUND_SERVICE_MICROPHONE' "$MANIFEST"
+          grep -q 'android.permission.SYSTEM_ALERT_WINDOW' "$MANIFEST"
+          grep -q 'android.permission.BIND_QUICK_SETTINGS_TILE' "$MANIFEST"
+          grep -q 'android.permission.INTERNET' "$MANIFEST"
+          grep -q 'android:usesCleartextTraffic="false"' "$MANIFEST"
+          ! grep -q 'BOOT_COMPLETED' "$MANIFEST"
+          grep -Fq 'android:foregroundServiceType="specialUse|microphone"' "$MANIFEST"
+          grep -q 'Settings.canDrawOverlays' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'android.speech.RecognitionService' "$MANIFEST"
+          grep -q 'SpeechRecognizer.createSpeechRecognizer' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/SystemSpeechSession.java
+          grep -q 'InputType.TYPE_TEXT_FLAG_AUTO_CORRECT' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'ConversationLedger' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'ACTION_LISTEN' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'UtteranceAccumulator' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MicrophoneCapture.java
+          grep -q 'WAITING_FOR_HOME_CENTER' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/ConversationLedger.java
+          grep -q 'SpeechRecognizer.createSpeechRecognizer' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/SystemSpeechSession.java
+          ! grep -q 'EXTRA_AUDIO_SOURCE' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/SystemSpeechSession.java
+          grep -q 'ListeningPolicy.Event.PROVIDER_STARTED' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
+          grep -q 'mediaObservedInSession' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
+          grep -q 'WindowInsets.Type.ime' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'WindowInsets.Type.systemBars' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'SafeInsets.bottom' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'getWindow().setSoftInputMode' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'SpokenTurnBuffer' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
+          grep -q 'speechStarted' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/SystemSpeechSession.java
+          grep -q 'schedulePendingCommit' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
+          grep -q 'selectSpeechTiming' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'DEFAULT_PAUSE_MS = 5000' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/SpokenTurnBuffer.java
+          grep -q 'AndroidKeyStore' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuPairing.java
+          # Native owner sign-in must never embed reusable bearer
+          # credentials or require the old app/Termux approval code.
+          grep -q 'HomeCenterOAuth.begin' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'HomeCenterOAuth.complete' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'Intent.ACTION_VIEW' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          grep -q 'ritsucontrol' "$MANIFEST"
+          grep -q 'android.intent.category.BROWSABLE' "$MANIFEST"
+          grep -q 'android:usesCleartextTraffic="false"' "$MANIFEST"
+          grep -q 'code_challenge_method=S256' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterOAuth.java
+          grep -q '/oauth/userinfo' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterOAuth.java
+          grep -q 'MessageDigest.isEqual' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterOAuth.java
+          grep -q 'AndroidKeyStore' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterCloudPairing.java
+          grep -q 'oauthClientId' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterCloudPairing.java
+          python3 - <<'PY'
+          from pathlib import Path
+          app=Path('android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java').read_text()
+          oauth=Path('android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterOAuth.java').read_text()
+          login=app.split('private void pairHomeCenter()',1)[1].split('private void selectSpeechTiming()',1)[0]
+          assert 'HomeCenterOAuth.begin' in login
+          assert 'HomeCenterOAuth.complete' in login
+          assert 'showHomeCenterApproval' not in app
+          assert 'old Home Center app' not in login
+          assert 'ritsu_cloud_pair_termux.sh' not in login
+          assert 'android.net.Uri' in app
+          assert 'client_id' in oauth and 'code_verifier' in oauth
+          assert 'token_endpoint_auth_method' in oauth
+          assert 'offline_access' in oauth
+          assert 'accessToken' not in oauth.split('static String begin(',1)[1].split('static HomeCenterCloudPairing.Paired complete',1)[0]
+          print('RITSU_NATIVE_OAUTH_NO_MANUAL_CODE=PASS')
+          PY
+          grep -q 'Home Center cloud paired; conversation bridge not deployed' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
+          grep -q 'HomeCenterCloudPairing.load' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
+          ! grep -q 'RitsuPairing.save(this' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/MainActivity.java
+          ! grep -q 'RitsuPairing.load(app)' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
+          grep -q 'Only private Tailscale IPv4 is accepted' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuPairing.java
+          grep -q 'class HomeCenterSync' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java
+          grep -q 'ACTION_SYNC_NOW' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/RitsuControlService.java
+          grep -q 'insertReplyOnce' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/ConversationLedger.java
+          grep -q 'no-store' android/ritsu-control/app/src/main/java/com/homecenter/ritsucontrol/HomeCenterSync.java || grep -q 'no-store' browser-porch/ritsu-android-gateway.mjs
+
+      - name: Publish isolated Android debug APK (not deployed)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ritsu-control-v0.11-native-home-center-oauth-debug-apk
+          path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+      - name: Build separate-install edition to preserve older Ritsu data
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle -p android/ritsu-control :app:assembleDebug -PritsuParallelInstall=true --rerun-tasks --no-daemon
+          APK=android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
+          AAPT="$(find "$ANDROID_HOME/build-tools" -name aapt -type f | sort -V | tail -1)"
+          "$AAPT" dump badging "$APK" | grep -F "package: name='com.homecenter.ritsucontrol.connected'"
+          # aapt badging can omit literal application labels. The explicit
+          # manifest placeholder + Gradle package selection are the source
+          # contract; aapt's package name proves install isolation.
+          grep -Fq 'android:label="${ritsuAppLabel}"' android/ritsu-control/app/src/main/AndroidManifest.xml
+          grep -Fq "'Ritsu Control (Connected)'" android/ritsu-control/app/build.gradle
+          echo "RITSU_PARALLEL_INSTALL_PRESERVES_OLD_PACKAGE=1"
+      - name: Publish parallel-install Ritsu Control OAuth APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ritsu-control-v0.11-home-center-oauth-parallel-install-apk
+          path: android/ritsu-control/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
