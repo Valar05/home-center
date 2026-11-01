@@ -65,6 +65,8 @@ $WorkerId = [string]$Cfg.workerId
 $LogPath = if ($Cfg.logPath) { [string]$Cfg.logPath } else { Join-Path (Split-Path $ConfigPath) 'worker.log' }
 $progressProperty = $Cfg.PSObject.Properties['progressPath']
 $ProgressPath = if ($progressProperty -and $progressProperty.Value) { [string]$progressProperty.Value } else { Join-Path (Split-Path $ConfigPath) 'progress.json' }
+$healthProperty = $Cfg.PSObject.Properties['healthPath']
+$HealthPath = if ($healthProperty -and $healthProperty.Value) { [string]$healthProperty.Value } else { Join-Path (Split-Path $ConfigPath) 'cloud-health.json' }
 
 function Log([string]$Message) {
   $line = "$(Get-Date -Format o) $Message"
@@ -91,6 +93,24 @@ function Write-ProgressState([object]$State) {
     [IO.File]::WriteAllText($temp, $payload, [Text.UTF8Encoding]::new($false))
     Move-Item -Force $temp $ProgressPath
   } catch { Log "progress_write_failed $($_.Exception.Message)" }
+}
+
+function Write-CloudHealth([string]$Phase) {
+  try {
+    $payload = [ordered]@{
+      schema = 'home-center-computer-hands-cloud-health-v1'
+      updatedAt = (Get-Date).ToUniversalTime().ToString('o')
+      workerId = $WorkerId
+      machine = $env:COMPUTERNAME
+      pid = $PID
+      phase = $Phase
+    } | ConvertTo-Json -Depth 6
+    $directory = Split-Path -Parent $HealthPath
+    if ($directory) { [IO.Directory]::CreateDirectory($directory) | Out-Null }
+    $temp = "$HealthPath.tmp"
+    [IO.File]::WriteAllText($temp, $payload, [Text.UTF8Encoding]::new($false))
+    Move-Item -Force $temp $HealthPath
+  } catch { Log "cloud_health_write_failed $($_.Exception.Message)" }
 }
 
 function Invoke-HandsApi([string]$Method, [string]$Path, [object]$Body = $null) {
@@ -262,9 +282,12 @@ function Execute-Ticket([object]$Ticket) {
 
 Log "worker_start workerId=$WorkerId pid=$PID"
 Write-ProgressState @{phase='worker_start';message='Computer Hands worker started.'}
+$ConsecutivePollErrors = 0
 while($true){
   try{
     $lease=Invoke-HandsApi 'POST' 'lease' @{}
+    $ConsecutivePollErrors = 0
+    Write-CloudHealth 'lease_ok'
     if(-not $lease.ticket){Write-ProgressState @{phase='idle';message='Waiting for work.'};Start-Sleep -Seconds ([Math]::Max(1,[int]$lease.pollAfterSeconds));continue}
     $ticket=$lease.ticket
     Log "ticket_leased id=$($ticket.ticketId) lane=$($ticket.laneId) action=$($ticket.action)"
@@ -282,5 +305,14 @@ while($true){
       Write-ProgressState @{phase='failed';ticketId=$ticket.ticketId;requestId=$ticket.requestId;laneId=$ticket.laneId;action=$ticket.action;error=$failure.detail}
       Log "ticket_failed id=$($ticket.ticketId) detail=$($failure.detail)"
     }
-  }catch{Log "poll_error $($_.Exception.Message)";Write-ProgressState @{phase='poll_error';message=$_.Exception.Message};Start-Sleep -Seconds 3}
+  }catch{
+    $ConsecutivePollErrors += 1
+    Log "poll_error count=$ConsecutivePollErrors $($_.Exception.Message)"
+    Write-ProgressState @{phase='poll_error';message=$_.Exception.Message;consecutivePollErrors=$ConsecutivePollErrors}
+    if($ConsecutivePollErrors -ge 20){
+      Log 'poll_error_threshold_exit count=20; allowing scheduler recovery'
+      throw
+    }
+    Start-Sleep -Seconds 3
+  }
 }
