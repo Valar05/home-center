@@ -9,6 +9,10 @@ import android.content.ClipboardManager;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Insets;
@@ -44,9 +48,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class MainActivity extends Activity {
     private static final int REQUEST_MIC = 19646;
     private static final int REQUEST_NOTIFICATIONS = 19644;
+    private static final int REQUEST_SNIPPET_IMPORT = 19652;
+    private static final int REQUEST_SNIPPET_EXPORT = 19653;
     private TextView headerStatus, details, outboxWarning;
     private EditText composer;
-    private Button listenButton, muteButton, sendButton;
+    private Button listenButton, muteButton, sendButton, stickyButton;
+    private StickySnippets stickySnippets;
+    private String pendingSnippetTab;
     private TextView liveWords;
     private LinearLayout transcriptRows;
     private ScrollView feedScroll;
@@ -59,8 +67,6 @@ public final class MainActivity extends Activity {
     private long lastFeedRevision = -1;
 
     private final Handler updates = new Handler(Looper.getMainLooper());
-    private final ExecutorService cloudPairWorker=Executors.newSingleThreadExecutor();
-    private final AtomicBoolean cloudPairActive=new AtomicBoolean(false);
     private final Runnable redraw = new Runnable() {
         @Override public void run() {
             if (headerStatus == null) return;
@@ -77,6 +83,9 @@ public final class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         ledger = new ConversationLedger(this);
         workspace = new RitsuWorkspace(this);
+        stickySnippets = new StickySnippets(this);
+        if(savedInstanceState!=null)
+            pendingSnippetTab=savedInstanceState.getString("pendingSnippetTab");
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(Color.rgb(19, 18, 28));
@@ -106,7 +115,7 @@ public final class MainActivity extends Activity {
 
         TextView title = label("Ritsu  ·  Conversation Hub", 21, true);
         root.addView(title);
-        headerStatus = label("Mic off · Home Center not connected", 12, false);
+        headerStatus = label("Mic off · Laptop link not paired", 12, false);
         headerStatus.setPadding(0, dp(5), 0, dp(12));
         root.addView(headerStatus);
 
@@ -123,6 +132,9 @@ public final class MainActivity extends Activity {
         tabChooser=new Spinner(this);
         sessions.addView(tabChooser,new LinearLayout.LayoutParams(0,dp(48),1));
         sessions.addView(button("+ Tab",v->createConversationTab()));
+        stickyButton=button("Sticky",v->showStickySnippets());
+        sessions.addView(stickyButton);
+        updateStickyButton();
         root.addView(sessions);
 
         LinearLayout machineRow=new LinearLayout(this);
@@ -190,7 +202,10 @@ public final class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT >= 30) root.requestApplyInsets();
         renderFeed();
         refreshStatus();
-        acceptHomeCenterOAuth(getIntent());
+        send(RitsuControlService.ACTION_SYNC_NOW);
+        updates.post(()->{
+            if(RitsuPairing.load(this)==null)pairTheCauldron();
+        });
     }
 
     private void addTab(LinearLayout tabs,String label,String id) {
@@ -231,7 +246,7 @@ public final class MainActivity extends Activity {
                 workspace.active().id);
         if(messages.isEmpty()) {
             TextView empty=label("No verified results in this view yet.\n" +
-                ("worker".equals(channel) ? "Worker results need the authenticated Home Center bridge." :
+                ("worker".equals(channel) ? "Worker results are not enabled in local conversation mode." :
                 "Your recognized words will appear here once Android returns them."),14,false);
             empty.setPadding(dp(12),dp(18),dp(12),dp(12));
             transcriptRows.addView(empty);
@@ -265,30 +280,18 @@ public final class MainActivity extends Activity {
         feedScroll.post(()->feedScroll.fullScroll(View.FOCUS_DOWN));
     }
 
-    private void togglePlaywrightDelivery() {
-        boolean enabled=HomeCenterPlaywrightBridge.enabled(this);
-        new AlertDialog.Builder(this)
-            .setTitle(enabled?"Disable Playwright delivery?":"Enable Playwright delivery?")
-            .setMessage(enabled
-                ? "Already queued turns remain pending on the Home Center worker. New messages will stay local."
-                : "Each Send runs only the fixed reviewed Playwright chat-turn script on THECAULDRON through your authenticated Home Center Computer Hands worker. It operates an existing signed-in ChatGPT browser and returns a verified receipt. This is NOT OpenAI API. The workstation and its Playwright script must be online.")
-            .setNegativeButton("Cancel",null)
-            .setPositiveButton(enabled?"Disable":"Enable",(d,w)->{
-                HomeCenterPlaywrightBridge.enable(this,!enabled);
-                send(RitsuControlService.ACTION_SYNC_NOW);
-                refreshStatus();
-            }).show();
+    private void showDirectLinkStatus() {
+        new AlertDialog.Builder(this).setTitle("Direct Tailscale link")
+            .setMessage(RitsuLocalSync.status.replace("Home Center","Local transport"))
+            .setPositiveButton("Close",null).show();
     }
 
     private void queueTyped() {
         String text=composer.getText().toString().trim();
         if(text.isEmpty())return;
-        if(!HomeCenterPlaywrightBridge.enabled(this)){
-            headerStatus.setText("ChatGPT delivery paused. Resume in More before sending.");
-            return;
-        }
-        if(HomeCenterCloudPairing.load(this)==null){
-            headerStatus.setText("Connect your Home Center account before sending.");
+        if(RitsuPairing.load(this)==null){
+            headerStatus.setText("Pair THECAULDRON to send ChatGPT messages");
+            pairTheCauldron();
             return;
         }
         // The operator already pressed Send. No second confirmation:
@@ -296,7 +299,8 @@ public final class MainActivity extends Activity {
         RitsuWorkspace.Tab active=workspace.active();
         try {
             ledger.addInTab(active.id,active.machineId,
-                "control","You",text,ConversationLedger.OUTBOX);
+                "control","You",StickyText.compose(text,stickySnippets.forTab(active.id)),
+                "LOCAL_QUEUED");
             RitsuControlService.feedRevision++;
             composer.setText("");
             renderFeed();
@@ -385,6 +389,7 @@ public final class MainActivity extends Activity {
                 if(RitsuWorkspace.MACHINES[i].id.equals(machine))
                     machineChooser.setSelection(i);
         }finally{syncingSelectors=false;}
+        updateStickyButton();
     }
 
     private void createConversationTab(){
@@ -406,11 +411,167 @@ public final class MainActivity extends Activity {
             }).show();
     }
 
+
+    /** Sticky context belongs to the conversation tab, not channel filters.
+     * It is snapshotted into every outbound turn, typed or spoken.
+     */
+    private void updateStickyButton(){
+        if(stickyButton==null||stickySnippets==null)return;
+        String text=stickySnippets.forTab(workspace.active().id);
+        stickyButton.setText(text.isEmpty()?"Sticky":"Sticky ●");
+        stickyButton.setContentDescription(text.isEmpty()
+            ?"Edit persistent context for this tab"
+            :"Sticky context active in this tab; edit or insert saved snippet");
+    }
+
+    private void stickyFailure(Exception error){
+        headerStatus.setText("Sticky text: "+error.getMessage());
+    }
+
+    private void showStickySnippets(){
+        final String tabId=workspace.active().id;
+        final EditText editor=new EditText(this);
+        editor.setText(stickySnippets.forTab(tabId));
+        editor.setTextColor(Color.DKGRAY);
+        editor.setHint("Read campaign etiquette before every reply...");
+        editor.setSingleLine(false);
+        editor.setMinLines(4);
+        editor.setMaxLines(9);
+        editor.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        final LinearLayout panel=new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(16),dp(8),dp(16),dp(8));
+        TextView help=label("Included with EVERY sent message in this tab, including voice. "
+            +"This is user context, not a guaranteed system lock.",12,false);
+        help.setTextColor(Color.DKGRAY);
+        panel.addView(help);
+        panel.addView(editor);
+        final LinearLayout actions=new LinearLayout(this);
+        actions.setOrientation(LinearLayout.VERTICAL);
+        final LinearLayout first=new LinearLayout(this);
+        first.setOrientation(LinearLayout.HORIZONTAL);
+        first.addView(button("Insert saved",v->chooseQuickSnippet(editor)),
+                new LinearLayout.LayoutParams(0,dp(48),1));
+        first.addView(button("Save quick",v->saveQuickSnippet(editor)),
+                new LinearLayout.LayoutParams(0,dp(48),1));
+        actions.addView(first);
+        final LinearLayout second=new LinearLayout(this);
+        second.setOrientation(LinearLayout.HORIZONTAL);
+        second.addView(button("Import .txt",v->{
+            try{
+                stickySnippets.setForTab(tabId,editor.getText().toString());
+                updateStickyButton();
+                pendingSnippetTab=tabId;
+                Intent pick=new Intent(Intent.ACTION_OPEN_DOCUMENT)
+                    .addCategory(Intent.CATEGORY_OPENABLE).setType("text/plain");
+                startActivityForResult(pick,REQUEST_SNIPPET_IMPORT);
+            }catch(Exception e){stickyFailure(e);}
+        }),new LinearLayout.LayoutParams(0,dp(48),1));
+        second.addView(button("Export .txt",v->{
+            try{
+                stickySnippets.setForTab(tabId,editor.getText().toString());
+                updateStickyButton();
+                pendingSnippetTab=tabId;
+                Intent create=new Intent(Intent.ACTION_CREATE_DOCUMENT)
+                    .addCategory(Intent.CATEGORY_OPENABLE).setType("text/plain");
+                create.putExtra(Intent.EXTRA_TITLE,"ritsu-sticky-"+tabId+".txt");
+                startActivityForResult(create,REQUEST_SNIPPET_EXPORT);
+            }catch(Exception e){stickyFailure(e);}
+        }),new LinearLayout.LayoutParams(0,dp(48),1));
+        actions.addView(second);
+        panel.addView(actions);
+        new AlertDialog.Builder(this).setTitle("Sticky snippets · "+workspace.active().title)
+            .setView(panel).setNegativeButton("Cancel",null)
+            .setPositiveButton("Save for this tab",(d,w)->{
+                try{stickySnippets.setForTab(tabId,editor.getText().toString());
+                    updateStickyButton();
+                }catch(Exception e){stickyFailure(e);}
+            }).show();
+    }
+
+    private void chooseQuickSnippet(EditText editor){
+        final java.util.List<StickySnippets.Item> items;
+        try{items=stickySnippets.library();}
+        catch(Exception e){stickyFailure(e);return;}
+        if(items.isEmpty()){
+            new AlertDialog.Builder(this).setTitle("No quick snippets yet")
+                .setMessage("Save a named snippet, or import a .txt file from Documents.")
+                .setPositiveButton("OK",null).show();
+            return;
+        }
+        String[] names=new String[items.size()];
+        for(int i=0;i<items.size();i++)names[i]=items.get(i).title;
+        new AlertDialog.Builder(this).setTitle("Insert into existing sticky text")
+            .setItems(names,(d,index)->{
+                try{
+                    editor.setText(StickyText.append(editor.getText().toString(),
+                            items.get(index).text));
+                    editor.setSelection(editor.length());
+                }catch(Exception e){stickyFailure(e);}
+            }).setNegativeButton("Cancel",null).show();
+    }
+
+    private void saveQuickSnippet(EditText editor){
+        final EditText name=new EditText(this);
+        name.setSingleLine(true);
+        name.setTextColor(Color.DKGRAY);
+        name.setHint("Snippet title");
+        new AlertDialog.Builder(this).setTitle("Save quick snippet")
+            .setView(name).setNegativeButton("Cancel",null)
+            .setPositiveButton("Save",(d,w)->{
+                try{stickySnippets.addToLibrary(
+                    name.getText().toString(),editor.getText().toString());
+                }catch(Exception e){stickyFailure(e);}
+            }).show();
+    }
+
+    @Override protected void onSaveInstanceState(Bundle out){
+        super.onSaveInstanceState(out);
+        out.putString("pendingSnippetTab",pendingSnippetTab);
+    }
+
+    @Override protected void onActivityResult(int code,int result,Intent data){
+        super.onActivityResult(code,result,data);
+        if(code!=REQUEST_SNIPPET_IMPORT&&code!=REQUEST_SNIPPET_EXPORT)return;
+        final String tabId=pendingSnippetTab;
+        pendingSnippetTab=null;
+        if(result!=RESULT_OK||data==null||data.getData()==null)return;
+        if(tabId==null){headerStatus.setText("Snippet file tab lost; no changes made");return;}
+        try{
+            Uri uri=data.getData();
+            if(code==REQUEST_SNIPPET_EXPORT){
+                byte[] bytes=stickySnippets.forTab(tabId).getBytes(StandardCharsets.UTF_8);
+                if(bytes.length==0)throw new IllegalArgumentException("No text to export");
+                try(OutputStream output=getContentResolver().openOutputStream(uri,"wt")){
+                    if(output==null)throw new IllegalStateException("Cannot open output document");
+                    output.write(bytes);
+                }
+                headerStatus.setText("Sticky text saved as independent .txt file");
+            }else{
+                ByteArrayOutputStream bytes=new ByteArrayOutputStream();
+                try(InputStream input=getContentResolver().openInputStream(uri)){
+                    if(input==null)throw new IllegalStateException("Cannot open document");
+                    byte[] buffer=new byte[1024];int n;
+                    while((n=input.read(buffer))!=-1){
+                        if(bytes.size()+n>16000)
+                            throw new IllegalArgumentException("Snippet file is too large");
+                        bytes.write(buffer,0,n);
+                    }
+                }
+                String imported=bytes.toString(StandardCharsets.UTF_8.name());
+                stickySnippets.setForTab(tabId,
+                    StickyText.append(stickySnippets.forTab(tabId),imported));
+                headerStatus.setText("Snippet inserted into tab without replacing text");
+            }
+            updateStickyButton();
+        }catch(Exception e){stickyFailure(e);}
+    }
+
     private void showPendingMessages(){
         java.util.List<ConversationLedger.Entry> pending=ledger.unsent();
         if(pending.isEmpty()){
             new AlertDialog.Builder(this).setTitle("Phone outbox")
-                .setMessage("No unsent messages. New messages use the authenticated Home Center browser bridge.")
+                .setMessage("No unsent messages. New messages use direct Tailscale streaming.")
                 .setPositiveButton("Close",null).show();
             return;
         }
@@ -422,7 +583,7 @@ public final class MainActivity extends Activity {
             descriptions[i]=e.tabId+" · "+e.state+" · "+preview;
         }
         new AlertDialog.Builder(this)
-            .setTitle("Pending Playwright turns ("+pending.size()+")")
+            .setTitle("Pending conversation turns ("+pending.size()+")")
             .setMessage("Local-only and remote-pending turns are distinct. A verified browser reply changes its state to COMPLETED. Select to view / copy.")
             .setItems(descriptions,(dialog,index)->{
                 ConversationLedger.Entry entry=pending.get(index);
@@ -485,8 +646,8 @@ public final class MainActivity extends Activity {
         String[] labels = {
                 "Status and recognition errors",
                 "Speech pause timing (Gboard-like)",
-                "Connect Home Center account",
-                "Disconnect Home Center",
+                "Pair THECAULDRON",
+                "Unpair THECAULDRON",
                 "Ask Android to pause media",
                 "Stop conversation",
                 "Enable floating mute bubble",
@@ -496,7 +657,7 @@ public final class MainActivity extends Activity {
                 "Script campaign: toggle this tab",
                 "Request image / file retrieval",
                 "Pending and streaming messages",
-                "Pause / resume ChatGPT delivery"
+                "Direct link status"
         };
         new AlertDialog.Builder(this)
                 .setTitle("Ritsu controls")
@@ -508,18 +669,18 @@ public final class MainActivity extends Activity {
                                     .setPositiveButton("Close", null).show();
                             break;
                         case 1: selectSpeechTiming(); break;
-                        case 2: pairHomeCenter(); break;
+                        case 2: pairTheCauldron(); break;
                         case 3:
                             new AlertDialog.Builder(this)
-                                    .setTitle("Disconnect Ritsu from Home Center?")
-                                    .setMessage("Only the local encrypted pairing is erased. Saved messages remain on this phone.")
-                                    .setPositiveButton("Disconnect", (d,w) -> {
-                                        cloudPairActive.set(false);
-                                        HomeCenterOAuth.clearPending(this);
-                                        HomeCenterCloudPairing.disconnect(this);
-                                        RitsuPairing.disconnect(this);
-                                        HomeCenterSync.status="Home Center not paired";refreshStatus();
-                                    }).setNegativeButton("Cancel",null).show();
+                                .setTitle("Unpair THECAULDRON?")
+                                .setMessage("This removes the encrypted local device token. Saved messages remain.")
+                                .setPositiveButton("Unpair",(d,w)->{
+                                    RitsuPairing.disconnect(this);
+                                    getSharedPreferences("ritsu_local_sse_cursor_v1",MODE_PRIVATE)
+                                        .edit().putLong("seq",0).commit();
+                                    RitsuLocalSync.status="THECAULDRON unpaired";
+                                    refreshStatus();
+                                }).setNegativeButton("Cancel",null).show();
                             break;
                         case 4: send(RitsuControlService.ACTION_MEDIA_TALK); break;
                         case 5: send(RitsuControlService.ACTION_STOP); break;
@@ -533,104 +694,54 @@ public final class MainActivity extends Activity {
                             break;
                         case 11:requestAssetExplicitly();break;
                         case 12:showPendingMessages();break;
-                        case 13:togglePlaywrightDelivery();break;
+                        case 13:showDirectLinkStatus();break;
                         default: break;
                     }
                 }).setNegativeButton("Close", null).show();
     }
 
-    private void pairHomeCenter() {
-        try {
-            HomeCenterCloudPairing.Paired existing=HomeCenterCloudPairing.load(this);
-            if(existing!=null && existing.oauthClientId.length()>0) {
-                new AlertDialog.Builder(this)
-                    .setTitle("Home Center account connected")
-                    .setMessage("Your Home Center sign-in is encrypted on this phone. " +
-                        "ChatGPT delivery is automatically enabled unless you have explicitly paused it. The Windows worker must be online.")
-                    .setPositiveButton("Close",null).show();
-                return;
-            }
-        }catch(RuntimeException ignored){
-            headerStatus.setText("Home Center session needs sign-in");
-        }
-        if(!cloudPairActive.compareAndSet(false,true)) {
-            headerStatus.setText("Home Center sign-in already running");
-            return;
-        }
-        headerStatus.setText("Preparing Home Center sign-in");
-        cloudPairWorker.execute(()->{
-            try{
-                final String authorize=HomeCenterOAuth.begin(getApplicationContext());
-                updates.post(()->{
-                    try {
-                        // External browser is mandatory. Never collect Google
-                        // passwords in WebView or use a shared APK credential.
-                        Intent view=new Intent(Intent.ACTION_VIEW, Uri.parse(authorize));
-                        view.addCategory(Intent.CATEGORY_BROWSABLE);
-                        startActivity(view);
-                        // Browser sign-in is independently bound by persisted
-                        // PKCE state. The Activity can be retried if the user
-                        // closes Chrome without completing authorization.
-                        cloudPairActive.set(false);
-                        headerStatus.setText("Complete Home Center sign-in in your browser");
-                    }catch(RuntimeException browserError){
-                        cloudPairActive.set(false);
-                        HomeCenterOAuth.clearPending(getApplicationContext());
-                        headerStatus.setText("Could not open a secure browser");
-                    }
-                });
-            }catch(Exception error){
-                cloudPairActive.set(false);
-                updates.post(()->headerStatus.setText(
-                    "Home Center sign-in unavailable: "+error.getClass().getSimpleName()));
-            }
-        });
-    }
-
-    /**
-     * Android delivers this intent only after a user-completed Home Center
-     * browser redirect. The short-lived state and PKCE proof prevent another
-     * Android app from completing an unsolicited or replayed login.
+    /** One-time device pairing. The token is entered on the device and
+     * sealed with Android Keystore. Nothing is sent to Home Center cloud.
      */
-    private void acceptHomeCenterOAuth(Intent intent) {
-        if(intent==null||intent.getData()==null||
-           !HomeCenterOAuth.scheme(this).equals(intent.getData().getScheme()))return;
-        Uri callback=intent.getData();
-        intent.setData(null);
-        // The saved OAuth state, rather than an in-memory Activity flag,
-        // establishes whether this callback belongs to this app.
-        cloudPairActive.set(true);
-        headerStatus.setText("Verifying Home Center sign-in");
-        cloudPairWorker.execute(()->{
-            try{
-                HomeCenterCloudPairing.Paired paired=
-                    HomeCenterOAuth.complete(getApplicationContext(),callback);
-                HomeCenterCloudPairing.save(getApplicationContext(),paired);
-                HomeCenterSync.status="Home Center connected · ChatGPT delivery ready";
-                updates.post(()->{
-                    cloudPairActive.set(false);
+    private void pairTheCauldron() {
+        final EditText server=new EditText(this);
+        server.setSingleLine(true);
+        server.setText("http://100.68.37.106:19646");
+        server.setHint("Tailscale IP and port");
+        final EditText token=new EditText(this);
+        token.setSingleLine(true);
+        token.setHint("Device token from THECAULDRON");
+        token.setInputType(InputType.TYPE_CLASS_TEXT |
+            InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        LinearLayout inputs=new LinearLayout(this);
+        inputs.setOrientation(LinearLayout.VERTICAL);
+        inputs.setPadding(dp(14),dp(6),dp(14),0);
+        inputs.addView(server);
+        inputs.addView(token);
+        new AlertDialog.Builder(this)
+            .setTitle("Pair THECAULDRON")
+            .setMessage("One-time direct Tailscale pairing. No Home Center cloud traffic. The laptop must be online.")
+            .setView(inputs)
+            .setNegativeButton("Cancel",null)
+            .setPositiveButton("Pair",(dialog,which)->{
+                try{
+                    RitsuPairing.save(this,server.getText().toString(),
+                        token.getText().toString());
+                    getSharedPreferences("ritsu_local_sse_cursor_v1",MODE_PRIVATE)
+                        .edit().putLong("seq",0).commit();
+                    RitsuLocalSync.status="Paired · connecting to THECAULDRON";
+                    send(RitsuControlService.ACTION_SYNC_NOW);
                     refreshStatus();
-                    new AlertDialog.Builder(this)
-                        .setTitle("Home Center connected")
-                        .setMessage("Ritsu Control signed in directly and stored its " +
-                            "own Home Center credentials securely. ChatGPT messages use the authenticated Playwright bridge automatically; responses appear progressively in this conversation.")
-                        .setPositiveButton("Done",null).show();
-                });
-            }catch(Exception error){
-                HomeCenterOAuth.clearPending(getApplicationContext());
-                updates.post(()->{
-                    cloudPairActive.set(false);
-                    headerStatus.setText(
-                        "Home Center sign-in failed: "+error.getClass().getSimpleName());
-                });
-            }
-        });
+                }catch(RuntimeException error){
+                    headerStatus.setText("Pairing failed: "+error.getMessage());
+                }
+            }).show();
     }
 
     @Override protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        acceptHomeCenterOAuth(intent);
+        // Cloud OAuth retired from the active conversation path.
     }
 
     private void selectSpeechTiming() {
@@ -668,7 +779,7 @@ public final class MainActivity extends Activity {
                 + "\nMedia guard: " + RitsuControlService.mediaGuardStatus
                 + "\nLast error: " + (RitsuControlService.lastProblem.isEmpty()
                         ? "None" : RitsuControlService.lastProblem)
-                + "\nChatGPT text streams into this conversation through Home Center."
+                + "\nChatGPT text streams through THECAULDRON over Tailscale."
                 + "\nNo Ritsu voice playback in this build.";
     }
 
@@ -709,23 +820,18 @@ public final class MainActivity extends Activity {
         String detail = RitsuControlService.recognitionStatus;
         if (detail.length() > 75) detail = detail.substring(0, 75);
         RitsuWorkspace.Tab selected=workspace.active();
-        headerStatus.setText(state + " · " + detail + "\n" + HomeCenterSync.status+
+        headerStatus.setText(state + " · " + detail + "\n" + RitsuLocalSync.status+
             "\nTab: "+selected.title+" · Machine: "+
             RitsuWorkspace.machine(selected.machineId).label+
             " · Instant preferred · Script loop "+(selected.scriptCampaign?"ON":"OFF"));
         int unsent=ledger.pendingCount();
-        outboxWarning.setText((HomeCenterPlaywrightBridge.enabled(this)
-            ? "Playwright transport ON · " : "Playwright transport OFF · ")+
-            unsent+" pending"+(unsent==0?"":"  ·  Tap to inspect"));
-        outboxWarning.setContentDescription(
-            "Playwright transport "+(HomeCenterPlaywrightBridge.enabled(this)?"enabled":"disabled")+
-            ". "+unsent+" pending messages. Tap to inspect.");
-        if(sendButton!=null) {
-            boolean delivery=HomeCenterPlaywrightBridge.enabled(this);
-            sendButton.setText(delivery?"Send":"Delivery paused");
-            sendButton.setContentDescription(delivery
-                ? "Send message through Home Center to ChatGPT"
-                : "Delivery manually paused. Resume browser delivery in More.");
+        outboxWarning.setText("Direct Tailscale · "+unsent+" pending"+
+            (unsent==0?"":" · Tap to inspect"));
+        outboxWarning.setContentDescription("Direct laptop streaming. "+
+            unsent+" pending turns. Tap to inspect.");
+        if(sendButton!=null){
+            sendButton.setText("Send");
+            sendButton.setContentDescription("Send to ChatGPT over the Tailscale laptop connection");
         }
         if (listenButton != null) {
             listenButton.setText(mode == ListeningPolicy.Mode.RECOGNIZING

@@ -1,26 +1,150 @@
-name: Build Android
+name: Ritsu APK update-continuity contract
 
-# GitHub-hosted compute is an emergency/manual lane only.
-# Android truth runs on the phone runner in the private Gitea forge.
+# The cloud debug trial succeeded at run 40196659002 but had a transient signer.
+# Never silently distribute a different-key APK as a data-preserving upgrade.
+# The protected stable-signer release remains gated pending identity enrollment.
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  build:
+  release-contract:
     runs-on: ubuntu-latest
+    timeout-minutes: 6
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            android/ritsu-control
+            tools/campaigns
+          sparse-checkout-cone-mode: true
+          lfs: false
+      - name: Verify committed cloud release script and no-uninstall gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash tools/campaigns/ritsu_release_cloud.test.sh
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git diff --exit-code -- android/ritsu-control tools/campaigns
+          bash tools/campaigns/ritsu_sticky_campaign.sh doctor
+          bash tools/campaigns/ritsu_sticky_phone_native.test.sh
+          python3 tools/campaigns/validate_ritsu_sticky_contingencies.py
+          echo RITSU_CLOUD_RELEASE_CONTRACT=PASS
+      - name: Declare outstanding protected signing requirement
+        run: |
+          echo 'STABLE_SIGNED_UPDATE=NOT_YET_AUTHORIZED'
+          echo 'This contract run does not build an APK or touch Android device data.'
+
+  sticky-android-compile:
+    needs: release-contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            android/ritsu-control
+            tools/campaigns
+          sparse-checkout-cone-mode: true
+          lfs: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Android SDK35 readiness
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f -print -quit)"
+          fi
+          test -x "$SDKMANAGER"
+          if [ ! -f "$ANDROID_HOME/platforms/android-35/android.jar" ]; then
+            "$SDKMANAGER" --install 'platforms;android-35' 'build-tools;35.0.0'
+          fi
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Reproduce and regress AGP custom AAPT2 basename failure
+        shell: bash
+        run: bash tools/campaigns/ritsu_sticky_aapt2_override.test.sh
+      - name: Compile and unit test
+        run: bash tools/campaigns/ritsu_sticky_campaign.sh build
+
+  isolated-bootstrap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            android/ritsu-control
+            tools/campaigns
+          sparse-checkout-cone-mode: true
+          lfs: false
+      - name: Verify one-paste from unrelated directory against preexisting files
+        shell: bash
+        run: bash tools/campaigns/ritsu_sticky_onepaste.test.sh
+
+
+  sticky-apk-build:
+    needs: release-contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            android/ritsu-control
+            tools/campaigns
+          sparse-checkout-cone-mode: true
+          lfs: false
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.14.3'
-      - run: gradle :app:assembleDebug --no-daemon --stacktrace
-      - name: Upload debug APK for manual builds
-        uses: actions/upload-artifact@v4
+          gradle-version: '8.11.1'
+      - name: Compile separate package
+        run: |
+          gradle -p android/ritsu-control :app:testDebugUnitTest :app:assembleRelease -PritsuStickyInstall=true --no-daemon
+          # Exercise zipalign, signing and signature verification with a one-run
+          # non-published key. The phone retains its own durable private signer.
+          bash tools/campaigns/ritsu_sticky_signing_smoke.test.sh
+          mkdir -p dist
+          cp android/ritsu-control/app/build/outputs/apk/release/app-release-unsigned.apk dist/Ritsu-Sticky-v018-unsigned.apk
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging dist/Ritsu-Sticky-v018-unsigned.apk | grep -F "package: name='com.homecenter.ritsucontrol.sticky'"
+          sha256sum dist/Ritsu-Sticky-v018-unsigned.apk > dist/Ritsu-Sticky-v018-unsigned.apk.sha256
+      - uses: actions/upload-artifact@v4
         with:
-          name: debug-apk
-          path: app/build/outputs/apk/debug/*.apk
-          retention-days: 1
+          name: ritsu-sticky-v018-unsigned
+          path: dist/
+          if-no-files-found: error
+
+  downloads-copy-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            tools/campaigns
+          sparse-checkout-cone-mode: true
+          lfs: false
+      - name: Verify copy-only script with synthetic signed-APK destination fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash tools/campaigns/ritsu_sticky_copy_to_downloads.test.sh
+          bash tools/campaigns/refreshmedia.test.sh
+          bash -n tools/campaigns/ritsu_sticky_install_real.sh
+          ! grep -Eq '^[[:space:]]*termux-open[[:space:]]' tools/campaigns/ritsu_sticky_install_real.sh
+          echo RITSU_DOWNLOADS_NO_AUTOLAUNCH=PASS

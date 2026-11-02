@@ -68,7 +68,7 @@ public final class RitsuControlService extends Service {
     private Runnable mediaFocusDeadline;
     private ControlReceipts receipts;
     private ConversationLedger ledger;
-    private HomeCenterSync homeCenterSync;
+    private RitsuLocalSync homeCenterSync;
     private MediaPauseLease mediaPause;
     private RitsuBubble bubble;
     private int consecutiveErrors;
@@ -89,7 +89,7 @@ public final class RitsuControlService extends Service {
         mainHandler = new Handler(Looper.getMainLooper());
         receipts = new ControlReceipts(this);
         ledger = new ConversationLedger(this);
-        homeCenterSync = new HomeCenterSync(this, ledger, () -> {
+        homeCenterSync = new RitsuLocalSync(this, ledger, () -> {
             feedRevision++;
             updateNotification();
         });
@@ -301,11 +301,24 @@ public final class RitsuControlService extends Service {
         // A tab's machine preset is captured when the spoken turn commits,
         // not assumed at the moment a remote worker eventually sees it.
         RitsuWorkspace.Tab active=new RitsuWorkspace(this).active();
-        ledger.addInTab(active.id,active.machineId,"control","You",
-                complete,ConversationLedger.OUTBOX);
-        feedRevision++;
-        homeCenterSync.requestNow();
-        recognitionStatus = "Spoken message saved; submitting to Home Center if paired";
+        try {
+            String sticky=new StickySnippets(this).forTab(active.id);
+            // Freeze context in the durable outbox at speech commitment.
+            // Network retries replay these exact bytes without appending twice.
+            String outgoing=StickyText.compose(complete,sticky);
+            ledger.addInTab(active.id,active.machineId,"control","You",
+                    outgoing,"LOCAL_QUEUED");
+            feedRevision++;
+            homeCenterSync.requestNow();
+            recognitionStatus = "Spoken message queued with tab sticky context";
+        }catch(RuntimeException error){
+            // Fail closed rather than silently omit owner-required context.
+            recognitionStatus = "Spoken turn NOT sent: sticky context error";
+            receipts.append("LOCAL_SPOKEN_STICKY_FAILED",mode,mode,
+                    error.getClass().getSimpleName());
+            updateNotification();
+            return;
+        }
         receipts.append("LOCAL_SPOKEN_MESSAGE", mode, mode, reason);
         updateNotification();
     }
@@ -543,7 +556,7 @@ public final class RitsuControlService extends Service {
         Notification.Builder builder = new Notification.Builder(this, CHANNEL)
                 .setSmallIcon(android.R.drawable.ic_btn_speak_now)
                 .setContentTitle("Ritsu")
-                .setContentText(detail + " · " + HomeCenterSync.status)
+                .setContentText(detail + " · " + RitsuLocalSync.status)
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .setContentIntent(open)
                 .setShowWhen(false)
