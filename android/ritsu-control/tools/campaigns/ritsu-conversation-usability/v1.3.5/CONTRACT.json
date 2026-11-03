@@ -1,0 +1,22 @@
+{
+  "campaign": "ritsu-conversation-usability",
+  "version": "1.3.5",
+  "source": "previously verified private native code24 source from 20261029T123250Z-15984",
+  "source_signed_code24_sha256": "0b3c4adc67576f5390ddf6af2bcbfb16b17f8b118f2e21a5dfba203fb8eb802b",
+  "target_package": "com.ritsucontrol.fresh",
+  "target_version_code": 25,
+  "target_version_name": "0.19.5",
+  "signer_cert_sha256": "c9ff64cb5558204c19300b6945dbcf88cdd32a97e43b21acbbdb8a5b08b79473",
+  "source_mutation": "isolated copy only",
+  "windows_transport": "existing Termux cauldron string only",
+  "windows_mutation": "guarded recovery+catalog/bind route patch and existing Chromium helpers; exact source preflight, backup and rollback",
+  "chatgpt_operations": "read-only sidebar discovery, exact URL verification, read-only original-turn reply recovery; no ChatGPT Search and no prompt submission",
+  "existing_turn_post": "NEVER_AUTOMATIC",
+  "journal": "old lines immutable; append one cryptographically validated recovered result only when original turn accepted and unambiguous",
+  "android_ui": "explicit Send scroll, preserve scroll when reading, local-chatgpt URL candidate, detailed catalog HTTP errors, nonblocking pending-turn audit",
+  "publication": "atomic copy-only to shared Android Downloads, verify SHA readback, run termux-media-scan on exact final APK",
+  "installation": "NEVER_FROM_TERMUX",
+  "acceptance": "HOST_TESTS_NOT_PHYSICAL_VERDICT",
+  "policy_source": "https://docs.google.com/document/d/1wntegQjw7238dmGqbvs9TQmlsp4uXdXw7_wPciNx6sI/edit",
+  "no_other_tools": "no Home Center, Computer Hands, GitHub writes, new SSH relay, pairing reset, automatic sent message retry"
+}

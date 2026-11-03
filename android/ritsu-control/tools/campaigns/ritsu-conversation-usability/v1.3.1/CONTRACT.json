@@ -1,0 +1,12 @@
+{
+  "campaign": "ritsu-conversation-usability",
+  "version": "1.3.1",
+  "launches": 1,
+  "target": "Ritsu Fresh accepted v0.19.1 with original signer",
+  "scope": ["horizontal open/close/reopen tabs", "persistent local archived conversations", "read-only non-project sidebar discovery", "exact-URL browser bind", "guarded Pocket future-reply voice", "signed side-by-side update APK"],
+  "not_complete_without": ["Android APK installed", "physical scrolling/tab acceptance", "same-URL conversation reply", "Pocket audible result", "long-reply semantic unitization decision"],
+  "forbidden": ["Home Center", "Computer Hands", "GitHub writes", "new SSH transport", "new signing key", "APK auto-install", "journal rewrite", "pairing change", "pending-turn repost", "automatic ChatGPT search", "remote ChatGPT archive/delete"],
+  "prior_signer_sha256": "c9ff64cb5558204c19300b6945dbcf88cdd32a97e43b21acbbdb8a5b08b79473",
+  "prior_signed_apk_sha256": "9d825b5471e9b13cf9d3ba1bdd50d7c3cf647f7076f289bb2729791ba0f710bf",
+  "existing_pocket_sender_sha256": "3dda464df8d5e24d29db471df7c7b8d70d28741c98866996a980afe5443c6ad8"
+}

@@ -1,0 +1,34 @@
+plugins { id 'com.android.application' }
+
+// Opt-in separate package for older debug installs with unrelated signing
+// certificates. Preserves the existing app's private files and conversations.
+def parallelInstall = providers.gradleProperty('ritsuParallelInstall').orElse('false').get() == 'true'
+// Dedicated campaign package can live beside BOTH the old app and the already
+// connected v0.11 package. Never require uninstalling either to try this build.
+def campaignInstall = providers.gradleProperty('ritsuCampaignInstall').orElse('false').get() == 'true'
+def outboxInstall = providers.gradleProperty('ritsuOutboxInstall').orElse('false').get() == 'true'
+def bridgeInstall = providers.gradleProperty('ritsuBridgeInstall').orElse('false').get() == 'true'
+// v0.15+ canonical install. The existing apps stay untouched during migration.
+def stableInstall = providers.gradleProperty('ritsuStableInstall').orElse('false').get() == 'true'
+// Phone-built ARM64 package owns its signing key; never overwrite Windows-signed live app.
+def phoneInstall = providers.gradleProperty('ritsuPhoneInstall').orElse('false').get() == 'true'
+// Durable, separate install for signer mismatch; never overwrites existing Ritsu apps.
+def stickyInstall = providers.gradleProperty('ritsuStickyInstall').orElse('false').get() == 'true'
+
+android {
+    namespace 'com.homecenter.ritsucontrol'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'com.ritsucontrol.fresh'
+        manifestPlaceholders = [ritsuAppLabel: 'Ritsu Campaign', ritsuOAuthScheme: 'ritsucontrolfresh']
+        minSdk 26
+        targetSdk 35
+        versionCode 25
+        versionName "0.19.5"
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+dependencies { testImplementation 'junit:junit:4.13.2' }

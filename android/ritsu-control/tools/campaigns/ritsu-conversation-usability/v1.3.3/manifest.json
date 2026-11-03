@@ -1,0 +1,19 @@
+{
+  "campaign": "ritsu-conversation-usability",
+  "files": {
+    "CONTRACT.json": "bc38bbb9257a38e9ee1bcc367b9165a82946fe3961997b2fa18e582d9f2c25fe",
+    "ETIQUETTE_ENFORCEMENT.md": "5e811694bdeabd39bc4a44345625bda6bbe109c8f10e6e0ecb37a4a8acb7780b",
+    "README.md": "48b28dcaab6fa5abadfd60b09576461b850cfeb78f82bca8419ae27dc0e0f1e6",
+    "RitsuTurnRecovery.java": "78d115ed5df4612c912df38297d3eb1d12780a5a7956fddbb3abaa71bf6c074e",
+    "cauldron_courier.py": "9a4b7c66d7395943f5d6a5ba5ae2c395cca363fe481c358640452cd10c2ca8fa",
+    "onego.py": "068e4db355df9449b6ec43ce90f721b6f883dd54e1b91764793d5ecd769365c5",
+    "patch_recovery.py": "05c6a392698de6603ad041b9d943a86bb20667f7829e217fa17fcfe26229ed72",
+    "ritsu_browser_recover_v133.mjs": "69866416e1edff49c85e311a205233272b44546e42859a44ddf19b122c3402bd",
+    "server_recovery_patch.js": "272a96a52a9e70e3865efd0eef73a129191c63f68eadaf729490f3a0aff5b3fa",
+    "tests/test_recovery.py": "4b9144da8a556aabf712c8c58bf14b72799b29d8bc07d534e0c33225d815e784",
+    "tests/test_release.py": "e96d54c2d348c43aea72c048b015a9f55f147b6d9a254d1d012ca0e373792c4e",
+    "tests/test_v133_integration.py": "8faa9475f667eecb67a490b0d4c0a539e09318ad45c0daf5608864561d4470e5",
+    "windows_apply.ps1": "3520e0e0500eecd66c0caccb13bbacebf113f0a742beace1df778deb35400acb"
+  },
+  "version": "1.3.3"
+}

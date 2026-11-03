@@ -1,0 +1,26 @@
+{
+  "campaign": "ritsu-conversation-usability",
+  "files": {
+    "CONTRACT.json": "615f96aaf8265abb14424836bb3e3d2ea8616c148667fb1c9f2765ec49b4e415",
+    "ETIQUETTE_ENFORCEMENT.md": "0eabba07de3199ff63f0ce754e8e238afad71ddd5c4c9a49696a4e87b3a6e04e",
+    "README.md": "f37bdd29b6337af7eb303ba3a52ac202498117f0fcd75792cb3daee0eb2314cd",
+    "RitsuTurnRecovery.java": "8437eb9ba1a6a34d26851703c9d852a23b488298bb4aa445210d4f1fe97aeafa",
+    "cauldron_courier.py": "e86b1c8ce8d9399196f3637fd1619752c32e13a245c6c7f609d579a4af6330af",
+    "onego.py": "760bff8825f729dad65335c140f9db0e41202b77b72cf9b6dda2e58d4fb518c9",
+    "patch_recovery.py": "05c6a392698de6603ad041b9d943a86bb20667f7829e217fa17fcfe26229ed72",
+    "patch_ui_v135.py": "a7e826ad30f577101084cc0f24a361b6ee9207e82bb606d8f1485c7facd3ab08",
+    "ritsu_browser_catalog_v135.mjs": "44b84c54de368737c6c2ff30f53915e03030ae6d0ae31bef8b67d66c8f3bf517",
+    "ritsu_browser_recover_v133.mjs": "69866416e1edff49c85e311a205233272b44546e42859a44ddf19b122c3402bd",
+    "server_catalog_functions.js": "da128abad70320e532f4ebef9a9cab102d1f8dfb5eb5cd3990ece2e5ac9809d4",
+    "server_catalog_routes.js": "0e7dd1c9e60b27823e3bb4c391d2de4fd32c5d1832c7243a12fb55260e975497",
+    "server_recovery_patch.js": "272a96a52a9e70e3865efd0eef73a129191c63f68eadaf729490f3a0aff5b3fa",
+    "tests/fixtures/RitsuTurnRecovery_code24.java": "78d115ed5df4612c912df38297d3eb1d12780a5a7956fddbb3abaa71bf6c074e",
+    "tests/test_recovery.py": "7d68d6a7ed02c61490eba83183588f1bbb79ef7ffa35feb831c3c73fa2f6c264",
+    "tests/test_release.py": "f5fd20d7beb5db241ad5b332ca9d965cee4b5f3ffe4159a4ce6cc262270fccbe",
+    "tests/test_v133_integration.py": "8faa9475f667eecb67a490b0d4c0a539e09318ad45c0daf5608864561d4470e5",
+    "tests/test_v134_resume.py": "5cdfe44a588af32178e8e7cfac86e7952530f13cb6e35649da5e052313ee232b",
+    "tests/test_v135_integration.py": "811fffe79488b66451ec9b0e464eef4c9a8f0837997327a284cd338d5a8581cc",
+    "windows_apply.ps1": "c0cde7e513abbda38d85b48ede6c0a1ce8617a1db66d5c4ee047a7268ce0eba3"
+  },
+  "version": "1.3.5"
+}

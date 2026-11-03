@@ -1,0 +1,18 @@
+{
+  "campaign": "ritsu-conversation-usability",
+  "version": "1.3.3",
+  "source_signed_code22_sha256": "362358e3a9bc2c35caa4f8527506b22d1cbf1e3ff95d3f5134db622199a56731",
+  "signer_cert_sha256": "c9ff64cb5558204c19300b6945dbcf88cdd32a97e43b21acbbdb8a5b08b79473",
+  "target_package": "com.ritsucontrol.fresh",
+  "target_version_code": 24,
+  "applies_to": "exact accepted v1.3.1 code22 source, isolated staged copy",
+  "phone_install": "NOT_ATTEMPTED",
+  "windows_mutation": "guarded read-only browser recovery endpoint, journal append only after unique verified reply",
+  "journal_mutation": "append verified recovery complete events; existing lines immutable",
+  "existing_turn_post": "NEVER_AUTOMATIC",
+  "retry": "never automatic and no retry button in this revision",
+  "developer_rules": "https://docs.google.com/document/d/1wntegQjw7238dmGqbvs9TQmlsp4uXdXw7_wPciNx6sI/edit",
+  "media_publish": "exact-file termux-media-scan after atomic hash-verified Android Downloads copy",
+  "report_status": "HOST_VERIFIED_ONLY_UNTIL_OWNER_RUN",
+  "media_hook": "termux-media-scan exact published filepath"
+}
