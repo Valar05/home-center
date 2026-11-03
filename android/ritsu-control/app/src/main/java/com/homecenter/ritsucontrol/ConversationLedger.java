@@ -85,7 +85,7 @@ final class ConversationLedger {
      * originating tab are checked before a snapshot can appear on screen. */
     Entry upsertStreamingReply(String userTurnId,String message,int version,boolean complete) {
         if(version<1||version>1000000||message==null||message.trim().isEmpty()||
-           message.length()>5000)throw new IllegalArgumentException("invalid streaming reply");
+           message.length()>64000)throw new IllegalArgumentException("invalid streaming reply");
         synchronized(IO_LOCK){
             JSONArray previous=rows();
             JSONObject source=null,existing=null;
@@ -211,7 +211,7 @@ final class ConversationLedger {
             for(int i=0;i<all.length();i++) {
                 JSONObject row=all.optJSONObject(i);
                 if(row!=null && "You".equals(row.optString("who")) &&
-                    !"COMPLETED".equals(row.optString("state")))count++;
+                    !"COMPLETED".equals(row.optString("state")) && !"STOPPED".equals(row.optString("state")))count++;
             }
             return count;
         }
@@ -226,7 +226,7 @@ final class ConversationLedger {
             for(int i=0;i<all.length();i++) {
                 JSONObject row=all.optJSONObject(i);
                 if(row==null||!"You".equals(row.optString("who"))||
-                    "COMPLETED".equals(row.optString("state")))continue;
+                    ("COMPLETED".equals(row.optString("state")) || "STOPPED".equals(row.optString("state"))))continue;
                 pending.add(new Entry(row.optString("id"),
                     row.optString("channel"),"You",row.optString("text"),
                     row.optString("state"),row.optString("tabId","main"),

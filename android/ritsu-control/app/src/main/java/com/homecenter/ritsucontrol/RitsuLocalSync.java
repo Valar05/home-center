@@ -158,7 +158,7 @@ final class RitsuLocalSync implements AutoCloseable {
             }else if("partial".equals(type)||"complete".equals(type)){
                 String text=event.optString("text","");
                 int revision=event.optInt("revision",-1);
-                if(text.isEmpty()||text.length()>5000||revision<1||
+                if(text.isEmpty()||text.length()>64000||revision<1||
                    !digest(text).equals(event.optString("sha256")))
                     throw new SecurityException("Stream checksum or revision invalid");
                 boolean complete="complete".equals(type);
@@ -169,6 +169,11 @@ final class RitsuLocalSync implements AutoCloseable {
                     ledger.updateState(turnId,"COMPLETED");
                     status="ChatGPT reply complete";
                 }else status="ChatGPT responding · streaming";
+            }else if("stopped".equals(type)){
+                ledger.updateState(turnId,"STOPPED");
+                status="ChatGPT generation stopped on remote browser";
+            }else if("stop_unconfirmed".equals(type)){
+                status="Remote Stop was not confirmed; turn preserved";
             }else if("uncertain".equals(type)){
                 ledger.updateState(turnId,"LOCAL_UNCERTAIN");
                 status="ChatGPT result uncertain · not resending";

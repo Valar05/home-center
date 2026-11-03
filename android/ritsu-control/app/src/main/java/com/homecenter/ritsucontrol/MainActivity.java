@@ -53,6 +53,7 @@ public final class MainActivity extends Activity {
     private TextView headerStatus, details, outboxWarning;
     private EditText composer;
     private Button listenButton, muteButton, sendButton, stickyButton;
+    private Button stopReplyButton, voiceReplyButton;
     private StickySnippets stickySnippets;
     private String pendingSnippetTab;
     private TextView liveWords;
@@ -206,6 +207,17 @@ public final class MainActivity extends Activity {
         sendButton=button("Send",v->queueTyped());
         compose.addView(sendButton);
         root.addView(compose);
+        LinearLayout replyActions=new LinearLayout(this);
+        replyActions.setOrientation(LinearLayout.HORIZONTAL);
+        stopReplyButton=button("Stop generating",v->stopSelectedGenerating());
+        stopReplyButton.setContentDescription("Request remote ChatGPT browser Stop Generating; not audio stop");
+        voiceReplyButton=button("Pocket voice request",v->{
+            RitsuConversationLinks.voicePreference(this,workspace.active().id,conversationDeck);
+        });
+        voiceReplyButton.setContentDescription("Toggle per-chat Pocket voice preference, separate from microphone mute");
+        replyActions.addView(stopReplyButton,new LinearLayout.LayoutParams(0,dp(48),1));
+        replyActions.addView(voiceReplyButton,new LinearLayout.LayoutParams(0,dp(48),1));
+        root.addView(replyActions);
 
         LinearLayout controls=new LinearLayout(this);
         controls.setOrientation(LinearLayout.HORIZONTAL);
@@ -319,6 +331,13 @@ public final class MainActivity extends Activity {
             TextView content=label(entry.text,16,false);
             content.setPadding(0,dp(4),0,dp(4));
             content.setTextIsSelectable(true);bubble.addView(content);
+            Button copyMessage=button("Copy",v->{
+                ClipboardManager clipboard=(ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+                if(clipboard!=null)clipboard.setPrimaryClip(
+                    ClipData.newPlainText("Ritsu message",entry.text));
+            });
+            copyMessage.setContentDescription("Copy complete "+entry.who+" message");
+            bubble.addView(copyMessage,new LinearLayout.LayoutParams(dp(92),dp(44)));
             if("You".equals(entry.who)&&"LOCAL_NOT_ACCEPTED".equals(entry.state)){
                 TextView notice=label("No linked-server receipt. Original preserved; not resent.",12,false);
                 bubble.addView(notice);
@@ -362,6 +381,31 @@ public final class MainActivity extends Activity {
         new AlertDialog.Builder(this).setTitle("Direct Tailscale link")
             .setMessage(RitsuLocalSync.status.replace("Home Center","Local transport"))
             .setPositiveButton("Close",null).show();
+    }
+
+    private ConversationLedger.Entry latestStoppableTurn(){
+        java.util.List<ConversationLedger.Entry> pending=ledger.unsent();
+        String selected=workspace.active().id;
+        for(int i=pending.size()-1;i>=0;i--){
+            ConversationLedger.Entry e=pending.get(i);
+            if(selected.equals(e.tabId)&&
+               ("LOCAL_SUBMITTED".equals(e.state)||"LOCAL_UNCERTAIN".equals(e.state)))
+                return e;
+        }
+        return null;
+    }
+    private void stopSelectedGenerating(){
+        ConversationLedger.Entry turn=latestStoppableTurn();
+        if(turn==null){new AlertDialog.Builder(this).setMessage(
+            "No active or uncertain remote generation to stop in this tab.")
+            .setPositiveButton("OK",null).show();return;}
+        new AlertDialog.Builder(this).setTitle("Stop ChatGPT generation?")
+            .setMessage("Requests Stop for the selected turn in the real ChatGPT browser. " +
+                "It will not erase partial text or stop Pocket audio. " +
+                "If browser confirmation fails, the turn remains unresolved.")
+            .setPositiveButton("Stop generation",(dialog,which)->
+                RitsuRemoteStop.request(this,ledger,turn,()->{renderFeed();refreshStatus();}))
+            .setNegativeButton("Cancel",null).show();
     }
 
     private void queueTyped() {
@@ -918,6 +962,14 @@ public final class MainActivity extends Activity {
             (unsent==0?"":" · Tap to inspect"));
         outboxWarning.setContentDescription("Direct laptop streaming. "+
             unsent+" pending turns. Tap to inspect.");
+        if(stopReplyButton!=null){
+            stopReplyButton.setEnabled(latestStoppableTurn()!=null);
+        }
+        if(voiceReplyButton!=null){
+            boolean requested=getSharedPreferences("ritsu_linked_chats_v1",MODE_PRIVATE)
+                .getBoolean("voice_"+workspace.active().id,false);
+            voiceReplyButton.setText(requested?"Pocket requested ON":"Pocket requested OFF");
+        }
         if(sendButton!=null){
             sendButton.setText("Send");
             sendButton.setContentDescription("Send to ChatGPT over the Tailscale laptop connection");
