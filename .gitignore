@@ -93,3 +93,4 @@ tools/she_raw_evidence/she_raw_operational_health_contract_fix_*.json
 
 # Local CI reports; GitHub uploads these from the runner.
 /generated/ci-reports/
+/app/src/main/assets/pockettts/pt_flowlm_fused_fp16.tflite
