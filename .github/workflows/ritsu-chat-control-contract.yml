@@ -1,0 +1,55 @@
+name: Ritsu Chat Control Contract
+on:
+  push:
+    branches:
+      - 'feature/ritsu-command-bridge-scavenge-20261022'
+    paths:
+      - 'browser-porch/**'
+      - '.github/workflows/ritsu-chat-control-contract.yml'
+  pull_request:
+    paths:
+      - 'browser-porch/**'
+      - '.github/workflows/ritsu-chat-control-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ritsu-throne:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax gate
+        run: |
+          node --check browser-porch/relay.mjs
+          node --check browser-porch/ritsu-turn-protocol.mjs
+          node --check browser-porch/ritsu-home-center-coordinator.mjs
+          node --check browser-porch/ritsu-home-center-throne-transport.mjs
+          node --check browser-porch/ritsu-coordinator-file-store.mjs
+          node --check browser-porch/ritsu-home-center-cli.mjs
+          node --check browser-porch/ritsu-initiated-chat.mjs
+          node --check browser-porch/ritsu-initiated-chat-cli.mjs
+          node --check functions/ritsu_chat_callback_api.js
+          node --check tools/campaigns/ritsu-mcp-chat-initiate.mjs
+          node --check functions/home_center_mcp.js
+          node --check browser-porch/ritsu-android-gateway.mjs
+          node --check browser-porch/ritsu-android-gateway-runner.mjs
+          node --check browser-porch/ritsu-voice-return.mjs
+          node --check browser-porch/ritsu-canonical-voice-sender.mjs
+          node --check browser-porch/extension/service-worker.js
+      - name: Protocol and relay behavior
+        run: |
+          node --test browser-porch/ritsu-turn-protocol.test.mjs
+          node --test browser-porch/ritsu-chat-relay.test.mjs
+          node --test browser-porch/ritsu-home-center-coordinator.test.mjs
+          node --test browser-porch/ritsu-home-center-cli.test.mjs
+          node --test browser-porch/ritsu-android-gateway.test.mjs
+          node --test browser-porch/ritsu-initiated-chat.test.mjs
+          node --test functions/ritsu_chat_callback_api.test.js
+          node --test tools/campaigns/ritsu-mcp-chat-initiate.test.mjs
+          node -e "const fs=require('fs');const s=fs.readFileSync('functions/home_center_mcp.js','utf8');for(const x of ['ritsuChatCallbackOperationEntries()','ritsuChatCallbackRunOperation({admin, user, operation, args: operationArgs})']){if(!s.includes(x))throw Error('missing hosted MCP registration '+x)}"
+          node --test browser-porch/ritsu-voice-return.test.mjs
+          node --test browser-porch/relay.test.mjs
+          node --test browser-porch/extension/swarm-core.test.mjs browser-porch/extension/throne_context.test.mjs

@@ -1,0 +1,23 @@
+plugins { id 'com.android.application' }
+
+// Opt-in separate package for older debug installs with unrelated signing
+// certificates. Preserves the existing app's private files and conversations.
+def parallelInstall = providers.gradleProperty('ritsuParallelInstall').orElse('false').get() == 'true'
+
+android {
+    namespace 'com.homecenter.ritsucontrol'
+    compileSdk 35
+    defaultConfig {
+        applicationId parallelInstall ? 'com.homecenter.ritsucontrol.connected' : 'com.homecenter.ritsucontrol'
+        manifestPlaceholders = [ritsuAppLabel: parallelInstall ? 'Ritsu Control (Connected)' : 'Ritsu Control']
+        minSdk 26
+        targetSdk 35
+        versionCode 12
+        versionName '0.11.0'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+dependencies { testImplementation 'junit:junit:4.13.2' }

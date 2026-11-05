@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Ritsu Control pairs directly with Home Center cloud via HTTPS owner approval. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- Package visibility for Android's system default RecognitionService. -->
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+    </queries>
+    <!-- App requires explicit user consent for mic and overlay. No boot receiver. -->
+    <application android:allowBackup="false" android:label="${ritsuAppLabel}" android:supportsRtl="true"
+         android:usesCleartextTraffic="false" android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        <activity android:name=".MainActivity" android:exported="true"
+                  android:launchMode="singleTop"
+                  android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- The sign-in happens in the system browser. A PKCE verifier and
+                 one-time state are required before accepting this callback. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="ritsucontrol"
+                      android:host="oauth"
+                      android:path="/callback" />
+            </intent-filter>
+        </activity>
+        <service android:name=".RitsuControlService" android:exported="false" android:foregroundServiceType="specialUse|microphone">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="User-initiated local continuous voice activity detection with visible mute and stop controls; no audio upload." />
+        </service>
+        <!-- Persistent user-added system tile. Does not capture audio and can
+             reopen the control activity even after Android dismisses the FGS notification. -->
+        <service android:name=".RitsuQuickTileService"
+                 android:label="Ritsu"
+                 android:icon="@android:drawable/ic_btn_speak_now"
+                 android:exported="true"
+                 android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+    </application>
+</manifest>
