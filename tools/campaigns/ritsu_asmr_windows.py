@@ -45,6 +45,43 @@ def check_api():
  if d.get('model')!='loaded' or d.get('engine')!='pocket-tts' or d.get('stateSha256',{}).get(PROFILE,'').upper()!=VOICE_SHA:
   raise RuntimeError('Approved whisper model/state mismatch')
  return d
+def inspect_watchdog():
+ """Read only: distinguish missing task, running supervisor, and missing listener."""
+ name='Ritsu Pocket Repertoire Watchdog'
+ ps=r"""
+$ErrorActionPreference='Stop'
+$task=Get-ScheduledTask -TaskName 'Ritsu Pocket Repertoire Watchdog' -ErrorAction SilentlyContinue
+$state=$null;$lastResult=$null;$lastRun=$null;$actionPaths=@()
+if($task){
+ $state=[string]$task.State
+ $info=Get-ScheduledTaskInfo -TaskName $task.TaskName -ErrorAction SilentlyContinue
+ if($info){$lastResult=$info.LastTaskResult;$lastRun=[string]$info.LastRunTime}
+ $actionPaths=@($task.Actions | ForEach-Object { [pscustomobject]@{execute=$_.Execute;arguments=$_.Arguments} })
+}
+$listener=@(Get-NetTCPConnection -State Listen -LocalPort 10205 -ErrorAction SilentlyContinue | ForEach-Object {$_.OwningProcess} | Sort-Object -Unique)
+$related=@(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {$_.CommandLine -match 'ritsu_warm_api_supervisor[.]py|ritsu_pocket_repertoire_server_v2[.]py'} | ForEach-Object {[pscustomobject]@{pid=$_.ProcessId;name=$_.Name;commandline=($_.CommandLine -replace '(?i)(token|secret|password)=[^ ]+','$1=[REDACTED]')}})
+[pscustomobject]@{taskPresent=($null -ne $task);taskState=$state;lastResult=$lastResult;lastRun=$lastRun;taskActions=$actionPaths;listenerPids=$listener;relatedProcesses=$related} | ConvertTo-Json -Depth 5 -Compress
+"""
+ p=subprocess.run(['powershell.exe','-NoProfile','-NonInteractive','-Command',ps],capture_output=True,text=True,timeout=25)
+ if p.returncode:raise RuntimeError('WATCHDOG_INSPECT_FAILED: '+p.stderr[-180:])
+ try:return json.loads(p.stdout)
+ except json.JSONDecodeError as e:raise RuntimeError('WATCHDOG_INSPECT_BAD_JSON') from e
+def recover_watchdog():
+ """Only ask the already installed canonical watchdog task to start; never spawn TTS ourselves."""
+ before=inspect_watchdog()
+ if not before.get('taskPresent'):raise RuntimeError('WATCHDOG_TASK_MISSING; no bootstrap or substitute authorized')
+ if before.get('listenerPids'):raise RuntimeError('PORT_ALREADY_LISTENING; use doctor to verify model')
+ if before.get('taskState') in ('Running','Queued'):raise RuntimeError('WATCHDOG_ALREADY_RUNNING; not dispatching duplicate')
+ if before.get('taskState') not in ('Ready',):raise RuntimeError('WATCHDOG_NOT_READY: '+str(before.get('taskState')))
+ proc=subprocess.run(['schtasks.exe','/run','/tn','Ritsu Pocket Repertoire Watchdog'],capture_output=True,text=True,timeout=15)
+ if proc.returncode:raise RuntimeError('WATCHDOG_TASK_START_REFUSED: '+proc.stderr[-180:])
+ # The task was requested, not proof Pocket loaded: bounded verification required.
+ for attempt in range(10):
+  time.sleep(2)
+  try:return {'recovery':'existing_watchdog_verified','doctor':check_api(),'before':before}
+  except RuntimeError as e:
+   if 'POCKET_API_UNREACHABLE' not in str(e):raise
+ raise RuntimeError('WATCHDOG_REQUESTED_BUT_POCKET_NOT_READY; inspect without dispatching a duplicate')
 def synth(text):
  data=json.dumps({'text':text,'profile':PROFILE}).encode()
  req=urllib.request.Request(BASE+'/tts',data=data,headers={'Content-Type':'application/json'},method='POST')
@@ -109,10 +146,12 @@ def start(ep,source):
  finally:log.close()
  print(json.dumps(state(folder,pid=proc.pid,phase='launched')))
 def main():
- p=argparse.ArgumentParser();p.add_argument('verb',choices=['doctor','start','work','status','resume','stop','receipts']);p.add_argument('--episode',default='RITSU_ASMR_CANARY');p.add_argument('--input');a=p.parse_args();folder=folder_for(a.episode)
+ p=argparse.ArgumentParser();p.add_argument('verb',choices=['doctor','inspect','recover','start','work','status','resume','stop','receipts']);p.add_argument('--episode',default='RITSU_ASMR_CANARY');p.add_argument('--input');a=p.parse_args();folder=folder_for(a.episode)
  try:
   if a.verb=='doctor':
    h=check_api();print(json.dumps({'doctor':'PASS','engine':h.get('engine'),'voiceSha256':VOICE_SHA,'sampleRate':h.get('sampleRate')}))
+  elif a.verb=='inspect':print(json.dumps({'inspect':inspect_watchdog()}))
+  elif a.verb=='recover':print(json.dumps(recover_watchdog()))
   elif a.verb=='start':start(a.episode,a.input)
   elif a.verb=='resume':
    if not folder.exists():raise RuntimeError('No run to resume')
