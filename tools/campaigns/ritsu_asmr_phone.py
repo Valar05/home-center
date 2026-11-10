@@ -28,7 +28,7 @@ def review_source():
  commit=shell('git','-C',str(ROOT),'rev-parse','HEAD')
  if not re.fullmatch(r'[0-9a-f]{40}',commit):raise RuntimeError('Invalid Git revision')
  for path in (LOCAL,REMOTE):
-  data=shell('git','-C',str(ROOT),'show',commit+':'+path).encode()
+  data=subprocess.check_output(['git','-C',str(ROOT),'show',commit+':'+path],timeout=40)
   if data!= (ROOT/path).read_bytes():raise RuntimeError('Pinned source mismatch: '+path)
  return commit,sha((ROOT/REMOTE).read_bytes())
 def staging(episode,data):
@@ -106,7 +106,7 @@ def main():
  except Exception as e:
   lines+=['STATUS=BLOCKED','ERROR='+type(e).__name__+': '+str(e)[:500]]
   result=2
- receipt='\\n'.join(lines)+'\\n'
+ receipt='\n'.join(lines)+'\n'
  # Do not put transcript, keys, or credentials in the receipt or clipboard.
  (STATE/'latest.txt').write_text(receipt,encoding='utf-8')
  print(receipt,flush=True)
