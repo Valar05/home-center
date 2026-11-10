@@ -83,7 +83,7 @@ def render(ep):
  if dest.exists():raise RuntimeError('Output collision: refusing overwrite')
  os.replace(folder/'mix.partial.wav',dest)
  with wave.open(str(dest),'rb') as w:duration=w.getnframes()/w.getframerate()
- receipt={'phase':'rendered_not_delivered','episodeId':ep,'profile':PROFILE,'voiceSha256':VOICE_SHA,'wavPath':str(dest),'wavSha256':sha(dest.read_bytes()),'bytes':dest.stat().st_size,'durationSeconds':round(duration,3),'textSha256':sha(payload),'segments':len(plan),'wordCount':len(text.split())}
+ receipt={'phase':'rendered_not_delivered','episodeId':ep,'profile':PROFILE,'voiceSha256':VOICE_SHA,'wavPath':str(dest),'wavSha256':sha(dest.read_bytes()),'bytes':dest.stat().st_size,'durationSeconds':round(duration,3),'textSha256':sha(payload),'segments':len(plan),'wordCount':len(text.split()),'sourceCommit':os.environ.get('RITSU_ASMR_SOURCE_COMMIT',''),'rendererSha256':sha(Path(__file__).read_bytes())}
  atomic(folder/'receipt.json',receipt);state(folder,**receipt)
 def start(ep,source):
  folder=folder_for(ep)
