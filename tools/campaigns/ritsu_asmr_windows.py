@@ -38,7 +38,10 @@ def parse(text):
  if not any(k=='speech' for k,v in segments):raise ValueError('No speech')
  return segments
 def check_api():
- with urllib.request.urlopen(BASE+'/health',timeout=8) as r:d=json.load(r)
+ try:
+  with urllib.request.urlopen(BASE+'/health',timeout=8) as r:d=json.load(r)
+ except (OSError, ValueError) as e:
+  raise RuntimeError('POCKET_API_UNREACHABLE at 127.0.0.1:10205. SSH succeeded; inspect existing Windows scheduled task Ritsu Pocket Repertoire Watchdog and Pocket supervisor, without starting a replacement engine. Cause: '+str(e)[:140]) from e
  if d.get('model')!='loaded' or d.get('engine')!='pocket-tts' or d.get('stateSha256',{}).get(PROFILE,'').upper()!=VOICE_SHA:
   raise RuntimeError('Approved whisper model/state mismatch')
  return d
