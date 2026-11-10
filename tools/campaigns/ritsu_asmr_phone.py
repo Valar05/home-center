@@ -23,9 +23,9 @@ def ps(script):
 def quote(s):return "'"+s.replace("'","''")+"'"
 def is_canonical_origin(url):
  # Do not accept a lookalike host, a parent repository, or a token-bearing URL.
- allowed=(r'https://github\\.com/Valar05/home-center(?:\\.git)?/?',
-          r'git@github\\.com:Valar05/home-center(?:\\.git)?',
-          r'ssh://git@github\\.com/Valar05/home-center(?:\\.git)?/?')
+ allowed=(r'https://github\.com/Valar05/home-center(?:\.git)?/?',
+          r'git@github\.com:Valar05/home-center(?:\.git)?',
+          r'ssh://git@github\.com/Valar05/home-center(?:\.git)?/?')
  return any(re.fullmatch(pattern,url.strip(),re.I) for pattern in allowed)
 def review_source():
  if not (ROOT/'AGENTS.md').is_file():raise RuntimeError('Not the intended Home Center checkout')
@@ -69,7 +69,7 @@ if (!(Test-Path -LiteralPath $program) -or ((Get-FileHash -Algorithm SHA256 -Lit
  if ((Get-FileHash -Algorithm SHA256 -LiteralPath $temporary).Hash -ne $expected) {Remove-Item -LiteralPath $temporary -Force;throw 'Pinned source digest mismatch'}
  Move-Item -LiteralPath $temporary -Destination $program -Force
 }
-$python=Join-Path $env:USERPROFILE 'workspace\\ritsu-faster-qwen3-tts\\.venv\\Scripts\\python.exe'
+$python=Join-Path $env:USERPROFILE 'workspace\\ritsu-faster-qwen3-tts\.venv\\Scripts\\python.exe'
 if (!(Test-Path -LiteralPath $python)) {throw 'Approved Python runtime not found'}
 $env:RITSU_ASMR_SOURCE_COMMIT='__COMMIT__'\n$arguments=@($program,'__VERB__','--episode','__EP__')
 __INPUT__
