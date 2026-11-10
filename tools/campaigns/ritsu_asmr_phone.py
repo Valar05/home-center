@@ -19,6 +19,8 @@ def ps(script):
  output=p.stdout[-5000:]
  print(output,flush=True)
  if p.returncode:raise RuntimeError('CAULDRON_REMOTE_EXIT_'+str(p.returncode))
+ if 'RITSU_ASMR_REMOTE_OK=1' not in output.splitlines():
+  raise RuntimeError('REMOTE_SUCCESS_MARKER_MISSING (Windows operation failed or returned ambiguous status)')
  return output
 def quote(s):return "'"+s.replace("'","''")+"'"
 def is_canonical_origin(url):
@@ -47,7 +49,8 @@ def staging(episode,data):
   script="$ErrorActionPreference='Stop';$p="+quote(target)+";$p=$ExecutionContext.InvokeCommand.ExpandString($p);$dir=Split-Path $p;New-Item -ItemType Directory -Force -Path $dir|Out-Null;"
   script+="$s=if(Test-Path -LiteralPath $p){[IO.File]::ReadAllText($p)}else{''};$o="+str(off)+";$chunk="+quote(piece)+";"
   script+="if($s.Length -eq $o){[IO.File]::AppendAllText($p,$chunk,[Text.Encoding]::ASCII)}elseif($s.Length -ge ($o+$chunk.Length) -and $s.Substring($o,$chunk.Length) -ceq $chunk){}else{throw 'Staging offset collision'};"
-  script+="Write-Output ('STAGED='+[IO.File]::ReadAllText($p).Length)"
+  script+="Write-Output ('STAGED='+[IO.File]::ReadAllText($p).Length);Write-Output 'RITSU_ASMR_REMOTE_OK=1'"
+  # Staging commands print the exact success marker only after validating the offset.
   ps(script)
  return digest,target
 def remote_run(commit,expected,verb,episode,input_data):
@@ -75,6 +78,7 @@ $env:RITSU_ASMR_SOURCE_COMMIT='__COMMIT__'\n$arguments=@($program,'__VERB__','--
 __INPUT__
 & $python @arguments
 if ($LASTEXITCODE -ne 0) {exit $LASTEXITCODE}
+Write-Output 'RITSU_ASMR_REMOTE_OK=1'
 """
  if input_data is not None:
   extra="""$encoded=Join-Path $env:LOCALAPPDATA '__ENCODED__'
@@ -108,7 +112,7 @@ def main():
   if data is not None and len(data)>150000:raise ValueError('Input exceeds 150 kB')
   if data is not None:data.decode('utf-8-sig')
   remote_run(commit,hashvalue,a.verb,a.episode,data)
-  lines+=['SSH_COMMAND_RETURNED=YES','RENDER_NOT_INFERRED=YES']
+  lines+=['SSH_COMMAND_RETURNED=YES','REMOTE_OPERATION_CONFIRMED=YES','RENDER_NOT_INFERRED=YES']
   result=0
  except Exception as e:
   lines+=['STATUS=BLOCKED','ERROR='+type(e).__name__+': '+str(e)[:500]]
