@@ -27,8 +27,24 @@ def test_phone_remote_gate():
   'https://user:token@github.com/Valar05/home-center.git']
  assert all(phone.is_canonical_origin(x) for x in accepted), 'Canonical GitHub remote falsely rejected'
  assert not any(phone.is_canonical_origin(x) for x in rejected), 'Spoofed GitHub remote accepted'
+def test_remote_success_gate():
+ src=Path(__file__).with_name('ritsu_asmr_phone.py')
+ spec=importlib.util.spec_from_file_location('ritsu_as_phone_status',src)
+ phone=importlib.util.module_from_spec(spec);spec.loader.exec_module(phone)
+ from unittest.mock import patch
+ from types import SimpleNamespace
+ def fake(returncode,output):
+  return SimpleNamespace(returncode=returncode,stdout=output)
+ with patch.object(phone.subprocess,'run',return_value=fake(0,'RITSU_ASMR_REMOTE_OK=1\\n')):
+  assert 'RITSU_ASMR_REMOTE_OK=1' in phone.ps('Write-Output 1')
+ for code,output in [(0,'{"phase": "blocked"}\\n'),(255,'RITSU_ASMR_REMOTE_OK=1\\n')]:
+  with patch.object(phone.subprocess,'run',return_value=fake(code,output)):
+   try:phone.ps('Write-Output 1')
+   except RuntimeError:pass
+   else:raise AssertionError('Invalid Windows operation response accepted')
 def test():
  test_phone_remote_gate()
+ test_remote_success_gate()
  expected=[('speech','Hello there.'),('pause',1500),('speech','Good rest.')]
  assert r.parse('Hello there.\n\n[Pause:1500]\n\nGood rest.')==expected
  for value in ('x'*451,'[Explosive thunder]','[Pause:31000]'):
