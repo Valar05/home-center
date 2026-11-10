@@ -97,7 +97,7 @@ $arguments+=@('--input',$incoming)
  return ps(script)
 def main():
  p=argparse.ArgumentParser()
- p.add_argument('verb',nargs='?',default='doctor',choices=['doctor','start','status','resume','stop','receipts'])
+ p.add_argument('verb',nargs='?',default='doctor',choices=['doctor','inspect','recover','start','status','resume','stop','receipts'])
  p.add_argument('--episode',default='RITSU_ASMR_CANARY')
  p.add_argument('--input',type=Path)
  a=p.parse_args()
