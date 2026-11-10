@@ -35,9 +35,9 @@ def test_remote_success_gate():
  from types import SimpleNamespace
  def fake(returncode,output):
   return SimpleNamespace(returncode=returncode,stdout=output)
- with patch.object(phone.subprocess,'run',return_value=fake(0,'RITSU_ASMR_REMOTE_OK=1\\n')):
+ with patch.object(phone.subprocess,'run',return_value=fake(0,'RITSU_ASMR_REMOTE_OK=1\n')):
   assert 'RITSU_ASMR_REMOTE_OK=1' in phone.ps('Write-Output 1')
- for code,output in [(0,'{"phase": "blocked"}\\n'),(255,'RITSU_ASMR_REMOTE_OK=1\\n')]:
+ for code,output in [(0,'{"phase": "blocked"}\n'),(255,'RITSU_ASMR_REMOTE_OK=1\n')]:
   with patch.object(phone.subprocess,'run',return_value=fake(code,output)):
    try:phone.ps('Write-Output 1')
    except RuntimeError:pass
