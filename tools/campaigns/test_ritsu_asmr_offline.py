@@ -42,7 +42,18 @@ def test_remote_success_gate():
    try:phone.ps('Write-Output 1')
    except RuntimeError:pass
    else:raise AssertionError('Invalid Windows operation response accepted')
+def test_watchdog_guard():
+ from unittest.mock import patch
+ with patch.object(r,'inspect_watchdog',return_value={'taskPresent':False}):
+  try:r.recover_watchdog()
+  except RuntimeError as e:assert 'WATCHDOG_TASK_MISSING' in str(e)
+  else:raise AssertionError('Missing watchdog should block recovery')
+ with patch.object(r,'inspect_watchdog',return_value={'taskPresent':True,'listenerPids':[],'relatedProcesses':[{'pid':42}],'taskState':'Ready'}):
+  try:r.recover_watchdog()
+  except RuntimeError as e:assert 'PROCESS_ALREADY_PRESENT' in str(e)
+  else:raise AssertionError('Existing Pocket process should block duplicate recovery')
 def test():
+ test_watchdog_guard()
  test_phone_remote_gate()
  test_remote_success_gate()
  expected=[('speech','Hello there.'),('pause',1500),('speech','Good rest.')]
