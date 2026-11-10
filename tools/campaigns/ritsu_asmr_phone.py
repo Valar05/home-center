@@ -64,7 +64,7 @@ if (!(Test-Path -LiteralPath $program) -or ((Get-FileHash -Algorithm SHA256 -Lit
 }
 $python=Join-Path $env:USERPROFILE 'workspace\\ritsu-faster-qwen3-tts\\.venv\\Scripts\\python.exe'
 if (!(Test-Path -LiteralPath $python)) {throw 'Approved Python runtime not found'}
-$arguments=@($program,'__VERB__','--episode','__EP__')
+$env:RITSU_ASMR_SOURCE_COMMIT='__COMMIT__'\n$arguments=@($program,'__VERB__','--episode','__EP__')
 __INPUT__
 & $python @arguments
 if ($LASTEXITCODE -ne 0) {exit $LASTEXITCODE}
