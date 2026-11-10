@@ -21,14 +21,16 @@ def ps(script):
  if p.returncode:raise RuntimeError('CAULDRON_REMOTE_EXIT_'+str(p.returncode))
  return output
 def quote(s):return "'"+s.replace("'","''")+"'"
+def is_canonical_origin(url):
+ # Do not accept a lookalike host, a parent repository, or a token-bearing URL.
+ allowed=(r'https://github\\.com/Valar05/home-center(?:\\.git)?/?',
+          r'git@github\\.com:Valar05/home-center(?:\\.git)?',
+          r'ssh://git@github\\.com/Valar05/home-center(?:\\.git)?/?')
+ return any(re.fullmatch(pattern,url.strip(),re.I) for pattern in allowed)
 def review_source():
  if not (ROOT/'AGENTS.md').is_file():raise RuntimeError('Not the intended Home Center checkout')
  url=shell('git','-C',str(ROOT),'remote','get-url','origin')
- # GitHub HTTPS and SSH remotes are both legitimate; require the full canonical identity.
- allowed=(r'https://github\.com/Valar05/home-center(?:\.git)?/?',
-          r'git@github\.com:Valar05/home-center(?:\.git)?',
-          r'ssh://git@github\.com/Valar05/home-center(?:\.git)?/?')
- if not any(re.fullmatch(pattern,url.strip(),re.I) for pattern in allowed):
+ if not is_canonical_origin(url):
   raise RuntimeError('Wrong Git remote (expected Valar05/home-center on github.com)')
  commit=shell('git','-C',str(ROOT),'rev-parse','HEAD')
  if not re.fullmatch(r'[0-9a-f]{40}',commit):raise RuntimeError('Invalid Git revision')
