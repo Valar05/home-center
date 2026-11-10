@@ -24,7 +24,12 @@ def quote(s):return "'"+s.replace("'","''")+"'"
 def review_source():
  if not (ROOT/'AGENTS.md').is_file():raise RuntimeError('Not the intended Home Center checkout')
  url=shell('git','-C',str(ROOT),'remote','get-url','origin')
- if not re.search(r'Valar05/home-center(?:\\.git)?$',url,re.I):raise RuntimeError('Wrong Git remote')
+ # GitHub HTTPS and SSH remotes are both legitimate; require the full canonical identity.
+ allowed=(r'https://github\.com/Valar05/home-center(?:\.git)?/?',
+          r'git@github\.com:Valar05/home-center(?:\.git)?',
+          r'ssh://git@github\.com/Valar05/home-center(?:\.git)?/?')
+ if not any(re.fullmatch(pattern,url.strip(),re.I) for pattern in allowed):
+  raise RuntimeError('Wrong Git remote (expected Valar05/home-center on github.com)')
  commit=shell('git','-C',str(ROOT),'rev-parse','HEAD')
  if not re.fullmatch(r'[0-9a-f]{40}',commit):raise RuntimeError('Invalid Git revision')
  for path in (LOCAL,REMOTE):
