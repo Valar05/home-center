@@ -59,7 +59,7 @@ if($task){
  $actionPaths=@($task.Actions | ForEach-Object { [pscustomobject]@{execute=$_.Execute;arguments=$_.Arguments} })
 }
 $listener=@(Get-NetTCPConnection -State Listen -LocalPort 10205 -ErrorAction SilentlyContinue | ForEach-Object {$_.OwningProcess} | Sort-Object -Unique)
-$related=@(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {$_.CommandLine -match 'ritsu_warm_api_supervisor[.]py|ritsu_pocket_repertoire_server_v2[.]py'} | ForEach-Object {[pscustomobject]@{pid=$_.ProcessId;name=$_.Name;commandline=($_.CommandLine -replace '(?i)(token|secret|password)=[^ ]+','$1=[REDACTED]')}})
+$related=@(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {$_.CommandLine -match 'ritsu_warm_api_supervisor[.]py|ritsu_pocket_repertoire_server_v2[.]py'} | ForEach-Object {[pscustomobject]@{pid=$_.ProcessId;name=$_.Name;commandline='[OMITTED]'}})
 [pscustomobject]@{taskPresent=($null -ne $task);taskState=$state;lastResult=$lastResult;lastRun=$lastRun;taskActions=$actionPaths;listenerPids=$listener;relatedProcesses=$related} | ConvertTo-Json -Depth 5 -Compress
 """
  p=subprocess.run(['powershell.exe','-NoProfile','-NonInteractive','-Command',ps],capture_output=True,text=True,timeout=25)
@@ -71,6 +71,7 @@ def recover_watchdog():
  before=inspect_watchdog()
  if not before.get('taskPresent'):raise RuntimeError('WATCHDOG_TASK_MISSING; no bootstrap or substitute authorized')
  if before.get('listenerPids'):raise RuntimeError('PORT_ALREADY_LISTENING; use doctor to verify model')
+ if before.get('relatedProcesses'):raise RuntimeError('POCKET_OR_SUPERVISOR_PROCESS_ALREADY_PRESENT; inspect before requesting another launch')
  if before.get('taskState') in ('Running','Queued'):raise RuntimeError('WATCHDOG_ALREADY_RUNNING; not dispatching duplicate')
  if before.get('taskState') not in ('Ready',):raise RuntimeError('WATCHDOG_NOT_READY: '+str(before.get('taskState')))
  proc=subprocess.run(['schtasks.exe','/run','/tn','Ritsu Pocket Repertoire Watchdog'],capture_output=True,text=True,timeout=15)
