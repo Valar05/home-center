@@ -51,3 +51,8 @@ This v1 is a **Windows-render / phone-controlled** implementation. The completed
 - If a previous worker is ambiguous: block a duplicate launch.
 - If an individual WAV fails: retain existing verified segments and report the exact stage.
 - Preserve Pocket voice assets, Windows and Android worktrees, authentication keys, and live phone queue unchanged.
+
+## 2026-11-10 Pocket listener recovery
+Observed on physical Termux -> existing cauldron SSH -> THECAULDRON: doctor reached Windows but `127.0.0.1:10205` refused connections (WinError 10061). Phone SSH return must not be mistaken for Pocket service readiness.
+
+Before asking the existing watchdog to do anything, run `python3 tools/campaigns/ritsu_asmr_phone.py inspect`. This only examines the existing named Windows task `Ritsu Pocket Repertoire Watchdog`, its last result, process identities and listening port. If the task exists, is Ready, no listener and no matching Pocket/supervisor processes exist, `python3 tools/campaigns/ritsu_asmr_phone.py recover` asks **that same pre-existing scheduled task** to start. It does not install, patch, kill, replace or manually launch TTS. If task is running, absent or evidence ambiguous, recovery fails closed. The recovery then waits a bounded period for the original Pocket `/health` endpoint and exact approved whisper voice SHA. A task scheduling receipt alone never proves the server loaded. The **first next command** is `inspect`, not `recover`, to learn which branch applies.
