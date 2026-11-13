@@ -1,5 +1,5 @@
 # OST Etiquette
-**Version:** 1.0 · **Created:** 2026-11-13 · **Owner:** Drew Clarke  
+**Version:** 1.1 · **Created:** 2026-11-13 · **Updated:** 2026-11-13 · **Owner:** Drew Clarke  
 **Purpose:** A repeatable, evidence-driven procedure for turning a small collection of instrumental soundtrack recordings into a continuous, long-form OST, then optionally pairing it with exact supplied cover art for YouTube.  
 **Reference production:** *Blue Eyes, Crimson Jewels* (one-hour seamless mix, 2026-11-13).
 
@@ -60,6 +60,8 @@ This is the actual sequence recorded in the surviving chapter sheet. Chapter sta
 ## 4. Standard operating procedure
 
 ### A. Collect an explicit commission
+**Owner clarification (2026-11-13):** The default target duration for an OST mix or YouTube soundtrack video made under this etiquette is **one hour (60:00)** unless the owner specifies another runtime. Do not silently change this into a single pass through the input recordings merely because a new commission doesn't repeat the runtime requirement. Ask only if a genuine conflicting instruction makes duration ambiguous.
+
 Record: desired soundtrack or character/scene; exact supplied tracks/takes; target total runtime; repeats allowed or forbidden; consecutive-repeat exclusion; transition style; final audio format; visual asset, if any; video dimensions; final destination. For this reference: user specified an **hour-long arrangement of multiple songs**, **seamless blending**, repeats allowed **but never back to back**, and a YouTube MP4 with the chosen vampire cover art.
 
 ### B. Inventory and preserve
@@ -174,3 +176,11 @@ deliver files, chapters, manifest and receipts via authorized destination
 - [ ] Final actual file linked; durable Home Center evidence read back.
 
 **Standing principle:** Build **one cohesive listening experience from multiple real recordings**, let repetition serve the atmosphere without becoming conspicuous, and never trade away the commissioned music, visual, runtime or delivery lane for a convenient approximation.
+
+## 8. Standing one-hour runtime and same-title library exception (added 2026-11-13)
+
+- **Default means 60 minutes.** An OST request invoking this etiquette, including one with cover art and multiple uploaded audio files, is a one-hour commission unless the user explicitly overrides it. Finish the crossfade program and the full-length MP4. Deliver the real video, not just the audio master or a proposed video.
+- When multiple distinct recordings have **one shared composition title**, it is mathematically impossible to enforce composition-level nonadjacency without adding unauthorized music. Do not add unauthorized music. Instead ensure **no immediate repetition of the exact recording**, vary the order of takes between passes, document this constrained exception and preserve source hashes.
+- Do not confuse source uniqueness (different hashes) with verified musical identity. Name recordings from the supplied filenames until a separate musical audit establishes whether they represent compositions or variants.
+- **Verified production example:** [GOOD GIRL — one-hour YouTube OST, 2026-11-13](OST_GOOD_GIRL_2026-11-13.md): eight distinct MP3 files, 21 placements, 20 equal-power crossfades of 7.8614966 seconds, a 60:00 MP4 containing the user's exact image as a 1920×1080 still frame and a 60:00 AAC audio stream. File sizes, hashes, exact chapters, and limitations are recorded in that production document.
+- Home Center repository commits and file hashes preserve **documentation and provenance**, but they do not by themselves prove a durable remote upload of the binary video. Require a separate verified artifact-ingest receipt before claiming the actual MP4 is durably stored outside the conversation.
