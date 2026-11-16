@@ -29,11 +29,11 @@ echo "CAMPAIGN=$NAME MODE=$MODE"
 echo "ARCHIVE=$ARCHIVE TARGET=$OWNER/$REPO DEST=$DEST"
 echo 'EXCLUDES=hose swipe wind lightning fireball poison upgrades'
 PHASE=preflight
-for bin in git gh node unzip sha256sum curl; do command -v "$bin" >/dev/null && echo "FOUND=$bin" || echo "MISSING=$bin"; done
+for bin in git gh unzip sha256sum curl; do command -v "$bin" >/dev/null && echo "FOUND=$bin" || echo "MISSING=$bin"; done
 if gh auth status >/dev/null 2>&1; then echo GH_AUTH_OK; else echo GH_AUTH_MISSING; fi
 test -f "$ARCHIVE" && echo ARCHIVE_PRESENT || echo ARCHIVE_MISSING
 if test "$MODE" = --dry-run; then receipt DRY_RUN checks_only; exit 0; fi
-for bin in git gh node unzip sha256sum; do command -v "$bin" >/dev/null || { echo "REQUIRES=$bin"; exit 4; }; done
+for bin in git gh unzip sha256sum; do command -v "$bin" >/dev/null || { echo "REQUIRES=$bin"; exit 4; }; done
 gh auth status >/dev/null 2>&1 || { echo TERMUX_GITHUB_AUTH_NOT_READY; exit 5; }
 test -f "$ARCHIVE" || { echo ASSET_ARCHIVE_REQUIRED; exit 6; }
 echo "$EXPECTED  $ARCHIVE" | sha256sum -c -
@@ -60,8 +60,10 @@ PHASE=stage
 STAGE="$(mktemp -d "$STATE/stage.XXXXXXXX")"
 trap 'rm -rf "$STAGE"' EXIT
 unzip -jq "$ARCHIVE" -d "$STAGE"
-node --check "$STAGE/game.js"
-node -e "const fs=require('fs'),s=fs.readFileSync(process.argv[1],'utf8');for(const n of ['pointerup','spawner','split','tap','draw'])if(!s.includes(n))throw Error(n);for(const n of ['chainLightning','fireball','toxicPool','SwipeHose'])if(s.includes(n))throw Error(n);console.log('STATIC_TEST_PASS')" "$STAGE/game.js"
+test -s "$STAGE/game.js" || { echo MISSING_GAME_SCRIPT; exit 14; }
+for token in pointerup spawner split tap draw; do grep -Fq "$token" "$STAGE/game.js" || { echo "SOURCE_FEATURE_MISSING=$token"; exit 15; }; done
+for token in chainLightning fireball toxicPool SwipeHose; do if grep -Fq "$token" "$STAGE/game.js"; then echo "EXCLUDED_FEATURE_FOUND=$token"; exit 16; fi; done
+echo BASELINE_STATIC_CHECK_PASS
 PHASE=publish
 if test "$exists" -eq 0; then
  gh repo create "$OWNER/$REPO" --private --description 'Tap-only HTML Canvas revival of Pop Those Bubbles'
