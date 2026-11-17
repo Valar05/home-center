@@ -1,0 +1,33 @@
+name: THECAULDRON Hardening Contract
+
+on:
+  pull_request:
+    paths:
+      - 'computer-hands/windows/**'
+      - '.github/workflows/cauldron-hardening-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'computer-hands/windows/**'
+      - '.github/workflows/cauldron-hardening-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-contract:
+    runs-on: self-hosted
+    timeout-minutes: 10
+    steps:
+      - name: Refuse wrong execution body
+        shell: powershell
+        run: |
+          if ($env:COMPUTERNAME -ine 'THECAULDRON') {
+            throw "Refusing hardening contract on $env:COMPUTERNAME; expected THECAULDRON."
+          }
+          Write-Host "CAULDRON_HARDENING_BODY_OK computer=$env:COMPUTERNAME"
+      - uses: actions/checkout@v4
+      - name: Parse and enforce hardening invariants
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File computer-hands/windows/test-hardening-contract.ps1
