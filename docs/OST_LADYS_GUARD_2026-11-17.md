@@ -42,3 +42,6 @@ Two differently ordered complete passes of eight files and three additional plac
 00:56:48 The Gallant Hart (take 3)
 ## Evidence boundary
 Binary files rendered and verified in conversation artifact runtime and delivered through download links. Remote binary archival and actual owner playback not verified. This receipt is not a claim of remote binary upload.
+
+## Revised cover edition — 2026-11-17
+Owner supplied replacement 16:9 image 880.png (1536×864), SHA-256 a7d7b89fde680629a741dd4a898e29dc304a410724a5362f1b23c82a41ff7109. Original cover edition retained. New file Ladys_Guard_One_Hour_New_Cover_1080p.mp4: 116945540 bytes, SHA-256 8b39ed2e842ec6d7a3061083ce04abd82b6603b96196d02657ddbb0c0220b359. Both streams exactly 3600.000000 seconds, H.264 1920×1080 at 1 fps and AAC stereo. Cover scaled without cropping or regeneration, encoded in a 300-second segment and repeated by stream copy. Checked frames at 5, 1800 and 3599 seconds against supplied image, mean RGB absolute differences 2.688, 2.689 and 2.636 on 0–255 scale. Audio master copied without re-encoding; packet-stream SHA-256 matches original master exactly: 1f89e8fa41889a66a8659c6e0c7ca1e8c29834e6d3bfa8a197f7de6d2b412d32. Track order and chapters unchanged. Conversation artifact delivery only; remote binary archival and owner playback unverified.
