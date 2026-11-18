@@ -25,15 +25,37 @@ $d=Join-Path $env:LOCALAPPDATA 'DrewVoice\code\__HASH__'
 New-Item -ItemType Directory -Force -Path $d|Out-Null
 $p=Join-Path $d 'drew_voice_factory_windows.py'
 if(!(Test-Path $p)){
- $tmp=$p+'.incoming'
+ $tmp=$p+'.'+[guid]::NewGuid().ToString('N')+'.incoming'
  Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Valar05/home-center/__COMMIT__/tools/campaigns/drew_voice_factory_windows.py' -OutFile $tmp -TimeoutSec 40
  if((Get-FileHash -LiteralPath $tmp).Hash -ne '__HASH__'){throw 'SOURCE_DIGEST_MISMATCH'}
  Move-Item -LiteralPath $tmp -Destination $p
 }
 if((Get-FileHash -LiteralPath $p).Hash -ne '__HASH__'){throw 'SOURCE_DIGEST_MISMATCH'}
-Write-Output 'RITSU_ASMR_REMOTE_OK=1'
+[Console]::WriteLine('RITSU_ASMR_REMOTE_OK=1')
 """
-   t.ps(install.replace('__HASH__',digest).replace('__COMMIT__',commit),quiet=True,stage='factory-install')
+   check=r"""
+$ErrorActionPreference='Stop'
+$p=Join-Path $env:LOCALAPPDATA 'DrewVoice\code\__HASH__\drew_voice_factory_windows.py'
+$j=@{present=(Test-Path -LiteralPath $p -PathType Leaf);matches=$false}
+if($j.present){$j.matches=((Get-FileHash -Algorithm SHA256 -LiteralPath $p).Hash -eq '__HASH__')}
+$b=[Text.Encoding]::UTF8.GetBytes(($j|ConvertTo-Json -Compress))
+$e=[Convert]::ToBase64String($b)
+$h=([BitConverter]::ToString(([Security.Cryptography.SHA256]::Create()).ComputeHash($b))).Replace('-','')
+[Console]::WriteLine(('JSTART:'+$e.Length))
+for($i=0;$i -lt $e.Length;$i+=16){[Console]::WriteLine(('J:{0:D5}:{1}' -f ($i/16),$e.Substring($i,[Math]::Min(16,$e.Length-$i))))}
+for($i=0;$i -lt 64;$i+=16){[Console]::WriteLine(('H:{0}:{1}' -f ($i/16),$h.Substring($i,16)))}
+[Console]::WriteLine('RITSU_ASMR_REMOTE_OK=1')
+"""
+   def installed():
+    return t.extract_result(t.ps(check.replace('__HASH__',digest),quiet=True,stage='factory-install-check'))
+   found=installed()
+   if found['present'] and not found['matches']:raise RuntimeError('Existing pinned Windows source differs; preserve it')
+   if not found['matches']:
+    try:t.ps(install.replace('__HASH__',digest).replace('__COMMIT__',commit),quiet=True,stage='factory-install')
+    except (t.RemoteFailure,subprocess.TimeoutExpired):
+     if not installed()['matches']:raise
+    if not installed()['matches']:raise RuntimeError('Windows source installation not verified')
+   lines+=['WINDOWS_SOURCE_VERIFIED=YES']
    launch=r"""
 $ErrorActionPreference='Stop'
 $n='DrewVoice-Factory-v1'
@@ -50,7 +72,7 @@ $principal=New-ScheduledTaskPrincipal -UserId ([Security.Principal.WindowsIdenti
 $settings=New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 30)
 Register-ScheduledTask -TaskName $n -Action $act -Principal $principal -Settings $settings -Force|Out-Null
 Start-ScheduledTask -TaskName $n
-Write-Output 'RITSU_ASMR_REMOTE_OK=1'
+[Console]::WriteLine('RITSU_ASMR_REMOTE_OK=1')
 """
    t.ps(launch.replace('__HASH__',digest),quiet=True,stage='factory-schedule')
    lines+=['DISPATCH_REQUESTED=YES']
@@ -69,7 +91,7 @@ $h=([BitConverter]::ToString(([Security.Cryptography.SHA256]::Create()).ComputeH
 [Console]::WriteLine(('JSTART:'+$e.Length))
 for($i=0;$i -lt $e.Length;$i+=16){[Console]::WriteLine(('J:{0:D5}:{1}' -f ($i/16),$e.Substring($i,[Math]::Min(16,$e.Length-$i))))}
 for($i=0;$i -lt 64;$i+=16){[Console]::WriteLine(('H:{0}:{1}' -f ($i/16),$h.Substring($i,16)))}
-Write-Output 'RITSU_ASMR_REMOTE_OK=1'
+[Console]::WriteLine('RITSU_ASMR_REMOTE_OK=1')
 """
   out=t.ps(script,quiet=True,stage='factory-status')
   lines+=['WINDOWS_RESULT='+json.dumps(t.extract_result(out),separators=(',',':')),'SPEECH_RENDERED=NO','LIVE_RITSU_MODIFIED=NO'];rc=0
