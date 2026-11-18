@@ -75,7 +75,7 @@ if (!(Test-Path -LiteralPath $program) -or ((Get-FileHash -Algorithm SHA256 -Lit
  if ((Get-FileHash -Algorithm SHA256 -LiteralPath $temporary).Hash -ne $expected) {Remove-Item -LiteralPath $temporary -Force;throw 'Pinned source digest mismatch'}
  Move-Item -LiteralPath $temporary -Destination $program -Force
 }
-$python=Join-Path $env:USERPROFILE 'workspace\\ritsu-faster-qwen3-tts\.venv\\Scripts\\python.exe'
+$python=Join-Path $env:USERPROFILE 'workspace\\ritsu-faster-qwen3-tts\\.venv\\Scripts\\python.exe'
 if (!(Test-Path -LiteralPath $python)) {throw 'Approved Python runtime not found'}
 $env:RITSU_ASMR_SOURCE_COMMIT='__COMMIT__'
 $arguments=@($program,'__VERB__','--episode','__EP__')
@@ -84,8 +84,13 @@ $result=@(& $python @arguments)
 $rc=$LASTEXITCODE
 if($rc -ne 0){$result | Write-Output;exit $rc}
 $joined=$result -join [Environment]::NewLine
-$encoded=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($joined))
-for($i=0;$i -lt $encoded.Length;$i+=48){Write-Output ('J:'+ $encoded.Substring($i,[Math]::Min(48,$encoded.Length-$i)))}
+$bytes=[Text.Encoding]::UTF8.GetBytes($joined)
+$encoded=[Convert]::ToBase64String($bytes)
+$hash=([BitConverter]::ToString(([Security.Cryptography.SHA256]::Create()).ComputeHash($bytes))).Replace('-','')
+# ConsoleHost can wrap at the remote PTY width. Use numbered 16-character frames.
+[Console]::WriteLine(('JSTART:'+ $encoded.Length))
+for($i=0;$i -lt $encoded.Length;$i+=16){[Console]::WriteLine(('J:{0:D5}:{1}' -f ($i/16),$encoded.Substring($i,[Math]::Min(16,$encoded.Length-$i))))}
+for($i=0;$i -lt 64;$i+=16){[Console]::WriteLine(('H:{0}:{1}' -f ($i/16),$hash.Substring($i,16)))}
 Write-Output 'RITSU_ASMR_REMOTE_OK=1'
 """
  if input_data is not None:
@@ -101,23 +106,40 @@ $arguments+=@('--input',$incoming)
   extra=extra.replace('__ENCODED__','RitsuASMR\\incoming\\'+episode+'-'+digest+'.b64').replace('__INCOMING__','RitsuASMR\\incoming\\'+episode+'-'+digest+'.txt').replace('__DIGEST__',digest)
  else:extra=''
  script=script.replace('__SHA__',expected).replace('__COMMIT__',commit).replace('__VERB__',verb).replace('__EP__',episode).replace('__INPUT__',extra)
- return ps(script,quiet=True)
+ output=ps(script,quiet=True)
+ (STATE/'last-remote-transport.txt').write_text(output,encoding='utf-8')
+ return output
 def extract_result(output):
- # Only JSON objects emitted by the offline tool, never raw SSH banners or transcript.
- frames=[line[2:] for line in output.splitlines() if re.fullmatch(r'J:[A-Za-z0-9+/=]{1,48}',line)]
- if frames:
-  try:obj=json.loads(base64.b64decode(''.join(frames),validate=True).decode('utf-8'))
-  except (ValueError,UnicodeError) as e:raise RuntimeError('Invalid Windows result frames') from e
-  if not isinstance(obj,dict):raise RuntimeError('Windows result is not an object')
-  return obj
- decoder=json.JSONDecoder()
- for i,line in enumerate(output.splitlines()):
-  if not line.lstrip().startswith('{'):continue
-  try:
-   obj,_=decoder.raw_decode('\n'.join(output.splitlines()[i:]).lstrip())
-   if isinstance(obj,dict) and any(k in obj for k in ('phase','doctor','inspect','recovery')):return obj
-  except ValueError:continue
- return None
+ # Strip terminal CSI/OSC controls, then check numbered frames, length and digest.
+ output=re.sub(r'\x1b\][^\x07]*(?:\x07|\x1b\\)', '', output)
+ output=re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]', '', output)
+ lines=[line.strip() for line in output.splitlines()]
+ starts=[int(m.group(1)) for line in lines if (m:=re.fullmatch(r'JSTART:(\d+)',line))]
+ if len(starts)!=1:raise RuntimeError('WINDOWS_RESULT_HEADER_MISSING_OR_DUPLICATE; remote operation may have executed')
+ frames={};hashes={}
+ for line in lines:
+  m=re.fullmatch(r'J:(\d{5}):([A-Za-z0-9+/=]{1,16})',line)
+  if m:
+   n=int(m[1])
+   if n in frames:raise RuntimeError('DUPLICATE_WINDOWS_RESULT_FRAME')
+   frames[n]=m[2]
+  m=re.fullmatch(r'H:([0-3]):([A-Fa-f0-9]{16})',line)
+  if m:
+   n=int(m[1])
+   if n in hashes:raise RuntimeError('DUPLICATE_WINDOWS_RESULT_HASH')
+   hashes[n]=m[2]
+ length=starts[0]
+ if not 0<length<=1000000 or set(frames)!=set(range((length+15)//16)) or set(hashes)!=set(range(4)):
+  raise RuntimeError('WINDOWS_RESULT_INCOMPLETE; remote operation may have executed')
+ coded=''.join(frames[i] for i in range(len(frames)))
+ if len(coded)!=length:raise RuntimeError('WINDOWS_RESULT_LENGTH_MISMATCH')
+ try:
+  raw=base64.b64decode(coded,validate=True)
+  if sha(raw)!=''.join(hashes[i] for i in range(4)).upper():raise RuntimeError('WINDOWS_RESULT_DIGEST_MISMATCH')
+  obj=json.loads(raw.decode('utf-8-sig'))
+ except (ValueError,UnicodeError) as e:raise RuntimeError('Invalid Windows result frames: '+str(e)[:120]) from e
+ if not isinstance(obj,dict):raise RuntimeError('Windows result is not an object')
+ return obj
 def fetch_wav(commit,expected,episode):
  # Same installed cauldron command for every read. No SCP shortcut, relay, or cloud upload.
  remote=extract_result(remote_run(commit,expected,'receipts',episode,None))
