@@ -161,6 +161,45 @@ Write-Output 'DREW_REFERENCE_OK=1'
 """
  return transport.extract_result('\n'.join(remote(script.replace('__SIZE__',str(size)).replace('__HASH__',digest),'receiver-diagnose')))
 
+def receiver_probe():
+ # Read only. Return peer identity and bounded log event counts, not credential-bearing raw logs.
+ script=r"""
+$ErrorActionPreference='Stop'
+$exe=(Get-Command tailscale.exe -ErrorAction SilentlyContinue).Source
+if(!$exe){$exe=Join-Path $env:ProgramFiles 'Tailscale\tailscale.exe'}
+$ErrorActionPreference='Continue'
+$raw=& $exe status --json 2>$null
+$rc=$LASTEXITCODE
+$ErrorActionPreference='Stop'
+if($rc -ne 0){throw 'TAILSCALE_STATUS_FAILED'}
+$t=($raw -join '')|ConvertFrom-Json
+$peers=@()
+foreach($p in $t.Peer.PSObject.Properties.Value){
+ if($p.OS -eq 'android' -and ($p.HostName -match 'Pixel' -or $p.TailscaleIPs -contains '100.93.128.108')){
+  $peers+=@(@{id=$p.ID;dns=$p.DNSName;ips=$p.TailscaleIPs;online=$p.Online;sameOwner=($p.UserID -eq $t.Self.UserID)})
+ }
+}
+$root=Join-Path $env:ProgramData 'Tailscale'
+$logs=@()
+foreach($dir in @($root,(Join-Path $root 'Logs'),(Join-Path $env:LOCALAPPDATA 'Tailscale'))){
+ if(!(Test-Path -LiteralPath $dir)){continue}
+ foreach($f in @(Get-ChildItem -LiteralPath $dir -File -ErrorAction SilentlyContinue|Where-Object {$_.Name -match '\.log(?:\.\d+)?$|\.log[12]\.txt$'}|Sort-Object LastWriteTime -Descending|Select-Object -First 4)){
+  $rows=@(Get-Content -LiteralPath $f.FullName -Tail 3000 -ErrorAction SilentlyContinue)
+  $events=@($rows|Where-Object {$_ -match 'taildrop|drew.whisper|incoming file|waiting files'})
+  $logs+=@(@{name=$f.Name;updated=$f.LastWriteTimeUtc.ToString('o');taildropEvents=$events.Count;referenceEvents=@($events|Where-Object {$_ -match 'drew.whisper'}).Count;errorEvents=@($events|Where-Object {$_ -match 'error|fail|denied|timeout'}).Count})
+ }
+}
+$j=@{phase='receiver_probe';backend=$t.BackendState;self=@{id=$t.Self.ID;dns=$t.Self.DNSName;ips=$t.Self.TailscaleIPs};android=$peers;logs=$logs;guiPids=@(Get-Process -Name 'tailscale-ipn' -ErrorAction SilentlyContinue|ForEach-Object {$_.Id})}
+$bytes=[Text.Encoding]::UTF8.GetBytes(($j|ConvertTo-Json -Depth 6 -Compress))
+$e=[Convert]::ToBase64String($bytes)
+$hash=([BitConverter]::ToString(([Security.Cryptography.SHA256]::Create()).ComputeHash($bytes))).Replace('-','')
+[Console]::WriteLine(('JSTART:'+$e.Length))
+for($i=0;$i -lt $e.Length;$i+=16){[Console]::WriteLine(('J:{0:D5}:{1}' -f ($i/16),$e.Substring($i,[Math]::Min(16,$e.Length-$i))))}
+for($i=0;$i -lt 64;$i+=16){[Console]::WriteLine(('H:{0}:{1}' -f ($i/16),$hash.Substring($i,16)))}
+Write-Output 'DREW_REFERENCE_OK=1'
+"""
+ return transport.extract_result('\n'.join(remote(script,'receiver-probe')))
+
 def launch_share(path):
  # Supported Termux native file sharing grants a readable content URI to the selected app.
  # Android Tailscale owns the peer picker; no guessed taps or arbitrary default receiver.
@@ -170,7 +209,7 @@ def launch_share(path):
 
 def main():
  p=argparse.ArgumentParser()
- p.add_argument('verb',choices=['deliver','resume','status','send','collect','diagnose'])
+ p.add_argument('verb',choices=['deliver','resume','status','send','collect','diagnose','probe'])
  p.add_argument('--input',type=Path,default=SOURCE)
  a=p.parse_args()
  STATE.mkdir(mode=0o700,parents=True,exist_ok=True)
@@ -187,7 +226,7 @@ def main():
   import fcntl
   with (STATE/'transfer.lock').open('a') as lock:
    fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-   obj=diagnose(digest,size) if a.verb=='diagnose' else inspect(digest,size,a.verb!='status')
+   obj=receiver_probe() if a.verb=='probe' else diagnose(digest,size) if a.verb=='diagnose' else inspect(digest,size,a.verb!='status')
    if obj['phase']=='awaiting_taildrop' and a.verb=='collect':
     code=collect_inbox()
     lines+=['TAILDROP_GET_EXIT='+str(code)]
@@ -201,7 +240,7 @@ def main():
     else:lines+=['NEXT=Inspect inbox or receiver configuration before any resend']
    elif obj['phase']=='taildrop_found_not_collected':
     lines+=['NEXT=resume to collect verified reference']
-  rc=0 if obj['phase'] in ('reference_delivered_verified','receiver_diagnostic') else 3
+  rc=0 if obj['phase'] in ('reference_delivered_verified','receiver_diagnostic','receiver_probe') else 3
  except subprocess.TimeoutExpired:lines+=['STATUS=BLOCKED','ERROR=SSH_TIMEOUT; reconcile with status or resume']
  except Exception as e:lines+=['STATUS=BLOCKED','ERROR='+type(e).__name__+': '+str(e)[:220]]
  receipt='\n'.join(lines)+'\n'
