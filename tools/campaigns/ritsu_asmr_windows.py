@@ -126,26 +126,132 @@ def render(ep):
  with wave.open(str(dest),'rb') as w:duration=w.getnframes()/w.getframerate()
  receipt={'phase':'rendered_not_delivered','episodeId':ep,'profile':PROFILE,'voiceSha256':VOICE_SHA,'wavPath':str(dest),'wavSha256':sha(dest.read_bytes()),'bytes':dest.stat().st_size,'durationSeconds':round(duration,3),'textSha256':sha(payload),'segments':len(plan),'wordCount':len(text.split()),'sourceCommit':os.environ.get('RITSU_ASMR_SOURCE_COMMIT',''),'rendererSha256':sha(Path(__file__).read_bytes())}
  atomic(folder/'receipt.json',receipt);state(folder,**receipt)
+def task_name(ep):
+ return 'RitsuASMR-Offline-'+ep
+def task_command(ep,operation,program=None):
+ # Task action is immutable per launch, on behalf of the current Windows user.
+ # Never use SYSTEM, stored passwords, or a task belonging to another subsystem.
+ prefix="$ErrorActionPreference='Stop';$n='"+task_name(ep)+"';"
+ common=r"""
+$t=Get-ScheduledTask -TaskName $n -TaskPath '\' -ErrorAction SilentlyContinue
+if($t){
+ $a=@($t.Actions)
+ if($a.Count -ne 1 -or $a[0].Arguments -notmatch 'ritsu_asmr_windows[.]py" work --episode '+[regex]::Escape($ep)+'$' -or $a[0].Arguments -notmatch '[\\/]RitsuASMR[\\/]code[\\/]'){
+  throw 'TASK_IDENTITY_MISMATCH'
+ }
+}
+"""
+ # $ep is tightly validated by folder_for; file paths are quoted as literal data.
+ def q(x):return "'"+str(x).replace("'","''")+"'"
+ prefix+="$ep="+q(ep)+";"
+ if operation=='query':
+  body=r"""
+ $rows=@(Get-CimInstance Win32_Process | Where-Object {
+  $_.Name -match '^python(w)?[.]exe$' -and $_.CommandLine -match 'ritsu_asmr_windows[.]py' -and $_.CommandLine -match ('\bwork\s+--episode\s+'+[regex]::Escape($ep)+'(?:\s|$)')
+ } | ForEach-Object {$_.ProcessId})
+ $st=if($t){[string]$t.State}else{'Missing'}
+ [pscustomobject]@{taskState=$st;workerPids=$rows}|ConvertTo-Json -Compress
+"""
+ elif operation=='launch':
+  body="$exe="+q(sys.executable)+";$program="+q(program)+";"+r"""
+ if($t -and [string]$t.State -in @('Running','Queued')){throw 'TASK_ALREADY_ACTIVE'}
+ $action=New-ScheduledTaskAction -Execute $exe -Argument ('"'+$program+'" work --episode '+$ep) -WorkingDirectory (Split-Path -Parent $program)
+ $principal=New-ScheduledTaskPrincipal -UserId ([Security.Principal.WindowsIdentity]::GetCurrent().Name) -LogonType Interactive -RunLevel Limited
+ $settings=New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Hours 12) -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+ Register-ScheduledTask -TaskName $n -TaskPath '\' -Action $action -Principal $principal -Settings $settings -Force | Out-Null
+ Start-ScheduledTask -TaskName $n -TaskPath '\'
+ Write-Output '{"taskRequested":true}'
+"""
+ elif operation=='stop':
+  body=r"""
+ if($t -and [string]$t.State -in @('Running','Queued')){Stop-ScheduledTask -TaskName $n -TaskPath '\'}
+ Write-Output '{"stopRequested":true}'
+"""
+ else:raise ValueError('Unknown task operation')
+ out=subprocess.run(['powershell.exe','-NoProfile','-NonInteractive','-Command',prefix+common+body],capture_output=True,text=True,timeout=45)
+ if out.returncode:raise RuntimeError('ASMR_TASK_'+operation.upper()+'_FAILED: '+(out.stderr or out.stdout)[-350:])
+ return json.loads(out.stdout)
+def worker_active(ep):
+ row=task_command(ep,'query')
+ return row.get('taskState') in ('Running','Queued') or bool(row.get('workerPids')),row
+def heartbeat(folder,done):
+ while not done.is_set():
+  atomic(folder/'heartbeat.json',{'pid':os.getpid(),'utc':datetime.datetime.now(datetime.timezone.utc).isoformat()})
+  done.wait(5)
+def run_worker(ep):
+ import contextlib, threading, traceback
+ folder=folder_for(ep);done=threading.Event()
+ with (folder/'worker.log').open('a',encoding='utf-8',buffering=1) as log,contextlib.redirect_stdout(log),contextlib.redirect_stderr(log):
+  # A scheduled-task launch uses a pinned code path; source provenance survives SSH exit.
+  request=json.loads((folder/'request.json').read_text(encoding='utf-8'))
+  if request.get('rendererSha256')!=sha(Path(__file__).read_bytes()):
+   state(folder,phase='failed',lastError='Pinned worker source digest mismatch');return 2
+  os.environ['RITSU_ASMR_SOURCE_COMMIT']=request['sourceCommit']
+  print('WORKER_STARTED',os.getpid(),flush=True)
+  state(folder,phase='rendering',pid=os.getpid(),lastError=None)
+  thread=threading.Thread(target=heartbeat,args=(folder,done),daemon=True);thread.start()
+  try:
+   render(ep);return 0
+  except Exception as e:
+   traceback.print_exc()
+   state(folder,phase='failed',lastError=type(e).__name__+': '+str(e)[:300]);return 2
+  finally:
+   done.set();thread.join(timeout=6)
 def start(ep,source):
  folder=folder_for(ep)
+ active,row=worker_active(ep)
+ if active:raise RuntimeError('Previous worker is active; use status or stop')
+ check_api()
  if folder.exists():
-  old=json.loads((folder/'request.json').read_text())
+  old=json.loads((folder/'request.json').read_text(encoding='utf-8'))
   if source is not None and sha(Path(source).read_bytes())!=old['textSha256']:raise RuntimeError('Episode ID has different source')
-  if (folder/'receipt.json').exists():print(json.dumps({'phase':'already_rendered','episodeId':ep}));return
-  previous=json.loads((folder/'status.json').read_text())
-  if previous.get('phase') in ('launched','rendering'):raise RuntimeError('Previous worker uncertain; do not duplicate launch')
+  if (folder/'receipt.json').exists():
+   print((folder/'receipt.json').read_text(encoding='utf-8'));return
+  if (folder/(ep+'.wav')).exists():raise RuntimeError('Unreceipted final WAV; inspect without overwriting')
+  data=(folder/'transcript.txt').read_bytes()
+  if sha(data)!=old['textSha256']:raise RuntimeError('Saved transcript digest mismatch')
  else:
-  check_api();data=Path(source).read_bytes() if source else SAMPLE.encode()
+  data=Path(source).read_bytes() if source else SAMPLE.encode()
   parse(data.decode('utf-8-sig'));folder.mkdir(parents=True)
   (folder/'transcript.txt').write_bytes(data)
-  atomic(folder/'request.json',{'episodeId':ep,'textSha256':sha(data),'voiceSha256':VOICE_SHA})
- (folder/'STOP').unlink(missing_ok=True);state(folder,phase='launched',completed=0)
- log=open(folder/'worker.log','ab',buffering=0)
- try:
-  flags=getattr(subprocess,'DETACHED_PROCESS',0)|getattr(subprocess,'CREATE_NEW_PROCESS_GROUP',0)
-  proc=subprocess.Popen([sys.executable,str(Path(__file__).resolve()),'work','--episode',ep],cwd=str(folder),stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,close_fds=True,creationflags=flags)
- finally:log.close()
- print(json.dumps(state(folder,pid=proc.pid,phase='launched')))
+  old={'episodeId':ep,'textSha256':sha(data),'voiceSha256':VOICE_SHA}
+ parse(data.decode('utf-8-sig'))
+ old.update(sourceCommit=os.environ.get('RITSU_ASMR_SOURCE_COMMIT',''),rendererSha256=sha(Path(__file__).read_bytes()))
+ if not re.fullmatch(r'[0-9a-f]{40}',old['sourceCommit']):raise RuntimeError('Missing pinned source commit')
+ atomic(folder/'request.json',old)
+ (folder/'STOP').unlink(missing_ok=True)
+ (folder/'heartbeat.json').unlink(missing_ok=True)
+ state(folder,phase='scheduled',pid=None,lastError=None,taskName=task_name(ep))
+ try:task_command(ep,'launch',Path(__file__).resolve())
+ except Exception as e:
+  # Scheduler can accept a task even when its caller loses the acknowledgement.
+  # Never retry automatically without a fresh process/task query.
+  raise RuntimeError('Task scheduling not confirmed; inspect status before retry: '+str(e)) from e
+ print(json.dumps({'phase':'scheduled','taskName':task_name(ep),'previousWorkerAbsent':True,'renderNotInferred':True}))
+def status_report(ep):
+ folder=folder_for(ep)
+ st=json.loads((folder/'status.json').read_text(encoding='utf-8'))
+ active,row=worker_active(ep);st.update(row)
+ if (folder/'heartbeat.json').exists():
+  beat=json.loads((folder/'heartbeat.json').read_text(encoding='utf-8'))
+  st['heartbeatAgeSeconds']=round((datetime.datetime.now(datetime.timezone.utc)-datetime.datetime.fromisoformat(beat['utc'])).total_seconds(),1)
+ if not active and st.get('phase') in ('launched','scheduled','rendering'):
+  st['recordedPhase']=st['phase'];st['phase']='abandoned'
+ if (folder/'worker.log').exists() and st.get('phase') in ('failed','abandoned'):
+  st['workerLogTail']=(folder/'worker.log').read_text(encoding='utf-8',errors='replace')[-1200:]
+ return st
+def stop_worker(ep):
+ folder=folder_for(ep)
+ if not folder.exists():raise RuntimeError('No run to stop')
+ (folder/'STOP').write_text('stop requested\n')
+ task_command(ep,'stop')
+ for _ in range(10):
+  active,row=worker_active(ep)
+  if not active:
+   if not (folder/'receipt.json').exists():state(folder,phase='stopped',stopRequested=True)
+   return status_report(ep)
+  time.sleep(1)
+ raise RuntimeError('STOP_NOT_CONFIRMED: worker still present; no unrelated process killed')
 def main():
  p=argparse.ArgumentParser();p.add_argument('verb',choices=['doctor','inspect','recover','start','work','status','resume','stop','receipts']);p.add_argument('--episode',default='RITSU_ASMR_CANARY');p.add_argument('--input');a=p.parse_args();folder=folder_for(a.episode)
  try:
@@ -156,18 +262,11 @@ def main():
   elif a.verb=='start':start(a.episode,a.input)
   elif a.verb=='resume':
    if not folder.exists():raise RuntimeError('No run to resume')
-   st=json.loads((folder/'status.json').read_text())
-   if st.get('phase') in ('launched','rendering'):raise RuntimeError('Previous worker unresolved')
    start(a.episode,None)
-  elif a.verb=='work':
-   try:render(a.episode)
-   except Exception as e:state(folder,phase='failed',lastError=type(e).__name__+': '+str(e)[:250]);raise
-  elif a.verb=='stop':
-   if not folder.exists():raise RuntimeError('No run to stop')
-   (folder/'STOP').write_text('cooperative stop requested\n');print(json.dumps(state(folder,stopRequested=True)))
-  else:
-   file='receipt.json' if a.verb=='receipts' else 'status.json'
-   print((folder/file).read_text(encoding='utf-8'))
+  elif a.verb=='work':return run_worker(a.episode)
+  elif a.verb=='stop':print(json.dumps(stop_worker(a.episode)))
+  elif a.verb=='status':print(json.dumps(status_report(a.episode)))
+  else:print((folder/'receipt.json').read_text(encoding='utf-8'))
   return 0
  except Exception as e:
   print(json.dumps({'phase':'blocked','error':type(e).__name__+': '+str(e)[:250]}),file=sys.stderr);return 2
