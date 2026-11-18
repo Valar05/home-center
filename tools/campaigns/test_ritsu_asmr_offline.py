@@ -69,9 +69,19 @@ def test_scheduler_and_frames():
  spec=importlib.util.spec_from_file_location('ritsu_as_phone_frame',src)
  phone=importlib.util.module_from_spec(spec);spec.loader.exec_module(phone)
  obj={'phase':'rendered_not_delivered','wavPath':r'C:\Users\dclar\some.wav','durationSeconds':15.2}
- encoded=base64.b64encode(json.dumps(obj).encode()).decode()
- output='\n'.join('J:'+encoded[i:i+48] for i in range(0,len(encoded),48))
- assert phone.extract_result(output+'\nRITSU_ASMR_REMOTE_OK=1\n')==obj
+ payload=json.dumps(obj).encode()
+ encoded=base64.b64encode(payload).decode()
+ digest=hashlib.sha256(payload).hexdigest().upper()
+ lines=['JSTART:'+str(len(encoded))]
+ lines+=['J:%05d:%s'%(i//16,encoded[i:i+16]) for i in range(0,len(encoded),16)]
+ lines+=['H:%d:%s'%(i//16,digest[i:i+16]) for i in range(0,64,16)]
+ output='\r\n'.join('\x1b[0m'+line+'  ' for line in lines)
+ assert phone.extract_result(output+'\r\nRITSU_ASMR_REMOTE_OK=1\r\n')==obj
+ for bad in (lines[:2]+lines[3:], lines+[lines[1]],lines[:-1]+['H:3:'+'0'*16]):
+  try:phone.extract_result('\n'.join(bad))
+  except RuntimeError:pass
+  else:raise AssertionError('Corrupt/incomplete/duplicate frame accepted')
+
 def test():
  test_scheduler_and_frames()
  test_watchdog_guard()
