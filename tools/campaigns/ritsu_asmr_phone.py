@@ -107,9 +107,67 @@ def extract_result(output):
    if isinstance(obj,dict) and any(k in obj for k in ('phase','doctor','inspect','recovery')):return obj
   except ValueError:continue
  return None
+def fetch_wav(commit,expected,episode):
+ # Same installed cauldron command for every read. No SCP shortcut, relay, or cloud upload.
+ remote=extract_result(remote_run(commit,expected,'receipts',episode,None))
+ if not remote or remote.get('phase')!='rendered_not_delivered' or remote.get('episodeId')!=episode:
+  raise RuntimeError('No verified rendered receipt for this episode')
+ digest=remote.get('wavSha256','').upper();size=remote.get('bytes')
+ if remote.get('voiceSha256','').upper()!='B99EB2E16612E8B8C3E3A96F74BD631676CC79071779537FD94C564DB5796BE5':raise RuntimeError('Unexpected whisper identity')
+ if not re.fullmatch(r'[A-F0-9]{64}',digest) or not isinstance(size,int) or not 44<size<=512*1024*1024:
+  raise RuntimeError('Invalid remote WAV receipt')
+ destdir=Path.home()/'storage/downloads/RitsuASMR'
+ if not destdir.parent.is_dir():raise RuntimeError('Termux Downloads storage unavailable')
+ destdir.mkdir(exist_ok=True)
+ dest=destdir/(episode+'.wav');partial=destdir/(episode+'.'+digest+'.partial')
+ def file_sha(path):
+  h=hashlib.sha256()
+  with path.open('rb') as f:
+   for block in iter(lambda:f.read(1024*1024),b''):h.update(block)
+  return h.hexdigest().upper()
+ if dest.exists():
+  if dest.stat().st_size!=size or file_sha(dest)!=digest:raise RuntimeError('Destination collision; existing WAV preserved')
+ else:
+  if partial.exists():raise RuntimeError('Previous partial transfer preserved: '+str(partial)+'; inspect or move aside before retry')
+  print('FETCH_BYTES='+str(size)+' DESTINATION='+str(dest),flush=True)
+  # Frame size stays below a 63-column Windows SSH terminal. Full digest is
+  # checked before publishing; partial files are never claimed as delivered.
+  chunk_size=192*1024
+  with partial.open('xb') as f:
+   for offset in range(0,size,chunk_size):
+    count=min(chunk_size,size-offset)
+    script=r"""
+$ErrorActionPreference='Stop'
+$p=Join-Path $env:LOCALAPPDATA 'RitsuASMR\runs\__EP__\__EP__.wav'
+$s=[IO.File]::OpenRead($p)
+try{
+ if($s.Length -ne __SIZE__){throw 'WAV size changed'}
+ $s.Position=__OFFSET__
+ $buf=New-Object byte[] __COUNT__
+ $n=0
+ while($n -lt $buf.Length){$r=$s.Read($buf,$n,$buf.Length-$n);if($r -eq 0){throw 'Unexpected EOF'};$n+=$r}
+ $b=[Convert]::ToBase64String($buf)
+ for($i=0;$i -lt $b.Length;$i+=48){Write-Output ('B:'+ $b.Substring($i,[Math]::Min(48,$b.Length-$i)))}
+}finally{$s.Dispose()}
+Write-Output 'RITSU_ASMR_REMOTE_OK=1'
+"""
+    script=script.replace('__EP__',episode).replace('__SIZE__',str(size)).replace('__OFFSET__',str(offset)).replace('__COUNT__',str(count))
+    out=ps(script,quiet=True)
+    frames=[line[2:] for line in out.splitlines() if re.fullmatch(r'B:[A-Za-z0-9+/=]{1,48}',line)]
+    data=base64.b64decode(''.join(frames),validate=True)
+    if len(data)!=count:raise RuntimeError('Incomplete WAV chunk; refusing publication')
+    f.write(data);f.flush();os.fsync(f.fileno())
+    print('FETCH_PROGRESS='+str(offset+count)+'/'+str(size),flush=True)
+  if partial.stat().st_size!=size or file_sha(partial)!=digest:raise RuntimeError('Final WAV checksum mismatch; partial preserved')
+  import wave
+  with wave.open(str(partial),'rb') as w:
+   if (w.getnchannels(),w.getsampwidth(),w.getframerate())!=(1,2,24000):raise RuntimeError('Invalid received PCM')
+  if dest.exists():raise RuntimeError('Destination appeared during transfer; partial preserved')
+  partial.rename(dest)
+ return {'phase':'delivered_to_phone_not_heard','path':str(dest),'bytes':size,'wavSha256':digest,'durationSeconds':remote.get('durationSeconds')}
 def main():
  p=argparse.ArgumentParser()
- p.add_argument('verb',nargs='?',default='doctor',choices=['doctor','inspect','recover','start','status','resume','stop','receipts'])
+ p.add_argument('verb',nargs='?',default='doctor',choices=['doctor','inspect','recover','start','status','resume','stop','receipts','fetch'])
  p.add_argument('--episode',default='RITSU_ASMR_CANARY')
  p.add_argument('--input',type=Path)
  a=p.parse_args()
@@ -124,8 +182,8 @@ def main():
   data=a.input.read_bytes() if a.input else None
   if data is not None and len(data)>150000:raise ValueError('Input exceeds 150 kB')
   if data is not None:data.decode('utf-8-sig')
-  output=remote_run(commit,hashvalue,a.verb,a.episode,data)
-  details=extract_result(output)
+  if a.verb=='fetch':details=fetch_wav(commit,hashvalue,a.episode)
+  else:details=extract_result(remote_run(commit,hashvalue,a.verb,a.episode,data))
   if details is not None:lines+=['WINDOWS_RESULT='+json.dumps(details,ensure_ascii=True,separators=(',',':'))]
   lines+=['SSH_COMMAND_RETURNED=YES','REMOTE_OPERATION_CONFIRMED=YES','RENDER_NOT_INFERRED=YES']
   result=0
