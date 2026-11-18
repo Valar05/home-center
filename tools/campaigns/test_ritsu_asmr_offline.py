@@ -117,7 +117,38 @@ def test_fetch_resume():
   data=audio[:500]
   with patch.object(phone,'STATE',state),patch.object(phone,'ps',return_value=frames({'offset':0,'count':500,'data':base64.b64encode(data).decode()})):
    assert phone.wav_read('CANARY',len(audio),0,500)==data
+def test_taildrop():
+ from unittest.mock import patch
+ src=Path(__file__).with_name('ritsu_asmr_phone.py')
+ spec=importlib.util.spec_from_file_location('ritsu_as_phone_taildrop',src)
+ phone=importlib.util.module_from_spec(spec);spec.loader.exec_module(phone)
+ audio=wav('canary');digest=phone.sha(audio)
+ remote={'phase':'rendered_not_delivered','episodeId':'CANARY','wavSha256':digest,'bytes':len(audio),'voiceSha256':r.VOICE_SHA}
+ sent={'phase':'taildrop_sent_not_verified','episodeId':'CANARY','device':phone.TAILDROP_DEVICE,'wavSha256':digest,'bytes':len(audio)}
+ with tempfile.TemporaryDirectory() as td:
+  home=Path(td);state=home/'state';state.mkdir()
+  downloads=home/'storage/downloads';downloads.mkdir(parents=True)
+  target=downloads/'CANARY.wav'
+  with patch.object(phone,'STATE',state),patch.object(phone.Path,'home',return_value=home),patch.object(phone,'rendered_identity',return_value=(remote,digest,len(audio))),patch.object(phone,'ps',return_value='framed') as send,patch.object(phone,'extract_result',return_value=sent):
+   result=phone.drop_wav('commit','hash','CANARY')
+   assert result==sent and result['phase']!='delivered_to_phone_not_heard'
+   script=send.call_args.args[0]
+   assert 'file cp' in script and phone.TAILDROP_IP+':' in script and phone.TAILDROP_DEVICE in script
+   assert 'Get-FileHash' in script and 'taildrop_dispatch_uncertain' in script
+   assert 'Peer.PSObject.Properties.Value' in script and 'TailscaleIPs' in script
+   assert 'if((Test-Path -LiteralPath $ledger) -and !$false)' in script
+   try:phone.verify_wav('commit','hash','CANARY')
+   except RuntimeError:pass
+   else:raise AssertionError('Missing received audio accepted')
+   target.write_bytes(b'x'*len(audio))
+   try:phone.verify_wav('commit','hash','CANARY')
+   except RuntimeError:pass
+   else:raise AssertionError('Corrupt received audio accepted')
+   target.write_bytes(audio)
+   assert phone.verify_wav('commit','hash','CANARY')['phase']=='delivered_to_phone_not_heard'
+   assert phone.verify_wav('commit','hash','CANARY',target)['path']==str(target)
 def test():
+ test_taildrop()
  test_fetch_resume()
  test_scheduler_and_frames()
  test_watchdog_guard()
