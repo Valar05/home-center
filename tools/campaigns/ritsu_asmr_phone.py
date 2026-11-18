@@ -149,15 +149,37 @@ $ErrorActionPreference='Stop'
 $d=Join-Path $env:LOCALAPPDATA 'RitsuASMR\code\__SHA__'
 New-Item -ItemType Directory -Force -Path $d|Out-Null
 $p=Join-Path $d 'ritsu_asmr_windows.py'
-if(!(Test-Path -LiteralPath $p) -or (Get-FileHash -LiteralPath $p -Algorithm SHA256).Hash -ne '__SHA__'){
+if(!(Test-Path -LiteralPath $p)){
  $tmp=$p+'.'+[guid]::NewGuid().ToString('N')+'.incoming'
  Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Valar05/home-center/__COMMIT__/tools/campaigns/ritsu_asmr_windows.py' -OutFile $tmp -TimeoutSec 40
  if((Get-FileHash -LiteralPath $tmp -Algorithm SHA256).Hash -ne '__SHA__'){throw 'Pinned source digest mismatch'}
- Move-Item -LiteralPath $tmp -Destination $p -Force
+ Move-Item -LiteralPath $tmp -Destination $p
 }
-Write-Output 'RITSU_ASMR_REMOTE_OK=1'
+if((Get-FileHash -LiteralPath $p -Algorithm SHA256).Hash -ne '__SHA__'){throw 'Pinned source digest mismatch'}
+[Console]::WriteLine('RITSU_ASMR_REMOTE_OK=1')
 """
- ps(install.replace('__SHA__',expected).replace('__COMMIT__',commit),quiet=True,stage='renderer-install')
+ check=r"""
+$ErrorActionPreference='Stop'
+$p=Join-Path $env:LOCALAPPDATA 'RitsuASMR\code\__HASH__\ritsu_asmr_windows.py'
+$j=@{present=(Test-Path -LiteralPath $p -PathType Leaf);matches=$false}
+if($j.present){$j.matches=((Get-FileHash -Algorithm SHA256 -LiteralPath $p).Hash -eq '__HASH__')}
+$b=[Text.Encoding]::UTF8.GetBytes(($j|ConvertTo-Json -Compress))
+$e=[Convert]::ToBase64String($b)
+$h=([BitConverter]::ToString(([Security.Cryptography.SHA256]::Create()).ComputeHash($b))).Replace('-','')
+[Console]::WriteLine(('JSTART:'+$e.Length))
+for($i=0;$i -lt $e.Length;$i+=16){[Console]::WriteLine(('J:{0:D5}:{1}' -f ($i/16),$e.Substring($i,[Math]::Min(16,$e.Length-$i))))}
+for($i=0;$i -lt 64;$i+=16){[Console]::WriteLine(('H:{0}:{1}' -f ($i/16),$h.Substring($i,16)))}
+[Console]::WriteLine('RITSU_ASMR_REMOTE_OK=1')
+"""
+ def installed():
+  return extract_result(ps(check.replace('__HASH__',expected),quiet=True,stage='renderer-install-check'))
+ found=installed()
+ if found['present'] and not found['matches']:raise RuntimeError('Existing pinned Windows source differs; preserve it')
+ if not found['matches']:
+  try:ps(install.replace('__SHA__',expected).replace('__COMMIT__',commit),quiet=True,stage='renderer-install')
+  except (RemoteFailure,subprocess.TimeoutExpired):
+   if not installed()['matches']:raise
+  if not installed()['matches']:raise RuntimeError('Windows source installation not verified')
  script=r"""
 $ErrorActionPreference='Stop'
 $program=Join-Path $env:LOCALAPPDATA 'RitsuASMR\code\__SHA__\ritsu_asmr_windows.py'
