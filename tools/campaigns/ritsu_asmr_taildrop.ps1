@@ -72,16 +72,45 @@ if(!$Worker){
   $record.phase='taildrop_dispatch_uncertain';$record.updatedUtc=[DateTime]::UtcNow.ToString('o')
   $record|ConvertTo-Json -Compress|Set-Content -LiteralPath $ledger -Encoding UTF8
   Add-Content -LiteralPath $log -Value ([DateTime]::UtcNow.ToString('o')+' SEND_STARTED')
+  $attempt=[guid]::NewGuid().ToString('N')
+  $stdout=$ledger+'.'+$attempt+'.stdout.log'
+  $stderr=$ledger+'.'+$attempt+'.stderr.log'
+  $record|Add-Member -NotePropertyName stdoutPath -NotePropertyValue $stdout -Force
+  $record|Add-Member -NotePropertyName stderrPath -NotePropertyValue $stderr -Force
+  $process=$null
   try{
-   & $exe file cp $p ($PeerIP+':') 2>&1 | ForEach-Object {Add-Content -LiteralPath $log -Value ([string]$_)}
-   $rc=$LASTEXITCODE
+   # Windows PowerShell treats native stderr as an ErrorRecord when piped.
+   # Redirect at the process boundary, not through a PowerShell pipeline.
+   $argsLine='file cp "'+$p+'" '+$PeerIP+':'
+   $process=Start-Process -FilePath $exe -ArgumentList $argsLine -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru -WindowStyle Hidden
+   $record|Add-Member -NotePropertyName senderPid -NotePropertyValue $process.Id -Force
+   $record|ConvertTo-Json -Compress|Set-Content -LiteralPath $ledger -Encoding UTF8
+   if(!$process.WaitForExit(600000)){
+    # Kill only this invocation after the bounded wait; never the Tailscale daemon.
+    $process.Kill()
+    [void]$process.WaitForExit(5000)
+    throw 'Taildrop client timed out after 600 seconds; delivery uncertain'
+   }
+   $process.Refresh()
+   $rc=$process.ExitCode
    $record|Add-Member -NotePropertyName exitCode -NotePropertyValue $rc -Force
    if($rc -ne 0){throw "Taildrop CLI exit $rc"}
    $record.phase='taildrop_sent_not_verified'
   }catch{
    $record.phase='taildrop_failed'
-   $record|Add-Member -NotePropertyName lastError -NotePropertyValue ($_.Exception.Message) -Force
+   $errorText=[string]$_
+   if([string]::IsNullOrWhiteSpace($errorText)){$errorText=$_.Exception.GetType().FullName}
+   $record|Add-Member -NotePropertyName lastError -NotePropertyValue $errorText -Force
   }finally{
+   foreach($stream in @(@{name='stdout';path=$stdout},@{name='stderr';path=$stderr})){
+    if(Test-Path -LiteralPath $stream.path){
+     $tail=(Get-Content -LiteralPath $stream.path -Tail 12 -ErrorAction SilentlyContinue)-join ' '
+     if($tail.Length -gt 1200){$tail=$tail.Substring($tail.Length-1200)}
+     $record|Add-Member -NotePropertyName ($stream.name+'Tail') -NotePropertyValue $tail -Force
+     Add-Content -LiteralPath $log -Value ($stream.name+': '+$tail)
+    }
+   }
+   if($process){$process.Dispose()}
    $record.updatedUtc=[DateTime]::UtcNow.ToString('o')
    $record|ConvertTo-Json -Compress|Set-Content -LiteralPath $ledger -Encoding UTF8
    Add-Content -LiteralPath $log -Value ($record.updatedUtc+' '+$record.phase)
