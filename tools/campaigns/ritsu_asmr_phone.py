@@ -15,16 +15,22 @@ def shell(*args):
 def sha(data):return hashlib.sha256(data).hexdigest().upper()
 class RemoteFailure(RuntimeError):
  pass
-def ps(script,quiet=False):
+def ps(script,quiet=False,stage='remote'):
  cmd=base64.b64encode(script.encode('utf-16le')).decode('ascii')
- if len(cmd)>7000:raise RuntimeError('SSH_COMMAND_BUDGET_EXCEEDED: '+str(len(cmd)))
+ if len(cmd)>6500:raise RuntimeError('SSH_COMMAND_BUDGET_EXCEEDED stage='+stage+' encodedChars='+str(len(cmd)))
  p=subprocess.run(['cauldron','powershell.exe','-NoLogo','-NoProfile','-NonInteractive','-EncodedCommand',cmd],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=180)
- output=p.stdout
+ output=p.stdout or ''
+ # Retain terminal output privately; never copy transcript chunks or encoded commands into receipts.
+ (STATE/'last-remote-transport.txt').write_text(output,encoding='utf-8')
+ (STATE/'last-remote-stage.txt').write_text(stage+' encodedChars='+str(len(cmd))+' exit='+str(p.returncode),encoding='utf-8')
+ clean=re.sub(r'\x1b\][^\x07]*(?:\x07|\x1b\\)', '', output)
+ clean=re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]', '', clean)
  if not quiet:print(output[-12000:],flush=True)
- if p.returncode or 'RITSU_ASMR_REMOTE_OK=1' not in output.splitlines():
-  detail=next((x[:500] for x in reversed(output.splitlines()) if '"error"' in x),'remote success marker missing')
+ if p.returncode or 'RITSU_ASMR_REMOTE_OK=1' not in [line.strip() for line in clean.splitlines()]:
+  safe=[x.strip() for x in clean.splitlines() if any(k in x.lower() for k in ('exec request failed','connection timed out','connection refused','permission denied','staging offset collision','staged transcript digest mismatch','pinned source digest mismatch','approved python runtime not found','fullyqualifiederrorid','"error"'))]
+  detail=next((x[:220] for x in reversed(safe) if len(x)<500),'remote success marker missing; inspect private transport log')
   if quiet:print(output[-8000:],flush=True)
-  raise RemoteFailure('CAULDRON_REMOTE_BLOCKED: '+detail)
+  raise RemoteFailure('CAULDRON_REMOTE_BLOCKED stage='+stage+' encodedChars='+str(len(cmd))+' exit='+str(p.returncode)+': '+detail)
  return output
 def quote(s):return "'"+s.replace("'","''")+"'"
 def is_canonical_origin(url):
@@ -48,14 +54,15 @@ def staging(episode,data):
  digest=sha(data);coded=base64.b64encode(data).decode()
  target='$env:LOCALAPPDATA\\RitsuASMR\\incoming\\'+episode+'-'+digest+'.b64'
  # Each chunk is independently idempotent, verified by offset and expected bytes.
- for off in range(0,len(coded),1000):
-  piece=coded[off:off+1000]
+ for off in range(0,len(coded),600):
+  piece=coded[off:off+600]
   script="$ErrorActionPreference='Stop';$p="+quote(target)+";$p=$ExecutionContext.InvokeCommand.ExpandString($p);$dir=Split-Path $p;New-Item -ItemType Directory -Force -Path $dir|Out-Null;"
   script+="$s=if(Test-Path -LiteralPath $p){[IO.File]::ReadAllText($p)}else{''};$o="+str(off)+";$chunk="+quote(piece)+";"
   script+="if($s.Length -eq $o){[IO.File]::AppendAllText($p,$chunk,[Text.Encoding]::ASCII)}elseif($s.Length -ge ($o+$chunk.Length) -and $s.Substring($o,$chunk.Length) -ceq $chunk){}else{throw 'Staging offset collision'};"
   script+="Write-Output ('STAGED='+[IO.File]::ReadAllText($p).Length);Write-Output 'RITSU_ASMR_REMOTE_OK=1'"
   # Staging commands print the exact success marker only after validating the offset.
-  ps(script)
+  ps(script,quiet=True,stage='transcript-chunk offset='+str(off))
+  print('STAGING_PROGRESS='+str(min(off+len(piece),len(coded)))+'/'+str(len(coded)),flush=True)
  return digest,target
 def remote_run(commit,expected,verb,episode,input_data):
  # The remote file is downloaded from exactly the checked-in SHA and verified
@@ -77,7 +84,7 @@ if(!(Test-Path -LiteralPath $p) -or (Get-FileHash -LiteralPath $p -Algorithm SHA
 }
 Write-Output 'RITSU_ASMR_REMOTE_OK=1'
 """
- ps(install.replace('__SHA__',expected).replace('__COMMIT__',commit),quiet=True)
+ ps(install.replace('__SHA__',expected).replace('__COMMIT__',commit),quiet=True,stage='renderer-install')
  script=r"""
 $ErrorActionPreference='Stop'
 $program=Join-Path $env:LOCALAPPDATA 'RitsuASMR\code\__SHA__\ritsu_asmr_windows.py'
@@ -113,11 +120,11 @@ if($actual -ne '__DIGEST__'){throw 'Staged transcript digest mismatch'}
 Write-Output 'RITSU_ASMR_REMOTE_OK=1'
 """
   finalize=finalize.replace('__ENCODED__','RitsuASMR\\incoming\\'+episode+'-'+digest+'.b64').replace('__INCOMING__','RitsuASMR\\incoming\\'+episode+'-'+digest+'.txt').replace('__DIGEST__',digest)
-  ps(finalize,quiet=True)
+  ps(finalize,quiet=True,stage='transcript-finalize')
   extra="$arguments+=@('--input',(Join-Path $env:LOCALAPPDATA "+quote('RitsuASMR\\incoming\\'+episode+'-'+digest+'.txt')+"))"
  else:extra=''
  script=script.replace('__SHA__',expected).replace('__COMMIT__',commit).replace('__VERB__',verb).replace('__EP__',episode).replace('__INPUT__',extra)
- output=ps(script,quiet=True)
+ output=ps(script,quiet=True,stage='renderer-'+verb)
  (STATE/'last-remote-transport.txt').write_text(output,encoding='utf-8')
  return output
 def extract_result(output):
