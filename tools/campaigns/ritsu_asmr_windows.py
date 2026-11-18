@@ -14,16 +14,28 @@ DREW_CONFIG_SHA='D04489AB5EA5822660E82FE5D5F2207C47C5958BCA8CBB4C8E215BA3DB2ED94
 DREW_ROOT=ROOT.parent/'DrewVoice'/'factory-v1'/'F2D451E6BF4FE2CDD6F8B2AFBE0D7B32E04E323463228FEAC1D187A27D08BD79'
 V2_SHA='0141A450D8A370495D84755B4E620A718CB955F1139643F62F7C5CD147515FF7'
 V2_PATH=ROOT.parent/'RitsuWhisperV2'/'factory-v1'/'65E99200D19FD2F021F972CD3EAFF3D33F440D8BD78131E243876AA8CE673FA7'/'ritsu-whisper-v2.safetensors'
+CLEAN_PAIR=ROOT.parent/'ASMRDeepCleanPair'/'factory-v1'
+CLEAN_DREW_SHA='DA4D803B4F1FF35CEE909D533B978969B78AEC51178EC88C82D8883383293268'
+CLEAN_DREW_CONFIG='396F91083E773062C7BA27C044FB57362D35AA01070E4DBA12699C0ADB965233'
+CLEAN_RITSU_SHA='F6A787F1D58D11694676A2A4D44A89840F77B0D56A0585A5FB4DAC52F0C1FE97'
+CLEAN_DREW_ROOT=CLEAN_PAIR/'drew-whisper-clean-v2'
+CLEAN_RITSU_PATH=CLEAN_PAIR/'ritsu-whisper-clean-v3'/'voice.safetensors'
 DREW_MODEL=None
 DREW_STATE=None
 def select_voice(ep):
- global PROFILE,VOICE_SHA
- if ep.startswith('DREW_DARK_VELVET_'):
+ global PROFILE,VOICE_SHA,DREW_ROOT,DREW_STATE_SHA,DREW_CONFIG_SHA,V2_PATH,V2_SHA
+ if ep.startswith('DREW_CLEAN_DARK_VELVET_'):
+  PROFILE='dark-velvet';VOICE_SHA=DREW_STATE_SHA=CLEAN_DREW_SHA;DREW_ROOT=CLEAN_DREW_ROOT;DREW_CONFIG_SHA=CLEAN_DREW_CONFIG
+ elif ep.startswith('RITSU_WHISPER_V3_'):
+  PROFILE='whisper-v3';VOICE_SHA=V2_SHA=CLEAN_RITSU_SHA;V2_PATH=CLEAN_RITSU_PATH
+ elif ep.startswith('DREW_DARK_VELVET_'):
   PROFILE='dark-velvet';VOICE_SHA=DREW_STATE_SHA
  elif ep.startswith('RITSU_WHISPER_V2_'):
   PROFILE='whisper-v2';VOICE_SHA=V2_SHA
+def drew_voice_path():
+ return DREW_ROOT/('voice.safetensors' if DREW_STATE_SHA==CLEAN_DREW_SHA else 'drew-whisper.safetensors')
 def drew_check():
- for name,h in [('drew-whisper.safetensors',DREW_STATE_SHA),('profiles.json',DREW_CONFIG_SHA)]:
+ for name,h in [(drew_voice_path().name,DREW_STATE_SHA),('profiles.json',DREW_CONFIG_SHA)]:
   if sha((DREW_ROOT/name).read_bytes()).upper()!=h:raise RuntimeError('Drew voice/preset identity mismatch')
  return {'engine':'pocket-tts','model':'offline_conditioning_verified','sampleRate':24000}
 def v2_check():
@@ -33,12 +45,12 @@ def drew_synth(text):
  global DREW_MODEL,DREW_STATE
  import numpy as np
  if DREW_MODEL is None:
-  if PROFILE=='whisper-v2':v2_check()
+  if PROFILE in ('whisper-v2','whisper-v3'):v2_check()
   else:drew_check()
   os.environ['HF_HUB_OFFLINE']='1';os.environ['TRANSFORMERS_OFFLINE']='1'
   from pocket_tts import TTSModel
   DREW_MODEL=TTSModel.load_model(language='english')
-  DREW_STATE=DREW_MODEL.get_state_for_audio_prompt(str(V2_PATH if PROFILE=='whisper-v2' else DREW_ROOT/'drew-whisper.safetensors'))
+  DREW_STATE=DREW_MODEL.get_state_for_audio_prompt(str(V2_PATH if PROFILE in ('whisper-v2','whisper-v3') else drew_voice_path()))
  if int(DREW_MODEL.config.mimi.sample_rate)!=24000:raise RuntimeError('Drew sample rate mismatch')
  signal=DREW_MODEL.generate_audio(model_state=DREW_STATE,text_to_generate=text)
  pcm=np.asarray(signal.detach().cpu().float().numpy(),dtype=np.float32).reshape(-1)
@@ -91,7 +103,7 @@ def parse(text):
  return segments
 def check_api():
  if PROFILE=='dark-velvet':return drew_check()
- if PROFILE=='whisper-v2':return v2_check()
+ if PROFILE in ('whisper-v2','whisper-v3'):return v2_check()
  try:
   with urllib.request.urlopen(BASE+'/health',timeout=8) as r:d=json.load(r)
  except (OSError, ValueError) as e:
@@ -138,7 +150,7 @@ def recover_watchdog():
    if 'POCKET_API_UNREACHABLE' not in str(e):raise
  raise RuntimeError('WATCHDOG_REQUESTED_BUT_POCKET_NOT_READY; inspect without dispatching a duplicate')
 def synth(text):
- if PROFILE in ('dark-velvet','whisper-v2'):return drew_synth(text)
+ if PROFILE in ('dark-velvet','whisper-v2','whisper-v3'):return drew_synth(text)
  data=json.dumps({'text':text,'profile':PROFILE}).encode()
  req=urllib.request.Request(BASE+'/tts',data=data,headers={'Content-Type':'application/json'},method='POST')
  with urllib.request.urlopen(req,timeout=240) as r:
