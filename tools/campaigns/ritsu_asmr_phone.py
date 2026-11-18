@@ -248,16 +248,104 @@ def fetch_wav(commit,expected,episode):
    if dest.exists():raise RuntimeError('Destination appeared during transfer; partial preserved')
    partial.rename(dest)
  return {'phase':'delivered_to_phone_not_heard','path':str(dest),'bytes':size,'wavSha256':digest,'durationSeconds':remote.get('durationSeconds')}
+# Exact enrolled handset previously used for Taildrop. Do not guess partial names.
+TAILDROP_DEVICE='pixel-10-pro-xl-1'
+TAILDROP_IP='100.93.128.108'
+def rendered_identity(commit,expected,episode):
+ remote=extract_result(remote_run(commit,expected,'receipts',episode,None))
+ if not remote or remote.get('phase')!='rendered_not_delivered' or remote.get('episodeId')!=episode:
+  raise RuntimeError('No verified rendered receipt for this episode')
+ digest=str(remote.get('wavSha256','')).upper();size=remote.get('bytes')
+ if str(remote.get('voiceSha256','')).upper()!='B99EB2E16612E8B8C3E3A96F74BD631676CC79071779537FD94C564DB5796BE5':raise RuntimeError('Unexpected whisper identity')
+ if not re.fullmatch(r'[A-F0-9]{64}',digest) or not isinstance(size,int) or not 44<size<=512*1024*1024:raise RuntimeError('Invalid remote WAV receipt')
+ return remote,digest,size
+def drop_wav(commit,expected,episode,resend=False):
+ remote,digest,size=rendered_identity(commit,expected,episode)
+ # Unique to the render and phone; a successful send is never a receive receipt.
+ import fcntl
+ with (STATE/(episode+'.drop.lock')).open('a+b') as lock:
+  try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+  except OSError as e:raise RuntimeError('Another Taildrop operation owns this episode') from e
+  script=r"""
+$ErrorActionPreference='Stop'
+$p=Join-Path $env:LOCALAPPDATA 'RitsuASMR\runs\__EP__\__EP__.wav'
+if(!(Test-Path -LiteralPath $p)){throw 'Rendered WAV missing'}
+if((Get-Item -LiteralPath $p).Length -ne __SIZE__ -or (Get-FileHash -LiteralPath $p -Algorithm SHA256).Hash -ne '__DIGEST__'){throw 'Rendered WAV identity mismatch'}
+$cli=Get-Command tailscale.exe -ErrorAction SilentlyContinue
+if($cli){$exe=$cli.Source}else{$exe=Join-Path $env:ProgramFiles 'Tailscale\tailscale.exe'}
+if(!(Test-Path -LiteralPath $exe)){throw 'Tailscale CLI unavailable'}
+$raw=& $exe status --json
+if($LASTEXITCODE -ne 0){throw 'Tailscale status failed'}
+$ts=($raw -join [Environment]::NewLine)|ConvertFrom-Json
+if($ts.BackendState -ne 'Running'){throw 'Tailscale is not running'}
+$peers=@($ts.Peer.PSObject.Properties.Value|Where-Object {
+ $_.HostName -ieq '__DEVICE__' -and $_.TailscaleIPs -contains '__IP__'
+})
+if($peers.Count -ne 1){throw 'Expected exact Pixel name and tailnet IP not found; refusing to send'}
+$peer=$peers[0]
+if(!$peer.Online){throw 'Expected Pixel is offline'}
+$ledger=Join-Path (Split-Path -Parent $p) 'taildrop-__DIGEST__-__IP__.json'
+# FileShare.None protects against two independent Cauldron operators.
+$guard=[IO.File]::Open(($ledger+'.lock'),[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
+try{
+ if((Test-Path -LiteralPath $ledger) -and !__RESEND__){
+  $old=Get-Content -LiteralPath $ledger -Raw|ConvertFrom-Json
+  if($old.phase -ne 'taildrop_sent_not_verified'){throw 'Prior Taildrop outcome ambiguous; check phone before explicit drop --resend'}
+  $joined=$old|ConvertTo-Json -Compress
+ }else{
+  $record=@{phase='taildrop_dispatch_uncertain';episodeId='__EP__';device='__DEVICE__';bytes=__SIZE__;wavSha256='__DIGEST__';fileName='__EP__.wav';updatedUtc=[DateTime]::UtcNow.ToString('o')}
+  $record|ConvertTo-Json -Compress|Set-Content -LiteralPath $ledger -Encoding UTF8
+  $output=& $exe file cp $p '__IP__:'
+  if($LASTEXITCODE -ne 0){throw 'Taildrop CLI send failed; check phone before explicit retry'}
+  $record.phase='taildrop_sent_not_verified'
+  $record.updatedUtc=[DateTime]::UtcNow.ToString('o')
+  $joined=$record|ConvertTo-Json -Compress
+  $joined|Set-Content -LiteralPath $ledger -Encoding UTF8
+ }
+}finally{$guard.Dispose()}
+$bytes=[Text.Encoding]::UTF8.GetBytes($joined)
+$encoded=[Convert]::ToBase64String($bytes)
+$hash=([BitConverter]::ToString(([Security.Cryptography.SHA256]::Create()).ComputeHash($bytes))).Replace('-','')
+# ConsoleHost can wrap at the remote PTY width. Use numbered 16-character frames.
+[Console]::WriteLine(('JSTART:'+ $encoded.Length))
+for($i=0;$i -lt $encoded.Length;$i+=16){[Console]::WriteLine(('J:{0:D5}:{1}' -f ($i/16),$encoded.Substring($i,[Math]::Min(16,$encoded.Length-$i))))}
+for($i=0;$i -lt 64;$i+=16){[Console]::WriteLine(('H:{0}:{1}' -f ($i/16),$hash.Substring($i,16)))}
+Write-Output 'RITSU_ASMR_REMOTE_OK=1'
+"""
+  script=script.replace('__EP__',episode).replace('__SIZE__',str(size)).replace('__DIGEST__',digest).replace('__DEVICE__',TAILDROP_DEVICE).replace('__IP__',TAILDROP_IP).replace('__RESEND__','$true' if resend else '$false')
+  result=extract_result(ps(script,quiet=True))
+  if result.get('phase')!='taildrop_sent_not_verified' or result.get('wavSha256')!=digest or result.get('bytes')!=size or result.get('device')!=TAILDROP_DEVICE or result.get('episodeId')!=episode:raise RuntimeError('Taildrop send receipt identity mismatch')
+  return result
+def verify_wav(commit,expected,episode,received=None):
+ remote,digest,size=rendered_identity(commit,expected,episode)
+ downloads=Path.home()/'storage/downloads'
+ # Android UI may require accepting/saving the incoming file before Termux can read it.
+ if received is not None:
+  candidates=[received]
+ else:
+  candidates=[downloads/(episode+'.wav'),downloads/'Taildrop'/(episode+'.wav'),downloads/'Tailscale'/(episode+'.wav'),downloads/'RitsuASMR'/(episode+'.wav')]
+  candidates += sorted(downloads.glob(episode+' (*).wav'))
+ for path in candidates:
+  if not path.is_file() or path.stat().st_size!=size or file_sha(path)!=digest:continue
+  import wave
+  with wave.open(str(path),'rb') as w:
+   if (w.getnchannels(),w.getsampwidth(),w.getframerate())!=(1,2,24000):raise RuntimeError('Invalid received PCM')
+  return {'phase':'delivered_to_phone_not_heard','path':str(path),'bytes':size,'wavSha256':digest,'durationSeconds':remote.get('durationSeconds'),'transport':'not_inferred_from_file'}
+ raise RuntimeError('No matching received WAV; accept/save Taildrop in Android Downloads or use verify --received PATH')
 def main():
  p=argparse.ArgumentParser()
- p.add_argument('verb',nargs='?',default='doctor',choices=['doctor','inspect','recover','start','status','resume','stop','receipts','fetch'])
+ p.add_argument('verb',nargs='?',default='doctor',choices=['doctor','inspect','recover','start','status','resume','stop','receipts','fetch','drop','verify'])
  p.add_argument('--episode',default='RITSU_ASMR_CANARY')
  p.add_argument('--input',type=Path)
+ p.add_argument('--received',type=Path)
+ p.add_argument('--resend',action='store_true')
  a=p.parse_args()
  STATE.mkdir(parents=True,exist_ok=True)
  lines=['CAMPAIGN=RITSU_ASMR_OFFLINE_v1','EPISODE='+a.episode,'VERB='+a.verb]
  try:
   if not re.fullmatch(r'[A-Za-z0-9_-]{1,64}',a.episode):raise ValueError('Invalid episode ID')
+  if a.received is not None and a.verb!='verify':raise ValueError('--received only allowed with verify')
+  if a.resend and a.verb!='drop':raise ValueError('--resend only allowed with drop')
   if a.input and a.verb!='start':raise ValueError('--input only allowed with start')
   if not shutil.which('cauldron'):raise RuntimeError('Existing cauldron command unavailable; no SSH substitution')
   commit,hashvalue=review_source()
@@ -267,6 +355,8 @@ def main():
   if data is not None:data.decode('utf-8-sig')
   print('CONTACTING_THECAULDRON='+a.verb,flush=True)
   if a.verb=='fetch':details=fetch_wav(commit,hashvalue,a.episode)
+  elif a.verb=='drop':details=drop_wav(commit,hashvalue,a.episode,a.resend)
+  elif a.verb=='verify':details=verify_wav(commit,hashvalue,a.episode,a.received)
   else:details=extract_result(remote_run(commit,hashvalue,a.verb,a.episode,data))
   if details is None:raise RuntimeError('Missing structured Windows result')
   lines+=['WINDOWS_RESULT='+json.dumps(details,ensure_ascii=True,separators=(',',':'))]
