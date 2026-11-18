@@ -259,6 +259,32 @@ def rendered_identity(commit,expected,episode):
  if str(remote.get('voiceSha256','')).upper()!='B99EB2E16612E8B8C3E3A96F74BD631676CC79071779537FD94C564DB5796BE5':raise RuntimeError('Unexpected whisper identity')
  if not re.fullmatch(r'[A-F0-9]{64}',digest) or not isinstance(size,int) or not 44<size<=512*1024*1024:raise RuntimeError('Invalid remote WAV receipt')
  return remote,digest,size
+def taildrop_peers():
+ # Read-only discovery. No auto-enrollment, no file send.
+ script=r"""
+$ErrorActionPreference='Stop'
+$c=Get-Command tailscale.exe -ErrorAction SilentlyContinue
+if($c){$exe=$c.Source}else{$exe=Join-Path $env:ProgramFiles 'Tailscale\tailscale.exe'}
+$raw=& $exe status --json
+if($LASTEXITCODE -ne 0){throw 'Tailscale status failed'}
+$t=($raw -join [Environment]::NewLine)|ConvertFrom-Json
+$rows=@(foreach($prop in $t.Peer.PSObject.Properties){
+ $v=$prop.Value
+ if($v.HostName -match 'pixel' -or $v.DNSName -match 'pixel' -or $v.TailscaleIPs -contains '100.93.128.108'){
+  [pscustomobject]@{host=$v.HostName;dnsLabel=([string]$v.DNSName -split '\.')[0];ips=@($v.TailscaleIPs);online=$v.Online;os=$v.OS;id=$v.ID}
+ }
+})
+$joined=@{phase='taildrop_peer_discovery';backend=$t.BackendState;peers=$rows}|ConvertTo-Json -Compress -Depth 6
+$bytes=[Text.Encoding]::UTF8.GetBytes($joined)
+$encoded=[Convert]::ToBase64String($bytes)
+$hash=([BitConverter]::ToString(([Security.Cryptography.SHA256]::Create()).ComputeHash($bytes))).Replace('-','')
+# ConsoleHost can wrap at the remote PTY width. Use numbered 16-character frames.
+[Console]::WriteLine(('JSTART:'+ $encoded.Length))
+for($i=0;$i -lt $encoded.Length;$i+=16){[Console]::WriteLine(('J:{0:D5}:{1}' -f ($i/16),$encoded.Substring($i,[Math]::Min(16,$encoded.Length-$i))))}
+for($i=0;$i -lt 64;$i+=16){[Console]::WriteLine(('H:{0}:{1}' -f ($i/16),$hash.Substring($i,16)))}
+Write-Output 'RITSU_ASMR_REMOTE_OK=1'
+"""
+ return extract_result(ps(script,quiet=True))
 def drop_wav(commit,expected,episode,resend=False):
  remote,digest,size=rendered_identity(commit,expected,episode)
  # Unique to the render and phone; a successful send is never a receive receipt.
@@ -307,7 +333,7 @@ def verify_wav(commit,expected,episode,received=None):
  raise RuntimeError('No matching received WAV; accept/save Taildrop in Android Downloads or use verify --received PATH')
 def main():
  p=argparse.ArgumentParser()
- p.add_argument('verb',nargs='?',default='doctor',choices=['doctor','inspect','recover','start','status','resume','stop','receipts','fetch','drop','verify'])
+ p.add_argument('verb',nargs='?',default='doctor',choices=['doctor','inspect','recover','start','status','resume','stop','receipts','fetch','drop','verify','peers'])
  p.add_argument('--episode',default='RITSU_ASMR_CANARY')
  p.add_argument('--input',type=Path)
  p.add_argument('--received',type=Path)
@@ -328,6 +354,7 @@ def main():
   if data is not None:data.decode('utf-8-sig')
   print('CONTACTING_THECAULDRON='+a.verb,flush=True)
   if a.verb=='fetch':details=fetch_wav(commit,hashvalue,a.episode)
+  elif a.verb=='peers':details=taildrop_peers()
   elif a.verb=='drop':details=drop_wav(commit,hashvalue,a.episode,a.resend)
   elif a.verb=='verify':details=verify_wav(commit,hashvalue,a.episode,a.received)
   else:details=extract_result(remote_run(commit,hashvalue,a.verb,a.episode,data))
