@@ -8,7 +8,7 @@ STATE=Path.home()/'.local/state/drew-voice-reference'
 SOURCE=Path.home()/'storage/downloads/drew-whisper.m4a'
 REL=r'DrewVoice\references'
 MAX=4*1024*1024
-CHUNK=900
+CHUNK=600
 
 def sha(data):return hashlib.sha256(data).hexdigest().upper()
 
@@ -24,7 +24,8 @@ def remote(script,stage):
  cmd=base64.b64encode(script.encode('utf-16le')).decode('ascii')
  if len(cmd)>6500:raise RuntimeError('Encoded SSH budget exceeded at '+stage)
  p=subprocess.run(['cauldron','powershell.exe','-NoLogo','-NoProfile','-NonInteractive','-EncodedCommand',cmd],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=180)
- out=re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]','',p.stdout or '')
+ out=re.sub(r'\x1b\][^\x07]*(?:\x07|\x1b\\)','',p.stdout or '')
+ out=re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]','',out)
  lines=[x.strip() for x in out.splitlines()]
  if p.returncode or lines.count('DREW_REFERENCE_OK=1')!=1:
   raise RuntimeError('Remote stage blocked: '+stage+' exit='+str(p.returncode)+'; outcome may be unknown; rerun status or resume')
@@ -37,27 +38,24 @@ def inspect(digest,size):
  lines=remote(prefix(digest)+r"""
 if(Test-Path -LiteralPath $f){
  if((Get-Item -LiteralPath $f).Length -ne __SIZE__ -or (Get-FileHash -LiteralPath $f -Algorithm SHA256).Hash -ne '__HASH__'){throw 'FINAL_COLLISION'}
- Write-Output ('FINAL='+__SIZE__)
+ $j=@{final=$true;bytes=__SIZE__;sha256='__HASH__'}
 }elseif(Test-Path -LiteralPath $p){
- $n=(Get-Item -LiteralPath $p).Length
- Write-Output ('PARTIAL='+$n)
- $h=(Get-FileHash -LiteralPath $p -Algorithm SHA256).Hash
- for($i=0;$i -lt 64;$i+=16){Write-Output ('H'+($i/16)+'='+$h.Substring($i,16))}
-}else{Write-Output 'PARTIAL=0'}
+ $j=@{final=$false;bytes=(Get-Item -LiteralPath $p).Length;sha256=(Get-FileHash -LiteralPath $p -Algorithm SHA256).Hash}
+}else{$j=@{final=$false;bytes=0;sha256=$null}}
+$bytes=[Text.Encoding]::UTF8.GetBytes(($j|ConvertTo-Json -Compress))
+$encoded=[Convert]::ToBase64String($bytes)
+$hash=([BitConverter]::ToString(([Security.Cryptography.SHA256]::Create()).ComputeHash($bytes))).Replace('-','')
+[Console]::WriteLine(('JSTART:'+ $encoded.Length))
+for($i=0;$i -lt $encoded.Length;$i+=16){[Console]::WriteLine(('J:{0:D5}:{1}' -f ($i/16),$encoded.Substring($i,[Math]::Min(16,$encoded.Length-$i))))}
+for($i=0;$i -lt 64;$i+=16){[Console]::WriteLine(('H:{0}:{1}' -f ($i/16),$hash.Substring($i,16)))}
 Write-Output 'DREW_REFERENCE_OK=1'
 """.replace('__SIZE__',str(size)).replace('__HASH__',digest),'inspect')
- finals=[int(x[6:]) for x in lines if re.fullmatch(r'FINAL=\d+',x)]
- partials=[int(x[8:]) for x in lines if re.fullmatch(r'PARTIAL=\d+',x)]
- if finals==[size] and not partials:return True,size,None
- if finals or len(partials)!=1 or not 0<=partials[0]<=size:raise RuntimeError('Invalid remote reference receipt')
- n=partials[0]
- if not n:return False,0,None
- parts=[]
- for i in range(4):
-  h=[x[3:] for x in lines if re.fullmatch('H'+str(i)+'=[A-Fa-f0-9]{16}',x)]
-  if len(h)!=1:raise RuntimeError('Incomplete remote prefix hash')
-  parts+=h
- return False,n,''.join(parts).upper()
+ obj=transport.extract_result('\n'.join(lines))
+ final,n,h=obj.get('final'),obj.get('bytes'),obj.get('sha256')
+ if type(final) is not bool or type(n) is not int or not 0<=n<=size:raise RuntimeError('Invalid remote reference receipt fields')
+ if final and (n!=size or h!=digest):raise RuntimeError('Invalid final reference identity')
+ if n and (not isinstance(h,str) or not re.fullmatch(r'[A-Fa-f0-9]{64}',h)):raise RuntimeError('Invalid remote prefix digest')
+ return final,n,h.upper() if h else None
 
 def append(digest,offset,chunk):
  coded=base64.b64encode(chunk).decode('ascii')
