@@ -199,6 +199,8 @@ Write-Output 'RITSU_ASMR_REMOTE_OK=1'
   extra="$arguments+=@('--input',(Join-Path $env:LOCALAPPDATA "+quote(repo_input)+"))"
  else:extra=''
  script=script.replace('__SHA__',expected).replace('__COMMIT__',commit).replace('__VERB__',verb).replace('__EP__',episode).replace('__INPUT__',extra)
+ if episode.startswith('DREW_DARK_VELVET_'):
+  script=script.replace(r'workspace\ritsu-faster-qwen3-tts\.venv\Scripts\python.exe',r'Documents\Codex\Venice\PocketTTS\.venv\Scripts\python.exe')
  output=ps(script,quiet=True,stage='renderer-'+verb)
  (STATE/'last-remote-transport.txt').write_text(output,encoding='utf-8')
  return output
@@ -349,7 +351,10 @@ def rendered_identity(commit,expected,episode):
  if not remote or remote.get('phase')!='rendered_not_delivered' or remote.get('episodeId')!=episode:
   raise RuntimeError('No verified rendered receipt for this episode')
  digest=str(remote.get('wavSha256','')).upper();size=remote.get('bytes')
- if str(remote.get('voiceSha256','')).upper()!='B99EB2E16612E8B8C3E3A96F74BD631676CC79071779537FD94C564DB5796BE5':raise RuntimeError('Unexpected whisper identity')
+ drew=episode.startswith('DREW_DARK_VELVET_')
+ voice='12F022B4CD21E116640393132BF1F4268E0F6B5F787FB76969E4ACA44FC5BC10' if drew else 'B99EB2E16612E8B8C3E3A96F74BD631676CC79071779537FD94C564DB5796BE5'
+ if str(remote.get('voiceSha256','')).upper()!=voice:raise RuntimeError('Unexpected voice identity')
+ if drew and (remote.get('profile')!='dark-velvet' or remote.get('presetSha256')!='D04489AB5EA5822660E82FE5D5F2207C47C5958BCA8CBB4C8E215BA3DB2ED944'):raise RuntimeError('Unexpected Drew preset identity')
  if not re.fullmatch(r'[A-F0-9]{64}',digest) or not isinstance(size,int) or not 44<size<=512*1024*1024:raise RuntimeError('Invalid remote WAV receipt')
  return remote,digest,size
 def taildrop_peers():
@@ -479,6 +484,7 @@ def main():
   if not re.fullmatch(r'[A-Za-z0-9_-]{1,64}',a.episode):raise ValueError('Invalid episode ID')
   if a.received is not None and a.verb!='verify':raise ValueError('--received only allowed with verify')
   if a.resend and a.verb!='drop':raise ValueError('--resend only allowed with drop')
+  if a.verb=='fetch':raise ValueError('Binary media must use Taildrop; use drop and verify')
   if a.repo_transcript and (a.input or a.verb!='start'):raise ValueError('--repo-transcript requires start and excludes --input')
   if a.repo_check and not a.repo_transcript:raise ValueError('--repo-check requires --repo-transcript')
   if a.input and a.verb!='start':raise ValueError('--input only allowed with start')
