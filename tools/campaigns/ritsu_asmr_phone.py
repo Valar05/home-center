@@ -101,19 +101,32 @@ $cache=Join-Path $root 'private-episode-git'
 $dest=Join-Path $env:LOCALAPPDATA '__DEST__'
 $blob=(& $git -C $cache rev-parse '__REV__:__PATH__' 2>$null)
 if($LASTEXITCODE -ne 0 -or $blob -notmatch '^[a-f0-9]{40}$'){throw 'PRIVATE_REPO_BLOB_MISSING'}
+$blob=([string]$blob).Trim()
 $tmp=Join-Path $root ('repo-stage-'+[guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $tmp|Out-Null
 try{
- $zip=Join-Path $tmp 'source.zip'
- $ErrorActionPreference='Continue'
- & $git -C $cache archive --format=zip --output=$zip '__REV__' '__PATH__' 2>&1|Out-Null
+ $src=Join-Path $tmp 'source.txt'
+ # Windows PowerShell's > operator transcodes native stdout. Redirect via .NET binary stream instead.
+ $pi=New-Object System.Diagnostics.ProcessStartInfo
+ $pi.FileName=$git
+ $pi.WorkingDirectory=$cache
+ $pi.Arguments='cat-file blob '+$blob
+ $pi.UseShellExecute=$false
+ $pi.RedirectStandardOutput=$true
+ $pi.RedirectStandardError=$true
+ $proc=[System.Diagnostics.Process]::Start($pi)
+ try{
+  $err=$proc.StandardError.ReadToEndAsync()
+  $out=[IO.File]::Open($src,[IO.FileMode]::CreateNew)
+  try{$proc.StandardOutput.BaseStream.CopyTo($out)}finally{$out.Dispose()}
+  $proc.WaitForExit()
+  if($proc.ExitCode -ne 0){throw 'PRIVATE_REPO_CAT_FILE_FAILED'}
+  [void]$err.GetAwaiter().GetResult()
+ }finally{$proc.Dispose()}
+ $actual=(& $git -C $cache hash-object --no-filters -- $src 2>$null)
  $rc=$LASTEXITCODE
- $ErrorActionPreference='Stop'
- if($rc -ne 0){throw 'PRIVATE_REPO_ARCHIVE_FAILED'}
- Expand-Archive -LiteralPath $zip -DestinationPath (Join-Path $tmp 'tree')
- $src=Join-Path (Join-Path $tmp 'tree') '__PATH__'
- $actual=(& $git -C $cache hash-object --no-filters $src 2>$null)
- if($LASTEXITCODE -ne 0 -or $actual -cne $blob){throw 'PRIVATE_REPO_BLOB_MISMATCH'}
+ $actual=([string]$actual).Trim()
+ if($rc -ne 0 -or $actual -cne $blob){throw ('PRIVATE_REPO_BLOB_MISMATCH expected='+$blob+' actual='+$actual+' exit='+$rc)}
  if((Get-Item -LiteralPath $src).Length -gt 150000){throw 'PRIVATE_REPO_INPUT_TOO_LARGE'}
  if(Test-Path -LiteralPath $dest){
   if((Get-FileHash -LiteralPath $dest).Hash -ne (Get-FileHash -LiteralPath $src).Hash){throw 'PRIVATE_REPO_STAGE_COLLISION'}
