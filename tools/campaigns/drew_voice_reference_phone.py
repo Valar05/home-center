@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Private, resumable phone-to-Cauldron voice reference ingress; no synthesis."""
+"""Taildrop-only private voice reference collection; no synthesis."""
 import argparse, base64, hashlib, json, os, re, shutil, subprocess, sys
 from pathlib import Path
 import ritsu_asmr_phone as transport
@@ -8,7 +8,6 @@ STATE=Path.home()/'.local/state/drew-voice-reference'
 SOURCE=Path.home()/'storage/downloads/drew-whisper.m4a'
 REL=r'DrewVoice\references'
 MAX=4*1024*1024
-CHUNK=600
 
 def sha(data):return hashlib.sha256(data).hexdigest().upper()
 
@@ -31,62 +30,60 @@ def remote(script,stage):
   raise RuntimeError('Remote stage blocked: '+stage+' exit='+str(p.returncode)+'; outcome may be unknown; rerun status or resume')
  return lines
 
-def prefix(digest):
- return "$ErrorActionPreference='Stop';$d=Join-Path $env:LOCALAPPDATA 'DrewVoice\\references\\"+digest+"';$f=Join-Path $d 'drew-whisper.m4a';$p=$f+'.partial';"
-
-def inspect(digest,size):
- lines=remote(prefix(digest)+r"""
+def inspect(digest,size,collect=False):
+ # Windows GUI receives into Downloads; never drain unrelated inbox files.
+ script=r"""
+$ErrorActionPreference='Stop'
+$d=Join-Path $env:LOCALAPPDATA 'DrewVoice\references\__HASH__'
+$f=Join-Path $d 'drew-whisper.m4a'
+$n=__SIZE__;$h='__HASH__'
+function valid($p){(Test-Path -LiteralPath $p -PathType Leaf) -and (Get-Item -LiteralPath $p).Length -eq $n -and (Get-FileHash -LiteralPath $p).Hash -eq $h}
+$j=@{phase='awaiting_taildrop';bytes=0}
 if(Test-Path -LiteralPath $f){
- if((Get-Item -LiteralPath $f).Length -ne __SIZE__ -or (Get-FileHash -LiteralPath $f -Algorithm SHA256).Hash -ne '__HASH__'){throw 'FINAL_COLLISION'}
- $j=@{final=$true;bytes=__SIZE__;sha256='__HASH__'}
-}elseif(Test-Path -LiteralPath $p){
- $j=@{final=$false;bytes=(Get-Item -LiteralPath $p).Length;sha256=(Get-FileHash -LiteralPath $p -Algorithm SHA256).Hash}
-}else{$j=@{final=$false;bytes=0;sha256=$null}}
+ if(!(valid $f)){throw 'FINAL_COLLISION'}
+ $j=@{phase='reference_delivered_verified';bytes=$n;sha256=$h;path=$f}
+}else{
+ $roots=@((Join-Path $env:USERPROFILE 'Downloads'))
+ $k=Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders' -ErrorAction SilentlyContinue
+ $v=$k.'{374DE290-123F-4565-9164-39C4925E467B}'
+ if($v){$roots+=[Environment]::ExpandEnvironmentVariables($v)}
+ $found=$null
+ foreach($r in ($roots|Select-Object -Unique)){
+  foreach($p in @($r,(Join-Path $r 'Taildrop'),(Join-Path $r 'Tailscale'))){
+   if(!(Test-Path -LiteralPath $p -PathType Container)){continue}
+   foreach($a in (Get-ChildItem -LiteralPath $p -File -Filter 'drew-whisper*.m4a')){
+    if($a.Name -match '^drew-whisper(?: \(\d+\)|-\d+)?\.m4a$' -and (valid $a.FullName)){$found=$a.FullName;break}
+   }
+   if($found){break}
+  }
+  if($found){break}
+ }
+ if($found){
+  $j=@{phase='taildrop_found_not_collected';bytes=$n;sha256=$h;receivedPath=$found}
+  if(__COLLECT__){
+   New-Item -ItemType Directory -Force -Path $d|Out-Null
+   $t=Join-Path $d ([guid]::NewGuid().ToString('N')+'.incoming')
+   try{Copy-Item -LiteralPath $found -Destination $t;if(!(valid $t)){throw 'COPY_MISMATCH'};[IO.File]::Move($t,$f)}
+   finally{if(Test-Path -LiteralPath $t){Remove-Item -LiteralPath $t -Force}}
+   if(!(valid $f)){throw 'FINAL_MISMATCH'}
+   $j.phase='reference_delivered_verified';$j.path=$f
+  }
+ }
+}
 $bytes=[Text.Encoding]::UTF8.GetBytes(($j|ConvertTo-Json -Compress))
-$encoded=[Convert]::ToBase64String($bytes)
+$e=[Convert]::ToBase64String($bytes)
 $hash=([BitConverter]::ToString(([Security.Cryptography.SHA256]::Create()).ComputeHash($bytes))).Replace('-','')
-[Console]::WriteLine(('JSTART:'+ $encoded.Length))
-for($i=0;$i -lt $encoded.Length;$i+=16){[Console]::WriteLine(('J:{0:D5}:{1}' -f ($i/16),$encoded.Substring($i,[Math]::Min(16,$encoded.Length-$i))))}
+[Console]::WriteLine(('JSTART:'+$e.Length))
+for($i=0;$i -lt $e.Length;$i+=16){[Console]::WriteLine(('J:{0:D5}:{1}' -f ($i/16),$e.Substring($i,[Math]::Min(16,$e.Length-$i))))}
 for($i=0;$i -lt 64;$i+=16){[Console]::WriteLine(('H:{0}:{1}' -f ($i/16),$hash.Substring($i,16)))}
 Write-Output 'DREW_REFERENCE_OK=1'
-""".replace('__SIZE__',str(size)).replace('__HASH__',digest),'inspect')
- obj=transport.extract_result('\n'.join(lines))
- final,n,h=obj.get('final'),obj.get('bytes'),obj.get('sha256')
- if type(final) is not bool or type(n) is not int or not 0<=n<=size:raise RuntimeError('Invalid remote reference receipt fields')
- if final and (n!=size or h!=digest):raise RuntimeError('Invalid final reference identity')
- if n and (not isinstance(h,str) or not re.fullmatch(r'[A-Fa-f0-9]{64}',h)):raise RuntimeError('Invalid remote prefix digest')
- return final,n,h.upper() if h else None
-
-def append(digest,offset,chunk):
- coded=base64.b64encode(chunk).decode('ascii')
- script=prefix(digest)+r"""
-New-Item -ItemType Directory -Force -Path $d|Out-Null
-if(Test-Path -LiteralPath $f){throw 'FINAL_ALREADY_EXISTS'}
-$b=[Convert]::FromBase64String('__CHUNK__')
-$s=[IO.File]::Open($p,[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
-try{
- $o=__OFFSET__
- if($s.Length -eq $o){$s.Position=$o;$s.Write($b,0,$b.Length);$s.Flush()}
- elseif($s.Length -ge ($o+$b.Length)){
-  $s.Position=$o;$old=New-Object byte[] $b.Length
-  if($s.Read($old,0,$old.Length) -ne $old.Length -or [Convert]::ToBase64String($old) -cne '__CHUNK__'){throw 'CHUNK_COLLISION'}
- }else{throw 'OFFSET_COLLISION'}
-}finally{$s.Dispose()}
-Write-Output 'DREW_REFERENCE_OK=1'
 """
- # Avoid duplicating the full payload in the encoded command.
- script=script.replace("-cne '__CHUNK__'","-cne [Convert]::ToBase64String($b)")
- remote(script.replace('__CHUNK__',coded).replace('__OFFSET__',str(offset)),'append offset='+str(offset))
-
-def finalize(digest,size):
- remote(prefix(digest)+r"""
-if(!(Test-Path -LiteralPath $f)){
- if((Get-Item -LiteralPath $p).Length -ne __SIZE__ -or (Get-FileHash -LiteralPath $p -Algorithm SHA256).Hash -ne '__HASH__'){throw 'REFERENCE_DIGEST_MISMATCH'}
- [IO.File]::Move($p,$f)
-}
-if((Get-Item -LiteralPath $f).Length -ne __SIZE__ -or (Get-FileHash -LiteralPath $f -Algorithm SHA256).Hash -ne '__HASH__'){throw 'FINAL_DIGEST_MISMATCH'}
-Write-Output 'DREW_REFERENCE_OK=1'
-""".replace('__SIZE__',str(size)).replace('__HASH__',digest),'finalize')
+ script=script.replace('__SIZE__',str(size)).replace('__HASH__',digest).replace('__COLLECT__','$true' if collect else '$false')
+ obj=transport.extract_result('\n'.join(remote(script,'taildrop-collect' if collect else 'taildrop-inspect')))
+ phase=obj.get('phase')
+ if phase not in ('reference_delivered_verified','taildrop_found_not_collected','awaiting_taildrop'):raise RuntimeError('Invalid Taildrop receipt')
+ if phase!='awaiting_taildrop' and (obj.get('bytes')!=size or obj.get('sha256')!=digest):raise RuntimeError('Taildrop receipt identity mismatch')
+ return obj
 
 def main():
  p=argparse.ArgumentParser()
@@ -107,17 +104,13 @@ def main():
   import fcntl
   with (STATE/'transfer.lock').open('a') as lock:
    fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-   final,n,h=inspect(digest,size)
-   if n and not final and h!=sha(data[:n]):raise RuntimeError('Remote partial differs; preserve it, do not overwrite')
-   if a.verb!='status' and not final:
-    for off in range(n,size,CHUNK):
-     append(digest,off,data[off:off+CHUNK])
-     print('TRANSFER_BYTES='+str(min(off+CHUNK,size))+'/'+str(size),flush=True)
-    finalize(digest,size)
-    final,n,h=inspect(digest,size)
-    if not final:raise RuntimeError('Final readback missing')
-   lines+=['WINDOWS_REFERENCE=%LOCALAPPDATA%\\'+REL+'\\'+digest+'\\drew-whisper.m4a','VERIFIED_BYTES='+str(n),'PHASE='+('reference_delivered_verified' if final else 'reference_partial'),'CLONED=NO','RENDERED=NO']
-  rc=0
+   obj=inspect(digest,size,a.verb!='status')
+   lines+=['TRANSPORT=TAILDROP_ONLY','WINDOWS_RESULT='+json.dumps(obj,ensure_ascii=True,separators=(',',':')),'CLONED=NO','RENDERED=NO']
+   if obj['phase']=='awaiting_taildrop':
+    lines+=['NEXT=Share original drew-whisper.m4a via Android Tailscale to THECAULDRON; rerun resume']
+   elif obj['phase']=='taildrop_found_not_collected':
+    lines+=['NEXT=resume to collect verified reference']
+  rc=0 if obj['phase']=='reference_delivered_verified' else 3
  except subprocess.TimeoutExpired:lines+=['STATUS=BLOCKED','ERROR=SSH_TIMEOUT; reconcile with status or resume']
  except Exception as e:lines+=['STATUS=BLOCKED','ERROR='+type(e).__name__+': '+str(e)[:220]]
  receipt='\n'.join(lines)+'\n'
