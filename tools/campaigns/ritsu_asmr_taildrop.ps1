@@ -32,6 +32,10 @@ $ledger=Join-Path (Split-Path -Parent $p) "taildrop-$Digest-$PeerIP.json"
 $taskName="RitsuASMR-Taildrop-$Episode"
 $log=$ledger+'.log'
 if(!$Worker){
+ $active=@(Get-CimInstance Win32_Process|Where-Object {
+  $_.Name -ieq 'tailscale.exe' -and $_.CommandLine -match '\bfile\s+cp\b' -and $_.CommandLine -match ([regex]::Escape($Episode)+ '[.]wav') -and $_.CommandLine -match [regex]::Escape($PeerIP+':')
+ })
+ if($active.Count){throw 'TAIL_DROP_SENDER_ALREADY_ACTIVE; use drop-status'}
  $t=Get-ScheduledTask -TaskName $taskName -TaskPath '\' -ErrorAction SilentlyContinue
  if($t){
   $a=@($t.Actions)
