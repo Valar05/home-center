@@ -17,6 +17,7 @@ class RemoteFailure(RuntimeError):
  pass
 def ps(script,quiet=False):
  cmd=base64.b64encode(script.encode('utf-16le')).decode('ascii')
+ if len(cmd)>7000:raise RuntimeError('SSH_COMMAND_BUDGET_EXCEEDED: '+str(len(cmd)))
  p=subprocess.run(['cauldron','powershell.exe','-NoLogo','-NoProfile','-NonInteractive','-EncodedCommand',cmd],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=180)
  output=p.stdout
  if not quiet:print(output[-12000:],flush=True)
@@ -47,8 +48,8 @@ def staging(episode,data):
  digest=sha(data);coded=base64.b64encode(data).decode()
  target='$env:LOCALAPPDATA\\RitsuASMR\\incoming\\'+episode+'-'+digest+'.b64'
  # Each chunk is independently idempotent, verified by offset and expected bytes.
- for off in range(0,len(coded),3000):
-  piece=coded[off:off+3000]
+ for off in range(0,len(coded),1000):
+  piece=coded[off:off+1000]
   script="$ErrorActionPreference='Stop';$p="+quote(target)+";$p=$ExecutionContext.InvokeCommand.ExpandString($p);$dir=Split-Path $p;New-Item -ItemType Directory -Force -Path $dir|Out-Null;"
   script+="$s=if(Test-Path -LiteralPath $p){[IO.File]::ReadAllText($p)}else{''};$o="+str(off)+";$chunk="+quote(piece)+";"
   script+="if($s.Length -eq $o){[IO.File]::AppendAllText($p,$chunk,[Text.Encoding]::ASCII)}elseif($s.Length -ge ($o+$chunk.Length) -and $s.Substring($o,$chunk.Length) -ceq $chunk){}else{throw 'Staging offset collision'};"
@@ -63,19 +64,25 @@ def remote_run(commit,expected,verb,episode,input_data):
  if input_data is not None:
   digest,encoded_path=staging(episode,input_data)
   input_path='$env:LOCALAPPDATA\\RitsuASMR\\incoming\\'+episode+'-'+digest+'.txt'
- script="""$ErrorActionPreference='Stop'
-$root=Join-Path $env:LOCALAPPDATA 'RitsuASMR'
-$code=Join-Path (Join-Path $root 'code') '__SHA__'
-New-Item -ItemType Directory -Force -Path $code | Out-Null
-$program=Join-Path $code 'ritsu_asmr_windows.py'
-$expected='__SHA__'
-if (!(Test-Path -LiteralPath $program) -or ((Get-FileHash -Algorithm SHA256 -LiteralPath $program).Hash -ne $expected)) {
- $temporary=$program+'.incoming'
- Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Valar05/home-center/__COMMIT__/tools/campaigns/ritsu_asmr_windows.py' -OutFile $temporary -TimeoutSec 40
- if ((Get-FileHash -Algorithm SHA256 -LiteralPath $temporary).Hash -ne $expected) {Remove-Item -LiteralPath $temporary -Force;throw 'Pinned source digest mismatch'}
- Move-Item -LiteralPath $temporary -Destination $program -Force
+ install=r"""
+$ErrorActionPreference='Stop'
+$d=Join-Path $env:LOCALAPPDATA 'RitsuASMR\code\__SHA__'
+New-Item -ItemType Directory -Force -Path $d|Out-Null
+$p=Join-Path $d 'ritsu_asmr_windows.py'
+if(!(Test-Path -LiteralPath $p) -or (Get-FileHash -LiteralPath $p -Algorithm SHA256).Hash -ne '__SHA__'){
+ $tmp=$p+'.'+[guid]::NewGuid().ToString('N')+'.incoming'
+ Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Valar05/home-center/__COMMIT__/tools/campaigns/ritsu_asmr_windows.py' -OutFile $tmp -TimeoutSec 40
+ if((Get-FileHash -LiteralPath $tmp -Algorithm SHA256).Hash -ne '__SHA__'){throw 'Pinned source digest mismatch'}
+ Move-Item -LiteralPath $tmp -Destination $p -Force
 }
-$python=Join-Path $env:USERPROFILE 'workspace\\ritsu-faster-qwen3-tts\\.venv\\Scripts\\python.exe'
+Write-Output 'RITSU_ASMR_REMOTE_OK=1'
+"""
+ ps(install.replace('__SHA__',expected).replace('__COMMIT__',commit),quiet=True)
+ script=r"""
+$ErrorActionPreference='Stop'
+$program=Join-Path $env:LOCALAPPDATA 'RitsuASMR\code\__SHA__\ritsu_asmr_windows.py'
+if((Get-FileHash -LiteralPath $program -Algorithm SHA256).Hash -ne '__SHA__'){throw 'Pinned source digest mismatch'}
+$python=Join-Path $env:USERPROFILE 'workspace\ritsu-faster-qwen3-tts\.venv\Scripts\python.exe'
 if (!(Test-Path -LiteralPath $python)) {throw 'Approved Python runtime not found'}
 $env:RITSU_ASMR_SOURCE_COMMIT='__COMMIT__'
 $arguments=@($program,'__VERB__','--episode','__EP__')
@@ -94,16 +101,20 @@ for($i=0;$i -lt 64;$i+=16){[Console]::WriteLine(('H:{0}:{1}' -f ($i/16),$hash.Su
 Write-Output 'RITSU_ASMR_REMOTE_OK=1'
 """
  if input_data is not None:
-  extra="""$encoded=Join-Path $env:LOCALAPPDATA '__ENCODED__'
+  finalize=r"""
+$ErrorActionPreference='Stop'
+$encoded=Join-Path $env:LOCALAPPDATA '__ENCODED__'
 $incoming=Join-Path $env:LOCALAPPDATA '__INCOMING__'
 $raw=[IO.File]::ReadAllText($encoded)
 $bytes=[Convert]::FromBase64String($raw)
 $actual=([BitConverter]::ToString(([Security.Cryptography.SHA256]::Create()).ComputeHash($bytes))).Replace('-','')
 if($actual -ne '__DIGEST__'){throw 'Staged transcript digest mismatch'}
 [IO.File]::WriteAllBytes($incoming,$bytes)
-$arguments+=@('--input',$incoming)
+Write-Output 'RITSU_ASMR_REMOTE_OK=1'
 """
-  extra=extra.replace('__ENCODED__','RitsuASMR\\incoming\\'+episode+'-'+digest+'.b64').replace('__INCOMING__','RitsuASMR\\incoming\\'+episode+'-'+digest+'.txt').replace('__DIGEST__',digest)
+  finalize=finalize.replace('__ENCODED__','RitsuASMR\\incoming\\'+episode+'-'+digest+'.b64').replace('__INCOMING__','RitsuASMR\\incoming\\'+episode+'-'+digest+'.txt').replace('__DIGEST__',digest)
+  ps(finalize,quiet=True)
+  extra="$arguments+=@('--input',(Join-Path $env:LOCALAPPDATA "+quote('RitsuASMR\\incoming\\'+episode+'-'+digest+'.txt')+"))"
  else:extra=''
  script=script.replace('__SHA__',expected).replace('__COMMIT__',commit).replace('__VERB__',verb).replace('__EP__',episode).replace('__INPUT__',extra)
  output=ps(script,quiet=True)
