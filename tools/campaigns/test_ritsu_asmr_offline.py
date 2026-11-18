@@ -124,7 +124,7 @@ def test_taildrop():
  phone=importlib.util.module_from_spec(spec);spec.loader.exec_module(phone)
  audio=wav('canary');digest=phone.sha(audio)
  remote={'phase':'rendered_not_delivered','episodeId':'CANARY','wavSha256':digest,'bytes':len(audio),'voiceSha256':r.VOICE_SHA}
- sent={'phase':'taildrop_sent_not_verified','episodeId':'CANARY','device':phone.TAILDROP_DEVICE,'wavSha256':digest,'bytes':len(audio)}
+ sent={'phase':'taildrop_scheduled','episodeId':'CANARY','device':phone.TAILDROP_DEVICE,'wavSha256':digest,'bytes':len(audio)}
  with tempfile.TemporaryDirectory() as td:
   home=Path(td);state=home/'state';state.mkdir()
   downloads=home/'storage/downloads';downloads.mkdir(parents=True)
@@ -139,6 +139,9 @@ def test_taildrop():
    assert 'ritsu_asmr_taildrop.ps1' in script and phone.TAILDROP_IP in script and phone.TAILDROP_DEVICE in script
    assert 'Get-FileHash' in script and 'Get-FileHash' in helper
    assert 'file cp' in helper and 'taildrop_dispatch_uncertain' in helper
+   assert 'Register-ScheduledTask' in helper and '-Worker' in helper and 'SEND_STARTED' in helper
+   assert 'TAIL_DROP_SENDER_ALREADY_ACTIVE' in helper and 'Copy-Item -LiteralPath $ledger' in helper
+   assert 'taildrop_sent_not_verified' in helper and 'exitCode' in helper
    assert 'Peer.PSObject.Properties.Value' in helper and 'TailscaleIPs' in helper
    assert '-Resend:$false' in script
    try:phone.verify_wav('commit','hash','CANARY')
