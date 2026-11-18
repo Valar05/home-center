@@ -1,0 +1,22 @@
+{
+  "king": {
+    "episode": "DREW_CLEAN_DARK_VELVET_ABYSSAL_REPLY_V2",
+    "commit": "90fd45b840cd4c34be1626d2f83b6b841530a749",
+    "path": "episodes/003_abyssal_war_reply.txt"
+  },
+  "queen": {
+    "episode": "RITSU_WHISPER_V3_ABYSSAL_PROPOSAL_V2",
+    "commit": "1d81840f75fdd90a49bf6ee3615169a341378726",
+    "path": "episodes/004_abyssal_war_proposal.txt"
+  },
+  "submission": {
+    "episode": "RITSU_ASMR_SUBMISSION_TRAINING_V1",
+    "commit": "43aacff32c869779067a4719dcabfb273d4bfdd7",
+    "path": "episodes/001_submission_training.txt"
+  },
+  "date": {
+    "episode": "RITSU_ASMR_OUTSIDE_THE_RING_V1",
+    "commit": "181595c26a1a8e9622d490c98306cdff88145e58",
+    "path": "episodes/002_outside_the_ring.txt"
+  }
+}
