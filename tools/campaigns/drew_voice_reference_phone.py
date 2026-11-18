@@ -122,6 +122,41 @@ Write-Output 'DREW_REFERENCE_OK=1'
  if len(codes)!=1:raise RuntimeError('Taildrop inbox result missing; run status before another collect')
  return codes[0]
 
+def diagnose(digest,size):
+ # Bounded, read-only inventory. Include candidates irrespective of filename when size matches.
+ script=r"""
+$ErrorActionPreference='Stop'
+$roots=@((Join-Path $env:USERPROFILE 'Downloads'),(Join-Path $env:PUBLIC 'Downloads'))
+$k=Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders' -ErrorAction SilentlyContinue
+$v=$k.'{374DE290-123F-4565-9164-39C4925E467B}'
+if($v){$roots+=[Environment]::ExpandEnvironmentVariables($v)}
+$roots=@($roots|Select-Object -Unique)
+$dirs=@()
+$files=@()
+foreach($r in $roots){
+ foreach($p in @($r,(Join-Path $r 'Taildrop'),(Join-Path $r 'Tailscale'))){
+  if(!(Test-Path -LiteralPath $p -PathType Container)){continue}
+  $all=@(Get-ChildItem -LiteralPath $p -File -ErrorAction SilentlyContinue)
+  $dirs+=@(@{path=$p;fileCount=$all.Count})
+  $c=@($all|Where-Object {$_.Name -match 'drew.whisper' -or $_.Length -eq __SIZE__}|Select-Object -First 20)
+  foreach($a in $c){
+   $match=$false
+   if($a.Length -eq __SIZE__){$match=((Get-FileHash -LiteralPath $a.FullName).Hash -eq '__HASH__')}
+   $files+=@(@{path=$a.FullName;bytes=$a.Length;shaMatches=$match})
+  }
+ }
+}
+$j=@{phase='receiver_diagnostic';windowsUser=$env:USERNAME;directories=$dirs;matches=@($files|Select-Object -First 20);candidateCount=$files.Count}
+$bytes=[Text.Encoding]::UTF8.GetBytes(($j|ConvertTo-Json -Depth 5 -Compress))
+$e=[Convert]::ToBase64String($bytes)
+$hash=([BitConverter]::ToString(([Security.Cryptography.SHA256]::Create()).ComputeHash($bytes))).Replace('-','')
+[Console]::WriteLine(('JSTART:'+$e.Length))
+for($i=0;$i -lt $e.Length;$i+=16){[Console]::WriteLine(('J:{0:D5}:{1}' -f ($i/16),$e.Substring($i,[Math]::Min(16,$e.Length-$i))))}
+for($i=0;$i -lt 64;$i+=16){[Console]::WriteLine(('H:{0}:{1}' -f ($i/16),$hash.Substring($i,16)))}
+Write-Output 'DREW_REFERENCE_OK=1'
+"""
+ return transport.extract_result('\n'.join(remote(script.replace('__SIZE__',str(size)).replace('__HASH__',digest),'receiver-diagnose')))
+
 def launch_share(path):
  # Supported Termux native file sharing grants a readable content URI to the selected app.
  # Android Tailscale owns the peer picker; no guessed taps or arbitrary default receiver.
@@ -131,7 +166,7 @@ def launch_share(path):
 
 def main():
  p=argparse.ArgumentParser()
- p.add_argument('verb',choices=['deliver','resume','status','send','collect'])
+ p.add_argument('verb',choices=['deliver','resume','status','send','collect','diagnose'])
  p.add_argument('--input',type=Path,default=SOURCE)
  a=p.parse_args()
  STATE.mkdir(mode=0o700,parents=True,exist_ok=True)
@@ -148,7 +183,7 @@ def main():
   import fcntl
   with (STATE/'transfer.lock').open('a') as lock:
    fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-   obj=inspect(digest,size,a.verb!='status')
+   obj=diagnose(digest,size) if a.verb=='diagnose' else inspect(digest,size,a.verb!='status')
    if obj['phase']=='awaiting_taildrop' and a.verb=='collect':
     code=collect_inbox()
     lines+=['TAILDROP_GET_EXIT='+str(code)]
@@ -162,7 +197,7 @@ def main():
     else:lines+=['NEXT=Inspect inbox or receiver configuration before any resend']
    elif obj['phase']=='taildrop_found_not_collected':
     lines+=['NEXT=resume to collect verified reference']
-  rc=0 if obj['phase']=='reference_delivered_verified' else 3
+  rc=0 if obj['phase'] in ('reference_delivered_verified','receiver_diagnostic') else 3
  except subprocess.TimeoutExpired:lines+=['STATUS=BLOCKED','ERROR=SSH_TIMEOUT; reconcile with status or resume']
  except Exception as e:lines+=['STATUS=BLOCKED','ERROR='+type(e).__name__+': '+str(e)[:220]]
  receipt='\n'.join(lines)+'\n'
