@@ -130,6 +130,10 @@ $roots=@((Join-Path $env:USERPROFILE 'Downloads'),(Join-Path $env:PUBLIC 'Downlo
 $k=Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders' -ErrorAction SilentlyContinue
 $v=$k.'{374DE290-123F-4565-9164-39C4925E467B}'
 if($v){$roots+=[Environment]::ExpandEnvironmentVariables($v)}
+$roots+=@((Join-Path $env:USERPROFILE 'Desktop'),(Join-Path $env:LOCALAPPDATA 'Tailscale\Files'),(Join-Path $env:ProgramData 'Tailscale\Files'),(Join-Path $env:SystemRoot 'System32\config\systemprofile\AppData\Local\Tailscale\Files'))
+foreach($u in @(Get-ChildItem 'C:\Users' -Directory -ErrorAction SilentlyContinue|Select-Object -First 20)){
+ $roots+=@((Join-Path $u.FullName 'Downloads'),(Join-Path $u.FullName 'Desktop'))
+}
 $roots=@($roots|Select-Object -Unique)
 $dirs=@()
 $files=@()
@@ -146,7 +150,7 @@ foreach($r in $roots){
   }
  }
 }
-$j=@{phase='receiver_diagnostic';windowsUser=$env:USERNAME;directories=$dirs;matches=@($files|Select-Object -First 20);candidateCount=$files.Count}
+$j=@{phase='receiver_diagnostic';computer=$env:COMPUTERNAME;windowsUser=$env:USERNAME;directories=$dirs;matches=@($files|Select-Object -First 10);candidateCount=$files.Count}
 $bytes=[Text.Encoding]::UTF8.GetBytes(($j|ConvertTo-Json -Depth 5 -Compress))
 $e=[Convert]::ToBase64String($bytes)
 $hash=([BitConverter]::ToString(([Security.Cryptography.SHA256]::Create()).ComputeHash($bytes))).Replace('-','')
