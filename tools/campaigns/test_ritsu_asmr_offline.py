@@ -82,7 +82,43 @@ def test_scheduler_and_frames():
   except RuntimeError:pass
   else:raise AssertionError('Corrupt/incomplete/duplicate frame accepted')
 
+def test_fetch_resume():
+ import base64
+ from unittest.mock import patch
+ src=Path(__file__).with_name('ritsu_asmr_phone.py')
+ spec=importlib.util.spec_from_file_location('ritsu_as_phone_fetch',src)
+ phone=importlib.util.module_from_spec(spec);spec.loader.exec_module(phone)
+ audio=wav('sample');digest=phone.sha(audio)
+ def frames(obj):
+  data=json.dumps(obj).encode();coded=base64.b64encode(data).decode();h=phone.sha(data)
+  return '\r\n'.join(['JSTART:'+str(len(coded))]+['J:%05d:%s'%(i//16,coded[i:i+16]) for i in range(0,len(coded),16)]+['H:%d:%s'%(i//16,h[i:i+16]) for i in range(0,64,16)]+['RITSU_ASMR_REMOTE_OK=1'])
+ with tempfile.TemporaryDirectory() as td:
+  home=Path(td);state=home/'state';state.mkdir()
+  folder=home/'storage/downloads/RitsuASMR';folder.mkdir(parents=True)
+  partial=folder/('CANARY.'+digest+'.partial')
+  final=folder/'CANARY.wav'
+  partial.write_bytes(audio[:1000])
+  receipt={'phase':'rendered_not_delivered','episodeId':'CANARY','wavSha256':digest,'bytes':len(audio),'voiceSha256':r.VOICE_SHA}
+  calls=[]
+  def read(ep,size,offset,count,prefix=False):
+   calls.append((offset,count,prefix))
+   return phone.sha(audio[offset:offset+count]) if prefix else audio[offset:offset+count]
+  with patch.object(phone,'STATE',state),patch.object(phone.Path,'home',return_value=home),patch.object(phone,'remote_run',return_value=frames(receipt)),patch.object(phone,'wav_read',side_effect=read):
+   partial.write_bytes(b'X'*1000)
+   try:phone.fetch_wav('commit','hash','CANARY')
+   except RuntimeError as e:assert 'prefix does not match' in str(e)
+   else:raise AssertionError('Corrupt partial accepted')
+   assert partial.read_bytes()==b'X'*1000 and not final.exists()
+   partial.write_bytes(audio[:1000]);calls.clear()
+   result=phone.fetch_wav('commit','hash','CANARY')
+   assert calls==[(0,1000,True),(1000,len(audio)-1000,False)]
+   assert result['phase']=='delivered_to_phone_not_heard' and final.read_bytes()==audio and not partial.exists()
+   calls.clear();phone.fetch_wav('commit','hash','CANARY');assert calls==[]
+  data=audio[:500]
+  with patch.object(phone,'STATE',state),patch.object(phone,'ps',return_value=frames({'offset':0,'count':500,'data':base64.b64encode(data).decode()})):
+   assert phone.wav_read('CANARY',len(audio),0,500)==data
 def test():
+ test_fetch_resume()
  test_scheduler_and_frames()
  test_watchdog_guard()
  test_phone_remote_gate()
