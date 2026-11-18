@@ -85,9 +85,16 @@ Write-Output 'DREW_REFERENCE_OK=1'
  if phase!='awaiting_taildrop' and (obj.get('bytes')!=size or obj.get('sha256')!=digest):raise RuntimeError('Taildrop receipt identity mismatch')
  return obj
 
+def launch_share(path):
+ # Supported Termux native file sharing grants a readable content URI to the selected app.
+ # Android Tailscale owns the peer picker; no guessed taps or arbitrary default receiver.
+ tool=shutil.which('termux-open')
+ if not tool:raise RuntimeError('termux-open unavailable; cannot initiate native Taildrop share')
+ subprocess.run([tool,'--send','--chooser','--content-type','audio/mp4',str(path.resolve())],check=True,timeout=20)
+
 def main():
  p=argparse.ArgumentParser()
- p.add_argument('verb',choices=['deliver','resume','status'])
+ p.add_argument('verb',choices=['deliver','resume','status','send'])
  p.add_argument('--input',type=Path,default=SOURCE)
  a=p.parse_args()
  STATE.mkdir(mode=0o700,parents=True,exist_ok=True)
@@ -107,7 +114,10 @@ def main():
    obj=inspect(digest,size,a.verb!='status')
    lines+=['TRANSPORT=TAILDROP_ONLY','WINDOWS_RESULT='+json.dumps(obj,ensure_ascii=True,separators=(',',':')),'CLONED=NO','RENDERED=NO']
    if obj['phase']=='awaiting_taildrop':
-    lines+=['NEXT=Share original drew-whisper.m4a via Android Tailscale to THECAULDRON; rerun resume']
+    if a.verb=='send':
+     launch_share(a.input)
+     lines+=['SHARE_UI_REQUESTED=YES','NEXT=Select Tailscale then THECAULDRON; return and run resume']
+    else:lines+=['NEXT=Run send only if no previous transfer is pending; resume checks delivery']
    elif obj['phase']=='taildrop_found_not_collected':
     lines+=['NEXT=resume to collect verified reference']
   rc=0 if obj['phase']=='reference_delivered_verified' else 3
