@@ -140,6 +140,66 @@ def extract_result(output):
  except (ValueError,UnicodeError) as e:raise RuntimeError('Invalid Windows result frames: '+str(e)[:120]) from e
  if not isinstance(obj,dict):raise RuntimeError('Windows result is not an object')
  return obj
+def wav_read(episode,size,offset,count,prefix=False):
+ # Reuse the physically proven numbered JSON protocol, not the obsolete B: frames.
+ if not 0<=offset<=size or not 0<=count<=size-offset:raise ValueError('Invalid WAV range')
+ script=r"""
+$ErrorActionPreference='Stop'
+$p=Join-Path $env:LOCALAPPDATA 'RitsuASMR\runs\__EP__\__EP__.wav'
+$s=[IO.File]::OpenRead($p)
+try{
+ if($s.Length -ne __SIZE__){throw 'WAV size changed'}
+ $s.Position=__OFFSET__
+ $left=[long]__COUNT__
+ if(__PREFIX__){
+  $h=[Security.Cryptography.SHA256]::Create()
+  try{
+   $buf=New-Object byte[] 65536
+   while($left -gt 0){
+    $n=$s.Read($buf,0,[int][Math]::Min($left,$buf.Length))
+    if($n -le 0){throw 'Unexpected EOF'}
+    [void]$h.TransformBlock($buf,0,$n,$buf,0)
+    $left-=$n
+   }
+   [void]$h.TransformFinalBlock([byte[]]@(),0,0)
+   $joined=@{offset=__OFFSET__;count=__COUNT__;sha256=([BitConverter]::ToString($h.Hash)).Replace('-','')}|ConvertTo-Json -Compress
+  }finally{$h.Dispose()}
+ }else{
+  $buf=New-Object byte[] __COUNT__
+  $n=0
+  while($n -lt $buf.Length){$r=$s.Read($buf,$n,$buf.Length-$n);if($r -eq 0){throw 'Unexpected EOF'};$n+=$r}
+  $joined=@{offset=__OFFSET__;count=__COUNT__;data=[Convert]::ToBase64String($buf)}|ConvertTo-Json -Compress
+ }
+}finally{$s.Dispose()}
+$bytes=[Text.Encoding]::UTF8.GetBytes($joined)
+$encoded=[Convert]::ToBase64String($bytes)
+$hash=([BitConverter]::ToString(([Security.Cryptography.SHA256]::Create()).ComputeHash($bytes))).Replace('-','')
+# ConsoleHost can wrap at the remote PTY width. Use numbered 16-character frames.
+[Console]::WriteLine(('JSTART:'+ $encoded.Length))
+for($i=0;$i -lt $encoded.Length;$i+=16){[Console]::WriteLine(('J:{0:D5}:{1}' -f ($i/16),$encoded.Substring($i,[Math]::Min(16,$encoded.Length-$i))))}
+for($i=0;$i -lt 64;$i+=16){[Console]::WriteLine(('H:{0}:{1}' -f ($i/16),$hash.Substring($i,16)))}
+Write-Output 'RITSU_ASMR_REMOTE_OK=1'
+"""
+ script=script.replace('__EP__',episode).replace('__SIZE__',str(size)).replace('__OFFSET__',str(offset)).replace('__COUNT__',str(count)).replace('__PREFIX__','$true' if prefix else '$false')
+ out=ps(script,quiet=True)
+ try:
+  obj=extract_result(out)
+  if obj.get('offset')!=offset or obj.get('count')!=count:raise RuntimeError('WAV range identity mismatch')
+  if prefix:
+   digest=obj.get('sha256','').upper()
+   if not re.fullmatch(r'[A-F0-9]{64}',digest):raise RuntimeError('Invalid prefix digest')
+   return digest
+  data=base64.b64decode(obj['data'],validate=True)
+  if len(data)!=count:raise RuntimeError('Incomplete WAV range')
+  return data
+ except (ValueError,KeyError,RuntimeError) as e:
+  (STATE/'last-fetch-transport.txt').write_text(out,encoding='utf-8')
+  raise RuntimeError('WAV_RANGE_BLOCKED offset='+str(offset)+' count='+str(count)+': '+str(e)) from e
+def file_sha(path):
+ h=hashlib.sha256()
+ with path.open('rb') as f:
+  for block in iter(lambda:f.read(1024*1024),b''):h.update(block)
+ return h.hexdigest().upper()
 def fetch_wav(commit,expected,episode):
  # Same installed cauldron command for every read. No SCP shortcut, relay, or cloud upload.
  remote=extract_result(remote_run(commit,expected,'receipts',episode,None))
@@ -153,50 +213,40 @@ def fetch_wav(commit,expected,episode):
  if not destdir.parent.is_dir():raise RuntimeError('Termux Downloads storage unavailable')
  destdir.mkdir(exist_ok=True)
  dest=destdir/(episode+'.wav');partial=destdir/(episode+'.'+digest+'.partial')
- def file_sha(path):
-  h=hashlib.sha256()
-  with path.open('rb') as f:
-   for block in iter(lambda:f.read(1024*1024),b''):h.update(block)
-  return h.hexdigest().upper()
  if dest.exists():
   if dest.stat().st_size!=size or file_sha(dest)!=digest:raise RuntimeError('Destination collision; existing WAV preserved')
  else:
-  if partial.exists():raise RuntimeError('Previous partial transfer preserved: '+str(partial)+'; inspect or move aside before retry')
-  print('FETCH_BYTES='+str(size)+' DESTINATION='+str(dest),flush=True)
-  # Frame size stays below a 63-column Windows SSH terminal. Full digest is
-  # checked before publishing; partial files are never claimed as delivered.
-  chunk_size=192*1024
-  with partial.open('xb') as f:
-   for offset in range(0,size,chunk_size):
-    count=min(chunk_size,size-offset)
-    script=r"""
-$ErrorActionPreference='Stop'
-$p=Join-Path $env:LOCALAPPDATA 'RitsuASMR\runs\__EP__\__EP__.wav'
-$s=[IO.File]::OpenRead($p)
-try{
- if($s.Length -ne __SIZE__){throw 'WAV size changed'}
- $s.Position=__OFFSET__
- $buf=New-Object byte[] __COUNT__
- $n=0
- while($n -lt $buf.Length){$r=$s.Read($buf,$n,$buf.Length-$n);if($r -eq 0){throw 'Unexpected EOF'};$n+=$r}
- $b=[Convert]::ToBase64String($buf)
- for($i=0;$i -lt $b.Length;$i+=48){Write-Output ('B:'+ $b.Substring($i,[Math]::Min(48,$b.Length-$i)))}
-}finally{$s.Dispose()}
-Write-Output 'RITSU_ASMR_REMOTE_OK=1'
-"""
-    script=script.replace('__EP__',episode).replace('__SIZE__',str(size)).replace('__OFFSET__',str(offset)).replace('__COUNT__',str(count))
-    out=ps(script,quiet=True)
-    frames=[line[2:] for line in out.splitlines() if re.fullmatch(r'B:[A-Za-z0-9+/=]{1,48}',line)]
-    data=base64.b64decode(''.join(frames),validate=True)
-    if len(data)!=count:raise RuntimeError('Incomplete WAV chunk; refusing publication')
-    f.write(data);f.flush();os.fsync(f.fileno())
-    print('FETCH_PROGRESS='+str(offset+count)+'/'+str(size),flush=True)
-  if partial.stat().st_size!=size or file_sha(partial)!=digest:raise RuntimeError('Final WAV checksum mismatch; partial preserved')
-  import wave
-  with wave.open(str(partial),'rb') as w:
-   if (w.getnchannels(),w.getsampwidth(),w.getframerate())!=(1,2,24000):raise RuntimeError('Invalid received PCM')
-  if dest.exists():raise RuntimeError('Destination appeared during transfer; partial preserved')
-  partial.rename(dest)
+  import fcntl,time
+  # Per-file exclusive lock; verified existing prefix can be resumed, never truncated.
+  with (STATE/(episode+'.fetch.lock')).open('a+b') as lock:
+   try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+   except OSError as e:raise RuntimeError('Another fetch owns this episode') from e
+   if dest.exists():raise RuntimeError('Destination appeared; rerun fetch to verify')
+   offset=partial.stat().st_size if partial.exists() else 0
+   if offset>size:raise RuntimeError('Partial exceeds expected size; preserved')
+   if offset and file_sha(partial)!=wav_read(episode,size,0,offset,prefix=True):
+    raise RuntimeError('Existing partial prefix does not match remote WAV; preserved')
+   print('FETCH_RESUME='+str(offset)+'/'+str(size),flush=True)
+   chunk=48*1024
+   with partial.open('ab' if partial.exists() else 'xb') as f:
+    while offset<size:
+     count=min(chunk,size-offset)
+     for attempt in range(4):
+      try:data=wav_read(episode,size,offset,count);break
+      except (RuntimeError,subprocess.SubprocessError) as e:
+       if attempt==3:raise
+       chunk=max(4096,chunk//2);count=min(chunk,size-offset)
+       print('FETCH_RETRY offset='+str(offset)+' count='+str(count)+' reason='+str(e)[:160],flush=True)
+       time.sleep(attempt+1)
+     f.write(data);f.flush();os.fsync(f.fileno())
+     offset+=len(data)
+     print('FETCH_PROGRESS='+str(offset)+'/'+str(size),flush=True)
+   if partial.stat().st_size!=size or file_sha(partial)!=digest:raise RuntimeError('Final WAV checksum mismatch; partial preserved')
+   import wave
+   with wave.open(str(partial),'rb') as w:
+    if (w.getnchannels(),w.getsampwidth(),w.getframerate())!=(1,2,24000):raise RuntimeError('Invalid received PCM')
+   if dest.exists():raise RuntimeError('Destination appeared during transfer; partial preserved')
+   partial.rename(dest)
  return {'phase':'delivered_to_phone_not_heard','path':str(dest),'bytes':size,'wavSha256':digest,'durationSeconds':remote.get('durationSeconds')}
 def main():
  p=argparse.ArgumentParser()
