@@ -85,6 +85,43 @@ Write-Output 'DREW_REFERENCE_OK=1'
  if phase!='awaiting_taildrop' and (obj.get('bytes')!=size or obj.get('sha256')!=digest):raise RuntimeError('Taildrop receipt identity mismatch')
  return obj
 
+def collect_inbox():
+ # Official CLI collects completed inbox files. Use persistent general Downloads/Taildrop,
+ # not the voice directory, so unrelated received files remain accessible to their owner.
+ script=r"""
+$ErrorActionPreference='Stop'
+$exe=(Get-Command tailscale.exe -ErrorAction SilentlyContinue).Source
+if(!$exe){$exe=Join-Path $env:ProgramFiles 'Tailscale\tailscale.exe'}
+if(!(Test-Path -LiteralPath $exe -PathType Leaf)){throw 'TAILSCALE_CLI_MISSING'}
+$root=Join-Path $env:USERPROFILE 'Downloads'
+$k=Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders' -ErrorAction SilentlyContinue
+$v=$k.'{374DE290-123F-4565-9164-39C4925E467B}'
+if($v){$root=[Environment]::ExpandEnvironmentVariables($v)}
+$dir=Join-Path $root 'Taildrop'
+New-Item -ItemType Directory -Force -Path $dir|Out-Null
+$guard=Join-Path $dir '.drew-taildrop-collection.lock'
+$lock=[IO.File]::Open($guard,[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
+try{
+ $pi=New-Object System.Diagnostics.ProcessStartInfo
+ $pi.FileName=$exe
+ $pi.Arguments='file get --conflict=rename "'+$dir+'"'
+ $pi.UseShellExecute=$false;$pi.RedirectStandardOutput=$true;$pi.RedirectStandardError=$true
+ $p=[System.Diagnostics.Process]::Start($pi)
+ try{
+  $stdout=$p.StandardOutput.ReadToEndAsync();$stderr=$p.StandardError.ReadToEndAsync()
+  if(!$p.WaitForExit(60000)){$p.Kill();$p.WaitForExit();throw 'TAIL_DROP_GET_TIMEOUT'}
+  $rc=$p.ExitCode
+  [void]$stdout.GetAwaiter().GetResult();[void]$stderr.GetAwaiter().GetResult()
+  Write-Output ('GET_EXIT='+$rc)
+ }finally{$p.Dispose()}
+}finally{$lock.Dispose()}
+Write-Output 'DREW_REFERENCE_OK=1'
+"""
+ lines=remote(script,'taildrop-inbox-get')
+ codes=[int(x[9:]) for x in lines if re.fullmatch(r'GET_EXIT=\d+',x)]
+ if len(codes)!=1:raise RuntimeError('Taildrop inbox result missing; run status before another collect')
+ return codes[0]
+
 def launch_share(path):
  # Supported Termux native file sharing grants a readable content URI to the selected app.
  # Android Tailscale owns the peer picker; no guessed taps or arbitrary default receiver.
@@ -94,7 +131,7 @@ def launch_share(path):
 
 def main():
  p=argparse.ArgumentParser()
- p.add_argument('verb',choices=['deliver','resume','status','send'])
+ p.add_argument('verb',choices=['deliver','resume','status','send','collect'])
  p.add_argument('--input',type=Path,default=SOURCE)
  a=p.parse_args()
  STATE.mkdir(mode=0o700,parents=True,exist_ok=True)
@@ -112,12 +149,17 @@ def main():
   with (STATE/'transfer.lock').open('a') as lock:
    fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
    obj=inspect(digest,size,a.verb!='status')
+   if obj['phase']=='awaiting_taildrop' and a.verb=='collect':
+    code=collect_inbox()
+    lines+=['TAILDROP_GET_EXIT='+str(code)]
+    obj=inspect(digest,size,True)
+    if code and obj['phase']!='reference_delivered_verified':lines+=['INBOX_COLLECTION_NOT_CONFIRMED=YES']
    lines+=['TRANSPORT=TAILDROP_ONLY','WINDOWS_RESULT='+json.dumps(obj,ensure_ascii=True,separators=(',',':')),'CLONED=NO','RENDERED=NO']
    if obj['phase']=='awaiting_taildrop':
     if a.verb=='send':
      launch_share(a.input)
      lines+=['SHARE_UI_REQUESTED=YES','NEXT=Select Tailscale then THECAULDRON; return and run resume']
-    else:lines+=['NEXT=Run send only if no previous transfer is pending; resume checks delivery']
+    else:lines+=['NEXT=Inspect inbox or receiver configuration before any resend']
    elif obj['phase']=='taildrop_found_not_collected':
     lines+=['NEXT=resume to collect verified reference']
   rc=0 if obj['phase']=='reference_delivered_verified' else 3
