@@ -52,7 +52,28 @@ def test_watchdog_guard():
   try:r.recover_watchdog()
   except RuntimeError as e:assert 'PROCESS_ALREADY_PRESENT' in str(e)
   else:raise AssertionError('Existing Pocket process should block duplicate recovery')
+def test_scheduler_and_frames():
+ import base64
+ from unittest.mock import patch
+ from types import SimpleNamespace
+ with patch.object(r.subprocess,'run',return_value=SimpleNamespace(returncode=0,stdout='{"taskState":"Running","workerPids":[123]}',stderr='')) as call:
+  active,row=r.worker_active('CANARY')
+  assert active and row['workerPids']==[123]
+  command=call.call_args.args[0][-1]
+  assert 'TASK_IDENTITY_MISMATCH' in command and 'Get-CimInstance' in command
+ with patch.object(r,'task_command',return_value={'taskState':'Missing','workerPids':[]}):
+  with tempfile.TemporaryDirectory() as td,patch.object(r,'RUNS',Path(td)):
+   f=r.folder_for('CANARY');f.mkdir();r.state(f,phase='launched',pid=21552)
+   assert r.status_report('CANARY')['phase']=='abandoned'
+ src=Path(__file__).with_name('ritsu_asmr_phone.py')
+ spec=importlib.util.spec_from_file_location('ritsu_as_phone_frame',src)
+ phone=importlib.util.module_from_spec(spec);spec.loader.exec_module(phone)
+ obj={'phase':'rendered_not_delivered','wavPath':r'C:\Users\dclar\some.wav','durationSeconds':15.2}
+ encoded=base64.b64encode(json.dumps(obj).encode()).decode()
+ output='\n'.join('J:'+encoded[i:i+48] for i in range(0,len(encoded),48))
+ assert phone.extract_result(output+'\nRITSU_ASMR_REMOTE_OK=1\n')==obj
 def test():
+ test_scheduler_and_frames()
  test_watchdog_guard()
  test_phone_remote_gate()
  test_remote_success_gate()
