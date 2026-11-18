@@ -285,6 +285,35 @@ for($i=0;$i -lt 64;$i+=16){[Console]::WriteLine(('H:{0}:{1}' -f ($i/16),$hash.Su
 Write-Output 'RITSU_ASMR_REMOTE_OK=1'
 """
  return extract_result(ps(script,quiet=True))
+def drop_status(commit,expected,episode):
+ remote,digest,size=rendered_identity(commit,expected,episode)
+ script=r"""
+$ErrorActionPreference='Stop'
+$p=Join-Path $env:LOCALAPPDATA 'RitsuASMR\runs\__EP__\taildrop-__DIGEST__-__IP__.json'
+$busy=$false
+if(Test-Path -LiteralPath ($p+'.lock')){
+ try{$g=[IO.File]::Open(($p+'.lock'),[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::None);$g.Dispose()}
+ catch [IO.IOException]{$busy=$true}
+}
+$record=$null
+if(Test-Path -LiteralPath $p){
+ try{$record=Get-Content -LiteralPath $p -Raw|ConvertFrom-Json}catch{$record=@{phase='ledger_unreadable'}}
+}
+$procs=@(Get-CimInstance Win32_Process|Where-Object {
+ $_.Name -ieq 'tailscale.exe' -and $_.CommandLine -match '\bfile\s+cp\b' -and $_.CommandLine -match '__EP__[.]wav' -and $_.CommandLine -match [regex]::Escape('__IP__:') 
+}|ForEach-Object {$_.ProcessId})
+$joined=@{phase='taildrop_status';episodeId='__EP__';sendLockHeld=$busy;senderPids=$procs;ledger=$record}|ConvertTo-Json -Compress -Depth 6
+$bytes=[Text.Encoding]::UTF8.GetBytes($joined)
+$encoded=[Convert]::ToBase64String($bytes)
+$hash=([BitConverter]::ToString(([Security.Cryptography.SHA256]::Create()).ComputeHash($bytes))).Replace('-','')
+# ConsoleHost can wrap at the remote PTY width. Use numbered 16-character frames.
+[Console]::WriteLine(('JSTART:'+ $encoded.Length))
+for($i=0;$i -lt $encoded.Length;$i+=16){[Console]::WriteLine(('J:{0:D5}:{1}' -f ($i/16),$encoded.Substring($i,[Math]::Min(16,$encoded.Length-$i))))}
+for($i=0;$i -lt 64;$i+=16){[Console]::WriteLine(('H:{0}:{1}' -f ($i/16),$hash.Substring($i,16)))}
+Write-Output 'RITSU_ASMR_REMOTE_OK=1'
+"""
+ script=script.replace('__EP__',episode).replace('__DIGEST__',digest).replace('__IP__',TAILDROP_IP)
+ return extract_result(ps(script,quiet=True))
 def drop_wav(commit,expected,episode,resend=False):
  remote,digest,size=rendered_identity(commit,expected,episode)
  # Unique to the render and phone; a successful send is never a receive receipt.
@@ -333,7 +362,7 @@ def verify_wav(commit,expected,episode,received=None):
  raise RuntimeError('No matching received WAV; accept/save Taildrop in Android Downloads or use verify --received PATH')
 def main():
  p=argparse.ArgumentParser()
- p.add_argument('verb',nargs='?',default='doctor',choices=['doctor','inspect','recover','start','status','resume','stop','receipts','fetch','drop','verify','peers'])
+ p.add_argument('verb',nargs='?',default='doctor',choices=['doctor','inspect','recover','start','status','resume','stop','receipts','fetch','drop','verify','peers','drop-status'])
  p.add_argument('--episode',default='RITSU_ASMR_CANARY')
  p.add_argument('--input',type=Path)
  p.add_argument('--received',type=Path)
@@ -355,6 +384,7 @@ def main():
   print('CONTACTING_THECAULDRON='+a.verb,flush=True)
   if a.verb=='fetch':details=fetch_wav(commit,hashvalue,a.episode)
   elif a.verb=='peers':details=taildrop_peers()
+  elif a.verb=='drop-status':details=drop_status(commit,hashvalue,a.episode)
   elif a.verb=='drop':details=drop_wav(commit,hashvalue,a.episode,a.resend)
   elif a.verb=='verify':details=verify_wav(commit,hashvalue,a.episode,a.received)
   else:details=extract_result(remote_run(commit,hashvalue,a.verb,a.episode,data))
@@ -362,6 +392,9 @@ def main():
   lines+=['WINDOWS_RESULT='+json.dumps(details,ensure_ascii=True,separators=(',',':'))]
   lines+=['SSH_COMMAND_RETURNED=YES','REMOTE_OPERATION_CONFIRMED=YES','RENDER_NOT_INFERRED=YES']
   result=0
+ except subprocess.TimeoutExpired as e:
+  lines+=['STATUS=BLOCKED','ERROR=CAULDRON_TIMEOUT after '+str(e.timeout)+' seconds; remote outcome unknown','NEXT=drop-status (for drop) or status (for render); do not resend blindly']
+  result=2
  except Exception as e:
   lines+=['STATUS=BLOCKED','ERROR='+type(e).__name__+': '+str(e)[:500]]
   result=2
