@@ -221,7 +221,7 @@ Write-Output 'RITSU_ASMR_REMOTE_OK=1'
   extra="$arguments+=@('--input',(Join-Path $env:LOCALAPPDATA "+quote(repo_input)+"))"
  else:extra=''
  script=script.replace('__SHA__',expected).replace('__COMMIT__',commit).replace('__VERB__',verb).replace('__EP__',episode).replace('__INPUT__',extra)
- if episode.startswith(('DREW_DARK_VELVET_','RITSU_WHISPER_V2_')):
+ if episode.startswith(('DREW_DARK_VELVET_','RITSU_WHISPER_V2_','DREW_CLEAN_DARK_VELVET_','RITSU_WHISPER_V3_')):
   script=script.replace(r'workspace\ritsu-faster-qwen3-tts\.venv\Scripts\python.exe',r'Documents\Codex\Venice\PocketTTS\.venv\Scripts\python.exe')
  output=ps(script,quiet=True,stage='renderer-'+verb)
  (STATE/'last-remote-transport.txt').write_text(output,encoding='utf-8')
@@ -373,13 +373,18 @@ def rendered_identity(commit,expected,episode):
  if not remote or remote.get('phase')!='rendered_not_delivered' or remote.get('episodeId')!=episode:
   raise RuntimeError('No verified rendered receipt for this episode')
  digest=str(remote.get('wavSha256','')).upper();size=remote.get('bytes')
- drew=episode.startswith('DREW_DARK_VELVET_')
+ clean=episode.startswith('DREW_CLEAN_DARK_VELVET_')
+ drew=clean or episode.startswith('DREW_DARK_VELVET_')
  voice='12F022B4CD21E116640393132BF1F4268E0F6B5F787FB76969E4ACA44FC5BC10' if drew else 'B99EB2E16612E8B8C3E3A96F74BD631676CC79071779537FD94C564DB5796BE5'
+ if clean:voice='DA4D803B4F1FF35CEE909D533B978969B78AEC51178EC88C82D8883383293268'
+ if episode.startswith('RITSU_WHISPER_V3_'):
+  voice='F6A787F1D58D11694676A2A4D44A89840F77B0D56A0585A5FB4DAC52F0C1FE97'
+  if remote.get('profile')!='whisper-v3':raise RuntimeError('Unexpected Whisper V3 profile')
  if episode.startswith('RITSU_WHISPER_V2_'):
   voice='0141A450D8A370495D84755B4E620A718CB955F1139643F62F7C5CD147515FF7'
   if remote.get('profile')!='whisper-v2':raise RuntimeError('Unexpected Whisper V2 profile')
  if str(remote.get('voiceSha256','')).upper()!=voice:raise RuntimeError('Unexpected voice identity')
- if drew and (remote.get('profile')!='dark-velvet' or remote.get('presetSha256')!='D04489AB5EA5822660E82FE5D5F2207C47C5958BCA8CBB4C8E215BA3DB2ED944'):raise RuntimeError('Unexpected Drew preset identity')
+ if drew and (remote.get('profile')!='dark-velvet' or remote.get('presetSha256')!=('396F91083E773062C7BA27C044FB57362D35AA01070E4DBA12699C0ADB965233' if clean else 'D04489AB5EA5822660E82FE5D5F2207C47C5958BCA8CBB4C8E215BA3DB2ED944')):raise RuntimeError('Unexpected Drew preset identity')
  if not re.fullmatch(r'[A-F0-9]{64}',digest) or not isinstance(size,int) or not 44<size<=512*1024*1024:raise RuntimeError('Invalid remote WAV receipt')
  return remote,digest,size
 def taildrop_peers():
