@@ -302,7 +302,12 @@ if(Test-Path -LiteralPath $p){
 $procs=@(Get-CimInstance Win32_Process|Where-Object {
  $_.Name -ieq 'tailscale.exe' -and $_.CommandLine -match '\bfile\s+cp\b' -and $_.CommandLine -match '__EP__[.]wav' -and $_.CommandLine -match [regex]::Escape('__IP__:') 
 }|ForEach-Object {$_.ProcessId})
-$joined=@{phase='taildrop_status';episodeId='__EP__';sendLockHeld=$busy;senderPids=$procs;ledger=$record}|ConvertTo-Json -Compress -Depth 6
+$t=Get-ScheduledTask -TaskName 'RitsuASMR-Taildrop-__EP__' -TaskPath '\' -ErrorAction SilentlyContinue
+$taskState=if($t){[string]$t.State}else{'Missing'}
+$lastResult=if($t){(Get-ScheduledTaskInfo -TaskName $t.TaskName -TaskPath '\').LastTaskResult}else{$null}
+$tail=if(Test-Path -LiteralPath ($p+'.log')){((Get-Content -LiteralPath ($p+'.log') -Tail 8)-join ' ')}else{''}
+if($tail.Length -gt 600){$tail=$tail.Substring($tail.Length-600)}
+$joined=@{phase='taildrop_status';episodeId='__EP__';sendLockHeld=$busy;senderPids=$procs;ledger=$record;taskState=$taskState;lastTaskResult=$lastResult;logTail=$tail}|ConvertTo-Json -Compress -Depth 6
 $bytes=[Text.Encoding]::UTF8.GetBytes($joined)
 $encoded=[Convert]::ToBase64String($bytes)
 $hash=([BitConverter]::ToString(([Security.Cryptography.SHA256]::Create()).ComputeHash($bytes))).Replace('-','')
@@ -342,7 +347,7 @@ if((Get-FileHash -LiteralPath $p -Algorithm SHA256).Hash -ne '__HELPER_SHA__'){t
   script=script.replace('__HELPER_SHA__',helper_hash).replace('__COMMIT__',commit).replace('__EP__',episode).replace('__SIZE__',str(size)).replace('__DIGEST__',digest).replace('__DEVICE__',TAILDROP_DEVICE).replace('__IP__',TAILDROP_IP).replace('__RESEND__','$true' if resend else '$false')
   if len(base64.b64encode(script.encode('utf-16le')))>6500:raise RuntimeError('Taildrop dispatch exceeds conservative SSH command budget')
   result=extract_result(ps(script,quiet=True))
-  if result.get('phase')!='taildrop_sent_not_verified' or result.get('wavSha256')!=digest or result.get('bytes')!=size or result.get('device')!=TAILDROP_DEVICE or result.get('episodeId')!=episode:raise RuntimeError('Taildrop send receipt identity mismatch')
+  if result.get('phase') not in ('taildrop_scheduled','taildrop_sent_not_verified') or result.get('wavSha256')!=digest or result.get('bytes')!=size or result.get('device')!=TAILDROP_DEVICE or result.get('episodeId')!=episode:raise RuntimeError('Taildrop send receipt identity mismatch')
   return result
 def verify_wav(commit,expected,episode,received=None):
  remote,digest,size=rendered_identity(commit,expected,episode)
