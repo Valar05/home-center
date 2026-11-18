@@ -22,6 +22,7 @@ def ps(script,quiet=False):
  if not quiet:print(output[-12000:],flush=True)
  if p.returncode or 'RITSU_ASMR_REMOTE_OK=1' not in output.splitlines():
   detail=next((x[:500] for x in reversed(output.splitlines()) if '"error"' in x),'remote success marker missing')
+  if quiet:print(output[-8000:],flush=True)
   raise RemoteFailure('CAULDRON_REMOTE_BLOCKED: '+detail)
  return output
 def quote(s):return "'"+s.replace("'","''")+"'"
@@ -79,8 +80,12 @@ if (!(Test-Path -LiteralPath $python)) {throw 'Approved Python runtime not found
 $env:RITSU_ASMR_SOURCE_COMMIT='__COMMIT__'
 $arguments=@($program,'__VERB__','--episode','__EP__')
 __INPUT__
-& $python @arguments
-if ($LASTEXITCODE -ne 0) {exit $LASTEXITCODE}
+$result=@(& $python @arguments)
+$rc=$LASTEXITCODE
+if($rc -ne 0){$result | Write-Output;exit $rc}
+$joined=$result -join [Environment]::NewLine
+$encoded=[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($joined))
+for($i=0;$i -lt $encoded.Length;$i+=48){Write-Output ('J:'+ $encoded.Substring($i,[Math]::Min(48,$encoded.Length-$i)))}
 Write-Output 'RITSU_ASMR_REMOTE_OK=1'
 """
  if input_data is not None:
@@ -96,9 +101,15 @@ $arguments+=@('--input',$incoming)
   extra=extra.replace('__ENCODED__','RitsuASMR\\incoming\\'+episode+'-'+digest+'.b64').replace('__INCOMING__','RitsuASMR\\incoming\\'+episode+'-'+digest+'.txt').replace('__DIGEST__',digest)
  else:extra=''
  script=script.replace('__SHA__',expected).replace('__COMMIT__',commit).replace('__VERB__',verb).replace('__EP__',episode).replace('__INPUT__',extra)
- return ps(script)
+ return ps(script,quiet=True)
 def extract_result(output):
  # Only JSON objects emitted by the offline tool, never raw SSH banners or transcript.
+ frames=[line[2:] for line in output.splitlines() if re.fullmatch(r'J:[A-Za-z0-9+/=]{1,48}',line)]
+ if frames:
+  try:obj=json.loads(base64.b64decode(''.join(frames),validate=True).decode('utf-8'))
+  except (ValueError,UnicodeError) as e:raise RuntimeError('Invalid Windows result frames') from e
+  if not isinstance(obj,dict):raise RuntimeError('Windows result is not an object')
+  return obj
  decoder=json.JSONDecoder()
  for i,line in enumerate(output.splitlines()):
   if not line.lstrip().startswith('{'):continue
@@ -182,9 +193,11 @@ def main():
   data=a.input.read_bytes() if a.input else None
   if data is not None and len(data)>150000:raise ValueError('Input exceeds 150 kB')
   if data is not None:data.decode('utf-8-sig')
+  print('CONTACTING_THECAULDRON='+a.verb,flush=True)
   if a.verb=='fetch':details=fetch_wav(commit,hashvalue,a.episode)
   else:details=extract_result(remote_run(commit,hashvalue,a.verb,a.episode,data))
-  if details is not None:lines+=['WINDOWS_RESULT='+json.dumps(details,ensure_ascii=True,separators=(',',':'))]
+  if details is None:raise RuntimeError('Missing structured Windows result')
+  lines+=['WINDOWS_RESULT='+json.dumps(details,ensure_ascii=True,separators=(',',':'))]
   lines+=['SSH_COMMAND_RETURNED=YES','REMOTE_OPERATION_CONFIRMED=YES','RENDER_NOT_INFERRED=YES']
   result=0
  except Exception as e:
