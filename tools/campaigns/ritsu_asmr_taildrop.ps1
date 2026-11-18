@@ -19,7 +19,10 @@ if($LASTEXITCODE -ne 0){throw 'Tailscale status failed'}
 $ts=($raw -join [Environment]::NewLine)|ConvertFrom-Json
 if($ts.BackendState -ne 'Running'){throw 'Tailscale is not running'}
 $peers=@($ts.Peer.PSObject.Properties.Value|Where-Object {
- $_.HostName -ieq "$Device" -and $_.TailscaleIPs -contains "$PeerIP"
+ $_.ID -ceq 'nC5TZJzU3e11CNTRL' -and
+ $_.OS -ieq 'android' -and
+ (([string]$_.DNSName -split '\.')[0] -ieq $Device) -and
+ $_.TailscaleIPs -contains $PeerIP
 })
 if($peers.Count -ne 1){throw 'Expected exact Pixel name and tailnet IP not found; refusing to send'}
 $peer=$peers[0]
