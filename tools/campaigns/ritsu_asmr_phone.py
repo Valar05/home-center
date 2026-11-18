@@ -356,8 +356,13 @@ def verify_wav(commit,expected,episode,received=None):
  if received is not None:
   candidates=[received]
  else:
-  candidates=[downloads/(episode+'.wav'),downloads/'Taildrop'/(episode+'.wav'),downloads/'Tailscale'/(episode+'.wav'),downloads/'RitsuASMR'/(episode+'.wav')]
-  candidates += sorted(downloads.glob(episode+' (*).wav'))
+  candidates=[]
+  # Android Download/Taildrop is first; support case variants and duplicate saves.
+  for directory in (downloads/'Taildrop',downloads/'taildrop',downloads/'Tailscale',downloads,downloads/'RitsuASMR'):
+   candidates.append(directory/(episode+'.wav'))
+   candidates.extend(sorted(directory.glob(episode+' (*).wav')))
+   candidates.extend(sorted(directory.glob(episode+'-*.wav')))
+  candidates=list(dict.fromkeys(candidates))
  for path in candidates:
   if not path.is_file() or path.stat().st_size!=size or file_sha(path)!=digest:continue
   import wave
