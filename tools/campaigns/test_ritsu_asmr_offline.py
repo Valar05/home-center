@@ -129,14 +129,18 @@ def test_taildrop():
   home=Path(td);state=home/'state';state.mkdir()
   downloads=home/'storage/downloads';downloads.mkdir(parents=True)
   target=downloads/'CANARY.wav'
-  with patch.object(phone,'STATE',state),patch.object(phone.Path,'home',return_value=home),patch.object(phone,'rendered_identity',return_value=(remote,digest,len(audio))),patch.object(phone,'ps',return_value='framed') as send,patch.object(phone,'extract_result',return_value=sent):
+  with patch.object(phone,'STATE',state),patch.object(phone.Path,'home',return_value=home),patch.object(phone,'rendered_identity',return_value=(remote,digest,len(audio))),patch.object(phone,'ps',return_value='framed') as send,patch.object(phone,'extract_result',return_value=sent),patch.object(phone.subprocess,'check_output',return_value=(phone.ROOT/'tools/campaigns/ritsu_asmr_taildrop.ps1').read_bytes()):
    result=phone.drop_wav('commit','hash','CANARY')
    assert result==sent and result['phase']!='delivered_to_phone_not_heard'
    script=send.call_args.args[0]
-   assert 'file cp' in script and phone.TAILDROP_IP+':' in script and phone.TAILDROP_DEVICE in script
-   assert 'Get-FileHash' in script and 'taildrop_dispatch_uncertain' in script
-   assert 'Peer.PSObject.Properties.Value' in script and 'TailscaleIPs' in script
-   assert 'if((Test-Path -LiteralPath $ledger) -and !$false)' in script
+   import base64
+   helper=(phone.ROOT/'tools/campaigns/ritsu_asmr_taildrop.ps1').read_text()
+   assert len(base64.b64encode(script.encode('utf-16le')))<=6500
+   assert 'ritsu_asmr_taildrop.ps1' in script and phone.TAILDROP_IP in script and phone.TAILDROP_DEVICE in script
+   assert 'Get-FileHash' in script and 'Get-FileHash' in helper
+   assert 'file cp' in helper and 'taildrop_dispatch_uncertain' in helper
+   assert 'Peer.PSObject.Properties.Value' in helper and 'TailscaleIPs' in helper
+   assert '-Resend:$false' in script
    try:phone.verify_wav('commit','hash','CANARY')
    except RuntimeError:pass
    else:raise AssertionError('Missing received audio accepted')
