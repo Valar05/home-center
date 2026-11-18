@@ -35,13 +35,14 @@ def test_remote_success_gate():
  from types import SimpleNamespace
  def fake(returncode,output):
   return SimpleNamespace(returncode=returncode,stdout=output)
- with patch.object(phone.subprocess,'run',return_value=fake(0,'RITSU_ASMR_REMOTE_OK=1\n')):
-  assert 'RITSU_ASMR_REMOTE_OK=1' in phone.ps('Write-Output 1')
- for code,output in [(0,'{"phase": "blocked"}\n'),(255,'RITSU_ASMR_REMOTE_OK=1\n')]:
-  with patch.object(phone.subprocess,'run',return_value=fake(code,output)):
-   try:phone.ps('Write-Output 1')
-   except RuntimeError:pass
-   else:raise AssertionError('Invalid Windows operation response accepted')
+ with tempfile.TemporaryDirectory() as td,patch.object(phone,'STATE',Path(td)):
+  with patch.object(phone.subprocess,'run',return_value=fake(0,'RITSU_ASMR_REMOTE_OK=1\n')):
+   assert 'RITSU_ASMR_REMOTE_OK=1' in phone.ps('Write-Output 1')
+  for code,output in [(0,'{"phase": "blocked"}\n'),(255,'RITSU_ASMR_REMOTE_OK=1\n')]:
+   with patch.object(phone.subprocess,'run',return_value=fake(code,output)):
+    try:phone.ps('Write-Output 1')
+    except RuntimeError:pass
+    else:raise AssertionError('Invalid Windows operation response accepted')
 def test_watchdog_guard():
  from unittest.mock import patch
  with patch.object(r,'inspect_watchdog',return_value={'taskPresent':False}):
@@ -154,7 +155,28 @@ def test_taildrop():
    target.write_bytes(audio)
    assert phone.verify_wav('commit','hash','CANARY')['phase']=='delivered_to_phone_not_heard'
    assert phone.verify_wav('commit','hash','CANARY',target)['path']==str(target)
+def test_private_repo_source():
+ import base64
+ from unittest.mock import patch
+ src=Path(__file__).with_name('ritsu_asmr_phone.py')
+ spec=importlib.util.spec_from_file_location('ritsu_as_phone_private',src)
+ phone=importlib.util.module_from_spec(spec);spec.loader.exec_module(phone)
+ with patch.object(phone,'ps',return_value='RITSU_ASMR_REMOTE_OK=1') as call:
+  rev='a'*40
+  assert phone.repo_stage('TEST',rev,'episodes/001_submission_training.txt').endswith(rev+'.txt')
+  assert call.call_count==2
+  scripts=[c.args[0] for c in call.call_args_list]
+  assert all(len(base64.b64encode(x.encode('utf-16le')))<=6500 for x in scripts)
+  assert 'https://github.com/Valar05/ritsu-asmr.git' in scripts[0]
+  assert 'GIT_TERMINAL_PROMPT' in scripts[0] and 'hash-object --no-filters' in scripts[1]
+  for revision,path in [('main','episodes/a.txt'),(rev,'../a.txt'),(rev,"episodes/a';.txt")]:
+   try:phone.repo_stage('TEST',revision,path)
+   except ValueError:pass
+   else:raise AssertionError('Unpinned or unsafe episode source accepted')
+  assert call.call_count==2
+
 def test():
+ test_private_repo_source()
  test_taildrop()
  test_fetch_resume()
  test_scheduler_and_frames()
