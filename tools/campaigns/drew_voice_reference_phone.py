@@ -51,8 +51,8 @@ if(Test-Path -LiteralPath $f){
  foreach($r in ($roots|Select-Object -Unique)){
   foreach($p in @($r,(Join-Path $r 'Taildrop'),(Join-Path $r 'Tailscale'))){
    if(!(Test-Path -LiteralPath $p -PathType Container)){continue}
-   foreach($a in (Get-ChildItem -LiteralPath $p -File -Filter 'drew-whisper*.m4a')){
-    if($a.Name -match '^drew-whisper(?: \(\d+\)|-\d+)?\.m4a$' -and (valid $a.FullName)){$found=$a.FullName;break}
+   foreach($a in (Get-ChildItem -LiteralPath $p -File)){
+    if($a.Length -eq $n -and (valid $a.FullName)){$found=$a.FullName;break}
    }
    if($found){break}
   }
@@ -144,9 +144,8 @@ foreach($r in $roots){
   $dirs+=@(@{path=$p;fileCount=$all.Count})
   $c=@($all|Where-Object {$_.Name -match 'drew.whisper' -or $_.Length -eq __SIZE__}|Select-Object -First 20)
   foreach($a in $c){
-   $match=$false
-   if($a.Length -eq __SIZE__){$match=((Get-FileHash -LiteralPath $a.FullName).Hash -eq '__HASH__')}
-   $files+=@(@{path=$a.FullName;bytes=$a.Length;shaMatches=$match})
+   $h=(Get-FileHash -Algorithm SHA256 -LiteralPath $a.FullName).Hash
+   $files+=@(@{path=$a.FullName;bytes=$a.Length;sha256=$h;shaMatches=($h -eq '__HASH__')})
   }
  }
 }
@@ -209,7 +208,7 @@ def launch_share(path):
 
 def main():
  p=argparse.ArgumentParser()
- p.add_argument('verb',choices=['deliver','resume','status','send','collect','diagnose','probe'])
+ p.add_argument('verb',choices=['deliver','resume','status','send','collect','diagnose','probe','reconcile'])
  p.add_argument('--input',type=Path,default=SOURCE)
  a=p.parse_args()
  STATE.mkdir(mode=0o700,parents=True,exist_ok=True)
@@ -227,6 +226,9 @@ def main():
   with (STATE/'transfer.lock').open('a') as lock:
    fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
    obj=receiver_probe() if a.verb=='probe' else diagnose(digest,size) if a.verb=='diagnose' else inspect(digest,size,a.verb!='status')
+   if obj['phase']=='awaiting_taildrop' and a.verb=='reconcile':
+    obj=diagnose(digest,size)
+    lines+=['REFERENCE_NOT_VERIFIED=YES']
    if obj['phase']=='awaiting_taildrop' and a.verb=='collect':
     code=collect_inbox()
     lines+=['TAILDROP_GET_EXIT='+str(code)]
@@ -240,7 +242,7 @@ def main():
     else:lines+=['NEXT=Inspect inbox or receiver configuration before any resend']
    elif obj['phase']=='taildrop_found_not_collected':
     lines+=['NEXT=resume to collect verified reference']
-  rc=0 if obj['phase'] in ('reference_delivered_verified','receiver_diagnostic','receiver_probe') else 3
+  rc=0 if obj['phase']=='reference_delivered_verified' or (a.verb in ('diagnose','probe') and obj['phase'] in ('receiver_diagnostic','receiver_probe')) else 3
  except subprocess.TimeoutExpired:lines+=['STATUS=BLOCKED','ERROR=SSH_TIMEOUT; reconcile with status or resume']
  except Exception as e:lines+=['STATUS=BLOCKED','ERROR='+type(e).__name__+': '+str(e)[:220]]
  receipt='\n'.join(lines)+'\n'
