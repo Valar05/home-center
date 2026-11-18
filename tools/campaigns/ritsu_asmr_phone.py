@@ -27,7 +27,7 @@ def ps(script,quiet=False,stage='remote'):
  clean=re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]', '', clean)
  if not quiet:print(output[-12000:],flush=True)
  if p.returncode or 'RITSU_ASMR_REMOTE_OK=1' not in [line.strip() for line in clean.splitlines()]:
-  safe=[x.strip() for x in clean.splitlines() if any(k in x.lower() for k in ('exec request failed','connection timed out','connection refused','permission denied','staging offset collision','staged transcript digest mismatch','pinned source digest mismatch','approved python runtime not found','fullyqualifiederrorid','"error"'))]
+  safe=[x.strip() for x in clean.splitlines() if any(k in x.lower() for k in ('exec request failed','connection timed out','connection refused','permission denied','staging offset collision','staged transcript digest mismatch','pinned source digest mismatch','approved python runtime not found','private_repo_','fullyqualifiederrorid','"error"'))]
   detail=next((x[:220] for x in reversed(safe) if len(x)<500),'remote success marker missing; inspect private transport log')
   if quiet:print(output[-8000:],flush=True)
   raise RemoteFailure('CAULDRON_REMOTE_BLOCKED stage='+stage+' encodedChars='+str(len(cmd))+' exit='+str(p.returncode)+': '+detail)
@@ -64,7 +64,58 @@ def staging(episode,data):
   ps(script,quiet=True,stage='transcript-chunk offset='+str(off))
   print('STAGING_PROGRESS='+str(min(off+len(piece),len(coded)))+'/'+str(len(coded)),flush=True)
  return digest,target
-def remote_run(commit,expected,verb,episode,input_data):
+def repo_stage(episode,revision,relpath):
+ # Private source is fetched on THECAULDRON, using only its existing Git credentials.
+ if not re.fullmatch(r'[0-9a-f]{40}',revision):raise ValueError('Full private repository commit required')
+ if not re.fullmatch(r'episodes/[A-Za-z0-9_-]{1,100}\.txt',relpath):raise ValueError('Invalid private episode path')
+ relative='RitsuASMR\\incoming\\'+episode+'-repo-'+revision+'.txt'
+ script=r"""
+$ErrorActionPreference='Stop'
+$env:GIT_TERMINAL_PROMPT='0'
+$env:GCM_INTERACTIVE='Never'
+$git=(Get-Command git.exe -ErrorAction Stop).Source
+$root=Join-Path $env:LOCALAPPDATA 'RitsuASMR'
+$cache=Join-Path $root 'private-episode-git'
+$dest=Join-Path $env:LOCALAPPDATA '__DEST__'
+New-Item -ItemType Directory -Force -Path $root,(Split-Path $dest)|Out-Null
+if(!(Test-Path -LiteralPath $cache)){
+ & $git init --bare $cache 2>&1|Out-Null
+ if($LASTEXITCODE -ne 0){throw 'PRIVATE_REPO_INIT_FAILED'}
+}
+& $git -C $cache -c credential.interactive=never fetch --no-tags https://github.com/Valar05/ritsu-asmr.git '__REV__' 2>&1|Out-Null
+if($LASTEXITCODE -ne 0){throw 'PRIVATE_REPO_FETCH_FAILED: existing Windows Git authorization required'}
+Write-Output 'RITSU_ASMR_REMOTE_OK=1'
+"""
+ ps(script.replace('__DEST__',relative).replace('__REV__',revision),quiet=True,stage='private-repo-fetch')
+ script=r"""
+$ErrorActionPreference='Stop'
+$git=(Get-Command git.exe -ErrorAction Stop).Source
+$root=Join-Path $env:LOCALAPPDATA 'RitsuASMR'
+$cache=Join-Path $root 'private-episode-git'
+$dest=Join-Path $env:LOCALAPPDATA '__DEST__'
+$blob=(& $git -C $cache rev-parse '__REV__:__PATH__' 2>$null)
+if($LASTEXITCODE -ne 0 -or $blob -notmatch '^[a-f0-9]{40}$'){throw 'PRIVATE_REPO_BLOB_MISSING'}
+$tmp=Join-Path $root ('repo-stage-'+[guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $tmp|Out-Null
+try{
+ $zip=Join-Path $tmp 'source.zip'
+ & $git -C $cache archive --format=zip --output=$zip '__REV__' '__PATH__' 2>&1|Out-Null
+ if($LASTEXITCODE -ne 0){throw 'PRIVATE_REPO_ARCHIVE_FAILED'}
+ Expand-Archive -LiteralPath $zip -DestinationPath (Join-Path $tmp 'tree')
+ $src=Join-Path (Join-Path $tmp 'tree') '__PATH__'
+ $actual=(& $git -C $cache hash-object --no-filters $src 2>$null)
+ if($LASTEXITCODE -ne 0 -or $actual -cne $blob){throw 'PRIVATE_REPO_BLOB_MISMATCH'}
+ if((Get-Item -LiteralPath $src).Length -gt 150000){throw 'PRIVATE_REPO_INPUT_TOO_LARGE'}
+ if(Test-Path -LiteralPath $dest){
+  if((Get-FileHash -LiteralPath $dest).Hash -ne (Get-FileHash -LiteralPath $src).Hash){throw 'PRIVATE_REPO_STAGE_COLLISION'}
+ }else{Copy-Item -LiteralPath $src -Destination $dest}
+ Write-Output 'RITSU_ASMR_REMOTE_OK=1'
+}finally{Remove-Item -LiteralPath $tmp -Recurse -Force}
+"""
+ script=script.replace('__DEST__',relative).replace('__REV__',revision).replace('__PATH__',relpath)
+ ps(script,quiet=True,stage='private-repo-stage')
+ return relative
+def remote_run(commit,expected,verb,episode,input_data,repo_input=None):
  # The remote file is downloaded from exactly the checked-in SHA and verified
  # before execution. No local Windows checkout, agent, or live relay is altered.
  input_path=''
@@ -122,6 +173,8 @@ Write-Output 'RITSU_ASMR_REMOTE_OK=1'
   finalize=finalize.replace('__ENCODED__','RitsuASMR\\incoming\\'+episode+'-'+digest+'.b64').replace('__INCOMING__','RitsuASMR\\incoming\\'+episode+'-'+digest+'.txt').replace('__DIGEST__',digest)
   ps(finalize,quiet=True,stage='transcript-finalize')
   extra="$arguments+=@('--input',(Join-Path $env:LOCALAPPDATA "+quote('RitsuASMR\\incoming\\'+episode+'-'+digest+'.txt')+"))"
+ elif repo_input is not None:
+  extra="$arguments+=@('--input',(Join-Path $env:LOCALAPPDATA "+quote(repo_input)+"))"
  else:extra=''
  script=script.replace('__SHA__',expected).replace('__COMMIT__',commit).replace('__VERB__',verb).replace('__EP__',episode).replace('__INPUT__',extra)
  output=ps(script,quiet=True,stage='renderer-'+verb)
@@ -393,6 +446,8 @@ def main():
  p.add_argument('verb',nargs='?',default='doctor',choices=['doctor','inspect','recover','start','status','resume','stop','receipts','fetch','drop','verify','peers','drop-status'])
  p.add_argument('--episode',default='RITSU_ASMR_CANARY')
  p.add_argument('--input',type=Path)
+ p.add_argument('--repo-transcript',nargs=2,metavar=('COMMIT','PATH'))
+ p.add_argument('--repo-check',action='store_true',help='Stage and verify private Git input without starting render')
  p.add_argument('--received',type=Path)
  p.add_argument('--resend',action='store_true')
  a=p.parse_args()
@@ -402,6 +457,8 @@ def main():
   if not re.fullmatch(r'[A-Za-z0-9_-]{1,64}',a.episode):raise ValueError('Invalid episode ID')
   if a.received is not None and a.verb!='verify':raise ValueError('--received only allowed with verify')
   if a.resend and a.verb!='drop':raise ValueError('--resend only allowed with drop')
+  if a.repo_transcript and (a.input or a.verb!='start'):raise ValueError('--repo-transcript requires start and excludes --input')
+  if a.repo_check and not a.repo_transcript:raise ValueError('--repo-check requires --repo-transcript')
   if a.input and a.verb!='start':raise ValueError('--input only allowed with start')
   if not shutil.which('cauldron'):raise RuntimeError('Existing cauldron command unavailable; no SSH substitution')
   commit,hashvalue=review_source()
@@ -410,12 +467,18 @@ def main():
   if data is not None and len(data)>150000:raise ValueError('Input exceeds 150 kB')
   if data is not None:data.decode('utf-8-sig')
   print('CONTACTING_THECAULDRON='+a.verb,flush=True)
-  if a.verb=='fetch':details=fetch_wav(commit,hashvalue,a.episode)
+  repo_input=None
+  if a.repo_transcript:
+   revision,relpath=a.repo_transcript
+   lines+=['TRANSCRIPT_REPO=Valar05/ritsu-asmr','TRANSCRIPT_COMMIT='+revision,'TRANSCRIPT_PATH='+relpath]
+   repo_input=repo_stage(a.episode,revision,relpath)
+  if a.repo_check:details={'phase':'private_repo_staged_not_rendered','commit':revision,'path':relpath}
+  elif a.verb=='fetch':details=fetch_wav(commit,hashvalue,a.episode)
   elif a.verb=='peers':details=taildrop_peers()
   elif a.verb=='drop-status':details=drop_status(commit,hashvalue,a.episode)
   elif a.verb=='drop':details=drop_wav(commit,hashvalue,a.episode,a.resend)
   elif a.verb=='verify':details=verify_wav(commit,hashvalue,a.episode,a.received)
-  else:details=extract_result(remote_run(commit,hashvalue,a.verb,a.episode,data))
+  else:details=extract_result(remote_run(commit,hashvalue,a.verb,a.episode,data,repo_input))
   if details is None:raise RuntimeError('Missing structured Windows result')
   lines+=['WINDOWS_RESULT='+json.dumps(details,ensure_ascii=True,separators=(',',':'))]
   lines+=['SSH_COMMAND_RETURNED=YES','REMOTE_OPERATION_CONFIRMED=YES','RENDER_NOT_INFERRED=YES']
