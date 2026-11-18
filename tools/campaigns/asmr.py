@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Stable Termux ASMR command. Audio transport is Taildrop only."""
-import argparse,json,os,re,shutil,subprocess,sys
+import argparse,json,os,re,shlex,shutil,subprocess,sys,tempfile
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parent.parent
@@ -17,12 +17,22 @@ def select(row):
  STATE.mkdir(parents=True,exist_ok=True)
  t=STATE/'current.tmp';t.write_text(json.dumps(row),encoding='utf-8');os.replace(t,STATE/'current.json')
 def install():
- # Symlink into Termux PATH, never overwrite another command.
- dest=Path(os.environ.get('PREFIX','/data/data/com.termux/files/usr'))/'bin'/'asmr'
- if dest.exists() or dest.is_symlink():
-  if dest.is_symlink() and dest.resolve()==Path(__file__).resolve():return 0
-  raise RuntimeError('asmr command already exists; refusing replacement')
- os.chmod(__file__,0o755);dest.symlink_to(Path(__file__).resolve())
+ # Shared Android storage is noexec. Execute a private Termux shell stub instead.
+ prefix=Path(os.environ.get('PREFIX','/data/data/com.termux/files/usr'))
+ dest=prefix/'bin'/'asmr'
+ source=Path(__file__).resolve()
+ marker='# HomeCenter ASMR launcher v1\n'
+ body='#!'+str(prefix/'bin'/'sh')+'\n'+marker+'exec '+shlex.quote(str(prefix/'bin'/'python3'))+' '+shlex.quote(str(source))+' "$@"\n'
+ if dest.is_symlink():
+  if dest.resolve()!=source:raise RuntimeError('Unrelated asmr symlink; refusing replacement')
+ elif dest.exists():
+  if not dest.is_file() or marker not in dest.read_text(encoding='utf-8'):raise RuntimeError('Unrelated asmr command; refusing replacement')
+ with tempfile.NamedTemporaryFile(mode='w',encoding='utf-8',dir=dest.parent,prefix='.asmr-',delete=False) as f:
+  tmp=Path(f.name);f.write(body)
+ try:
+  tmp.chmod(0o755);os.replace(tmp,dest)
+ finally:tmp.unlink(missing_ok=True)
+ if dest.is_symlink() or not os.access(dest,os.X_OK) or dest.read_text()!=body:raise RuntimeError('Launcher verification failed')
  print('ASMR_COMMAND='+str(dest));return 0
 def main():
  p=argparse.ArgumentParser(description=__doc__)
