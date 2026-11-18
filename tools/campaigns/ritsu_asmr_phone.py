@@ -79,11 +79,17 @@ $cache=Join-Path $root 'private-episode-git'
 $dest=Join-Path $env:LOCALAPPDATA '__DEST__'
 New-Item -ItemType Directory -Force -Path $root,(Split-Path $dest)|Out-Null
 if(!(Test-Path -LiteralPath $cache)){
+ $ErrorActionPreference='Continue'
  & $git init --bare $cache 2>&1|Out-Null
- if($LASTEXITCODE -ne 0){throw 'PRIVATE_REPO_INIT_FAILED'}
+ $rc=$LASTEXITCODE
+ $ErrorActionPreference='Stop'
+ if($rc -ne 0){throw 'PRIVATE_REPO_INIT_FAILED'}
 }
+$ErrorActionPreference='Continue'
 & $git -C $cache -c credential.interactive=never fetch --no-tags https://github.com/Valar05/ritsu-asmr.git '__REV__' 2>&1|Out-Null
-if($LASTEXITCODE -ne 0){throw 'PRIVATE_REPO_FETCH_FAILED: existing Windows Git authorization required'}
+$rc=$LASTEXITCODE
+$ErrorActionPreference='Stop'
+if($rc -ne 0){throw 'PRIVATE_REPO_FETCH_FAILED: existing Windows Git authorization required'}
 Write-Output 'RITSU_ASMR_REMOTE_OK=1'
 """
  ps(script.replace('__DEST__',relative).replace('__REV__',revision),quiet=True,stage='private-repo-fetch')
@@ -99,8 +105,11 @@ $tmp=Join-Path $root ('repo-stage-'+[guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $tmp|Out-Null
 try{
  $zip=Join-Path $tmp 'source.zip'
+ $ErrorActionPreference='Continue'
  & $git -C $cache archive --format=zip --output=$zip '__REV__' '__PATH__' 2>&1|Out-Null
- if($LASTEXITCODE -ne 0){throw 'PRIVATE_REPO_ARCHIVE_FAILED'}
+ $rc=$LASTEXITCODE
+ $ErrorActionPreference='Stop'
+ if($rc -ne 0){throw 'PRIVATE_REPO_ARCHIVE_FAILED'}
  Expand-Archive -LiteralPath $zip -DestinationPath (Join-Path $tmp 'tree')
  $src=Join-Path (Join-Path $tmp 'tree') '__PATH__'
  $actual=(& $git -C $cache hash-object --no-filters $src 2>$null)
