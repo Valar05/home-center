@@ -13,14 +13,16 @@ def shell(*args):
  if p.returncode:raise RuntimeError((p.stderr or p.stdout)[-700:])
  return p.stdout.strip()
 def sha(data):return hashlib.sha256(data).hexdigest().upper()
-def ps(script):
+class RemoteFailure(RuntimeError):
+ pass
+def ps(script,quiet=False):
  cmd=base64.b64encode(script.encode('utf-16le')).decode('ascii')
  p=subprocess.run(['cauldron','powershell.exe','-NoLogo','-NoProfile','-NonInteractive','-EncodedCommand',cmd],text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=180)
- output=p.stdout[-5000:]
- print(output,flush=True)
- if p.returncode:raise RuntimeError('CAULDRON_REMOTE_EXIT_'+str(p.returncode))
- if 'RITSU_ASMR_REMOTE_OK=1' not in output.splitlines():
-  raise RuntimeError('REMOTE_SUCCESS_MARKER_MISSING (Windows operation failed or returned ambiguous status)')
+ output=p.stdout
+ if not quiet:print(output[-12000:],flush=True)
+ if p.returncode or 'RITSU_ASMR_REMOTE_OK=1' not in output.splitlines():
+  detail=next((x[:500] for x in reversed(output.splitlines()) if '"error"' in x),'remote success marker missing')
+  raise RemoteFailure('CAULDRON_REMOTE_BLOCKED: '+detail)
  return output
 def quote(s):return "'"+s.replace("'","''")+"'"
 def is_canonical_origin(url):
@@ -62,7 +64,7 @@ def remote_run(commit,expected,verb,episode,input_data):
   input_path='$env:LOCALAPPDATA\\RitsuASMR\\incoming\\'+episode+'-'+digest+'.txt'
  script="""$ErrorActionPreference='Stop'
 $root=Join-Path $env:LOCALAPPDATA 'RitsuASMR'
-$code=Join-Path $root 'code'
+$code=Join-Path (Join-Path $root 'code') '__SHA__'
 New-Item -ItemType Directory -Force -Path $code | Out-Null
 $program=Join-Path $code 'ritsu_asmr_windows.py'
 $expected='__SHA__'
@@ -95,6 +97,16 @@ $arguments+=@('--input',$incoming)
  else:extra=''
  script=script.replace('__SHA__',expected).replace('__COMMIT__',commit).replace('__VERB__',verb).replace('__EP__',episode).replace('__INPUT__',extra)
  return ps(script)
+def extract_result(output):
+ # Only JSON objects emitted by the offline tool, never raw SSH banners or transcript.
+ decoder=json.JSONDecoder()
+ for i,line in enumerate(output.splitlines()):
+  if not line.lstrip().startswith('{'):continue
+  try:
+   obj,_=decoder.raw_decode('\n'.join(output.splitlines()[i:]).lstrip())
+   if isinstance(obj,dict) and any(k in obj for k in ('phase','doctor','inspect','recovery')):return obj
+  except ValueError:continue
+ return None
 def main():
  p=argparse.ArgumentParser()
  p.add_argument('verb',nargs='?',default='doctor',choices=['doctor','inspect','recover','start','status','resume','stop','receipts'])
@@ -112,7 +124,9 @@ def main():
   data=a.input.read_bytes() if a.input else None
   if data is not None and len(data)>150000:raise ValueError('Input exceeds 150 kB')
   if data is not None:data.decode('utf-8-sig')
-  remote_run(commit,hashvalue,a.verb,a.episode,data)
+  output=remote_run(commit,hashvalue,a.verb,a.episode,data)
+  details=extract_result(output)
+  if details is not None:lines+=['WINDOWS_RESULT='+json.dumps(details,ensure_ascii=True,separators=(',',':'))]
   lines+=['SSH_COMMAND_RETURNED=YES','REMOTE_OPERATION_CONFIRMED=YES','RENDER_NOT_INFERRED=YES']
   result=0
  except Exception as e:
@@ -121,9 +135,11 @@ def main():
  receipt='\n'.join(lines)+'\n'
  # Do not put transcript, keys, or credentials in the receipt or clipboard.
  (STATE/'latest.txt').write_text(receipt,encoding='utf-8')
+ with (STATE/'history.txt').open('a',encoding='utf-8') as history:history.write(receipt+'\n')
  print(receipt,flush=True)
  if shutil.which('termux-clipboard-set'):
-  subprocess.run(['termux-clipboard-set'],input=receipt,text=True,capture_output=True,timeout=5)
+  try:subprocess.run(['termux-clipboard-set'],input=receipt,text=True,capture_output=True,timeout=5,check=True)
+  except (OSError,subprocess.SubprocessError):print('CLIPBOARD_UNAVAILABLE=1')
  else:print('CLIPBOARD_UNAVAILABLE=1')
  return result
 if __name__=='__main__':sys.exit(main())
