@@ -9,6 +9,50 @@ VOICE_SHA='B99EB2E16612E8B8C3E3A96F74BD631676CC79071779537FD94C564DB5796BE5'
 BASE='http://127.0.0.1:10205'
 SAMPLE='The room is quiet now. The last little sound of the day has settled into the carpet.\n\n[Pause:1500]\n\nThere. You can hear the soft rustling of paper, and the distant rain at the window.'
 def sha(b):return hashlib.sha256(b).hexdigest()
+DREW_STATE_SHA='12F022B4CD21E116640393132BF1F4268E0F6B5F787FB76969E4ACA44FC5BC10'
+DREW_CONFIG_SHA='D04489AB5EA5822660E82FE5D5F2207C47C5958BCA8CBB4C8E215BA3DB2ED944'
+DREW_ROOT=ROOT.parent/'DrewVoice'/'factory-v1'/'F2D451E6BF4FE2CDD6F8B2AFBE0D7B32E04E323463228FEAC1D187A27D08BD79'
+DREW_MODEL=None
+DREW_STATE=None
+def select_voice(ep):
+ global PROFILE,VOICE_SHA
+ if ep.startswith('DREW_DARK_VELVET_'):
+  PROFILE='dark-velvet';VOICE_SHA=DREW_STATE_SHA
+def drew_check():
+ for name,h in [('drew-whisper.safetensors',DREW_STATE_SHA),('profiles.json',DREW_CONFIG_SHA)]:
+  if sha((DREW_ROOT/name).read_bytes()).upper()!=h:raise RuntimeError('Drew voice/preset identity mismatch')
+ return {'engine':'pocket-tts','model':'offline_conditioning_verified','sampleRate':24000}
+def drew_synth(text):
+ global DREW_MODEL,DREW_STATE
+ import numpy as np
+ if DREW_MODEL is None:
+  drew_check()
+  os.environ['HF_HUB_OFFLINE']='1';os.environ['TRANSFORMERS_OFFLINE']='1'
+  from pocket_tts import TTSModel
+  DREW_MODEL=TTSModel.load_model(language='english')
+  DREW_STATE=DREW_MODEL.get_state_for_audio_prompt(str(DREW_ROOT/'drew-whisper.safetensors'))
+ if int(DREW_MODEL.config.mimi.sample_rate)!=24000:raise RuntimeError('Drew sample rate mismatch')
+ signal=DREW_MODEL.generate_audio(model_state=DREW_STATE,text_to_generate=text)
+ pcm=np.asarray(signal.detach().cpu().float().numpy(),dtype=np.float32).reshape(-1)
+ if not len(pcm) or not np.isfinite(pcm).all() or np.max(np.abs(pcm))>=2:raise RuntimeError('Drew audio invalid')
+ b=io.BytesIO()
+ with wave.open(b,'wb') as w:
+  w.setnchannels(1);w.setsampwidth(2);w.setframerate(24000)
+  w.writeframes(np.rint(np.clip(pcm,-1,1-1/32768)*32768).astype('<i2').tobytes())
+ return b.getvalue()
+def drew_mix(folder):
+ import shutil
+ drew_check()
+ cfg=json.loads((DREW_ROOT/'profiles.json').read_text(encoding='utf-8'))
+ if cfg['voiceStateSha256']!=DREW_STATE_SHA:raise RuntimeError('Preset voice mismatch')
+ exe=shutil.which('ffmpeg')
+ if not exe:raise RuntimeError('FFmpeg missing')
+ src=folder/'mix.partial.wav';dst=folder/'mix.processed.partial.wav'
+ p=subprocess.run([exe,'-hide_banner','-nostdin','-v','error','-y','-i',str(src),'-af',cfg['profiles']['dark-velvet']['filter'],'-ac','1','-ar','24000','-c:a','pcm_s16le',str(dst)],capture_output=True,text=True,timeout=600)
+ if p.returncode:raise RuntimeError('Dark Velvet DSP failed: '+p.stderr[-220:])
+ with wave.open(str(dst),'rb') as w:
+  if (w.getnchannels(),w.getsampwidth(),w.getframerate())!=(1,2,24000) or not w.getnframes():raise RuntimeError('DSP output invalid')
+ return dst
 def atomic(p,v):
  p.parent.mkdir(parents=True,exist_ok=True);t=p.with_suffix(p.suffix+'.tmp')
  with t.open('w',encoding='utf-8') as f:
@@ -38,6 +82,7 @@ def parse(text):
  if not any(k=='speech' for k,v in segments):raise ValueError('No speech')
  return segments
 def check_api():
+ if PROFILE=='dark-velvet':return drew_check()
  try:
   with urllib.request.urlopen(BASE+'/health',timeout=8) as r:d=json.load(r)
  except (OSError, ValueError) as e:
@@ -84,6 +129,7 @@ def recover_watchdog():
    if 'POCKET_API_UNREACHABLE' not in str(e):raise
  raise RuntimeError('WATCHDOG_REQUESTED_BUT_POCKET_NOT_READY; inspect without dispatching a duplicate')
 def synth(text):
+ if PROFILE=='dark-velvet':return drew_synth(text)
  data=json.dumps({'text':text,'profile':PROFILE}).encode()
  req=urllib.request.Request(BASE+'/tts',data=data,headers={'Content-Type':'application/json'},method='POST')
  with urllib.request.urlopen(req,timeout=240) as r:
@@ -122,9 +168,10 @@ def render(ep):
    state(folder,phase='rendering',completed=i+1)
  dest=folder/(ep+'.wav')
  if dest.exists():raise RuntimeError('Output collision: refusing overwrite')
- os.replace(folder/'mix.partial.wav',dest)
+ os.replace(drew_mix(folder) if PROFILE=='dark-velvet' else folder/'mix.partial.wav',dest)
  with wave.open(str(dest),'rb') as w:duration=w.getnframes()/w.getframerate()
  receipt={'phase':'rendered_not_delivered','episodeId':ep,'profile':PROFILE,'voiceSha256':VOICE_SHA,'wavPath':str(dest),'wavSha256':sha(dest.read_bytes()),'bytes':dest.stat().st_size,'durationSeconds':round(duration,3),'textSha256':sha(payload),'segments':len(plan),'wordCount':len(text.split()),'sourceCommit':os.environ.get('RITSU_ASMR_SOURCE_COMMIT',''),'rendererSha256':sha(Path(__file__).read_bytes())}
+ if PROFILE=='dark-velvet':receipt['presetSha256']=DREW_CONFIG_SHA
  atomic(folder/'receipt.json',receipt);state(folder,**receipt)
 def task_name(ep):
  return 'RitsuASMR-Offline-'+ep
@@ -215,6 +262,7 @@ def start_locked(ep,source):
  check_api()
  if folder.exists():
   old=json.loads((folder/'request.json').read_text(encoding='utf-8'))
+  if old.get('voiceSha256')!=VOICE_SHA:raise RuntimeError('Episode voice changed')
   if source is not None and sha(Path(source).read_bytes())!=old['textSha256']:raise RuntimeError('Episode ID has different source')
   if (folder/'receipt.json').exists():
    print((folder/'receipt.json').read_text(encoding='utf-8'));return
@@ -264,7 +312,7 @@ def stop_worker(ep):
   time.sleep(1)
  raise RuntimeError('STOP_NOT_CONFIRMED: worker still present; no unrelated process killed')
 def main():
- p=argparse.ArgumentParser();p.add_argument('verb',choices=['doctor','inspect','recover','start','work','status','resume','stop','receipts']);p.add_argument('--episode',default='RITSU_ASMR_CANARY');p.add_argument('--input');a=p.parse_args();folder=folder_for(a.episode)
+ p=argparse.ArgumentParser();p.add_argument('verb',choices=['doctor','inspect','recover','start','work','status','resume','stop','receipts']);p.add_argument('--episode',default='RITSU_ASMR_CANARY');p.add_argument('--input');a=p.parse_args();folder=folder_for(a.episode);select_voice(a.episode)
  try:
   if a.verb=='doctor':
    h=check_api();print(json.dumps({'doctor':'PASS','engine':h.get('engine'),'voiceSha256':VOICE_SHA,'sampleRate':h.get('sampleRate')}))
