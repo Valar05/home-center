@@ -46,12 +46,40 @@ if((Get-FileHash -LiteralPath $p -Algorithm SHA256).Hash -cne '__SHA__'){throw '
     nofetch="throw 'PINNED_MASTER_SCRIPT_NOT_INSTALLED: use start first'"
     return base.replace('__INSTALL__',fetch if install else nofetch).replace('__SHA__',digest).replace('__COMMIT__',commit)
 
+
+def guarded_ps(script,stage):
+    """Accept a physically emitted standalone marker despite PTY control formatting.
+
+    Reconcile only a zero-exit result from the exact just-issued request.
+    Never accept success inferred from a substring, command echo or old receipt.
+    """
+    try:
+        return core.ps(script,quiet=True,stage=stage)
+    except core.RemoteFailure:
+        stage_path=core.STATE/'last-remote-stage.txt'
+        output_path=core.STATE/'last-remote-transport.txt'
+        if not stage_path.exists() or not output_path.exists():
+            raise
+        detail=stage_path.read_text(encoding='utf-8',errors='replace')
+        if not detail.startswith(stage+' ') or not detail.endswith(' exit=0'):
+            raise
+        raw=output_path.read_text(encoding='utf-8',errors='replace')
+        clean=re.sub(r'\x1b\][^\x07]*(?:\x07|\x1b\\)','',raw)
+        clean=re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]','',clean)
+        clean=clean.replace('\x00','').replace('\ufeff','').replace('\u200b','')
+        # Windows PTY may insert CR, backspace or visual line-control characters.
+        lines=[re.sub(r'[\x00-\x1f\x7f]','',line).strip()
+               for line in clean.splitlines()]
+        if 'RITSU_ASMR_REMOTE_OK=1' not in lines:
+            raise
+        return raw
+
 def run(verb,commit,digest):
     if verb=='start':
         # Split install and execution into bounded SSH calls; never send media.
         staged=remote_script(commit,digest,True)
         staged+="\n[Console]::WriteLine('RITSU_ASMR_REMOTE_OK=1')\n"
-        core.ps(staged,quiet=True,stage='serin-master-install')
+        guarded_ps(staged,stage='serin-master-install')
     script=remote_script(commit,digest,False)
     script+="""
 $raw=& $p -Verb __VERB__ 2>&1
@@ -66,7 +94,7 @@ for($i=0;$i -lt $encoded.Length;$i+=16){[Console]::WriteLine(('J:{0:D5}:{1}' -f 
 for($i=0;$i -lt 64;$i+=16){[Console]::WriteLine(('H:{0}:{1}' -f ($i/16),$hash.Substring($i,16)))}
 [Console]::WriteLine('RITSU_ASMR_REMOTE_OK=1')
 """.replace('__VERB__',verb)
-    return core.extract_result(core.ps(script,quiet=True,stage='serin-master-'+verb))
+    return core.extract_result(guarded_ps(script,stage='serin-master-'+verb))
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
