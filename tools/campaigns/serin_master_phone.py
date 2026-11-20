@@ -47,7 +47,12 @@ if((Get-FileHash -LiteralPath $p -Algorithm SHA256).Hash -cne '__SHA__'){throw '
     return base.replace('__INSTALL__',fetch if install else nofetch).replace('__SHA__',digest).replace('__COMMIT__',commit)
 
 def run(verb,commit,digest):
-    script=remote_script(commit,digest,verb=='start')
+    if verb=='start':
+        # Split install and execution into bounded SSH calls; never send media.
+        staged=remote_script(commit,digest,True)
+        staged+="\n[Console]::WriteLine('RITSU_ASMR_REMOTE_OK=1')\n"
+        core.ps(staged,quiet=True,stage='serin-master-install')
+    script=remote_script(commit,digest,False)
     script+="""
 $raw=& $p -Verb __VERB__ 2>&1
 if($LASTEXITCODE -and $LASTEXITCODE -ne 0){throw ('MASTER_WORKER_EXIT_'+$LASTEXITCODE+' '+(($raw|Out-String).Trim()))}
@@ -61,8 +66,7 @@ for($i=0;$i -lt $encoded.Length;$i+=16){[Console]::WriteLine(('J:{0:D5}:{1}' -f 
 for($i=0;$i -lt 64;$i+=16){[Console]::WriteLine(('H:{0}:{1}' -f ($i/16),$hash.Substring($i,16)))}
 [Console]::WriteLine('RITSU_ASMR_REMOTE_OK=1')
 """.replace('__VERB__',verb)
-    result=core.extract_result(core.ps(script,quiet=True,stage='serin-master-'+verb))
-    return result
+    return core.extract_result(core.ps(script,quiet=True,stage='serin-master-'+verb))
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
