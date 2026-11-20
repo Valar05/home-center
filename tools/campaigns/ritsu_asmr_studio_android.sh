@@ -35,10 +35,22 @@ status(){
  alive && echo "WORKER=ACTIVE PID=$(cat "$STATE/pid")" || echo WORKER=NOT_CONFIRMED
  echo "LOG=$STATE/build.log"
 }
+ensure_d8(){
+ if command -v d8 >/dev/null 2>&1; then return 0; fi
+ echo 'D8_MISSING: installing the official Termux d8 package'
+ command -v pkg >/dev/null 2>&1 || { echo 'BLOCKED_TERMUX_PKG_MISSING'; return 20; }
+ if ! pkg install -y d8; then
+  echo 'BLOCKED_D8_PACKAGE_INSTALL_FAILED: inspect Termux repositories; do not substitute dex tool'
+  return 20
+ fi
+ command -v d8 >/dev/null 2>&1 || { echo 'BLOCKED_D8_STILL_MISSING'; return 20; }
+ echo "D8_READY=$(command -v d8)"
+}
 doctor(){
- for cmd in python3 git tar javac keytool aapt2 d8 apksigner zip unzip sha256sum; do
+ for cmd in python3 git tar javac keytool aapt2 apksigner zip unzip sha256sum; do
   command -v "$cmd" >/dev/null || { echo "BLOCKED_TOOL_MISSING=$cmd";return 20; }
  done
+ ensure_d8
  [ -s "$JAR" ] || { echo "BLOCKED_ANDROID_API35_JAR_MISSING=$JAR";return 21; }
  unzip -tqq "$JAR" || return 22
  if [ ! -s "$FRAMEWORK" ];then
@@ -70,7 +82,11 @@ PY
  record compiling "Private pinned source fetched"
  aapt2 link -o "$work/unsigned.apk" -I "$FRAMEWORK" --manifest "$manifest" --min-sdk-version 26 --target-sdk-version 35 --version-code 1 --version-name 0.1.0
  find "$source/java" -name '*.java' -print0 | xargs -0 javac --release 17 -classpath "$JAR" -d "$work/classes"
- find "$work/classes" -name '*.class' -print0 | xargs -0 d8 --lib "$JAR" --min-api 26 --output "$work/dex"
+ # D8 must receive all classes in one invocation; per-file invocation overwrites classes.dex.
+ local class_files=()
+ mapfile -d '' -t class_files < <(find "$work/classes" -name '*.class' -print0)
+ [ "${#class_files[@]}" -gt 0 ] || { echo 'BLOCKED_NO_CLASS_FILES';return 27; }
+ d8 --lib "$JAR" --min-api 26 --output "$work/dex" "${class_files[@]}"
  cp "$work/unsigned.apk" "$work/stage.apk"
  (cd "$work/dex" && zip -q -u "$work/stage.apk" classes.dex)
  local key="$STATE/debug.keystore"
