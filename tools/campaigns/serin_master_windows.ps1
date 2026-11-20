@@ -101,7 +101,7 @@ if($Verb -eq 'start'){
  }
  New-Item -ItemType Directory -Force -Path $DstDir|Out-Null
  $self=(Resolve-Path -LiteralPath $PSCommandPath).Path
- $action=New-ScheduledTaskAction -Execute 'powershell.exe' -Argument ('-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "'+$self+'" -Verb work')
+ $action=New-ScheduledTaskAction -Execute 'powershell.exe' -Argument ('-NoLogo -NoProfile -NonInteractive -File "'+$self+'" -Verb work')
  $principal=New-ScheduledTaskPrincipal -UserId ([Security.Principal.WindowsIdentity]::GetCurrent().Name) -LogonType Interactive -RunLevel Limited
  $settings=New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Hours 3) -MultipleInstances IgnoreNew
  $existing=Get-ScheduledTask -TaskName $Task -ErrorAction SilentlyContinue
@@ -137,7 +137,7 @@ if($Verb -eq 'work'){
   Move-Item -LiteralPath $tmp -Destination $Dst
   $digest=Hash $Dst
   $size=(Get-Item -LiteralPath $Dst).Length
-  $meta=@{phase='mastered_not_delivered';episodeId=$MasterId;sourceEpisodeId=$SourceId;profile='whisper';voiceSha256=$ExpectedVoice;wavPath=$Dst;wavSha256=$digest;bytes=$size;durationSeconds=$duration;sourceDurationSeconds=$sourceDuration;sourceWavSha256=$SourceSha;pitchSemitones=-2;tempo=0.98;filter=$filter;updatedUtc=[DateTime]::UtcNow.ToString('o')}
+  $meta=@{phase='rendered_not_delivered';episodeId=$MasterId;sourceEpisodeId=$SourceId;profile='whisper';voiceSha256=$ExpectedVoice;wavPath=$Dst;wavSha256=$digest;bytes=$size;durationSeconds=$duration;sourceDurationSeconds=$sourceDuration;sourceWavSha256=$SourceSha;pitchSemitones=-2;tempo=0.98;filter=$filter;updatedUtc=[DateTime]::UtcNow.ToString('o')}
   Save-Json $Receipt $meta
   Save-Json $Status $meta
  }catch{
