@@ -1,0 +1,62 @@
+name: Ritsu Control Pair Campaign Contract
+on:
+  pull_request:
+    paths:
+      - 'tools/campaigns/ritsu-control-pair*.ps1'
+      - '.github/workflows/ritsu-control-pair-campaign.yml'
+  push:
+    paths:
+      - 'tools/campaigns/ritsu-control-pair*.ps1'
+      - '.github/workflows/ritsu-control-pair-campaign.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows-operator-canary:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Validate syntax, detached worker and out-of-band STOP
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $f = Join-Path $env:GITHUB_WORKSPACE 'tools\campaigns\ritsu-control-pair-campaign.ps1'
+          $helper = Join-Path $env:GITHUB_WORKSPACE 'tools\campaigns\ritsu-control-pair.ps1'
+          foreach($file in @($f,$helper)){
+            $tokens = $null
+            $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($file,[ref]$tokens,[ref]$errors)
+            if($errors.Count -ne 0){throw 'PowerShell parser failure'}
+          }
+          $sha = (& git -C $env:GITHUB_WORKSPACE rev-parse HEAD).Trim()
+          & powershell.exe -NoProfile -STA -ExecutionPolicy Bypass -File $f -Mode Plan
+          if($LASTEXITCODE -ne 0){throw 'Plan failed'}
+          & powershell.exe -NoProfile -STA -ExecutionPolicy Bypass -File $f -Mode Canary -Revision $sha
+          if($LASTEXITCODE -ne 0){throw 'Detached canary failed'}
+          $receipt = Get-Content (Join-Path $env:LOCALAPPDATA 'HomeCenter\RitsuControlPairCampaign\latest.json') -Raw | ConvertFrom-Json
+          if($receipt.state -ne 'canary_passed'){throw 'Canary receipt missing'}
+          & powershell.exe -NoProfile -STA -ExecutionPolicy Bypass -File $f -Mode Status
+          if($LASTEXITCODE -ne 0){throw 'Status failed'}
+      - name: Missing token must fail closed with a durable receipt
+        shell: powershell
+        run: |
+          $ErrorActionPreference='Stop'
+          $f = Join-Path $env:GITHUB_WORKSPACE 'tools\campaigns\ritsu-control-pair-campaign.ps1'
+          $sha = (& git -C $env:GITHUB_WORKSPACE rev-parse HEAD).Trim()
+          & powershell.exe -NoProfile -STA -ExecutionPolicy Bypass -File $f -Mode Apply -Revision $sha -TokenFile 'C:\totally-absent-pair-test\missing.token'
+          if($LASTEXITCODE -ne 0){throw 'Apply failed to queue'}
+          $file=Join-Path $env:LOCALAPPDATA 'HomeCenter\RitsuControlPairCampaign\latest.json'
+          $ok=$false
+          for($i=0;$i -lt 25;$i++){
+            Start-Sleep -Milliseconds 400
+            $receipt=Get-Content $file -Raw | ConvertFrom-Json
+            if($receipt.state -eq 'blocked'){
+              if($receipt.detail -ne 'phone_token_file_missing'){throw 'Wrong fail-closed reason'}
+              $ok=$true
+              break
+            }
+          }
+          if(-not $ok){throw 'Missing token did not block'}

@@ -22,6 +22,48 @@ $('resetContext').addEventListener('click', resetContext);
 $('stop').addEventListener('click', () => message({type: 'throne.stop'}));
 $('resume').addEventListener('click', () => message({type: 'throne.resume'}));
 
+$('ritsuFindTabs').addEventListener('click', refreshRitsuTabs);
+$('ritsuBind').addEventListener('click', bindRitsuSelectedTab);
+$('ritsuStatus').addEventListener('click', refreshRitsuStatus);
+
+async function refreshRitsuTabs() {
+  const select=$('ritsuTab');
+  select.replaceChildren();
+  const tabs=await chrome.tabs.query({url:'https://chatgpt.com/*'});
+  for(const tab of tabs) {
+    const option=document.createElement('option');
+    option.value=String(tab.id);
+    option.textContent=(tab.title||'ChatGPT')+' · tab '+tab.id;
+    select.appendChild(option);
+  }
+  $('ritsuBindingStatus').textContent=tabs.length
+    ? tabs.length+' existing ChatGPT tab(s), none opened'
+    : 'Open a ChatGPT tab yourself, then refresh';
+  return tabs;
+}
+async function bindRitsuSelectedTab() {
+  const sessionId=$('ritsuSession').value.trim();
+  const tabId=Number($('ritsuTab').value);
+  const channel=$('ritsuChannel').value;
+  // No silent default session ID and no automatic tab creation.
+  if (!/^[A-Za-z0-9_.:-]{8,100}$/.test(sessionId) || !Number.isInteger(tabId) || tabId<=0) {
+    $('ritsuBindingStatus').textContent='Choose a valid session ID and existing tab.';
+    return;
+  }
+  const result=await message({type:'ritsu.chat.bind',sessionId,channel,tabId},false);
+  $('ritsuBindingStatus').textContent=result?.ok
+    ? 'Bound '+channel+' '+sessionId+' to existing tab '+tabId
+    : 'Not bound: '+String(result?.error||'unknown');
+  return result;
+}
+async function refreshRitsuStatus() {
+  const result=await message({type:'ritsu.chat.sessions'},false);
+  $('ritsuBindingStatus').textContent=result?.ok
+    ? result.sessions.map(s=>s.key+' → '+s.tabId+(s.live?'':' (closed)')).join('; ')||'No Ritsu tabs bound'
+    : 'Status unavailable: '+String(result?.error||'unknown');
+  return result;
+}
+
 init();
 
 async function init() {
@@ -33,6 +75,8 @@ async function init() {
   const seeded = saved.throneContext || SWARM_CONTEXT;
   if (!saved.throneContext) await chrome.storage.local.set({throneContext: seeded});
   await refreshStatus(seeded);
+  await refreshRitsuTabs();
+  await refreshRitsuStatus();
 }
 
 async function refreshStatus(fallbackContext = '') {

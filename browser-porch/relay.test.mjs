@@ -63,9 +63,12 @@ test('throne queue is separately authenticated, origin-bound, leased, and durabl
   assert.equal((await post(`${base}/command`, command, auth)).status, 200, 'idempotent duplicate should not duplicate work');
   assert.equal(durableEvents[0].type, 'throne.command.queued');
 
-  assert.equal((await fetch(`${base}/command`, {headers: auth})).status, 403, 'worker poll also needs exact extension origin');
+  // Real MV3 fetch sometimes sends no Origin header, even with host
+  // permissions. A valid bearer alone may lease on loopback; explicit
+  // wrong/opaque origins must still fail closed.
   assert.equal((await fetch(`${base}/command`, {headers: wrongOrigin})).status, 403);
-  const leased = await fetch(`${base}/command`, {headers: extension});
+  assert.equal((await fetch(`${base}/command`, {headers: {...auth,origin:'null'}})).status, 403);
+  const leased = await fetch(`${base}/command`, {headers: auth});
   assert.equal(leased.status, 200);
   const leasedJson = await leased.json();
   assert.equal(leasedJson.command.commandId, command.commandId);
@@ -74,10 +77,12 @@ test('throne queue is separately authenticated, origin-bound, leased, and durabl
   assert.equal((await fetch(`${base}/command`, {headers: extension})).status, 204, 'active lease must not be handed out twice');
   assert.equal(durableEvents.at(-1).type, 'throne.command.leased');
 
-  assert.equal((await post(`${base}/complete`, {commandId: command.commandId, ok: true, result: {accepted: false}}, auth)).status, 403);
+  assert.equal((await post(`${base}/complete`, {commandId: command.commandId, ok: true, result: {accepted: false}}, wrongOrigin)).status, 403);
   const complete = await post(`${base}/complete`, {commandId: command.commandId, ok: true, result: {accepted: false, workerCount: 2}}, extension);
   assert.equal(complete.status, 200);
   assert.equal(durableEvents.at(-1).type, 'throne.command.completed');
+  assert.equal((await fetch(`${base}/command`, {headers: auth})).status, 204);
+  assert.equal((await fetch(`${base}/command`, {headers: extension})).status, 204);
 
   const status = await fetch(`${base}/status`, {headers: auth});
   assert.equal(status.status, 200);

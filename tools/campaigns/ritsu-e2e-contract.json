@@ -1,0 +1,83 @@
+{
+  "schema": "home-center.ritsu-e2e-campaign.v1",
+  "campaignId": "ritsu-chat-voice-e2e",
+  "mission": "Initiate one ChatGPT turn through Home Center and retrieve the actual verified assistant response into the initiating Home Center process. Do not confuse tab open, queued, leased or submitted with retrieved.",
+  "authority": "CAMPAIGN_ETIQUETTE Git Script Campaign Operating Rules, 2026-10-21; AGENTS.md; RITSU_PHONE_AUDIO_LAWS.md",
+  "execution": {
+    "host": "THECAULDRON",
+    "source": "Exact Git revision in disposable isolated worktree",
+    "entrypoint": "tools/campaigns/ritsu-e2e-campaign.ps1",
+    "controls": [
+      "Plan",
+      "Apply",
+      "Status",
+      "Receipts",
+      "Stop"
+    ],
+    "gateway": "Tailscale IPv4 only port 19646",
+    "originalAudio": "Preserve existing 19643 Pocket TTS",
+    "originalTailscaleServe": "Preserve existing 19645 mapping",
+    "originalBrowser": "Preserve consumer Chrome, primary 9234 and the user's ChatGPT tabs",
+    "isolatedBrowser": "Reuse only current test Chrome and existing explicitly bound chat tab; never auto-create",
+    "retrieval": "Home Center MCP callback, not Chromium Throne page/text scraping"
+  },
+  "writable": [
+    "%LOCALAPPDATA%\\HomeCenter\\RitsuE2E\\campaign\\**",
+    "%LOCALAPPDATA%\\HomeCenter\\RitsuE2E\\extension\\service-worker.js",
+    "%LOCALAPPDATA%\\HomeCenter\\RitsuE2E\\extension\\sidepanel.html",
+    "%LOCALAPPDATA%\\HomeCenter\\RitsuE2E\\extension\\throne-panel.mjs",
+    "Task Scheduler: HomeCenter-RitsuE2E-PhoneGateway"
+  ],
+  "preserved": [
+    "Main Home Center working tree with local edits",
+    "Original ChatGPT user tabs and profile",
+    "Existing Pocket/Termux/Tailscale audio machinery",
+    "Original Windows services 9234/19643/19645",
+    "Original Android application until explicit install"
+  ],
+  "doneOnlyWhen": [
+    "Home Center MCP callback operations available in deployed registry",
+    "Real ChatGPT thread has access to connected Home Center MCP publish tool",
+    "Initiated control turn returns its actual answer through MCP result with matching owner/session/turn and exact text",
+    "No duplicate send and no screen/DOM extraction for response"
+  ],
+  "neverCallAccepted": [
+    "CI green only",
+    "Browser tab opened",
+    "Command leased",
+    "Phone text queued locally",
+    "Audio enqueued without human hearing",
+    "ChatGPT composer contains text but Send was not acknowledged",
+    "Assistant count changed without matching turn identity",
+    "Answer captured only in browser without Home Center retrieval",
+    "MCP tool returns result that was actually scraped from the ChatGPT DOM",
+    "MCP code committed without target ChatGPT tool availability",
+    "MCP prepared nonce without target assistant publishing its answer"
+  ],
+  "primaryAcceptance": {
+    "goal": "assistant initiates a real ChatGPT conversation and can read back the resulting answer",
+    "operation": "Home Center agent initiates named ChatGPT CONTROL turn -> target assistant calls Home Center MCP ritsu.chat.publish with scoped one-use key -> initiating agent calls MCP ritsu.chat.result -> exact assistant text, same session and turn",
+    "requiredProof": [
+      "Home Center MCP ritsu.chat.prepare returns stable turn ID, session ID and scoped one-use callback key",
+      "ChatGPT recipient actually invokes Home Center MCP ritsu.chat.publish using that same scoped identity",
+      "Home Center MCP ritsu.chat.result returns the published response text to initiating agent",
+      "Return is durable, owner scoped, immutable and survives new agent/tool invocation",
+      "No screenshot, DOM extraction or 'assistantCount' used as result proof",
+      "No implicit new tabs, paid API provider, or duplicated prompt on uncertain result"
+    ],
+    "independentOf": [
+      "Screen scraping or Chromium DOM reply extraction",
+      "Android app",
+      "Microphone",
+      "Pocket TTS",
+      "additional worker parallelism"
+    ]
+  },
+  "futureScope": {
+    "afterPrimaryAcceptance": [
+      "secure Android ingress and response feed",
+      "Ritsu voice via approved Pocket relay",
+      "future parallel threads published by CONTROL"
+    ]
+  }
+}

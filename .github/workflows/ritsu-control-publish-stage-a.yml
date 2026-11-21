@@ -1,0 +1,49 @@
+name: Publish Ritsu Stage A APK to branch
+on:
+  push:
+    branches:
+      - 'feature/ritsu-command-bridge-scavenge-20261022'
+    paths:
+      - '.github/workflows/ritsu-control-publish-stage-a.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/feature/ritsu-command-bridge-scavenge-20261022'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Fetch verified Stage A build artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # Successful contract run 39854656882, artifact 12459236574.
+          curl --fail --show-error --silent --location \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/12459236574/zip" \
+            --output "$RUNNER_TEMP/ritsu-stage-a.zip"
+          unzip -t "$RUNNER_TEMP/ritsu-stage-a.zip"
+          mkdir -p downloads
+          unzip -p "$RUNNER_TEMP/ritsu-stage-a.zip" app-debug.apk > downloads/ritsu-control-stage-a-debug.apk
+          test -s downloads/ritsu-control-stage-a-debug.apk
+          file downloads/ritsu-control-stage-a-debug.apk
+          echo '63f6cbb07bda6244b115fea90d9f0ec6fc98ab64ce5cf8674860dd2632e54df6  downloads/ritsu-control-stage-a-debug.apk' | sha256sum -c -
+      - name: Commit repository-hosted APK
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Repo-wide APK ignore policy remains unchanged. Force-add only this verified fixture.
+          git add -f -- downloads/ritsu-control-stage-a-debug.apk
+          if git diff --staged --quiet; then
+            echo 'APK already committed; no change.'
+          else
+            git commit -m "build: publish Ritsu Stage A APK for direct repository download"
+            git push origin HEAD:feature/ritsu-command-bridge-scavenge-20261022
+          fi

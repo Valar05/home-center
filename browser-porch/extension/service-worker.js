@@ -46,6 +46,7 @@ EVOLUTION LOOP: observe evidence -> consult governance -> choose one high-levera
 `;
 
 let swarmPromise = null;
+let ritsuOneTurnRunning = false;
 chrome.sidePanel.setPanelBehavior({openPanelOnActionClick: true}).catch(() => {});
 chrome.runtime.onInstalled.addListener(() => configureRelay().catch(() => {}));
 chrome.runtime.onStartup.addListener(() => configureRelay().catch(() => {}));
@@ -63,6 +64,8 @@ async function handle(message = {}) {
     case 'throne.run': return runCommission(String(message.commission || ''), message.newWorker === true, String(message.context || ''), {jobId: String(message.jobId || ''), workerTabId: Number(message.workerTabId || 0) || null});
     case 'throne.swarm.run': return runStoredSwarm({source: String(message.source || 'sidepanel')});
     case 'throne.relay.poll': return pollRelay();
+    case 'ritsu.chat.bind': return bindRitsuChatSession(message);
+    case 'ritsu.chat.sessions': return ritsuChatSessionStatus();
     case 'throne.capture': return captureLatest(Number(message.workerTabId || 0) || null, String(message.jobId || ''));
     case 'throne.inspect': return inspectWorker(Number(message.workerTabId || 0) || null);
     case 'throne.resetContext': await chrome.storage.local.set({throneContext: DEFAULT_CAMPAIGN_CONTEXT}); return {ok: true, context: DEFAULT_CAMPAIGN_CONTEXT};
@@ -108,6 +111,7 @@ async function pollRelay() {
 
 async function executeRelayCommand(command) {
   switch (command.action) {
+    case 'chat.turn': return executeOneRitsuTurn(command.turn);
     case 'swarm.enqueue': {
       const {throneQueue = []} = await chrome.storage.local.get('throneQueue');
       const known = new Set(throneQueue.map((job) => job.id));
@@ -121,6 +125,128 @@ async function executeRelayCommand(command) {
     case 'swarm.status': return {...await throneStatus(), accepted: false};
     default: throw new Error('unsupported_relay_action');
   }
+}
+
+/** Exactly one ChatGPT message and one assistant reply. No BOOT_ENVELOPE,
+ * no automatic swarm recursion, and no implicit context rotation. */
+async function executeOneRitsuTurn(turn) {
+  if (!turn || !/^[A-Za-z0-9_.:-]{8,100}$/.test(String(turn.sessionId || '')) ||
+      !/^[A-Za-z0-9_.:-]{8,100}$/.test(String(turn.turnId || '')) ||
+      !['control', 'dialogue'].includes(turn.channel) ||
+      typeof turn.prompt !== 'string' || !turn.prompt.trim() || turn.prompt.length > 5000)
+    throw new Error('ritsu_turn_invalid');
+  if (await isStopped()) throw new Error('chromium_throne_stopped');
+  if (ritsuOneTurnRunning) throw new Error('ritsu_turn_lane_busy');
+  ritsuOneTurnRunning = true;
+  const key = `${turn.channel}:${turn.sessionId}`;
+  const turnKey = `${key}:${turn.turnId}`;
+  try {
+    const old = await chrome.storage.local.get(['ritsuChatSessions', 'ritsuChatReceipts']);
+    const sessions = old.ritsuChatSessions || {};
+    const receipts = old.ritsuChatReceipts || {};
+    if (receipts[turnKey]) {
+      if (receipts[turnKey].state === 'completed')
+        return {...receipts[turnKey].result, duplicate: true};
+      // Repeated or restarted dispatch might have already hit ChatGPT.
+      // Never submit twice after an ambiguous boundary.
+      throw new Error('ritsu_turn_prior_attempt_unconfirmed');
+    }
+    let tab;
+    if (sessions[key]?.tabId) {
+      try { tab = await requireChatTab(sessions[key].tabId); }
+      catch { throw new Error('ritsu_session_tab_missing_no_auto_rotation'); }
+    } else {
+      // Never create a Chrome tab as an accidental side effect of a phone
+      // message. Each conversation must first be assigned to one existing
+      // explicitly inspected tab. This prevents piles of empty ChatGPT tabs.
+      throw new Error('ritsu_session_unbound_explicit_existing_tab_required');
+    }
+    const before = await inspectWorker(tab.id);
+    // Authentication/readiness is checked BEFORE the pre-send unknown receipt.
+    // A logged-out ChatGPT page must not poison the at-most-once ledger.
+    // No prompt mutation is attempted until a real composer is visible.
+    await requireRitsuPromptComposer(tab.id);
+    const baseline = Number(before.assistantCount || 0);
+    receipts[turnKey] = {state: 'unknown', tabId: tab.id, baselineAssistantCount: baseline};
+    // Persistence *before* DOM mutation is the at-most-once boundary.
+    await chrome.storage.local.set({ritsuChatReceipts: receipts});
+    const [submitted] = await chrome.scripting.executeScript({
+      target: {tabId: tab.id}, func: submitChatGptPrompt, args: [turn.prompt]
+    });
+    if (!submitted?.result?.ok)
+      throw new Error('ritsu_submit_uncertain:' + String(submitted?.result?.error || 'unknown'));
+    const done = await waitForCompletedAssistant(tab.id, baseline, 120000);
+    if (!done.ok) throw new Error('ritsu_reply_unknown:' + String(done.error));
+    const result = {ok: true, accepted: false, verifiedTurn: true, sessionId: turn.sessionId,
+      turnId: turn.turnId, channel: turn.channel, tabId: tab.id,
+      text: done.text, assistantCount: done.assistantCount,
+      verifiedAt: new Date().toISOString()};
+    receipts[turnKey] = {state: 'completed', result};
+    const keys = Object.keys(receipts);
+    for (const stale of keys.slice(0, Math.max(0, keys.length - 100))) delete receipts[stale];
+    await chrome.storage.local.set({ritsuChatReceipts: receipts});
+    await appendReceipt({type: 'ritsu_chat_turn_returned', at: result.verifiedAt,
+      sessionId: turn.sessionId, turnId: turn.turnId, channel: turn.channel,
+      tabId: tab.id, assistantCount: done.assistantCount});
+    return result;
+  } finally {
+    ritsuOneTurnRunning = false;
+  }
+}
+
+/** Bind a trusted, explicitly named ChatGPT tab to one session.
+ * User-visible, deterministic and non-creating. No credentials or prompts.
+ * Caller is the local extension/sidepanel, never an unauthenticated web page. */
+async function bindRitsuChatSession(message = {}) {
+  const channel = String(message.channel || '');
+  const sessionId = String(message.sessionId || '');
+  const tabId = Number(message.tabId);
+  if (!['control','dialogue'].includes(channel) ||
+      !/^[A-Za-z0-9_.:-]{8,100}$/.test(sessionId) ||
+      !Number.isInteger(tabId) || tabId <= 0)
+    throw new Error('ritsu_binding_invalid');
+  const tab = await requireChatTab(tabId);
+  const key = channel + ':' + sessionId;
+  const {ritsuChatSessions = {}} =
+      await chrome.storage.local.get('ritsuChatSessions');
+  if (ritsuChatSessions[key] && ritsuChatSessions[key].tabId !== tabId)
+    throw new Error('ritsu_session_already_bound_no_rotation');
+  for (const [otherKey, other] of Object.entries(ritsuChatSessions)) {
+    if (otherKey !== key && Number(other?.tabId) === tabId)
+      throw new Error('ritsu_tab_owned_by_another_session');
+  }
+  const [probe] = await chrome.scripting.executeScript({
+    target: {tabId}, func: probeRitsuBindingTab
+  });
+  if (!probe?.result?.ready) throw new Error(
+    'ritsu_binding_requires_empty_authenticated_chatgpt_tab');
+  ritsuChatSessions[key] = {tabId, channel, sessionId};
+  await chrome.storage.local.set({ritsuChatSessions});
+  await appendReceipt({type:'ritsu_chat_session_bound',
+    at:new Date().toISOString(),channel,sessionId,tabId});
+  return {ok:true,channel,sessionId,tabId,url:tab.url};
+}
+function probeRitsuBindingTab() {
+  const composer = document.querySelector(
+    '[contenteditable="true"][data-composer-markdown][role="textbox"], ' +
+    '#prompt-textarea, textarea[data-testid="prompt-textarea"]');
+  return {ready: Boolean(composer && composer.getClientRects().length &&
+      !(composer.innerText || composer.value || '').trim() &&
+      document.querySelectorAll('[data-message-author-role="user"]').length === 0 &&
+      document.querySelectorAll('[data-message-author-role="assistant"]').length === 0)};
+}
+async function ritsuChatSessionStatus() {
+  const {ritsuChatSessions = {}, ritsuChatReceipts = {}} =
+      await chrome.storage.local.get(['ritsuChatSessions','ritsuChatReceipts']);
+  const tabs = await chrome.tabs.query({url:CHATGPT_ORIGIN+'/*'});
+  const liveIds = new Set(tabs.map(t=>t.id));
+  return {ok:true,tabCount:tabs.length,
+    sessions:Object.entries(ritsuChatSessions).map(([key,row])=>({
+      key,tabId:row.tabId,live:liveIds.has(Number(row.tabId))
+    })),
+    receiptStates:Object.entries(ritsuChatReceipts).slice(-30).map(([key,row])=>({
+      key,state:row.state,tabId:row.tabId
+    }))};
 }
 
 async function runStoredSwarm(meta = {}) {
@@ -337,16 +463,88 @@ async function requireChatTab(tabId = null) { const tab = tabId ? await chrome.t
 function isChatGpt(url) { try { return new URL(url).origin === CHATGPT_ORIGIN; } catch { return false; } }
 function waitForTabComplete(tabId, timeoutMs) { return new Promise((resolve, reject) => { const timer = setTimeout(() => finish(new Error('Timed out waiting for ChatGPT tab load')), timeoutMs); const listener = (changedId, info) => { if (changedId === tabId && info.status === 'complete') finish(); }; function finish(error) { clearTimeout(timer); chrome.tabs.onUpdated.removeListener(listener); error ? reject(error) : resolve(); } chrome.tabs.onUpdated.addListener(listener); chrome.tabs.get(tabId).then((tab) => { if (tab.status === 'complete') finish(); }).catch(finish); }); }
 
+async function requireRitsuPromptComposer(tabId) {
+  for (let i = 0; i < 24; i += 1) {
+    const [probe] = await chrome.scripting.executeScript({
+      target: {tabId}, func: probeRitsuPromptComposer
+    });
+    if (probe?.result?.ready) return;
+    if (probe?.result?.loginRequired) throw new Error('ritsu_chatgpt_login_required');
+    await sleep(250);
+  }
+  throw new Error('ritsu_chatgpt_composer_unavailable_before_send');
+}
+function probeRitsuPromptComposer() {
+  // ChatGPT's current composer is a ProseMirror role=textbox with
+  // data-composer-markdown, NOT necessarily #prompt-textarea.
+  const composer = document.querySelector(
+    '[contenteditable="true"][data-composer-markdown][role="textbox"], ' +
+    '#prompt-textarea, textarea[data-testid="prompt-textarea"], ' +
+    '[contenteditable="true"][data-testid="prompt-textarea"]');
+  const loginRequired = !composer &&
+    Boolean([...document.querySelectorAll('a,button')].some((node) =>
+      /^(log in|sign in)$/i.test((node.textContent || '').trim())));
+  return {ready: Boolean(composer && composer.getClientRects().length), loginRequired};
+}
+
 async function submitChatGptPrompt(prompt) {
-  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); let composer;
-  for (let i = 0; i < 100; i += 1) { composer = document.querySelector('#prompt-textarea, textarea[data-testid="prompt-textarea"], div[contenteditable="true"][data-testid="prompt-textarea"]'); if (composer) break; await sleep(100); }
-  if (!composer) return {ok: false, error: 'ChatGPT composer not found'};
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const findComposer = () => document.querySelector(
+    '[contenteditable="true"][data-composer-markdown][role="textbox"], ' +
+    '#prompt-textarea, textarea[data-testid="prompt-textarea"], ' +
+    '[contenteditable="true"][data-testid="prompt-textarea"]');
+  let composer;
+  for (let i = 0; i < 60; i += 1) {
+    composer = findComposer();
+    if (composer && composer.getClientRects().length) break;
+    await sleep(100);
+  }
+  if (!composer || !composer.getClientRects().length)
+    return {ok: false, error: 'ChatGPT visible composer not found'};
+  const beforeUserCount = document.querySelectorAll('[data-message-author-role="user"]').length;
   composer.focus();
-  if (composer instanceof HTMLTextAreaElement || composer instanceof HTMLInputElement) { const setter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(composer), 'value')?.set; if (setter) setter.call(composer, prompt); else composer.value = prompt; composer.dispatchEvent(new Event('input', {bubbles: true})); }
-  else { composer.textContent = prompt; composer.dispatchEvent(new InputEvent('input', {bubbles: true, inputType: 'insertText', data: prompt})); }
-  await sleep(100); const send = document.querySelector('button[data-testid="send-button"], button[aria-label*="send" i]');
-  if (send && !send.disabled) { send.click(); return {ok: true, method: 'button'}; }
-  composer.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', code: 'Enter', bubbles: true})); composer.dispatchEvent(new KeyboardEvent('keyup', {key: 'Enter', code: 'Enter', bubbles: true})); return {ok: true, method: 'enter'};
+  if (composer instanceof HTMLTextAreaElement || composer instanceof HTMLInputElement) {
+    const setter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(composer), 'value')?.set;
+    if (setter) setter.call(composer, prompt); else composer.value = prompt;
+    composer.dispatchEvent(new Event('input', {bubbles: true}));
+  } else {
+    // ProseMirror maintains its own document state. Assigning textContent and
+    // synthesizing an input event changes the DOM but NOT the editor state.
+    // insertText goes through Chromium's editing pipeline, letting the
+    // editor receive real beforeinput/input and enable its send button.
+    const selection = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(composer);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    const inserted = document.execCommand('insertText', false, prompt);
+    if (!inserted) return {ok: false, error: 'ProseMirror rejected native insertText'};
+  }
+  const enteredText = (composer.innerText || composer.value || '').trim();
+  if (enteredText !== prompt.trim())
+    return {ok: false, error: 'Visible composer does not contain exact prompt'};
+  let send;
+  for (let i = 0; i < 20; i += 1) {
+    send = document.querySelector(
+      'button[data-testid="send-button"], button[aria-label="Send message"], ' +
+      'button[aria-label="Send prompt"], button[aria-label="Send"]');
+    if (send && !send.disabled && send.getClientRects().length) break;
+    await sleep(100);
+  }
+  if (!send || send.disabled || !send.getClientRects().length)
+    return {ok: false, error: 'ChatGPT send button not enabled; no dispatch'};
+  send.click();
+  // A click is not an acceptance receipt. Wait for the human-message DOM
+  // to contain the exact prompt. If the SPA navigates and context dies,
+  // outer at-most-once handling remains UNKNOWN, never automatically retry.
+  for (let i = 0; i < 80; i += 1) {
+    const users = [...document.querySelectorAll('[data-message-author-role="user"]')];
+    if (users.length > beforeUserCount &&
+        users.some(node => (node.innerText || node.textContent || '').includes(prompt)))
+      return {ok: true, method: 'button', userMessageObserved: true};
+    await sleep(100);
+  }
+  return {ok: false, error: 'Submit click not verified by ChatGPT user-message DOM'};
 }
 function inspectChatGpt() { const selectors = ['[data-message-author-role="assistant"]', 'article[data-turn="assistant"]']; let nodes = []; for (const selector of selectors) { nodes = [...document.querySelectorAll(selector)]; if (nodes.length) break; } const node = nodes.at(-1); const text = (node?.innerText || node?.textContent || '').trim(); const generating = Boolean(document.querySelector('button[data-testid="stop-button"], button[aria-label*="stop generating" i], button[aria-label*="stop streaming" i]')); return {assistantCount: nodes.length, text: text.slice(0, 120000), generating}; }
 function readLatestAssistant() { const selectors = ['[data-message-author-role="assistant"]', 'article[data-turn="assistant"]', '[data-testid^="conversation-turn-"] .markdown']; for (const selector of selectors) { const nodes = [...document.querySelectorAll(selector)]; const node = nodes.at(-1); const text = (node?.innerText || node?.textContent || '').trim(); if (text) return {ok: true, text: text.slice(0, 120000)}; } return {ok: false, error: 'No assistant response found in the selected worker conversation'}; }

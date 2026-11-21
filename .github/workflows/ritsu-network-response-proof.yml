@@ -1,0 +1,33 @@
+name: Ritsu Network Response Proof Contract
+on:
+  pull_request:
+    paths:
+      - "browser-porch/ritsu-network-sse.mjs"
+      - "browser-porch/ritsu-network-sse.test.mjs"
+      - "tools/campaigns/ritsu-network-probe-campaign.mjs"
+      - ".github/workflows/ritsu-network-response-proof.yml"
+  push:
+    paths:
+      - "browser-porch/ritsu-network-sse.mjs"
+      - "browser-porch/ritsu-network-sse.test.mjs"
+      - "tools/campaigns/ritsu-network-probe-campaign.mjs"
+      - ".github/workflows/ritsu-network-response-proof.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  parser-and-campaign-static-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check pure network canary parser and campaign syntax
+        run: |
+          node --check browser-porch/ritsu-network-sse.mjs
+          node --check tools/campaigns/ritsu-network-probe-campaign.mjs
+      - name: Verify mocked SSE readback without browser or speaker
+        run: node --test browser-porch/ritsu-network-sse.test.mjs
