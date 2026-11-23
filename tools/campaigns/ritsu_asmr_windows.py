@@ -23,13 +23,20 @@ CLEAN_RITSU_PATH=CLEAN_PAIR/'ritsu-whisper-clean-v3'/'voice.safetensors'
 QUIET_DREW_SHA='DEF7111C0ACE93EDD63436E3E7BD8A1D61C01256BD5FA707C45975C9A6108893'
 QUIET_DREW_CONFIG='9CCCC513FF398D10E998A25A394EBE788BA97B2697429E0BB4C3FD8DFA5B7CB5'
 QUIET_DREW_ROOT=ROOT.parent/'ASMRQuietDrew'/'factory-v1'/'drew-quiet-v3'
+LOW_DEEP_FILTER='rubberband=pitch=0.840896415:formant=preserved:transients=crisp:detector=compound:phase=independent:window=short:pitchq=quality,highpass=f=65,alimiter=limit=0.90:level=false'
+LOW_DEEP_SHA='DB024ECE87CC6D8661BF25B28531D7E25AE26D498408E7679AEA8FBA40A4EDC6'
+DRY_V2_SHA='8BA518F9C12B31B1662B3668E579B66F2251EF30BA86FC2332143202240EAE38'
 LOW_VELVET_FILTER='rubberband=pitch=0.943874313:formant=preserved,highpass=f=62,bass=f=125:g=2,equalizer=f=170:t=q:w=1:g=1.5,acompressor=threshold=0.16:ratio=1.5:attack=25:release=160,alimiter=limit=0.90:level=false'
 LOW_VELVET_SHA='EC6E554C224685F8C19C4011665F05DFCB7A4DE4FCCBFDA76CFDEE40F9EF8229'
 DREW_MODEL=None
 DREW_STATE=None
 def select_voice(ep):
  global PROFILE,VOICE_SHA,DREW_ROOT,DREW_STATE_SHA,DREW_CONFIG_SHA,V2_PATH,V2_SHA
- if ep.startswith('DREW_LOW_VELVET_'):
+ if ep.startswith('DREW_LOW_DEEP_VELVET_'):
+  PROFILE='low-deep-velvet';VOICE_SHA=DREW_STATE_SHA=CLEAN_DREW_SHA;DREW_ROOT=CLEAN_DREW_ROOT;DREW_CONFIG_SHA=CLEAN_DREW_CONFIG
+ elif ep.startswith('DREW_DRY_V2_'):
+  PROFILE='dry-v2';VOICE_SHA=DREW_STATE_SHA=CLEAN_DREW_SHA;DREW_ROOT=CLEAN_DREW_ROOT;DREW_CONFIG_SHA=CLEAN_DREW_CONFIG
+ elif ep.startswith('DREW_LOW_VELVET_'):
   PROFILE='low-velvet';VOICE_SHA=DREW_STATE_SHA=CLEAN_DREW_SHA;DREW_ROOT=CLEAN_DREW_ROOT;DREW_CONFIG_SHA=CLEAN_DREW_CONFIG
  elif ep.startswith('DREW_QUIET_DARK_VELVET_'):
   PROFILE='dark-velvet';VOICE_SHA=DREW_STATE_SHA=QUIET_DREW_SHA;DREW_ROOT=QUIET_DREW_ROOT;DREW_CONFIG_SHA=QUIET_DREW_CONFIG
@@ -77,8 +84,9 @@ def drew_mix(folder):
  exe=shutil.which('ffmpeg')
  if not exe:raise RuntimeError('FFmpeg missing')
  src=folder/'mix.partial.wav';dst=folder/'mix.processed.partial.wav'
- filter_spec=LOW_VELVET_FILTER if PROFILE=='low-velvet' else cfg['profiles']['dark-velvet']['filter']
+ filter_spec=LOW_DEEP_FILTER if PROFILE=='low-deep-velvet' else LOW_VELVET_FILTER if PROFILE=='low-velvet' else cfg['profiles']['dark-velvet']['filter']
  if PROFILE=='low-velvet' and sha(filter_spec.encode()).upper()!=LOW_VELVET_SHA:raise RuntimeError('Low Velvet filter identity mismatch')
+ if PROFILE=='low-deep-velvet' and sha(filter_spec.encode()).upper()!=LOW_DEEP_SHA:raise RuntimeError('Low Deep filter identity mismatch')
  p=subprocess.run([exe,'-hide_banner','-nostdin','-v','error','-y','-i',str(src),'-af',filter_spec,'-ac','1','-ar','24000','-c:a','pcm_s16le',str(dst)],capture_output=True,text=True,timeout=600)
  if p.returncode:raise RuntimeError('Dark Velvet DSP failed: '+p.stderr[-220:])
  with wave.open(str(dst),'rb') as w:
@@ -113,7 +121,7 @@ def parse(text):
  if not any(k=='speech' for k,v in segments):raise ValueError('No speech')
  return segments
 def check_api():
- if PROFILE in ('dark-velvet','low-velvet'):return drew_check()
+ if PROFILE in ('dark-velvet','low-velvet','low-deep-velvet','dry-v2'):return drew_check()
  if PROFILE in ('whisper-v2','whisper-v3'):return v2_check()
  try:
   with urllib.request.urlopen(BASE+'/health',timeout=8) as r:d=json.load(r)
@@ -161,7 +169,7 @@ def recover_watchdog():
    if 'POCKET_API_UNREACHABLE' not in str(e):raise
  raise RuntimeError('WATCHDOG_REQUESTED_BUT_POCKET_NOT_READY; inspect without dispatching a duplicate')
 def synth(text):
- if PROFILE in ('dark-velvet','low-velvet','whisper-v2','whisper-v3'):return drew_synth(text)
+ if PROFILE in ('dark-velvet','low-velvet','low-deep-velvet','dry-v2','whisper-v2','whisper-v3'):return drew_synth(text)
  data=json.dumps({'text':text,'profile':PROFILE}).encode()
  req=urllib.request.Request(BASE+'/tts',data=data,headers={'Content-Type':'application/json'},method='POST')
  with urllib.request.urlopen(req,timeout=240) as r:
@@ -200,11 +208,13 @@ def render(ep):
    state(folder,phase='rendering',completed=i+1)
  dest=folder/(ep+'.wav')
  if dest.exists():raise RuntimeError('Output collision: refusing overwrite')
- os.replace(drew_mix(folder) if PROFILE in ('dark-velvet','low-velvet') else folder/'mix.partial.wav',dest)
+ os.replace(drew_mix(folder) if PROFILE in ('dark-velvet','low-velvet','low-deep-velvet') else folder/'mix.partial.wav',dest)
  with wave.open(str(dest),'rb') as w:duration=w.getnframes()/w.getframerate()
  receipt={'phase':'rendered_not_delivered','episodeId':ep,'profile':PROFILE,'voiceSha256':VOICE_SHA,'wavPath':str(dest),'wavSha256':sha(dest.read_bytes()),'bytes':dest.stat().st_size,'durationSeconds':round(duration,3),'textSha256':sha(payload),'segments':len(plan),'wordCount':len(text.split()),'sourceCommit':os.environ.get('RITSU_ASMR_SOURCE_COMMIT',''),'rendererSha256':sha(Path(__file__).read_bytes())}
  if PROFILE=='dark-velvet':receipt['presetSha256']=DREW_CONFIG_SHA
  if PROFILE=='low-velvet':receipt['presetSha256']=LOW_VELVET_SHA;receipt['presetParentSha256']=DREW_CONFIG_SHA
+ if PROFILE=='low-deep-velvet':receipt['presetSha256']=LOW_DEEP_SHA;receipt['presetParentSha256']=DREW_CONFIG_SHA
+ if PROFILE=='dry-v2':receipt['presetSha256']=DRY_V2_SHA;receipt['presetParentSha256']=DREW_CONFIG_SHA
  atomic(folder/'receipt.json',receipt);state(folder,**receipt)
 def task_name(ep):
  return 'RitsuASMR-Offline-'+ep
