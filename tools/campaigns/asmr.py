@@ -52,14 +52,15 @@ def main():
   for k,v in catalog().items():print(k+'  '+v['episode'])
   print('clone quiet-drew  (existing Quiet Drew V3)')
   print('clone growl-ab    (two denoising variants; Taildrop both refs first)')
+  print('clone polite-growl  (-2st Natural Resonance: separate Pocket state and audition)')
   print('chatterbox        (separate engine; pinned supplied reference; generates dry and minus-two)')
   print('chatterbox-dry / chatterbox-deep  (select a Chatterbox output for drop/verify)')
   return 0
  if a.verb in ('clone','clone-status'):
-  if a.name not in (None,'quiet-drew','growl-ab'):p.error('Known clones: quiet-drew, growl-ab')
+  if a.name not in (None,'quiet-drew','growl-ab','polite-growl'):p.error('Known clones: quiet-drew, growl-ab, polite-growl')
   key=a.name or 'quiet-drew'
   select({'kind':'clone','name':key})
-  script='asmr_growl_ab_phone.py' if key=='growl-ab' else 'asmr_quiet_drew_phone.py'
+  script={'growl-ab':'asmr_growl_ab_phone.py','quiet-drew':'asmr_quiet_drew_phone.py','polite-growl':'asmr_polite_growl_phone.py'}[key]
   return run(script,'start' if a.verb=='clone' else 'status')
  if a.verb=='doctor':return run('ritsu_asmr_phone.py','doctor')
  if a.verb in ('chatterbox','chatterbox-status','chatterbox-dry','chatterbox-deep'):
@@ -74,7 +75,7 @@ def main():
   return 0
  if a.verb=='receipt':
   row=current()
-  path=Path.home()/'.local/state'/('chatterbox-growl' if row.get('kind')=='chatterbox' else 'asmr-growl-ab' if row.get('name')=='growl-ab' and row.get('kind')=='clone' else 'asmr-quiet-drew' if row.get('kind')=='clone' else 'ritsu-asmr')/'latest.txt'
+  path=Path.home()/'.local/state'/('chatterbox-growl' if row.get('kind')=='chatterbox' else {'growl-ab':'asmr-growl-ab','quiet-drew':'asmr-quiet-drew','polite-growl':'asmr-polite-growl'}.get(row.get('name'),'ritsu-asmr') if row.get('kind')=='clone' else 'ritsu-asmr')/'latest.txt'
   print(path.read_text(encoding='utf-8'));return 0
  row=current()
  if a.name:
@@ -84,7 +85,7 @@ def main():
  if a.verb=='resume' and row.get('kind')=='chatterbox' and not a.name:return run('chatterbox_growl_phone.py','resume')
  if a.verb=='stop' and row.get('kind')=='chatterbox' and not a.name:raise RuntimeError('Chatterbox stop is not implemented; no unrelated task touched')
  if a.verb=='status' and row.get('kind')=='clone' and not a.name:
-  return run('asmr_growl_ab_phone.py' if row.get('name')=='growl-ab' else 'asmr_quiet_drew_phone.py','status')
+  return run({'growl-ab':'asmr_growl_ab_phone.py','quiet-drew':'asmr_quiet_drew_phone.py','polite-growl':'asmr_polite_growl_phone.py'}[row['name']],'status')
  if a.verb=='render' and not a.name:p.error('Use asmr render NAME; asmr list shows names')
  if row.get('kind') not in ('episode','chatterbox'):p.error('Select an episode with asmr render NAME or use asmr chatterbox')
  if row.get('kind')=='chatterbox' and a.verb=='render':p.error('Chatterbox render starts with asmr chatterbox, not asmr render')
