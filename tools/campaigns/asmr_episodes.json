@@ -23,5 +23,10 @@
     "episode": "DREW_CLEAN_DARK_VELVET_ABYSSAL_REPLY_V2",
     "commit": "90fd45b840cd4c34be1626d2f83b6b841530a749",
     "path": "episodes/003_abyssal_war_reply.txt"
+  },
+  "king-low": {
+    "episode": "DREW_LOW_VELVET_ABYSSAL_REPLY_V1",
+    "commit": "90fd45b840cd4c34be1626d2f83b6b841530a749",
+    "path": "episodes/003_abyssal_war_reply.txt"
   }
 }
