@@ -105,7 +105,7 @@ def commit_render(ep,profile,filter_sha,candidate,model_info):
           "sourceReferenceSha256":REFERENCE_SHA,"presetSha256":filter_sha,
           "wavPath":str(target),"wavSha256":sha_file(target),"bytes":target.stat().st_size,
           "durationSeconds":round(wav_data(target),3),"textSha256":sha_bytes(TEXT.encode("utf-8")),
-          "modelVersion":model_info["package"],"device":model_info["device"],"speechWatermarked":True,
+          "modelVersion":model_info["package"],"device":model_info["device"],"watermarkExpectedFromOfficialChatterbox":True,"watermarkVerified":False,
           "liveRitsuModified":False,"livePocketModified":False}
  atomic(folder/"receipt.json",receipt)
  return receipt
