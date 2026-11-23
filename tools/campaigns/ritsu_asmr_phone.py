@@ -221,7 +221,7 @@ Write-Output 'RITSU_ASMR_REMOTE_OK=1'
   extra="$arguments+=@('--input',(Join-Path $env:LOCALAPPDATA "+quote(repo_input)+"))"
  else:extra=''
  script=script.replace('__SHA__',expected).replace('__COMMIT__',commit).replace('__VERB__',verb).replace('__EP__',episode).replace('__INPUT__',extra)
- if episode.startswith(('DREW_DARK_VELVET_','RITSU_WHISPER_V2_','DREW_CLEAN_DARK_VELVET_','RITSU_WHISPER_V3_','DREW_QUIET_DARK_VELVET_','DREW_LOW_VELVET_','DREW_LOW_DEEP_VELVET_','DREW_DRY_V2_','DREW_GROWL_CONSERVATIVE_','DREW_GROWL_FOCUSED_')):
+ if episode.startswith(('DREW_DARK_VELVET_','RITSU_WHISPER_V2_','DREW_CLEAN_DARK_VELVET_','RITSU_WHISPER_V3_','DREW_QUIET_DARK_VELVET_','DREW_LOW_VELVET_','DREW_LOW_DEEP_VELVET_','DREW_DRY_V2_','DREW_GROWL_CONSERVATIVE_','DREW_GROWL_FOCUSED_','CHATTERBOX_GROWL_')):
   script=script.replace(r'workspace\ritsu-faster-qwen3-tts\.venv\Scripts\python.exe',r'Documents\Codex\Venice\PocketTTS\.venv\Scripts\python.exe')
  output=ps(script,quiet=True,stage='renderer-'+verb)
  (STATE/'last-remote-transport.txt').write_text(output,encoding='utf-8')
@@ -373,6 +373,16 @@ def rendered_identity(commit,expected,episode):
  if not remote or remote.get('phase')!='rendered_not_delivered' or remote.get('episodeId')!=episode:
   raise RuntimeError('No verified rendered receipt for this episode')
  digest=str(remote.get('wavSha256','')).upper();size=remote.get('bytes')
+ if episode in ('CHATTERBOX_GROWL_DRY_V1','CHATTERBOX_GROWL_DEEP_V1'):
+  expected_ref='9E4B6C5A98FC7AF2CDA95BC2BD4C20852F4844C79A9B7763851BD530EC1C2E45'
+  profile,preset=('chatterbox-dry','8BA518F9C12B31B1662B3668E579B66F2251EF30BA86FC2332143202240EAE38') if episode.endswith('_DRY_V1') else ('chatterbox-minus2','55711512365AE7BDAD8C374D796078B60FD1C2DC8484C8410BE430271DB16835')
+  if (remote.get('engine')!='chatterbox' or remote.get('voiceIdentityType')!='reference-audio-not-exported-state' or
+      remote.get('sourceReferenceSha256')!=expected_ref or remote.get('voiceSha256')!=expected_ref or
+      remote.get('profile')!=profile or remote.get('presetSha256')!=preset):
+   raise RuntimeError('Chatterbox reference, profile or model provenance mismatch')
+  if not re.fullmatch(r'[A-F0-9]{64}',digest) or not isinstance(size,int) or not 44<size<=512*1024*1024:
+   raise RuntimeError('Invalid Chatterbox render receipt')
+  return remote,digest,size
  growl=episode.startswith(('DREW_GROWL_CONSERVATIVE_','DREW_GROWL_FOCUSED_'))
  deep=episode.startswith('DREW_LOW_DEEP_VELVET_')
  dry=episode.startswith('DREW_DRY_V2_')
