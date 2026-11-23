@@ -3,6 +3,68 @@
 import argparse,json,shutil,subprocess,sys
 from pathlib import Path
 import ritsu_asmr_phone as t
+
+# Polite Growl transport override: interactive Cauldron terminal, isolated to this controller.
+# Does not change Ritsu's global remote transport or any service.
+def _polite_pty_ps(script,quiet=False,stage='remote'):
+ import base64,os,pty,re,select,signal,subprocess,termios,time,uuid
+ if not shutil.which('cauldron'):raise RuntimeError('EXISTING_CAULDRON_MISSING')
+ nonce=uuid.uuid4().hex[:16].upper()
+ begin='PG_BEGIN_'+nonce
+ end='PG_END_'+nonce
+ wrapped=("$ErrorActionPreference='Stop';Write-Output '"+begin+"';"
+          "try{"+script+"}catch{Write-Output ('PG_ERROR='+$_.Exception.Message)};"
+          "Write-Output '"+end+"'")
+ enc=base64.b64encode(wrapped.encode('utf-16le')).decode('ascii')
+ if len(enc)>6500:raise RuntimeError('PS_PACKET_LIMIT_'+stage+'_'+str(len(enc)))
+ master,slave=pty.openpty()
+ attrs=termios.tcgetattr(slave);attrs[3]&=~termios.ECHO;termios.tcsetattr(slave,termios.TCSANOW,attrs)
+ proc=subprocess.Popen(['cauldron'],stdin=slave,stdout=slave,stderr=slave,close_fds=True,start_new_session=True)
+ os.close(slave)
+ buf=bytearray()
+ def pump(seconds,needle=None):
+  until=time.monotonic()+seconds
+  while time.monotonic()<until:
+   if needle is not None and needle in buf:return True
+   if proc.poll() is not None:break
+   ok,_,_=select.select([master],[],[],min(.2,max(.02,until-time.monotonic())))
+   if ok:
+    try:data=os.read(master,16384)
+    except OSError:break
+    if not data:break
+    buf.extend(data)
+    if len(buf)>1000000:del buf[:-750000]
+  return needle is not None and needle in buf
+ try:
+  pump(3)
+  buf.clear()
+  os.write(master,('powershell.exe -NoLogo -NoProfile -NonInteractive -EncodedCommand '+enc+'\r').encode('ascii'))
+  if not pump(180,end.encode()):raise t.RemoteFailure('POLITE_PTY_NO_FRAME stage='+stage)
+  out=buf.decode('utf8','replace')
+  out=re.sub(r'\x1b\][^\x07]*(?:\x07|\x1b\\)','',out)
+  out=re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]','',out)
+  start=out.find(begin);stop=out.find(end,start+len(begin)) if start>=0 else -1
+  if start<0 or stop<0:raise t.RemoteFailure('POLITE_PTY_BAD_FRAME stage='+stage)
+  body=out[start+len(begin):stop].strip()
+  # Protect error context without dumping credentials or full PowerShell echoes.
+  if 'PG_ERROR=' in body:
+   err=body.rsplit('PG_ERROR=',1)[-1].splitlines()[0][:250]
+   raise t.RemoteFailure('POLITE_WINDOWS_ERROR stage='+stage+': '+err)
+  if 'RITSU_ASMR_REMOTE_OK=1' not in [line.strip() for line in body.splitlines()]:
+   raise t.RemoteFailure('POLITE_NO_SUCCESS_MARKER stage='+stage)
+  # Expected framed JSTART chunks are preserved for existing Home Center decoder.
+  return body
+ finally:
+  try:
+   if proc.poll() is None:os.write(master,b'exit\r');pump(1)
+   if proc.poll() is None:os.killpg(proc.pid,signal.SIGTERM)
+  except (OSError,ProcessLookupError):pass
+  try:os.close(master)
+  except OSError:pass
+
+# Isolated override: only processes invoking this one Polite Growl command import it.
+t.ps=_polite_pty_ps
+
 STATE=Path.home()/'.local/state/asmr-polite-growl'
 WORKER='tools/campaigns/asmr_polite_growl_windows.py'
 SELF='tools/campaigns/asmr_polite_growl_phone.py'
