@@ -1,0 +1,5 @@
+# HOT AND MESSY — One-Hour OST (2026-11-23)
+
+Source art: 8239.png, SHA-256 available in attached JSON manifest. Nine uploaded MP3 files, nine unique SHA hashes. Nineteen placements, 18 equal-power quarter-sine crossfades of approximately 13.555374 seconds each; varied takes, no repeated identical take at consecutive placement. Source interiors stream-copied, junctions encoded 256kbps, then concatenated. 1920×1080 H.264 MP4 with copied MP3 audio, one still frame per second. Video verified length 3600.013061 seconds, bytes 140365908, SHA-256 a448c9ff42b535408624e9ad6dc71295cd5ef8f6641aed12c7746c51feb71145. Master MP3 estimated duration 3601.371281 seconds, SHA-256 2b71ad26ba07a92e33446a59d6b9f4d46d8dca15d3fd1344c3ae4072c1f24a11. Video cut to one hour. Decode spot checks at 0, 1200, 2400, 3590 sec passed. Individual transitions not fully auditioned. Chapter and manifest files supplied in conversation.
+
+**Remote artifact boundary:** This is documentation only. Binary media remains delivered through conversation attachment; no verified Home Center remote storage receipt. Do not claim MP4 binary remotely ingested.
