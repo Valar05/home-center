@@ -66,7 +66,7 @@ if(!(Test-Path $py)){throw 'EXISTING_POCKET_PYTHON_MISSING'}
 if((Get-FileHash -LiteralPath $p).Hash -ne '__HASH__'){throw 'SOURCE_DIGEST_MISMATCH'}
 $t=Get-ScheduledTask -TaskName $n -ErrorAction SilentlyContinue
 if($t -and $t.State -in @('Running','Queued')){throw 'FACTORY_TASK_ALREADY_ACTIVE'}
-if($t -and ($t.Actions.Count -ne 1 -or $t.Actions[0].Execute -ne $py -or $t.Actions[0].Arguments -notmatch 'ASMRPoliteGrowl\\code\\[A-Fa-f0-9]{64}\\asmr_quiet_drew_windows\.py" work$')){throw 'FACTORY_TASK_IDENTITY_MISMATCH'}
+if($t -and ($t.Actions.Count -ne 1 -or $t.Actions[0].Execute -ne $py -or $t.Actions[0].Arguments -notmatch 'ASMRPoliteGrowl\\code\\[A-Fa-f0-9]{64}\\asmr_polite_growl_windows\.py" work$')){throw 'FACTORY_TASK_IDENTITY_MISMATCH'}
 $act=New-ScheduledTaskAction -Execute $py -Argument ('"'+$p+'" work') -WorkingDirectory $r
 $principal=New-ScheduledTaskPrincipal -UserId ([Security.Principal.WindowsIdentity]::GetCurrent().Name) -LogonType Interactive -RunLevel Limited
 $settings=New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 30) -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
