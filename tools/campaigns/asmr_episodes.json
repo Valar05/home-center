@@ -38,5 +38,15 @@
     "episode": "DREW_DRY_V2_ABYSSAL_REPLY_V1",
     "commit": "90fd45b840cd4c34be1626d2f83b6b841530a749",
     "path": "episodes/003_abyssal_war_reply.txt"
+  },
+  "growl-conservative": {
+    "episode": "DREW_GROWL_CONSERVATIVE_ABYSSAL_REPLY_V1",
+    "commit": "90fd45b840cd4c34be1626d2f83b6b841530a749",
+    "path": "episodes/003_abyssal_war_reply.txt"
+  },
+  "growl-focused": {
+    "episode": "DREW_GROWL_FOCUSED_ABYSSAL_REPLY_V1",
+    "commit": "90fd45b840cd4c34be1626d2f83b6b841530a749",
+    "path": "episodes/003_abyssal_war_reply.txt"
   }
 }
