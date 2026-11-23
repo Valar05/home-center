@@ -36,7 +36,7 @@ def install():
  print('ASMR_COMMAND='+str(dest));return 0
 def main():
  p=argparse.ArgumentParser(description=__doc__)
- p.add_argument('verb',choices=['install','update','list','clone','clone-status','render','status','resume','stop','drop','drop-status','verify','receipt','doctor'])
+ p.add_argument('verb',choices=['install','update','list','clone','clone-status','render','status','resume','stop','drop','drop-status','verify','receipt','doctor','chatterbox','chatterbox-status','chatterbox-dry','chatterbox-deep'])
  p.add_argument('name',nargs='?')
  p.add_argument('--received',type=Path)
  p.add_argument('--resend',action='store_true')
@@ -52,6 +52,8 @@ def main():
   for k,v in catalog().items():print(k+'  '+v['episode'])
   print('clone quiet-drew  (existing Quiet Drew V3)')
   print('clone growl-ab    (two denoising variants; Taildrop both refs first)')
+  print('chatterbox        (separate engine; pinned supplied reference; generates dry and minus-two)')
+  print('chatterbox-dry / chatterbox-deep  (select a Chatterbox output for drop/verify)')
   return 0
  if a.verb in ('clone','clone-status'):
   if a.name not in (None,'quiet-drew','growl-ab'):p.error('Known clones: quiet-drew, growl-ab')
@@ -60,18 +62,32 @@ def main():
   script='asmr_growl_ab_phone.py' if key=='growl-ab' else 'asmr_quiet_drew_phone.py'
   return run(script,'start' if a.verb=='clone' else 'status')
  if a.verb=='doctor':return run('ritsu_asmr_phone.py','doctor')
+ if a.verb in ('chatterbox','chatterbox-status','chatterbox-dry','chatterbox-deep'):
+  previous=current()
+  chosen=(previous.get('episode') if a.verb=='chatterbox-status' and previous.get('kind')=='chatterbox'
+          else 'CHATTERBOX_GROWL_DRY_V1' if a.verb=='chatterbox-dry'
+          else 'CHATTERBOX_GROWL_DEEP_V1')
+  select({'kind':'chatterbox','episode':chosen,'name':'chatterbox'})
+  if a.verb in ('chatterbox','chatterbox-status'):
+   return run('chatterbox_growl_phone.py','start' if a.verb=='chatterbox' else 'status')
+  print('ASMR_SELECTED='+chosen+'; use asmr drop or asmr verify once rendered')
+  return 0
  if a.verb=='receipt':
   row=current()
-  path=Path.home()/'.local/state'/('asmr-growl-ab' if row.get('name')=='growl-ab' and row.get('kind')=='clone' else 'asmr-quiet-drew' if row.get('kind')=='clone' else 'ritsu-asmr')/'latest.txt'
+  path=Path.home()/'.local/state'/('chatterbox-growl' if row.get('kind')=='chatterbox' else 'asmr-growl-ab' if row.get('name')=='growl-ab' and row.get('kind')=='clone' else 'asmr-quiet-drew' if row.get('kind')=='clone' else 'ritsu-asmr')/'latest.txt'
   print(path.read_text(encoding='utf-8'));return 0
  row=current()
  if a.name:
   if a.name not in catalog():p.error('Unknown episode; use asmr list')
   row={'kind':'episode','name':a.name,**catalog()[a.name]}
+ if a.verb=='status' and row.get('kind')=='chatterbox' and not a.name:return run('chatterbox_growl_phone.py','status')
+ if a.verb=='resume' and row.get('kind')=='chatterbox' and not a.name:return run('chatterbox_growl_phone.py','resume')
+ if a.verb=='stop' and row.get('kind')=='chatterbox' and not a.name:raise RuntimeError('Chatterbox stop is not implemented; no unrelated task touched')
  if a.verb=='status' and row.get('kind')=='clone' and not a.name:
   return run('asmr_growl_ab_phone.py' if row.get('name')=='growl-ab' else 'asmr_quiet_drew_phone.py','status')
  if a.verb=='render' and not a.name:p.error('Use asmr render NAME; asmr list shows names')
- if row.get('kind')!='episode':p.error('Select an episode with asmr render NAME or specify NAME')
+ if row.get('kind') not in ('episode','chatterbox'):p.error('Select an episode with asmr render NAME or use asmr chatterbox')
+ if row.get('kind')=='chatterbox' and a.verb=='render':p.error('Chatterbox render starts with asmr chatterbox, not asmr render')
  ep=row['episode']
  if not re.fullmatch(r'[A-Za-z0-9_-]{1,64}',ep):raise RuntimeError('Invalid catalog episode')
  select(row)
