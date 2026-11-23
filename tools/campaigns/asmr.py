@@ -50,22 +50,26 @@ def main():
   return subprocess.call(['git','-C',str(ROOT),'pull','--ff-only'],env=env)
  if a.verb=='list':
   for k,v in catalog().items():print(k+'  '+v['episode'])
-  print('clone quiet-drew  (send deep-clean WAV using Taildrop first)')
+  print('clone quiet-drew  (existing Quiet Drew V3)')
+  print('clone growl-ab    (two denoising variants; Taildrop both refs first)')
   return 0
  if a.verb in ('clone','clone-status'):
-  if a.name not in (None,'quiet-drew'):p.error('Known clone: quiet-drew')
-  select({'kind':'clone','name':'quiet-drew'})
-  return run('asmr_quiet_drew_phone.py','start' if a.verb=='clone' else 'status')
+  if a.name not in (None,'quiet-drew','growl-ab'):p.error('Known clones: quiet-drew, growl-ab')
+  key=a.name or 'quiet-drew'
+  select({'kind':'clone','name':key})
+  script='asmr_growl_ab_phone.py' if key=='growl-ab' else 'asmr_quiet_drew_phone.py'
+  return run(script,'start' if a.verb=='clone' else 'status')
  if a.verb=='doctor':return run('ritsu_asmr_phone.py','doctor')
  if a.verb=='receipt':
   row=current()
-  path=Path.home()/'.local/state'/('asmr-quiet-drew' if row.get('kind')=='clone' else 'ritsu-asmr')/'latest.txt'
+  path=Path.home()/'.local/state'/('asmr-growl-ab' if row.get('name')=='growl-ab' and row.get('kind')=='clone' else 'asmr-quiet-drew' if row.get('kind')=='clone' else 'ritsu-asmr')/'latest.txt'
   print(path.read_text(encoding='utf-8'));return 0
  row=current()
  if a.name:
   if a.name not in catalog():p.error('Unknown episode; use asmr list')
   row={'kind':'episode','name':a.name,**catalog()[a.name]}
- if a.verb=='status' and row.get('kind')=='clone' and not a.name:return run('asmr_quiet_drew_phone.py','status')
+ if a.verb=='status' and row.get('kind')=='clone' and not a.name:
+  return run('asmr_growl_ab_phone.py' if row.get('name')=='growl-ab' else 'asmr_quiet_drew_phone.py','status')
  if a.verb=='render' and not a.name:p.error('Use asmr render NAME; asmr list shows names')
  if row.get('kind')!='episode':p.error('Select an episode with asmr render NAME or specify NAME')
  ep=row['episode']
