@@ -28,11 +28,34 @@ LOW_DEEP_SHA='DB024ECE87CC6D8661BF25B28531D7E25AE26D498408E7679AEA8FBA40A4EDC6'
 DRY_V2_SHA='8BA518F9C12B31B1662B3668E579B66F2251EF30BA86FC2332143202240EAE38'
 LOW_VELVET_FILTER='rubberband=pitch=0.943874313:formant=preserved,highpass=f=62,bass=f=125:g=2,equalizer=f=170:t=q:w=1:g=1.5,acompressor=threshold=0.16:ratio=1.5:attack=25:release=160,alimiter=limit=0.90:level=false'
 LOW_VELVET_SHA='EC6E554C224685F8C19C4011665F05DFCB7A4DE4FCCBFDA76CFDEE40F9EF8229'
+GROWL_AB_ROOT=ROOT.parent/'ASMRGrowlAB'/'factory-v1'
+GROWL_AB_SOURCE={
+ 'conservative':'9E4B6C5A98FC7AF2CDA95BC2BD4C20852F4844C79A9B7763851BD530EC1C2E45',
+ 'speech-aware':'83BC4A4A79652AA54ECAFFA01618CF523FDC38B1FD672718D3820E0E1FB5C694'}
+GROWL_REFERENCE_SHA=None
+def activate_growl(kind):
+ global PROFILE,VOICE_SHA,DREW_ROOT,DREW_STATE_SHA,DREW_CONFIG_SHA,GROWL_REFERENCE_SHA
+ folder=GROWL_AB_ROOT/('drew-growl-'+kind)
+ receipt=json.loads((folder/'receipt.json').read_text(encoding='utf-8'))
+ reference=GROWL_AB_SOURCE[kind]
+ if receipt.get('phase')!='voice_state_ready_not_auditioned' or receipt.get('sourceSha256')!=reference:raise RuntimeError('Growl conditioning provenance mismatch')
+ artifacts=receipt.get('artifacts',{})
+ for name in ('original.wav','reference.wav','voice.safetensors','profiles.json'):
+  digest=artifacts.get(name,'')
+  if not re.fullmatch('[0-9A-F]{64}',digest) or sha((folder/name).read_bytes()).upper()!=digest:raise RuntimeError('Growl conditioning artifact mismatch: '+name)
+ PROFILE='growl-dry';DREW_ROOT=folder
+ DREW_STATE_SHA=VOICE_SHA=artifacts['voice.safetensors']
+ DREW_CONFIG_SHA=artifacts['profiles.json']
+ GROWL_REFERENCE_SHA=reference
 DREW_MODEL=None
 DREW_STATE=None
 def select_voice(ep):
  global PROFILE,VOICE_SHA,DREW_ROOT,DREW_STATE_SHA,DREW_CONFIG_SHA,V2_PATH,V2_SHA
- if ep.startswith('DREW_LOW_DEEP_VELVET_'):
+ if ep.startswith('DREW_GROWL_CONSERVATIVE_'):
+  activate_growl('conservative')
+ elif ep.startswith('DREW_GROWL_FOCUSED_'):
+  activate_growl('speech-aware')
+ elif ep.startswith('DREW_LOW_DEEP_VELVET_'):
   PROFILE='low-deep-velvet';VOICE_SHA=DREW_STATE_SHA=CLEAN_DREW_SHA;DREW_ROOT=CLEAN_DREW_ROOT;DREW_CONFIG_SHA=CLEAN_DREW_CONFIG
  elif ep.startswith('DREW_DRY_V2_'):
   PROFILE='dry-v2';VOICE_SHA=DREW_STATE_SHA=CLEAN_DREW_SHA;DREW_ROOT=CLEAN_DREW_ROOT;DREW_CONFIG_SHA=CLEAN_DREW_CONFIG
@@ -49,6 +72,7 @@ def select_voice(ep):
  elif ep.startswith('RITSU_WHISPER_V2_'):
   PROFILE='whisper-v2';VOICE_SHA=V2_SHA
 def drew_voice_path():
+ if PROFILE=='growl-dry':return DREW_ROOT/'voice.safetensors'
  return DREW_ROOT/('voice.safetensors' if DREW_STATE_SHA in (CLEAN_DREW_SHA,QUIET_DREW_SHA) else 'drew-whisper.safetensors')
 def drew_check():
  for name,h in [(drew_voice_path().name,DREW_STATE_SHA),('profiles.json',DREW_CONFIG_SHA)]:
@@ -121,7 +145,7 @@ def parse(text):
  if not any(k=='speech' for k,v in segments):raise ValueError('No speech')
  return segments
 def check_api():
- if PROFILE in ('dark-velvet','low-velvet','low-deep-velvet','dry-v2'):return drew_check()
+ if PROFILE in ('dark-velvet','low-velvet','low-deep-velvet','dry-v2','growl-dry'):return drew_check()
  if PROFILE in ('whisper-v2','whisper-v3'):return v2_check()
  try:
   with urllib.request.urlopen(BASE+'/health',timeout=8) as r:d=json.load(r)
@@ -169,7 +193,7 @@ def recover_watchdog():
    if 'POCKET_API_UNREACHABLE' not in str(e):raise
  raise RuntimeError('WATCHDOG_REQUESTED_BUT_POCKET_NOT_READY; inspect without dispatching a duplicate')
 def synth(text):
- if PROFILE in ('dark-velvet','low-velvet','low-deep-velvet','dry-v2','whisper-v2','whisper-v3'):return drew_synth(text)
+ if PROFILE in ('dark-velvet','low-velvet','low-deep-velvet','dry-v2','growl-dry','whisper-v2','whisper-v3'):return drew_synth(text)
  data=json.dumps({'text':text,'profile':PROFILE}).encode()
  req=urllib.request.Request(BASE+'/tts',data=data,headers={'Content-Type':'application/json'},method='POST')
  with urllib.request.urlopen(req,timeout=240) as r:
@@ -213,6 +237,7 @@ def render(ep):
  receipt={'phase':'rendered_not_delivered','episodeId':ep,'profile':PROFILE,'voiceSha256':VOICE_SHA,'wavPath':str(dest),'wavSha256':sha(dest.read_bytes()),'bytes':dest.stat().st_size,'durationSeconds':round(duration,3),'textSha256':sha(payload),'segments':len(plan),'wordCount':len(text.split()),'sourceCommit':os.environ.get('RITSU_ASMR_SOURCE_COMMIT',''),'rendererSha256':sha(Path(__file__).read_bytes())}
  if PROFILE=='dark-velvet':receipt['presetSha256']=DREW_CONFIG_SHA
  if PROFILE=='low-velvet':receipt['presetSha256']=LOW_VELVET_SHA;receipt['presetParentSha256']=DREW_CONFIG_SHA
+ if PROFILE=='growl-dry':receipt['sourceReferenceSha256']=GROWL_REFERENCE_SHA;receipt['presetSha256']=DREW_CONFIG_SHA
  if PROFILE=='low-deep-velvet':receipt['presetSha256']=LOW_DEEP_SHA;receipt['presetParentSha256']=DREW_CONFIG_SHA
  if PROFILE=='dry-v2':receipt['presetSha256']=DRY_V2_SHA;receipt['presetParentSha256']=DREW_CONFIG_SHA
  atomic(folder/'receipt.json',receipt);state(folder,**receipt)
